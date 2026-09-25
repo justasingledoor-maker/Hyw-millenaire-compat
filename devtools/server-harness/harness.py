@@ -1602,6 +1602,15 @@ def scenario_G3_15(ctx):
     s.cmd("datapack disable \"file/hwm3test\"", 8)
 
 
+def scenario_G3_perf(ctx):
+    """End of the garrison suite: the perf counters over the whole suite (spawns, slots, events, deploys)."""
+    out = ctx.s.output("hywmill perf", 2)
+    log("G3 suite perf (whole run):\n  " + "\n  ".join(out))
+    rows = perf_rows(out)
+    check("G3 suite perf recorded, incl. garrison.spawn", "garrison.spawn" in rows,
+          " | ".join(f"{k} n={v['n']} mean {v['mean']}us p99 {v['p99']}us max {v['max']}us" for k, v in rows.items() if k.startswith("garrison")))
+
+
 def village_centers(s):
     centers = []
     for l in s.output("hywmill village list", 2):
@@ -1669,6 +1678,8 @@ def scenario_G3_17(ctx):
     check("G3-17 player-owned HYW units in the village are not counted as garrison", g1.get("live") == g0.get("live")
           and c1.get("tagged") == c0.get("tagged") and c1.get("factionOwned") == c0.get("factionOwned"), f"live {g0.get('live')}->{g1.get('live')} census {c0}->{c1}")
     s.cmd("kill @e[tag=hwPO]", 1)
+    fill = s.output("hywmill perf", 2)
+    log("G3-17 perf while filling the garrisons (spawns):\n  " + "\n  ".join(fill))
     # CALM
     s.cmd("hywmill perf reset", 1)
     time.sleep(120)
@@ -1708,9 +1719,9 @@ SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17}
+             "G3_17": scenario_G3_17, "G3_perf": scenario_G3_perf}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
-            "G3_15", "G3_14"]
+            "G3_15", "G3_14", "G3_perf"]
 ORDER = ["status", "H", "B", "N", "C", "D", "I", "W", "L", "F1", "E", "F2", "X", "P", "A", "G"]
 
 

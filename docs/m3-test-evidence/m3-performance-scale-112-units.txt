@@ -1,0 +1,62 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario G3_17
+[harness] G3-17 extra villages: {'militaire': (640, 72, 960), 'byzantine': (400, 71, 450), 'artisans': (1060, 87, 640)}
+[harness] G3-17 grants: [((647, 80, 624), 16, 'Granted 8 x archer to Crèvecoeur les-pâtures; they spawn at the next eligible garrison slo'), ((847, 87, 624), 8, 'Granted 5 x archer to Colombières les-pâtures; they spawn at the next eligible garrison sl'), ((656, 69, 976), 64, 'Granted 58 x archer to Fontenay le-fort; they spawn at the next eligible garrison slot.'), ((420, 70, 470), 16, 'Granted 8 x archer to Arbis; they spawn at the next eligible garrison slot.'), ((1074, 84, 652), 8, 'Granted 4 x archer to Cauvicourt la-forge; they spawn at the next eligible garrison slot.')]
+[harness] PASS G3-17 every garrison filled to its tier cap (no server-wide cap) 5 villages, 112 units alive of caps [16, 8, 64, 16, 8]
+[harness] PASS G3-17 equipmentDrops=false: garrison units have drop chance 0 in every slot 3 units, 18 slot chances, max 0.0
+[harness] PASS G3-17 player-owned HYW units in the village are not counted as garrison live 16->16 census {'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}->{'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}
+[harness] PASS G3-17 recall: deployed units return at once deployed 4 -> 0; ['Recalled 6 deployed unit(s) of Crèvecoeur les-pâtures; deployment stays off until the alert ends.']
+[harness] G3-17 scale: 5 villages, 112 garrison units
+[harness] G3-17 perf CALM 120 s:
+  hywmill perf (per server since start or last reset):
+   defense.update: n=605 mean=2.0us max=52.0us p99=16.1us total=1.2ms
+   garrison.slot: n=62 mean=191.9us max=1115.0us p99=1115.0us total=11.9ms
+   profile.apply: n=60 mean=93.9us max=438.1us p99=438.1us total=5.6ms
+   profile.doctrine: n=60 mean=53.1us max=431.1us p99=431.1us total=3.2ms
+   profile.log: n=60 mean=81.8us max=531.5us p99=531.5us total=4.9ms
+   profile.refresh: n=60 mean=678.7us max=2633.4us p99=2633.4us total=40.7ms
+   profile.snapshot: n=60 mean=445.5us max=1623.6us p99=1623.6us total=26.7ms
+   profile.sweep: n=60 mean=81.3us max=191.3us p99=191.3us total=4.9ms
+   scan.village: n=605 mean=45.0us max=297.2us p99=173.5us total=27.2ms
+   snap.buildings: n=60 mean=102.9us max=402.6us p99=402.6us total=6.2ms
+   snap.gear: n=60 mean=113.3us max=595.4us p99=595.4us total=6.8ms
+   snap.residents: n=60 mean=76.4us max=490.1us p99=490.1us total=4.6ms
+   snap.slots: n=60 mean=57.8us max=198.5us p99=198.5us total=3.5ms
+   snap.village: n=60 mean=63.8us max=344.2us p99=344.2us total=3.8ms
+   tick.total: n=2420 mean=48.3us max=2833.0us p99=650.5us total=117.0ms
+   villages known: 5, with defense state: 5
+   garrison: 5 roster(s), 112 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] G3-17 perf fight 90 s:
+  hywmill perf (per server since start or last reset):
+   defense.update: n=527 mean=54.0us max=6428.9us p99=799.6us total=28.5ms
+   garrison.deploy: n=77 mean=131.2us max=1818.4us p99=1818.4us total=10.1ms
+   garrison.slot: n=50 mean=125.2us max=638.5us p99=638.5us total=6.3ms
+   profile.apply: n=53 mean=82.0us max=323.9us p99=323.9us total=4.3ms
+   profile.doctrine: n=53 mean=36.0us max=234.7us p99=234.7us total=1.9ms
+   profile.log: n=53 mean=69.0us max=181.9us p99=181.9us total=3.7ms
+   profile.refresh: n=53 mean=558.2us max=1624.7us p99=1624.7us total=29.6ms
+   profile.snapshot: n=53 mean=367.5us max=945.5us p99=945.5us total=19.5ms
+   profile.sweep: n=51 mean=67.9us max=188.1us p99=188.1us total=3.5ms
+   scan.village: n=527 mean=59.3us max=1578.7us p99=304.3us total=31.3ms
+   snap.buildings: n=53 mean=88.7us max=229.9us p99=229.9us total=4.7ms
+   snap.gear: n=53 mean=85.9us max=206.6us p99=206.6us total=4.6ms
+   snap.residents: n=53 mean=55.4us max=143.3us p99=143.3us total=2.9ms
+   snap.slots: n=53 mean=51.2us max=173.5us p99=173.5us total=2.7ms
+   snap.village: n=53 mean=61.4us max=401.8us p99=401.8us total=3.3ms
+   tick.total: n=2060 mean=68.2us max=9953.0us p99=607.9us total=140.6ms
+   villages known: 5, with defense state: 5
+   garrison: 5 roster(s), 112 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] PASS G3-17 perf recorded at scale (values in the report) garrison.slot mean 191.9us p99 1115.0us | tick.total mean 48.3us p99 650.5us
+[harness] server stopped
+[harness] RESULT 8/8 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  G3-17 every garrison filled to its tier cap (no server-wide cap)  5 villages, 112 units alive of caps [16, 8, 64, 16, 8]
+  PASS  G3-17 equipmentDrops=false: garrison units have drop chance 0 in every slot  3 units, 18 slot chances, max 0.0
+  PASS  G3-17 player-owned HYW units in the village are not counted as garrison  live 16->16 census {'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}->{'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}
+  PASS  G3-17 recall: deployed units return at once  deployed 4 -> 0; ['Recalled 6 deployed unit(s) of Crèvecoeur les-pâtures; deployment stays off until the alert ends.']
+  PASS  G3-17 perf recorded at scale (values in the report)  garrison.slot mean 191.9us p99 1115.0us | tick.total mean 48.3us p99 650.5us
