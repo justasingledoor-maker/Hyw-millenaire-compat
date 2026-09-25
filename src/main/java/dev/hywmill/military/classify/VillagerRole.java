@@ -1,4 +1,4 @@
-package dev.hywmill.classify;
+package dev.hywmill.military.classify;
 
 /**
  * Military role of one villager type.

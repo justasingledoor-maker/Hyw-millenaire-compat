@@ -1,6 +1,6 @@
 package dev.hywmill.fortification;
 
-import dev.hywmill.classify.BuildingRole;
+import dev.hywmill.military.classify.BuildingRole;
 
 import java.util.Map;
 

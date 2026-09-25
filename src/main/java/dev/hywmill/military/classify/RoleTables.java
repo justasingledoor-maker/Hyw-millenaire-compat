@@ -1,4 +1,4 @@
-package dev.hywmill.classify;
+package dev.hywmill.military.classify;
 
 /**
  * The role table currently loaded from datapacks. Replaced wholesale on every datapack

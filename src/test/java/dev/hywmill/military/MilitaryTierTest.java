@@ -1,7 +1,7 @@
 package dev.hywmill.military;
 
-import dev.hywmill.classify.BuildingRole;
-import dev.hywmill.classify.VillagerRole;
+import dev.hywmill.military.classify.BuildingRole;
+import dev.hywmill.military.classify.VillagerRole;
 import dev.hywmill.fortification.FortificationScore;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package dev.hywmill.classify;
+package dev.hywmill.military.classify;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;

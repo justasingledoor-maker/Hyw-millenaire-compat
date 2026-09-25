@@ -1,7 +1,7 @@
 package dev.hywmill.military;
 
-import dev.hywmill.classify.BuildingRole;
-import dev.hywmill.classify.VillagerRole;
+import dev.hywmill.military.classify.BuildingRole;
+import dev.hywmill.military.classify.VillagerRole;
 
 import java.util.Map;
 

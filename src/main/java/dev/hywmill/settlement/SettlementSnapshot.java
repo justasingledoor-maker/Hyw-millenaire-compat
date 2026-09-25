@@ -1,7 +1,7 @@
 package dev.hywmill.settlement;
 
-import dev.hywmill.classify.BuildingRole;
-import dev.hywmill.classify.VillagerRole;
+import dev.hywmill.military.classify.BuildingRole;
+import dev.hywmill.military.classify.VillagerRole;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 

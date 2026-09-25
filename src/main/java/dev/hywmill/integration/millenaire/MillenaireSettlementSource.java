@@ -1,10 +1,10 @@
 package dev.hywmill.integration.millenaire;
 
-import dev.hywmill.classify.BuildingRole;
-import dev.hywmill.classify.RoleClassifier;
-import dev.hywmill.classify.RoleTable;
-import dev.hywmill.classify.RoleTables;
-import dev.hywmill.classify.VillagerRole;
+import dev.hywmill.military.classify.BuildingRole;
+import dev.hywmill.military.classify.RoleClassifier;
+import dev.hywmill.military.classify.RoleTable;
+import dev.hywmill.military.classify.RoleTables;
+import dev.hywmill.military.classify.VillagerRole;
 import dev.hywmill.settlement.ResidentInfo;
 import dev.hywmill.settlement.SettlementSnapshot;
 import dev.hywmill.settlement.SettlementSource;

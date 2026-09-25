@@ -1,4 +1,4 @@
-package dev.hywmill.classify;
+package dev.hywmill.military.classify;
 
 /**
  * Military role of one building. Fortification points apply to operational buildings only.

@@ -1,10 +1,10 @@
-package dev.hywmill.classify;
+package dev.hywmill.military.classify;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static dev.hywmill.classify.RoleClassifier.VillagerFacts;
+import static dev.hywmill.military.classify.RoleClassifier.VillagerFacts;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
