@@ -1603,88 +1603,27 @@ def scenario_G3_15(ctx):
 
 
 def scenario_G3_17(ctx):
-    """Performance with several populated villages (garrisons spawned): HywMill perf counters."""
+    """Performance with several populated villages (A, B and the M2 extra villages, all with their
+    starting garrisons spawned), CALM then a fight: HywMill perf counters, production logging."""
     s = ctx.s
+    time.sleep(240)  # starting grants spawn throttled (2 per village slot, 2 per tick)
+    total = 0
+    for l in s.output("hywmill village list", 2):
+        pass
+    out0 = s.output("hywmill perf", 2)
+    live = next((l for l in out0 if "garrison:" in l), "")
     s.cmd("hywmill perf reset", 1)
     time.sleep(120)
+    for i in range(2):
+        s.cmd(ground(ctx.a[0] + 6 + i, ctx.a[2] + 6, "summon hundred_years_war:bandit_soldier ~ ~ ~ {Tags:['hwPerf']}"), 1)
+    time.sleep(90)
+    s.cmd("kill @e[tag=hwPerf]", 1)
     out = s.output("hywmill perf", 2)
     ctx.g3_perf = out
+    log("G3-17 garrisons before measuring: " + live)
     log("G3-17 perf:\n  " + "\n  ".join(out))
-    def get(key, field):
-        for l in out:
-            if l.strip().startswith(key + ":"):
-                m = re.search(field + r"[=\s]+([\d.]+)", l)
-                if m:
-                    return float(m[1])
-        return None
-    check("G3-17 perf recorded (see report): garrison.slot / spawn / deploy / event, tick.total", any("garrison.slot" in l for l in out),
-          " | ".join(l.strip() for l in out if "garrison" in l or "tick.total" in l))
-
-
-SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
-             "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
-             "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
-             "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
-             "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17}
-ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
-            "G3_15", "G3_14"]
-ORDER = ["status", "H", "B", "N", "C", "D", "I", "W", "L", "F1", "E", "F2", "X", "P", "A", "G"]
-
-
-def run(d: Path, names, fresh=True):
-    write_configs(d)
-    install_mods(d, [MILLENAIRE_JAR, HYW_JAR, built_jar()])
-    if fresh and (d / "world").exists():
-        shutil.rmtree(d / "world")
-    s = Server(d)
-    ctx = Ctx(s)
-    try:
-        s.start()
-        if fresh:
-            setup(ctx)
-        else:
-            reuse(ctx)
-        for n in (ORDER if names == ["all"] else ORDER_G3 if names == ["garrison"] else names):
-            if ctx.a is None:
-                break
-            log(f"--- scenario {n}")
-            SCENARIOS[n](ctx)
-    finally:
-        s.stop()
-    passed = sum(1 for r in RESULTS if r[1])
-    log(f"RESULT {passed}/{len(RESULTS)} checks passed")
-    for name, ok, detail in RESULTS:
-        print(f"  {'PASS' if ok else 'FAIL'}  {name}  {detail}")
-    return all(r[1] for r in RESULTS)
-
-
-def run_optional(d: Path):
-    """Optional-integration check: hywmill must load and its commands must fail gracefully with
-    neither dependency, with Millénaire only, and with HYW only."""
-    ok = True
-    for label, deps in [("core only", []), ("Millénaire only", [MILLENAIRE_JAR]), ("HYW only", [HYW_JAR])]:
-        write_configs(d)
-        install_mods(d, deps + [built_jar()])
-        if (d / "world").exists():
-            shutil.rmtree(d / "world")
-        s = Server(d)
-        try:
-            s.start()
-            out = []
-            for c in ["hywmill status", "hywmill village list", "hywmill threats", "hywmill incidents 5",
-                      "hywmill admin clear-identities all", "hywmill admin restore-identities all"]:
-                out += s.output(c, 2)
-            time.sleep(12)  # a few ledger/reconciliation intervals
-            lines = s.read_since(s.start_pos)
-            # hywmill's own "X not loaded; its integration is disabled" INFO line is expected here.
-            bad = [l for l in lines if re.search(r"Exception|at dev\.hywmill|/ERROR\].*\[hywmill\]", l)]
-            state = next((l for l in out if l.startswith("hywmill integrations:")), "")
-            check(f"O {label}: loads, commands answer, no errors", not bad and bool(state), state + ("; " + bad[0] if bad else ""))
-            ok &= not bad
-        finally:
-            s.stop()
-    return ok
+    check("G3-17 perf recorded with several populated villages (values in the report)", any("garrison.slot" in l for l in out),
+          live + " | " + " | ".join(l.strip() for l in out if "garrison" in l or "tick.total" in l))
 
 
 def run_migrate3(d: Path, m2_jar: Path):

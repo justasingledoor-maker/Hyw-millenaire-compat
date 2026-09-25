@@ -1,0 +1,19 @@
+[harness] PASS OEK hywmill jar: no Epic Knights dependency, no Epic Knights references 181 entries; referencing classes []
+[harness] server started
+[harness] server stopped
+[harness] PASS OEK HYW's own enableEpicKnightsCompat switched on in HYW's config (HywMill untouched) /tmp/claude-0/-home-user-Hyw-millenaire-compat/8b436e57-ebd4-5714-aad4-2aa236fc998e/scratchpad/harness-server/config/hundredyearswar/hyw_main.json5
+[harness] server started
+[harness] PASS OEK server with Epic Knights: loads, no HywMill errors 
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] PASS OEK garrison units spawned with HYW's Epic Knights equipment (equipment_epic_knights.json) 8 units, 30 magistuarmory items on the first 6
+[harness] server stopped
+[harness] RESULT 7/7 checks passed
+  PASS  OEK hywmill jar: no Epic Knights dependency, no Epic Knights references  181 entries; referencing classes []
+  PASS  OEK HYW's own enableEpicKnightsCompat switched on in HYW's config (HywMill untouched)  /tmp/claude-0/-home-user-Hyw-millenaire-compat/8b436e57-ebd4-5714-aad4-2aa236fc998e/scratchpad/harness-server/config/hundredyearswar/hyw_main.json5
+  PASS  OEK server with Epic Knights: loads, no HywMill errors  
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  OEK garrison units spawned with HYW's Epic Knights equipment (equipment_epic_knights.json)  8 units, 30 magistuarmory items on the first 6
