@@ -110,6 +110,21 @@ class RecruitmentTest {
     }
 
     @Test
+    void allowedAtTierAppliesClassMinTierAndEnabled() {
+        UnitSpec shield = tables.units().get("shieldman");
+        UnitSpec spear = tables.units().get("spear_man");
+        UnitSpec archer = tables.units().get("archer");
+        UnitSpec gun = tables.units().get("matchlock_man");
+        assertFalse(Recruitment.allowedAtTier(shield, MilitaryTier.WATCH, norman));
+        assertFalse(Recruitment.allowedAtTier(shield, MilitaryTier.GUARD_POST, norman));
+        assertTrue(Recruitment.allowedAtTier(shield, MilitaryTier.GARRISON, norman));
+        assertFalse(Recruitment.allowedAtTier(spear, MilitaryTier.WATCH, norman)); // LINE needs GUARD_POST+
+        assertTrue(Recruitment.allowedAtTier(archer, MilitaryTier.WATCH, norman));
+        assertFalse(Recruitment.allowedAtTier(archer, MilitaryTier.NONE, norman));
+        assertFalse(Recruitment.allowedAtTier(gun, MilitaryTier.STRONGHOLD, norman)); // disabled by default
+    }
+
+    @Test
     void gunpowderNeverChosenByDefault() {
         GarrisonTable withGuns = new GarrisonTable(dflt.tiers(), 0, 0.5, 2, Map.of("handgonne_man", 10, "matchlock_man", 10, "archer", 1), "hyw");
         List<UnitSpec> u = Recruitment.eligibleUnits(MilitaryTier.STRONGHOLD, withGuns, tables.units());

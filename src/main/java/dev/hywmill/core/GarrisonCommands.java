@@ -210,6 +210,11 @@ final class GarrisonCommands {
         long tick = src.getServer().overworld().getGameTime();
         GarrisonRoster g = GarrisonService.roster(r, tick);
         GarrisonTable table = GarrisonTables.current().forCulture(r.culture);
+        if (!Recruitment.allowedAtTier(u, r.tier, table)) {
+            src.sendFailure(Component.literal("A " + r.tier + " village may not have '" + key + "' (" + u.unitClass()
+                    + ", minTier " + u.minTier() + (u.enabled() ? "" : ", disabled") + ")."));
+            return 0;
+        }
         int headroom = table.tier(r.tier).maxUnits() - g.live();
         int n = Math.min(count, Math.max(0, headroom));
         for (int i = 0; i < n; i++) {

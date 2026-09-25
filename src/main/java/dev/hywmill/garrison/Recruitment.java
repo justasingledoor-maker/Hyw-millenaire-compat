@@ -66,14 +66,21 @@ public final class Recruitment {
         r.levyPoints = Math.min(cap, r.levyPoints + dailyRate * step / (double) DAY);
     }
 
+    /**
+     * Whether a village of this tier may have this unit at all: enabled, an M3 entity type, the
+     * tier reaches the unit's minTier, and the tier allows its class (e.g. WATCH: LEVY/RANGED only).
+     */
+    public static boolean allowedAtTier(UnitSpec u, MilitaryTier tier, GarrisonTable table) {
+        return u.enabled() && M3_ENTITY_TYPES.contains(u.entityType()) && tier.ordinal() >= u.minTier().ordinal()
+                && table.tier(tier).classes().contains(u.unitClass());
+    }
+
     /** Units a village of this tier may recruit, from the table's composition, in composition order. */
     public static List<UnitSpec> eligibleUnits(MilitaryTier tier, GarrisonTable table, Map<String, UnitSpec> units) {
-        TierRule rule = table.tier(tier);
         List<UnitSpec> out = new ArrayList<>();
         for (String key : table.composition().keySet()) {
             UnitSpec u = units.get(key);
-            if (u != null && u.enabled() && tier.ordinal() >= u.minTier().ordinal() && rule.classes().contains(u.unitClass())
-                    && M3_ENTITY_TYPES.contains(u.entityType())) {
+            if (u != null && allowedAtTier(u, tier, table)) {
                 out.add(u);
             }
         }

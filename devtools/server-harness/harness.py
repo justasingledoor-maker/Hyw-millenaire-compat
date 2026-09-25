@@ -1602,28 +1602,105 @@ def scenario_G3_15(ctx):
     s.cmd("datapack disable \"file/hwm3test\"", 8)
 
 
-def scenario_G3_17(ctx):
-    """Performance with several populated villages (A, B and the M2 extra villages, all with their
-    starting garrisons spawned), CALM then a fight: HywMill perf counters, production logging."""
-    s = ctx.s
-    time.sleep(240)  # starting grants spawn throttled (2 per village slot, 2 per tick)
-    total = 0
+def village_centers(s):
+    centers = []
     for l in s.output("hywmill village list", 2):
-        pass
-    out0 = s.output("hywmill perf", 2)
-    live = next((l for l in out0 if "garrison:" in l), "")
+        m = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=| (-?\d+), (-?\d+), (-?\d+) tier=", l)
+        if m:
+            centers.append(tuple(int(x) for x in m.groups() if x is not None))
+    return centers
+
+
+def perf_rows(out):
+    rows = {}
+    for l in out:
+        m = re.match(r"\s*([\w.]+): n=(\d+) mean=([\d.]+)us max=([\d.]+)us p99=([\d.]+)us total=([\d.]+)ms", l)
+        if m:
+            rows[m[1]] = dict(n=int(m[2]), mean=float(m[3]), max=float(m[4]), p99=float(m[5]), total=float(m[6]))
+    return rows
+
+
+def scenario_G3_17(ctx):
+    """Performance and scale: every known village's garrison filled to its tier cap (admin grant of
+    a unit its tier allows), then 120 s CALM and a fight, with production logging. Also checks
+    recall, equipment drop chances and that player-owned units are not counted."""
+    s = ctx.s
+    extra = ensure_extra_villages(ctx)
+    for name in [k for k, v in extra.items() if v is None]:
+        for attempt in range(3):  # Millénaire rolls the start building; a roll can find no location
+            extra[name] = spawn_village(s, EXTRA_VILLAGES[name], surface=True)
+            if extra[name]:
+                break
+    log(f"G3-17 extra villages: {extra}")
+    time.sleep(30)
+    villages = village_centers(s)
+    granted = []
+    for c in villages:
+        g = garrison(s, c)
+        head = g.get("cap", 0) - g.get("live", 0)
+        if head > 0:
+            out = s.output(at(c, f"hywmill admin grant archer {min(head, 64)}"), 2)
+            granted.append((c, g.get("cap"), " ".join(out)[:90]))
+    log(f"G3-17 grants: {granted}")
+    end = time.time() + 900
+    while time.time() < end:
+        pend = sum(garrison(s, c).get("recruited", 0) for c in villages)
+        if pend == 0:
+            break
+        time.sleep(15)
+    per = {c: garrison(s, c) for c in villages}
+    live = sum(g.get("alive", 0) for g in per.values())
+    caps = sum(g.get("cap", 0) for g in per.values())
+    ctx.g3_scale = (len(villages), live, caps)
+    check("G3-17 every garrison filled to its tier cap (no server-wide cap)", all(g.get("live") == g.get("cap") and g.get("recruited") == 0 for g in per.values()),
+          f"{len(villages)} villages, {live} units alive of caps {[g.get('cap') for g in per.values()]}")
+    # equipment drops disabled on garrison units
+    sample = list(unit_entities(s, ctx.a))[:3]
+    drops = [" ".join(s.output(f"data get entity {u} ArmorDropChances", 1) + s.output(f"data get entity {u} HandDropChances", 1)) for u in sample]
+    nums = [float(x) for d in drops for x in re.findall(r"(-?[\d.]+)f", d)]
+    check("G3-17 equipmentDrops=false: garrison units have drop chance 0 in every slot", sample and nums and all(v == 0.0 for v in nums),
+          f"{len(sample)} units, {len(nums)} slot chances, max {max(nums) if nums else None}")
+    # player-owned units in the village are not garrison
+    g0, c0 = garrison(s, ctx.a), census(s, ctx.a)
+    for i in range(3):
+        s.cmd(ground(ctx.a[0] - 6 + 2 * i, ctx.a[2] + 8, f"summon hundred_years_war:militia ~ ~ ~ {{OwnerUUID:{OWNER_NBT},Tags:['hwPO']}}"), 1)
+    time.sleep(25)
+    g1, c1 = garrison(s, ctx.a), census(s, ctx.a)
+    check("G3-17 player-owned HYW units in the village are not counted as garrison", g1.get("live") == g0.get("live")
+          and c1.get("tagged") == c0.get("tagged") and c1.get("factionOwned") == c0.get("factionOwned"), f"live {g0.get('live')}->{g1.get('live')} census {c0}->{c1}")
+    s.cmd("kill @e[tag=hwPO]", 1)
+    # CALM
     s.cmd("hywmill perf reset", 1)
     time.sleep(120)
-    for i in range(2):
-        s.cmd(ground(ctx.a[0] + 6 + i, ctx.a[2] + 6, "summon hundred_years_war:bandit_soldier ~ ~ ~ {Tags:['hwPerf']}"), 1)
+    calm = s.output("hywmill perf", 2)
+    # fight, with a recall in the middle
+    s.cmd("hywmill perf reset", 1)
+    for i in range(3):
+        s.cmd(ground(ctx.a[0] + 8 + 2 * i, ctx.a[2] + 8, "summon hundred_years_war:bandit_soldier ~ ~ ~ {Tags:['hwPerf']}"), 1)
+    if len(villages) > 2:
+        c = villages[2]
+        for i in range(2):
+            s.cmd(ground(c[0] + 6 + 2 * i, c[2] + 6, "summon hundred_years_war:bandit_soldier ~ ~ ~ {Tags:['hwPerf']}"), 1)
+    dep = 0
+    for _ in range(30):
+        time.sleep(1)
+        dep = garrison(s, ctx.a).get("deployed", 0)
+        if dep > 0:
+            break
+    rec = s.output(at(ctx.a, "hywmill village garrison recall"), 1)
+    after = garrison(s, ctx.a).get("deployed", -1)
+    check("G3-17 recall: deployed units return at once", dep > 0 and after == 0 and any("Recalled" in l for l in rec),
+          f"deployed {dep} -> {after}; {rec}")
     time.sleep(90)
     s.cmd("kill @e[tag=hwPerf]", 1)
-    out = s.output("hywmill perf", 2)
-    ctx.g3_perf = out
-    log("G3-17 garrisons before measuring: " + live)
-    log("G3-17 perf:\n  " + "\n  ".join(out))
-    check("G3-17 perf recorded with several populated villages (values in the report)", any("garrison.slot" in l for l in out),
-          live + " | " + " | ".join(l.strip() for l in out if "garrison" in l or "tick.total" in l))
+    fight = s.output("hywmill perf", 2)
+    ctx.g3_perf = (calm, fight)
+    log("G3-17 scale: %d villages, %d garrison units" % (len(villages), live))
+    log("G3-17 perf CALM 120 s:\n  " + "\n  ".join(calm))
+    log("G3-17 perf fight 90 s:\n  " + "\n  ".join(fight))
+    rows = perf_rows(calm)
+    check("G3-17 perf recorded at scale (values in the report)", "garrison.slot" in rows and "tick.total" in rows,
+          " | ".join(f"{k} mean {v['mean']}us p99 {v['p99']}us" for k, v in rows.items() if k.startswith("garrison") or k == "tick.total"))
 
 
 SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,

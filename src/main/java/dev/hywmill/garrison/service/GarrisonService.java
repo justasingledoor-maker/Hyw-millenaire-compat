@@ -172,12 +172,13 @@ public final class GarrisonService {
         }
         v.lastBlocker = blocker.name();
 
+        r.pruneTerminal(tick, s.terminalRetention());
+        ledger.setDirty();
+        // the slot's own work; spawning is measured per unit as garrison.spawn
+        perf.stop("garrison.slot", t0);
         if (s.enabled() && settled && (alert == AlertState.CALM || alert == AlertState.RECOVERY)) {
             spawnPending(overworld, rec, r, table, tables, units, s, tick, s.spawnsPerSlot());
         }
-        r.pruneTerminal(tick, s.terminalRetention());
-        ledger.setDirty();
-        perf.stop("garrison.slot", t0);
     }
 
     /** The village's roster, created on first use (new village or migrated from ledger format 3). */
