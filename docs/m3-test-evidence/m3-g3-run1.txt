@@ -1,0 +1,74 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario G3_1
+[harness] PASS G3-1 A starting grant = ceil(target/2) = 8, all spawned Garrison: 8/16 (tier cap 16) | alive 8, recruited 0, missing 0, deployed 0, returning 0 | levy 0.23/6 (+5.50/day) | equipment level 1; Starting grant: done | next recruit: now | last slot: POINTS | settled true | alert CALM
+[harness] PASS G3-1 A census: one tagged entity per slot, faction-owned {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}
+[harness] PASS G3-1 B starting grant = ceil(target/2) = 3, all spawned Garrison: 3/6 (tier cap 8) | alive 3, recruited 0, missing 0, deployed 0, returning 0 | levy 0.06/4 (+2.50/day) | equipment level 0; Starting grant: done | next recruit: now | last slot: POINTS | settled true | alert CALM
+[harness] PASS G3-1 B census: one tagged entity per slot, faction-owned {'tagged': 3, 'slots': 3, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 3, 'live': 3, 'bound': 3}
+[harness] PASS G3-1 units: HYW OwnerUUID = village faction (never a player), supply off, no despawn, tier equipment level 8 units, tier level 1; e.g. hundred_years_war:spear_man owner=bf389742-adf3-3530-b91c-77ff7cb642e1 equipment=1 home=647, 80, 636 supply=false despawn=false
+[harness] server stopped
+[harness] server started
+[harness] PASS G3-1 no second grant after restart Garrison: 8/16 (tier cap 16) | alive 8, recruited 0, missing 0, deployed 0, returning 0 | levy 0.55/6 (+5.50/day) | equipment level 1; Starting grant: done | next recruit: now | last slot: POINTS | settled true | alert CALM
+[harness] --- scenario G3_2
+[harness] PASS G3-2 garrison never attacks its own residents []
+[harness] PASS G3-2 residents never attack their garrison []
+[harness] PASS G3-2 garrison owner == residents' relation marker == village faction marker bf389742-adf3-3530-b91c-77ff7cb642e1 faction bf389742-adf3-3530-b91c-77ff7cb642e1
+[harness] --- scenario G3_3
+[harness] PASS G3-3 player-owned units passing through: no garrison target, no deployment, unharmed targets [] deployed 0 health [20.0] -> 20.0
+[harness] PASS G3-3 village <-> unit owner stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] --- scenario G3_4
+[harness] PASS G3-4 an attacker and a civilian 186db173-898e-4c3e-b1cc-6522ed6e416d d757834a-3988-4499-8c15-27f3eb06d9ed
+[harness] PASS G3-4 garrison deployed on the attacker with temporary HYW hostility, within commitPerThreat deployed 2, targeting 1, temp ['true'], alert ENGAGED
+[harness] PASS G3-4 after the threat: units return (RETURNING -> GARRISONED) Garrison: 8/16 (tier cap 16) | alive 8, recruited 0, missing 0, deployed 0, returning 0 | levy 1.19/6 (+5.50/day) | equipment level 1
+[harness] PASS G3-4 relation stays NEUTRAL (ALWAYS_REVERT) ('NEUTRAL', 'NEUTRAL')
+[harness] --- scenario G3_5
+[harness] PASS G3-5 zombie is handled (HYW native targeting of monsters) without HywMill deployment zombie alive False, max deployed 0
+[harness] --- scenario G3_6
+[harness] PASS G3-6 garrison fights the unowned bandit 9 garrison hits, max deployed 2, bandit dead True
+[harness] PASS G3-6 garrison never hits residents []
+[harness] --- scenario G3_7
+[harness] server stopped
+[harness] server started
+[harness] server stopped
+[harness] server started
+[harness] server stopped
+[harness] server started
+[harness] PASS G3-7 three restarts: identical census, zero spawns, zero duplicates before {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}; #1: tagged 8 dup 0 unbound 0 spawns 0 recruited-pending 0 | #2: tagged 8 dup 0 unbound 0 spawns 0 recruited-pending 0 | #3: tagged 8 dup 0 unbound 0 spawns 0 recruited-pending 0
+[harness] --- scenario G3_8
+[harness] PASS G3-8 two garrisoned slots to rewind [{'slot': 'cdbacd58', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '79222616'}, {'slot': '2e1cf863', 'unit': 'crossbowman', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': 'bd4a66a5'}, {'slot': 'd8b80543', 'unit': 'militia', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '839546f8'}, {'slot': '62ef76b8', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': 'fea127b2'}, {'slot': '7f6a8995', 'unit': 'archer', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '389fc329'}, {'slot': '0a6c92a5', 'unit': 'crossbowman', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': 'f17a6a14'}, {'slot': '6de9879d', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '2db9a49e'}, {'slot': 'cece72ed', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '460551cf'}]
+[harness] PASS G3-8 loaded: spawn refused, slot adopts its unit, census unchanged {'slot': 'cdbacd58', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '79222616'} census {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8} -> {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}
+[harness] FAIL G3-8 unloaded: respawn reuses the slot's UUID; the stale copy is refused on chunk load; one unit per slot spawn-now ['spawn-now: 1 unit(s) spawned for Saint-Georges les-pâtures']; refusal [20:26:23] [Server thread/WARN] [minecraft/PersistentEntitySectionManager]: UUID of added entity already exists: CrossbowmanEntity['Crossbowman'/376, l='ServerLevel[world]', x=1228.24, y=62.59, z=1210.24]; census {'tagged': 9, 'slots': 9, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 9, 'live': 9, 'bound': 9}
+[harness] --- scenario G3_9
+[harness] PASS G3-9 a garrisoned unit 
+[harness] FAIL G3-9 unloaded unit: still bound before the grace, MISSING after it (never DEAD), no replacement states MISSING -> MISSING; live 9 -> 9
+[harness] PASS G3-9 unit loaded again: RECOVERED -> GARRISONED, same slot and entity GARRISONED
+[harness] --- scenario G3_10
+[harness] PASS G3-10 a unit to kill 
+[harness] PASS G3-10 killed unit: DEAD(KILLED), no respawn of that slot {'slot': 'cdbacd58', 'unit': 'spear_man', 'lvl': 1, 'state': 'DEAD', 'reason': 'KILLED', 'gen': 1, 'entity': '79222616'}
+[harness] PASS G3-10 replacement only after the cooldown, as a new paid slot (levy spent) early=False; new [{'slot': '6cb0e4c2', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '1d1ff1a3'}]; levy 4.32
+[harness] --- scenario G3_11
+[harness] PASS G3-11 a unit to capture 
+[harness] PASS G3-11 owner mismatch -> LOST(CAPTURED); owner not rewritten; tag removed {'slot': '2e1cf863', 'unit': 'crossbowman', 'lvl': 1, 'state': 'LOST', 'reason': 'CAPTURED', 'gen': 1, 'entity': 'bd4a66a5'} {'dim': 'minecraft:overworld', 'pos': (648, 79, 636), 'desc': 'hundred_years_war:crossbowman owner=11111111-2222-4333-8444-555555555555 equipment=1 home=647, 80, 636 supply=false despawn=false', 'tag': 'none', 'target': 'none', 'temp': None}
+[harness] --- scenario G3_12
+[harness] FAIL G3-12 controller set by Millénaire; faction and every unit owner unchanged controller None; 3 units
+[harness] server stopped
+Traceback (most recent call last):
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 1835, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 1831, in main
+    return 0 if run(a.dir, a.scenarios, fresh=not a.keep_world) else 1
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 1633, in run
+    SCENARIOS[n](ctx)
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 1515, in scenario_G3_12
+    paused = any("[runas " + ctl[:8] + "]" in l and "paused" in l for l in lines)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 1515, in <genexpr>
+    paused = any("[runas " + ctl[:8] + "]" in l and "paused" in l for l in lines)
+                             ~~~^^^^
+TypeError: 'NoneType' object is not subscriptable

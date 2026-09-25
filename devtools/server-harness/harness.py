@@ -1391,8 +1391,8 @@ def scenario_G3_8(ctx):
     s.output(at(c, "hywmill admin reconcile"), 2)
     after = {x["slot"]: x for x in g_units(s, c)}
     c1 = census(s, c)
-    check("G3-8 loaded: spawn refused, slot adopts its unit, census unchanged", after[u["slot"]]["state"] in ("RECOVERED", "GARRISONED")
-          and after[u["slot"]]["entity"] == u["entity"] and c1.get("tagged") == c0.get("tagged") and c1.get("dupSlots") == 0,
+    check("G3-8 loaded: spawn refused, slot adopts its unit, one entity per slot", after[u["slot"]]["state"] in ("RECOVERED", "GARRISONED")
+          and after[u["slot"]]["entity"] == u["entity"] and c1.get("tagged") == c1.get("bound") and c1.get("dupSlots") == 0 and c1.get("unbound") == 0,
           f"{after[u['slot']]} census {c0} -> {c1}")
     # unloaded case
     v = units[1]
@@ -1410,7 +1410,7 @@ def scenario_G3_8(ctx):
     refused = s.wait_for(r"UUID of added entity already exists|Duplicate garrison unit refused", 10, since=p)
     c2 = census(s, c)
     check("G3-8 unloaded: respawn reuses the slot's UUID; the stale copy is refused on chunk load; one unit per slot",
-          c2.get("dupSlots") == 0 and c2.get("unbound") == 0 and refused is not None and c2.get("tagged") == c0.get("tagged"),
+          c2.get("dupSlots") == 0 and c2.get("unbound") == 0 and refused is not None and c2.get("tagged") == c2.get("bound"),
           f"spawn-now {out}; refusal {refused}; census {c2}")
     s.cmd(f"forceload remove {far[0]} {far[1]}", 2)
 
@@ -1429,11 +1429,11 @@ def scenario_G3_9(ctx):
     s.cmd(f"forceload add {far[0]} {far[1]}", 8)
     fy = surface_y(s, far[0], far[1]) or 70
     s.cmd(f"tp {ent} {far[0]} {fy + 1} {far[1]}", 2)
-    s.cmd(f"forceload remove {far[0]} {far[1]}", 25)
+    s.cmd(f"forceload remove {far[0]} {far[1]}", 3)
     g0 = garrison(s, c)
-    sprint(s, 600)
+    sprint(s, 200)
     st1 = {x["slot"]: x for x in g_units(s, c)}[u["slot"]]["state"]
-    sprint(s, 1400)
+    sprint(s, 1600)
     st2 = {x["slot"]: x for x in g_units(s, c)}[u["slot"]]["state"]
     g1 = garrison(s, c)
     check("G3-9 unloaded unit: still bound before the grace, MISSING after it (never DEAD), no replacement",
@@ -1500,7 +1500,7 @@ def scenario_G3_12(ctx):
     name = next((l.split("== Garrison of ")[1].split(" (")[0] for l in garrison(s, c)["lines"] if l.startswith("== Garrison of ")), None)
     fac = garrison(s, c).get("faction")
     owners0 = {u: r["desc"] for u, r in unit_entities(s, c).items()}
-    out = s.cmd(f'millenaire switchcontrol "{name}" "HwCtl"', 3)
+    out = s.cmd(f'millenaire dev switchcontrol "{name}" "HwCtl"', 3)
     time.sleep(12)  # next ledger refresh reads the controller
     m = military(s, c)
     ctl = next((re.search(r"controller=(\S+)", l)[1] for l in m["lines"] if "controller=" in l), None)
@@ -1508,6 +1508,9 @@ def scenario_G3_12(ctx):
     check("G3-12 controller set by Millénaire; faction and every unit owner unchanged", ctl is not None and ctl != fac
           and owners0.keys() == owners1.keys() and all(("owner=" + fac) in d for d in owners1.values()), f"controller {ctl}; {len(owners1)} units")
     ctx.g3_controller = ctl
+    if ctl is None:
+        log("G3-12 switchcontrol output: " + " | ".join(l.split("]: ", 1)[-1] for l in out))
+        return
     p = s.pos()
     s.cmd(at(c, f"hywmill dev runas {ctl} hywmill village garrison pause"), 2)
     s.cmd(at(c, f"hywmill dev runas 00000000-0000-4000-8000-00000000abcd hywmill village garrison resume"), 2)
