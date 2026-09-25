@@ -816,6 +816,7 @@ def scenario_X(ctx):
     """M2-1 classification, M2-2 capacity (cross-checked against Millénaire's own JSON), M2-3 doctrine."""
     import json
     s = ctx.s
+    s.cmd("hywmill perf reset", 1)  # the fill-phase readout below then covers only this scenario's spawning
     extra = ensure_extra_villages(ctx)
     check("X0 extra villages spawned", all(extra.values()), str(extra))
     table = {}
@@ -884,6 +885,7 @@ def scenario_X(ctx):
 def scenario_P(ctx):
     """M2-11: scheduler/scan cost with >= 5 active villages and ~20 HYW units."""
     s = ctx.s
+    s.cmd("hywmill perf reset", 1)  # the fill-phase readout below then covers only this scenario's spawning
     extra = ensure_extra_villages(ctx)
     villages = [ctx.a, ctx.b] + [v for v in extra.values() if v]
     for i, c in enumerate(villages[:2]):
@@ -1356,24 +1358,27 @@ def scenario_G3_6(ctx):
 
 
 def scenario_G3_7(ctx):
-    """Restart x3: the same units reload once; nothing is spawned for bound slots; no duplicates."""
+    """Restart x3: the same units reload once; no slot that existed before a restart is spawned again
+    (a new paid recruit after a restart is normal recruitment); no duplicates; no unbound units."""
     s = ctx.s
     c = ctx.a
     wait_garrison(s, c, lambda g: g.get("recruited", 1) == 0, 60)
     c0 = census(s, c)
-    g0 = garrison(s, c)
     ok = True
     details = []
     for i in range(3):
+        before = {u["slot"] for u in g_units(s, c) if u["state"] not in ("DEAD", "LOST", "RECRUITED")}
         restart(ctx)
         time.sleep(45)  # > settle + a few slots
         c1 = census(s, c)
-        spawned = [l for l in s.read_since(s.start_pos) if "Garrison unit spawned for village" in l and "Détroit" not in "x"]
-        g1 = garrison(s, c)
-        details.append(f"#{i + 1}: tagged {c1.get('tagged')} dup {c1.get('dupSlots')} unbound {c1.get('unbound')} spawns {len(spawned)} recruited-pending {g1.get('recruited')}")
-        ok &= c1.get("tagged") == c0.get("tagged") and c1.get("dupSlots") == 0 and c1.get("unbound") == 0 and not spawned
-    check("G3-7 three restarts: identical census, zero spawns, zero duplicates", ok, f"before {c0}; " + " | ".join(details))
-
+        spawned = [re.search(r": ([0-9a-f]{8}) ", l.split("Garrison unit spawned for village")[1])[1]
+                   for l in s.read_since(s.start_pos) if "Garrison unit spawned for village" in l]
+        respawned = [x for x in spawned if x in before]
+        details.append(f"#{i + 1}: tagged {c1.get('tagged')} bound {c1.get('bound')} dup {c1.get('dupSlots')} unbound {c1.get('unbound')} "
+                       f"spawns {len(spawned)} (new slots {len(spawned) - len(respawned)}, existing slots {len(respawned)})")
+        ok &= not respawned and c1.get("tagged") == c1.get("bound") and c1.get("dupSlots") == 0 and c1.get("unbound") == 0 \
+            and c1.get("tagged", 0) >= c0.get("tagged", 0)
+    check("G3-7 three restarts: no existing slot respawned, one entity per slot, no duplicates", ok, f"before {c0}; " + " | ".join(details))
 
 def scenario_G3_8(ctx):
     """Stale roster: rewind a live slot to RECRUITED (as a save written before its spawn would show).
@@ -1634,6 +1639,7 @@ def scenario_G3_17(ctx):
     a unit its tier allows), then 120 s CALM and a fight, with production logging. Also checks
     recall, equipment drop chances and that player-owned units are not counted."""
     s = ctx.s
+    s.cmd("hywmill perf reset", 1)  # the fill-phase readout below then covers only this scenario's spawning
     extra = ensure_extra_villages(ctx)
     for name in [k for k, v in extra.items() if v is None]:
         for attempt in range(3):  # Millénaire rolls the start building; a roll can find no location
