@@ -204,7 +204,7 @@ final class MillenaireSettlementSource implements SettlementSource {
             VillagerGoal goal = gs != null ? gs.getCurrentGoal() : null;
             String goalDesc = goal == null ? "none" : goal.id() + (goal instanceof BridgeDecorator ? "(bridged)" : "");
             String target = mv.getAttackTarget() == null ? "none" : mv.getAttackTarget().getType().toShortString();
-            lines.add(e.getUUID().toString().substring(0, 8) + " " + mv.getVillagerTypeId() + " " + role
+            lines.add(e.getUUID().toString() + " " + mv.getVillagerTypeId() + " " + role
                     + " goal=" + goalDesc + " attackTarget=" + target
                     + " hp=" + (int) mv.getHealth() + " @" + mv.blockPosition().toShortString());
         }

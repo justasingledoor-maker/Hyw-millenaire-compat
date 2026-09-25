@@ -47,6 +47,17 @@ neoForge {
 
 dependencies {
     compileOnly files(millenaireJar, hywJar)
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Pure-logic unit tests (formulas, classification, identity contracts). They must not need
+// Millénaire or HYW on the classpath; anything touching foreign classes is tested on the server.
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    testLogging { events 'passed', 'failed', 'skipped'; exceptionFormat 'full' }
 }
 
 // Dev runs: FML loads production mod jars from <runDir>/mods, which is how the two
