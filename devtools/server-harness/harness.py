@@ -374,7 +374,7 @@ def scenario_A(ctx):
     s.stop()
     s.start()
     time.sleep(15)
-    loaded = s.wait_for(r"Garrison ledger loaded: \d+ village.*format 3", 30, since=s.start_pos)
+    loaded = s.wait_for(r"Garrison ledger loaded: \d+ village.*format [34]", 30, since=s.start_pos)
     after = info(s, ctx.a)
     check("A4 ledger reloaded from disk", loaded is not None, loaded or "")
     check("A5-6 same VillageId and faction after restart",
