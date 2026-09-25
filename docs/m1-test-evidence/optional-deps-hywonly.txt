@@ -1,0 +1,7 @@
+[02:08:13] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] millenaire not loaded; its integration is disabled.
+[02:08:13] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).
+[02:08:13] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] hundred_years_war integration enabled.
+[02:08:13] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Initialized. Integrations: {millenaire=absent (integration disabled), hundred_years_war=enabled}
+[02:08:25] [Server thread/INFO] [minecraft/DedicatedServer]: Done (9.164s)! For help, type "help"
+[02:08:38] [Server thread/INFO] [minecraft/MinecraftServer]: hywmill integrations: {millenaire=absent (integration disabled), hundred_years_war=enabled}
+[02:08:38] [Server thread/INFO] [minecraft/MinecraftServer]: settlement source: none, faction service: HYW

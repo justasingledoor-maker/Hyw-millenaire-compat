@@ -1,0 +1,302 @@
+# Run 1 (first start, discovery, TEST C, TEST B, TEST D hits)
+[01:32:13] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire settlement source registered; goal bridge scheduled for ServerStartedEvent (LOW).
+[01:32:13] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] millenaire integration enabled.
+[01:32:13] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).
+[01:32:13] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] hundred_years_war integration enabled.
+[01:32:13] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Initialized. Integrations: {millenaire=enabled, hundred_years_war=enabled}
+[01:32:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:engage_target org.millenaire.goal.impl.EngageTargetGoal -> EngageTargetDecorator
+[01:32:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hunt_monster org.millenaire.goal.impl.HuntMonsterGoal -> HuntMonsterDecorator
+[01:32:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hide org.millenaire.goal.impl.HideGoal -> HideDecorator
+[01:32:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Re-initialized goals of 0 already-loaded Mill?naire villager(s) so they use the bridged goals.
+[01:32:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal bridge status: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[01:36:28] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: cfc9d345-c509-46b7-b3a3-9d7e619f4061 (millenaire:norman/guildmaster) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:36:28] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 1
+[01:36:28] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 3b080c0a-7b35-45cd-815f-5bf16864d149 (millenaire:norman/lumberman) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:36:28] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 5eae6416-6e3c-4b23-b484-7e243662f90a (millenaire:norman/wife) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:36:28] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 43a0e109-d8cc-4673-a9a5-e2534c47dbc0 (millenaire:norman/farmer) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:36:28] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 55174eb1-97b2-456a-b2d9-ba38cef9013c (millenaire:norman/wife) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:36:28] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 08a1888c-7ed1-4449-af5b-87d26c5f8298 (millenaire:norman/carpenter) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:36:28] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: fcb7156c-b315-4c20-8733-e492528ef942 (millenaire:norman/wife) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:36:28] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 4e2558d7-3f28-4ca5-bf58-489bb836a569 (millenaire:norman/miner) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:36:28] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: b011c3ba-00a4-49f2-970a-46ff001eafe9 (millenaire:norman/wife) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:36:31] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: b1b5a719-732a-4f51-8578-587f9b07fafd (?) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:36:31] [Server thread/INFO] [or.mi.wo.VillageSpawner/]: [Millenaire] Village f7edd961 spawned: 83 buildings, completion=0%
+[01:36:31] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hunt_monster is live (first canStart call observed).
+[01:36:31] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:engage_target is live (first canStart call observed).
+[01:36:31] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hide is live (first canStart call observed).
+[01:36:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village discovered: 'Douvres la-forge' f7edd961-3e4b-4b15-8583-ecbdac270e4a at 630, 82, 612 (active=true)
+[01:36:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ledger record created for village f7edd961-3e4b-4b15-8583-ecbdac270e4a (faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8)
+[01:36:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record initialized: 'Douvres la-forge' tier=GUARD_POST garrison=5 population=9 defending=90 fortification=12 tags={patrol=4, armoury=0, training=0, wall_level_0=0, wall_level_1=0, wall_level_2=0} walls=0 towers=0 defensive=4 militaryPlans=[]
+[01:38:38] [Server thread/INFO] [minecraft/MinecraftServer]: == Douvres la-forge (millenaire:norman / millenaire:norman/artisans) at 630, 82, 612, 0 blocks away, active=true
+[01:38:38] [Server thread/INFO] [minecraft/MinecraftServer]: VillageId: f7edd961-3e4b-4b15-8583-ecbdac270e4a
+[01:38:38] [Server thread/INFO] [minecraft/MinecraftServer]: Faction UUID (synthetic): 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8
+[01:38:38] [Server thread/INFO] [minecraft/MinecraftServer]: Tier: GUARD_POST | garrison: 5 | population: 9 (adults 9)
+[01:38:38] [Server thread/INFO] [minecraft/MinecraftServer]: Defending strength (Mill?naire): 90 | fortification: 12
+[01:38:38] [Server thread/INFO] [minecraft/MinecraftServer]: Buildings: tags={patrol=4, armoury=0, training=0, wall_level_0=0, wall_level_1=0, wall_level_2=0} walls=0 towers=0 defensive=4 operational=19
+[01:38:38] [Server thread/INFO] [minecraft/MinecraftServer]: Military plans: [] | town hall: millenaire:norman/guildhouse
+[01:38:38] [Server thread/INFO] [minecraft/MinecraftServer]: Residents loaded/marked at last update: 9/9 | last update tick 7000 (#13), first seen 4600
+[01:38:38] [Server thread/INFO] [minecraft/MinecraftServer]: Threats now: 0
+[01:38:47] [Server thread/INFO] [minecraft/MinecraftServer]: Loaded residents of Douvres la-forge: 9
+[01:38:47] [Server thread/INFO] [minecraft/MinecraftServer]:  cfc9d345 millenaire:norman/guildmaster DEFENDER goal=millenaire:chat attackTarget=none hp=20 @636, 81, 605
+[01:38:47] [Server thread/INFO] [minecraft/MinecraftServer]:  3b080c0a millenaire:norman/lumberman DEFENDER goal=millenaire:plant_saplings attackTarget=none hp=20 @688, 86, 667
+[01:38:47] [Server thread/INFO] [minecraft/MinecraftServer]:  5eae6416 millenaire:norman/wife CIVILIAN goal=millenaire:craft_pathdirt attackTarget=none hp=20 @654, 80, 632
+[01:38:47] [Server thread/INFO] [minecraft/MinecraftServer]:  43a0e109 millenaire:norman/farmer DEFENDER goal=millenaire:gather_goods attackTarget=none hp=20 @708, 79, 635
+[01:38:47] [Server thread/INFO] [minecraft/MinecraftServer]:  55174eb1 millenaire:norman/wife CIVILIAN goal=millenaire:craft_dirtwall attackTarget=none hp=20 @708, 79, 635
+[01:38:47] [Server thread/INFO] [minecraft/MinecraftServer]:  08a1888c millenaire:norman/carpenter DEFENDER goal=none attackTarget=none hp=20 @635, 81, 603
+[01:38:47] [Server thread/INFO] [minecraft/MinecraftServer]:  fcb7156c millenaire:norman/wife CIVILIAN goal=millenaire:craft_strawbed attackTarget=none hp=20 @632, 81, 632
+[01:38:47] [Server thread/INFO] [minecraft/MinecraftServer]:  4e2558d7 millenaire:norman/miner DEFENDER goal=millenaire:mine_stone attackTarget=none hp=20 @699, 84, 649
+[01:38:47] [Server thread/INFO] [minecraft/MinecraftServer]:  b011c3ba millenaire:norman/wife CIVILIAN goal=millenaire:craft_pathslabs attackTarget=none hp=20 @699, 84, 649
+[01:38:58] [Server thread/INFO] [minecraft/MinecraftServer]: Summoned new Bandit Soldier
+[01:38:58] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Threat detected in village 'Douvres la-forge': bandit_soldier[30faa2c3 owner=null][HYW_ENEMY]
+[01:38:58] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager cfc9d345-c509-46b7-b3a3-9d7e619f4061 (millenaire:norman/guildmaster) selects HYW target bandit_soldier[30faa2c3 owner=null] via hunt_monster
+[01:38:58] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for cfc9d345-c509-46b7-b3a3-9d7e619f4061 (reason=INTERRUPTED, ticks=0, attacks=0)
+[01:38:58] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 5eae6416-6e3c-4b23-b484-7e243662f90a (millenaire:norman/wife) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[01:38:58] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager 08a1888c-7ed1-4449-af5b-87d26c5f8298 (millenaire:norman/carpenter) selects HYW target bandit_soldier[30faa2c3 owner=null] via hunt_monster
+[01:38:58] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian fcb7156c-b315-4c20-8733-e492528ef942 (millenaire:norman/wife) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[01:38:58] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for 08a1888c-7ed1-4449-af5b-87d26c5f8298 (reason=INTERRUPTED, ticks=1, attacks=0)
+[01:38:59] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ongoing threat in village 'Douvres la-forge': bandit_soldier[30faa2c3 owner=null][HYW_ENEMY]
+[01:39:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager hits HYW entity: cfc9d345-c509-46b7-b3a3-9d7e619f4061 (millenaire:norman/guildmaster) -> bandit_soldier[30faa2c3 owner=null] (dmg=2.3449998)
+[01:39:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager cfc9d345-c509-46b7-b3a3-9d7e619f4061 landed first attack on HYW target 30faa2c3-6f96-4f84-9b57-9d12bfe6d66b
+[01:39:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager hits HYW entity: 08a1888c-7ed1-4449-af5b-87d26c5f8298 (millenaire:norman/carpenter) -> bandit_soldier[30faa2c3 owner=null] (dmg=2.72)
+[01:39:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager 08a1888c-7ed1-4449-af5b-87d26c5f8298 landed first attack on HYW target 30faa2c3-6f96-4f84-9b57-9d12bfe6d66b
+[01:39:01] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] HYW entity attacks Mill?naire villager: bandit_soldier[30faa2c3 owner=null] -> cfc9d345-c509-46b7-b3a3-9d7e619f4061 (millenaire:norman/guildmaster) of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (inherentlyHostile=true, dmg=0.5)
+[01:39:05] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for cfc9d345-c509-46b7-b3a3-9d7e619f4061 (reason=COMPLETED, ticks=137, attacks=5)
+[01:39:05] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for 08a1888c-7ed1-4449-af5b-87d26c5f8298 (reason=COMPLETED, ticks=136, attacks=4)
+[01:39:05] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Threat cleared in village 'Douvres la-forge'
+[01:39:05] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 5eae6416-6e3c-4b23-b484-7e243662f90a leaves hide behavior (reason=COMPLETED, ticks=141)
+[01:39:05] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian fcb7156c-b315-4c20-8733-e492528ef942 leaves hide behavior (reason=COMPLETED, ticks=141)
+[01:39:50] [Server thread/INFO] [minecraft/MinecraftServer]: Summoned new Militia
+[01:40:50] [Server thread/INFO] [minecraft/MinecraftServer]: 4dfb83d2-c52a-4859-9515-1e634f50ecbd resident=no marker=null relationId=11111111-2222-4333-8444-555555555555 unit=militia[4dfb83d2 owner=11111111] target=none
+[01:40:52] [Server thread/INFO] [minecraft/MinecraftServer]: Threats in Douvres la-forge: 0
+[01:41:05] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Player [hywmill-test] hits HYW entity militia[4dfb83d2 owner=11111111] (dmg=1.0)
+[01:41:05] [Server thread/INFO] [minecraft/MinecraftServer]: fake player hit 4dfb83d2-c52a-4859-9515-1e634f50ecbd hurt=true tempHostile(unit->fakePlayer)=true unitTarget=none
+[01:41:07] [Server thread/INFO] [minecraft/MinecraftServer]: fake player hit 4dfb83d2-c52a-4859-9515-1e634f50ecbd hurt=true tempHostile(unit->fakePlayer)=true unitTarget=none
+[01:41:09] [Server thread/INFO] [minecraft/MinecraftServer]: fake player hit 4dfb83d2-c52a-4859-9515-1e634f50ecbd hurt=true tempHostile(unit->fakePlayer)=true unitTarget=none
+
+# Run 2 (restart, TEST A persistence, escalation guard, TEST E, TEST F, raid)
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Loading BaseCombatEntity target list...
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Found existing target_list.json5
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Loaded target list: [minecraft:zombie, minecraft:skeleton, minecraft:spider]
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Finished loading BaseCombatEntity target list
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Loading target blacklist...
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Found existing target_blacklist.json5
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Loaded target blacklist: [minecraft:villager, minecraft:iron_golem, guardvillagers:guard, minecolonies:citizen, touhou_little_maid:maid]
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Finished loading target blacklist
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Loading hostile target list...
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Found existing hostile_target_list.json5
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Loaded hostile target list: [minecraft:villager, minecraft:iron_golem]
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Finished loading hostile target list
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Loading hostile target blacklist...
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Found existing hostile_target_blacklist.json5
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Loaded hostile target blacklist: [minecraft:villager, minecraft:iron_golem, guardvillagers:guard, minecolonies:citizen]
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Finished loading hostile target blacklist
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Loading experience blacklist...
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Found existing exp_blacklist.json5
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Loaded experience blacklist: [minecraft:silverfish]
+[01:44:23] [modloading-worker-0/INFO] [HundredYearsWar/]: Finished loading experience blacklist
+[01:44:23] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire settlement source registered; goal bridge scheduled for ServerStartedEvent (LOW).
+[01:44:23] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] millenaire integration enabled.
+[01:44:23] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).
+[01:44:23] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] hundred_years_war integration enabled.
+[01:44:23] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Initialized. Integrations: {millenaire=enabled, hundred_years_war=enabled}
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Found existing target_list.json5
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded target list: [minecraft:zombie, minecraft:skeleton, minecraft:spider]
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Found existing target_blacklist.json5
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded target blacklist: [minecraft:villager, minecraft:iron_golem, guardvillagers:guard, minecolonies:citizen, touhou_little_maid:maid]
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Found existing hostile_target_list.json5
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded hostile target list: [minecraft:villager, minecraft:iron_golem]
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Found existing hostile_target_blacklist.json5
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded hostile target blacklist: [minecraft:villager, minecraft:iron_golem, guardvillagers:guard, minecolonies:citizen]
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Found existing exp_blacklist.json5
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded experience blacklist: [minecraft:silverfish]
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded 0 first-join player records
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: RelationSystem: loaded damage record data
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: RelationSystem: loaded immunity record data
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: RelationSystem: loaded relation data for 2 objects
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loading recruitment configs...
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded config: melee_infantry
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded config: melee_cavalry
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded config: ranged_infantry
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded config: ranged_cavalry
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded config: siege
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded config: worker
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded config: special
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Loaded config: generic
+[01:44:30] [Server thread/INFO] [HundredYearsWar/]: Finished loading recruitment configs
+[01:44:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:engage_target org.millenaire.goal.impl.EngageTargetGoal -> EngageTargetDecorator
+[01:44:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hunt_monster org.millenaire.goal.impl.HuntMonsterGoal -> HuntMonsterDecorator
+[01:44:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hide org.millenaire.goal.impl.HideGoal -> HideDecorator
+[01:44:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Re-initialized goals of 0 already-loaded Mill?naire villager(s) so they use the bridged goals.
+[01:44:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal bridge status: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[01:44:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 5e245bbd-030a-49e4-9a5f-2db1eeeebb5c (?) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:44:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 1
+[01:44:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hide is live (first canStart call observed).
+[01:44:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:engage_target is live (first canStart call observed).
+[01:44:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hunt_monster is live (first canStart call observed).
+[01:44:39] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 1 village record(s), format 1, faction-id mismatches corrected: 0
+[01:44:58] [Server thread/INFO] [minecraft/MinecraftServer]: == Douvres la-forge (millenaire:norman / millenaire:norman/artisans) at 630, 82, 612, 0 blocks away, active=true
+[01:44:58] [Server thread/INFO] [minecraft/MinecraftServer]: VillageId: f7edd961-3e4b-4b15-8583-ecbdac270e4a
+[01:44:58] [Server thread/INFO] [minecraft/MinecraftServer]: Faction UUID (synthetic): 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8
+[01:44:58] [Server thread/INFO] [minecraft/MinecraftServer]: Tier: GUARD_POST | garrison: 5 | population: 9 (adults 9)
+[01:44:58] [Server thread/INFO] [minecraft/MinecraftServer]: Defending strength (Mill?naire): 90 | fortification: 12
+[01:44:58] [Server thread/INFO] [minecraft/MinecraftServer]: Buildings: tags={patrol=4, armoury=0, training=0, wall_level_0=0, wall_level_1=0, wall_level_2=0} walls=0 (planned/unbuilt 64) towers=0 defensive=4 operational=19
+[01:44:58] [Server thread/INFO] [minecraft/MinecraftServer]: Military plans: [] | town hall: millenaire:norman/guildhouse
+[01:44:58] [Server thread/INFO] [minecraft/MinecraftServer]: Residents loaded/marked at last update: 9/9 | last update tick 11400 (#35), first seen 4600
+[01:44:58] [Server thread/INFO] [minecraft/MinecraftServer]: Threats now: 0
+[01:45:31] [Server thread/INFO] [minecraft/MinecraftServer]: HYW relation Douvres la-forge[1aa3e6cf-84d4-3b7b-8e61-f06352a032d8] -> 5f1c7d5e-0000-4000-8000-00000000beef: NEUTRAL | reverse: NEUTRAL
+[01:45:33] [Server thread/INFO] [minecraft/MinecraftServer]: HYW relation Douvres la-forge[1aa3e6cf-84d4-3b7b-8e61-f06352a032d8] -> 11111111-2222-4333-8444-555555555555: NEUTRAL | reverse: NEUTRAL
+[01:45:35] [Server thread/INFO] [minecraft/MinecraftServer]: hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}
+[01:45:35] [Server thread/INFO] [minecraft/MinecraftServer]: settlement source: Mill?naire, faction service: HYW
+[01:45:35] [Server thread/INFO] [minecraft/MinecraftServer]:   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[01:45:35] [Server thread/INFO] [minecraft/MinecraftServer]:   millenaire.goalStats: millenaire:engage_target {original starts=0, bridge starts=0} millenaire:hunt_monster {original starts=0, bridge starts=0} millenaire:hide {original starts=0, bridge starts=0}
+[01:45:35] [Server thread/INFO] [minecraft/MinecraftServer]:   hyw.identityMarker: RelationOwnerMarkedEntity present on Entity
+[01:45:35] [Server thread/INFO] [minecraft/MinecraftServer]: identities: markedOnJoin=1 fixedBySweep=0 raidersSkipped=0
+[01:45:35] [Server thread/INFO] [minecraft/MinecraftServer]: escalation guard: detected=0 reverted=0
+[01:45:48] [Server thread/INFO] [minecraft/MinecraftServer]: fake player hit 5eae6416-6e3c-4b23-b484-7e243662f90a hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none
+[01:45:50] [Server thread/INFO] [minecraft/MinecraftServer]: fake player hit 5eae6416-6e3c-4b23-b484-7e243662f90a hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none
+[01:45:52] [Server thread/INFO] [HundredYearsWar/]: Relation changed from hostile to neutral: 5f1c7d5e-0000-4000-8000-00000000beef -> 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 (immunity started)
+[01:45:52] [Server thread/INFO] [HundredYearsWar/]: Relation changed from hostile to neutral: 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 -> 5f1c7d5e-0000-4000-8000-00000000beef (immunity started)
+[01:45:52] [Server thread/WARN] [de.hy.co.HmLog/]: [hywmill] HYW escalated 5f1c7d5e-0000-4000-8000-00000000beef <-> 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 to permanent HOSTILE after repeated damage; reset to NEUTRAL (preventPermanentEscalation=true). HYW temporary retaliation is unaffected.
+[01:45:52] [Server thread/INFO] [minecraft/MinecraftServer]: fake player hit 5eae6416-6e3c-4b23-b484-7e243662f90a hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none
+[01:45:54] [Server thread/INFO] [HundredYearsWar/]: Relation immunity active: 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 -> 5f1c7d5e-0000-4000-8000-00000000beef, skipping damage record
+[01:45:54] [Server thread/INFO] [minecraft/MinecraftServer]: fake player hit 5eae6416-6e3c-4b23-b484-7e243662f90a hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none
+[01:45:56] [Server thread/INFO] [minecraft/MinecraftServer]: HYW relation Douvres la-forge[1aa3e6cf-84d4-3b7b-8e61-f06352a032d8] -> 5f1c7d5e-0000-4000-8000-00000000beef: NEUTRAL | reverse: NEUTRAL
+[01:46:07] [Server thread/INFO] [minecraft/MinecraftServer]: Loaded residents of Douvres la-forge: 9
+[01:46:07] [Server thread/INFO] [minecraft/MinecraftServer]:  cfc9d345 millenaire:norman/guildmaster DEFENDER goal=millenaire:engage_target(bridged) attackTarget=player hp=20 @652, 80, 631
+[01:46:07] [Server thread/INFO] [minecraft/MinecraftServer]:  3b080c0a millenaire:norman/lumberman DEFENDER goal=none attackTarget=player hp=20 @688, 86, 667
+[01:46:07] [Server thread/INFO] [minecraft/MinecraftServer]:  5eae6416 millenaire:norman/wife CIVILIAN goal=millenaire:engage_target(bridged) attackTarget=player hp=18 @653, 80, 632
+[01:46:07] [Server thread/INFO] [minecraft/MinecraftServer]:  43a0e109 millenaire:norman/farmer DEFENDER goal=none attackTarget=player hp=20 @708, 79, 635
+[01:46:07] [Server thread/INFO] [minecraft/MinecraftServer]:  55174eb1 millenaire:norman/wife CIVILIAN goal=none attackTarget=none hp=20 @708, 79, 635
+[01:46:07] [Server thread/INFO] [minecraft/MinecraftServer]:  08a1888c millenaire:norman/carpenter DEFENDER goal=millenaire:engage_target(bridged) attackTarget=player hp=20 @653, 80, 631
+[01:46:07] [Server thread/INFO] [minecraft/MinecraftServer]:  fcb7156c millenaire:norman/wife CIVILIAN goal=millenaire:deliver_resources_shop attackTarget=none hp=20 @637, 83, 621
+[01:46:07] [Server thread/INFO] [minecraft/MinecraftServer]:  4e2558d7 millenaire:norman/miner DEFENDER goal=none attackTarget=player hp=20 @699, 84, 649
+[01:46:07] [Server thread/INFO] [minecraft/MinecraftServer]:  b011c3ba millenaire:norman/wife CIVILIAN goal=none attackTarget=none hp=20 @699, 84, 649
+[01:46:28] [Server thread/WARN] [or.mi.en.MillVillager/]: [Mill?naire] Villager cfc9d345 (millenaire:norman/guildmaster) died: cause=genericKill, pos=641, 81, 627, health=0.0
+[01:46:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record updated: 'Douvres la-forge' [garrison 5 -> 4, population 9 -> 8, defendingStrength 90 -> 70]
+[01:46:32] [Server thread/INFO] [HundredYearsWar/]: Relation immunity expired: 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 -> 5f1c7d5e-0000-4000-8000-00000000beef
+[01:46:32] [Server thread/INFO] [HundredYearsWar/]: Relation immunity expired: 5f1c7d5e-0000-4000-8000-00000000beef -> 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8
+[01:51:43] [Server thread/INFO] [minecraft/MinecraftServer]: ForceActive + chunks force-loaded for 1 village(s).
+[01:51:43] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 230b6382-28f1-4ee0-a37a-c39445580311 (millenaire:norman/girl) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:51:43] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 2
+[01:51:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record updated: 'Douvres la-forge' [population 8 -> 9]
+[01:56:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: b14cf652-96c1-490d-9b64-82fab789db74 (millenaire:norman/guildmaster) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[01:56:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 3
+[01:56:32] [Server thread/INFO] [or.mi.vi.VillageIntegrityChecker/]: [Millenaire] Villager respawned: type=millenaire:norman/guildmaster, old UUID=cfc9d345, new UUID=b14cf652, pos=634, 83, 603
+[01:56:39] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record updated: 'Douvres la-forge' [garrison 4 -> 5, population 9 -> 10, defendingStrength 70 -> 90]
+[01:56:43] [Server thread/INFO] [minecraft/MinecraftServer]: Summoned new Zombie
+[01:57:09] [Server thread/INFO] [minecraft/MinecraftServer]: hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}
+[01:57:09] [Server thread/INFO] [minecraft/MinecraftServer]: settlement source: Mill?naire, faction service: HYW
+[01:57:09] [Server thread/INFO] [minecraft/MinecraftServer]:   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[01:57:09] [Server thread/INFO] [minecraft/MinecraftServer]:   millenaire.goalStats: millenaire:engage_target {original starts=8, bridge starts=0} millenaire:hunt_monster {original starts=2, bridge starts=0} millenaire:hide {original starts=0, bridge starts=0}
+[01:57:09] [Server thread/INFO] [minecraft/MinecraftServer]:   hyw.identityMarker: RelationOwnerMarkedEntity present on Entity
+[01:57:09] [Server thread/INFO] [minecraft/MinecraftServer]: identities: markedOnJoin=3 fixedBySweep=0 raidersSkipped=0
+[01:57:09] [Server thread/INFO] [minecraft/MinecraftServer]: escalation guard: detected=1 reverted=1
+[01:57:20] [Server thread/INFO] [minecraft/MinecraftServer]: Summoned new Bandit Soldier
+[01:57:20] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Threat detected in village 'Douvres la-forge': bandit_soldier[73c199de owner=null][HYW_ENEMY]
+[01:57:20] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian fcb7156c-b315-4c20-8733-e492528ef942 (millenaire:norman/wife) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[01:57:20] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 5eae6416-6e3c-4b23-b484-7e243662f90a (millenaire:norman/wife) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[01:57:20] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager 08a1888c-7ed1-4449-af5b-87d26c5f8298 (millenaire:norman/carpenter) selects HYW target bandit_soldier[73c199de owner=null] via hunt_monster
+[01:57:20] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 55174eb1-97b2-456a-b2d9-ba38cef9013c (millenaire:norman/wife) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[01:57:20] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian b011c3ba-00a4-49f2-970a-46ff001eafe9 (millenaire:norman/wife) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[01:57:20] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 230b6382-28f1-4ee0-a37a-c39445580311 (millenaire:norman/girl) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[01:57:20] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager b14cf652-96c1-490d-9b64-82fab789db74 (millenaire:norman/guildmaster) selects HYW target bandit_soldier[73c199de owner=null] via hunt_monster
+[01:57:20] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for 08a1888c-7ed1-4449-af5b-87d26c5f8298 (reason=INTERRUPTED, ticks=1, attacks=0)
+[01:57:20] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for b14cf652-96c1-490d-9b64-82fab789db74 (reason=INTERRUPTED, ticks=1, attacks=0)
+[01:57:21] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ongoing threat in village 'Douvres la-forge': bandit_soldier[73c199de owner=null][HYW_ENEMY]
+[01:57:23] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager hits HYW entity: b14cf652-96c1-490d-9b64-82fab789db74 (millenaire:norman/guildmaster) -> bandit_soldier[73c199de owner=null] (dmg=2.3449998)
+[01:57:23] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager b14cf652-96c1-490d-9b64-82fab789db74 landed first attack on HYW target 73c199de-d31d-43b6-af48-a211305094b3
+[01:57:23] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] HYW entity attacks Mill?naire villager: bandit_soldier[73c199de owner=null] -> b14cf652-96c1-490d-9b64-82fab789db74 (millenaire:norman/guildmaster) of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (inherentlyHostile=true, dmg=0.5)
+[01:57:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager hits HYW entity: 08a1888c-7ed1-4449-af5b-87d26c5f8298 (millenaire:norman/carpenter) -> bandit_soldier[73c199de owner=null] (dmg=2.72)
+[01:57:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager 08a1888c-7ed1-4449-af5b-87d26c5f8298 landed first attack on HYW target 73c199de-d31d-43b6-af48-a211305094b3
+[01:57:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for b14cf652-96c1-490d-9b64-82fab789db74 (reason=COMPLETED, ticks=174, attacks=5)
+[01:57:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for 08a1888c-7ed1-4449-af5b-87d26c5f8298 (reason=COMPLETED, ticks=175, attacks=3)
+[01:57:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Threat cleared in village 'Douvres la-forge'
+[01:57:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian fcb7156c-b315-4c20-8733-e492528ef942 leaves hide behavior (reason=COMPLETED, ticks=181)
+[01:57:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 5eae6416-6e3c-4b23-b484-7e243662f90a leaves hide behavior (reason=COMPLETED, ticks=181)
+[01:57:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 55174eb1-97b2-456a-b2d9-ba38cef9013c leaves hide behavior (reason=COMPLETED, ticks=181)
+[01:57:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian b011c3ba-00a4-49f2-970a-46ff001eafe9 leaves hide behavior (reason=COMPLETED, ticks=181)
+[01:57:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 230b6382-28f1-4ee0-a37a-c39445580311 leaves hide behavior (reason=COMPLETED, ticks=181)
+[01:57:50] [Server thread/INFO] [minecraft/MinecraftServer]: hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}
+[01:57:50] [Server thread/INFO] [minecraft/MinecraftServer]: settlement source: Mill?naire, faction service: HYW
+[01:57:50] [Server thread/INFO] [minecraft/MinecraftServer]:   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[01:57:50] [Server thread/INFO] [minecraft/MinecraftServer]:   millenaire.goalStats: millenaire:engage_target {original starts=8, bridge starts=2} millenaire:hunt_monster {original starts=2, bridge starts=2} millenaire:hide {original starts=0, bridge starts=5}
+[01:57:50] [Server thread/INFO] [minecraft/MinecraftServer]:   hyw.identityMarker: RelationOwnerMarkedEntity present on Entity
+[01:57:50] [Server thread/INFO] [minecraft/MinecraftServer]: identities: markedOnJoin=3 fixedBySweep=0 raidersSkipped=0
+[01:57:50] [Server thread/INFO] [minecraft/MinecraftServer]: escalation guard: detected=1 reverted=1
+[01:59:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 8beb0cd5-de2b-4b9d-bdab-fd12a22d2b46 (millenaire:norman/merchant) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 4
+[01:59:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 526ff264-edc1-45e9-b1e5-97f8ba873b4e (millenaire:norman/seneschal) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 92e29447-b12a-45e4-85a9-441f40dce422 (millenaire:norman/lady) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 11065fbf-7294-4586-9857-6805818ca65c (millenaire:norman/ciderproducer) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: ba433e67-d9ca-441d-867f-3df5f1a25563 (millenaire:norman/wife) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: bb2b4f64-9296-45ac-9e6f-fb57777e849e (millenaire:norman/lumberman) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: a9ee8fcd-299d-46e1-a7c6-8b801851642f (millenaire:norman/wife) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 818c910a-376b-40b8-9094-4d14ec8037da (millenaire:norman/farmer) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: f3e8dede-0395-4e0d-9466-5b1a3e2a69b7 (millenaire:norman/wife) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:37] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: b4745565-2b06-424d-8896-a5a65ed6791b (?) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:37] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 9b7f99eb-393a-464d-9897-36a9d020a910 (millenaire:norman/farmer) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:37] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 72117962-6e52-452b-921d-66bdb17beab5 (millenaire:norman/wife) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:37] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 0e9acdd5-9c46-4e48-978f-092e8826ab71 (millenaire:norman/cattlefarmermale) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:37] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 4313ecd0-bb24-4c90-b377-949b33c645ff (millenaire:norman/cattlefarmerfemale) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:37] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 5f63df68-fab1-40fa-9939-6396b5591332 (millenaire:norman/carpenter) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:37] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 00e98dca-1ce2-4d51-83c0-add75c6dd89c (millenaire:norman/wife) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:42] [Server thread/INFO] [minecraft/MinecraftServer]: Village norman/agricole spawned at 830, 80, 612 (completion=100%)
+[01:59:43] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village discovered: 'Marolles les-p?tures' b7dc90be-76a1-41d4-a40d-33b391decda5 at 847, 87, 624 (active=true)
+[01:59:43] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ledger record created for village b7dc90be-76a1-41d4-a40d-33b391decda5 (faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86)
+[01:59:43] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record initialized: 'Marolles les-p?tures' tier=GUARD_POST garrison=7 population=15 defending=121 fortification=9 tags={patrol=3, armoury=0, training=0, wall_level_0=0, wall_level_1=0, wall_level_2=0} walls=0 towers=0 defensive=3 militaryPlans=[]
+[01:59:45] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 4c713745-c71b-4442-b678-a9c6a9dc8ef6 (?) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:45] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 1e688030-ca26-4bc2-9d37-ad59d3bd181c (millenaire:norman/merchant_weapons) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:47] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: db202230-d25b-466c-9bd8-bb5b5353cd0d (millenaire:norman/boy) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[01:59:53] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record updated: 'Marolles les-p?tures' [garrison 7 -> 8, population 15 -> 17, defendingStrength 121 -> 149]
+[02:00:43] [Server thread/INFO] [minecraft/MinecraftServer]: ForceActive + chunks force-loaded for 2 village(s).
+[02:00:59] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid planned: Douvres la-forge -> Marolles les-p?tures at day-time 1019.
+[02:00:59] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid started: Douvres la-forge dispatched 1 raiders to Marolles les-p?tures.
+[02:00:59] [Server thread/INFO] [minecraft/MinecraftServer]: Raid triggered: Douvres la-forge -> Marolles les-p?tures (1 raiders dispatched)
+[02:01:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 0b8298be-7995-4f4d-beae-209c4b6ae43c (?) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[02:01:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 23
+[02:01:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 5ac45ad9-ffc9-4372-97a7-e9880a3b5767 (?) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[02:01:24] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Raid clone c03eb541-f6a5-494f-a572-8057fd91828e (millenaire:norman/lumberman) attacking village b7dc90be-76a1-41d4-a40d-33b391decda5 left without faction identity
+[02:01:24] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raider clone materialized at village edge Marolles les-p?tures (pos 758, 69, 619).
+[02:01:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Raid clone c03eb541-f6a5-494f-a572-8057fd91828e (millenaire:norman/lumberman) attacking village b7dc90be-76a1-41d4-a40d-33b391decda5 left without faction identity
+[02:01:43] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Raid clone c03eb541-f6a5-494f-a572-8057fd91828e (millenaire:norman/lumberman) attacking village b7dc90be-76a1-41d4-a40d-33b391decda5 left without faction identity
+[02:01:53] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Raid clone c03eb541-f6a5-494f-a572-8057fd91828e (millenaire:norman/lumberman) attacking village b7dc90be-76a1-41d4-a40d-33b391decda5 left without faction identity
+[02:01:58] [Server thread/WARN] [or.mi.en.MillVillager/]: [Mill?naire] Villager c03eb541 (millenaire:norman/lumberman) died: cause=mob, pos=847, 88, 647, health=0.0
+[02:01:59] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Douvres la-forge repulsed at Marolles les-p?tures.
+[02:02:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record updated: 'Douvres la-forge' [garrison 5 -> 4, population 10 -> 9, defendingStrength 90 -> 70]
+[02:02:04] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: cee22bdb-db89-4b8c-8947-ae6ab0c8aace (?) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[02:02:04] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 25
+[02:02:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 03425f09-88cc-41ca-8675-6f3c478d859a (?) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[02:02:10] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 5d50fa2f-db62-4afe-b3f6-d98c85976d8a (?) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[02:03:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 58941b01-7eae-4f72-ab56-9c346f13d07e (?) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[02:03:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 28
+[02:03:10] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 57dddc4e-b19d-473b-8fc1-8ca533a7d7cf (?) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[02:04:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: f926fa6c-442d-4c18-9aa5-6e6bcf42f454 (?) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[02:04:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 30
+[02:04:10] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 5ff46e0d-4f59-4952-bdb3-8379a5a1c320 (?) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[02:04:21] [Server thread/INFO] [minecraft/MinecraftServer]: Summoned new Militia
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Threat detected in village 'Douvres la-forge': militia[fbb4035a owner=null][HYW_ENEMY]
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian fcb7156c-b315-4c20-8733-e492528ef942 (millenaire:norman/wife) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 5eae6416-6e3c-4b23-b484-7e243662f90a (millenaire:norman/wife) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager 08a1888c-7ed1-4449-af5b-87d26c5f8298 (millenaire:norman/carpenter) selects HYW target militia[fbb4035a owner=null] via hunt_monster
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 55174eb1-97b2-456a-b2d9-ba38cef9013c (millenaire:norman/wife) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian b011c3ba-00a4-49f2-970a-46ff001eafe9 (millenaire:norman/wife) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 230b6382-28f1-4ee0-a37a-c39445580311 (millenaire:norman/girl) enters hide behavior: HYW threat in village, sheltering at 620, 82, 610
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager b14cf652-96c1-490d-9b64-82fab789db74 (millenaire:norman/guildmaster) selects HYW target militia[fbb4035a owner=null] via hunt_monster
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for 08a1888c-7ed1-4449-af5b-87d26c5f8298 (reason=INTERRUPTED, ticks=1, attacks=0)
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for b14cf652-96c1-490d-9b64-82fab789db74 (reason=INTERRUPTED, ticks=1, attacks=0)
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager hits HYW entity: b14cf652-96c1-490d-9b64-82fab789db74 (millenaire:norman/guildmaster) -> militia[fbb4035a owner=null] (dmg=3.5)
+[02:04:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager b14cf652-96c1-490d-9b64-82fab789db74 landed first attack on HYW target fbb4035a-be71-496d-ac48-99334dcaed38
+[02:04:23] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] HYW entity attacks Mill?naire villager: militia[fbb4035a owner=null] -> b14cf652-96c1-490d-9b64-82fab789db74 (millenaire:norman/guildmaster) of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (inherentlyHostile=true, dmg=0.5)
+[02:04:23] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ongoing threat in village 'Douvres la-forge': militia[fbb4035a owner=null][HYW_ENEMY, ATTACKING_RESIDENT, RECENT_ATTACKER]
+[02:04:23] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire villager hits HYW entity: 08a1888c-7ed1-4449-af5b-87d26c5f8298 (millenaire:norman/carpenter) -> militia[fbb4035a owner=null] (dmg=4.0)
+[02:04:23] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager 08a1888c-7ed1-4449-af5b-87d26c5f8298 landed first attack on HYW target fbb4035a-be71-496d-ac48-99334dcaed38
+[02:04:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for b14cf652-96c1-490d-9b64-82fab789db74 (reason=COMPLETED, ticks=78, attacks=3)
+[02:04:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Threat cleared in village 'Douvres la-forge'
+[02:04:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Bridge engage task ended for 08a1888c-7ed1-4449-af5b-87d26c5f8298 (reason=COMPLETED, ticks=79, attacks=3)
+[02:04:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian fcb7156c-b315-4c20-8733-e492528ef942 leaves hide behavior (reason=COMPLETED, ticks=81)
+[02:04:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 5eae6416-6e3c-4b23-b484-7e243662f90a leaves hide behavior (reason=COMPLETED, ticks=81)
+[02:04:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 55174eb1-97b2-456a-b2d9-ba38cef9013c leaves hide behavior (reason=COMPLETED, ticks=81)
+[02:04:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian b011c3ba-00a4-49f2-970a-46ff001eafe9 leaves hide behavior (reason=COMPLETED, ticks=81)
+[02:04:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Civilian 230b6382-28f1-4ee0-a37a-c39445580311 leaves hide behavior (reason=COMPLETED, ticks=81)
+[02:04:54] [Server thread/INFO] [HundredYearsWar/]: Saved 0 first-join player records
+[02:04:54] [Server thread/INFO] [HundredYearsWar/]: RelationSystem: saved relation data for 3 objects

@@ -1,0 +1,9 @@
+# Third-party All-Rights-Reserved jars: supplied locally, never committed.
+libs/*.jar
+build/
+.gradle/
+run/
+runs/
+out/
+*.iml
+.idea/

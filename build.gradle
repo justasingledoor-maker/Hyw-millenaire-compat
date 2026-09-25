@@ -1,0 +1,87 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+    id 'net.neoforged.moddev' version '2.0.147'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+// The two production dependencies are All-Rights-Reserved jars supplied locally in libs/.
+// They are compile-only: never bundled, never published, never committed (see .gitignore).
+def millenaireJar = file(project.millenaire_jar)
+def hywJar = file(project.hyw_jar)
+[millenaireJar, hywJar].each { f ->
+    if (!f.exists()) {
+        throw new GradleException("Missing ${f}. Place the official jar there (see README.md).")
+    }
+}
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+        configureEach {
+            systemProperty 'forge.logging.markers', ''
+            logLevel = org.slf4j.event.Level.INFO
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+dependencies {
+    compileOnly files(millenaireJar, hywJar)
+}
+
+// Dev runs: FML loads production mod jars from <runDir>/mods, which is how the two
+// optional dependencies reach a dev server without touching the compile classpath.
+tasks.register('copyDevMods', Copy) {
+    from millenaireJar, hywJar
+    into layout.projectDirectory.dir('run/mods')
+}
+tasks.matching { it.name == 'runServer' }.configureEach { dependsOn 'copyDevMods' }
+
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+            millenaire_version_range: millenaire_version_range,
+            hyw_version_range      : hyw_version_range,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:deprecation'
+}

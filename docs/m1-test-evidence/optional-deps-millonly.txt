@@ -1,0 +1,13 @@
+[02:09:04] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire settlement source registered; goal bridge scheduled for ServerStartedEvent (LOW).
+[02:09:04] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] millenaire integration enabled.
+[02:09:04] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] hundred_years_war not loaded; its integration is disabled.
+[02:09:04] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Initialized. Integrations: {millenaire=enabled, hundred_years_war=absent (integration disabled)}
+[02:09:15] [Server thread/INFO] [minecraft/DedicatedServer]: Done (8.266s)! For help, type "help"
+[02:09:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:engage_target org.millenaire.goal.impl.EngageTargetGoal -> EngageTargetDecorator
+[02:09:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hunt_monster org.millenaire.goal.impl.HuntMonsterGoal -> HuntMonsterDecorator
+[02:09:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hide org.millenaire.goal.impl.HideGoal -> HideDecorator
+[02:09:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Re-initialized goals of 0 already-loaded Mill?naire villager(s) so they use the bridged goals.
+[02:09:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal bridge status: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[02:09:27] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ledger update: 0 village(s) known to Mill?naire, 0 refreshed
+[02:09:29] [Server thread/INFO] [minecraft/MinecraftServer]: hywmill integrations: {millenaire=enabled, hundred_years_war=absent (integration disabled)}
+[02:09:29] [Server thread/INFO] [minecraft/MinecraftServer]: settlement source: Mill?naire, faction service: none

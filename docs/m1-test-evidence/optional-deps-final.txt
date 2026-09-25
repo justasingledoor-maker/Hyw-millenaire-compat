@@ -1,0 +1,33 @@
+[02:10:06] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Mill?naire settlement source registered; goal bridge scheduled for ServerStartedEvent (LOW).
+[02:10:06] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] millenaire integration enabled.
+[02:10:06] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).
+[02:10:06] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] hundred_years_war integration enabled.
+[02:10:06] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Initialized. Integrations: {millenaire=enabled, hundred_years_war=enabled}
+[02:10:13] [Server thread/INFO] [minecraft/DedicatedServer]: Done (2.657s)! For help, type "help"
+[02:10:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:engage_target org.millenaire.goal.impl.EngageTargetGoal -> EngageTargetDecorator
+[02:10:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hunt_monster org.millenaire.goal.impl.HuntMonsterGoal -> HuntMonsterDecorator
+[02:10:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hide org.millenaire.goal.impl.HideGoal -> HideDecorator
+[02:10:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Re-initialized goals of 0 already-loaded Mill?naire villager(s) so they use the bridged goals.
+[02:10:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal bridge status: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[02:10:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: f560eb6f-0aa9-45df-a5ac-788275c62214 (?) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[02:10:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 1
+[02:10:16] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: f1817071-f142-4b35-97cd-8ee3b4471652 (?) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[02:10:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hide is live (first canStart call observed).
+[02:10:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:engage_target is live (first canStart call observed).
+[02:10:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hunt_monster is live (first canStart call observed).
+[02:10:21] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 7d224a0e-e2e2-4df3-ac49-58c00e4834b6 (?) -> faction 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8 of village f7edd961-3e4b-4b15-8583-ecbdac270e4a (previous marker: null)
+[02:10:21] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: c26da933-9b3e-4b25-9dbb-484c687e8672 (?) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
+[02:10:23] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Combat incident recorded: Incident[tick=35365, attacker=4313ecd0-bb24-4c90-b377-949b33c645ff, attackerType=millenaire:villager, attackerFaction=12233bc6-fd3c-39a0-97d0-3e1d49427b86, victim=2d65976b-4b32-41b5-944a-9deb2d47674d, victimType=minecraft:cow, victimFaction=null, attackerInherentlyHostile=false, victimResidentOf=null, insideVillage=null, amount=4.0]
+[02:10:24] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 1, faction-id mismatches corrected: 0
+[02:10:24] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ledger update: 2 village(s) known to Mill?naire, 2 refreshed
+[02:10:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Combat incident recorded: Incident[tick=35431, attacker=4313ecd0-bb24-4c90-b377-949b33c645ff, attackerType=millenaire:villager, attackerFaction=12233bc6-fd3c-39a0-97d0-3e1d49427b86, victim=2d65976b-4b32-41b5-944a-9deb2d47674d, victimType=minecraft:cow, victimFaction=null, attackerInherentlyHostile=false, victimResidentOf=null, insideVillage=b7dc90be-76a1-41d4-a40d-33b391decda5, amount=4.0]
+[02:10:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Combat incident recorded: Incident[tick=35493, attacker=4313ecd0-bb24-4c90-b377-949b33c645ff, attackerType=millenaire:villager, attackerFaction=12233bc6-fd3c-39a0-97d0-3e1d49427b86, victim=5740214e-6aa7-42bf-b587-cdb7326c087b, victimType=minecraft:cow, victimFaction=null, attackerInherentlyHostile=false, victimResidentOf=null, insideVillage=b7dc90be-76a1-41d4-a40d-33b391decda5, amount=4.0]
+[02:10:31] [Server thread/INFO] [minecraft/MinecraftServer]: == Douvres la-forge (millenaire:norman / millenaire:norman/artisans) at 630, 82, 612, 0 blocks away, active=true
+[02:10:31] [Server thread/INFO] [minecraft/MinecraftServer]: VillageId: f7edd961-3e4b-4b15-8583-ecbdac270e4a
+[02:10:31] [Server thread/INFO] [minecraft/MinecraftServer]: Faction UUID (synthetic): 1aa3e6cf-84d4-3b7b-8e61-f06352a032d8
+[02:10:31] [Server thread/INFO] [minecraft/MinecraftServer]: Tier: GUARD_POST | garrison: 4 | population: 9 (adults 8)
+[02:10:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Combat incident recorded: Incident[tick=35569, attacker=4313ecd0-bb24-4c90-b377-949b33c645ff, attackerType=millenaire:villager, attackerFaction=12233bc6-fd3c-39a0-97d0-3e1d49427b86, victim=5740214e-6aa7-42bf-b587-cdb7326c087b, victimType=minecraft:cow, victimFaction=null, attackerInherentlyHostile=false, victimResidentOf=null, insideVillage=b7dc90be-76a1-41d4-a40d-33b391decda5, amount=4.0]
+[02:10:33] [Server thread/INFO] [minecraft/MinecraftServer]: Ledger villages: 2
+[02:10:33] [Server thread/INFO] [minecraft/MinecraftServer]:  - Douvres la-forge 630, 82, 612 tier=GUARD_POST garrison=4 fort=12 id=f7edd961-3e4b-4b15-8583-ecbdac270e4a
+[02:10:33] [Server thread/INFO] [minecraft/MinecraftServer]:  - Marolles les-p?tures 847, 87, 624 tier=GUARD_POST garrison=8 fort=9 id=b7dc90be-76a1-41d4-a40d-33b391decda5
+[02:10:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity assigned: 01d53ccd-e285-40e9-8bd3-839ac49bf26a (?) -> faction 12233bc6-fd3c-39a0-97d0-3e1d49427b86 of village b7dc90be-76a1-41d4-a40d-33b391decda5 (previous marker: null)
