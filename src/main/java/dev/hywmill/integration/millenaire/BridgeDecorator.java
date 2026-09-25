@@ -1,6 +1,7 @@
 package dev.hywmill.integration.millenaire;
 
 import dev.hywmill.core.HmLog;
+import dev.hywmill.core.Services;
 import net.minecraft.resources.ResourceLocation;
 import org.millenaire.goal.GoalContext;
 import org.millenaire.goal.VillagerGoal;
@@ -38,7 +39,20 @@ abstract class BridgeDecorator implements VillagerGoal {
             firstInvocationLogged = true;
             HmLog.info("Goal decorator {} is live (first canStart call observed).", id());
         }
-        return original.canStart(ctx) || (ctx != null && ctx.village() != null && bridgeCanStart(ctx));
+        return original.canStart(ctx) || (ctx != null && ctx.village() != null && safeBridgeCanStart(ctx));
+    }
+
+    /**
+     * Bridge-only logic runs inside Millénaire's GoalScheduler, which catches Exception but not
+     * Error. A LinkageError (dependency API drift) must not escape into a villager tick.
+     */
+    private boolean safeBridgeCanStart(GoalContext ctx) {
+        try {
+            return bridgeCanStart(ctx);
+        } catch (LinkageError e) {
+            Services.disableFactions(e);
+            return false;
+        }
     }
 
     @Override
@@ -48,7 +62,12 @@ abstract class BridgeDecorator implements VillagerGoal {
             return original.start(ctx);
         }
         bridgeStarts.incrementAndGet();
-        return bridgeStart(ctx);
+        try {
+            return bridgeStart(ctx);
+        } catch (LinkageError e) {
+            Services.disableFactions(e);
+            return FinishedTask.of(id());
+        }
     }
 
     @Override public ResourceLocation id() { return original.id(); }

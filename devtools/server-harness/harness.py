@@ -345,6 +345,14 @@ def scenario_E(ctx):
     target = next((r for r in res if r[2] == "DEFENDER"), None)
     if not check("E0 a defender to kill", target is not None):
         return
+    # VillageIntegrityChecker.isRespawnAllowed also needs gameTime - lastRespawnTick >= 6000, and
+    # every resident's lastRespawnTick is its spawn time. A fresh harness world is only a few
+    # thousand ticks old here, so fast-forward the game clock first.
+    gt = next((int(m[1]) for l in s.output("time query gametime", 1) for m in [re.search(r"The time is (\d+)", l)] if m), 0)
+    if gt < 9000:
+        p0 = s.pos()
+        s.cmd(f"tick sprint {9000 - gt}", 1)
+        s.wait_for(r"Sprint completed", 300, since=p0)
     s.cmd(f"kill {target[0]}", 2)
     # VillageIntegrityChecker.lastElapsedDuskDay counts a dusk once dayTime % 24000 >= 13000.
     day = next((int(m[1]) for l in s.output("time query day", 1) for m in [re.search(r"The time is (\d+)", l)] if m), 0)
@@ -361,18 +369,28 @@ def scenario_E(ctx):
 
 
 def scenario_F1(ctx):
+    """Vanilla monsters stay Millénaire's business. Run in daytime (villagers asleep in 'rest' at
+    night ignore a zombie next to them) with a helmeted zombie so it does not burn."""
     s = ctx.s
     c = ctx.a
-    s.cmd("time set 18000", 1)
-    res = wait_residents(s, c)
-    d = next((r for r in res if r[2] == "DEFENDER"), None)
-    pos = next((l for l in s.output(at(c, "hywmill village residents"), 2) if d and l.strip().startswith(d[0])), "")
-    m = re.search(r"@(-?\d+), (-?\d+), (-?\d+)", pos)
-    zx, zy, zz = (int(m[1]) + 2, int(m[2]), int(m[3]) + 2) if m else (c[0] + 2, c[1] + 1, c[2] + 2)
-    s.cmd(f"summon minecraft:zombie {zx} {zy} {zz}", 30)
-    hits = [i for i in incidents(s) if i["atype"] == "millenaire:villager" and i["vtype"] == "minecraft:zombie"]
-    check("F1 villagers still fight vanilla monsters", bool(hits), f"{len(hits)} hits")
-    s.cmd("kill @e[type=minecraft:zombie]", 1)
+    s.cmd("time set 6000", 1)
+    hits = []
+    tried = set()
+    for attempt in range(3):
+        res = wait_residents(s, c)
+        d = next((r for r in res if r[2] == "DEFENDER" and r[3] != "millenaire:rest" and r[0] not in tried), None)
+        if d is None:
+            break
+        tried.add(d[0])
+        pos = next((l for l in s.output(at(c, "hywmill village residents"), 2) if l.strip().startswith(d[0])), "")
+        m = re.search(r"@(-?\d+), (-?\d+), (-?\d+)", pos)
+        zx, zy, zz = (int(m[1]) + 2, int(m[2]), int(m[3]) + 2) if m else (c[0] + 2, c[1] + 1, c[2] + 2)
+        s.cmd(f'summon minecraft:zombie {zx} {zy} {zz} {{ArmorItems:[{{}},{{}},{{}},{{id:"minecraft:leather_helmet",count:1}}]}}', 30)
+        hits = [i for i in incidents(s) if i["atype"] == "millenaire:villager" and i["vtype"] == "minecraft:zombie"]
+        s.cmd("kill @e[type=minecraft:zombie]", 1)
+        if hits:
+            break
+    check("F1 villagers still fight vanilla monsters", bool(hits), f"{len(hits)} hits after {len(tried)} zombie(s)")
     s.cmd("time set 1000", 1)
 
 

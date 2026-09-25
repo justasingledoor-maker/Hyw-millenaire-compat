@@ -3,8 +3,6 @@ package dev.hywmill.core;
 import dev.hywmill.config.HywMillConfig;
 import dev.hywmill.faction.FactionMarker;
 import dev.hywmill.military.EscalationGuard;
-import dev.hywmill.military.IncidentLedger;
-import dev.hywmill.military.ThreatTracker;
 import dev.hywmill.settlement.GarrisonUpdater;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -13,6 +11,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
@@ -23,22 +22,29 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class CoreEvents {
     private CoreEvents() {}
 
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onServerAboutToStart(ServerAboutToStartEvent event) {
+        HywMillRuntime.start(event.getServer());
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onServerStopped(ServerStoppedEvent event) {
+        HywMillRuntime.stop();
+    }
+
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
-        if (Services.settlements() == null) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt == null || Services.settlements() == null) {
             return;
         }
         ServerLevel overworld = event.getServer().overworld();
         long tick = overworld.getGameTime();
-        guarded("ledger update", () -> {
-            if (tick % HywMillConfig.LEDGER_UPDATE_INTERVAL.get() == 0) {
-                GarrisonUpdater.update(overworld);
-            }
-        });
+        guarded("ledger update", () -> GarrisonUpdater.tick(overworld, rt));
         guarded("threat scan", () -> {
+            rt.threats().scan(overworld);
             if (tick % HywMillConfig.THREAT_SCAN_INTERVAL.get() == 0) {
-                ThreatTracker.scan(overworld);
-                IncidentLedger.prune(tick);
+                rt.incidents().prune(tick);
             }
         });
     }
@@ -54,10 +60,11 @@ public final class CoreEvents {
 
     @SubscribeEvent
     public static void onDamage(LivingDamageEvent.Post event) {
-        if (event.getEntity().level().isClientSide()) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt == null || event.getEntity().level().isClientSide()) {
             return;
         }
-        guarded("incident ledger", () -> IncidentLedger.record(event.getEntity(), event.getSource(), event.getNewDamage())
+        guarded("incident ledger", () -> rt.incidents().record(event.getEntity(), event.getSource(), event.getNewDamage())
                 .ifPresent(inc -> {
                     Entity attacker = event.getSource().getEntity();
                     if (attacker != null) {
@@ -67,17 +74,11 @@ public final class CoreEvents {
     }
 
     @SubscribeEvent
-    public static void onServerStopped(ServerStoppedEvent event) {
-        ThreatTracker.reset();
-        IncidentLedger.reset();
-    }
-
-    @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         HywMillCommands.register(event.getDispatcher());
     }
 
-    private static void guarded(String what, Runnable body) {
+    static void guarded(String what, Runnable body) {
         try {
             body.run();
         } catch (LinkageError e) {

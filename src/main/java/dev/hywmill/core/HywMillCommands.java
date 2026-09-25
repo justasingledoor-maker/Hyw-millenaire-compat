@@ -84,10 +84,11 @@ public final class HywMillCommands {
         for (Map.Entry<String, String> e : Services.diagnostics().entrySet()) {
             send(src, "  " + e.getKey() + ": " + e.getValue());
         }
-        send(src, "identities: markedOnJoin=" + FactionMarker.MARKED_ON_JOIN.get()
-                + " fixedBySweep=" + FactionMarker.FIXED_BY_SWEEP.get()
-                + " raidersSkipped=" + FactionMarker.RAIDERS_SKIPPED.get());
-        send(src, "escalation guard: detected=" + EscalationGuard.DETECTED.get() + " reverted=" + EscalationGuard.REVERTED.get());
+        HywMillRuntime rt = HywMillRuntime.require();
+        send(src, "identities: markedOnJoin=" + rt.counter(FactionMarker.C_MARKED_ON_JOIN)
+                + " fixedBySweep=" + rt.counter(FactionMarker.C_FIXED_BY_SWEEP)
+                + " raidersSkipped=" + rt.counter(FactionMarker.C_RAIDERS_SKIPPED));
+        send(src, "escalation guard: detected=" + rt.counter(EscalationGuard.C_DETECTED) + " reverted=" + rt.counter(EscalationGuard.C_REVERTED));
         return 1;
     }
 
@@ -119,7 +120,7 @@ public final class HywMillCommands {
         GarrisonLedger ledger = GarrisonLedger.get(overworld);
         VillageRecord r = ledger.get(ref.get().id());
         if (r == null || r.updateCount == 0) {
-            r = GarrisonUpdater.refreshOne(overworld, Services.settlements(), ledger, ref.get().id(), overworld.getGameTime()).orElse(null);
+            r = GarrisonUpdater.refreshOne(overworld, HywMillRuntime.require(), Services.settlements(), ledger, ref.get().id(), overworld.getGameTime()).orElse(null);
         }
         if (r == null) {
             src.sendFailure(Component.literal("Village " + ref.get().id() + " could not be read."));
@@ -149,7 +150,7 @@ public final class HywMillCommands {
                 send(src, "HYW relation: n/a (HYW integration inactive)");
             }
         }
-        send(src, "Threats now: " + ThreatTracker.threats(r.villageId).size());
+        send(src, "Threats now: " + HywMillRuntime.require().threats().threats(r.villageId).size());
         return 1;
     }
 
@@ -182,7 +183,7 @@ public final class HywMillCommands {
         if (ref.isEmpty()) {
             return 0;
         }
-        List<ThreatTracker.Threat> list = ThreatTracker.threats(ref.get().id());
+        List<ThreatTracker.Threat> list = HywMillRuntime.require().threats().threats(ref.get().id());
         send(src, "Threats in " + ref.get().name() + ": " + list.size());
         CombatFactionService factions = Services.factions();
         for (ThreatTracker.Threat t : list) {
@@ -193,7 +194,7 @@ public final class HywMillCommands {
 
     private static int incidents(CommandContext<CommandSourceStack> ctx, int count) {
         CommandSourceStack src = ctx.getSource();
-        List<IncidentLedger.Incident> list = IncidentLedger.recent(count);
+        List<IncidentLedger.Incident> list = HywMillRuntime.require().incidents().recent(count);
         send(src, "Last " + list.size() + " combat incident(s):");
         for (IncidentLedger.Incident i : list) {
             send(src, " t=" + i.tick() + " " + i.attackerType() + "[" + shortId(i.attacker()) + " fac=" + shortId(i.attackerFaction()) + "]"

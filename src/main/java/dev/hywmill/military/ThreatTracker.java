@@ -2,6 +2,7 @@ package dev.hywmill.military;
 
 import dev.hywmill.config.HywMillConfig;
 import dev.hywmill.core.HmLog;
+import dev.hywmill.core.VillageScheduler;
 import dev.hywmill.core.Services;
 import dev.hywmill.faction.CombatFactionService;
 import dev.hywmill.settlement.ResidentInfo;
@@ -30,7 +31,8 @@ import java.util.stream.Collectors;
  * Per-village snapshot of hostile HYW units, rebuilt every threatScanInterval ticks for active
  * villages only. Goal decorators query it every tick, so all queries are map lookups.
  *
- * <p>Classification only OBSERVES HYW state; it never changes HYW relations.
+ * <p>Classification only OBSERVES HYW state; it never changes HYW relations. One instance per server,
+ * owned by {@link dev.hywmill.core.HywMillRuntime}.
  */
 public final class ThreatTracker {
     public enum Reason {
@@ -60,20 +62,25 @@ public final class ThreatTracker {
         }
     }
 
-    private static final Map<UUID, VillageState> STATES = new ConcurrentHashMap<>();
+    private final Map<UUID, VillageState> states = new ConcurrentHashMap<>();
+    private final IncidentLedger incidents;
+    private final VillageScheduler scheduler;
 
-    private ThreatTracker() {}
+    public ThreatTracker(IncidentLedger incidents, VillageScheduler scheduler) {
+        this.incidents = incidents;
+        this.scheduler = scheduler;
+    }
 
-    public static void updateVillage(SettlementSnapshot s, UUID faction) {
-        VillageState st = STATES.computeIfAbsent(s.id(), VillageState::new);
+    public void updateVillage(SettlementSnapshot s, UUID faction) {
+        VillageState st = states.computeIfAbsent(s.id(), VillageState::new);
         st.faction = faction;
         st.name = s.name();
         st.bounds = s.bounds();
         st.active = s.active();
     }
 
-    public static void markInactive(UUID village) {
-        VillageState st = STATES.get(village);
+    public void markInactive(UUID village) {
+        VillageState st = states.get(village);
         if (st != null) {
             st.active = false;
             st.threats = List.of();
@@ -81,11 +88,12 @@ public final class ThreatTracker {
         }
     }
 
-    public static void reset() {
-        STATES.clear();
+    public void reset() {
+        states.clear();
     }
 
-    public static void scan(ServerLevel level) {
+    /** Scans the villages whose staggered slot is due this tick (each village every threatScanInterval ticks). */
+    public void scan(ServerLevel level) {
         CombatFactionService factions = Services.factions();
         SettlementSource source = Services.settlements();
         if (factions == null || source == null) {
@@ -93,8 +101,9 @@ public final class ThreatTracker {
         }
         int margin = HywMillConfig.THREAT_MARGIN.get();
         long now = level.getGameTime();
-        for (VillageState st : STATES.values()) {
-            if (!st.active || st.bounds == null || st.faction == null) {
+        int interval = HywMillConfig.THREAT_SCAN_INTERVAL.get();
+        for (VillageState st : states.values()) {
+            if (!st.active || st.bounds == null || st.faction == null || !scheduler.isDue(st.village, now, interval)) {
                 continue;
             }
             AABB box = st.bounds.inflate(margin);
@@ -118,7 +127,7 @@ public final class ThreatTracker {
         }
     }
 
-    private static EnumSet<Reason> classify(ServerLevel level, SettlementSource source, CombatFactionService factions,
+    private EnumSet<Reason> classify(ServerLevel level, SettlementSource source, CombatFactionService factions,
                                             VillageState st, LivingEntity unit, long now) {
         EnumSet<Reason> reasons = EnumSet.noneOf(Reason.class);
         if (factions.isEnemyOfIdentity(unit, st.faction)) {
@@ -133,13 +142,13 @@ public final class ThreatTracker {
                 reasons.add(Reason.ATTACKING_ALLY_PLAYER);
             }
         }
-        if (IncidentLedger.recentlyAttackedVillage(unit.getUUID(), st.village, now)) {
+        if (incidents.recentlyAttackedVillage(unit.getUUID(), st.village, now)) {
             reasons.add(Reason.RECENT_ATTACKER);
         }
         return reasons;
     }
 
-    private static boolean qualifiesForAssistance(ServerLevel level, SettlementSource source, VillageState st,
+    private boolean qualifiesForAssistance(ServerLevel level, SettlementSource source, VillageState st,
                                                   LivingEntity unit, Player player, long now) {
         if (!HywMillConfig.GUARDS_ASSIST_PLAYERS.get() || player.isCreative() || player.isSpectator()) {
             return false;
@@ -150,7 +159,7 @@ public final class ThreatTracker {
         if (source.playerReputation(level, st.village, player.getUUID()) < HywMillConfig.ASSIST_MIN_REPUTATION.get()) {
             return false;
         }
-        UUID first = IncidentLedger.firstStriker(player.getUUID(), unit.getUUID(), now);
+        UUID first = incidents.firstStriker(player.getUUID(), unit.getUUID(), now);
         return !player.getUUID().equals(first) || HywMillConfig.ASSIST_PROVOKING_PLAYER.get();
     }
 
@@ -162,19 +171,19 @@ public final class ThreatTracker {
 
     // ---- queries (called every tick by goal decorators; keep O(1)/O(threats)) ----
 
-    public static boolean hasThreat(UUID village) {
-        VillageState st = STATES.get(village);
+    public boolean hasThreat(UUID village) {
+        VillageState st = states.get(village);
         return st != null && !st.threats.isEmpty();
     }
 
-    public static boolean isThreat(UUID village, Entity entity) {
-        VillageState st = STATES.get(village);
+    public boolean isThreat(UUID village, Entity entity) {
+        VillageState st = states.get(village);
         return st != null && st.threatIds.contains(entity.getUUID());
     }
 
     @Nullable
-    public static LivingEntity nearestThreat(UUID village, Vec3 from, double maxDistance) {
-        VillageState st = STATES.get(village);
+    public LivingEntity nearestThreat(UUID village, Vec3 from, double maxDistance) {
+        VillageState st = states.get(village);
         if (st == null) {
             return null;
         }
@@ -194,16 +203,16 @@ public final class ThreatTracker {
         return best;
     }
 
-    public static List<Threat> threats(UUID village) {
-        VillageState st = STATES.get(village);
+    public List<Threat> threats(UUID village) {
+        VillageState st = states.get(village);
         return st == null ? List.of() : st.threats;
     }
 
     /** Village whose building bounds contain the position (tracked villages only), or null. */
     @Nullable
-    public static UUID villageContaining(BlockPos pos) {
+    public UUID villageContaining(BlockPos pos) {
         Vec3 p = Vec3.atCenterOf(pos);
-        for (VillageState st : STATES.values()) {
+        for (VillageState st : states.values()) {
             if (st.bounds != null && st.bounds.contains(p)) {
                 return st.village;
             }

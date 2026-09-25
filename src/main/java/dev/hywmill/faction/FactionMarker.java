@@ -2,6 +2,7 @@ package dev.hywmill.faction;
 
 import dev.hywmill.config.HywMillConfig;
 import dev.hywmill.core.HmLog;
+import dev.hywmill.core.HywMillRuntime;
 import dev.hywmill.core.Services;
 import dev.hywmill.settlement.ResidentInfo;
 import dev.hywmill.settlement.SettlementSource;
@@ -11,7 +12,6 @@ import net.minecraft.world.entity.Entity;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Gives settlement residents their village's synthetic HYW relation identity through HYW's own
@@ -22,9 +22,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * raiders and defenders (HYW treats same-identity entities as relation-protected).
  */
 public final class FactionMarker {
-    public static final AtomicLong MARKED_ON_JOIN = new AtomicLong();
-    public static final AtomicLong FIXED_BY_SWEEP = new AtomicLong();
-    public static final AtomicLong RAIDERS_SKIPPED = new AtomicLong();
+    public static final String C_MARKED_ON_JOIN = "identity.markedOnJoin";
+    public static final String C_FIXED_BY_SWEEP = "identity.fixedBySweep";
+    public static final String C_RAIDERS_SKIPPED = "identity.raidersSkipped";
 
     private FactionMarker() {}
 
@@ -33,7 +33,8 @@ public final class FactionMarker {
     public static Outcome ensure(Entity entity) {
         SettlementSource source = Services.settlements();
         CombatFactionService factions = Services.factions();
-        if (source == null || factions == null || !HywMillConfig.MARK_VILLAGERS.get()) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt == null || source == null || factions == null || !HywMillConfig.MARK_VILLAGERS.get()) {
             return Outcome.DISABLED;
         }
         Optional<ResidentInfo> info = source.residentInfo(entity);
@@ -45,11 +46,11 @@ public final class FactionMarker {
             if (factions.hasIdentityMarker(entity)) {
                 factions.clearIdentity(entity);
             }
-            RAIDERS_SKIPPED.incrementAndGet();
+            rt.increment(C_RAIDERS_SKIPPED);
             HmLog.diagThrottled("raider-" + entity.getUUID(), 300_000L, "Raid clone {} ({}) attacking village {} left without faction identity", entity.getUUID(), r.typeId(), r.settlementId());
             return Outcome.RAIDER_UNMARKED;
         }
-        UUID faction = FactionIds.forVillage(r.settlementId());
+        UUID faction = rt.factions().register(r.settlementId());
         UUID current = factions.markedIdentity(entity);
         if (faction.equals(current)) {
             return Outcome.ALREADY_MARKED;
@@ -61,8 +62,9 @@ public final class FactionMarker {
     }
 
     public static void onJoin(Entity entity) {
-        if (ensure(entity) == Outcome.MARKED) {
-            long n = MARKED_ON_JOIN.incrementAndGet();
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (ensure(entity) == Outcome.MARKED && rt != null) {
+            long n = rt.increment(C_MARKED_ON_JOIN);
             HmLog.infoThrottled("mark-summary", 30_000L, "Villager faction identities assigned on join so far: {}", n);
         }
     }
@@ -87,8 +89,9 @@ public final class FactionMarker {
                 marked++;
             }
         }
-        if (fixed > 0) {
-            FIXED_BY_SWEEP.addAndGet(fixed);
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (fixed > 0 && rt != null) {
+            rt.add(C_FIXED_BY_SWEEP, fixed);
             HmLog.info("Identity sweep re-marked {} resident(s) of village {} that were missing their faction identity", fixed, villageId);
         }
         return new SweepResult(residents.size(), marked, fixed);

@@ -1,10 +1,9 @@
 package dev.hywmill.integration.millenaire;
 
 import dev.hywmill.core.HmLog;
+import dev.hywmill.core.HywMillRuntime;
 import dev.hywmill.core.Services;
 import dev.hywmill.faction.CombatFactionService;
-import dev.hywmill.military.IncidentLedger;
-import dev.hywmill.military.ThreatTracker;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
@@ -43,11 +42,12 @@ final class EngageTargetDecorator extends BridgeDecorator {
             return null; // original goal's domain
         }
         CombatFactionService factions = Services.factions();
-        if (factions == null || !factions.isCombatUnit(t) || !MillTypes.isDefender(v)) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt == null || factions == null || !factions.isCombatUnit(t) || !MillTypes.isDefender(v)) {
             return null;
         }
         UUID village = ctx.village().getId().uuid();
-        if (ThreatTracker.isThreat(village, t) || IncidentLedger.recentlyAttackedVillage(t.getUUID(), village, ctx.gameTime())) {
+        if (rt.threats().isThreat(village, t) || rt.incidents().recentlyAttackedVillage(t.getUUID(), village, ctx.gameTime())) {
             return t;
         }
         return null;

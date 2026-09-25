@@ -1,6 +1,6 @@
 package dev.hywmill.integration.millenaire;
 
-import dev.hywmill.military.ThreatTracker;
+import dev.hywmill.core.HywMillRuntime;
 import org.millenaire.goal.GoalContext;
 import org.millenaire.goal.VillagerGoal;
 import org.millenaire.goal.VillagerTask;
@@ -18,7 +18,8 @@ final class HideDecorator extends BridgeDecorator {
 
     @Override
     protected boolean bridgeCanStart(GoalContext ctx) {
-        return MillTypes.isCivilian(ctx.villager()) && ThreatTracker.hasThreat(ctx.village().getId().uuid());
+        HywMillRuntime rt = HywMillRuntime.get();
+        return rt != null && MillTypes.isCivilian(ctx.villager()) && rt.threats().hasThreat(ctx.village().getId().uuid());
     }
 
     @Override

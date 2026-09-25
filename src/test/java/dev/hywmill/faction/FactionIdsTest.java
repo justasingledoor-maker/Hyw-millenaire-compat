@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /** The faction UUID derivation is a persistent contract (worlds store it in HYW markers and our ledger). */
 class FactionIdsTest {
@@ -18,13 +17,10 @@ class FactionIdsTest {
     }
 
     @Test
-    void deterministicAndRegistered() {
+    void deterministicAndDistinctFromVillageId() {
         UUID village = UUID.randomUUID();
         UUID a = FactionIds.forVillage(village);
         assertEquals(a, FactionIds.forVillage(village));
-        assertTrue(FactionIds.isVillageFaction(a));
-        assertEquals(village, FactionIds.villageOf(a));
-        assertFalse(FactionIds.isVillageFaction(village));
-        assertFalse(FactionIds.isVillageFaction(null));
+        assertNotEquals(village, a);
     }
 }

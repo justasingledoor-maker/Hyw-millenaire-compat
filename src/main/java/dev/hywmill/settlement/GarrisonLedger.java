@@ -1,6 +1,7 @@
 package dev.hywmill.settlement;
 
 import dev.hywmill.core.HmLog;
+import dev.hywmill.core.HywMillRuntime;
 import dev.hywmill.faction.FactionIds;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -44,12 +45,20 @@ public final class GarrisonLedger extends SavedData {
         VillageRecord r = records.get(villageId);
         if (r == null) {
             r = new VillageRecord(villageId, FactionIds.forVillage(villageId));
+            registerFaction(villageId);
             r.firstSeenTick = tick;
             records.put(villageId, r);
             setDirty();
             HmLog.info("Ledger record created for village {} (faction {})", villageId, r.factionId);
         }
         return r;
+    }
+
+    private static void registerFaction(UUID villageId) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt != null) {
+            rt.factions().register(villageId);
+        }
     }
 
     private static GarrisonLedger load(CompoundTag root, HolderLookup.Provider registries) {
@@ -65,6 +74,7 @@ public final class GarrisonLedger extends SavedData {
                 r.factionId = expected;
             }
             ledger.records.put(r.villageId, r);
+            registerFaction(r.villageId);
         }
         HmLog.info("Garrison ledger loaded: {} village record(s), format {}, faction-id mismatches corrected: {}",
                 ledger.records.size(), root.getInt("format"), mismatched);

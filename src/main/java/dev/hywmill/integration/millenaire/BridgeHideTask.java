@@ -1,7 +1,7 @@
 package dev.hywmill.integration.millenaire;
 
 import dev.hywmill.core.HmLog;
-import dev.hywmill.military.ThreatTracker;
+import dev.hywmill.core.HywMillRuntime;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import org.millenaire.building.BuildingInstance;
@@ -45,7 +45,8 @@ final class BridgeHideTask implements VillagerTask {
     public void tick(GoalContext ctx) {
         MillVillager v = ctx.villager();
         ticks++;
-        if (!ThreatTracker.hasThreat(village) || ticks > MAX_TICKS) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt == null || !rt.threats().hasThreat(village) || ticks > MAX_TICKS) {
             finished = true;
             return;
         }

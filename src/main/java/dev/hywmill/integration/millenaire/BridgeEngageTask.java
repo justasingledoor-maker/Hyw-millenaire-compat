@@ -1,8 +1,7 @@
 package dev.hywmill.integration.millenaire;
 
 import dev.hywmill.core.HmLog;
-import dev.hywmill.military.IncidentLedger;
-import dev.hywmill.military.ThreatTracker;
+import dev.hywmill.core.HywMillRuntime;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -77,9 +76,10 @@ final class BridgeEngageTask implements VillagerTask {
             finished = true;
             return;
         }
-        if (ticks % RECHECK_INTERVAL == 0
-                && !ThreatTracker.isThreat(village, target)
-                && !IncidentLedger.recentlyAttackedVillage(target.getUUID(), village, ctx.gameTime())) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt == null || (ticks % RECHECK_INTERVAL == 0
+                && !rt.threats().isThreat(village, target)
+                && !rt.incidents().recentlyAttackedVillage(target.getUUID(), village, ctx.gameTime()))) {
             finished = true;
             return;
         }

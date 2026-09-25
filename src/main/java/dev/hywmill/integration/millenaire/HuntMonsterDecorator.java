@@ -1,6 +1,6 @@
 package dev.hywmill.integration.millenaire;
 
-import dev.hywmill.military.ThreatTracker;
+import dev.hywmill.core.HywMillRuntime;
 import net.minecraft.world.entity.LivingEntity;
 import org.millenaire.entity.MillVillager;
 import org.millenaire.goal.GoalContext;
@@ -34,7 +34,8 @@ final class HuntMonsterDecorator extends BridgeDecorator {
         if (current != null && current.isAlive()) {
             return null; // already busy; engage_target handles it
         }
-        return ThreatTracker.nearestThreat(ctx.village().getId().uuid(), v.position(), MAX_HUNT_DISTANCE);
+        HywMillRuntime rt = HywMillRuntime.get();
+        return rt == null ? null : rt.threats().nearestThreat(ctx.village().getId().uuid(), v.position(), MAX_HUNT_DISTANCE);
     }
 
     @Override
