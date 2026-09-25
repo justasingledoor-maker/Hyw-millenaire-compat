@@ -63,6 +63,8 @@ configurations {
 tasks.named('test', Test) {
     useJUnitPlatform()
     testLogging { events 'passed', 'failed', 'skipped'; exceptionFormat 'full' }
+    // -Dhywmill.* properties reach the tests (debugging the seeded property test)
+    systemProperties System.properties.findAll { it.key.toString().startsWith('hywmill.') }
 }
 
 // Dev runs: FML loads production mod jars from <runDir>/mods, which is how the two

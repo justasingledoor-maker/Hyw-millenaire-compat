@@ -1,5 +1,6 @@
 package dev.hywmill.core;
 
+import dev.hywmill.garrison.service.GarrisonService;
 import dev.hywmill.faction.FactionRegistry;
 import dev.hywmill.military.DiplomacyPolicy;
 import dev.hywmill.military.IncidentLedger;
@@ -31,6 +32,7 @@ public final class HywMillRuntime {
     private final PerfCounters perf = new PerfCounters();
     private final IncidentLedger incidents = new IncidentLedger();
     private final DefenseService defense = new DefenseService(perf);
+    private final GarrisonService garrison = new GarrisonService(perf);
     private final ThreatTracker threats = new ThreatTracker(incidents, scheduler, defense, perf);
     private final FactionRegistry factions = new FactionRegistry();
     private final DiplomacyPolicy diplomacy = DiplomacyPolicy.ALWAYS_REVERT;
@@ -42,6 +44,7 @@ public final class HywMillRuntime {
         this.server = server;
         incidents.bind(threats);
         defense.bind(threats);
+        defense.setListener(garrison::afterScan);
     }
 
     static void start(MinecraftServer server) {
@@ -92,6 +95,10 @@ public final class HywMillRuntime {
 
     public DefenseService defense() {
         return defense;
+    }
+
+    public GarrisonService garrison() {
+        return garrison;
     }
 
     public PerfCounters perf() {

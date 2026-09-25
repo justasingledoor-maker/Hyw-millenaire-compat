@@ -21,6 +21,8 @@ public final class HywIntegration implements Integration {
             throw new IllegalStateException("HYW RelationOwnerMarkedEntity is not implemented by Entity; HYW mixins missing?");
         }
         Services.registerFactions(new HywCombatFactionService());
+        Services.registerUnits(new HywUnitProvider());
+        Services.registerEquipment(new HywEquipmentProvider());
         Services.putDiagnostic("hyw.identityMarker", "RelationOwnerMarkedEntity present on Entity");
         HmLog.info("HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).");
     }

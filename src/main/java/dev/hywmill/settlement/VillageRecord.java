@@ -1,5 +1,6 @@
 package dev.hywmill.settlement;
 
+import dev.hywmill.garrison.GarrisonRoster;
 import dev.hywmill.military.classify.BuildingRole;
 import dev.hywmill.military.classify.VillagerRole;
 import dev.hywmill.military.MilitaryTier;
@@ -35,7 +36,7 @@ import java.util.UUID;
  * even if the village is inactive. New fields start empty; nothing is discarded.
  */
 public final class VillageRecord {
-    public static final int FORMAT = 3;
+    public static final int FORMAT = 4;
 
     public final UUID villageId;
     public UUID factionId;
@@ -73,6 +74,14 @@ public final class VillageRecord {
     public DoctrinePatch doctrineOverride = DoctrinePatch.EMPTY;
     public DefenseStats stats = new DefenseStats();
     /** Not persisted: set when loaded from an older format. */
+    // ---- format 4 (M3) ----
+    /**
+     * The persistent HYW garrison. Null until the village's first garrison slot after it was
+     * created or migrated from format 3; then an empty roster (startingGranted=false, levy 0,
+     * lastAccrualTick = that tick) is created. {@link #garrison} stays the Millénaire soldier count.
+     */
+    @Nullable public GarrisonRoster hywRoster;
+
     public boolean needsRecompute;
     /** Not persisted: resolved-doctrine cache (see GarrisonUpdater.resolveDoctrine). */
     public DoctrineResolver.Resolved cachedDoctrine;
@@ -192,6 +201,9 @@ public final class VillageRecord {
         }
         t.put("doctrineOverride", DoctrineOverride.save(doctrineOverride));
         t.put("stats", stats.save());
+        if (hywRoster != null) {
+            t.put("hywRoster", hywRoster.save());
+        }
         return t;
     }
 
@@ -281,6 +293,9 @@ public final class VillageRecord {
             r.stats = DefenseStats.load(t.getCompound("stats"));
         } else {
             r.needsRecompute = true;
+        }
+        if (format >= 4 && t.contains("hywRoster", Tag.TAG_COMPOUND)) {
+            r.hywRoster = GarrisonRoster.load(t.getCompound("hywRoster"), r.lastUpdateTick);
         }
         return r;
     }

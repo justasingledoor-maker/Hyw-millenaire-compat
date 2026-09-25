@@ -393,4 +393,16 @@ final class MillenaireSettlementSource implements SettlementSource {
         }
         return lines;
     }
+
+    /** Millénaire's own deletion path (negation wand) ends in {@code VillageManager.removeVillage}; no event is fired. */
+    @Override
+    public boolean devRemove(ServerLevel level, UUID settlementId) {
+        VillageId id = new VillageId(settlementId);
+        if (manager(level).getVillage(id) == null) {
+            return false;
+        }
+        manager(level).removeVillage(id);
+        VillageSavedData.get(level).setDirty();
+        return true;
+    }
 }

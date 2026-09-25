@@ -87,7 +87,7 @@ final class MilitaryCommands {
                         .then(Commands.literal("capacity").executes(MilitaryCommands::devCapacity))));
     }
 
-    private static Optional<VillageRecord> record(CommandSourceStack src) {
+    static Optional<VillageRecord> record(CommandSourceStack src) {
         Optional<SettlementSource.SettlementRef> ref = nearest(src);
         if (ref.isEmpty()) {
             return Optional.empty();
@@ -143,6 +143,7 @@ final class MilitaryCommands {
             send(src, " - " + (factions != null ? factions.describe(t.entity()) : t.entity().getUUID()) + " " + t.reasons());
         }
         send(src, "Stats: " + r.stats);
+        send(src, GarrisonCommands.line(r, src.getServer().overworld().getGameTime()));
         return 1;
     }
 
@@ -268,6 +269,18 @@ final class MilitaryCommands {
         rt.perf().report().forEach((k, v) -> send(src, " " + k + ": " + v));
         send(src, " villages known: " + (rt.cachedVillages == null ? 0 : rt.cachedVillages.size())
                 + ", with defense state: " + rt.defense().all().size());
+        int live = 0;
+        int rosters = 0;
+        for (VillageRecord r : GarrisonLedger.get(src.getServer().overworld()).all()) {
+            if (r.hywRoster != null) {
+                rosters++;
+                live += r.hywRoster.live();
+            }
+        }
+        send(src, " garrison: " + rosters + " roster(s), " + live + " live slot(s) (no server-wide cap), duplicates refused "
+                + rt.garrison().counter(dev.hywmill.garrison.service.GarrisonService.C_DUPLICATES) + ", adopted "
+                + rt.garrison().counter(dev.hywmill.garrison.service.GarrisonService.C_ADOPTED) + ", orphans "
+                + rt.garrison().counter(dev.hywmill.garrison.service.GarrisonService.C_ORPHANS));
         return 1;
     }
 

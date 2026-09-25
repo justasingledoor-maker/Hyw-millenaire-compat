@@ -1,5 +1,6 @@
 package dev.hywmill;
 
+import dev.hywmill.garrison.tag.GarrisonAttachments;
 import dev.hywmill.config.HywMillConfig;
 import dev.hywmill.core.CoreEvents;
 import dev.hywmill.core.Integrations;
@@ -20,6 +21,7 @@ public final class HywMill {
 
     public HywMill(IEventBus modBus, ModContainer container) {
         container.registerConfig(ModConfig.Type.COMMON, HywMillConfig.SPEC);
+        GarrisonAttachments.register(modBus);
         NeoForge.EVENT_BUS.register(CoreEvents.class);
         Integrations.loadAll(modBus);
         HmLog.info("Initialized. Integrations: {}", Integrations.describe());

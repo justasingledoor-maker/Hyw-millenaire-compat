@@ -1,5 +1,7 @@
 package dev.hywmill.military;
 
+import dev.hywmill.garrison.tag.GarrisonAttachments;
+import dev.hywmill.garrison.tag.GarrisonTag;
 import dev.hywmill.config.HywMillConfig;
 import dev.hywmill.core.HmLog;
 import dev.hywmill.core.Services;
@@ -39,7 +41,9 @@ public final class IncidentLedger {
             boolean attackerInherentlyHostile,
             @Nullable UUID victimResidentOf,
             @Nullable UUID insideVillage,
-            float amount
+            float amount,
+            /** M3: the victim is a village-owned garrison unit of this village (attack on the village). */
+            @Nullable UUID victimGarrisonOf
     ) {}
 
     private record Pair(UUID a, UUID b) {
@@ -81,14 +85,20 @@ public final class IncidentLedger {
         boolean inherent = attackerUnit && factions.ownerOf(attacker) == null;
         UUID residentOf = victimRes.filter(r -> !r.raider()).map(ResidentInfo::settlementId).orElse(null);
         UUID inside = threats != null ? threats.villageContaining(victim.blockPosition()) : null;
+        GarrisonTag garrisonTag = GarrisonAttachments.get(victim);
+        UUID garrisonOf = garrisonTag == null || (attackerFaction != null && attackerFaction.equals(victimFaction))
+                ? null : garrisonTag.villageId();
 
         Incident inc = new Incident(tick,
                 attacker.getUUID(), typeOf(attacker), attackerFaction,
                 victim.getUUID(), typeOf(victim), victimFaction,
-                inherent, residentOf, inside, amount);
+                inherent, residentOf, inside, amount, garrisonOf);
         recent.addLast(inc);
         while (recent.size() > CAPACITY) {
             recent.removeFirst();
+        }
+        if (garrisonOf != null) {
+            lastAttackOnVillage.computeIfAbsent(attacker.getUUID(), k -> new HashMap<>()).put(garrisonOf, tick);
         }
         if (residentOf != null) {
             lastAttackOnVillage.computeIfAbsent(attacker.getUUID(), k -> new HashMap<>()).put(residentOf, tick);

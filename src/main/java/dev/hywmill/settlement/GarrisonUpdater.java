@@ -34,6 +34,10 @@ public final class GarrisonUpdater {
         if (rt.cachedVillages == null || tick % interval == 0) {
             rt.cachedVillages = source.list(overworld);
             rt.defense().prune(rt.cachedVillages.stream().map(SettlementSource.SettlementRef::id).toList());
+            rt.garrison().prune(rt.cachedVillages.stream().map(SettlementSource.SettlementRef::id).toList());
+            java.util.Set<UUID> present = new java.util.HashSet<>();
+            rt.cachedVillages.forEach(v -> present.add(v.id()));
+            rt.garrison().goneCheck(overworld, GarrisonLedger.get(overworld), present, tick);
             HmLog.diagThrottled("ledger-summary", 60_000L, "Ledger: {} village(s) known to Millénaire", rt.cachedVillages.size());
         }
         GarrisonLedger ledger = null;
@@ -51,6 +55,17 @@ public final class GarrisonUpdater {
                     rec.loadedResidents = sweep.loaded();
                     rec.markedResidents = sweep.marked();
                     rt.perf().stop("profile.sweep", ts);
+                }
+            }
+            if (ref.active() && rt.scheduler().isDue(ref.id(), tick + interval / 4, interval)) {
+                // M3 garrison slot: a quarter interval after the refresh, so it never shares a tick
+                // with the refresh (offset 0) or the identity sweep (offset interval/2).
+                if (ledger == null) {
+                    ledger = GarrisonLedger.get(overworld);
+                }
+                VillageRecord rec = ledger.get(ref.id());
+                if (rec != null && rec.updateCount > 0) {
+                    rt.garrison().slot(overworld, ledger, rec, tick);
                 }
             }
             if (!rt.scheduler().isDue(ref.id(), tick, interval)) {

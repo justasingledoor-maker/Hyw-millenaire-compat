@@ -1,5 +1,6 @@
 package dev.hywmill.config;
 
+import dev.hywmill.garrison.GarrisonSettings;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 /** Common config ({@code config/hywmill-common.toml}). */
@@ -23,6 +24,20 @@ public final class HywMillConfig {
     public static final ModConfigSpec.BooleanValue GUARDS_ASSIST_PLAYERS;
     public static final ModConfigSpec.IntValue ASSIST_MIN_REPUTATION;
     public static final ModConfigSpec.BooleanValue ASSIST_PROVOKING_PLAYER;
+
+    public static final ModConfigSpec.BooleanValue GARRISON_ENABLED;
+    public static final ModConfigSpec.IntValue GARRISON_SPAWNS_PER_SLOT;
+    public static final ModConfigSpec.IntValue GARRISON_SPAWNS_PER_TICK;
+    public static final ModConfigSpec.IntValue GARRISON_SETTLE_INTERVALS;
+    public static final ModConfigSpec.IntValue GARRISON_RECRUIT_INTERVAL;
+    public static final ModConfigSpec.IntValue GARRISON_DEATH_COOLDOWN;
+    public static final ModConfigSpec.IntValue GARRISON_WIPEOUT_COOLDOWN;
+    public static final ModConfigSpec.IntValue GARRISON_MISSING_GRACE;
+    public static final ModConfigSpec.IntValue GARRISON_LOST_TIMEOUT;
+    public static final ModConfigSpec.IntValue GARRISON_VILLAGE_GONE_GRACE;
+    public static final ModConfigSpec.IntValue GARRISON_RETURN_TIMEOUT;
+    public static final ModConfigSpec.EnumValue<GarrisonSettings.OrphanPolicy> GARRISON_ORPHAN_POLICY;
+    public static final ModConfigSpec.BooleanValue GARRISON_EQUIPMENT_DROPS;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -74,8 +89,49 @@ public final class HywMillConfig {
                 .define("assistProvokingPlayer", false);
         b.pop();
 
+        b.push("garrison");
+        GARRISON_ENABLED = b.comment("M3 village-owned HYW garrisons. false stops recruitment, spawning and deployment;",
+                        "existing units stay and are still reconciled. Sizes, levy and compositions are datapack data",
+                        "(data/<ns>/hywmill_garrison/). There is deliberately no server-wide unit cap.")
+                .define("enabled", true);
+        GARRISON_SPAWNS_PER_SLOT = b.comment("Most units one village spawns in one garrison slot (one slot per village per ledger interval).")
+                .defineInRange("spawnsPerSlot", 2, 1, 16);
+        GARRISON_SPAWNS_PER_TICK = b.comment("Most garrison units spawned server-wide in one tick (throughput only; excess waits for the next slot).")
+                .defineInRange("spawnsPerTick", 2, 1, 16);
+        GARRISON_SETTLE_INTERVALS = b.comment("Ledger intervals a village must be active (and the server up) before its garrison spawns units",
+                        "or marks unseen units MISSING, so units in freshly loaded chunks rejoin first.")
+                .defineInRange("settleIntervals", 2, 1, 20);
+        GARRISON_RECRUIT_INTERVAL = b.comment("Minimum ticks between two paid recruits of one village.")
+                .defineInRange("recruitIntervalTicks", 2400, 20, 240000);
+        GARRISON_DEATH_COOLDOWN = b.comment("Recruitment cooldown (ticks) after a garrison unit dies.")
+                .defineInRange("deathCooldownTicks", 1200, 0, 240000);
+        GARRISON_WIPEOUT_COOLDOWN = b.comment("Recruitment cooldown (ticks) when at least 75% of the target died during one alert.")
+                .defineInRange("wipeoutCooldownTicks", 24000, 0, 2400000);
+        GARRISON_MISSING_GRACE = b.comment("Active ticks a unit may go unseen before its slot is MISSING (unloaded chunks elsewhere are not death).")
+                .defineInRange("missingGraceTicks", 1200, 200, 240000);
+        GARRISON_LOST_TIMEOUT = b.comment("Further active ticks before a MISSING slot is LOST and may be replaced by a new paid recruit.")
+                .defineInRange("lostTimeoutTicks", 72000, 1200, 2400000);
+        GARRISON_VILLAGE_GONE_GRACE = b.comment("Ticks a village may be absent from Millénaire's village list before its garrison is LOST(VILLAGE_GONE).")
+                .defineInRange("villageGoneGraceTicks", 6000, 200, 240000);
+        GARRISON_RETURN_TIMEOUT = b.comment("Ticks after which a returning unit counts as garrisoned even if not back at its post.")
+                .defineInRange("returnTimeoutTicks", 1200, 20, 24000);
+        GARRISON_ORPHAN_POLICY = b.comment("Units of a deleted village: KEEP (they stay as ordinary HYW units, untagged) or DISCARD.")
+                .defineEnum("orphanPolicy", GarrisonSettings.OrphanPolicy.KEEP);
+        GARRISON_EQUIPMENT_DROPS = b.comment("Whether garrison units drop their equipment on death (false: no gear farming).")
+                .define("equipmentDrops", false);
+        b.pop();
+
         SPEC = b.build();
     }
 
     private HywMillConfig() {}
+
+    /** Current garrison settings (config values are read each slot, so /reload-free edits apply). */
+    public static GarrisonSettings garrison() {
+        return new GarrisonSettings(GARRISON_ENABLED.get(), LEDGER_UPDATE_INTERVAL.get(), GARRISON_SPAWNS_PER_SLOT.get(),
+                GARRISON_SPAWNS_PER_TICK.get(), GARRISON_SETTLE_INTERVALS.get(), GARRISON_RECRUIT_INTERVAL.get(),
+                GARRISON_DEATH_COOLDOWN.get(), GARRISON_WIPEOUT_COOLDOWN.get(), GARRISON_MISSING_GRACE.get(), GARRISON_LOST_TIMEOUT.get(),
+                GARRISON_VILLAGE_GONE_GRACE.get(), GARRISON_RETURN_TIMEOUT.get(), GARRISON_ORPHAN_POLICY.get(),
+                GARRISON_EQUIPMENT_DROPS.get(), 24000L);
+    }
 }

@@ -13,12 +13,15 @@ import dev.hywmill.military.IncidentLedger;
 import dev.hywmill.military.classify.RoleTableLoader;
 import dev.hywmill.military.defense.DefenseStatsRecorder;
 import dev.hywmill.military.doctrine.DoctrineLoader;
+import dev.hywmill.garrison.tables.GarrisonTableLoader;
 import dev.hywmill.settlement.SettlementSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import dev.hywmill.garrison.tag.GarrisonAttachments;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -67,7 +70,27 @@ public final class CoreEvents {
             return;
         }
         Entity entity = event.getEntity();
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt != null && event.getLevel() instanceof ServerLevel level && GarrisonAttachments.get(entity) != null) {
+            guarded("garrison join", () -> {
+                if (!rt.garrison().onJoin(entity, level)) {
+                    event.setCanceled(true);
+                }
+            });
+            if (event.isCanceled()) {
+                return;
+            }
+        }
         guarded("identity marking", () -> FactionMarker.onJoin(entity));
+    }
+
+    @SubscribeEvent
+    public static void onEntityLeave(EntityLeaveLevelEvent event) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt == null || !(event.getLevel() instanceof ServerLevel level) || GarrisonAttachments.get(event.getEntity()) == null) {
+            return;
+        }
+        guarded("garrison leave", () -> rt.garrison().onLeave(event.getEntity(), level));
     }
 
     @SubscribeEvent
@@ -99,6 +122,9 @@ public final class CoreEvents {
         if (inc.victimResidentOf() != null && factions.isCombatUnit(attacker)) {
             rt.defense().engageSignal(inc.victimResidentOf());
         }
+        if (inc.victimGarrisonOf() != null) {
+            rt.defense().engageSignal(inc.victimGarrisonOf());
+        }
         if (factions.isCombatUnit(victim)) {
             settlements.residentInfo(attacker).filter(r -> !r.raider())
                     .ifPresent(r -> rt.defense().engageSignal(r.settlementId()));
@@ -111,12 +137,16 @@ public final class CoreEvents {
             return;
         }
         guarded("defense statistics", () -> DefenseStatsRecorder.onDeath(level, event.getEntity(), event.getSource().getEntity()));
+        if (GarrisonAttachments.get(event.getEntity()) != null) {
+            guarded("garrison death", () -> HywMillRuntime.require().garrison().onDeath(event.getEntity(), level));
+        }
     }
 
     @SubscribeEvent
     public static void onAddReloadListeners(AddReloadListenerEvent event) {
         event.addListener(new RoleTableLoader());
         event.addListener(new DoctrineLoader());
+        event.addListener(new GarrisonTableLoader());
     }
 
     @SubscribeEvent

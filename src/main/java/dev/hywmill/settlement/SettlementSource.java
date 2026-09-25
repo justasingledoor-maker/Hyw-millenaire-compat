@@ -44,5 +44,14 @@ public interface SettlementSource {
     /** Human-readable diagnostic lines about loaded residents. */
     List<String> describeResidents(ServerLevel level, UUID settlementId);
 
+    /**
+     * DEV ONLY ({@code /hywmill dev remove-village}, M3 harness G3-14): removes the settlement from
+     * the source's registry the way its own deletion does, so its disappearance can be tested.
+     * Returns false if unsupported or unknown.
+     */
+    default boolean devRemove(ServerLevel level, UUID settlementId) {
+        return false;
+    }
+
     record SettlementRef(UUID id, String name, BlockPos center, boolean active) {}
 }

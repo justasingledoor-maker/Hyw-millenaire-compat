@@ -1,5 +1,7 @@
 package dev.hywmill.core;
 
+import dev.hywmill.garrison.spi.EquipmentProvider;
+import dev.hywmill.garrison.spi.UnitProvider;
 import dev.hywmill.faction.CombatFactionService;
 import dev.hywmill.settlement.SettlementSource;
 
@@ -15,6 +17,8 @@ import java.util.function.Supplier;
 public final class Services {
     @Nullable private static volatile SettlementSource settlements;
     @Nullable private static volatile CombatFactionService factions;
+    @Nullable private static volatile UnitProvider units;
+    private static final Map<String, EquipmentProvider> EQUIPMENT = new java.util.concurrent.ConcurrentHashMap<>();
     private static final Map<String, Supplier<String>> DIAGNOSTICS = new LinkedHashMap<>();
 
     private Services() {}
@@ -27,6 +31,27 @@ public final class Services {
     @Nullable
     public static CombatFactionService factions() {
         return factions;
+    }
+
+    /** Garrison unit provider (HYW), null when HYW is absent or failed. */
+    @Nullable
+    public static UnitProvider units() {
+        return units;
+    }
+
+    public static void registerUnits(UnitProvider provider) {
+        units = provider;
+    }
+
+    public static void registerEquipment(EquipmentProvider provider) {
+        EQUIPMENT.put(provider.id(), provider);
+    }
+
+    /** The equipment provider with this id if registered and available, else null. */
+    @Nullable
+    public static EquipmentProvider equipment(String id) {
+        EquipmentProvider p = EQUIPMENT.get(id);
+        return p != null && p.available() ? p : null;
     }
 
     public static void registerSettlements(SettlementSource source) {
@@ -47,6 +72,8 @@ public final class Services {
     public static void disableFactions(Throwable cause) {
         HmLog.error("Disabling HYW faction service after runtime failure: {}", cause.toString(), cause);
         factions = null;
+        units = null;
+        EQUIPMENT.clear();
         Integrations.markFailed("hundred_years_war", cause);
     }
 

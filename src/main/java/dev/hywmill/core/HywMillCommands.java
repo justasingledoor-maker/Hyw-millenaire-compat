@@ -77,11 +77,15 @@ public final class HywMillCommands {
                         .then(Commands.literal("relation")
                                 .then(Commands.argument("other", UuidArgument.uuid())
                                         .executes(HywMillCommands::devRelation)))
+                        .then(GarrisonSpikeCommands.spawnNode())
+                        .then(GarrisonSpikeCommands.engageNode())
+                        .then(GarrisonSpikeCommands.infoNode())
                         .then(Commands.literal("inspect")
                                 .then(Commands.argument("targets", EntityArgument.entities())
                                         .executes(HywMillCommands::devInspect)))));
         // Placeholder alias requested for M1 acceptance tests.
         MilitaryCommands.register(dispatcher);
+        GarrisonCommands.register(dispatcher);
         dispatcher.register(Commands.literal("ourmod").redirect(root));
     }
 

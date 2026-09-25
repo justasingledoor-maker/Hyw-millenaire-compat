@@ -1,5 +1,7 @@
 package dev.hywmill.military.defense;
 
+import dev.hywmill.military.doctrine.Doctrine;
+import net.minecraft.world.entity.LivingEntity;
 import dev.hywmill.core.HmLog;
 import dev.hywmill.core.PerfCounters;
 import dev.hywmill.core.Services;
@@ -36,6 +38,25 @@ public final class DefenseService {
     private final Map<UUID, VillageDefenseState> villages = new ConcurrentHashMap<>();
     private final PerfCounters perf;
     private ThreatTracker threats;
+    @Nullable private ScanListener listener;
+
+    /** Notified after every village scan with M2's result (M3 garrison deployment). Must not change M2 state. */
+    public interface ScanListener {
+        void afterScan(ServerLevel level, UUID village, AlertState state, Doctrine doctrine, List<DefenseCoordinator.ThreatView> threats,
+                       Map<UUID, LivingEntity> threatEntities, DefenseCoordinator.Pos anchor);
+    }
+
+    public void setListener(@Nullable ScanListener listener) {
+        this.listener = listener;
+    }
+
+    private void notifyListener(ServerLevel level, VillageDefenseState st, List<DefenseCoordinator.ThreatView> tv,
+                                Map<UUID, LivingEntity> entities) {
+        if (listener != null) {
+            listener.afterScan(level, st.village, st.state(), st.doctrine.doctrine(), tv, entities,
+                    st.defendingPos != null ? st.defendingPos : st.center);
+        }
+    }
 
     public DefenseService(PerfCounters perf) {
         this.perf = perf;
@@ -97,14 +118,17 @@ public final class DefenseService {
             st.threatPositions = List.of();
             st.eligible = 0;
             perf.stop("defense.update", t0);
+            notifyListener(level, st, List.of(), Map.of());
             return;
         }
         List<DefenseCoordinator.ThreatView> tv = new ArrayList<>(found.size());
         List<DefenseCoordinator.Pos> tp = new ArrayList<>(found.size());
+        Map<UUID, LivingEntity> threatEntities = new java.util.HashMap<>();
         for (ThreatTracker.Threat t : found) {
             DefenseCoordinator.Pos p = new DefenseCoordinator.Pos(t.entity().getX(), t.entity().getY(), t.entity().getZ());
             tv.add(new DefenseCoordinator.ThreatView(t.entity().getUUID(), p, t.reasons()));
             tp.add(p);
+            threatEntities.put(t.entity().getUUID(), t.entity());
         }
         SettlementSource source = Services.settlements();
         List<DefenseCoordinator.DefenderView> roster = new ArrayList<>();
@@ -128,6 +152,7 @@ public final class DefenseService {
         st.eligible = r.eligible();
         st.threatPositions = tp;
         perf.stop("defense.update", t0);
+        notifyListener(level, st, tv, threatEntities);
     }
 
     private void onTransition(ServerLevel level, VillageDefenseState st, AlertState before, long now) {

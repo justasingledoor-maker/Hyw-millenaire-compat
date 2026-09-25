@@ -85,6 +85,12 @@ public final class GarrisonLedger extends SavedData {
         }
         HmLog.info("Garrison ledger loaded: {} village record(s), format {}, faction-id mismatches corrected: {}",
                 ledger.records.size(), format, mismatched);
+        if (format < VillageRecord.FORMAT && !ledger.records.isEmpty()) {
+            // Format 3 -> 4: every record gets an empty garrison roster at its first garrison slot.
+            ledger.setDirty();
+            HmLog.info("Garrison ledger migrated {} record(s) from format {} to {}: empty HYW garrison rosters (one-time starting grant pending).",
+                    ledger.records.size(), format, VillageRecord.FORMAT);
+        }
         if (migrated > 0) {
             // Saved as the current format on the next save; values recomputed at each village's next update.
             ledger.setDirty();
