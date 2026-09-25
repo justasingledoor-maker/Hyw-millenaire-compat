@@ -34,7 +34,23 @@ They are `compileOnly` dependencies. At runtime both are optional: the mod loads
 | `village residents` | Loaded residents: role, current goal, attack target (op) |
 | `threats` | Current HYW threats in the nearest village |
 | `incidents [n]` | Recent combat incidents (op) |
+| `admin clear-identities [all]` | Removes our village faction identity from residents of the nearest village (or all villages) and keeps it off (op 3) |
+| `admin restore-identities [all]` | Lifts that clearance; residents are marked again (op 3) |
 | `dev playerhit`, `dev relation`, `dev inspect` | Test helpers; need `general.devCommands=true` |
+
+## Removing the mod from a world
+
+hywmill gives every Millénaire villager an HYW identity marker (its village's faction UUID). HYW saves that marker with the villager. If you remove hywmill without clearing the markers first, they stay in the world. HYW then keeps treating those villagers as members of a faction that nothing manages any more: unowned HYW units stay hostile to them, and nothing makes the villagers fight back.
+
+Once the mod is removed, nothing can clean up. Before removing it:
+
+1. Run `/hywmill admin clear-identities all` (op level 3). This clears loaded villagers right away and records that every village must stay unmarked.
+2. Load every village once so their villagers are cleared as they load (for example, visit them, or use Millénaire's `/millenaire chunkload` near each). `/hywmill status` shows how many markers have been removed.
+3. Save and stop the server, then remove the jar.
+
+Setting `bridge.markVillagers = false` in `config/hywmill-common.toml` also removes our markers from villagers as they load, and stops marking. To undo a clearance, run `/hywmill admin restore-identities all`.
+
+Our own data (`data/hywmill_garrison_ledger.dat` and `data/hywmill_identity_clearance.dat` in the world folder) can be deleted after the mod is removed; nothing else reads it.
 
 ## Role tables (datapack)
 

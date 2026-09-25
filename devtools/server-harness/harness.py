@@ -479,14 +479,53 @@ def scenario_H(ctx):
     s.cmd("kill @e[type=hundred_years_war:trebuchets]", 1)
 
 
+def marker_of(s, uuid):
+    for l in s.output(f"hywmill dev inspect {uuid}", 2):
+        m = re.search(r" marker=(\S+)", l)
+        if m and l.strip().startswith(uuid):
+            return m[1]
+    return "?"
+
+
+def restart(ctx, hywmill_extra=""):
+    s = ctx.s
+    s.cmd("save-all flush", 5)
+    s.stop()
+    write_configs(s.d, hywmill_extra)
+    s.start()
+    s.cmd("millenaire chunkload", 10)
+    wait_residents(s, ctx.a)
+
+
+def scenario_G(ctx):
+    """M1.1-6: our identity markers can be removed before uninstalling, and stay removed."""
+    s = ctx.s
+    c = ctx.a
+    faction = info(s, c).get("faction")
+    res = wait_residents(s, c)
+    v = next((r[0] for r in res if r[2] == "CIVILIAN"), None)
+    if not check("G0 a marked resident", v is not None and marker_of(s, v) == faction, f"{v} faction={faction}"):
+        return
+    out = s.output(at(c, "hywmill admin clear-identities"), 3)
+    check("G1 clear-identities removes loaded markers", marker_of(s, v) == "null", "; ".join(out))
+    restart(ctx)
+    check("G2 still unmarked after restart (clearance persisted, not re-marked on load)", marker_of(s, v) == "null")
+    s.output(at(c, "hywmill admin restore-identities"), 3)
+    check("G3 restore-identities re-marks", marker_of(s, v) == faction)
+    restart(ctx, "[bridge]\n\tmarkVillagers = false\n")
+    check("G4 markVillagers=false removes markers on load", marker_of(s, v) == "null")
+    restart(ctx)
+    check("G5 markVillagers=true marks again", marker_of(s, v) == faction)
+
+
 def scenario_status(ctx):
     out = ctx.s.output("hywmill status", 2)
     check("status: goal bridge installed", any("engage_target=bridged" in l and "hide=bridged" in l for l in out), "; ".join(out[:3]))
 
 
 SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
-             "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "M": scenario_M, "status": scenario_status}
-ORDER = ["status", "H", "B", "C", "D", "F1", "E", "F2", "A"]
+             "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "M": scenario_M, "status": scenario_status}
+ORDER = ["status", "H", "B", "C", "D", "F1", "E", "F2", "A", "G"]
 
 
 def run(d: Path, names, fresh=True):

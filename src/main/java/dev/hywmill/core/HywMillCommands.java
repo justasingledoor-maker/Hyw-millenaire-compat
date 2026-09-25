@@ -10,6 +10,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.hywmill.config.HywMillConfig;
 import dev.hywmill.faction.CombatFactionService;
 import dev.hywmill.faction.FactionMarker;
+import dev.hywmill.faction.IdentityClearance;
 import dev.hywmill.military.EscalationGuard;
 import dev.hywmill.military.IncidentLedger;
 import dev.hywmill.military.ThreatTracker;
@@ -30,6 +31,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,6 +58,13 @@ public final class HywMillCommands {
                         .executes(ctx -> incidents(ctx, 10))
                         .then(Commands.argument("count", IntegerArgumentType.integer(1, 100))
                                 .executes(ctx -> incidents(ctx, IntegerArgumentType.getInteger(ctx, "count")))))
+                .then(Commands.literal("admin").requires(s -> s.hasPermission(3))
+                        .then(Commands.literal("clear-identities")
+                                .executes(ctx -> clearIdentities(ctx, false))
+                                .then(Commands.literal("all").executes(ctx -> clearIdentities(ctx, true))))
+                        .then(Commands.literal("restore-identities")
+                                .executes(ctx -> restoreIdentities(ctx, false))
+                                .then(Commands.literal("all").executes(ctx -> restoreIdentities(ctx, true)))))
                 .then(Commands.literal("dev").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("playerhit")
                                 .then(Commands.argument("targets", EntityArgument.entities())
@@ -92,6 +101,9 @@ public final class HywMillCommands {
                 + " fixedBySweep=" + rt.counter(FactionMarker.C_FIXED_BY_SWEEP)
                 + " raidersSkipped=" + rt.counter(FactionMarker.C_RAIDERS_SKIPPED));
         send(src, "escalation guard: detected=" + rt.counter(EscalationGuard.C_DETECTED) + " reverted=" + rt.counter(EscalationGuard.C_REVERTED));
+        IdentityClearance clearance = IdentityClearance.get(src.getServer().overworld());
+        send(src, "identity clearance: markVillagers=" + HywMillConfig.MARK_VILLAGERS.get() + " clearedAll=" + clearance.all()
+                + " clearedVillages=" + clearance.villages().size() + " markersRemoved=" + rt.counter(FactionMarker.C_CLEARED));
         return 1;
     }
 
@@ -207,6 +219,73 @@ public final class HywMillCommands {
                     + " resident=" + (i.victimResidentOf() != null) + " inVillage=" + (i.insideVillage() != null));
         }
         return 1;
+    }
+
+    /**
+     * Removes our faction identity marker from residents (nearest village, or all) and keeps it off,
+     * persisted: loaded residents now, unloaded ones when they next load. Run before uninstalling
+     * the mod; nothing can clean up after the mod is gone.
+     */
+    private static int clearIdentities(CommandContext<CommandSourceStack> ctx, boolean all) {
+        CommandSourceStack src = ctx.getSource();
+        List<UUID> villages = targetVillages(src, all);
+        if (villages == null) {
+            return 0;
+        }
+        ServerLevel overworld = src.getServer().overworld();
+        IdentityClearance clearance = IdentityClearance.get(overworld);
+        if (all) {
+            clearance.clearAll();
+        } else {
+            villages.forEach(clearance::clear);
+        }
+        int removed = 0;
+        for (UUID v : villages) {
+            removed += FactionMarker.sweep(overworld, v).cleared();
+        }
+        HmLog.info("Identity clearance {}: removed the faction identity from {} loaded resident(s) in {} village(s)",
+                all ? "for all villages" : "for village " + villages.get(0), removed, villages.size());
+        send(src, "Removed the village faction identity from " + removed + " loaded resident(s) in " + villages.size()
+                + " village(s). Unloaded residents are cleared when they load. Markers stay off until /hywmill admin restore-identities"
+                + (all ? " all." : "."));
+        return removed;
+    }
+
+    private static int restoreIdentities(CommandContext<CommandSourceStack> ctx, boolean all) {
+        CommandSourceStack src = ctx.getSource();
+        List<UUID> villages = targetVillages(src, all);
+        if (villages == null) {
+            return 0;
+        }
+        ServerLevel overworld = src.getServer().overworld();
+        IdentityClearance clearance = IdentityClearance.get(overworld);
+        if (all) {
+            clearance.restoreAll();
+        } else if (!clearance.restore(villages.get(0)) && clearance.all()) {
+            src.sendFailure(Component.literal("All villages are cleared; use /hywmill admin restore-identities all."));
+            return 0;
+        }
+        int marked = 0;
+        for (UUID v : villages) {
+            marked += FactionMarker.sweep(overworld, v).fixed();
+        }
+        send(src, "Identity clearance lifted for " + villages.size() + " village(s); " + marked + " loaded resident(s) re-marked"
+                + (HywMillConfig.MARK_VILLAGERS.get() ? "." : " (markVillagers=false: none will be marked)."));
+        return 1;
+    }
+
+    @Nullable
+    private static List<UUID> targetVillages(CommandSourceStack src, boolean all) {
+        SettlementSource source = Services.settlements();
+        if (source == null || Services.factions() == null) {
+            src.sendFailure(Component.literal("Millénaire and HYW integrations must both be active."));
+            return null;
+        }
+        if (all) {
+            return source.list(src.getServer().overworld()).stream().map(SettlementSource.SettlementRef::id).toList();
+        }
+        Optional<SettlementSource.SettlementRef> ref = nearest(src);
+        return ref.map(r -> List.of(r.id())).orElse(null);
     }
 
     private static String shortId(UUID id) {

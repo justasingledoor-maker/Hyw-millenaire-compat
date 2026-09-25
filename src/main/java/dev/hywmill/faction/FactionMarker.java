@@ -6,6 +6,7 @@ import dev.hywmill.core.HywMillRuntime;
 import dev.hywmill.core.Services;
 import dev.hywmill.settlement.ResidentInfo;
 import dev.hywmill.settlement.SettlementSource;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 
@@ -25,16 +26,23 @@ public final class FactionMarker {
     public static final String C_MARKED_ON_JOIN = "identity.markedOnJoin";
     public static final String C_FIXED_BY_SWEEP = "identity.fixedBySweep";
     public static final String C_RAIDERS_SKIPPED = "identity.raidersSkipped";
+    public static final String C_CLEARED = "identity.cleared";
 
     private FactionMarker() {}
 
-    public enum Outcome { NOT_RESIDENT, ALREADY_MARKED, MARKED, RAIDER_UNMARKED, DISABLED }
+    public enum Outcome { NOT_RESIDENT, ALREADY_MARKED, MARKED, RAIDER_UNMARKED, CLEARED, DISABLED }
 
+    /**
+     * Brings one entity's marker in line with the current policy: residents get their village's
+     * faction identity, unless {@code markVillagers=false} or the village is in
+     * {@link IdentityClearance}, in which case a marker carrying a village-faction UUID of ours is
+     * removed. Markers set by anything else (other identities) are never touched.
+     */
     public static Outcome ensure(Entity entity) {
         SettlementSource source = Services.settlements();
         CombatFactionService factions = Services.factions();
         HywMillRuntime rt = HywMillRuntime.get();
-        if (rt == null || source == null || factions == null || !HywMillConfig.MARK_VILLAGERS.get()) {
+        if (rt == null || source == null || factions == null) {
             return Outcome.DISABLED;
         }
         Optional<ResidentInfo> info = source.residentInfo(entity);
@@ -52,6 +60,16 @@ public final class FactionMarker {
         }
         UUID faction = rt.factions().register(r.settlementId());
         UUID current = factions.markedIdentity(entity);
+        if (!HywMillConfig.MARK_VILLAGERS.get() || isCleared(entity, r.settlementId())) {
+            if (current != null && (current.equals(faction) || rt.factions().isVillageFaction(current))) {
+                factions.clearIdentity(entity);
+                rt.increment(C_CLEARED);
+                HmLog.diag("Villager faction identity removed: {} ({}) of village {} (marker was {})",
+                        entity.getUUID(), r.typeId(), r.settlementId(), current);
+                return Outcome.CLEARED;
+            }
+            return Outcome.DISABLED;
+        }
         if (faction.equals(current)) {
             return Outcome.ALREADY_MARKED;
         }
@@ -59,6 +77,11 @@ public final class FactionMarker {
         HmLog.diag("Villager faction identity assigned: {} ({}) -> faction {} of village {} (previous marker: {})",
                 entity.getUUID(), r.typeId(), faction, r.settlementId(), current);
         return Outcome.MARKED;
+    }
+
+    private static boolean isCleared(Entity entity, UUID village) {
+        MinecraftServer server = entity.getServer();
+        return server != null && IdentityClearance.get(server.overworld()).isCleared(village);
     }
 
     public static void onJoin(Entity entity) {
@@ -69,19 +92,23 @@ public final class FactionMarker {
         }
     }
 
-    public record SweepResult(int loaded, int marked, int fixed) {}
+    public record SweepResult(int loaded, int marked, int fixed, int cleared) {}
 
     /** Re-verifies every loaded resident of one village; any fix means a join path was missed. */
     public static SweepResult sweep(ServerLevel level, UUID villageId) {
         SettlementSource source = Services.settlements();
         if (source == null || Services.factions() == null) {
-            return new SweepResult(0, 0, 0);
+            return new SweepResult(0, 0, 0, 0);
         }
         List<Entity> residents = source.loadedResidents(level, villageId);
         int marked = 0;
         int fixed = 0;
+        int cleared = 0;
         for (Entity e : residents) {
             Outcome o = ensure(e);
+            if (o == Outcome.CLEARED) {
+                cleared++;
+            }
             if (o == Outcome.MARKED) {
                 fixed++;
             }
@@ -94,6 +121,9 @@ public final class FactionMarker {
             rt.add(C_FIXED_BY_SWEEP, fixed);
             HmLog.info("Identity sweep re-marked {} resident(s) of village {} that were missing their faction identity", fixed, villageId);
         }
-        return new SweepResult(residents.size(), marked, fixed);
+        if (cleared > 0) {
+            HmLog.info("Identity sweep removed the faction identity from {} loaded resident(s) of village {}", cleared, villageId);
+        }
+        return new SweepResult(residents.size(), marked, fixed, cleared);
     }
 }
