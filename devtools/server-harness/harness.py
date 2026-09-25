@@ -955,7 +955,7 @@ def spike_info(s, selector, dim=None):
 
 def health(s, tag):
     for l in s.output(f"data get entity @e[tag={tag},limit=1] Health", 0.5):
-        m = re.search(r"entity data: ([\d.]+)f", l)
+        m = re.search(r"entity data: ([\d.]+)[fd]\b", l)
         if m:
             return float(m[1])
     return None
