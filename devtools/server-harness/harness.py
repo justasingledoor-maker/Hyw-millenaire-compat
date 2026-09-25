@@ -1493,35 +1493,51 @@ def scenario_G3_11(ctx):
 
 
 def scenario_G3_12(ctx):
-    """Controller change: Millénaire switchcontrol changes controllerPlayerId only; units keep the
-    faction owner; the controller (a non-op fake player) may pause, a stranger may not."""
+    """Controller change. (a) Millénaire switchcontrol on an ordinary village changes its Millénaire
+    owner; HywMill's controllerPlayerId stays M2's (only player-controlled village types have one)
+    and every garrison unit keeps the faction owner. (b) On a player-controlled village type the
+    controller (a non-op fake player) may pause its garrison; a stranger may not."""
     s = ctx.s
     c = ctx.b
     name = next((l.split("== Garrison of ")[1].split(" (")[0] for l in garrison(s, c)["lines"] if l.startswith("== Garrison of ")), None)
     fac = garrison(s, c).get("faction")
     owners0 = {u: r["desc"] for u, r in unit_entities(s, c).items()}
-    out = s.cmd(f'millenaire dev switchcontrol "{name}" "HwCtl"', 3)
-    time.sleep(12)  # next ledger refresh reads the controller
-    m = military(s, c)
-    ctl = next((re.search(r"controller=(\S+)", l)[1] for l in m["lines"] if "controller=" in l), None)
+    out = s.output(f'millenaire dev switchcontrol "{name}" "HwCtl"', 3)
+    time.sleep(12)
     owners1 = {u: r["desc"] for u, r in unit_entities(s, c).items()}
-    check("G3-12 controller set by Millénaire; faction and every unit owner unchanged", ctl is not None and ctl != fac
-          and owners0.keys() == owners1.keys() and all(("owner=" + fac) in d for d in owners1.values()), f"controller {ctl}; {len(owners1)} units")
-    ctx.g3_controller = ctl
+    check("G3-12a Millénaire owner change: faction and every unit owner unchanged", any("ownership transferred" in l for l in out)
+          and owners0.keys() == owners1.keys() and all(("owner=" + fac) in d for d in owners1.values()) and fac == garrison(s, c).get("faction"),
+          f"{out}; {len(owners1)} units")
+    # (b) a player-controlled village type
+    box = EXTRA_FORCELOAD[2]
+    s.cmd("forceload add {} {} {} {}".format(*box), wait=20)
+    pc = spawn_village(s, [("norman/controlled", 1060, 80, 640), ("norman/controlled", 1040, 80, 612)], surface=True)
+    if not check("G3-12b player-controlled village spawned", pc is not None, str(pc)):
+        return
+    time.sleep(15)
+    pname = next((l.split("== Garrison of ")[1].split(" (")[0] for l in garrison(s, pc)["lines"] if l.startswith("== Garrison of ")), None)
+    s.output(f'millenaire dev switchcontrol "{pname}" "HwCtl"', 3)
+    ctl = None
+    for _ in range(10):
+        time.sleep(5)
+        m = military(s, pc)
+        ctl = next((re.search(r"controller=(\S+)", l)[1] for l in m["lines"] if "controller=" in l), None)
+        if ctl:
+            break
+    pfac = garrison(s, pc).get("faction")
+    check("G3-12b controllerPlayerId set from Millénaire, separate from the faction", ctl is not None and ctl != pfac, f"controller {ctl} faction {pfac}")
     if ctl is None:
-        log("G3-12 switchcontrol output: " + " | ".join(l.split("]: ", 1)[-1] for l in out))
         return
     p = s.pos()
-    s.cmd(at(c, f"hywmill dev runas {ctl} hywmill village garrison pause"), 2)
-    s.cmd(at(c, f"hywmill dev runas 00000000-0000-4000-8000-00000000abcd hywmill village garrison resume"), 2)
+    s.cmd(at(pc, f"hywmill dev runas {ctl} hywmill village garrison pause"), 2)
+    s.cmd(at(pc, "hywmill dev runas 00000000-0000-4000-8000-00000000abcd hywmill village garrison resume"), 2)
     lines = s.read_since(p)
     paused = any("[runas " + ctl[:8] + "]" in l and "paused" in l for l in lines)
     denied = any("[runas 00000000]" in l and "Only an operator or the controller" in l for l in lines)
-    g = garrison(s, c)
-    check("G3-12 the controller pauses its garrison; a stranger is refused", paused and denied and "PAUSED" in g["lines"][1],
-          "; ".join(l.split("]: ", 1)[-1] for l in lines if "runas" in l))
-    s.output(at(c, "hywmill village garrison resume"), 1)
-
+    g = garrison(s, pc)
+    check("G3-12b the (non-op) controller pauses its garrison; a stranger is refused", paused and denied
+          and any("PAUSED" in l for l in g["lines"]), "; ".join(l.split("]: ", 1)[-1] for l in lines if "runas" in l))
+    s.output(at(pc, "hywmill village garrison resume"), 1)
 
 def scenario_G3_13(ctx):
     """Permissions: a non-op non-controller sees the summary only."""
