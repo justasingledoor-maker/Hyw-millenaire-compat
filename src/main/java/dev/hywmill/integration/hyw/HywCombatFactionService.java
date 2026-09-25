@@ -33,7 +33,17 @@ final class HywCombatFactionService implements CombatFactionService {
 
     @Override
     public boolean isCombatUnit(Entity entity) {
-        return entity instanceof BaseCombatEntity && !(entity instanceof NonCombatUnit) && entity.isAlive();
+        return entity instanceof BaseCombatEntity b && isCombatCapable(b);
+    }
+
+    /**
+     * HYW's own notion of a combat-capable unit: alive, not a NonCombatUnit, and not a neutral
+     * uncrewed siege weapon (a CrewOperatedSiegeWeapon with no operational crew, no owner and no
+     * passengers, which HYW itself treats as inert). A siege weapon becomes a combat unit again
+     * as soon as it is crewed, owned or ridden.
+     */
+    private static boolean isCombatCapable(BaseCombatEntity b) {
+        return b.isAlive() && !(b instanceof NonCombatUnit) && !b.isNeutralUncrewedSiegeWeapon();
     }
 
     @Nullable
@@ -125,7 +135,7 @@ final class HywCombatFactionService implements CombatFactionService {
     @Override
     public List<LivingEntity> findCombatUnits(ServerLevel level, AABB box) {
         return new ArrayList<>(level.getEntitiesOfClass(BaseCombatEntity.class, box,
-                e -> e.isAlive() && !(e instanceof NonCombatUnit)));
+                HywCombatFactionService::isCombatCapable));
     }
 
     @Override

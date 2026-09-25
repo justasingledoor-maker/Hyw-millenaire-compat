@@ -411,14 +411,32 @@ def scenario_F2(ctx):
     check("F2c Millénaire resolved the raid", end is not None, end or "")
 
 
+def scenario_H(ctx):
+    """M1.1-3: a neutral uncrewed siege weapon (no crew, owner or passengers) is inert, not a threat."""
+    s = ctx.s
+    c = ctx.a
+    p = s.pos()
+    out = s.output(f"summon hundred_years_war:trebuchets {c[0] + 5} {c[1]} {c[2] + 5}", 2)
+    check("H0 uncrewed trebuchet summoned", any("Summoned" in l for l in out), "; ".join(out))
+    time.sleep(30)  # several threat scans
+    threats = s.output(at(c, "hywmill threats"), 2)
+    lines = s.read_since(p)
+    hits = [i for i in incidents(s) if i["vtype"] == "hundred_years_war:trebuchets" or i["atype"] == "hundred_years_war:trebuchets"]
+    check("H1 uncrewed trebuchet is not a threat",
+          not any("trebuchets" in l for l in threats[1:]) and not any("Threat detected" in l and "trebuchets" in l for l in lines),
+          "; ".join(threats))
+    check("H2 villagers leave the uncrewed trebuchet alone", not hits, f"{len(hits)} incidents")
+    s.cmd("kill @e[type=hundred_years_war:trebuchets]", 1)
+
+
 def scenario_status(ctx):
     out = ctx.s.output("hywmill status", 2)
     check("status: goal bridge installed", any("engage_target=bridged" in l and "hide=bridged" in l for l in out), "; ".join(out[:3]))
 
 
 SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
-             "F1": scenario_F1, "F2": scenario_F2, "status": scenario_status}
-ORDER = ["status", "B", "C", "D", "F1", "E", "F2", "A"]
+             "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "status": scenario_status}
+ORDER = ["status", "H", "B", "C", "D", "F1", "E", "F2", "A"]
 
 
 def run(d: Path, names, fresh=True):
