@@ -1,0 +1,108 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario H
+[harness] PASS H0 uncrewed trebuchet summoned Summoned new Trebuchets
+[harness] PASS H1 uncrewed trebuchet is not a threat Threats in Rocquancourt les-pâtures: 0
+[harness] PASS H2 villagers leave the uncrewed trebuchet alone 0 incidents
+[harness] --- scenario B
+[harness] PASS B owned HYW unit does not attack villagers 0 attacks
+[harness] PASS B owned HYW unit is not a threat Threats in Rocquancourt les-pâtures: 0
+[harness] --- scenario C
+[harness] PASS C1 threat detected 
+[harness] PASS C2 bandit attacks marked villagers 2 hits
+[harness] PASS C3 defenders fight back 14 hits by ['1237fc2a', '31da0d88', '58272261', '622ce467', '8890abca', '8ee2a794', 'a37a9b64', 'fdbff808']
+[harness] PASS C4 civilians never attack HYW units 0
+[harness] PASS C4 civilians shelter 
+[harness] --- scenario D
+[harness] PASS D3-4 HYW temporary retaliation after player hits [True, True, True]
+[harness] PASS D5 village <-> player stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS D5 village <-> unit owner stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS D5-b a civilian to hit 
+[harness] PASS D5-b HYW escalated to HOSTILE on same-tick hits fake player hit 816895c8-f7ca-4501-94fc-cf4f73bc6fd0 hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none relation(target->fakePlayer)=HOSTILE
+[harness] PASS D5-b reconciliation reset it to NEUTRAL within 200 ticks ('NEUTRAL', 'NEUTRAL') [14:17:49] [Server thread/WARN] [de.hy.co.HmLog/]: [hywmill] Permanent HYW HOSTILE between village faction ea8258b8-2f0e-39a8-a270-6ce37224b63d and 5f1c7d5e-0000-4000-8000-00000000beef (found by reconciliation); reset to NEUTRAL (preventPermanentEscalation=true). HYW temporary retaliation is unaffected.
+[harness] --- scenario I
+[harness] PASS I1 3 owned units passing through are not threats Threats in Rocquancourt les-pâtures: 0
+[harness] PASS I2 each unit that damaged a resident is a threat, once Threats in Rocquancourt les-pâtures: 3;  - militia[f147442d owner=11111111] [ATTACKING_RESIDENT, RECENT_ATTACKER];  - militia[27cb5faf owner=11111111] [RECENT_ATTACKER];  - militia[2579cfe2 owner=11111111] [RECENT_ATTACKER]
+[harness] PASS I3 defenders engage the attackers 24 hits by ['1237fc2a', '31da0d88', '3e834f93', '58272261', '622ce467', '62615576', '8890abca', '8ee2a794', 'c9416998', 'd1504cb1', 'fdbff808']
+[harness] PASS I4 civilians do not join the fight 
+[harness] PASS I5 village <-> unit owner NEUTRAL after the fight ('NEUTRAL', 'NEUTRAL')
+[harness] PASS I6 village <-> player still NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS I7 incident ledger bounded (capacity 512) and threats cleared 100 of last 100 incidents shown (+23); escalation guard: detected=2 reverted=2
+[harness] --- scenario F1
+[harness] PASS F1 villagers still fight vanilla monsters 7 hits after 1 zombie(s)
+[harness] --- scenario E
+[harness] PASS E0 a defender to kill 
+[harness] PASS E1 Millénaire resurrected the defender [14:20:50] [Server thread/INFO] [or.mi.vi.VillageIntegrityChecker/]: [Millenaire] Villager respawned: type=millenaire:norman/seneschal, old UUID=8ee2a794, new UUID=107e111d, pos=648, 81, 636
+[harness] PASS E2 resurrected villager got the village faction identity 107e111d
+[harness] --- scenario F2
+[harness] PASS F2a raid triggered Raid triggered: Rocquancourt les-pâtures -> Saint-Charles les-pâtures (4 raiders dispatched)
+[harness] PASS F2b raid clone left unmarked 
+[harness] PASS F2c Millénaire resolved the raid [14:21:56] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Rocquancourt les-pâtures repulsed at Saint-Charles les-pâtures.
+[harness] --- scenario A
+[harness] PASS A1-3 village info populated {'villageId': 'b74b2d92-1f5c-4362-8c54-5f722d02a31d', 'faction': 'ea8258b8-2f0e-39a8-a270-6ce37224b63d', 'tier': 'GUARD_POST', 'garrison': '14', 'fortification': '3', 'defending': '229', 'villagerRoles': '{LEADER=1, MILITIA=13, CIVILIAN=20}', 'buildingRoles': '{BORDER_MARKER=16, GUARDHOUSE=1} '}
+[harness] server stopped
+[harness] server started
+[harness] PASS A4 ledger reloaded from disk [14:22:41] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 2, faction-id mismatches corrected: 0
+[harness] PASS A5-6 same VillageId and faction after restart ea8258b8-2f0e-39a8-a270-6ce37224b63d vs ea8258b8-2f0e-39a8-a270-6ce37224b63d
+[harness] --- scenario G
+[harness] PASS G0 a marked resident 816895c8-f7ca-4501-94fc-cf4f73bc6fd0 faction=ea8258b8-2f0e-39a8-a270-6ce37224b63d
+[harness] PASS G1 clear-identities removes loaded markers Removed the village faction identity from 34 loaded resident(s) in 1 village(s). Unloaded residents are cleared when they load. Markers stay off until /hywmill admin restore-identities.
+[harness] server stopped
+[harness] server started
+[harness] PASS G2 still unmarked after restart (clearance persisted, not re-marked on load) 
+[harness] PASS G3 restore-identities re-marks 
+[harness] server stopped
+[harness] server started
+[harness] PASS G4 markVillagers=false removes markers on load 
+[harness] server stopped
+[harness] server started
+[harness] PASS G5 markVillagers=true marks again 
+[harness] server stopped
+[harness] RESULT 43/43 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+  PASS  H0 uncrewed trebuchet summoned  Summoned new Trebuchets
+  PASS  H1 uncrewed trebuchet is not a threat  Threats in Rocquancourt les-pâtures: 0
+  PASS  H2 villagers leave the uncrewed trebuchet alone  0 incidents
+  PASS  B owned HYW unit does not attack villagers  0 attacks
+  PASS  B owned HYW unit is not a threat  Threats in Rocquancourt les-pâtures: 0
+  PASS  C1 threat detected  
+  PASS  C2 bandit attacks marked villagers  2 hits
+  PASS  C3 defenders fight back  14 hits by ['1237fc2a', '31da0d88', '58272261', '622ce467', '8890abca', '8ee2a794', 'a37a9b64', 'fdbff808']
+  PASS  C4 civilians never attack HYW units  0
+  PASS  C4 civilians shelter  
+  PASS  D3-4 HYW temporary retaliation after player hits  [True, True, True]
+  PASS  D5 village <-> player stays NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  D5 village <-> unit owner stays NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  D5-b a civilian to hit  
+  PASS  D5-b HYW escalated to HOSTILE on same-tick hits  fake player hit 816895c8-f7ca-4501-94fc-cf4f73bc6fd0 hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none relation(target->fakePlayer)=HOSTILE
+  PASS  D5-b reconciliation reset it to NEUTRAL within 200 ticks  ('NEUTRAL', 'NEUTRAL') [14:17:49] [Server thread/WARN] [de.hy.co.HmLog/]: [hywmill] Permanent HYW HOSTILE between village faction ea8258b8-2f0e-39a8-a270-6ce37224b63d and 5f1c7d5e-0000-4000-8000-00000000beef (found by reconciliation); reset to NEUTRAL (preventPermanentEscalation=true). HYW temporary retaliation is unaffected.
+  PASS  I1 3 owned units passing through are not threats  Threats in Rocquancourt les-pâtures: 0
+  PASS  I2 each unit that damaged a resident is a threat, once  Threats in Rocquancourt les-pâtures: 3;  - militia[f147442d owner=11111111] [ATTACKING_RESIDENT, RECENT_ATTACKER];  - militia[27cb5faf owner=11111111] [RECENT_ATTACKER];  - militia[2579cfe2 owner=11111111] [RECENT_ATTACKER]
+  PASS  I3 defenders engage the attackers  24 hits by ['1237fc2a', '31da0d88', '3e834f93', '58272261', '622ce467', '62615576', '8890abca', '8ee2a794', 'c9416998', 'd1504cb1', 'fdbff808']
+  PASS  I4 civilians do not join the fight  
+  PASS  I5 village <-> unit owner NEUTRAL after the fight  ('NEUTRAL', 'NEUTRAL')
+  PASS  I6 village <-> player still NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  I7 incident ledger bounded (capacity 512) and threats cleared  100 of last 100 incidents shown (+23); escalation guard: detected=2 reverted=2
+  PASS  F1 villagers still fight vanilla monsters  7 hits after 1 zombie(s)
+  PASS  E0 a defender to kill  
+  PASS  E1 Millénaire resurrected the defender  [14:20:50] [Server thread/INFO] [or.mi.vi.VillageIntegrityChecker/]: [Millenaire] Villager respawned: type=millenaire:norman/seneschal, old UUID=8ee2a794, new UUID=107e111d, pos=648, 81, 636
+  PASS  E2 resurrected villager got the village faction identity  107e111d
+  PASS  F2a raid triggered  Raid triggered: Rocquancourt les-pâtures -> Saint-Charles les-pâtures (4 raiders dispatched)
+  PASS  F2b raid clone left unmarked  
+  PASS  F2c Millénaire resolved the raid  [14:21:56] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Rocquancourt les-pâtures repulsed at Saint-Charles les-pâtures.
+  PASS  A1-3 village info populated  {'villageId': 'b74b2d92-1f5c-4362-8c54-5f722d02a31d', 'faction': 'ea8258b8-2f0e-39a8-a270-6ce37224b63d', 'tier': 'GUARD_POST', 'garrison': '14', 'fortification': '3', 'defending': '229', 'villagerRoles': '{LEADER=1, MILITIA=13, CIVILIAN=20}', 'buildingRoles': '{BORDER_MARKER=16, GUARDHOUSE=1} '}
+  PASS  A4 ledger reloaded from disk  [14:22:41] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 2, faction-id mismatches corrected: 0
+  PASS  A5-6 same VillageId and faction after restart  ea8258b8-2f0e-39a8-a270-6ce37224b63d vs ea8258b8-2f0e-39a8-a270-6ce37224b63d
+  PASS  G0 a marked resident  816895c8-f7ca-4501-94fc-cf4f73bc6fd0 faction=ea8258b8-2f0e-39a8-a270-6ce37224b63d
+  PASS  G1 clear-identities removes loaded markers  Removed the village faction identity from 34 loaded resident(s) in 1 village(s). Unloaded residents are cleared when they load. Markers stay off until /hywmill admin restore-identities.
+  PASS  G2 still unmarked after restart (clearance persisted, not re-marked on load)  
+  PASS  G3 restore-identities re-marks  
+  PASS  G4 markVillagers=false removes markers on load  
+  PASS  G5 markVillagers=true marks again  

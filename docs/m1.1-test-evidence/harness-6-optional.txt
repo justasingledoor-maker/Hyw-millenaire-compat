@@ -1,0 +1,13 @@
+[harness] server started
+[harness] PASS O core only: loads, commands answer, no errors hywmill integrations: {millenaire=absent (integration disabled), hundred_years_war=absent (integration disabled)}
+[harness] server stopped
+[harness] server started
+[harness] PASS O Millénaire only: loads, commands answer, no errors hywmill integrations: {millenaire=enabled, hundred_years_war=absent (integration disabled)}
+[harness] server stopped
+[harness] server started
+[harness] PASS O HYW only: loads, commands answer, no errors hywmill integrations: {millenaire=absent (integration disabled), hundred_years_war=enabled}
+[harness] server stopped
+[harness] RESULT 3/3 checks passed
+  PASS  O core only: loads, commands answer, no errors  hywmill integrations: {millenaire=absent (integration disabled), hundred_years_war=absent (integration disabled)}
+  PASS  O Millénaire only: loads, commands answer, no errors  hywmill integrations: {millenaire=enabled, hundred_years_war=absent (integration disabled)}
+  PASS  O HYW only: loads, commands answer, no errors  hywmill integrations: {millenaire=absent (integration disabled), hundred_years_war=enabled}

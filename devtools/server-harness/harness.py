@@ -388,6 +388,55 @@ def scenario_D5b(ctx):
           f"{rel} {warn or 'no WARN'}")
 
 
+def scenario_I(ctx):
+    """Freeze audit: the player-owned invasion path, with several attackers.
+    Presence is not aggression; damaging a resident makes a unit a threat; defenders (never
+    civilians) engage; village <-> owner diplomacy stays NEUTRAL; nothing is duplicated."""
+    s = ctx.s
+    c = ctx.a
+    s.cmd("kill @e[type=hundred_years_war:militia]", 1)
+    res = wait_residents(s, c)
+    civ = [r[0] for r in res if r[2] == "CIVILIAN"][:3]
+    civ8 = {r[0][:8] for r in res if r[2] == "CIVILIAN"}
+    defenders = {r[0][:8] for r in res if r[2] == "DEFENDER"}
+    for i in range(3):
+        s.cmd(f'summon hundred_years_war:militia {c[0] + 2 * i} {c[1]} {c[2] + 6} {{OwnerUUID:{OWNER_NBT},Tags:["hwI{i}"]}}', 1)
+    p = s.pos()
+    time.sleep(25)  # > 1 ledger interval and many threat scans, units idle inside the village
+    threats = s.output(at(c, "hywmill threats"), 2)
+    check("I1 3 owned units passing through are not threats", not any("militia" in l for l in threats[1:])
+          and not any("Threat detected" in l and "militia" in l for l in s.read_since(p)), "; ".join(threats))
+    if len(civ) < 3:
+        check("I2 three civilians to attack", False, str(civ))
+        return
+    before = len(incidents(s))
+    for i, v in enumerate(civ):
+        s.cmd(f"damage {v} 1 minecraft:mob_attack by @e[tag=hwI{i},limit=1]", 0.2)
+    time.sleep(3)
+    threats = s.output(at(c, "hywmill threats"), 2)
+    lines = [l for l in threats[1:] if "militia" in l]
+    ids = [re.search(r"militia\[(\w+)", l)[1] for l in lines if re.search(r"militia\[(\w+)", l)]
+    check("I2 each unit that damaged a resident is a threat, once", len(ids) == 3 and len(set(ids)) == 3
+          and all("RECENT_ATTACKER" in l for l in lines), "; ".join(threats))
+    time.sleep(40)
+    inc = incidents(s, 100)
+    hits = [i for i in inc if i["atype"] == "millenaire:villager" and i["vtype"] == "hundred_years_war:militia"]
+    check("I3 defenders engage the attackers", bool(hits) and all(i["a"] in defenders for i in hits),
+          f"{len(hits)} hits by {sorted({i['a'] for i in hits})}")
+    check("I4 civilians do not join the fight", not any(i["a"] in civ8 for i in hits))
+    s.cmd("kill @e[type=hundred_years_war:militia]", 1)
+    time.sleep(12)  # > 200 ticks: at least one reconciliation pass
+    rel = relation(s, c, OWNER_UUID)
+    check("I5 village <-> unit owner NEUTRAL after the fight", rel == ("NEUTRAL", "NEUTRAL"), str(rel))
+    rel = relation(s, c, FAKE_PLAYER_UUID)
+    check("I6 village <-> player still NEUTRAL", rel == ("NEUTRAL", "NEUTRAL"), str(rel))
+    status = s.output("hywmill status", 2)
+    esc = next((l for l in status if l.startswith("escalation guard")), "")
+    check("I7 incident ledger bounded (capacity 512) and threats cleared", len(threats) >= 1
+          and not any("militia" in l for l in s.output(at(c, "hywmill threats"), 2)[1:]),
+          f"{len(inc)} of last 100 incidents shown (+{len(inc) - before}); {esc}")
+
+
 def scenario_E(ctx):
     s = ctx.s
     c = ctx.a
@@ -524,8 +573,8 @@ def scenario_status(ctx):
 
 
 SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
-             "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "M": scenario_M, "status": scenario_status}
-ORDER = ["status", "H", "B", "C", "D", "F1", "E", "F2", "A", "G"]
+             "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "M": scenario_M, "status": scenario_status}
+ORDER = ["status", "H", "B", "C", "D", "I", "F1", "E", "F2", "A", "G"]
 
 
 def run(d: Path, names, fresh=True):
@@ -555,6 +604,34 @@ def run(d: Path, names, fresh=True):
     return all(r[1] for r in RESULTS)
 
 
+def run_optional(d: Path):
+    """Optional-integration check: hywmill must load and its commands must fail gracefully with
+    neither dependency, with Millénaire only, and with HYW only."""
+    ok = True
+    for label, deps in [("core only", []), ("Millénaire only", [MILLENAIRE_JAR]), ("HYW only", [HYW_JAR])]:
+        write_configs(d)
+        install_mods(d, deps + [built_jar()])
+        if (d / "world").exists():
+            shutil.rmtree(d / "world")
+        s = Server(d)
+        try:
+            s.start()
+            out = []
+            for c in ["hywmill status", "hywmill village list", "hywmill threats", "hywmill incidents 5",
+                      "hywmill admin clear-identities all", "hywmill admin restore-identities all"]:
+                out += s.output(c, 2)
+            time.sleep(12)  # a few ledger/reconciliation intervals
+            lines = s.read_since(s.start_pos)
+            # hywmill's own "X not loaded; its integration is disabled" INFO line is expected here.
+            bad = [l for l in lines if re.search(r"Exception|at dev\.hywmill|/ERROR\].*\[hywmill\]", l)]
+            state = next((l for l in out if l.startswith("hywmill integrations:")), "")
+            check(f"O {label}: loads, commands answer, no errors", not bad and bool(state), state + ("; " + bad[0] if bad else ""))
+            ok &= not bad
+        finally:
+            s.stop()
+    return ok
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", required=True, type=Path)
@@ -567,6 +644,13 @@ def main():
     if a.action == "install":
         install(a.dir)
         return 0
+    if a.scenarios == ["optional"]:
+        run_optional(a.dir)
+        passed = sum(1 for r in RESULTS if r[1])
+        log(f"RESULT {passed}/{len(RESULTS)} checks passed")
+        for name, ok, detail in RESULTS:
+            print(f"  {'PASS' if ok else 'FAIL'}  {name}  {detail}")
+        return 0 if all(r[1] for r in RESULTS) else 1
     return 0 if run(a.dir, a.scenarios, fresh=not a.keep_world) else 1
 
 

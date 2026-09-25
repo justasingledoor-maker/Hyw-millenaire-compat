@@ -1,7 +1,8 @@
 {
   "villagers": {
     "millenaire:seljuk/turk_soldier": "SOLDIER",
-    "millenaire:seljuk/turk_lonesoldier": "SOLDIER"
+    "millenaire:seljuk/turk_lonesoldier": "SOLDIER",
+    "millenaire:seljuk/turk_vali": "LEADER"
   },
   "buildings": {
     "millenaire:seljuk/sarayfort": "FORT_TOWNHALL",

@@ -1,7 +1,8 @@
 {
   "villagers": {
     "millenaire:indian/soldier": "SOLDIER",
-    "millenaire:indian/rajputgeneral": "LEADER"
+    "millenaire:indian/rajputgeneral": "LEADER",
+    "millenaire:indian/raja": "LEADER"
   },
   "buildings": {
     "millenaire:indian/fort": "FORT_TOWNHALL",

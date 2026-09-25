@@ -2,7 +2,9 @@
   "villagers": {
     "millenaire:norman/guard": "SOLDIER",
     "millenaire:norman/orderguard": "SOLDIER",
-    "millenaire:norman/knight": "LEADER"
+    "millenaire:norman/knight": "LEADER",
+    "millenaire:norman/seneschal": "LEADER",
+    "millenaire:norman/guildmaster": "MILITIA"
   },
   "buildings": {
     "millenaire:norman/guardhouse": "GUARDHOUSE",

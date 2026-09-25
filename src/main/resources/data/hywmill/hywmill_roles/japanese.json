@@ -1,7 +1,8 @@
 {
   "villagers": {
     "millenaire:japanese/samurai": "SOLDIER",
-    "millenaire:japanese/samuraigeneral": "LEADER"
+    "millenaire:japanese/samuraigeneral": "LEADER",
+    "millenaire:japanese/kuge": "LEADER"
   },
   "buildings": {
     "millenaire:japanese/japanesefort": "FORT_TOWNHALL",

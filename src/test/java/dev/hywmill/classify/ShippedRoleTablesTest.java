@@ -32,6 +32,13 @@ class ShippedRoleTablesTest {
         assertTrue(problems.isEmpty(), problems.toString());
         assertEquals(VillagerRole.SOLDIER, table.villagers().get("millenaire:norman/guard"));
         assertEquals(VillagerRole.LEADER, table.villagers().get("millenaire:norman/knight"));
+        // M1.1 freeze decisions: settlement-level command roles are LEADER; the guildmaster has no
+        // military function in Millénaire 9.0.2 (no patrol goal, no armour/ranged tools) and stays MILITIA.
+        for (String leader : List.of("millenaire:norman/seneschal", "millenaire:seljuk/turk_vali",
+                "millenaire:japanese/kuge", "millenaire:indian/raja")) {
+            assertEquals(VillagerRole.LEADER, table.villagers().get(leader), leader);
+        }
+        assertEquals(VillagerRole.MILITIA, table.villagers().get("millenaire:norman/guildmaster"));
         assertEquals(BuildingRole.GUARDHOUSE, table.buildings().get("millenaire:norman/guardhouse"));
         assertEquals(BuildingRole.FORT_TOWNHALL, table.buildings().get("millenaire:norman/fort"));
         assertTrue(table.villagers().values().stream().noneMatch(r -> r == VillagerRole.OUTLAW));
