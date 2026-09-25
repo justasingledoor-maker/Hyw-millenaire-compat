@@ -1,0 +1,21 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] server stopped
+[harness] server started
+[harness] PASS G3-16 format-3 ledger loaded and migrated to format 4 [22:32:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 3, faction-id mismatches corrected: 0 | [22:32:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger migrated 2 record(s) from format 3 to 4: empty HYW garrison rosters (one-time starting grant pending).
+[harness] PASS G3-16 village IDs, faction UUIDs and the Millénaire soldier count survive the migration [('A', 'e2aa583a-0c4e-3bb7-8922-a4cc20b48732', 'e2aa583a-0c4e-3bb7-8922-a4cc20b48732', '17', '17'), ('B', '069c59da-b21f-334e-8b4a-ca4b2519fa82', '069c59da-b21f-334e-8b4a-ca4b2519fa82', '8', '8')]
+[harness] PASS G3-16 exactly one starting grant per migrated village 2 grants: Starting garrison granted to village 'Aunay les-pâtures' (millenaire:norman WATCH, capacity 7, target 7): [crossbowman,  | Starting garrison granted to village 'Marolles les-pâtures' (millenaire:norman GUARD_POST, capacity 16, target 16): [spe
+[harness] server stopped
+[harness] server started
+[harness] PASS G3-16 after another restart: format 4 on disk, no further grant [22:33:51] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 4, faction-id mismatches corrected: 0; 0 grants
+[harness] server stopped
+[harness] RESULT 7/7 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  G3-16 format-3 ledger loaded and migrated to format 4  [22:32:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 3, faction-id mismatches corrected: 0 | [22:32:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger migrated 2 record(s) from format 3 to 4: empty HYW garrison rosters (one-time starting grant pending).
+  PASS  G3-16 village IDs, faction UUIDs and the Millénaire soldier count survive the migration  [('A', 'e2aa583a-0c4e-3bb7-8922-a4cc20b48732', 'e2aa583a-0c4e-3bb7-8922-a4cc20b48732', '17', '17'), ('B', '069c59da-b21f-334e-8b4a-ca4b2519fa82', '069c59da-b21f-334e-8b4a-ca4b2519fa82', '8', '8')]
+  PASS  G3-16 exactly one starting grant per migrated village  2 grants: Starting garrison granted to village 'Aunay les-pâtures' (millenaire:norman WATCH, capacity 7, target 7): [crossbowman,  | Starting garrison granted to village 'Marolles les-pâtures' (millenaire:norman GUARD_POST, capacity 16, target 16): [spe
+  PASS  G3-16 after another restart: format 4 on disk, no further grant  [22:33:51] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 4, faction-id mismatches corrected: 0; 0 grants
