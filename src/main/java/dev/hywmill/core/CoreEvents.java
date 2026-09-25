@@ -41,6 +41,7 @@ public final class CoreEvents {
         ServerLevel overworld = event.getServer().overworld();
         long tick = overworld.getGameTime();
         guarded("ledger update", () -> GarrisonUpdater.tick(overworld, rt));
+        guarded("relation reconciliation", () -> EscalationGuard.reconcile(rt, tick));
         guarded("threat scan", () -> {
             rt.threats().scan(overworld);
             if (tick % HywMillConfig.THREAT_SCAN_INTERVAL.get() == 0) {

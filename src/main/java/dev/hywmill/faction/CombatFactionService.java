@@ -7,6 +7,7 @@ import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -51,8 +52,14 @@ public interface CombatFactionService {
 
     boolean isHostileEitherWay(UUID a, UUID b);
 
-    /** Sets both directions to NEUTRAL. Only used by the escalation guard. */
+    /** Sets both directions to NEUTRAL. Only used by the escalation guard and reconciliation. */
     void resetHostileToNeutral(UUID a, UUID b);
+
+    /**
+     * Every identity with a permanent HOSTILE relation to or from {@code identity} in the mod's
+     * relation store (not temporary retaliation). Read-only.
+     */
+    Set<UUID> permanentHostilesOf(UUID identity);
 
     List<LivingEntity> findCombatUnits(ServerLevel level, AABB box);
 

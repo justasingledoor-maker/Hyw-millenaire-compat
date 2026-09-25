@@ -1,6 +1,7 @@
 package dev.hywmill.core;
 
 import dev.hywmill.faction.FactionRegistry;
+import dev.hywmill.military.DiplomacyPolicy;
 import dev.hywmill.military.IncidentLedger;
 import dev.hywmill.military.ThreatTracker;
 import dev.hywmill.settlement.SettlementSource;
@@ -29,6 +30,7 @@ public final class HywMillRuntime {
     private final IncidentLedger incidents = new IncidentLedger();
     private final ThreatTracker threats = new ThreatTracker(incidents, scheduler);
     private final FactionRegistry factions = new FactionRegistry();
+    private final DiplomacyPolicy diplomacy = DiplomacyPolicy.ALWAYS_REVERT;
     private final Map<String, AtomicLong> counters = new ConcurrentHashMap<>();
     /** Village list cache, refreshed once per ledger interval by GarrisonUpdater. Server thread only. */
     @Nullable public List<SettlementSource.SettlementRef> cachedVillages;
@@ -86,6 +88,10 @@ public final class HywMillRuntime {
 
     public FactionRegistry factions() {
         return factions;
+    }
+
+    public DiplomacyPolicy diplomacy() {
+        return diplomacy;
     }
 
     public long increment(String counter) {

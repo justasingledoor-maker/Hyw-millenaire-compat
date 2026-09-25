@@ -336,6 +336,26 @@ def scenario_D(ctx):
     check("D5 village <-> player stays NEUTRAL", relation(s, c, FAKE_PLAYER_UUID) == ("NEUTRAL", "NEUTRAL"), str(relation(s, c, FAKE_PLAYER_UUID)))
     check("D5 village <-> unit owner stays NEUTRAL", relation(s, c, OWNER_UUID) == ("NEUTRAL", "NEUTRAL"), str(relation(s, c, OWNER_UUID)))
     s.cmd("kill @e[type=hundred_years_war:militia]", 1)
+    scenario_D5b(ctx)
+
+
+def scenario_D5b(ctx):
+    """M1.1-4: three hits in one tick (two inside i-frames, no damage event for them) still make HYW
+    escalate; the reconciliation pass must reset it to NEUTRAL within its 200-tick interval."""
+    s = ctx.s
+    c = ctx.a
+    res = wait_residents(s, c)
+    civ = next((r for r in res if r[2] == "CIVILIAN"), None)
+    if not check("D5-b a civilian to hit", civ is not None):
+        return
+    p = s.pos()
+    out = s.output(f"hywmill dev playerhit {civ[0]} 0.5 3", 1)
+    hostile = any("relation(target->fakePlayer)=HOSTILE" in l for l in out)
+    check("D5-b HYW escalated to HOSTILE on same-tick hits", hostile, "; ".join(out))
+    warn = s.wait_for(r"Permanent HYW HOSTILE between village faction .* found by reconciliation", 20, since=p)
+    rel = relation(s, c, FAKE_PLAYER_UUID)
+    check("D5-b reconciliation reset it to NEUTRAL within 200 ticks", warn is not None and rel == ("NEUTRAL", "NEUTRAL"),
+          f"{rel} {warn or 'no WARN'}")
 
 
 def scenario_E(ctx):

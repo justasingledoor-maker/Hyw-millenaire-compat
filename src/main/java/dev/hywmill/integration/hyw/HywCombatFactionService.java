@@ -15,7 +15,9 @@ import ydmsama.hundred_years_war.main.utils.ServerRelationHelper;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -130,6 +132,24 @@ final class HywCombatFactionService implements CombatFactionService {
         if (RelationSystem.getRelation(b, a) == RelationSystem.RelationType.HOSTILE) {
             RelationSystem.setRelation(b, a, RelationSystem.RelationType.NEUTRAL);
         }
+    }
+
+    @Override
+    public Set<UUID> permanentHostilesOf(UUID identity) {
+        Set<UUID> out = new HashSet<>();
+        RelationSystem.getAllRelations(identity).forEach((other, type) -> {
+            if (type == RelationSystem.RelationType.HOSTILE) {
+                out.add(other);
+            }
+        });
+        // Inbound direction: HYW normally stores HOSTILE symmetrically, but a manual one-way
+        // relation (e.g. set by a command or another mod) is only visible from the other side.
+        for (UUID holder : RelationSystem.getAllRelationData().keySet()) {
+            if (!holder.equals(identity) && RelationSystem.getRelation(holder, identity) == RelationSystem.RelationType.HOSTILE) {
+                out.add(holder);
+            }
+        }
+        return out;
     }
 
     @Override

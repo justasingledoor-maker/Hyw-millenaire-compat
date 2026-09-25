@@ -59,9 +59,12 @@ public final class HywMillCommands {
                 .then(Commands.literal("dev").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("playerhit")
                                 .then(Commands.argument("targets", EntityArgument.entities())
-                                        .executes(ctx -> devPlayerHit(ctx, 1.0f))
+                                        .executes(ctx -> devPlayerHit(ctx, 1.0f, 1))
                                         .then(Commands.argument("amount", FloatArgumentType.floatArg(0.1f, 100f))
-                                                .executes(ctx -> devPlayerHit(ctx, FloatArgumentType.getFloat(ctx, "amount"))))))
+                                                .executes(ctx -> devPlayerHit(ctx, FloatArgumentType.getFloat(ctx, "amount"), 1))
+                                                .then(Commands.argument("repeat", IntegerArgumentType.integer(1, 10))
+                                                        .executes(ctx -> devPlayerHit(ctx, FloatArgumentType.getFloat(ctx, "amount"),
+                                                                IntegerArgumentType.getInteger(ctx, "repeat")))))))
                         .then(Commands.literal("relation")
                                 .then(Commands.argument("other", UuidArgument.uuid())
                                         .executes(HywMillCommands::devRelation)))
@@ -220,8 +223,11 @@ public final class HywMillCommands {
     /**
      * Simulates a player melee hit on each target with a NeoForge FakePlayer, so HYW's player
      * retaliation path can be exercised on a headless server. Reports HYW's resulting state.
+     * With {@code repeat > 1} the target is hit several times in the same tick, so every hit after
+     * the first lands inside the invulnerability window (HYW still counts it; NeoForge fires no
+     * damage event for it).
      */
-    private static int devPlayerHit(CommandContext<CommandSourceStack> ctx, float amount) throws CommandSyntaxException {
+    private static int devPlayerHit(CommandContext<CommandSourceStack> ctx, float amount, int repeat) throws CommandSyntaxException {
         CommandSourceStack src = ctx.getSource();
         if (!devEnabled(src)) {
             return 0;
@@ -235,11 +241,18 @@ public final class HywMillCommands {
                 continue;
             }
             fake.moveTo(target.getX() + 1.0, target.getY(), target.getZ(), 0f, 0f);
-            boolean hurt = target.hurt(level.damageSources().playerAttack(fake), amount);
+            boolean hurt = false;
+            for (int i = 0; i < repeat; i++) {
+                hurt |= target.hurt(level.damageSources().playerAttack(fake), amount);
+            }
             n++;
-            String state = factions == null ? "" :
-                    " tempHostile(unit->fakePlayer)=" + (factions.isCombatUnit(target) && factions.isTemporarilyHostile(target, fake))
-                            + " unitTarget=" + describeEntity(factions.currentTarget(target));
+            String state = "";
+            if (factions != null) {
+                UUID identity = factions.relationIdentity(target);
+                state = " tempHostile(unit->fakePlayer)=" + (factions.isCombatUnit(target) && factions.isTemporarilyHostile(target, fake))
+                        + " unitTarget=" + describeEntity(factions.currentTarget(target))
+                        + " relation(target->fakePlayer)=" + (identity == null ? "none" : factions.relation(identity, fake.getUUID()));
+            }
             send(src, "fake player hit " + e.getUUID() + " hurt=" + hurt + state);
         }
         return n;
