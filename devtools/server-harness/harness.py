@@ -382,7 +382,7 @@ def scenario_D5b(ctx):
     out = s.output(f"hywmill dev playerhit {civ[0]} 0.5 3", 1)
     hostile = any("relation(target->fakePlayer)=HOSTILE" in l for l in out)
     check("D5-b HYW escalated to HOSTILE on same-tick hits", hostile, "; ".join(out))
-    warn = s.wait_for(r"Permanent HYW HOSTILE between village faction .* found by reconciliation", 20, since=p)
+    warn = s.wait_for(r"Permanent HYW HOSTILE between village faction .*found by reconciliation", 20, since=p)
     rel = relation(s, c, FAKE_PLAYER_UUID)
     check("D5-b reconciliation reset it to NEUTRAL within 200 ticks", warn is not None and rel == ("NEUTRAL", "NEUTRAL"),
           f"{rel} {warn or 'no WARN'}")

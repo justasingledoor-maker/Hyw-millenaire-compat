@@ -1,0 +1,93 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario H
+[harness] PASS H0 uncrewed trebuchet summoned Summoned new Trebuchets
+[harness] PASS H1 uncrewed trebuchet is not a threat Threats in Lantheuil les-pâtures: 0
+[harness] PASS H2 villagers leave the uncrewed trebuchet alone 0 incidents
+[harness] --- scenario B
+[harness] PASS B owned HYW unit does not attack villagers 0 attacks
+[harness] PASS B owned HYW unit is not a threat Threats in Lantheuil les-pâtures: 0
+[harness] --- scenario C
+[harness] PASS C1 threat detected 
+[harness] PASS C2 bandit attacks marked villagers 1 hits
+[harness] PASS C3 defenders fight back 10 hits by ['26158c68', '446b8480', '53935bc1', '5b8eea0b', '76959289', '7814aec5', '8515d7ad', '934abf58', 'd9ab737a']
+[harness] PASS C4 civilians never attack HYW units 0
+[harness] PASS C4 civilians shelter 
+[harness] --- scenario D
+[harness] PASS D3-4 HYW temporary retaliation after player hits [True, True, True]
+[harness] PASS D5 village <-> player stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS D5 village <-> unit owner stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS D5-b a civilian to hit 
+[harness] PASS D5-b HYW escalated to HOSTILE on same-tick hits fake player hit 6c7b1c12-f431-4e92-b298-f3dbba5f3d13 hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none relation(target->fakePlayer)=HOSTILE
+[harness] PASS D5-b reconciliation reset it to NEUTRAL within 200 ticks ('NEUTRAL', 'NEUTRAL') [11:52:32] [Server thread/WARN] [de.hy.co.HmLog/]: [hywmill] Permanent HYW HOSTILE between village faction 441e9b15-9328-38e5-86bb-a25ecfb52a22 and 5f1c7d5e-0000-4000-8000-00000000beef (found by reconciliation); reset to NEUTRAL (preventPermanentEscalation=true). HYW temporary retaliation is unaffected.
+[harness] --- scenario F1
+[harness] PASS F1 villagers still fight vanilla monsters 4 hits after 1 zombie(s)
+[harness] --- scenario E
+[harness] PASS E0 a defender to kill 
+[harness] PASS E1 Millénaire resurrected the defender [11:54:10] [Server thread/INFO] [or.mi.vi.VillageIntegrityChecker/]: [Millenaire] Villager respawned: type=millenaire:norman/seneschal, old UUID=58e9c2c9, new UUID=a3ed2b87, pos=648, 81, 636
+[harness] PASS E2 resurrected villager got the village faction identity a3ed2b87
+[harness] --- scenario F2
+[harness] PASS F2a raid triggered Raid triggered: Lantheuil les-pâtures -> Sainte-Marie les-pâtures (4 raiders dispatched)
+[harness] PASS F2b raid clone left unmarked 
+[harness] PASS F2c Millénaire resolved the raid [11:55:22] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Lantheuil les-pâtures repulsed at Sainte-Marie les-pâtures.
+[harness] --- scenario A
+[harness] PASS A1-3 village info populated {'villageId': '1d659784-f7c8-4291-9b80-95f202897f01', 'faction': '441e9b15-9328-38e5-86bb-a25ecfb52a22', 'tier': 'GUARD_POST', 'garrison': '13', 'fortification': '3', 'defending': '201', 'villagerRoles': '{MILITIA=13, CIVILIAN=21} | unlisted (fallback MILITIA): [millenaire:norman/seneschal]', 'buildingRoles': '{BORDER_MARKER=16, GUARDHOUSE=1} '}
+[harness] server stopped
+[harness] server started
+[harness] PASS A4 ledger reloaded from disk [11:56:12] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 2, faction-id mismatches corrected: 0
+[harness] PASS A5-6 same VillageId and faction after restart 441e9b15-9328-38e5-86bb-a25ecfb52a22 vs 441e9b15-9328-38e5-86bb-a25ecfb52a22
+[harness] --- scenario G
+[harness] PASS G0 a marked resident 6c7b1c12-f431-4e92-b298-f3dbba5f3d13 faction=441e9b15-9328-38e5-86bb-a25ecfb52a22
+[harness] PASS G1 clear-identities removes loaded markers Removed the village faction identity from 34 loaded resident(s) in 1 village(s). Unloaded residents are cleared when they load. Markers stay off until /hywmill admin restore-identities.
+[harness] server stopped
+[harness] server started
+[harness] PASS G2 still unmarked after restart (clearance persisted, not re-marked on load) 
+[harness] PASS G3 restore-identities re-marks 
+[harness] server stopped
+[harness] server started
+[harness] PASS G4 markVillagers=false removes markers on load 
+[harness] server stopped
+[harness] server started
+[harness] PASS G5 markVillagers=true marks again 
+[harness] server stopped
+[harness] RESULT 36/36 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+  PASS  H0 uncrewed trebuchet summoned  Summoned new Trebuchets
+  PASS  H1 uncrewed trebuchet is not a threat  Threats in Lantheuil les-pâtures: 0
+  PASS  H2 villagers leave the uncrewed trebuchet alone  0 incidents
+  PASS  B owned HYW unit does not attack villagers  0 attacks
+  PASS  B owned HYW unit is not a threat  Threats in Lantheuil les-pâtures: 0
+  PASS  C1 threat detected  
+  PASS  C2 bandit attacks marked villagers  1 hits
+  PASS  C3 defenders fight back  10 hits by ['26158c68', '446b8480', '53935bc1', '5b8eea0b', '76959289', '7814aec5', '8515d7ad', '934abf58', 'd9ab737a']
+  PASS  C4 civilians never attack HYW units  0
+  PASS  C4 civilians shelter  
+  PASS  D3-4 HYW temporary retaliation after player hits  [True, True, True]
+  PASS  D5 village <-> player stays NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  D5 village <-> unit owner stays NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  D5-b a civilian to hit  
+  PASS  D5-b HYW escalated to HOSTILE on same-tick hits  fake player hit 6c7b1c12-f431-4e92-b298-f3dbba5f3d13 hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none relation(target->fakePlayer)=HOSTILE
+  PASS  D5-b reconciliation reset it to NEUTRAL within 200 ticks  ('NEUTRAL', 'NEUTRAL') [11:52:32] [Server thread/WARN] [de.hy.co.HmLog/]: [hywmill] Permanent HYW HOSTILE between village faction 441e9b15-9328-38e5-86bb-a25ecfb52a22 and 5f1c7d5e-0000-4000-8000-00000000beef (found by reconciliation); reset to NEUTRAL (preventPermanentEscalation=true). HYW temporary retaliation is unaffected.
+  PASS  F1 villagers still fight vanilla monsters  4 hits after 1 zombie(s)
+  PASS  E0 a defender to kill  
+  PASS  E1 Millénaire resurrected the defender  [11:54:10] [Server thread/INFO] [or.mi.vi.VillageIntegrityChecker/]: [Millenaire] Villager respawned: type=millenaire:norman/seneschal, old UUID=58e9c2c9, new UUID=a3ed2b87, pos=648, 81, 636
+  PASS  E2 resurrected villager got the village faction identity  a3ed2b87
+  PASS  F2a raid triggered  Raid triggered: Lantheuil les-pâtures -> Sainte-Marie les-pâtures (4 raiders dispatched)
+  PASS  F2b raid clone left unmarked  
+  PASS  F2c Millénaire resolved the raid  [11:55:22] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Lantheuil les-pâtures repulsed at Sainte-Marie les-pâtures.
+  PASS  A1-3 village info populated  {'villageId': '1d659784-f7c8-4291-9b80-95f202897f01', 'faction': '441e9b15-9328-38e5-86bb-a25ecfb52a22', 'tier': 'GUARD_POST', 'garrison': '13', 'fortification': '3', 'defending': '201', 'villagerRoles': '{MILITIA=13, CIVILIAN=21} | unlisted (fallback MILITIA): [millenaire:norman/seneschal]', 'buildingRoles': '{BORDER_MARKER=16, GUARDHOUSE=1} '}
+  PASS  A4 ledger reloaded from disk  [11:56:12] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 2, faction-id mismatches corrected: 0
+  PASS  A5-6 same VillageId and faction after restart  441e9b15-9328-38e5-86bb-a25ecfb52a22 vs 441e9b15-9328-38e5-86bb-a25ecfb52a22
+  PASS  G0 a marked resident  6c7b1c12-f431-4e92-b298-f3dbba5f3d13 faction=441e9b15-9328-38e5-86bb-a25ecfb52a22
+  PASS  G1 clear-identities removes loaded markers  Removed the village faction identity from 34 loaded resident(s) in 1 village(s). Unloaded residents are cleared when they load. Markers stay off until /hywmill admin restore-identities.
+  PASS  G2 still unmarked after restart (clearance persisted, not re-marked on load)  
+  PASS  G3 restore-identities re-marks  
+  PASS  G4 markVillagers=false removes markers on load  
+  PASS  G5 markVillagers=true marks again  

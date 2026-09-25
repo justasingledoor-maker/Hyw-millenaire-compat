@@ -1,0 +1,180 @@
+[11:55:55] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Millénaire settlement source registered; goal bridge scheduled for ServerStartedEvent (LOW).
+[11:55:55] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] millenaire integration enabled.
+[11:55:55] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).
+[11:55:55] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] hundred_years_war integration enabled.
+[11:55:55] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Initialized. Integrations: {millenaire=enabled, hundred_years_war=enabled}
+[11:55:58] [main/INFO] [de.hy.co.HmLog/]: [hywmill] Role tables loaded from 7 file(s): 14 villager type(s), 44 building plan set(s)
+[11:55:59] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Runtime context created for server 1973144957
+[11:56:06] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:engage_target org.millenaire.goal.impl.EngageTargetGoal -> EngageTargetDecorator
+[11:56:06] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hunt_monster org.millenaire.goal.impl.HuntMonsterGoal -> HuntMonsterDecorator
+[11:56:06] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hide org.millenaire.goal.impl.HideGoal -> HideDecorator
+[11:56:06] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Re-initialized goals of 0 already-loaded Millénaire villager(s) so they use the bridged goals.
+[11:56:06] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal bridge status: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[11:56:06] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 1
+[11:56:07] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ledger: 2 village(s) known to Millénaire
+[11:56:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hunt_monster is live (first canStart call observed).
+[11:56:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:engage_target is live (first canStart call observed).
+[11:56:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hide is live (first canStart call observed).
+[11:56:12] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 2, faction-id mismatches corrected: 0
+[11:56:12] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Lantheuil les-pâtures' (update #55)
+[11:56:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Sainte-Marie les-pâtures' (update #51)
+[11:56:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Lantheuil les-pâtures' (update #56)
+[11:56:25] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Sainte-Marie les-pâtures' (update #52)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 6c7b1c12-f431-4e92-b298-f3dbba5f3d13 (millenaire:norman/merchant) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 6b29ffce-ed52-47c5-bf3e-cc0427f312e2 (millenaire:norman/lady) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 25003641-ddf7-4bd8-8963-ff4ee230ac25 (millenaire:norman/farmer) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 7015e59c-f8e4-43fd-b415-00fff156efb8 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 180206ce-0a5e-4315-9380-4dfccedb517d (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 7c38c251-96b4-44a0-b649-4329f08de8d6 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 50cb62b7-dc8f-48da-aa86-caeeb0b704c9 (millenaire:norman/shepherd) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 745a9e4f-4ce5-4b54-95c3-c2a2c3800dea (millenaire:norman/shepherdf) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 8515d7ad-ca10-490b-9ce9-9358f4004488 (millenaire:norman/cattlefarmermale) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: b0b3b71e-9750-41cd-8ec7-6ea7f581487f (millenaire:norman/cattlefarmerfemale) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 446b8480-084f-4429-b89d-9298d4c1e1cd (millenaire:norman/carpenter) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: c204ffda-30ce-4bd1-bf85-da6f717f8d15 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: e1b03496-ffb3-495a-af82-eac757376e29 (millenaire:norman/farmer) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 617f9b34-554e-4133-be79-9641b840132a (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: d5c79a35-5725-4fa8-b4c7-a94b2c4cc6c7 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 1d35ac85-ed38-4b03-b1b4-f5c98ffa0db9 (millenaire:norman/miner) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 572e764c-bc24-4c3c-8a36-d09fe0126060 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 20f05912-8541-4748-9c80-45cefa6d777b (millenaire:norman/pigherd) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 05b64677-c186-4e74-95d4-b0384adec365 (millenaire:norman/pigherdf) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 1612fba0-7090-4e34-8cf6-03f368544cf4 (millenaire:norman/glassblower) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 90bd6028-aff0-4afb-845b-766f555dbb4b (millenaire:norman/herbalist) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 934abf58-f694-4f1d-89f3-d1b838579af9 (millenaire:norman/smith) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: c2d50ade-cc43-4284-a19d-adbf0560a627 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 76959289-db3f-40e2-9746-31c465cd1a19 (millenaire:norman/shepherd) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: daf174e5-0d43-4c40-b6a4-8b7ea61663ba (millenaire:norman/shepherdf) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 8dedf66e-6e3f-418f-84ba-bb7d936e25f6 (millenaire:norman/priest) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 955b7120-5474-4f6e-a9da-6a4ff4fa9eb7 (millenaire:norman/merchant) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 26158c68-a922-4a68-9e32-ffaa0555a889 (millenaire:norman/alchemistapprentice) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 53935bc1-dc87-472a-bc63-185b26ffece7 (millenaire:norman/carpenter) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: cdab8c9d-1a35-4c23-9bbd-29c247ca557d (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 5229f3e4-4d60-4b65-ac51-5628fe9bba26 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 7a64d61f-7834-4c06-a557-e26caeeb1a5f (millenaire:norman/merchant_food) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 63889a2d-2e62-4d2c-bdbb-3e6efb2e8fb1 (millenaire:norman/boy) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: a3ed2b87-b842-491a-8396-8e32311daa11 (millenaire:norman/seneschal) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Identity sweep removed the faction identity from 34 loaded resident(s) of village 1d659784-f7c8-4291-9b80-95f202897f01
+[11:56:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Identity clearance for village 1d659784-f7c8-4291-9b80-95f202897f01: removed the faction identity from 34 loaded resident(s) in 1 village(s)
+[11:56:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Lantheuil les-pâtures' (update #57)
+[11:56:35] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Sainte-Marie les-pâtures' (update #53)
+[11:56:39] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Runtime context discarded.
+[11:56:49] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Millénaire settlement source registered; goal bridge scheduled for ServerStartedEvent (LOW).
+[11:56:49] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] millenaire integration enabled.
+[11:56:49] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).
+[11:56:49] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] hundred_years_war integration enabled.
+[11:56:49] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Initialized. Integrations: {millenaire=enabled, hundred_years_war=enabled}
+[11:56:52] [main/INFO] [de.hy.co.HmLog/]: [hywmill] Role tables loaded from 7 file(s): 14 villager type(s), 44 building plan set(s)
+[11:56:53] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Runtime context created for server 1522978045
+[11:57:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:engage_target org.millenaire.goal.impl.EngageTargetGoal -> EngageTargetDecorator
+[11:57:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hunt_monster org.millenaire.goal.impl.HuntMonsterGoal -> HuntMonsterDecorator
+[11:57:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hide org.millenaire.goal.impl.HideGoal -> HideDecorator
+[11:57:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Re-initialized goals of 0 already-loaded Millénaire villager(s) so they use the bridged goals.
+[11:57:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal bridge status: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[11:57:01] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 1
+[11:57:01] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ledger: 2 village(s) known to Millénaire
+[11:57:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hunt_monster is live (first canStart call observed).
+[11:57:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:engage_target is live (first canStart call observed).
+[11:57:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hide is live (first canStart call observed).
+[11:57:05] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 2, faction-id mismatches corrected: 0
+[11:57:05] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Lantheuil les-pâtures' (update #58)
+[11:57:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Sainte-Marie les-pâtures' (update #54)
+[11:57:13] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Identity sweep re-marked 34 resident(s) of village 1d659784-f7c8-4291-9b80-95f202897f01 that were missing their faction identity
+[11:57:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Lantheuil les-pâtures' (update #59)
+[11:57:19] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Sainte-Marie les-pâtures' (update #55)
+[11:57:24] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Runtime context discarded.
+[11:57:34] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Millénaire settlement source registered; goal bridge scheduled for ServerStartedEvent (LOW).
+[11:57:34] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] millenaire integration enabled.
+[11:57:34] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).
+[11:57:34] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] hundred_years_war integration enabled.
+[11:57:34] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Initialized. Integrations: {millenaire=enabled, hundred_years_war=enabled}
+[11:57:37] [main/INFO] [de.hy.co.HmLog/]: [hywmill] Role tables loaded from 7 file(s): 14 villager type(s), 44 building plan set(s)
+[11:57:38] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Runtime context created for server 1859482835
+[11:57:45] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:engage_target org.millenaire.goal.impl.EngageTargetGoal -> EngageTargetDecorator
+[11:57:45] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hunt_monster org.millenaire.goal.impl.HuntMonsterGoal -> HuntMonsterDecorator
+[11:57:45] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hide org.millenaire.goal.impl.HideGoal -> HideDecorator
+[11:57:45] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Re-initialized goals of 0 already-loaded Millénaire villager(s) so they use the bridged goals.
+[11:57:45] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal bridge status: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[11:57:47] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ledger: 2 village(s) known to Millénaire
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: a09d4114-6715-429c-9bfd-250710aff4cc (millenaire:norman/farmer) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: f89a96dc-38f3-4202-b604-f657efc07972 (millenaire:norman/boy) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: b2e49832-da6c-40b4-b763-ff5635d74f53 (millenaire:norman/merchant) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 93b1db8b-9335-4e40-9220-6bcfa04899bf (millenaire:norman/wife) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: eed689dc-d449-414e-80b3-329dab7e7766 (millenaire:norman/farmer) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: eb61baf0-0f0f-48d2-b96e-8500036725e3 (millenaire:norman/wife) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 58349149-fe2c-4f74-980a-80e5f22be53d (millenaire:norman/lumberman) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 4ff5bb51-f46e-4d6d-807c-b274bfb9cbd3 (millenaire:norman/cattlefarmermale) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 82353c3f-6b0b-4e31-96e9-d06beb0865d8 (millenaire:norman/wife) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 9e1bff49-e974-41fe-ae00-0d6fcdcd9dfb (millenaire:norman/seneschal) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 7a64d61f-7834-4c06-a557-e26caeeb1a5f (millenaire:norman/merchant_food) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: c2d50ade-cc43-4284-a19d-adbf0560a627 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: daf174e5-0d43-4c40-b6a4-8b7ea61663ba (millenaire:norman/shepherdf) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 26158c68-a922-4a68-9e32-ffaa0555a889 (millenaire:norman/alchemistapprentice) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: a3ed2b87-b842-491a-8396-8e32311daa11 (millenaire:norman/seneschal) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: cdab8c9d-1a35-4c23-9bbd-29c247ca557d (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: e1b03496-ffb3-495a-af82-eac757376e29 (millenaire:norman/farmer) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 745a9e4f-4ce5-4b54-95c3-c2a2c3800dea (millenaire:norman/shepherdf) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 7015e59c-f8e4-43fd-b415-00fff156efb8 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: c204ffda-30ce-4bd1-bf85-da6f717f8d15 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 05b64677-c186-4e74-95d4-b0384adec365 (millenaire:norman/pigherdf) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hunt_monster is live (first canStart call observed).
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:engage_target is live (first canStart call observed).
+[11:57:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hide is live (first canStart call observed).
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 446b8480-084f-4429-b89d-9298d4c1e1cd (millenaire:norman/carpenter) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 20f05912-8541-4748-9c80-45cefa6d777b (millenaire:norman/pigherd) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 1d35ac85-ed38-4b03-b1b4-f5c98ffa0db9 (millenaire:norman/miner) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 53935bc1-dc87-472a-bc63-185b26ffece7 (millenaire:norman/carpenter) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 617f9b34-554e-4133-be79-9641b840132a (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 8515d7ad-ca10-490b-9ce9-9358f4004488 (millenaire:norman/cattlefarmermale) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 90bd6028-aff0-4afb-845b-766f555dbb4b (millenaire:norman/herbalist) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 180206ce-0a5e-4315-9380-4dfccedb517d (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 7c38c251-96b4-44a0-b649-4329f08de8d6 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 63889a2d-2e62-4d2c-bdbb-3e6efb2e8fb1 (millenaire:norman/boy) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: d5c79a35-5725-4fa8-b4c7-a94b2c4cc6c7 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 955b7120-5474-4f6e-a9da-6a4ff4fa9eb7 (millenaire:norman/merchant) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 572e764c-bc24-4c3c-8a36-d09fe0126060 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 5229f3e4-4d60-4b65-ac51-5628fe9bba26 (millenaire:norman/wife) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 6b29ffce-ed52-47c5-bf3e-cc0427f312e2 (millenaire:norman/lady) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 1612fba0-7090-4e34-8cf6-03f368544cf4 (millenaire:norman/glassblower) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 25003641-ddf7-4bd8-8963-ff4ee230ac25 (millenaire:norman/farmer) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: b0b3b71e-9750-41cd-8ec7-6ea7f581487f (millenaire:norman/cattlefarmerfemale) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 6c7b1c12-f431-4e92-b298-f3dbba5f3d13 (millenaire:norman/merchant) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 8dedf66e-6e3f-418f-84ba-bb7d936e25f6 (millenaire:norman/priest) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 934abf58-f694-4f1d-89f3-d1b838579af9 (millenaire:norman/smith) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 50cb62b7-dc8f-48da-aa86-caeeb0b704c9 (millenaire:norman/shepherd) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 76959289-db3f-40e2-9746-31c465cd1a19 (millenaire:norman/shepherd) of village 1d659784-f7c8-4291-9b80-95f202897f01 (marker was 441e9b15-9328-38e5-86bb-a25ecfb52a22)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: c6011129-0322-4323-9fc4-1d93bb678987 (millenaire:norman/lady) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 8bfcd930-6b36-4754-96bd-891abd5f5045 (millenaire:norman/carpenter) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: f51a337c-0ce6-4914-b454-fb50e9bf6cac (millenaire:norman/wife) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 96e7c276-a377-48a3-9962-fac4aa2418bc (millenaire:norman/cattlefarmerfemale) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: ba92f8d2-3ffc-40cf-aa6f-b3cbc15da1aa (millenaire:norman/wife) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:49] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identity removed: 2e8412e3-9867-4db4-9576-f74088724c61 (millenaire:norman/merchant_plant) of village 59912b8f-7f79-4ffc-ba1e-6abae7398a7c (marker was a6584995-1c53-3173-8ebc-caf956801e47)
+[11:57:50] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 2, faction-id mismatches corrected: 0
+[11:57:50] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Lantheuil les-pâtures' (update #60)
+[11:57:52] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Sainte-Marie les-pâtures' (update #56)
+[11:57:59] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Lantheuil les-pâtures' (update #61)
+[11:58:02] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Sainte-Marie les-pâtures' (update #57)
+[11:58:04] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Runtime context discarded.
+[11:58:15] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Millénaire settlement source registered; goal bridge scheduled for ServerStartedEvent (LOW).
+[11:58:15] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] millenaire integration enabled.
+[11:58:15] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).
+[11:58:15] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] hundred_years_war integration enabled.
+[11:58:15] [modloading-worker-0/INFO] [de.hy.co.HmLog/]: [hywmill] Initialized. Integrations: {millenaire=enabled, hundred_years_war=enabled}
+[11:58:18] [main/INFO] [de.hy.co.HmLog/]: [hywmill] Role tables loaded from 7 file(s): 14 villager type(s), 44 building plan set(s)
+[11:58:19] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Runtime context created for server 1382553865
+[11:58:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:engage_target org.millenaire.goal.impl.EngageTargetGoal -> EngageTargetDecorator
+[11:58:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hunt_monster org.millenaire.goal.impl.HuntMonsterGoal -> HuntMonsterDecorator
+[11:58:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal replacement initialized: millenaire:hide org.millenaire.goal.impl.HideGoal -> HideDecorator
+[11:58:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Re-initialized goals of 0 already-loaded Millénaire villager(s) so they use the bridged goals.
+[11:58:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal bridge status: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[11:58:27] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Villager faction identities assigned on join so far: 1
+[11:58:27] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Ledger: 2 village(s) known to Millénaire
+[11:58:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hide is live (first canStart call observed).
+[11:58:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:engage_target is live (first canStart call observed).
+[11:58:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Goal decorator millenaire:hunt_monster is live (first canStart call observed).
+[11:58:32] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Combat incident recorded: Incident[tick=12795, attacker=20f05912-8541-4748-9c80-45cefa6d777b, attackerType=millenaire:villager, attackerFaction=441e9b15-9328-38e5-86bb-a25ecfb52a22, victim=91792adc-5ce9-4e74-baba-8d105a78968b, victimType=minecraft:pig, victimFaction=null, attackerInherentlyHostile=false, victimResidentOf=null, insideVill
+[11:58:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 2, faction-id mismatches corrected: 0
+[11:58:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Lantheuil les-pâtures' (update #62)
+[11:58:37] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Combat incident recorded: Incident[tick=12880, attacker=20f05912-8541-4748-9c80-45cefa6d777b, attackerType=millenaire:villager, attackerFaction=441e9b15-9328-38e5-86bb-a25ecfb52a22, victim=91792adc-5ce9-4e74-baba-8d105a78968b, victimType=minecraft:pig, victimFaction=null, attackerInherentlyHostile=false, victimResidentOf=null, insideVill
+[11:58:37] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village record unchanged: 'Sainte-Marie les-pâtures' (update #58)
+[11:58:41] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Runtime context discarded.

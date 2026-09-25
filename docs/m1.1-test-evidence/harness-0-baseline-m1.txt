@@ -1,0 +1,59 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario B
+[harness] PASS B owned HYW unit does not attack villagers 0 attacks
+[harness] PASS B owned HYW unit is not a threat Threats in Ouilly les-pâtures: 0
+[harness] --- scenario C
+[harness] PASS C1 threat detected 
+[harness] PASS C2 bandit attacks marked villagers 3 hits
+[harness] PASS C3 defenders fight back 17 hits by ['041f58c5', 'ac377201', 'b6a41296', 'd9803717', 'e507d790']
+[harness] PASS C4 civilians never attack HYW units 0
+[harness] PASS C4 civilians shelter 
+[harness] --- scenario D
+[harness] PASS D3-4 HYW temporary retaliation after player hits [True, True, True]
+[harness] PASS D5 village <-> player stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS D5 village <-> unit owner stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] --- scenario F1
+[harness] PASS F1 villagers still fight vanilla monsters 5 hits
+[harness] --- scenario E
+[harness] PASS E0 a defender to kill 
+[harness] FAIL E1 Millénaire resurrected the defender 
+[harness] --- scenario F2
+[harness] PASS F2a raid triggered Raid triggered: Ouilly les-pâtures -> Saint-Georges les-pâtures (4 raiders dispatched)
+[harness] PASS F2b raid clone left unmarked 
+[harness] PASS F2c Millénaire resolved the raid [03:35:49] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Ouilly les-pâtures repulsed at Saint-Georges les-pâtures.
+[harness] --- scenario A
+[harness] PASS A1-3 village info populated {'villageId': 'c5687c3c-195f-4124-a74d-efd8fca6f15f', 'faction': '085074be-86e8-3a58-acd8-b56b57b691af', 'tier': 'GUARD_POST', 'garrison': '13', 'fortification': '18', 'defending': '198'}
+[harness] server stopped
+[harness] server started
+[harness] PASS A4 ledger reloaded from disk [03:36:42] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 1, faction-id mismatches corrected: 0
+[harness] PASS A5-6 same VillageId and faction after restart 085074be-86e8-3a58-acd8-b56b57b691af vs 085074be-86e8-3a58-acd8-b56b57b691af
+[harness] server stopped
+[harness] RESULT 22/23 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; loaded villagers re-initialized: 0
+  PASS  B owned HYW unit does not attack villagers  0 attacks
+  PASS  B owned HYW unit is not a threat  Threats in Ouilly les-pâtures: 0
+  PASS  C1 threat detected  
+  PASS  C2 bandit attacks marked villagers  3 hits
+  PASS  C3 defenders fight back  17 hits by ['041f58c5', 'ac377201', 'b6a41296', 'd9803717', 'e507d790']
+  PASS  C4 civilians never attack HYW units  0
+  PASS  C4 civilians shelter  
+  PASS  D3-4 HYW temporary retaliation after player hits  [True, True, True]
+  PASS  D5 village <-> player stays NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  D5 village <-> unit owner stays NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  F1 villagers still fight vanilla monsters  5 hits
+  PASS  E0 a defender to kill  
+  FAIL  E1 Millénaire resurrected the defender  
+  PASS  F2a raid triggered  Raid triggered: Ouilly les-pâtures -> Saint-Georges les-pâtures (4 raiders dispatched)
+  PASS  F2b raid clone left unmarked  
+  PASS  F2c Millénaire resolved the raid  [03:35:49] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Ouilly les-pâtures repulsed at Saint-Georges les-pâtures.
+  PASS  A1-3 village info populated  {'villageId': 'c5687c3c-195f-4124-a74d-efd8fca6f15f', 'faction': '085074be-86e8-3a58-acd8-b56b57b691af', 'tier': 'GUARD_POST', 'garrison': '13', 'fortification': '18', 'defending': '198'}
+  PASS  A4 ledger reloaded from disk  [03:36:42] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 1, faction-id mismatches corrected: 0
+  PASS  A5-6 same VillageId and faction after restart  085074be-86e8-3a58-acd8-b56b57b691af vs 085074be-86e8-3a58-acd8-b56b57b691af

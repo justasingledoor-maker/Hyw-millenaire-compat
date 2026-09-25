@@ -2,7 +2,7 @@
 
 This is a NeoForge 1.21.1 integration layer between **Millénaire 9.0.2** and **Hundred Years War 0.7.1r-fix1**. It is a separate JAR that modifies neither mod and bundles neither.
 
-**Status:** Milestone 1 (garrison ledger and combat bridge). See [`docs/m1-report.md`](docs/m1-report.md). The original feasibility audit is in [`docs/millenaire-hyw-feasibility-audit.md`](docs/millenaire-hyw-feasibility-audit.md).
+**Status:** Milestone 1.1 (M1 hardened: per-server runtime, escalation reconciliation, role tables, identity lifecycle). See [`docs/m1.1-report.md`](docs/m1.1-report.md) and [`docs/m1-report.md`](docs/m1-report.md). The original feasibility audit is in [`docs/millenaire-hyw-feasibility-audit.md`](docs/millenaire-hyw-feasibility-audit.md).
 
 ## Building
 
@@ -21,6 +21,10 @@ Then build:
 ```
 
 They are `compileOnly` dependencies. At runtime both are optional: the mod loads without either, and the matching integration disables itself.
+
+## Tests
+
+`./gradlew test` runs the unit tests. `python3 devtools/server-harness/harness.py --dir <dir> install` and then `... run all` runs the acceptance scenarios on a real dedicated server with the three JARs (see the script's header).
 
 ## Commands
 
