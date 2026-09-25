@@ -1341,7 +1341,7 @@ def scenario_G3_6(ctx):
     ids = {u[:8] for u in units}
     s.cmd(ground(c[0] + 4, c[2] + 4, f"summon hundred_years_war:bandit_soldier ~ ~ ~ {{Tags:['hwB']}}"), 1)
     maxdep = 0
-    for _ in range(20):
+    for _ in range(45):  # a 1-vs-many HYW fight can take over 40 s
         time.sleep(2)
         maxdep = max(maxdep, garrison(s, c).get("deployed", 0))
         if health(s, "hwB") is None:
