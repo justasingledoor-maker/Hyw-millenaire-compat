@@ -40,11 +40,12 @@ public final class GarrisonUpdater {
             if (ledger == null) {
                 ledger = GarrisonLedger.get(overworld);
             }
-            boolean known = ledger.get(ref.id()) != null;
+            VillageRecord existing = ledger.get(ref.id());
+            boolean known = existing != null;
             if (!known) {
                 HmLog.info("Village discovered: '{}' {} at {} (active={})", ref.name(), ref.id(), ref.center().toShortString(), ref.active());
             }
-            if (!ref.active() && known) {
+            if (!ref.active() && known && !existing.needsRecompute) {
                 rt.threats().markInactive(ref.id());
                 continue;
             }
@@ -62,6 +63,7 @@ public final class GarrisonUpdater {
         SettlementSnapshot s = snap.get();
         VillageRecord record = ledger.getOrCreate(villageId, tick);
         boolean firstUpdate = record.updateCount == 0;
+        boolean migrated = record.needsRecompute;
         List<String> diffs = record.apply(s, tick);
         if (s.active()) {
             FactionMarker.SweepResult sweep = FactionMarker.sweep(overworld, villageId);
@@ -71,9 +73,15 @@ public final class GarrisonUpdater {
         ledger.setDirty();
         rt.threats().updateVillage(s, record.factionId);
         if (firstUpdate) {
-            HmLog.info("Village record initialized: '{}' tier={} garrison={} population={} defending={} fortification={} tags={} walls={} towers={} defensive={} militaryPlans={}",
+            HmLog.info("Village record initialized: '{}' tier={} garrison={} population={} defending={} fortification={} villagers={} buildings={} tags={}",
                     record.name, record.tier, record.garrison, record.population, record.defendingStrength, record.fortification,
-                    record.tagCounts, record.wallSegments, record.wallTowers, record.defensiveBuildings, record.militaryPlans);
+                    record.villagerRoles, record.buildingRoles, record.tagCounts);
+            if (!record.ambiguousTypes.isEmpty()) {
+                HmLog.info("Village '{}': villager types without a role-table entry, classified MILITIA by fallback (please review): {}",
+                        record.name, record.ambiguousTypes);
+            }
+        } else if (migrated) {
+            HmLog.info("Village record recomputed after ledger migration: '{}' tier={} fortification={} {}", record.name, record.tier, record.fortification, diffs);
         } else if (diffs.stream().anyMatch(d -> HEADLINE_FIELDS.stream().anyMatch(d::startsWith))) {
             HmLog.info("Village record updated: '{}' {}", record.name, diffs);
         } else if (!diffs.isEmpty()) {

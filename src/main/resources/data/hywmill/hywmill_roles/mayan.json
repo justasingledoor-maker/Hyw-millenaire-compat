@@ -1,0 +1,10 @@
+{
+  "villagers": {
+    "millenaire:mayan/warrior": "SOLDIER"
+  },
+  "buildings": {
+    "millenaire:mayan/mayanguard": "GUARDHOUSE",
+    "millenaire:mayan/mayanwatchtower": "WATCHTOWER",
+    "millenaire:mayan/mayanarmyforge": "ARMOURY"
+  }
+}

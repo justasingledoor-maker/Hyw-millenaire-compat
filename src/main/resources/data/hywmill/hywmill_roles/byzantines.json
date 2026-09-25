@@ -1,0 +1,18 @@
+{
+  "villagers": {
+    "millenaire:byzantines/guard_byzantine": "SOLDIER",
+    "millenaire:byzantines/soldier_byzantine": "SOLDIER",
+    "millenaire:byzantines/playersoldier_byzantine": "SOLDIER",
+    "millenaire:byzantines/centurio_byzantine": "LEADER"
+  },
+  "buildings": {
+    "millenaire:byzantines/watchtower": "WATCHTOWER",
+    "millenaire:byzantines/fortress": "FORT_TOWNHALL",
+    "millenaire:byzantines/kastron": "FORT_TOWNHALL",
+    "millenaire:byzantines/playerfortress": "FORT_TOWNHALL",
+    "millenaire:byzantines/fortress_a_barracks": "BARRACKS",
+    "millenaire:byzantines/playerfortress_a_barracks": "BARRACKS",
+    "millenaire:byzantines/fortress_a_armyforge": "ARMOURY",
+    "millenaire:byzantines/playerfortress_a_armyforge": "ARMOURY"
+  }
+}

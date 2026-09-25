@@ -1,0 +1,15 @@
+{
+  "villagers": {
+    "millenaire:seljuk/turk_soldier": "SOLDIER",
+    "millenaire:seljuk/turk_lonesoldier": "SOLDIER"
+  },
+  "buildings": {
+    "millenaire:seljuk/sarayfort": "FORT_TOWNHALL",
+    "millenaire:seljuk/sarayfortplayer": "FORT_TOWNHALL",
+    "millenaire:seljuk/barracks": "BARRACKS",
+    "millenaire:seljuk/barrackssmall": "BARRACKS",
+    "millenaire:seljuk/barracks_a_training": "TRAINING",
+    "millenaire:seljuk/watchtower": "WATCHTOWER",
+    "millenaire:seljuk/armoury": "ARMOURY"
+  }
+}

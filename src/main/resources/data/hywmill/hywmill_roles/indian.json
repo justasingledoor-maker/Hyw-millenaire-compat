@@ -1,0 +1,14 @@
+{
+  "villagers": {
+    "millenaire:indian/soldier": "SOLDIER",
+    "millenaire:indian/rajputgeneral": "LEADER"
+  },
+  "buildings": {
+    "millenaire:indian/fort": "FORT_TOWNHALL",
+    "millenaire:indian/fort_a_soldierhouse": "BARRACKS",
+    "millenaire:indian/fort_a_soldierhouse2": "BARRACKS",
+    "millenaire:indian/soldierhouse": "BARRACKS",
+    "millenaire:indian/armyforge": "ARMOURY",
+    "millenaire:indian/fort_a_forge": "ARMOURY"
+  }
+}

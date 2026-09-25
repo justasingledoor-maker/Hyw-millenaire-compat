@@ -53,8 +53,13 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// Pure-logic unit tests (formulas, classification, identity contracts). They must not need
-// Millénaire or HYW on the classpath; anything touching foreign classes is tested on the server.
+// Plain-JVM unit tests (formulas, classification, identity contracts, ledger NBT migration). They
+// see Minecraft/NeoForge classes (NBT, Gson) but never Millénaire or HYW, and no game is bootstrapped;
+// anything touching foreign classes is tested on the dedicated server (devtools/server-harness).
+configurations {
+    testCompileClasspath.extendsFrom compileClasspath
+    testRuntimeClasspath.extendsFrom runtimeClasspath
+}
 tasks.named('test', Test) {
     useJUnitPlatform()
     testLogging { events 'passed', 'failed', 'skipped'; exceptionFormat 'full' }

@@ -1,42 +1,55 @@
 package dev.hywmill.military;
 
-import dev.hywmill.settlement.SettlementSnapshot;
+import dev.hywmill.classify.BuildingRole;
+import dev.hywmill.classify.VillagerRole;
+
+import java.util.Map;
 
 /**
- * Deterministic military tier. Thresholds are evaluated top-down; the first match wins.
+ * Deterministic military tier (ledger format 2). Evaluated top-down; the first match wins.
+ * "Defenders" are SOLDIER + LEADER + MILITIA residents (outlaws excluded).
  *
  * <pre>
- *   STRONGHOLD : GARRISON conditions and fortification >= 20
- *   GARRISON   : garrison >= 4 and (armoury or training building, or a barrack/armoury plan)
- *   GUARD_POST : garrison >= 2 and at least one defensive building (patrol-tagged or military plan)
- *   WATCH      : garrison >= 1
- *   NONE       : no defenders
+ *   STRONGHOLD : GARRISON conditions, fortification >= 20 and at least one WALL
+ *   GARRISON   : >= 3 SOLDIER/LEADER and at least one of BARRACKS, ARMOURY, TRAINING, FORT_TOWNHALL
+ *   GUARD_POST : >= 1 SOLDIER, or (>= 2 defenders and at least one GUARDHOUSE or WATCHTOWER)
+ *   WATCH      : >= 1 defender
+ *   NONE       : otherwise
  * </pre>
  */
 public enum MilitaryTier {
     NONE, WATCH, GUARD_POST, GARRISON, STRONGHOLD;
 
     public static final int STRONGHOLD_FORTIFICATION = 20;
+    public static final int GARRISON_PROFESSIONALS = 3;
 
-    public static MilitaryTier assess(SettlementSnapshot s, int fortification) {
-        boolean trainingInfra = s.tag("armoury") > 0 || s.tag("training") > 0
-                || s.hasPlanKeyword("barrack") || s.hasPlanKeyword("armoury");
-        boolean defensiveInfra = s.tag("patrol") > 0 || !s.militaryPlans().isEmpty();
+    public static MilitaryTier assess(Map<VillagerRole, Integer> villagers, Map<BuildingRole, Integer> buildings, int fortification) {
+        int soldiers = count(villagers, VillagerRole.SOLDIER);
+        int professionals = soldiers + count(villagers, VillagerRole.LEADER);
+        int defenders = professionals + count(villagers, VillagerRole.MILITIA);
 
-        boolean garrison = s.garrison() >= 4 && trainingInfra;
-        if (garrison && fortification >= STRONGHOLD_FORTIFICATION) {
+        boolean garrisonInfra = count(buildings, BuildingRole.BARRACKS) > 0 || count(buildings, BuildingRole.ARMOURY) > 0
+                || count(buildings, BuildingRole.TRAINING) > 0 || count(buildings, BuildingRole.FORT_TOWNHALL) > 0;
+        boolean guardInfra = count(buildings, BuildingRole.GUARDHOUSE) > 0 || count(buildings, BuildingRole.WATCHTOWER) > 0;
+
+        boolean garrison = professionals >= GARRISON_PROFESSIONALS && garrisonInfra;
+        if (garrison && fortification >= STRONGHOLD_FORTIFICATION && count(buildings, BuildingRole.WALL) > 0) {
             return STRONGHOLD;
         }
         if (garrison) {
             return GARRISON;
         }
-        if (s.garrison() >= 2 && defensiveInfra) {
+        if (soldiers >= 1 || (defenders >= 2 && guardInfra)) {
             return GUARD_POST;
         }
-        if (s.garrison() >= 1) {
+        if (defenders >= 1) {
             return WATCH;
         }
         return NONE;
+    }
+
+    private static <K> int count(Map<K, Integer> m, K key) {
+        return m.getOrDefault(key, 0);
     }
 
     public static MilitaryTier parse(String name) {

@@ -1,0 +1,13 @@
+{
+  "villagers": {
+    "millenaire:japanese/samurai": "SOLDIER",
+    "millenaire:japanese/samuraigeneral": "LEADER"
+  },
+  "buildings": {
+    "millenaire:japanese/japanesefort": "FORT_TOWNHALL",
+    "millenaire:japanese/japanesesamuraih": "BARRACKS",
+    "millenaire:japanese/japaneselookout": "WATCHTOWER",
+    "millenaire:japanese/japanesearmyforge": "ARMOURY",
+    "millenaire:japanese/japanesearcheryrange": "TRAINING"
+  }
+}

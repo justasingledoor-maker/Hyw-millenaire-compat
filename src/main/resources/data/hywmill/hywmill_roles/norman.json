@@ -1,0 +1,22 @@
+{
+  "villagers": {
+    "millenaire:norman/guard": "SOLDIER",
+    "millenaire:norman/orderguard": "SOLDIER",
+    "millenaire:norman/knight": "LEADER"
+  },
+  "buildings": {
+    "millenaire:norman/guardhouse": "GUARDHOUSE",
+    "millenaire:norman/guardroom": "GUARDHOUSE",
+    "millenaire:norman/largeguardhouse": "GUARDHOUSE",
+    "millenaire:norman/watchtower": "WATCHTOWER",
+    "millenaire:norman/fort_a_lefttower": "WATCHTOWER",
+    "millenaire:norman/fort_a_righttower": "WATCHTOWER",
+    "millenaire:norman/armoury": "ARMOURY",
+    "millenaire:norman/largefort_a_armoury": "ARMOURY",
+    "millenaire:norman/largefort_a_barrack": "BARRACKS",
+    "millenaire:norman/fort": "FORT_TOWNHALL",
+    "millenaire:norman/largefort": "FORT_TOWNHALL",
+    "millenaire:norman/playerfort": "FORT_TOWNHALL",
+    "millenaire:norman/playerlargefort": "FORT_TOWNHALL"
+  }
+}

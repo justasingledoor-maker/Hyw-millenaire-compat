@@ -1,30 +1,26 @@
 package dev.hywmill.fortification;
 
-import dev.hywmill.settlement.SettlementSnapshot;
+import dev.hywmill.classify.BuildingRole;
+
+import java.util.Map;
 
 /**
- * Fortification score, computed only from buildings the settlement mod reports as
- * operational (complete). Under-construction buildings count for nothing.
+ * Fortification score: the sum of {@link BuildingRole#fortification} over operational buildings.
+ * Under-construction buildings and planned wall segments count for nothing.
  *
  * <pre>
- *   score = 1 x wall segments
- *         + 2 x wall towers            (wall segments that are also patrol-tagged, on top of the 1 above)
- *         + 3 x defensive buildings    (non-wall, patrol-tagged: guardhouses, watchtowers, fort towers)
- *         + 5 if the town hall is a fort
+ *   WALL 1, TOWER 3, GATE 2, BORDER_MARKER 0, GUARDHOUSE 3, WATCHTOWER 3, BARRACKS 4,
+ *   ARMOURY 0, TRAINING 0, FORT_TOWNHALL 5
  * </pre>
  */
 public final class FortificationScore {
-    public static final int WALL_SEGMENT = 1;
-    public static final int WALL_TOWER_BONUS = 2;
-    public static final int DEFENSIVE_BUILDING = 3;
-    public static final int FORT_TOWNHALL = 5;
-
     private FortificationScore() {}
 
-    public static int compute(SettlementSnapshot s) {
-        return s.wallSegments() * WALL_SEGMENT
-                + s.wallTowers() * WALL_TOWER_BONUS
-                + s.defensiveBuildings() * DEFENSIVE_BUILDING
-                + (s.fortTownhall() ? FORT_TOWNHALL : 0);
+    public static int compute(Map<BuildingRole, Integer> operationalBuildingRoles) {
+        int score = 0;
+        for (Map.Entry<BuildingRole, Integer> e : operationalBuildingRoles.entrySet()) {
+            score += e.getKey().fortification * e.getValue();
+        }
+        return score;
     }
 }

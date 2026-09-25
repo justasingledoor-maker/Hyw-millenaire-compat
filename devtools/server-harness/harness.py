@@ -213,7 +213,8 @@ def info(s, c):
     for l in s.output(at(c, "hywmill village info"), 2):
         for key, rx in [("villageId", r"^VillageId: (\S+)"), ("faction", r"^Faction UUID \(synthetic\): (\S+)"),
                         ("tier", r"^Tier: (\w+)"), ("garrison", r"garrison: (\d+)"), ("fortification", r"fortification: (\d+)"),
-                        ("defending", r"Defending strength \(Mill.naire\): (\d+)")]:
+                        ("defending", r"Defending strength \(Mill.naire\): (\d+)"),
+                        ("villagerRoles", r"^Villager roles: (.*)"), ("buildingRoles", r"^Building roles: ([^|]*)")]:
             m = re.search(rx, l)
             if m:
                 d[key] = m[1]
@@ -264,6 +265,35 @@ def setup(ctx):
         r = wait_residents(s, ctx.a)
         check("setup: A has defenders and civilians", any(x[2] == "DEFENDER" for x in r) and any(x[2] == "CIVILIAN" for x in r),
               f"{len(r)} residents")
+
+
+def reuse(ctx):
+    """--keep-world: find the two villages already in the ledger instead of spawning new ones."""
+    s = ctx.s
+    for box in FORCELOAD:
+        s.cmd("forceload add {} {} {} {}".format(*box), wait=15)
+    s.cmd("millenaire chunkload", 10)
+    centers = []
+    for l in s.output("hywmill village list", 2):
+        m = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=| (-?\d+), (-?\d+), (-?\d+) tier=", l)
+        if m:
+            g = [x for x in m.groups() if x is not None]
+            centers.append(tuple(int(x) for x in g))
+    ctx.a = centers[0] if centers else None
+    ctx.b = centers[1] if len(centers) > 1 else None
+    check("reuse: villages found in existing world", ctx.a is not None, str(centers))
+
+
+def scenario_M(ctx):
+    """M1.1-5: a format-1 ledger (written by an M1-format build) is migrated and recomputed."""
+    s = ctx.s
+    lines = s.read_since(s.start_pos)
+    mig = next((l for l in lines if re.search(r"migrated \d+ record\(s\) from format 1 to 2", l)), None)
+    check("M1 format-1 ledger migrated on load", mig is not None, mig or "")
+    rec = s.wait_for(r"recomputed after ledger migration", 60, since=s.start_pos)
+    check("M2 migrated records recomputed", rec is not None, rec or "")
+    out = s.output(at(ctx.a, "hywmill village info"), 2)
+    check("M3 village info shows role counts", any(l.startswith("Building roles:") for l in out), "; ".join(out))
 
 
 def scenario_A(ctx):
@@ -455,7 +485,7 @@ def scenario_status(ctx):
 
 
 SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
-             "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "status": scenario_status}
+             "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "M": scenario_M, "status": scenario_status}
 ORDER = ["status", "H", "B", "C", "D", "F1", "E", "F2", "A"]
 
 
@@ -468,7 +498,10 @@ def run(d: Path, names, fresh=True):
     ctx = Ctx(s)
     try:
         s.start()
-        setup(ctx)
+        if fresh:
+            setup(ctx)
+        else:
+            reuse(ctx)
         for n in (ORDER if names == ["all"] else names):
             if ctx.a is None:
                 break

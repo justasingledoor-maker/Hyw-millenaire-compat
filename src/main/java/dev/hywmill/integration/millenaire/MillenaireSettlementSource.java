@@ -1,5 +1,10 @@
 package dev.hywmill.integration.millenaire;
 
+import dev.hywmill.classify.BuildingRole;
+import dev.hywmill.classify.RoleClassifier;
+import dev.hywmill.classify.RoleTable;
+import dev.hywmill.classify.RoleTables;
+import dev.hywmill.classify.VillagerRole;
 import dev.hywmill.settlement.ResidentInfo;
 import dev.hywmill.settlement.SettlementSnapshot;
 import dev.hywmill.settlement.SettlementSource;
@@ -8,8 +13,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import org.millenaire.building.BuildingInstance;
+import org.millenaire.building.BuildingPlanSet;
 import org.millenaire.culture.ModCultures;
 import org.millenaire.culture.VillagerType;
+import org.millenaire.culture.WallType;
 import org.millenaire.entity.MillVillager;
 import org.millenaire.goal.GoalScheduler;
 import org.millenaire.goal.VillagerGoal;
@@ -20,11 +27,14 @@ import org.millenaire.village.VillageSavedData;
 import org.millenaire.village.VillagerRecord;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 /**
@@ -34,14 +44,12 @@ import java.util.UUID;
  * getVillagerRecords/getVillagerRecord/getVillageDefendingStrength/getBuildings/
  * getOperationalBuildingsWithTag/getTownhall/getCombinedReputation,
  * VillagerRecord.isKilled/isRaidingVillage/getVillagerTypeId/getOriginalVillageId,
- * BuildingInstance.isOperational/isWallSegment/getPlanSetId,
+ * BuildingInstance.isOperational/isWallSegment/getPlanSetId, BuildingPlanSet.isBorderPost,
+ * ModCultures.getBuildingPlanSet/getAllWallTypes, WallType plan-set accessors and wallSpawn,
+ * VillagerType.isHostile/isChild/isHelpInAttacks/isDefensive/isArcher/hasTag,
  * MillVillager.getVillageId/getVillagerTypeId/isRaiderEntity, ModCultures.getVillagerType.
  */
 final class MillenaireSettlementSource implements SettlementSource {
-    /** Keywords matched against building plan-set ids to list military buildings (diagnostic + tier input). */
-    private static final List<String> MILITARY_PLAN_KEYWORDS = List.of(
-            "fort", "guard", "watchtower", "barrack", "armoury", "armory", "garrison", "militar", "tower");
-
     @Override
     public String name() {
         return "Millénaire";
@@ -71,7 +79,10 @@ final class MillenaireSettlementSource implements SettlementSource {
         if (v == null) {
             return Optional.empty();
         }
+        RoleTable table = RoleTables.current();
         int population = 0, adults = 0, children = 0, garrison = 0;
+        Map<VillagerRole, Integer> villagerRoles = new EnumMap<>(VillagerRole.class);
+        Set<String> ambiguous = new TreeSet<>();
         for (VillagerRecord r : v.getVillagerRecords().values()) {
             if (r.isKilled() || r.isRaidingVillage()) {
                 continue; // dead residents and foreign raid clones are not part of the garrison
@@ -90,15 +101,22 @@ final class MillenaireSettlementSource implements SettlementSource {
             if (type.isHelpInAttacks()) {
                 garrison++;
             }
+            RoleClassifier.VillagerFacts facts = new RoleClassifier.VillagerFacts(
+                    typeId.toString(), type.isHostile(), type.isChild(), type.isHelpInAttacks());
+            villagerRoles.merge(RoleClassifier.villager(facts, table), 1, Integer::sum);
+            boolean suggestive = type.hasTag("chief") || type.hasTag("defender") || type.isDefensive() || type.isArcher();
+            if (RoleClassifier.isAmbiguous(facts, suggestive, table)) {
+                ambiguous.add(typeId.toString());
+            }
         }
 
         Map<String, Integer> tagCounts = new LinkedHashMap<>();
         for (String tag : SettlementSnapshot.TRACKED_TAGS) {
             tagCounts.put(tag, v.getOperationalBuildingsWithTag(tag).size());
         }
-        List<BuildingInstance> patrol = v.getOperationalBuildingsWithTag("patrol");
-        int wallSegments = 0, wallPending = 0, wallTowers = 0, defensive = 0, operational = 0;
-        List<String> militaryPlans = new ArrayList<>();
+        Map<String, BuildingRole> wallDerived = wallDerivedRoles();
+        Map<BuildingRole, Integer> buildingRoles = new EnumMap<>(BuildingRole.class);
+        int wallPending = 0, operational = 0;
         for (BuildingInstance b : v.getBuildings()) {
             if (!b.isOperational()) {
                 if (b.isWallSegment()) {
@@ -107,36 +125,51 @@ final class MillenaireSettlementSource implements SettlementSource {
                 continue;
             }
             operational++;
-            boolean isPatrol = patrol.contains(b);
-            if (b.isWallSegment()) {
-                wallSegments++;
-                if (isPatrol) {
-                    wallTowers++;
-                }
-            } else if (isPatrol) {
-                defensive++;
+            ResourceLocation planSetId = b.getPlanSetId();
+            if (planSetId == null) {
+                continue;
             }
-            ResourceLocation planSet = b.getPlanSetId();
-            if (planSet != null && !b.isWallSegment()) {
-                String p = planSet.getPath().toLowerCase(Locale.ROOT);
-                for (String k : MILITARY_PLAN_KEYWORDS) {
-                    if (p.contains(k)) {
-                        militaryPlans.add(planSet.toString());
-                        break;
-                    }
-                }
+            BuildingPlanSet planSet = ModCultures.getBuildingPlanSet(planSetId);
+            BuildingRole role = RoleClassifier.building(planSetId.toString(), planSet != null && planSet.isBorderPost(), wallDerived, table);
+            if (role != null) {
+                buildingRoles.merge(role, 1, Integer::sum);
             }
         }
         BuildingInstance th = v.getTownhall();
         String thPlan = th != null && th.getPlanSetId() != null ? th.getPlanSetId().toString() : "";
-        boolean fortTownhall = thPlan.toLowerCase(Locale.ROOT).contains("fort");
 
         return Optional.of(new SettlementSnapshot(
                 settlementId, nameOf(v), String.valueOf(v.getCultureId()), String.valueOf(v.getVillageTypeId()),
                 v.getCenter(), v.computeBounds(), v.isActive(),
                 population, adults, children, garrison, v.getVillageDefendingStrength(),
-                tagCounts, wallSegments, wallPending, wallTowers, defensive, militaryPlans, thPlan, fortTownhall,
+                villagerRoles, buildingRoles, tagCounts, wallPending, List.copyOf(ambiguous), thPlan,
                 v.getBuildings().size(), operational));
+    }
+
+    /** Plan-set id → role, derived from every loaded Millénaire WallType (see RoleClassifier.wallRole). */
+    static Map<String, BuildingRole> wallDerivedRoles() {
+        Map<String, BuildingRole> out = new HashMap<>();
+        for (WallType w : ModCultures.getAllWallTypes().values()) {
+            boolean spawn = w.wallSpawn();
+            put(out, w.wallPlanSet(), spawn, RoleClassifier.WallPiece.WALL);
+            put(out, w.towerPlanSet(), spawn, RoleClassifier.WallPiece.TOWER);
+            put(out, w.gatewayPlanSet(), spawn, RoleClassifier.WallPiece.GATEWAY);
+            put(out, w.cornerPlanSet(), spawn, RoleClassifier.WallPiece.CORNER);
+            for (ResourceLocation cap : new ResourceLocation[]{w.capLeftPlanSet(), w.capRightPlanSet(), w.capBothPlanSet()}) {
+                put(out, cap, spawn, RoleClassifier.WallPiece.CAP);
+            }
+            for (ResourceLocation slope : new ResourceLocation[]{w.slope1LeftPlanSet(), w.slope1RightPlanSet(), w.slope2LeftPlanSet(),
+                    w.slope2RightPlanSet(), w.slope3LeftPlanSet(), w.slope3RightPlanSet()}) {
+                put(out, slope, spawn, RoleClassifier.WallPiece.SLOPE);
+            }
+        }
+        return out;
+    }
+
+    private static void put(Map<String, BuildingRole> out, ResourceLocation planSet, boolean wallSpawn, RoleClassifier.WallPiece piece) {
+        if (planSet != null) {
+            out.put(planSet.toString(), RoleClassifier.wallRole(wallSpawn, piece));
+        }
     }
 
     @Override

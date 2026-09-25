@@ -136,9 +136,10 @@ public final class HywMillCommands {
         send(src, "Faction UUID (synthetic): " + r.factionId);
         send(src, "Tier: " + r.tier + " | garrison: " + r.garrison + " | population: " + r.population + " (adults " + r.adults + ")");
         send(src, "Defending strength (Millénaire): " + r.defendingStrength + " | fortification: " + r.fortification);
-        send(src, "Buildings: tags=" + r.tagCounts + " walls=" + r.wallSegments + " (planned/unbuilt " + r.wallSegmentsPending + ") towers=" + r.wallTowers
-                + " defensive=" + r.defensiveBuildings + " operational=" + r.buildingsOperational);
-        send(src, "Military plans: " + r.militaryPlans + " | town hall: " + r.townhallPlan);
+        send(src, "Villager roles: " + r.villagerRoles + (r.ambiguousTypes.isEmpty() ? "" : " | unlisted (fallback MILITIA): " + r.ambiguousTypes));
+        send(src, "Building roles: " + r.buildingRoles + " | wall segments planned/unbuilt: " + r.wallSegmentsPending
+                + " | operational buildings: " + r.buildingsOperational);
+        send(src, "Tags (reported only): " + r.tagCounts + " | town hall: " + r.townhallPlan);
         send(src, "Residents loaded/marked at last update: " + r.loadedResidents + "/" + r.markedResidents
                 + " | last update tick " + r.lastUpdateTick + " (#" + r.updateCount + "), first seen " + r.firstSeenTick);
         ServerPlayer player = src.getPlayer();
