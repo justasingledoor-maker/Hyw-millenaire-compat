@@ -1,0 +1,50 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario S
+[harness] spike: faction A 643b6ac1-0772-3305-b3f0-48338575e80e, faction B 84475d52-2571-3e9f-a752-412e62bae3a3
+[harness] spike R6 [('spear_man', 0, 0, 0, True), ('spear_man', 1, 1, 1, True), ('spear_man', 2, 2, 2, True), ('spear_man', 3, 3, 3, True), ('militia', 3, 3, 3, True), ('archer', 2, 2, 2, True), ('crossbowman', 1, 1, 1, True), ('shieldman', 3, 3, 3, True), ('warrior', 0, 0, 0, True), ('matchlock_man', 0, 2, 2, True), ('handgonne_man', 3, 0, 1, True)]
+[harness] FAIL S-R6 equipment levels applied (HYW clamps out-of-range levels), owner/supply/despawn set [('spear_man', 0, 0, 0, True), ('spear_man', 1, 1, 1, True), ('spear_man', 2, 2, 2, True), ('spear_man', 3, 3, 3, True), ('militia', 3, 3, 3, True), ('archer', 2, 2, 2, True), ('crossbowman', 1, 1, 1, True), ('shieldman', 3, 3, 3, True), ('warrior', 0, 0, 0, True), ('matchlock_man', 0, 2, 2, True), ('handgonne_man', 3, 0, 1, True)]
+[harness] spike R1 targets [] incidents-by-units 0 health [None, None, None] -> [None, None, None]
+[harness] PASS S-R1 faction-owned units acquire no neutral targets (other village, player-owned unit, cow, villager, own residents) in 60 s targets [] hits []
+[harness] FAIL S-R1 neutral bystanders (cow, villager, player-owned unit) unharmed [None, None, None] -> [None, None, None]
+[harness] PASS S-R8 Millénaire residents do not attack village-owned HYW units []
+[harness] PASS S-R8 village-owned HYW units are not threats of either village Threats in Lantheuil les-pâtures: 0; Threats in Fontenay les-pâtures: 0
+[harness] spike R1 zombie alive after 15s: False
+[harness] PASS S-R1 note: HYW's native targeting engages hostile monsters (Enemy) near the units zombie alive after 15 s: False
+[harness] spike R3 engage ['No entity was found'] timeline [(5, None, None), (11, None, None)]
+[harness] FAIL S-R3 engage gives temporary HYW hostility and the unit attacks the given target attacked=True timeline [(5, None, None), (11, None, None)]
+[harness] PASS S-R3 temporary hostility expires by itself (no permanent relation) cleared after ~11s; relation ('NEUTRAL', 'NEUTRAL')
+[harness] spike R2 home (633, 81, 609) distance track [3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+[harness] PASS S-R2 idle unit returns towards its home position (faction owner) distance to home over 60 s: [3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+[harness] PASS S-R4 second spawn with the same (roster, generation) UUID is refused while the first is loaded d505779e-e03b-323a-8cf4-5f8785d3cbd9 / ['spike spawn failed: addFreshEntity refused (UUID already present?)']
+[harness] spike R4 far unit dee0f051-e67b-34fd-89b4-22a9c512eb47 unloaded=True copy=dee0f051-e67b-34fd-89b4-22a9c512eb47 warn=[19:39:40] [Server thread/WARN] [minecraft/PersistentEntitySectionManager]: UUID of added entity already exists: MilitiaEntity['Militia'/1131, l='ServerLevel[world]', x=1030.50, y=62.59, z=1012.50] loaded-count=1
+[harness] PASS S-R4 chunk-loaded entity with an already-loaded UUID is not added (vanilla refuses the duplicate) count 1; [19:39:40] [Server thread/WARN] [minecraft/PersistentEntitySectionManager]: UUID of added entity already exists: MilitiaEntity['Militia'/1131, l='ServerLevel[world]', x=1030.50, y=62.59, z=1012.50]
+[harness] PASS S-R5 garrison tag and ownership survive a dimension change (same UUID) {'dim': 'minecraft:the_nether', 'pos': (0, 120, 0), 'desc': 'hundred_years_war:archer owner=643b6ac1-0772-3305-b3f0-48338575e80e equipment=1 home=627, 83, 615 supply=false despawn=false', 'tag': 'fc7944d0-9e0c-4b61-ac1d-8226ae4e7dca/0b3e3dd6-94d7-4a27-8076-028b367bd0a6/1', 'target': 'none', 'temp': None}
+[harness] PASS S-R7 Millénaire residents keep their routines with village-owned units present residents 36->36, goals ['millenaire:chat', 'millenaire:drink', 'millenaire:drink_cider', 'millenaire:get_goods_for_household', 'millenaire:get_resources_for_shops', 'millenaire:mine_stone', 'millenaire:slaughter_cow_norman', 'millenaire:socialise', 'none'] -> ['millenaire:chat', 'millenaire:deliver_resources_shop', 'millenaire:drink_cider', 'millenaire:get_goods_for_household', 'millenaire:mine_stone', 'millenaire:patrol', 'millenaire:slaughter_cow_norman', 'millenaire:socialise', 'none'], changed 27
+[harness] server stopped
+[harness] server started
+[harness] PASS S-R5 restart: every tagged unit reloads once with its tag and owner, none multiplied before 5 after 5
+[harness] server stopped
+[harness] RESULT 15/18 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  FAIL  S-R6 equipment levels applied (HYW clamps out-of-range levels), owner/supply/despawn set  [('spear_man', 0, 0, 0, True), ('spear_man', 1, 1, 1, True), ('spear_man', 2, 2, 2, True), ('spear_man', 3, 3, 3, True), ('militia', 3, 3, 3, True), ('archer', 2, 2, 2, True), ('crossbowman', 1, 1, 1, True), ('shieldman', 3, 3, 3, True), ('warrior', 0, 0, 0, True), ('matchlock_man', 0, 2, 2, True), ('handgonne_man', 3, 0, 1, True)]
+  PASS  S-R1 faction-owned units acquire no neutral targets (other village, player-owned unit, cow, villager, own residents) in 60 s  targets [] hits []
+  FAIL  S-R1 neutral bystanders (cow, villager, player-owned unit) unharmed  [None, None, None] -> [None, None, None]
+  PASS  S-R8 Millénaire residents do not attack village-owned HYW units  []
+  PASS  S-R8 village-owned HYW units are not threats of either village  Threats in Lantheuil les-pâtures: 0; Threats in Fontenay les-pâtures: 0
+  PASS  S-R1 note: HYW's native targeting engages hostile monsters (Enemy) near the units  zombie alive after 15 s: False
+  FAIL  S-R3 engage gives temporary HYW hostility and the unit attacks the given target  attacked=True timeline [(5, None, None), (11, None, None)]
+  PASS  S-R3 temporary hostility expires by itself (no permanent relation)  cleared after ~11s; relation ('NEUTRAL', 'NEUTRAL')
+  PASS  S-R2 idle unit returns towards its home position (faction owner)  distance to home over 60 s: [3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  PASS  S-R4 second spawn with the same (roster, generation) UUID is refused while the first is loaded  d505779e-e03b-323a-8cf4-5f8785d3cbd9 / ['spike spawn failed: addFreshEntity refused (UUID already present?)']
+  PASS  S-R4 chunk-loaded entity with an already-loaded UUID is not added (vanilla refuses the duplicate)  count 1; [19:39:40] [Server thread/WARN] [minecraft/PersistentEntitySectionManager]: UUID of added entity already exists: MilitiaEntity['Militia'/1131, l='ServerLevel[world]', x=1030.50, y=62.59, z=1012.50]
+  PASS  S-R5 garrison tag and ownership survive a dimension change (same UUID)  {'dim': 'minecraft:the_nether', 'pos': (0, 120, 0), 'desc': 'hundred_years_war:archer owner=643b6ac1-0772-3305-b3f0-48338575e80e equipment=1 home=627, 83, 615 supply=false despawn=false', 'tag': 'fc7944d0-9e0c-4b61-ac1d-8226ae4e7dca/0b3e3dd6-94d7-4a27-8076-028b367bd0a6/1', 'target': 'none', 'temp': None}
+  PASS  S-R7 Millénaire residents keep their routines with village-owned units present  residents 36->36, goals ['millenaire:chat', 'millenaire:drink', 'millenaire:drink_cider', 'millenaire:get_goods_for_household', 'millenaire:get_resources_for_shops', 'millenaire:mine_stone', 'millenaire:slaughter_cow_norman', 'millenaire:socialise', 'none'] -> ['millenaire:chat', 'millenaire:deliver_resources_shop', 'millenaire:drink_cider', 'millenaire:get_goods_for_household', 'millenaire:mine_stone', 'millenaire:patrol', 'millenaire:slaughter_cow_norman', 'millenaire:socialise', 'none'], changed 27
+  PASS  S-R5 restart: every tagged unit reloads once with its tag and owner, none multiplied  before 5 after 5

@@ -1,0 +1,21 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario S
+[harness] spike: faction A d18a85b0-80b0-366c-a30f-fa9cf94f4fd2, faction B 5ee09836-6861-3671-b425-7d288dc00afe
+[harness] spike R6 [('spear_man', 0, 0, 0, True), ('spear_man', 1, 1, 1, True), ('spear_man', 2, 2, 2, True), ('spear_man', 3, 3, 3, True), ('militia', 3, 3, 3, True), ('archer', 2, 2, 2, True), ('crossbowman', 1, 1, 1, True), ('shieldman', 3, 3, 3, True), ('warrior', 0, 0, 0, True), ('matchlock_man', 0, 2, 2, True), ('handgonne_man', 3, 0, 0, True)]
+[harness] PASS S-R6 equipment levels applied (levels 0-3 exact; HYW normalizes an out-of-range level, recorded as applied), owner/supply/despawn set [('spear_man', 0, 0, 0, True), ('spear_man', 1, 1, 1, True), ('spear_man', 2, 2, 2, True), ('spear_man', 3, 3, 3, True), ('militia', 3, 3, 3, True), ('archer', 2, 2, 2, True), ('crossbowman', 1, 1, 1, True), ('shieldman', 3, 3, 3, True), ('warrior', 0, 0, 0, True), ('matchlock_man', 0, 2, 2, True), ('handgonne_man', 3, 0, 0, True)]
+[harness] spike R1 targets [] incidents-by-units 0 health [None, None, None] -> [None, None, None]
+[harness] PASS S-R1 faction-owned units acquire no neutral targets (other village, player-owned unit, cow, villager, own residents) in 60 s targets [] hits []
+[harness] FAIL S-R1 neutral bystanders (cow, villager, player-owned unit) unharmed [None, None, None] -> [None, None, None]
+[harness] PASS S-R8 Millénaire residents do not attack village-owned HYW units []
+[harness] PASS S-R8 village-owned HYW units are not threats of either village Threats in Vaucelles les-pâtures: 0; Threats in Saint-Georges les-pâtures: 0
+[harness] spike R1 zombie alive after 15s: False
+[harness] PASS S-R1 note: HYW's native targeting engages hostile monsters (Enemy) near the units zombie alive after 15 s: False
+[harness] spike R3 unit d588fd22-e1e0-37de-b520-e472b439dd92 before engage: {} owned health None
+[harness] spike R3 engage ['No entity was found'] timeline [(5, None, None), (11, None, None)]
+[harness] FAIL S-R3 engage gives temporary HYW hostility and the unit attacks the given target attacked=True timeline [(5, None, None), (11, None, None)]
+[harness] PASS S-R3 temporary hostility expires by itself (no permanent relation) cleared after ~11s; relation ('NEUTRAL', 'NEUTRAL')

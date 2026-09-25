@@ -21,7 +21,7 @@ sequence (`HywUnitProvider.spawn`):
 
 Each spike unit is also roster-backed: its slot is registered before the entity is added.
 
-Evidence: `docs/m3-test-evidence/m3-spike-run4.txt`. Runs 1–3 are kept for context. Their failed
+Result of run 4: **17/18 checks passed**; the one FAIL is the bystander-health check, which read `None` for the HYW militia because of the float-only regex (the log shows 20.0d before and after). Evidence: `docs/m3-test-evidence/m3-spike-run4.txt`. Runs 1–3 are kept for context. Their failed
 checks were harness bugs, not findings: SNBT quoting, spawns inside blocks, spike units without a
 roster slot, and a regex for float-only health values.
 
