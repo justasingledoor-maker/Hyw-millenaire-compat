@@ -1,0 +1,52 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario X
+[harness] FAIL X0 extra villages spawned {'militaire': None, 'byzantine': (400, 71, 450), 'artisans': (1060, 87, 640)}
+[harness] PASS X1 A: seneschal is LEADER, leaders >= 1 {'tier': 'GUARD_POST', 'soldiers': '1', 'leaders': '1', 'militia': '15'}
+[harness] PASS X2 B (Douvres pattern): border markers only, fortification 0, tier WATCH {BORDER_MARKER=13} fort=0 tier=WATCH
+[harness] PASS X4 byzantines/militaryvillage runtime soldier verification soldiers=1 leaders=1 militia=12 capacity=13 {BORDER_MARKER=9, BARRACKS=1, ARMOURY=1, FORT_TOWNHALL=1}
+[harness] PASS X5 capacity of A = SOLDIER+MILITIA slots of operational buildings at current variant/level harness 16 vs mod 16; 
+[harness] PASS X5 capacity of byzantine = SOLDIER+MILITIA slots of operational buildings at current variant/level harness 13 vs mod 13; 
+[harness] PASS X6 doctrine of A (norman/agricole) = baseline {'commitPerThreat': ('3', 'baseline'), 'reserve': ('1', 'baseline'), 'militiaPolicy': ('ON_ENGAGED', 'baseline'), 'shelterRadius': ('48', 'baseline'), 'proactive': ('false', 'baseline'), 'assistMinReputation': ('0', 'baseline'), 'alertTicks': ('100', 'baseline'), 'engagedTicks': ('200', 'baseline'), 'recoveryTicks': ('600', 'baseline')}
+[harness] PASS X8 byzantines/militaryvillage: commit 4 / reserve 2 (type), reputation 256 and recovery 1200 (culture) {'commitPerThreat': ('4', 'village type millenaire:byzantines/militaryvillage'), 'reserve': ('2', 'village type millenaire:byzantines/militaryvillage'), 'assistMinReputation': ('256', 'culture millenaire:byzantines'), 'recoveryTicks': ('1200', 'culture millenaire:byzantines')}
+[harness] --- scenario G3_17
+[harness] G3-17 garrisons before measuring:  garrison: 4 roster(s), 24 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] G3-17 perf:
+  hywmill perf (per server since start or last reset):
+   defense.update: n=862 mean=21.5us max=4199.9us p99=280.8us total=18.6ms
+   garrison.deploy: n=60 mean=147.4us max=1697.4us p99=1697.4us total=8.8ms
+   garrison.event: n=1 mean=218.7us max=218.7us p99=218.7us total=0.2ms
+   garrison.slot: n=86 mean=192.2us max=2094.3us p99=2094.3us total=16.5ms
+   garrison.spawn: n=1 mean=1325.2us max=1325.2us p99=1325.2us total=1.3ms
+   profile.apply: n=86 mean=73.9us max=278.5us p99=278.5us total=6.4ms
+   profile.doctrine: n=86 mean=28.0us max=86.2us p99=86.2us total=2.4ms
+   profile.log: n=86 mean=67.9us max=130.1us p99=130.1us total=5.8ms
+   profile.refresh: n=86 mean=559.1us max=1137.6us p99=1137.6us total=48.1ms
+   profile.snapshot: n=86 mean=382.4us max=913.5us p99=913.5us total=32.9ms
+   profile.sweep: n=86 mean=83.1us max=150.1us p99=150.1us total=7.1ms
+   scan.village: n=862 mean=35.2us max=1400.0us p99=159.5us total=30.3ms
+   snap.buildings: n=86 mean=104.5us max=223.7us p99=223.7us total=9.0ms
+   snap.gear: n=86 mean=96.2us max=202.3us p99=202.3us total=8.3ms
+   snap.residents: n=86 mean=53.4us max=164.2us p99=164.2us total=4.6ms
+   snap.slots: n=86 mean=48.7us max=107.4us p99=107.4us total=4.2ms
+   snap.village: n=86 mean=44.5us max=92.8us p99=92.8us total=3.8ms
+   tick.total: n=4280 mean=42.1us max=7322.8us p99=555.7us total=180.2ms
+   villages known: 4, with defense state: 4
+   garrison: 4 roster(s), 25 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] PASS G3-17 perf recorded with several populated villages (values in the report)  garrison: 4 roster(s), 24 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0 | garrison.deploy: n=60 mean=147.4us max=1697.4us p99=1697.4us total=8.8ms | garrison.event: n=1 mean=218.7us max=218.7us p99=218.7us total=0.2ms | garrison.slot: n=86 mean=192.2us max=2094.3us p99=2094.3us total=16.5ms | garrison.spawn: n=1 mean=1325.2us max=1325.2us p99=1325.2us total=1.3ms | tick.total: n=4280 mean=42.1us max=7322.8us p99=555.7us total=180.2ms | garrison: 4 roster(s), 25 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] server stopped
+[harness] RESULT 11/12 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  FAIL  X0 extra villages spawned  {'militaire': None, 'byzantine': (400, 71, 450), 'artisans': (1060, 87, 640)}
+  PASS  X1 A: seneschal is LEADER, leaders >= 1  {'tier': 'GUARD_POST', 'soldiers': '1', 'leaders': '1', 'militia': '15'}
+  PASS  X2 B (Douvres pattern): border markers only, fortification 0, tier WATCH  {BORDER_MARKER=13} fort=0 tier=WATCH
+  PASS  X4 byzantines/militaryvillage runtime soldier verification  soldiers=1 leaders=1 militia=12 capacity=13 {BORDER_MARKER=9, BARRACKS=1, ARMOURY=1, FORT_TOWNHALL=1}
+  PASS  X5 capacity of A = SOLDIER+MILITIA slots of operational buildings at current variant/level  harness 16 vs mod 16; 
+  PASS  X5 capacity of byzantine = SOLDIER+MILITIA slots of operational buildings at current variant/level  harness 13 vs mod 13; 
+  PASS  X6 doctrine of A (norman/agricole) = baseline  {'commitPerThreat': ('3', 'baseline'), 'reserve': ('1', 'baseline'), 'militiaPolicy': ('ON_ENGAGED', 'baseline'), 'shelterRadius': ('48', 'baseline'), 'proactive': ('false', 'baseline'), 'assistMinReputation': ('0', 'baseline'), 'alertTicks': ('100', 'baseline'), 'engagedTicks': ('200', 'baseline'), 'recoveryTicks': ('600', 'baseline')}
+  PASS  X8 byzantines/militaryvillage: commit 4 / reserve 2 (type), reputation 256 and recovery 1200 (culture)  {'commitPerThreat': ('4', 'village type millenaire:byzantines/militaryvillage'), 'reserve': ('2', 'village type millenaire:byzantines/militaryvillage'), 'assistMinReputation': ('256', 'culture millenaire:byzantines'), 'recoveryTicks': ('1200', 'culture millenaire:byzantines')}
+  PASS  G3-17 perf recorded with several populated villages (values in the report)   garrison: 4 roster(s), 24 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0 | garrison.deploy: n=60 mean=147.4us max=1697.4us p99=1697.4us total=8.8ms | garrison.event: n=1 mean=218.7us max=218.7us p99=218.7us total=0.2ms | garrison.slot: n=86 mean=192.2us max=2094.3us p99=2094.3us total=16.5ms | garrison.spawn: n=1 mean=1325.2us max=1325.2us p99=1325.2us total=1.3ms | tick.total: n=4280 mean=42.1us max=7322.8us p99=555.7us total=180.2ms | garrison: 4 roster(s), 25 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
