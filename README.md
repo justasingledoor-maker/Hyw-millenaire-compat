@@ -2,7 +2,7 @@
 
 This is a NeoForge 1.21.1 integration layer between **Millénaire 9.0.2** and **Hundred Years War 0.7.1r-fix1**. It is a separate JAR that modifies neither mod and bundles neither.
 
-**Status:** Milestone 1.1 (M1 hardened: per-server runtime, escalation reconciliation, role tables, identity lifecycle). **Frozen:** see [`docs/m1.1-freeze.md`](docs/m1.1-freeze.md) and [`docs/m1.1-report.md`](docs/m1.1-report.md) and [`docs/m1-report.md`](docs/m1-report.md). The original feasibility audit is in [`docs/millenaire-hyw-feasibility-audit.md`](docs/millenaire-hyw-feasibility-audit.md).
+**Status:** Milestone 2 (village defense doctrine). See [`docs/m2-report.md`](docs/m2-report.md); M1.1 freeze: [`docs/m1.1-freeze.md`](docs/m1.1-freeze.md). The original feasibility audit is in [`docs/millenaire-hyw-feasibility-audit.md`](docs/millenaire-hyw-feasibility-audit.md).
 
 ## Building
 
