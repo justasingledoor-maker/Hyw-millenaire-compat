@@ -391,6 +391,7 @@ They can be connected only through our layer.
 ### 6.2 Bridge design (least invasive; no replacement of either mod's combat AI)
 
 **1. Identity bridge (HYW side, public API):**
+
 * Each Millénaire village gets a synthetic *faction UUID*. Use a deterministic name-based UUID from the `VillageId`, stored in our SavedData.
 * Register it with a readable name through `RelationSystem.getOrCreatePlayerRelationData(uuid, villageName)`. It will otherwise show as "Unknown" in HYW's relation UI.
 * On `EntityJoinLevelEvent` for a `MillVillager` with a `villageId`, call `((RelationOwnerMarkedEntity) villager).hyw$markRelationOwnerUUID(factionUuid)`.
@@ -402,12 +403,14 @@ They can be connected only through our layer.
 * Bandit-type Millénaire villagers (`VillagerType.isHostile()`) and raid clones (`isRaiderEntity()`) should get either **no** marker or a separate "outlaw" faction UUID.
 
 **2. Engagement fix (Millénaire side, `GoalRegistry.replace`):**
+
 * Replace `millenaire:engage_target` with a decorator. It delegates to the original for Player, Monster and MillVillager targets. For other `LivingEntity` targets, it applies our policy: HYW units, and optionally any entity in a configurable list or tag. It then runs the same pursue-and-attack sequence through **public** `MillVillager` methods (`ensureCombatWeaponEquipped`, `performAttack`, `getNavManager().navigateToCombatTarget`).
 * Replace `millenaire:hunt_monster` with a decorator. It adds "hostile HYW units inside village bounds" (our threat tracker) to the huntable set, and keeps `helpInAttacks` gating and Millénaire's 50-block hunt zone.
 
 **3. Civilians flee:** replace `millenaire:hide` with a decorator. `canStart` = original **or** (our threat tracker reports hostile HYW units inside `computeBounds()`). Our task navigates to the town hall `shelterPos` with public calls. Civilians never fight, because they lack `helpInAttacks`, so the engage decorator's policy excludes them.
 
 **4. Incident ledger (ours; NeoForge `LivingIncomingDamageEvent`, observed before either mod reacts):**
+
 * Record `(attacker faction, victim faction, time, first-strike flag)` per encounter.
 * **"Attacked first":** the first recorded hit between two factions within an encounter window.
 * **"Defending an ally":** the attacker's current target (`Mob.getTarget()` or `BaseCombatEntity.getHywTarget()`) is a village resident or a player with village reputation ≥ threshold, and the incident is inside village bounds.
@@ -415,6 +418,7 @@ They can be connected only through our layer.
 * From the ledger we drive temporary hostility on both sides: HYW with `TemporaryHostileTargetManager.markHostile`, and Millénaire with `villager.setAttackTarget` on helpers.
 
 **5. Expiry and reset:**
+
 * HYW temporary hostility already expires after 600 ticks.
 * **HYW's permanent 3-hit escalation must be counteracted.** Our ledger stores escalations it caused, and a daily decay sets `RelationSystem.setRelation(faction, player, NEUTRAL)` when our rules say so. This triggers HYW's hostile→neutral immunity window.
 * Millénaire `attackTarget` clears on death, at more than 80 blocks, or in Peaceful. Our decorator also drops targets whose ledger entry has expired.
@@ -448,6 +452,7 @@ A zero-code alternative exists but is too coarse: put `millenaire:villager` in H
 | Configurable structure IDs | ✅ As a config mirror of the tags for non-datapack users |
 
 **Caveats:**
+
 * **Millénaire villages and HYW sites are not vanilla structures.** Neither appears in structure tags. Our site index therefore needs **providers**: `VanillaStructureSiteProvider`, `MillenaireSiteProvider` (adapter), `HywSiteProvider` (via `PlacedBuildingRegistry` / `SimulatedBuildingRegistry`, internals), and `ScanSiteProvider`.
 * Millénaire's `StructureAvoidance` only avoids vanilla structures, so **Millénaire villages may overlap modded castles.** Our mod can detect and report overlaps, but not prevent them without a mixin.
 
@@ -473,6 +478,7 @@ ourmod/
 ```
 
 **Optional-dependency rules:**
+
 * `neoforge.mods.toml`: declare `millenaire` and `hundred_years_war` as `type="optional"` with **pinned** version ranges (for example `[9.0.2,9.0.3)` and HYW `0.7.1r-fix1`). Watch Maven version ordering for HYW's `r-fix1` strings, and verify it in dev.
 * Build: `compileOnly files("libs/millenaire-9.0.2.jar", "libs/HundredYearsWar-….jar")` (local, **never redistributed**), with `runtimeOnly` only in dev run configs. Both are All Rights Reserved: never bundle them or copy decompiled code into our sources.
 * Entry: each integration has a `…Integration` class loaded **only** when `ModList.get().isLoaded(id)` is true. Everything else in the mod talks to it through interfaces in `settlement/`, `faction/` and `military/`, so core classes never reference foreign classes and the mod loads without either dependency.
@@ -487,6 +493,7 @@ ourmod/
 ## 9. Feature feasibility classification
 
 Legend:
+
 * 🟢 clean as a separate mod
 * 🟡 possible, but substantial work or relies on questionable internals
 * 🟠 invasive hooks, complex AI or pathfinding, or heavy reverse engineering
@@ -538,6 +545,7 @@ The **Possible / Practical / Safe / Worth** columns use Y / ~ / N.
 | Cross-mod aggro bridge | 🟡 | Y | Y | ~ | **Y (foundational)** | §6 |
 
 **Where I would say no:**
+
 * Taking over or occupying Millénaire villages.
 * Making Millénaire guards use firearms or lances.
 * World-scale real-entity armies.
@@ -560,6 +568,7 @@ The milestone is called **M1, "Garrison Ledger"**. It proves the architecture wi
 6. **Display:** `/ourmod village info` (nearest village: tier, garrison, strength, fortification, faction relation to the player), plus a minimal client screen or chat panel through our own payload.
 
 **Suggested split:**
+
 * **M1a** = steps 1–3 and 6. All low risk, and proves Millénaire reading and persistence.
 * **M1b** = steps 4 and 5. It proves the two fragile hooks. If M1b fails, you learn early, and cheaply, that the behavior-level integration must be redesigned.
 

@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Millénaire + HYW Feasibility Audit</title>
+<meta name="description" content="Integration feasibility audit: Millénaire 9.0.2 and Hundred Years War 0.7.1r-fix1 (NeoForge 1.21.1). Research only; no code.">
+<style>
+:root{--bg:#fbfaf7;--fg:#1f2328;--muted:#5b616b;--line:#d8d4cc;--head:#f1eee7;--accent:#8a3b12;--code:#f3f0ea}
+@media (prefers-color-scheme:dark){:root{--bg:#16181c;--fg:#e6e3dd;--muted:#a3a9b2;--line:#34373d;--head:#1f2227;--accent:#e39a6a;--code:#23262c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+.wrap{display:grid;grid-template-columns:280px minmax(0,1fr);max-width:1400px;margin:0 auto}
+nav{position:sticky;top:0;height:100vh;overflow:auto;padding:24px 16px;border-right:1px solid var(--line);font-size:13px}
+nav ul{list-style:none;padding-left:12px;margin:4px 0}nav>div>ul{padding-left:0}
+nav a{color:var(--muted);text-decoration:none}nav a:hover{color:var(--accent)}
+main{padding:32px 40px;min-width:0}
+h1{font-size:30px;line-height:1.2;margin-top:0}h2{margin-top:48px;padding-top:12px;border-top:2px solid var(--line)}
+h1,h2,h3{color:var(--fg)}h3{margin-top:28px}
+a{color:var(--accent)}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font:0.88em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+pre{background:var(--code);padding:14px;border-radius:6px;overflow:auto}pre code{padding:0}
+.tbl{overflow-x:auto;margin:16px 0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
+th{background:var(--head)}
+hr{border:0;border-top:1px solid var(--line);margin:32px 0}
+@media (max-width:900px){.wrap{display:block}nav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding:20px 16px}}
+@media print{nav{display:none}.wrap{display:block}}
+</style></head>
+<body><div class="wrap"><nav><strong>Contents</strong><div class="toc">
+<ul>
+<li><a href="#0-what-was-actually-inspected-read-this-first">0. What was actually inspected (read this first)</a></li>
+<li><a href="#1-millenaire-902-architecture-summary">1. Millénaire 9.0.2 architecture summary</a><ul>
+<li><a href="#11-villages">1.1 Villages</a></li>
+<li><a href="#12-buildings">1.2 Buildings</a></li>
+<li><a href="#13-population-residents-leaders-culture">1.3 Population, residents, leaders, culture</a></li>
+<li><a href="#14-existing-military-and-defense-902">1.4 Existing military and defense (9.0.2)</a></li>
+</ul>
+</li>
+<li><a href="#2-millenaire-extension-points">2. Millénaire extension points</a></li>
+<li><a href="#3-hundred-years-war-071r-fix1-architecture-summary">3. Hundred Years War 0.7.1r-fix1 architecture summary</a><ul>
+<li><a href="#31-entities-101-entity-types-hundred_years_war">3.1 Entities (101 entity types, hundred_years_war:*)</a></li>
+<li><a href="#32-military-systems-what-is-actually-present-in-the-jar">3.2 Military systems: what is actually present in the JAR</a></li>
+<li><a href="#33-the-hyw-relation-system-the-most-important-finding-for-integration">3.3 The HYW relation system (the most important finding for integration)</a></li>
+<li><a href="#34-items-222-registered-hundred_years_war">3.4 Items (222 registered; hundred_years_war:*)</a></li>
+<li><a href="#35-hyw-integration-surface">3.5 HYW integration surface</a></li>
+</ul>
+</li>
+<li><a href="#4-important-classes-entities-and-registries-quick-reference">4. Important classes, entities and registries (quick reference)</a></li>
+<li><a href="#5-cross-mod-integration-analysis">5. Cross-mod integration analysis</a><ul>
+<li><a href="#a-millenaire-village-military-settlement">A. Millénaire village → military settlement</a></li>
+<li><a href="#b-expanding-millenaire-guards">B. Expanding Millénaire guards</a></li>
+<li><a href="#c-military-progression">C. Military progression</a></li>
+<li><a href="#d-fortification">D. Fortification</a></li>
+<li><a href="#e-hyw-equipment-for-millenaire-guards-and-vice-versa">E. HYW equipment for Millénaire guards (and vice versa)</a></li>
+<li><a href="#f-raids-and-military-events">F. Raids and military events</a></li>
+<li><a href="#g-army-movement">G. Army movement</a></li>
+<li><a href="#h-battles">H. Battles</a></li>
+<li><a href="#i-sieges">I. Sieges</a></li>
+<li><a href="#j-logistics">J. Logistics</a></li>
+</ul>
+</li>
+<li><a href="#6-cross-mod-combat-and-aggro-integration">6. Cross-mod combat and aggro integration</a><ul>
+<li><a href="#61-what-happens-today-with-both-mods-and-no-bridge-derived-from-code">6.1 What happens today with both mods and no bridge (derived from code)</a></li>
+<li><a href="#62-bridge-design-least-invasive-no-replacement-of-either-mods-combat-ai">6.2 Bridge design (least invasive; no replacement of either mod's combat AI)</a></li>
+</ul>
+</li>
+<li><a href="#7-additional-world-and-structure-mod-integration">7. Additional world and structure mod integration</a></li>
+<li><a href="#8-recommended-architecture-for-the-separate-mod">8. Recommended architecture for the separate mod</a></li>
+<li><a href="#9-feature-feasibility-classification">9. Feature feasibility classification</a></li>
+<li><a href="#10-first-proof-of-concept-milestone">10. First proof-of-concept milestone</a></li>
+<li><a href="#11-compatibility-risks-summary">11. Compatibility risks (summary)</a></li>
+<li><a href="#12-unknowns-that-need-a-real-neoforge-dev-environment">12. Unknowns that need a real NeoForge dev environment</a></li>
+</ul>
+</div>
+</nav><main>
+<h1 id="millenaire-hundred-years-war-integration-feasibility-audit">Millénaire + Hundred Years War: integration feasibility audit</h1>
+<p>Status: reconnaissance and design only. No mod code has been written, and neither Millénaire nor HYW was modified.
+Date of audit: 2026-09-25.</p>
+<h2 id="0-what-was-actually-inspected-read-this-first">0. What was actually inspected (read this first)</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Version</th>
+<th>Source</th>
+<th>License</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hundred Years War</td>
+<td><code>0.7.1r-fix1-1.21.1-neoforge</code> (modid <code>hundred_years_war</code>, author ydmsama)</td>
+<td>JAR you provided</td>
+<td>All Rights Reserved</td>
+<td>Not obfuscated. Class and member names are readable. Decompiled with Vineflower 1.11.1 (1,248 classes). Shades <code>lz4-pure-java</code>. Requires NeoForge <code>[21.1,21.2)</code>.</td>
+</tr>
+<tr>
+<td>Millénaire (official)</td>
+<td><code>9.0.2</code> (2026-09-18, built for NeoForge 21.1.226)</td>
+<td><code>millenaire.org/api/downloads/9.0.2~millenaire-9.0.2.jar</code></td>
+<td>All Rights Reserved</td>
+<td><strong>Primary audit target.</strong> This is the build players install. Decompiled (688 top-level classes).</td>
+</tr>
+<tr>
+<td>Millénaire (public Git)</td>
+<td><code>9.0.0-dev-preview.7/8</code></td>
+<td><code>github.com/Leviaria/Millenaire</code> (fork of MoonCutter2B's port; last commit 2026-06-07)</td>
+<td>GPL-3.0</td>
+<td>Used as a readable reference. <strong>It lacks the entire combat layer that 9.0.2 has</strong> (no <code>combat/</code> package, no raids, no <code>DefendVillageGoal</code>, <code>EngageTargetGoal</code>, <code>HuntMonsterGoal</code> or <code>HideGoal</code>, no villager attack targets).</td>
+</tr>
+<tr>
+<td>Millénaire (other)</td>
+<td>—</td>
+<td><code>github.com/gblfxt/Millenaire-rewrite-1.21.1</code></td>
+<td>MIT</td>
+<td>A separate rewrite lineage. Not the same codebase. Ignored.</td>
+</tr>
+</tbody>
+</table></div>
+<p>No public source repository for the official 9.x line could be found. MoonCutter2B's GitHub shows no Millénaire repository.</p>
+<p><strong>Three consequences follow:</strong></p>
+<ol>
+<li><strong>Decide which Millénaire build you will actually ship with.</strong> The Git fork and 9.0.2 differ by more than 100 classes. Almost everything in this report about guards, combat and raids exists <strong>only in 9.0.2</strong>. If you build against the Git fork, most military hooks do not exist.</li>
+<li><strong><code>VillageGuardsManager</code> does not exist</strong> in 9.0.2, the Leviaria fork or the gblfxt rewrite. I searched both class names and string constants. In 9.0.2, guards are ordinary resident villager types, and their behavior is spread across <code>VillagerCombat</code>, <code>CombatHelper</code>, <code>DefendVillageGoal</code>, <code>EngageTargetGoal</code>, <code>HuntMonsterGoal</code> and <code>RaidManager</code>, all described below. If you saw that name somewhere, please point me to it. It may be from the 1.12 codebase or from another mod such as Guard Villagers.</li>
+<li>Both production artifacts are <strong>All Rights Reserved</strong> and <strong>neither has a public API</strong>. Every integration below is either data-driven (content packs, configs, registry IDs) or calls into internals that carry no stability promise. The architecture in §8 is designed around that fact.</li>
+</ol>
+<p>Class names below are the real fully-qualified names from the JARs (<code>org.millenaire.*</code>, <code>ydmsama.hundred_years_war.*</code>).</p>
+<h2 id="1-millenaire-902-architecture-summary">1. Millénaire 9.0.2 architecture summary</h2>
+<h3 id="11-villages">1.1 Villages</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Answer (from code)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Representation</td>
+<td><code>org.millenaire.village.Village</code>, a plain Java object (<strong>not</strong> an entity, block entity or vanilla structure). Fields: <code>VillageId id</code>, <code>cultureId</code>, <code>villageTypeId</code>, <code>BlockPos center</code>, <code>villageName</code>, <code>List&lt;BuildingInstance&gt; buildings</code>, <code>Map&lt;UUID, VillagerRecord&gt; villagerRecords</code>, <code>Map&lt;VillageId,Integer&gt; relations</code>, <code>VillageReputation</code>, <code>VillageRaidState</code>, chronicle (≤500 entries), history (≤1000), owner UUID/name (player-controlled villages), <code>parentVillageId</code> (hamlets), <code>MarvelManager</code>.</td>
+</tr>
+<tr>
+<td>Village ID</td>
+<td><code>record VillageId(UUID uuid)</code>. Stable and persisted. <strong>This is the key to use for our own data.</strong></td>
+</tr>
+<tr>
+<td>Lookup</td>
+<td><code>VillageSavedData.get(ServerLevel).getVillageManager()</code> → <code>VillageManager.getVillage(VillageId)</code>, <code>getAllVillages()</code>, <code>findNearestVillage(BlockPos, maxDist)</code>, <code>findVillageContaining(BuildingId)</code>. There is also the static shortcut <code>Village.resolve(ServerLevel, VillageId)</code>.</td>
+</tr>
+<tr>
+<td>Dimension</td>
+<td><strong>Overworld only.</strong> The server tick listener in <code>org.millenaire.Millenaire</code> only ticks <code>VillageSavedData.get(overworld)</code>.</td>
+</tr>
+<tr>
+<td>Boundaries</td>
+<td>No polygon or claim. <code>Village.computeBounds()</code> returns the AABB of all building footprints plus an 8-block margin. <code>VillageType.radius()</code> is the nominal radius. <code>computeVillageChunks()</code> gives the force-load set. <code>getBuildingAt(pos)</code> / <code>BuildingInstance.containsPos(pos)</code> give point-in-building tests.</td>
+</tr>
+<tr>
+<td>Persistence</td>
+<td><code>VillageSavedData extends SavedData</code>, file id <code>millenaire_villages</code>. It serializes everything, including villager records, raid state, relations and chronicle.</td>
+</tr>
+<tr>
+<td>Ticking</td>
+<td>A <code>ServerTickEvent</code> listener calls <code>VillageManager.tick(overworld)</code> every tick. Per village, <code>tickVillageActivation</code> force-loads chunks when a player is within <code>keepActiveRadius</code> (default 200, <code>forceLoadVillages=true</code>). <code>Village.tick()</code> runs only while active (construction, integrity every 600 ticks, respawn, panels). <code>Village.backgroundTick()</code> <strong>always</strong> runs: nightly diplomacy drift, raid planning, raid ticking, hire expiry.</td>
+</tr>
+<tr>
+<td>Load/unload</td>
+<td>Chunk tickets through <code>VillageChunkLoader</code> (a <code>RegisterTicketControllersEvent</code> controller). At <code>ServerStartedEvent</code> Millénaire loads all content, then <code>VillageRehydrator.rehydrateAll</code> and <code>initVillagerGoals</code>.</td>
+</tr>
+<tr>
+<td>World interaction</td>
+<td>Villages spawn from a chunk-load queue (<code>VillageSpawnQueue</code>, new overworld chunks only). Buildings are placed progressively by <code>BuildGoal</code>. Paths are built by <code>BuildPathGoal</code>. Walls come from <code>WallGrowthManager</code>. Chests are locked and unlocked during raids. Village map markers exist.</td>
+</tr>
+<tr>
+<td>Spawn conflicts</td>
+<td><code>world.StructureAvoidance</code> only avoids vanilla villages and six vanilla structures (outpost, desert pyramid, jungle temple, swamp hut, mansion, igloo). <strong>Modded castles, forts and HYW sites are not avoided.</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="12-buildings">1.2 Buildings</h3>
+<ul>
+<li><code>org.millenaire.building.BuildingInstance</code> holds <code>BuildingId</code>, <code>planId</code>, <code>planSetId</code>, <code>origin</code>, <code>rotation</code>, <code>level</code> (upgrade tier), <code>variant</code> and <code>Status {PLANNED, UNDER_CONSTRUCTION, UPGRADING, COMPLETE}</code>. It also exposes <code>isOperational()</code>, <code>isWallSegment()</code>, <code>getEffectiveWidth/Depth()</code> and <code>BuildingInventory getInventory()</code> (its chests).</li>
+<li>Typed <strong>special points</strong> are available through <code>getFirstPointPos(type)</code> / <code>getPointsByType(type)</code>. Examples: <code>defendingPos</code>, <code>shelterPos</code>, <code>sellingPos</code>, <code>sleepingPos</code>, <code>pathStartPos</code>. These already encode where to defend and where civilians should hide.</li>
+<li>Plans (<code>BuildingPlan</code> record) carry string <strong>tags</strong>. <code>Village.getBuildingsWithTag(tag)</code> and <code>getOperationalBuildingsWithTag(tag)</code> are cached lookups.</li>
+<li>Military-relevant tags in the shipped content: <code>patrol</code> (70 plans across all 7 cultures: guardhouses, forts, watchtowers, wall towers), <code>wall_level_0/1/2</code> (Indian, Norman, Seljuk walls), <code>armoury</code> (12), <code>training</code> (Seljuk), <code>borderpostsign</code>. Norman military plans include <code>houses/guardhouse</code>, <code>extra/watchtower</code>, <code>townhalls/fort</code>, <code>townhalls/largefort</code> (with <code>largefort_a_barrack</code> and <code>largefort_a_armoury</code> sub-buildings), <code>marvel/guardroom</code>, <code>marvel/largeguardhouse</code>, and <code>walls/*</code> (full wall, tower, gateway, corner, borderposts).</li>
+<li>Walls: <code>culture.WallType</code> (data: <code>wall_type/&lt;culture&gt;/*.json</code>, for example <code>norman/stonewalls</code> and <code>norman/borderposts</code>) plus <code>village.WallGrowthManager</code>. Each wall piece is a <code>BuildingInstance</code> with <code>isWallSegment()==true</code>.</li>
+<li><strong>No repair logic exists.</strong> I found no code that restores damaged blocks in completed buildings. This matters for sieges (see §5.I).</li>
+</ul>
+<h3 id="13-population-residents-leaders-culture">1.3 Population, residents, leaders, culture</h3>
+<ul>
+<li>One entity type for every villager: <strong><code>millenaire:villager</code></strong> (<code>org.millenaire.entity.MillVillager extends PathfinderMob</code>). It is <strong>not</strong> <code>Monster</code>, <code>Enemy</code> or <code>AbstractVillager</code>. Wall decorations are a second entity type.</li>
+<li>A persistent identity lives in <code>VillagerRecord</code> (UUID, villager type, home building, names and family, <code>VillagerInventory</code>, killed flag, raid flags, hire state, quest tags, <code>getMilitaryStrength()</code>). The record and the entity are synced both ways (<code>updateFromEntity</code> / <code>applyToEntity</code>).</li>
+<li>Villagers are <code>setPersistenceRequired()</code> and <code>removeWhenFarAway()</code> returns false, so they <strong>never despawn</strong>. Dead residents are marked killed and <strong>resurrected</strong> at dusk by <code>VillageIntegrityChecker</code>, unless their type carries <code>noresurrect</code>.</li>
+<li>A culture is a set of data files under <code>cultures/&lt;culture&gt;/</code> (culture, reputation, villagers, villages, buildings, shops, traded goods, namelists). Seven cultures ship: norman, indian, japanese, mayan, byzantines, seljuk, inuits. They are held in <code>culture.ModCultures</code>.</li>
+<li>Leaders: <code>MillVillager.isChief()</code> is a synced flag. <code>Village.getTownhall()</code> returns the town hall building. Player-controlled villages have <code>getOwnerUUID()</code>.</li>
+<li><strong>AI is not vanilla.</strong> <code>MillVillager</code> runs a private <code>GoalScheduler</code> of <code>VillagerGoal</code>s (priority-based, with a "combat urgent" flag) from <code>tick()</code>. The vanilla <code>goalSelector</code> only holds Float, OpenDoor and OpenFenceGate. The goal IDs a villager can run come from its villager-type JSON, plus injected goals (see §1.4).</li>
+</ul>
+<h3 id="14-existing-military-and-defense-902">1.4 Existing military and defense (9.0.2)</h3>
+<p><strong>Guards are villager types, not a manager.</strong> Example: <code>cultures/norman/villagers/normalvillagers/guard.json</code>.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tags</td>
+<td><code>heavydrinker</code>, <code>archer</code>, <code>raider</code>, <code>helpInAttacks</code></td>
+</tr>
+<tr>
+<td>max_health / base_attack_strength</td>
+<td>60 / 4</td>
+</tr>
+<tr>
+<td>default_weapon</td>
+<td><code>minecraft:wooden_sword</code></td>
+</tr>
+<tr>
+<td>tool_needed_classes</td>
+<td><code>armour</code>, <code>toolssword</code>, <code>rangedweapons</code></td>
+</tr>
+<tr>
+<td>goals</td>
+<td>idle, socialise, chat, rest, pray, drink_cider, <strong><code>millenaire:patrol</code></strong></td>
+</tr>
+<tr>
+<td>spawn_weight</td>
+<td>0 (they only exist as building residents)</td>
+</tr>
+<tr>
+<td>hiring_cost</td>
+<td>32</td>
+</tr>
+</tbody>
+</table></div>
+<p>The semantics of the villager-type tags come from the <code>culture.VillagerType</code> record helpers and <code>withResolvedGoods()</code>:</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Tag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>helpInAttacks</code></td>
+<td>Injects <code>hunt_monster</code> and <code>defend_village</code>. Counts toward <code>getVillageDefendingStrength()</code>. Answers <code>CombatHelper.callForHelp</code>.</td>
+</tr>
+<tr>
+<td><code>raider</code></td>
+<td>Injects <code>raid_village</code>. The villager can be sent on raids.</td>
+</tr>
+<tr>
+<td><code>defensive</code></td>
+<td>Target is dropped once the villager is more than 20 blocks from the town hall <code>defendingPos</code>.</td>
+</tr>
+<tr>
+<td><code>archer</code></td>
+<td>Uses a bow between 5 and 20 blocks.</td>
+</tr>
+<tr>
+<td><code>hostile</code></td>
+<td>Marks bandit-type Millénaire villagers. Other villagers can hunt them.</td>
+</tr>
+<tr>
+<td>neither <code>helpInAttacks</code> nor <code>raider</code></td>
+<td>Injects <code>hide</code> (civilians).</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>initGoals()</code> also adds <code>engage_target</code>, <code>hired_escort</code>, <code>get_tool</code>, <code>gather_goods</code> and <code>light_hearth</code> to all adults.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>How are guards spawned?</td>
+<td>As <strong>residents</strong> of buildings whose plan lists them (<code>"male": ["guard"]</code> in <code>guardhouse.json</code>; also forts and <code>largeguardhouse</code>, which is tagged <code>autospawnvillagers</code>). Numbers equal the number of resident slots in built buildings. There is no separate guard spawner.</td>
+</tr>
+<tr>
+<td>Entity class</td>
+<td><code>MillVillager</code>, the same as every other villager.</td>
+</tr>
+<tr>
+<td>Equipment</td>
+<td><code>VillagerInventory</code> is <strong><code>Map&lt;Item,Integer&gt;</code>, so NBT and data components are discarded</strong> (no enchantments, no durability, no TaCZ gun data). Armor slots are virtual: <code>MillVillager.getItemBySlot()</code> returns the best owned item from the data-driven <code>tool_categories</code> lists (<code>armourshelmet</code>, <code>armourschestplate</code>, and so on). The weapon comes from <code>VillagerCombat.getCombatWeapon()</code>: best owned from <code>weaponsranged</code> (archers, when the target is more than 5 blocks away), then <code>weaponshandtohand</code>, then the type's <code>default_weapon</code>. Items are acquired by <code>GetToolGoal</code> from village shops or storage, or from <code>initial_inventory</code>.</td>
+</tr>
+<tr>
+<td>Threat detection</td>
+<td>(1) <code>HuntMonsterGoal</code> scans 50×10×50 around the town hall for <code>Monster</code> (excluding creepers) and <code>hostile</code>-tagged MillVillagers. (2) <code>VillagerCombat.onHurt</code>: any attacker becomes <code>attackTarget</code>, and <code>CombatHelper.callForHelp</code> alerts same-village <code>helpInAttacks</code> villagers within 80 blocks. (3) During raids, <code>DefendVillageGoal</code> targets raider MillVillagers only. (4) <code>VillagerCombat.triggerMobAttacks</code> makes nearby <code>Monster</code>s target villagers.</td>
+</tr>
+<tr>
+<td>Player aggression</td>
+<td>A player hit costs village reputation (<code>-10 × damage</code>) for non-hostile types. There is a <strong>2-hit grace window</strong> (the villager only complains for 6000 ticks). The third hit sets the player as target and calls for help.</td>
+</tr>
+<tr>
+<td>Fighting</td>
+<td><code>EngageTargetGoal</code> (priority 5000). <strong><code>resolveTarget()</code> only accepts <code>ServerPlayer</code>, <code>Monster</code> or <code>MillVillager</code> targets; anything else is silently dropped.</strong> Melee damage is <code>baseAttackStrength + ceil(weaponDamage/2)</code> with a 20-tick cooldown. Ranged uses a vanilla <code>Arrow</code> plus the <code>MillenaireBow</code> bonus, with a 100-tick cooldown.</td>
+</tr>
+<tr>
+<td>Despawn</td>
+<td>Never. Death is recorded in the chronicle and the villager is resurrected later.</td>
+</tr>
+<tr>
+<td>Persistent identity</td>
+<td>Yes (<code>VillagerRecord</code> UUID, names, family).</td>
+</tr>
+<tr>
+<td>Can equipment be influenced externally?</td>
+<td>Yes, three ways: (a) <code>tool_categories</code> data (see §4), (b) <code>MillVillager.getInventory().add(item, n)</code> / <code>VillagerRecord.getInventory()</code>, (c) depositing items into the village armoury chests (<code>BuildingInventory.add</code>).</td>
+</tr>
+<tr>
+<td>Promotion or reclassification</td>
+<td><strong>Yes, through public methods.</strong> This is exactly what <code>ChildBecomeAdultGoal</code> does: <code>villager.setVillagerTypeId(t)</code>, <code>villager.initGoals(Millenaire.getGoalRegistry(), type)</code>, <code>VillagerAppearanceFactory.randomizeAppearance(...)</code>, then <code>village.updateVillagerType(uuid, t)</code>. The target type must exist in content (a custom villager type from our content pack).</td>
+</tr>
+<tr>
+<td>Military strength</td>
+<td><code>combat.MilitaryStrength.compute(maxHealth, baseAttack, bestMelee, archerWithBow, armor)</code>. <code>Village.getVillageDefendingStrength()</code>, <code>getVillageRaidingStrength()</code> and <code>getVillageAttackerStrength()</code> are all public.</td>
+</tr>
+<tr>
+<td>Extensible from outside?</td>
+<td>Partly. Data-driven parts are easy. Behavior changes require replacing registered goals (see §2.1 item 3) or a mixin.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Raids.</strong> <code>org.millenaire.combat.raid.RaidManager</code> is village-vs-village only.</p>
+<ul>
+<li><strong>Planning:</strong> each night <code>attemptPlanNewRaid</code> runs if a player is within <code>backgroundRadius</code> (2000). The chance is <code>raidingRate</code> (default 20%). A regular village can only target villages at relation ≤ −90 (<code>OPEN_CONFLICT</code>) whose defending strength is below 2× its raiding strength. Bandit lone buildings target anything within <code>banditRaidRadius</code> (1500).</li>
+<li><strong>Execution:</strong> 24,000 ticks after planning, the raid starts. The raiders' <code>VillagerRecord</code>s are <strong>cloned</strong> into the target village and the original entities are discarded. Clones materialize at the village edge after 500 ticks, and the fight happens around <code>defendingPos</code>.</li>
+<li><strong>Resolution:</strong> the raid ends when the attackers are dead, or when the defenders are dead and a raider reaches <code>defendingPos</code>. <code>resolveAttackersWin</code> uses a 1.2 ratio. Afterwards come looting (up to 1024 items), chest locking, chronicle and history entries, and advancements. Timeout is 23,000 ticks.</li>
+<li><strong>Player control:</strong> controlled villages pick raid targets in <code>ControlledMilitaryScreen</code>. There are commands <code>/millenaire raid …</code> and <code>military</code>.</li>
+<li><strong>The raid state cannot be faked.</strong> <code>Village.setUnderAttack(true)</code> is public, but the next <code>RaidManager.tickRaid</code> finds no raider records, clears it (<code>findAttackerId()==null</code> → <code>setUnderAttack(false)</code>) and cleans up clones. So "civilians hide" (<code>HideGoal</code>) cannot be triggered by just setting that flag.</li>
+</ul>
+<p><strong>Other systems:</strong></p>
+<ul>
+<li><strong>Diplomacy:</strong> village↔village integer relations from −100 to 100, with labels at ±10/30/50/70/90. Nightly drift in <code>VillageDiplomacyHelper</code>, player praise and slander in <code>DiplomacyHelper</code>, and per-player and per-culture reputation.</li>
+<li><strong>Chronicle:</strong> the <code>VillageEventType</code> enum is <strong>closed</strong> (FOUNDED, BUILDING_*, BIRTH, DEATH, MIGRATION, and so on; no military types). Free-text <code>Village.recordEvent(level, String)</code> goes into history.</li>
+<li><strong>Quests:</strong> data-driven (<code>quests/</code>, global scope), with quest tags on villager records.</li>
+<li><strong>Economy:</strong> <code>BuildingInventory</code> over chests, <code>Village.getVillageItemCount(item)</code> and <code>getVillageTagCount(tag)</code>, shops, traded goods, imports and exports. <strong>Millénaire's locked chests return a <code>null</code> item-handler capability</strong>, so hoppers and other mods cannot pull from them.</li>
+<li><strong>Hiring:</strong> players can hire villagers with a <code>hiring_cost</code>, using <code>HiredEscortGoal</code> and an aggressive stance. This is an existing player retinue.</li>
+<li><strong>Content guide:</strong> Millénaire ships a content guide at <code>millenaire/docs/content-guide.en.md</code> inside the JAR. It is the closest thing to a documented contract.</li>
+</ul>
+<h2 id="2-millenaire-extension-points">2. Millénaire extension points</h2>
+<p>There are <strong>no custom events, no API package, no capabilities, no data attachments and no public registries</strong> meant for other mods. What exists:</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Integration point</th>
+<th>Where</th>
+<th>What it gives</th>
+<th>What we can safely do</th>
+<th>Needs internals?</th>
+<th>Fragility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Content sub-mod overlay</strong></td>
+<td><code>&lt;gameDir&gt;/millenaire-custom/&lt;pack&gt;/…</code>, loaded at <code>ServerStartedEvent</code> by <code>content.CustomContentIndex</code> (documented in the content guide §2–§7)</td>
+<td>New or overridden villager types, building plans (<code>.json</code>+<code>.nbt</code>), village types, shops, traded goods, <strong><code>tool_categories</code> (merged per item with priorities)</strong>, visit goals, gathering types, quests, namelists, sentences, <code>_disabled.json</code></td>
+<td>New guard, soldier and veteran villager types; new military buildings; add HYW or other-mod weapons to guard equipment priorities; per-culture doctrine as data</td>
+<td>No (file format only)</td>
+<td><strong>Low–medium.</strong> Documented format. Villager, building and village JSONs are REPLACE_FIRST_ALPHA <strong>per file</strong>, so overriding a shipped file such as <code>guard.json</code> shadows future Millénaire edits to it. Prefer <strong>adding</strong> new files over replacing. It is not a datapack: our mod must deploy files into <code>millenaire-custom/&lt;ourmod&gt;/</code> before server start. Client-side textures need the files on each client.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Direct Java calls into public classes</strong></td>
+<td><code>VillageSavedData</code>, <code>VillageManager</code>, <code>Village</code>, <code>BuildingInstance</code>, <code>VillagerRecord</code>, <code>MillVillager</code>, <code>RaidManager</code> (<code>planRaid</code>, <code>startRaidForced</code>, <code>resolveDefendingPos</code> are public), <code>ModCultures</code>, <code>Millenaire.getGoalRegistry()</code></td>
+<td>Full read access to villages, buildings, residents, strengths, relations and raid state; controlled writes (relations, reputation, villager type, inventory, history entries)</td>
+<td>Read-mostly adapter; small, validated writes</td>
+<td><strong>Yes</strong> (<code>compileOnly</code> against the 9.0.2 JAR)</td>
+<td><strong>High.</strong> No API contract, rapid 9.0.x releases, and the Git fork differs heavily. Keep everything behind one adapter (§8).</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong><code>GoalRegistry</code> (<code>register</code> / <code>replace</code>)</strong></td>
+<td><code>org.millenaire.goal.GoalRegistry</code>, reached through <code>Millenaire.getGoalRegistry()</code></td>
+<td>Custom <code>VillagerGoal</code>s, or <strong>replacing a built-in goal ID</strong> (the class documents <code>replace()</code> as "External content overrides built-in goal")</td>
+<td>Wrap <code>millenaire:engage_target</code>, <code>hunt_monster</code> and <code>hide</code> with decorators that also handle HYW threats (§6). All guards and civilians get them automatically, because those IDs are injected for everyone.</td>
+<td>Yes</td>
+<td><strong>Medium–high.</strong> Timing trap: built-ins are frozen in Millénaire's mod constructor, and <code>resetToBuiltins()</code> runs in its <code>ServerStartedEvent</code> listener (NORMAL priority), which also initializes the goals of loaded villagers. We must register in a LOW-priority <code>ServerStartedEvent</code> listener and then re-run <code>villager.initGoals(...)</code> for villagers that are already loaded. Villagers loaded later pick up the registry state through Millénaire's <code>EntityJoinLevelEvent</code> handler. Needs a runtime test.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Vanilla/NeoForge entity events on <code>MillVillager</code></strong></td>
+<td>NeoForge bus: <code>EntityJoinLevelEvent</code>, <code>LivingIncomingDamageEvent</code>, <code>LivingDamageEvent.Post</code>, <code>LivingDeathEvent</code>, <code>LivingChangeTargetEvent</code> (fired because <code>VillagerCombat.setAttackTarget</code> also calls <code>setTarget</code>), <code>EntityTickEvent</code></td>
+<td>Attack and death facts, target changes, spawns</td>
+<td>Incident ledger ("who hit whom first"), kill counts for veterans, marking villagers</td>
+<td>No</td>
+<td><strong>Low.</strong> Standard NeoForge.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>NeoForge data attachments on <code>MillVillager</code></strong></td>
+<td>Our own <code>AttachmentType</code></td>
+<td>Per-villager military data (rank, kills, class), serialized with the entity</td>
+<td>Veteran status, soldier class, last-combat time</td>
+<td>No</td>
+<td><strong>Low.</strong> Note that <code>Village</code> is a POJO, so it cannot take attachments. Village-level data goes in <strong>our own <code>SavedData</code></strong> keyed by <code>VillageId.uuid()</code>.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Server config</strong></td>
+<td><code>MillenaireServerConfig</code>: <code>raidingRate</code>, <code>banditRaidRadius</code>, <code>backgroundRadius</code>, <code>keepActiveRadius</code>, <code>forceLoadVillages</code></td>
+<td>Read raid and activation parameters</td>
+<td>Read only; document recommended values</td>
+<td>No</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Item and block tags</strong></td>
+<td><code>millenaire:culture_weapons</code>, <code>millenaire:own_right_click</code>, plus a few block tags</td>
+<td>Almost nothing military</td>
+<td>—</td>
+<td>No</td>
+<td>Low (and low value)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Commands</td>
+<td><code>/millenaire …</code> (raid, military, villages, query, dev)</td>
+<td>Debugging only</td>
+<td>Not an integration API</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Networking</td>
+<td>Internal payloads only</td>
+<td>Nothing</td>
+<td>Use our own payloads for UI</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Where there is no clean API:</strong> village-level events (founded, building completed, raid started and ended) are not published. The safest alternative is <strong>polling diffs</strong> in our own low-frequency server tick: every N seconds, snapshot each active village's building statuses, record counts and raid fields, then compare to the previous snapshot and emit our own internal events. This needs no mixin, and polling at 20–200-tick intervals is cheap.</p>
+<h2 id="3-hundred-years-war-071r-fix1-architecture-summary">3. Hundred Years War 0.7.1r-fix1 architecture summary</h2>
+<h3 id="31-entities-101-entity-types-hundred_years_war">3.1 Entities (101 entity types, <code>hundred_years_war:*</code>)</h3>
+<p><strong>Every HYW humanoid, bandit, undead and siege engine extends <code>BaseCombatEntity extends PathfinderMob implements BaseCombatSupport, OwnableEntity</code>.</strong> None extends <code>Monster</code> or implements <code>Enemy</code>, including <code>hyw_zombie</code>, <code>hyw_skeleton</code> and all bandits. This single fact decides most of the cross-mod combat analysis.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Entity IDs (examples)</th>
+<th>Class root</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Infantry</td>
+<td><code>militia</code>, <code>warrior</code>, <code>spear_man</code>, <code>shieldman</code>, <code>archer</code>, <code>crossbowman</code>, <code>handgonne_man</code>, <code>matchlock_man</code>, <code>iron_mage</code>, <code>priest</code>, <code>siege_engineer</code></td>
+<td><code>MilitiaEntity</code>, <code>WarriorEntity</code>, …</td>
+<td>Unit-role marker interfaces: <code>LightUnit</code>, <code>HeavyUnit</code>, <code>RangedUnit</code>, <code>CavalryUnit</code>, <code>SiegeUnit</code>, <code>Counter*</code>, <code>NonCombatUnit</code></td>
+</tr>
+<tr>
+<td>Cavalry</td>
+<td><code>mounted_lancer_rider</code>, <code>mounted_light_lancer_rider</code>, <code>mounted_archer_rider</code>, <code>mounted_matchlock_man</code>, <code>cavalry*</code>, <code>*_horse</code>, <code>hyw_horse</code>, <code>hyw_camel</code></td>
+<td><code>Mounted*RiderEntity</code>, <code>NpcHorse</code>, <code>HywHorseEntity extends Horse</code></td>
+<td>Mount toggling (<code>CavalryMountToggleable</code>)</td>
+</tr>
+<tr>
+<td>Bandits</td>
+<td><code>bandit_soldier</code>, <code>bandit_soldier_elite</code>, <code>bandit_archer</code>, <code>bandit_crossbowman</code>, <code>bandit_raider</code>, <code>bandit_shield_axeman</code>, <code>bandit_executioner</code>, <code>bandit_knife_thrower</code>, <code>bandit_mage</code>, <code>bandit_cavalry</code>, <code>bandit_mounted_archer</code>, <code>bandit_handgonne_man</code>, <code>bandit_matchlock_man</code>, <code>bandit_demolitionist</code>, <code>bandit_beastmaster</code>, <code>bandit_war_hound</code>, <code>bandit_siege_engineer</code></td>
+<td>Subclasses of the normal unit classes</td>
+<td><strong>"Bandit" is an entity type, not a faction.</strong> Hostility comes from having <strong>no owner</strong> (§3.3).</td>
+</tr>
+<tr>
+<td>Desert raiders</td>
+<td><code>desert_raider_*</code> (incl. <code>desert_raider_commander</code>, <code>desert_raider_boss</code>, camel cavalry)</td>
+<td>Bandit subclasses</td>
+<td><code>DesertRaiderCommanderEntity</code> is a melee unit with a buff aura (20 blocks, every 40 ticks). <strong>It is not a strategic commander.</strong></td>
+</tr>
+<tr>
+<td>Undead and fantasy</td>
+<td><code>hyw_zombie</code>, <code>hyw_fast_zombie</code>, <code>hyw_skeleton*</code>, <code>hyw_wither_skeleton*</code>, <code>hyw_giant</code>, <code>wood_elf_*</code></td>
+<td><code>BaseCombatEntity</code></td>
+<td>Recruitable through scrolls</td>
+</tr>
+<tr>
+<td>Workers</td>
+<td><code>farmer</code>, <code>fisher</code>, <code>lumberjack</code>, <code>miner</code>, <code>breeder</code>, <code>craftsman</code>, <code>porter</code></td>
+<td><code>BaseWorkerEntity</code> (<code>NonCombatUnit</code>)</td>
+<td>Work at HYW workstation blocks, with warehouses and transport orders</td>
+</tr>
+<tr>
+<td>Siege</td>
+<td><code>trebuchets</code>, <code>mangonels</code>, <code>springald</code>, <code>cannon</code>, <code>bombard</code>, <code>great_bombard</code>, <code>culverin</code>, <code>ribauldequin</code>, <code>nest_of_bees</code>, <code>battering_ram</code>, <code>siege_tower</code></td>
+<td><code>EngineerOperatedSiegeEntity</code> / <code>SiegeTowerEntity</code> (<code>MultiSeatVehicle</code>, <code>CrewOperatedSiegeWeapon</code>)</td>
+<td>Crewed by <code>SiegeEngineer</code> units (<code>AutoMountEngineerOperatedSiegeGoal</code>). <strong>The battering ram calls <code>level.destroyBlock</code>. Projectiles implement <code>BlockBreakable</code></strong> (radius, hardness and count limits). Vanilla explosions use <code>ExplosionInteraction.NONE</code>.</td>
+</tr>
+<tr>
+<td>Misc</td>
+<td><code>recruitment_flag</code>, <code>bow_puppet</code> / <code>crossbow_puppet</code> / <code>melee_puppet</code> (player puppets for RTS), <code>tacz_*</code> (TaCZ compat), <code>rocket</code></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Per-entity behavior (common to <code>BaseCombatEntity</code>):</strong></p>
+<ul>
+<li><strong>AI goals</strong> (<code>registerGoals</code>): Float, OpenDoor, OpenFenceGate, OpenTrapdoor, <code>FollowEntityGoal</code>, <code>BaseCombatEntityAttackGoal</code>, <code>PatrolGoal</code> (patrol points), <code>ReturnToHomeGoal</code>, and a target selector <code>HywNearestAttackableTargetGoal(LivingEntity, predicate = isValidTarget)</code>. There is also a commanded-goal queue (<code>CommandedGoal</code>, <code>MoveGoal</code>, <code>MoveToBlockGoal</code>, <code>FormMoveGoal</code>, <code>HoldGoal</code>, <code>TargetAttackGoal</code>).</li>
+<li><strong>Equipment:</strong> normal vanilla slots, filled from per-unit, per-level JSON: <code>assets/hundred_years_war/hyw/npc/&lt;entity&gt;/equipment.json</code> (or <code>equipment_epic_knights.json</code>, chosen by config). These are arbitrary item IDs with probabilities and enchantments. <strong>They are loaded with <code>Class.getResourceAsStream</code> from HYW's own JAR (<code>EquipmentDataCache</code>)</strong>, so datapacks, resource packs and other mods <strong>cannot override them</strong>. The only external switch is the config's equipment file name. At runtime, anyone can call <code>setItemSlot</code> on a unit (HYW itself lets players swap equipment).</li>
+<li><strong>Faction and team:</strong> owner UUID (<code>OWNER_UUID</code> synced data; public <code>setOwnerUUID(UUID)</code> / <code>getOwnerUUID()</code>) plus the relation system (§3.3). <code>isAlliedTo</code> = same owner, or the owner player's vanilla scoreboard team.</li>
+<li><strong>Target selection:</strong> <code>BaseCombatEntity.isValidTarget(LivingEntity)</code> checks, in order: cease-fire strategy; temporary retaliation targets; <strong>relation participants</strong> (<code>ServerRelationHelper.isEnemyRelation</code>); vanilla <code>Enemy</code> mobs; the config target list; tamed animals by owner relation; aggressive null-owner rules; and players and other HYW units by owner relation.</li>
+<li><strong>Orders:</strong> <code>AttackStrategy</code> (including CEASE_FIRE and INDISCRIMINATE), move, attack-move, formation move, follow, hold, patrol points (<code>getPatrolPoints()</code> returns the mutable list, persisted in NBT), home position, squads.</li>
+<li><strong>Persistence:</strong> entity NBT (owner, level, XP, kills, patrol points, skins, formation). Null-owner units can despawn only in "enemy mode" configs.</li>
+<li><strong>Ownership and recruitment:</strong> player-centric. Scroll items (<code>scroll_&lt;unit&gt;_&lt;level&gt;</code>) and recruitment flags (<code>RecruitmentOrderManager</code> SavedData) with XP and material costs and unlock conditions (<code>recruitment/*.json</code>, also jar-internal).</li>
+<li><strong>Formation and group behavior:</strong> <code>FormationManager</code>, combined formations, <code>GroupPathingManager.registerEntity(groupId, target, entity)</code> (shared flow-field-style paths), and <code>CombatAlertCoordinator</code> (help calls within 30 blocks, at most 2 recipients, chain chance 50%).</li>
+<li><strong>Death and despawn:</strong> normal vanilla death with XP sharing. Player-owned units persist.</li>
+</ul>
+<h3 id="32-military-systems-what-is-actually-present-in-the-jar">3.2 Military systems: what is actually present in the JAR</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>System</th>
+<th>Present?</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recruitment</td>
+<td>✅ Player-only</td>
+<td><code>recruitment/*</code>, scroll items, recruitment flag entity</td>
+</tr>
+<tr>
+<td>Armies / squads</td>
+<td>✅ Per-player squads</td>
+<td><code>selection.SelectionSystem</code> (<code>squads.dat</code>)</td>
+</tr>
+<tr>
+<td>Commanders (strategic)</td>
+<td>❌</td>
+<td>Only aura-buff "commander" units</td>
+</tr>
+<tr>
+<td>Factions</td>
+<td>⚠️ Owner-UUID relations and teams (§3.3); no named NPC factions</td>
+<td><code>RelationSystem</code>, <code>TeamRelationData</code></td>
+</tr>
+<tr>
+<td>Orders / RTS control</td>
+<td>✅</td>
+<td>RTS freecam, command staff, <code>/hyw …</code> commands, goal queue</td>
+</tr>
+<tr>
+<td>Patrols</td>
+<td>✅ Point lists</td>
+<td><code>PatrolGoal</code>, <code>getPatrolPoints()</code></td>
+</tr>
+<tr>
+<td>Sieges (as a system)</td>
+<td>❌ No siege state or objective logic</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Siege weapons</td>
+<td>✅ 11 types, with block breaking</td>
+<td><code>entity/entities/siege/*</code></td>
+</tr>
+<tr>
+<td>Supply</td>
+<td>✅ Abstract</td>
+<td><code>supply.SupplyManager</code>: supply sources (PLAYER with 2000 max, SUPPLY_POINT block with 10000 max); units <code>requiresSupply</code>; food→supply conversion; <code>supply.dat</code></td>
+</tr>
+<tr>
+<td>Production</td>
+<td>✅ Worker units plus workstations</td>
+<td>Farming, fishing, lumber, mining, breeding and crafting workstations; warehouses; transport orders</td>
+</tr>
+<tr>
+<td>Settlement management</td>
+<td>⚠️ Light</td>
+<td>Building templates (<code>.hywt</code>), <code>BuildingTaskManager</code>, <code>PlacedBuildingRegistry</code>, roads (<code>RoadNetworkManager</code>). There is no concept of a town, population or economy loop comparable to Millénaire.</td>
+</tr>
+<tr>
+<td>Structure generation</td>
+<td>⚠️ A custom system, <strong>not vanilla worldgen</strong></td>
+<td><code>generation/*</code> "simulate then materialize" near players, with hidden-chunk visibility management. Only <strong>2 templates ship</strong>: <code>ancient_white_tower</code>, <code>desert_fortified_oasis</code>. These are <strong>not</strong> vanilla <code>Structure</code>s, so structure tags cannot see them.</td>
+</tr>
+<tr>
+<td>Natural spawning</td>
+<td>❌</td>
+<td>No biome modifiers or spawn placements. Hostile HYW units come from spawn-point blocks inside HYW templates, from scrolls, or from <code>/hyw summon</code>.</td>
+</tr>
+<tr>
+<td>NPC relationships</td>
+<td>✅ UUID↔UUID HOSTILE / NEUTRAL / FRIENDLY / CONTROL</td>
+<td>§3.3</td>
+</tr>
+<tr>
+<td>Military progression</td>
+<td>✅ Per-unit levels and XP (equipment tier per level), level cap, unlocks</td>
+<td></td>
+</tr>
+<tr>
+<td>Autonomous armies, campaigns, invasions</td>
+<td>❌</td>
+<td>Nothing marches on anything without a player's order</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="33-the-hyw-relation-system-the-most-important-finding-for-integration">3.3 The HYW relation system (the most important finding for integration)</h3>
+<ul>
+<li><code>ydmsama.hundred_years_war.main.utils.RelationSystem</code> holds static maps: <code>getRelation(uuidA, uuidB)</code> (default NEUTRAL; same UUID means CONTROL), <code>setRelation(a, b, type)</code> (HOSTILE is set symmetrically), teams (<code>createTeam</code>, <code>joinTeam</code>), and damage records. It is saved to <strong><code>&lt;world&gt;/relations.dat</code> only on <code>ServerStoppingEvent</code></strong> (a crash loses changes since startup).</li>
+<li><code>ServerRelationHelper.getRelationIdentity(entity)</code> resolves, in order: a player → its UUID; a <code>BaseCombatSupport</code> → owner UUID (null = "null owner"); a tamed animal → owner; <strong>any other entity carrying HYW's identity marker</strong>; summoner or owner reflection; unknown.</li>
+<li><strong><code>EntityRelationOwnerMarkerMixin</code> mixes <code>RelationOwnerMarkedEntity</code> into every <code>Entity</code>.</strong> Its methods (<code>hyw$markRelationOwnerUUID(UUID)</code>, <code>hyw$markKnownNullRelationOwner()</code>, <code>hyw$clearRelationIdentityMarker()</code>) are public, and the marker is persisted in entity NBT under <code>HundredYearsWarRelationIdentity</code>. <strong>A third mod can therefore give a <code>MillVillager</code> an HYW relation identity without touching either mod.</strong></li>
+<li><code>isEnemyRelation(a, b)</code>: if both owners are null → false. <strong>If exactly one owner is null → true</strong> (null-owner units, such as spawned bandits, are enemies of every identified party). Otherwise the answer is HOSTILE in either direction.</li>
+<li><code>isRelationProtected(a, b)</code>: same owner, or FRIENDLY or CONTROL. HYW's <code>LivingEntityHurtMixin</code> <strong>cancels damage</strong> between protected pairs (<code>shouldCancelFriendlyDamage</code>) and <code>TargetingConditionsRelationMixin</code> blocks targeting them.</li>
+<li><strong>Escalation:</strong> in <code>LivingEntityHurtMixin</code>, if two <em>identified</em> parties are NEUTRAL and one damages the other 3 times, <code>RelationSystem.setRelation(victim, attacker, HOSTILE)</code> is applied. This is <strong>permanent</strong>; nothing decays it back.</li>
+<li><strong>Temporary retaliation:</strong> <code>TemporaryHostileTargetManager.markHostile(unit, attacker)</code> is public static. It lasts <strong>600 ticks</strong>, is keyed by the unit's <strong>owner UUID</strong> (so the whole owner group, including all null-owner units, retaliates), and is called by <code>CombatAlertCoordinator.onHurt</code>.</li>
+<li><strong>Config target lists:</strong> <code>config/hundredyearswar/target_list.json5</code>, <code>target_blacklist.json5</code>, <code>hostile_target_list.json5</code>, <code>hostile_target_blacklist.json5</code>. They take entity <strong>type</strong> IDs or <code>"namespace:"</code> wildcards.</li>
+<li><strong>Null-owner config</strong> (<code>ServerModConfig</code> defaults): <code>nullOwnerUnitsFriendlyToEnemy=false</code> and <code>nullOwnerUnitsAggressive=true</code>. The aggressive rule only applies in "enemy mode", which requires the friendly flag, so <strong>by default null-owner units attack players (and identified parties) and vanilla monsters, but ignore unidentified mobs.</strong></li>
+<li><strong><code>MobRelationAwareTargetMixin</code></strong> (on <code>Mob.&lt;init&gt;</code>) adds a <code>RelationAwareTargetGoal</code> to every non-HYW mob that has an attack-damage attribute. <strong><code>MillVillager</code> has <code>ATTACK_DAMAGE</code>, so every Millénaire villager very likely already carries this HYW goal in its vanilla target selector.</strong> Millénaire ignores vanilla targets for combat, so today it is inert. This needs runtime confirmation (Unknown #1).</li>
+</ul>
+<h3 id="34-items-222-registered-hundred_years_war">3.4 Items (222 registered; <code>hundred_years_war:*</code>)</h3>
+<ul>
+<li><strong>Melee</strong> (<code>SwordItem</code> subclasses): <code>*_saber</code>, <code>*_scimitar</code>, <code>*_sickle_sword</code>, <code>sickle_sword</code>, <code>classy_saber</code>, <code>assassin_rapier</code>, <code>long_handled_blade</code> (<code>LongHandledBladeItem</code>), <code>*_pike</code> / <code>*_pike_charge</code> (<code>PikeItem</code>), <code>throwing_knife</code> (<code>ThrowingKnifeItem</code>).</li>
+<li><strong>Non-sword weapons</strong> (plain <code>Item</code>): <code>*_lance</code> (<code>LanceItem</code>, charge damage), <code>handgonne</code>, <code>matchlock</code> (+ <code>bullet</code>).</li>
+<li><strong>Armor:</strong> <strong>none for humanoids.</strong> HYW only adds <code>*_camel_armor</code> and <code>desert_round_shield</code>. Units wear vanilla armor, or Epic Knights armor with the Epic Knights equipment file.</li>
+<li><strong>Control items:</strong> <code>command_staff</code>, <code>conquerors_staff</code>, <code>conquerors_manual</code>, <code>building_tool</code>, <code>transport_order</code>, <code>loot_table_tool</code>, ~150 <code>scroll_*</code> items and siege weapon deploy items.</li>
+<li><strong>Tags:</strong> HYW defines none.</li>
+<li>Optional compat is built in for TaCZ, Iron's Spells, Epic Fight, Better Combat and Epic Knights.</li>
+</ul>
+<h3 id="35-hyw-integration-surface">3.5 HYW integration surface</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Kind</th>
+<th>Safe?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Registry IDs of entities and items</td>
+<td>Stable <code>DeferredRegister</code> IDs</td>
+<td>✅ Safest</td>
+</tr>
+<tr>
+<td><code>config/hundredyearswar/*.json5</code> target lists and server config</td>
+<td>Plain files</td>
+<td>✅ But the lists are <strong>per entity type</strong>, and all Millénaire villagers share one type (<code>millenaire:villager</code>), so this is all-or-nothing</td>
+</tr>
+<tr>
+<td><code>RelationSystem</code> / <code>ServerRelationHelper</code> / identity marker / <code>TemporaryHostileTargetManager</code></td>
+<td>Public static Java, mixin-interface methods</td>
+<td>⚠️ Internals, but narrow and highly valuable</td>
+</tr>
+<tr>
+<td><code>BaseCombatEntity</code> public methods (<code>setOwnerUUID</code>, <code>setAttackStrategy</code>, <code>setHomePosition</code>, <code>getPatrolPoints</code>, <code>setFollowTarget</code>, <code>addCustomGoal</code>, <code>setRequiresSupply</code>, formation setters)</td>
+<td>Public Java</td>
+<td>⚠️ Internals</td>
+</tr>
+<tr>
+<td><code>SupplyManager.registerSupplySource(uuid, type, max, pos, dim)</code></td>
+<td>Public static</td>
+<td>⚠️ Semantics untested</td>
+</tr>
+<tr>
+<td><code>GroupPathingManager.registerEntity</code></td>
+<td>Public</td>
+<td>⚠️ Complex internals</td>
+</tr>
+<tr>
+<td><code>/hyw</code> commands</td>
+<td>Brigadier</td>
+<td>❌ For automation: most commands require a player executor and use the player's look target. <code>relation set</code> is usable.</td>
+</tr>
+<tr>
+<td>Equipment and recruitment JSON</td>
+<td>Jar-internal resources</td>
+<td>❌ Not overridable</td>
+</tr>
+<tr>
+<td>Events, capabilities, API package</td>
+<td>—</td>
+<td>❌ None exist</td>
+</tr>
+<tr>
+<td>Mixins in HYW</td>
+<td>66 common mixins touching <code>Entity</code>, <code>Mob</code>, <code>LivingEntity.hurt</code>, <code>TargetingConditions</code>, <code>NearestAttackableTargetGoal</code>, <code>PathNavigation</code>, <code>ChunkMap</code>, <code>PlayerChunkSender</code>, the light engine, <code>EntitySectionStorage</code>, and more</td>
+<td>⚠️ Very invasive, which raises the conflict surface for us too</td>
+</tr>
+</tbody>
+</table></div>
+<p>What "closed or no API" means for us: we compile against the exact HYW JAR (<code>compileOnly</code>, never bundled), touch only a thin set of public statics and methods, pin the HYW version range, and wrap every call so that a <code>NoSuchMethodError</code> or <code>NoClassDefFoundError</code> disables the HYW module instead of crashing.</p>
+<h2 id="4-important-classes-entities-and-registries-quick-reference">4. Important classes, entities and registries (quick reference)</h2>
+<p><strong>Millénaire 9.0.2</strong>
+- <code>org.millenaire.Millenaire</code>: <code>getGoalRegistry()</code>, content load at <code>ServerStartedEvent</code>, tick wiring
+- <code>village.VillageSavedData</code>: <code>get(ServerLevel)</code> (SavedData <code>millenaire_villages</code>)
+- <code>village.VillageManager</code>: <code>getVillage</code>, <code>getAllVillages</code>, <code>findNearestVillage</code>
+- <code>village.Village</code>: see §1.1; strengths, tags, relations, raid fields, <code>recordEvent</code>, <code>computeBounds</code>, <code>getTownhall</code>, <code>updateVillagerType</code>, <code>adjustReputation</code>, <code>getVillageItemCount</code>
+- <code>village.VillageId</code> (UUID record), <code>village.VillagerRecord</code>, <code>village.VillageRelations</code> (thresholds)
+- <code>building.BuildingInstance</code>, <code>building.BuildingPlan</code> (tags), <code>culture.WallType</code>, <code>village.WallGrowthManager</code>
+- <code>entity.MillVillager</code> (<code>millenaire:villager</code>): <code>getVillageId</code>, <code>getVillagerTypeId</code>, <code>getAttackTarget</code>/<code>setAttackTarget</code>, <code>performAttack</code>, <code>ensureCombatWeaponEquipped</code>, <code>getNavManager()</code>, <code>getInventory()</code>, <code>initGoals</code>, <code>isChief</code>, <code>isHired</code>
+- <code>entity.VillagerCombat</code> (private field; behavior described in §1.4), <code>combat.CombatHelper</code>, <code>combat.MilitaryStrength</code>
+- <code>goal.GoalRegistry</code>, <code>goal.VillagerGoal</code>, <code>goal.VillagerTask</code>, <code>goal.GoalContext</code> (public record); <code>goal.impl.EngageTargetGoal</code>, <code>HuntMonsterGoal</code>, <code>DefendVillageGoal</code>, <code>HideGoal</code>, <code>RaidVillageGoal</code> (IDs <code>millenaire:engage_target</code>, <code>hunt_monster</code>, <code>defend_village</code>, <code>hide</code>, <code>raid_village</code>). <code>CombatGoalSupport</code> is <strong>package-private</strong>, but everything it uses is public on <code>MillVillager</code> and <code>VillagerNavDriver</code>.
+- <code>combat.raid.RaidManager</code>: <code>planRaid</code>, <code>startRaidForced</code>, <code>resolveDefendingPos</code>, <code>abortRaidForAttacker</code>
+- <code>tool.ToolCategoryRegistry</code>: categories <code>toolsaxe … toolssword, armours{helmet,chestplate,leggings,boots}, weaponshandtohand, weaponsranged</code></p>
+<p><strong>HYW 0.7.1r-fix1</strong>
+- <code>entity.entities.BaseCombatEntity</code> (8k lines), <code>entity.utils.BaseCombatSupport</code>, unit-tag interfaces in <code>entity.entities.tags</code>
+- <code>utils.RelationSystem</code>, <code>utils.ServerRelationHelper</code>, <code>utils.RelationOwnerMarkedEntity</code>, <code>utils.CombatTargetingHelper</code>, <code>utils.TargetListManager</code>
+- <code>entity.utils.TemporaryHostileTargetManager</code>, <code>entity.utils.CombatAlertCoordinator</code>, <code>entity.goals.RelationAwareTargetGoal</code>, <code>entity.goals.PatrolGoal</code>
+- <code>supply.SupplyManager</code>, <code>selection.SelectionSystem</code>, <code>entity.pathing.GroupPathingManager</code>, <code>recruitment.RecruitmentOrderManager</code>
+- <code>template.PlacedBuildingRegistry</code> and <code>simulation.building.SimulatedBuildingRegistry</code> (SavedData for HYW-placed sites)
+- <code>registry.HywEntityRegistry</code>, <code>registry.HywItemRegistry</code>
+- <code>config.ServerModConfig</code> (<code>config/hundredyearswar/</code>)</p>
+<h2 id="5-cross-mod-integration-analysis">5. Cross-mod integration analysis</h2>
+<h3 id="a-millenaire-village-military-settlement">A. Millénaire village → military settlement</h3>
+<p><strong>Store our data in our own <code>SavedData</code></strong> (for example <code>ourmod_military</code>, overworld), keyed by <code>VillageId.uuid()</code>. Village IDs are stable UUIDs, so this is clean and survives Millénaire updates.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Datum</th>
+<th>Source</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Garrison (active soldiers)</td>
+<td>Count <code>villagerRecords</code> whose type <code>isHelpInAttacks()</code>, excluding killed ones. <code>getVillageDefendingStrength()</code>.</td>
+<td>Easy</td>
+</tr>
+<tr>
+<td>Reserve militia</td>
+<td>Our own classification of non-guard adult types (config), or custom "militia" villager types via content pack</td>
+<td>Easy (data) / Moderate (behavior)</td>
+</tr>
+<tr>
+<td>Garrison capacity</td>
+<td>Sum of resident slots of <code>patrol</code>- or <code>armoury</code>-tagged buildings, via the plan's <code>male</code> list in content</td>
+<td>Easy–moderate</td>
+</tr>
+<tr>
+<td>Equipment quality</td>
+<td><code>MilitaryStrength.scan(record.getInventory())</code> per guard</td>
+<td>Easy</td>
+</tr>
+<tr>
+<td>Fortification level</td>
+<td>Wall segments (<code>isWallSegment</code>, <code>wall_level_*</code>), towers, forts (§5.D)</td>
+<td>Easy</td>
+</tr>
+<tr>
+<td>Readiness, threat, specialization</td>
+<td>Our own computed fields (§5.C)</td>
+<td>Easy (they are ours)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Do <strong>not</strong> try to write these into Millénaire's <code>Village</code> NBT. It has no extension slot.</p>
+<h3 id="b-expanding-millenaire-guards">B. Expanding Millénaire guards</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Idea</th>
+<th>Realistic?</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Different guard classes (archer, spearman, heavy)</td>
+<td>🟢 as data</td>
+<td>New villager-type JSONs in our content pack, with tags (<code>helpInAttacks</code>, <code>archer</code>, <code>defensive</code>, <code>raider</code>), <code>max_health</code>, <code>base_attack_strength</code>, <code>default_weapon</code>, <code>tool_needed_classes</code>. <strong>Limitation:</strong> Millénaire combat is melee plus vanilla arrows only. There are no shields, reach, lances, guns, mounts or formations.</td>
+</tr>
+<tr>
+<td>Better equipment</td>
+<td>🟢</td>
+<td>Add items to <code>tool_categories</code> with higher priority. Stock armoury chests, or add to <code>VillagerInventory</code>. <strong>Only item type matters</strong>, because enchantments and durability are dropped.</td>
+</tr>
+<tr>
+<td>Culture-specific soldiers</td>
+<td>🟢</td>
+<td>Per-culture villager types and plans in <code>cultures/&lt;c&gt;/…</code></td>
+</tr>
+<tr>
+<td>Veteran guards</td>
+<td>🟡</td>
+<td>Track kills with <code>LivingDeathEvent</code> (killer is a <code>MillVillager</code>), then promote with the public <code>ChildBecomeAdultGoal</code>-style sequence to a <code>*_veteran</code> type</td>
+</tr>
+<tr>
+<td>Professional soldiers vs militia</td>
+<td>🟢 data / 🟡 behavior</td>
+<td>Types plus a decorated engage goal that treats militia as <code>defensive</code></td>
+</tr>
+<tr>
+<td>Defensive positions</td>
+<td>🟢</td>
+<td>Already exist as <code>defendingPos</code> special points in building plans. Our plans can add more.</td>
+</tr>
+<tr>
+<td>Patrols</td>
+<td>🟢 existing</td>
+<td><code>millenaire:patrol</code> visit goal walks between <code>patrol</code>-tagged buildings. Route patrols would be 🟡 (a custom goal).</td>
+</tr>
+<tr>
+<td>Military training</td>
+<td>🟡</td>
+<td>Visit goal to a <code>training</code> tag (the Seljuk content already has the tag) plus our XP ledger</td>
+</tr>
+<tr>
+<td>Garrison management UI</td>
+<td>🟡</td>
+<td>Our screen plus payloads, reading the adapter. Controlling numbers means building more resident buildings, or 🟠 spawning extra records through <code>VillagerSpawnFactory</code> (internal, risky).</td>
+</tr>
+<tr>
+<td>New guard AI behaviors</td>
+<td>🟡</td>
+<td>Only through <code>GoalRegistry.replace</code> decorators or new goals referenced from our own villager types</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="c-military-progression">C. Military progression</h3>
+<p>This is feasible <strong>as a computed overlay</strong>, because Millénaire exposes enough. An example ladder, with each tier gated on operational buildings:</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Guard Post</td>
+<td>≥1 building tagged <code>patrol</code></td>
+</tr>
+<tr>
+<td>Barracks</td>
+<td>Our plan ID or tag <code>ourmod_barracks</code>, or <code>norman:largefort_a_barrack</code></td>
+</tr>
+<tr>
+<td>Training Ground</td>
+<td>Tag <code>training</code></td>
+</tr>
+<tr>
+<td>Armoury</td>
+<td>Tag <code>armoury</code></td>
+</tr>
+<tr>
+<td>Fortified Settlement</td>
+<td>Wall segments of <code>wall_level_1+</code> covering X%</td>
+</tr>
+<tr>
+<td>Military Center</td>
+<td>Fort town hall (<code>fort</code> / <code>largefort</code>) + armoury + ≥N guards</td>
+</tr>
+</tbody>
+</table></div>
+<p>It can be combined with population (<code>villagerRecords</code>), wealth (<code>getVillageItemCount</code>) and culture.</p>
+<p>What we <strong>cannot</strong> easily do is make Millénaire <em>prefer</em> building military structures. Growth is driven by the village type's <code>layout</code> and priorities in content files. The only way to influence it is our own village types or plan priorities, which are REPLACE overrides of shipped files. Treat Millénaire's growth as the source of truth, and let our tier <strong>react</strong> to it rather than drive it.</p>
+<h3 id="d-fortification">D. Fortification</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Easy (direct from Millénaire)</strong></td>
+<td>Count and levels of wall segments; <code>wall_level_*</code>, <code>patrol</code> (towers), gateway plan sets from <code>WallType</code>; forts (<code>townhalls/fort</code>, <code>largefort</code>); guard buildings; village radius and bounds; building <code>level</code> (upgrade tier); <code>isOperational()</code>; number of <code>defendingPos</code> points</td>
+</tr>
+<tr>
+<td><strong>Moderate (world scan)</strong></td>
+<td>Actual wall block integrity (compare the plan footprint to current blocks; notices siege damage); wall height; gate presence and open or closed state; terrain height delta around bounds; water or cliff moats (heightmap sampling over the bounds ring)</td>
+</tr>
+<tr>
+<td><strong>Hard</strong></td>
+<td>Enclosure completeness (is the perimeter closed, and do paths bypass the walls?), line-of-sight coverage from towers, and path-based attack routes. These need geometry and pathfinding analysis. Skip them.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="e-hyw-equipment-for-millenaire-guards-and-vice-versa">E. HYW equipment for Millénaire guards (and vice versa)</h3>
+<ul>
+<li>HYW items are registered through a normal <code>DeferredRegister</code> with stable IDs (<code>hundred_years_war:iron_saber</code>, …).</li>
+<li><strong>Millénaire guards can use any <code>Item</code> as a melee weapon.</strong> Damage comes from the item's <code>ATTACK_DAMAGE</code> attribute modifier (<code>CombatHelper.weaponDamage</code>). HYW sabers, scimitars, sickle swords, pikes, rapier and long-handled blade are <code>SwordItem</code>s, so they work. <strong>Lances, handgonnes, matchlocks and throwing knives will not work as intended</strong>: Millénaire only swings in melee or shoots vanilla arrows from <code>BowItem</code>s. Special mechanics (pike reach, lance charge, firearm projectiles) are not reproduced.</li>
+<li><strong>Armor</strong> has to be an <code>ArmorItem</code>. HYW has no humanoid armor, so use vanilla or Epic Knights armor.</li>
+<li><strong>Selection mechanism:</strong> use the <strong>Millénaire <code>tool_categories</code> content file</strong> (priority per item ID) shipped in our content pack. It is data-driven, merge-friendly and survives updates. Prefer this to hardcoded Java item IDs. For our own logic, define <strong>our own item tags</strong> (<code>ourmod:military/melee_tier_2</code>, …) with <code>"required": false</code> entries, so missing mods do not break loading.</li>
+<li><strong>HYW units using arbitrary equipment:</strong> only by runtime <code>setItemSlot</code> (the unit JSON cannot be overridden). HYW's equipment-by-level JSON would re-roll only on HYW's own reinitialization paths. Unknown #6.</li>
+<li>Do not duplicate weapons. Reference HYW items by ID. If HYW is absent, our tags simply resolve empty.</li>
+</ul>
+<h3 id="f-raids-and-military-events">F. Raids and military events</h3>
+<p>What exists is Millénaire's village-vs-village raids (above). With public API:</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Feasibility</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Push two villages into raids</td>
+<td>🟢</td>
+<td><code>adjustRelationSymmetric</code> down to ≤ −90, and Millénaire plans raids by itself. Or call <code>RaidManager.planRaid</code> directly.</td>
+</tr>
+<tr>
+<td>Counter-raids</td>
+<td>🟡</td>
+<td>Poll <code>getRaidsSuffered()</code> / raid end, then plan a raid back, subject to raider strength</td>
+</tr>
+<tr>
+<td>Scouting parties, patrols between villages</td>
+<td>🟠</td>
+<td>Millénaire has no "go outside the village" military task. Needs our own goal plus long-distance navigation over possibly unloaded chunks.</td>
+</tr>
+<tr>
+<td>Organized raids with HYW units</td>
+<td>🟠</td>
+<td>Our own event: spawn null-owner or faction-owned HYW units at the village edge (the way Millénaire materializes clones), give them a move order, and drive the outcome from our ledger. Millénaire will <strong>not</strong> recognize it as a raid, so civilians will not hide unless our <code>hide</code> decorator does it, and its chronicle and looting will not trigger.</td>
+</tr>
+<tr>
+<td>Reinforcement parties</td>
+<td>🟠</td>
+<td>Same machinery as above</td>
+</tr>
+<tr>
+<td>Army camps</td>
+<td>🟠</td>
+<td>Needs a structure (vanilla template or ours), a persistent group record, and spawning on load</td>
+</tr>
+<tr>
+<td>Attacks on strategic settlements</td>
+<td>🟠</td>
+<td>Requires the site index (§6) plus the virtual army simulation (§5.G)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Millénaire's raid code path cannot be extended to non-<code>MillVillager</code> raiders. Clones are <code>VillagerRecord</code>s by design, and the check "attackers alive" only counts records. Doing so would need a mixin into <code>RaidManager</code>, and it is <strong>not recommended</strong>.</p>
+<h3 id="g-army-movement">G. Army movement</h3>
+<p>HYW <strong>has</strong> group movement primitives, but no autonomous armies: move and attack-move, formation moves, squads, <code>GroupPathingManager</code> shared paths, patrol points, follow. All of it is player-issued.</p>
+<ul>
+<li>A Millénaire settlement as a <em>target</em> for a player's HYW army already works physically. The player can march units to a village. The only missing parts are the aggro rules (§6) and the consequences (reputation and relations), which are cheap to add.</li>
+<li>Autonomous NPC armies moving between settlements: the hard part is <strong>not</strong> HYW's pathing but <strong>chunk loading</strong>. Entities do not tick in unloaded chunks, and Millénaire only keeps chunks loaded within 200 blocks of players. Real-entity marching across the map means force-loading corridors (a performance and grief risk). The workable pattern is Millénaire's own raid pattern: a <strong>virtual army</strong> (a data record with position, strength, composition and speed) advances in our SavedData tick, and <strong>materializes</strong> as real HYW entities only when it enters a loaded area near players, then de-materializes back to data. That is 🟠: a substantial subsystem, but self-contained. Waypoints and roads can reuse HYW's road network or just straight-line and heightmap stepping.</li>
+</ul>
+<h3 id="h-battles">H. Battles</h3>
+<p>HYW handles <em>unit-level</em> group combat (targeting, help calls, formations, counters, morale-like tags), and Millénaire handles villager combat. Neither has a "battle" object (sides, objectives, outcome).</p>
+<ul>
+<li>Feeding Millénaire guards into HYW combat: done by the <strong>relation bridge</strong> (§6). Once guards have an HYW identity, HYW units treat them as friend or foe, and Millénaire guards need the engage decorator to fight back. Result: mixed local battles work with no replacement of either AI.</li>
+<li>A "battle" abstraction (sides, casualties, winner, aftermath) is ours to build as a ledger over <code>LivingDeathEvent</code> in an area and time window. 🟡</li>
+</ul>
+<h3 id="i-sieges">I. Sieges</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th></th>
+<th>HYW</th>
+<th>Millénaire</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provides</td>
+<td>11 crewed siege engines, siege engineers, block breaking (ram, projectiles), siege towers carrying passengers</td>
+<td>Walls, towers and gates as buildings; <code>defendingPos</code> and <code>shelterPos</code>; raid flow and chest locking</td>
+</tr>
+<tr>
+<td>Missing</td>
+<td>Siege objectives or state; AI that chooses to besiege anything</td>
+<td>Any response to wall damage; <strong>no repair</strong>; no gate closing; no concept of siege</td>
+</tr>
+</tbody>
+</table></div>
+<p>They can be connected only through our layer.</p>
+<p><strong>Minimum viable siege expansion (recommendation):</strong> a scripted "Siege Event". A virtual attacking force materializes near a village when the player is nearby. It brings one engine (a battering ram at the nearest gateway <code>BuildingInstance</code>, or a mangonel with block breaking <strong>disabled</strong> at first). Our threat state makes civilians hide and guards hold <code>defendingPos</code>. Victory or defeat is decided by our ledger, and the result is written to Millénaire as a free-text history entry plus relation and reputation changes. The <strong>block-damage policy must be decided first</strong>, because Millénaire will not repair walls. Either make siege damage cosmetic or temporary (our mod records broken blocks and restores them later), or accept permanent damage.</p>
+<h3 id="j-logistics">J. Logistics</h3>
+<ul>
+<li>Village economy data: <code>Village.getVillageItemCount(item)</code>, <code>getVillageTagCount(tag)</code> and <code>BuildingInventory.add/remove</code> (public) give real stock levels and let us consume goods.</li>
+<li>HYW supply: <code>SupplyManager.registerSupplySource(UUID, SUPPLY_POINT, max, pos, dim)</code>. Units that <code>requiresSupply</code> draw from sources within range. Food converts to supply.</li>
+<li><strong>Concept:</strong> village food stock → our "garrison upkeep" (consume N food per day from village chests) → register or refresh an HYW supply source at the town hall with a value derived from the stock. This is <strong>technically realistic</strong> (🟡). It needs only public statics, but the semantics of non-player sources (owner, range, how units choose sources) must be tested (Unknown #9).</li>
+<li>Physical supply wagons or caravans: 🔴/🟠. There are no wagons in either mod. Porters and transport orders are HYW's intra-base logistics, not overland convoys.</li>
+</ul>
+<h2 id="6-cross-mod-combat-and-aggro-integration">6. Cross-mod combat and aggro integration</h2>
+<h3 id="61-what-happens-today-with-both-mods-and-no-bridge-derived-from-code">6.1 What happens today with both mods and no bridge (derived from code)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>HYW side</th>
+<th>Millénaire side</th>
+<th>Net result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Player attacks an HYW NPC</td>
+<td><code>CombatAlertCoordinator.onHurt</code> → <code>markHostile</code> (600 ticks, whole owner group) plus help calls</td>
+<td>—</td>
+<td>✅ HYW retaliates</td>
+</tr>
+<tr>
+<td>Millénaire guards help the player against that NPC</td>
+<td>—</td>
+<td>Guards learn nothing (<code>callForHelp</code> only fires when a <em>villager</em> is hurt). Even if targeted, <code>EngageTargetGoal</code> rejects non-<code>Monster</code> targets.</td>
+<td>❌ Guards ignore it</td>
+</tr>
+<tr>
+<td>HYW NPC attacks a Millénaire villager first</td>
+<td>Depends on HYW targeting (below)</td>
+<td><code>VillagerCombat.onHurt</code> sets <code>attackTarget</code> and calls for help, but <strong>no goal engages a non-Monster target</strong></td>
+<td>❌ Villagers "notice" but stand still</td>
+</tr>
+<tr>
+<td>Null-owner HYW units (spawned bandits) vs villagers</td>
+<td>Unmarked villagers are not relation participants, not <code>Enemy</code> and not listed, so they are <strong>ignored</strong> (default config)</td>
+<td><code>HuntMonsterGoal</code> only hunts <code>Monster</code></td>
+<td>Both sides ignore each other (unless config lists <code>millenaire:villager</code> as a hostile target, which makes <em>all</em> villagers targets)</td>
+</tr>
+<tr>
+<td>Player-owned HYW units vs villagers</td>
+<td>Ignored (no identity)</td>
+<td>—</td>
+<td>Neutral</td>
+</tr>
+<tr>
+<td>Civilians during HYW attacks</td>
+<td>—</td>
+<td><code>HideGoal</code> only runs during a real Millénaire raid</td>
+<td>❌ Civilians keep working</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="62-bridge-design-least-invasive-no-replacement-of-either-mods-combat-ai">6.2 Bridge design (least invasive; no replacement of either mod's combat AI)</h3>
+<p><strong>1. Identity bridge (HYW side, public API):</strong></p>
+<ul>
+<li>Each Millénaire village gets a synthetic <em>faction UUID</em>. Use a deterministic name-based UUID from the <code>VillageId</code>, stored in our SavedData.</li>
+<li>Register it with a readable name through <code>RelationSystem.getOrCreatePlayerRelationData(uuid, villageName)</code>. It will otherwise show as "Unknown" in HYW's relation UI.</li>
+<li>On <code>EntityJoinLevelEvent</code> for a <code>MillVillager</code> with a <code>villageId</code>, call <code>((RelationOwnerMarkedEntity) villager).hyw$markRelationOwnerUUID(factionUuid)</code>.</li>
+<li>Effects that fall out automatically:</li>
+<li>Null-owner HYW units (bandits) now see villagers as enemies (<code>isEnemyRelation(null, faction) == true</code>). <strong>This is "inherent hostility" for free.</strong></li>
+<li>Player-owned HYW units stay NEUTRAL unless the relation says HOSTILE.</li>
+<li>HYW friendly-fire protection applies between FRIENDLY or CONTROL pairs.</li>
+<li>HYW's already-injected <code>RelationAwareTargetGoal</code> on each villager starts setting the villager's <strong>vanilla</strong> target to HYW enemies, which is a free detection signal.</li>
+<li>Bandit-type Millénaire villagers (<code>VillagerType.isHostile()</code>) and raid clones (<code>isRaiderEntity()</code>) should get either <strong>no</strong> marker or a separate "outlaw" faction UUID.</li>
+</ul>
+<p><strong>2. Engagement fix (Millénaire side, <code>GoalRegistry.replace</code>):</strong></p>
+<ul>
+<li>Replace <code>millenaire:engage_target</code> with a decorator. It delegates to the original for Player, Monster and MillVillager targets. For other <code>LivingEntity</code> targets, it applies our policy: HYW units, and optionally any entity in a configurable list or tag. It then runs the same pursue-and-attack sequence through <strong>public</strong> <code>MillVillager</code> methods (<code>ensureCombatWeaponEquipped</code>, <code>performAttack</code>, <code>getNavManager().navigateToCombatTarget</code>).</li>
+<li>Replace <code>millenaire:hunt_monster</code> with a decorator. It adds "hostile HYW units inside village bounds" (our threat tracker) to the huntable set, and keeps <code>helpInAttacks</code> gating and Millénaire's 50-block hunt zone.</li>
+</ul>
+<p><strong>3. Civilians flee:</strong> replace <code>millenaire:hide</code> with a decorator. <code>canStart</code> = original <strong>or</strong> (our threat tracker reports hostile HYW units inside <code>computeBounds()</code>). Our task navigates to the town hall <code>shelterPos</code> with public calls. Civilians never fight, because they lack <code>helpInAttacks</code>, so the engage decorator's policy excludes them.</p>
+<p><strong>4. Incident ledger (ours; NeoForge <code>LivingIncomingDamageEvent</code>, observed before either mod reacts):</strong></p>
+<ul>
+<li>Record <code>(attacker faction, victim faction, time, first-strike flag)</code> per encounter.</li>
+<li><strong>"Attacked first":</strong> the first recorded hit between two factions within an encounter window.</li>
+<li><strong>"Defending an ally":</strong> the attacker's current target (<code>Mob.getTarget()</code> or <code>BaseCombatEntity.getHywTarget()</code>) is a village resident or a player with village reputation ≥ threshold, and the incident is inside village bounds.</li>
+<li><strong>"Inherently hostile":</strong> null-owner HYW unit (<code>getOwnerUUID()==null</code>), or a configurable entity-type list or tag (<code>ourmod:inherently_hostile</code>: <code>hundred_years_war:bandit_*</code>, <code>desert_raider_*</code>), or Millénaire <code>hostile</code>-tagged types.</li>
+<li>From the ledger we drive temporary hostility on both sides: HYW with <code>TemporaryHostileTargetManager.markHostile</code>, and Millénaire with <code>villager.setAttackTarget</code> on helpers.</li>
+</ul>
+<p><strong>5. Expiry and reset:</strong></p>
+<ul>
+<li>HYW temporary hostility already expires after 600 ticks.</li>
+<li><strong>HYW's permanent 3-hit escalation must be counteracted.</strong> Our ledger stores escalations it caused, and a daily decay sets <code>RelationSystem.setRelation(faction, player, NEUTRAL)</code> when our rules say so. This triggers HYW's hostile→neutral immunity window.</li>
+<li>Millénaire <code>attackTarget</code> clears on death, at more than 80 blocks, or in Peaceful. Our decorator also drops targets whose ledger entry has expired.</li>
+<li>Millénaire reputation loss for hitting villagers is Millénaire's own design. Leave it.</li>
+</ul>
+<p><strong>Minimal illustration of the identity bridge.</strong> This is only a snippet showing the integration point, not an implementation:</p>
+<pre><code class="language-java">// On EntityJoinLevelEvent (server), only when both mods are present:
+if (entity instanceof MillVillager v &amp;&amp; v.getVillageId() != null
+        &amp;&amp; entity instanceof RelationOwnerMarkedEntity marked) {
+    marked.hyw$markRelationOwnerUUID(factions.uuidFor(v.getVillageId()));
+}
+</code></pre>
+<p><strong>Feasibility: 🟡 overall.</strong> It needs no mixins and no replacement of either AI. The risks are the goal-registry timing and HYW internal API drift.</p>
+<p>A zero-code alternative exists but is too coarse: put <code>millenaire:villager</code> in HYW's <code>hostile_target_list.json5</code> (bandits attack every villager, including other bandits and civilians) or in the blacklist. Useful only as a fallback.</p>
+<h2 id="7-additional-world-and-structure-mod-integration">7. Additional world and structure mod integration</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Structure tags</strong> (our own <code>ourmod:sites/castle</code>, <code>…/fort</code>, <code>…/tower</code>, <code>…/ruin</code>, <code>…/military_camp</code>, <code>…/town</code>) with <code>{"id": "othermod:castle", "required": false}</code> entries, filled by datapack or config</td>
+<td>✅ <strong>Primary.</strong> NeoForge 1.21.1-native, no hard dependencies, and users and modpack makers can extend them.</td>
+</tr>
+<tr>
+<td>Lookups: <code>ChunkEvent.Load</code> → <code>chunk.getAllStarts()</code> / <code>getAllReferences()</code>, <code>structureManager().getStructureWithPieceAt(pos, tag)</code>, and <code>getAllStructuresAt(pos)</code></td>
+<td>✅ Index discovered sites into our SavedData (bounding box, structure ID, tags). Avoid <code>findNearestMapStructure</code> on the main thread in loops (expensive).</td>
+</tr>
+<tr>
+<td>Structure registry (<code>Registries.STRUCTURE</code>) with name heuristics (<code>*castle*</code>, <code>*fort*</code>)</td>
+<td>⚠️ Only as an optional, opt-in auto-classifier that writes a suggested tag list to a log</td>
+</tr>
+<tr>
+<td>POI types</td>
+<td>❌ Only for POI blocks (beds, workstations). Not structures.</td>
+</tr>
+<tr>
+<td>Block scanning</td>
+<td>⚠️ Last resort for untagged or player-built forts. Throttled, chunk-local, config-limited.</td>
+</tr>
+<tr>
+<td>Configurable structure IDs</td>
+<td>✅ As a config mirror of the tags for non-datapack users</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Caveats:</strong></p>
+<ul>
+<li><strong>Millénaire villages and HYW sites are not vanilla structures.</strong> Neither appears in structure tags. Our site index therefore needs <strong>providers</strong>: <code>VanillaStructureSiteProvider</code>, <code>MillenaireSiteProvider</code> (adapter), <code>HywSiteProvider</code> (via <code>PlacedBuildingRegistry</code> / <code>SimulatedBuildingRegistry</code>, internals), and <code>ScanSiteProvider</code>.</li>
+<li>Millénaire's <code>StructureAvoidance</code> only avoids vanilla structures, so <strong>Millénaire villages may overlap modded castles.</strong> Our mod can detect and report overlaps, but not prevent them without a mixin.</li>
+</ul>
+<h2 id="8-recommended-architecture-for-the-separate-mod">8. Recommended architecture for the separate mod</h2>
+<pre><code>ourmod/
+  core/            lifecycle, scheduler (throttled server ticks), SavedData root, internal event bus
+  faction/         Faction model (UUID, kind: VILLAGE | PLAYER | TEAM | OUTLAW | EXTERNAL), relations overlay, incident ledger
+  settlement/      Settlement abstraction (id, bounds, center, culture/kind, provider), SiteIndex
+  military/        MilitaryProfile per settlement (tier, garrison, readiness, threat), classes, veterans, progression rules (data-driven)
+  fortification/   Fortification scoring (provider data + optional world scan)
+  integration/
+    millenaire/    MillenaireAdapter (ONLY place importing org.millenaire.*), content-pack deployer,
+                   goal decorators (engage/hunt/hide), polling diff → internal events
+    hyw/           HywAdapter (ONLY place importing ydmsama.*), identity bridge, temp-hostility bridge,
+                   supply bridge, unit spawning helpers
+    generic/       Structure-tag providers, block-scan provider, item/entity tag policies
+  client/          Village military screen, overlays (read-only from synced payloads)
+  config/          Common/server config, military rule JSON (datapack), tags
+</code></pre>
+<p><strong>Optional-dependency rules:</strong></p>
+<ul>
+<li><code>neoforge.mods.toml</code>: declare <code>millenaire</code> and <code>hundred_years_war</code> as <code>type="optional"</code> with <strong>pinned</strong> version ranges (for example <code>[9.0.2,9.0.3)</code> and HYW <code>0.7.1r-fix1</code>). Watch Maven version ordering for HYW's <code>r-fix1</code> strings, and verify it in dev.</li>
+<li>Build: <code>compileOnly files("libs/millenaire-9.0.2.jar", "libs/HundredYearsWar-….jar")</code> (local, <strong>never redistributed</strong>), with <code>runtimeOnly</code> only in dev run configs. Both are All Rights Reserved: never bundle them or copy decompiled code into our sources.</li>
+<li>Entry: each integration has a <code>…Integration</code> class loaded <strong>only</strong> when <code>ModList.get().isLoaded(id)</code> is true. Everything else in the mod talks to it through interfaces in <code>settlement/</code>, <code>faction/</code> and <code>military/</code>, so core classes never reference foreign classes and the mod loads without either dependency.</li>
+<li>Wrap each adapter call in a guard that catches <code>LinkageError</code> (<code>NoSuchMethodError</code>, <code>NoClassDefFoundError</code>, <code>IncompatibleClassChangeError</code>), logs once, and disables that integration.</li>
+<li>If a mixin ever becomes unavoidable, use a separate mixin config per integration with <code>required: false</code> and an <code>IMixinConfigPlugin</code> that checks <code>LoadingModList</code> for the target mod. Current recommendation: <strong>zero mixins for the first milestones.</strong></li>
+<li>Our own data lives in our SavedData or attachments, not in HYW's <code>relations.dat</code> or Millénaire's files. At server start we <strong>re-apply</strong> our view (faction UUIDs, relations) into HYW's <code>RelationSystem</code>, so a crash that loses <code>relations.dat</code> changes self-heals.</li>
+<li>The content pack ships inside our JAR (<code>/millenaire_pack/…</code>) and is copied to <code>millenaire-custom/ourmod/</code> at <code>ServerAboutToStartEvent</code> (before Millénaire reads it at <code>ServerStartedEvent</code>) when Millénaire is present. Include a version marker file, and only add files. Do not REPLACE shipped Millénaire files.</li>
+<li>With Millénaire absent, the Millénaire-specific features disappear, but structure-tag sites, HYW-unit logic and factions still run. With HYW absent, the Millénaire features still work; HYW items are missing from optional tags and the identity bridge is off.</li>
+</ul>
+<h2 id="9-feature-feasibility-classification">9. Feature feasibility classification</h2>
+<p>Legend:</p>
+<ul>
+<li>🟢 clean as a separate mod</li>
+<li>🟡 possible, but substantial work or relies on questionable internals</li>
+<li>🟠 invasive hooks, complex AI or pathfinding, or heavy reverse engineering</li>
+<li>🔴 effectively a rewrite, or severe compatibility problems</li>
+</ul>
+<p>The <strong>Possible / Practical / Safe / Worth</strong> columns use Y / ~ / N.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Rating</th>
+<th>Possible</th>
+<th>Practical</th>
+<th>Safe</th>
+<th>Worth</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Expanded village guards (data)</td>
+<td>🟢</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Content pack villager types, plans, tool categories</td>
+</tr>
+<tr>
+<td>Expanded guards (new behaviors)</td>
+<td>🟡</td>
+<td>Y</td>
+<td>~</td>
+<td>~</td>
+<td>Y</td>
+<td>Goal decorators; registry timing</td>
+</tr>
+<tr>
+<td>Military classes</td>
+<td>🟢</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Limited to melee and bow</td>
+</tr>
+<tr>
+<td>Culture-specific doctrine</td>
+<td>🟢 data / 🟡 behavior</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td></td>
+</tr>
+<tr>
+<td>Military progression (computed tiers)</td>
+<td>🟢</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Reacts to Millénaire growth; cannot steer it cleanly</td>
+</tr>
+<tr>
+<td>Garrison management (view and policy)</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>~</td>
+<td>Y</td>
+<td>Adding soldiers beyond resident slots is 🟠</td>
+</tr>
+<tr>
+<td>Military buildings</td>
+<td>🟢</td>
+<td>Y</td>
+<td>~ (authoring effort)</td>
+<td>Y</td>
+<td>Y</td>
+<td>Millénaire plan format plus NBT</td>
+</tr>
+<tr>
+<td>Fortification ratings</td>
+<td>🟢 easy / 🟡 scan</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td></td>
+</tr>
+<tr>
+<td>Patrols (existing building-to-building)</td>
+<td>🟢</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Already in Millénaire</td>
+</tr>
+<tr>
+<td>Patrol routes and inter-village patrols</td>
+<td>🟠</td>
+<td>Y</td>
+<td>~</td>
+<td>~</td>
+<td>~</td>
+<td>Chunk loading, custom nav</td>
+</tr>
+<tr>
+<td>Recruitment (village → HYW units for players)</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>~</td>
+<td>Y</td>
+<td>Spend village goods or reputation, then spawn an HYW unit with <code>setOwnerUUID(player)</code></td>
+</tr>
+<tr>
+<td>HYW equipment on guards (melee swords)</td>
+<td>🟢</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Via <code>tool_categories</code></td>
+</tr>
+<tr>
+<td>HYW lances or guns on guards</td>
+<td>🔴</td>
+<td>~</td>
+<td>N</td>
+<td>N</td>
+<td>N</td>
+<td>Millénaire cannot use them; would mean rewriting guard combat</td>
+</tr>
+<tr>
+<td>Raids (Millénaire village vs village)</td>
+<td>🟢</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Drive through relations or <code>planRaid</code></td>
+</tr>
+<tr>
+<td>Raids by HYW forces on villages</td>
+<td>🟠</td>
+<td>Y</td>
+<td>~</td>
+<td>~</td>
+<td>Y</td>
+<td>Our event plus materialization</td>
+</tr>
+<tr>
+<td>Counter-raids</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>~</td>
+<td>Y</td>
+<td></td>
+</tr>
+<tr>
+<td>Army camps</td>
+<td>🟠</td>
+<td>Y</td>
+<td>~</td>
+<td>~</td>
+<td>~</td>
+<td></td>
+</tr>
+<tr>
+<td>Army movement (near players)</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>~</td>
+<td>Y</td>
+<td>HYW move orders through public methods</td>
+</tr>
+<tr>
+<td>Army movement (world-scale)</td>
+<td>🟠 real entities → 🔴 / virtual armies 🟠</td>
+<td>Y</td>
+<td>~</td>
+<td>~</td>
+<td>~</td>
+<td>Use virtual-then-materialize</td>
+</tr>
+<tr>
+<td>Commanders (strategic AI)</td>
+<td>🟠</td>
+<td>Y</td>
+<td>N (early)</td>
+<td>~</td>
+<td>~</td>
+<td>Build later on top of virtual armies</td>
+</tr>
+<tr>
+<td>Battles (local, mixed units)</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>~</td>
+<td>Y</td>
+<td>After the aggro bridge</td>
+</tr>
+<tr>
+<td>Battle outcomes / aftermath (ledger, loot, reputation, history)</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>The chronicle enum is closed, so use history text</td>
+</tr>
+<tr>
+<td>Supply wagons</td>
+<td>🔴</td>
+<td>~</td>
+<td>N</td>
+<td>~</td>
+<td>N (now)</td>
+<td>New entity plus overland logistics</td>
+</tr>
+<tr>
+<td>Logistics (village stock → HYW supply)</td>
+<td>🟡</td>
+<td>Y</td>
+<td>~</td>
+<td>~</td>
+<td>Y</td>
+<td>Needs testing</td>
+</tr>
+<tr>
+<td>Prisoners</td>
+<td>🟠</td>
+<td>Y</td>
+<td>~</td>
+<td>N</td>
+<td>~</td>
+<td>Conflicts with Millénaire resurrection and records</td>
+</tr>
+<tr>
+<td>Ransom</td>
+<td>🟠</td>
+<td>~</td>
+<td>~</td>
+<td>~</td>
+<td>~</td>
+<td>Depends on prisoners; could be abstract</td>
+</tr>
+<tr>
+<td>Occupation of settlements</td>
+<td>🔴</td>
+<td>~</td>
+<td>N</td>
+<td>N</td>
+<td>N</td>
+<td>Culture and residents are bound to the village. Player takeover via <code>setOwner</code> is maybe 🟠 but untested.</td>
+</tr>
+<tr>
+<td>Territory (our overlay map)</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>~</td>
+<td>Does not change either mod's behavior unless bridged</td>
+</tr>
+<tr>
+<td>Dynamic wars (between Millénaire villages)</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>~</td>
+<td>Y</td>
+<td>War state machine that sets relations ≤ −90, so Millénaire raids follow</td>
+</tr>
+<tr>
+<td>Dynamic wars (with armies and sieges)</td>
+<td>🔴 now</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>After virtual armies</td>
+</tr>
+<tr>
+<td>Diplomacy bridge (Millénaire ↔ HYW relations)</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>~</td>
+<td>Y</td>
+<td>Faction UUID mapping</td>
+</tr>
+<tr>
+<td>Player factions</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>~</td>
+<td>~</td>
+<td><strong>Reuse HYW teams</strong>, don't rebuild</td>
+</tr>
+<tr>
+<td>Player armies</td>
+<td>🟢 (exists)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>HYW already does this; just integrate consequences</td>
+</tr>
+<tr>
+<td>Sieges (minimum scripted event)</td>
+<td>🟠</td>
+<td>Y</td>
+<td>~</td>
+<td>~</td>
+<td>Y</td>
+<td>Block-damage policy first</td>
+</tr>
+<tr>
+<td>Sieges (full system)</td>
+<td>🔴</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Siege weapons</td>
+<td>🟢 exist in HYW</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>Using them on villages causes permanent damage (no repair)</td>
+</tr>
+<tr>
+<td>Castle integration (recognize)</td>
+<td>🟢</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Structure tags</td>
+</tr>
+<tr>
+<td>Castle integration (garrison or ownership)</td>
+<td>🟠</td>
+<td>Y</td>
+<td>~</td>
+<td>~</td>
+<td>~</td>
+<td></td>
+</tr>
+<tr>
+<td>Worldgen structure integration</td>
+<td>🟢 recognize / 🟡 index</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td></td>
+</tr>
+<tr>
+<td>Cross-mod aggro bridge</td>
+<td>🟡</td>
+<td>Y</td>
+<td>Y</td>
+<td>~</td>
+<td><strong>Y (foundational)</strong></td>
+<td>§6</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Where I would say no:</strong></p>
+<ul>
+<li>Taking over or occupying Millénaire villages.</li>
+<li>Making Millénaire guards use firearms or lances.</li>
+<li>World-scale real-entity armies.</li>
+<li>Supply wagons before a virtual-army layer exists.</li>
+<li>Anything that overrides shipped Millénaire villager or building JSONs. That is REPLACE semantics: your pack silently freezes those files against future Millénaire fixes.</li>
+</ul>
+<h2 id="10-first-proof-of-concept-milestone">10. First proof-of-concept milestone</h2>
+<p>The milestone is called <strong>M1, "Garrison Ledger"</strong>. It proves the architecture with no mixins and no JSON overrides.</p>
+<ol>
+<li><strong>Detect villages:</strong> <code>MillenaireAdapter</code> enumerates <code>VillageSavedData.get(overworld).getVillageManager().getAllVillages()</code> at server start and every 200 ticks (active villages only).</li>
+<li><strong>Persistent military data:</strong> our <code>SavedData</code> keyed by <code>VillageId.uuid()</code>. Fields: faction UUID, tier, garrison count, defending strength (<code>getVillageDefendingStrength()</code>), fortification score, last-updated tick. It survives restarts and is independent of Millénaire's files.</li>
+<li><strong>Detect buildings:</strong> operational buildings with tags <code>patrol</code>, <code>armoury</code>, <code>training</code>, <code>wall_level_*</code>, wall segments, and fort town halls. Compute the tier and fortification score from §5.C and §5.D, and log diffs as internal events ("Guard Post reached").</li>
+<li><strong>Extend guards (pick one or both):</strong>
+   * (a) <em>Data-only:</em> deploy a tiny content pack that adds <code>hundred_years_war:iron_saber</code> and <code>iron_scimitar</code> to <code>weaponshandtohand</code>, and one new villager type <code>ourmod_veteran_guard</code> per test culture (start with Norman only).
+   * (b) <em>Runtime:</em> <code>LivingDeathEvent</code> kill counter; at N kills, promote the guard to <code>ourmod_veteran_guard</code> through the public promotion sequence.</li>
+<li><strong>Use HYW:</strong> the identity bridge (§6.2.1) marks villagers with the village faction UUID and names that faction in <code>RelationSystem</code>. <strong>Demonstrate:</strong> <code>/hyw summon</code> a null-owner <code>bandit_soldier</code> near a village, and it now attacks villagers. Add the <code>engage_target</code> decorator (§6.2.2), and guards fight back. This single demo exercises detection, faction mapping and the goal-registry timing, which are the three riskiest assumptions.</li>
+<li><strong>Display:</strong> <code>/ourmod village info</code> (nearest village: tier, garrison, strength, fortification, faction relation to the player), plus a minimal client screen or chat panel through our own payload.</li>
+</ol>
+<p><strong>Suggested split:</strong></p>
+<ul>
+<li><strong>M1a</strong> = steps 1–3 and 6. All low risk, and proves Millénaire reading and persistence.</li>
+<li><strong>M1b</strong> = steps 4 and 5. It proves the two fragile hooks. If M1b fails, you learn early, and cheaply, that the behavior-level integration must be redesigned.</li>
+</ul>
+<h2 id="11-compatibility-risks-summary">11. Compatibility risks (summary)</h2>
+<ol>
+<li><strong>API drift in both mods.</strong> 9.0.x ships frequently and is ARR with no API. The Git fork already diverges massively. HYW is at 0.7.x. Mitigation: pin versions, one adapter per mod, <code>LinkageError</code> guards, and a smoke test on every update.</li>
+<li><strong>Which Millénaire build</strong> (9.0.2 JAR vs Git fork). The combat hooks only exist in 9.0.2.</li>
+<li><strong>Goal-registry timing:</strong> <code>resetToBuiltins</code> on every server start, and goals already initialized for loaded villagers.</li>
+<li><strong>HYW relation side effects once villagers are identified:</strong>
+   * Permanent 3-hit NEUTRAL→HOSTILE escalation.
+   * HYW damage cancellation between protected pairs, which may interact with Millénaire reputation and hire behavior.
+   * Synthetic UUIDs appear in HYW's relation UI.
+   * Relations are saved only on clean shutdown.</li>
+<li><strong>Performance:</strong> HYW's relation-aware target scan on every villager every 20 ticks is already present, and marking makes it active. Add our own scans on top. Throttle everything and cap per tick.</li>
+<li><strong>Chunk loading:</strong> Millénaire force-loads around villages within 200 blocks of players, so HYW fights can happen offscreen but still near players. HYW has aggressive chunk-pipeline mixins (hidden chunks, generation priority), and their interplay with Millénaire's chunk-triggered village spawning is unknown.</li>
+<li><strong>Pathing:</strong> HYW mixes into <code>PathNavigation</code>, and Millénaire uses its own <code>MillPathNavigation</code> subclass. The interaction is untested.</li>
+<li><strong>Permanent world damage</strong> from HYW siege engines and demolitionists (3.5 explosion with MOB interaction) on villages that never repair.</li>
+<li><strong>Structure overlap:</strong> Millénaire ignores modded and HYW structures when placing villages.</li>
+<li><strong>Item data loss:</strong> Millénaire inventories drop components, so enchanted or modded-data gear given to guards becomes plain items.</li>
+<li><strong>Licensing:</strong> both are ARR. Do not redistribute or copy code. Mixins into ARR mods are legally and ethically gray, so prefer public calls, and consider contacting the Millénaire team (Discord) and ydmsama about a small official API (events for village founded, building completed, raid started and ended; a faction hook).</li>
+<li><strong>Multiplayer content:</strong> content-pack textures under <code>millenaire-custom/</code> must also exist on clients.</li>
+</ol>
+<h2 id="12-unknowns-that-need-a-real-neoforge-dev-environment">12. Unknowns that need a real NeoForge dev environment</h2>
+<ol>
+<li>Does HYW's <code>MobRelationAwareTargetMixin</code> actually add <code>RelationAwareTargetGoal</code> to <code>MillVillager</code>? Are attributes present at <code>Mob.&lt;init&gt;</code> return? Once a villager is marked, what does its vanilla target do?</li>
+<li>Does marking villagers make HYW cancel any Millénaire-originated damage (villager arrows, raids between two marked villages of different factions)?</li>
+<li>Does <code>CultureLoader.validateAll</code> reject villager types that reference goal IDs we register late? Does <code>GoalRegistry.replace</code> of <code>engage_target</code>, <code>hunt_monster</code> and <code>hide</code>, plus re-running <code>initGoals</code>, behave correctly for loaded and later-loaded villagers?</li>
+<li>Is <code>EntityJoinLevelEvent</code> the right moment to mark villagers? Villager ID and <code>villageId</code> must already be set; raid clones are spawned through <code>VillagerSpawnFactory</code>.</li>
+<li>Do HYW units owned by a <strong>non-player synthetic UUID</strong> (<code>setOwnerUUID(faction)</code>) behave sanely? Check follow, supply, worship, UI, <code>getOwner()==null</code> paths and despawn.</li>
+<li>When does HYW re-roll equipment from its JSON? Would our <code>setItemSlot</code> changes on HYW units persist?</li>
+<li>Does <code>GetToolGoal</code> ever acquire HYW items without our mod stocking shops? Which buildings does it search?</li>
+<li>Balance: Millénaire guard (60 HP, attack 4 + weapon/2) vs HYW militia and bandits (levels, armor, reach, shields).</li>
+<li><code>SupplyManager</code> semantics for non-player sources (range, ownership, consumption).</li>
+<li>Can <code>Village.setOwner</code> safely convert an NPC village to player control (the "occupation" question)?</li>
+<li>Interaction between HYW hidden-chunk / structure materialization and Millénaire village spawning or rendering.</li>
+<li>HYW <code>PathNavigationMixin</code> effect on <code>MillPathNavigation</code>.</li>
+<li><code>relations.dat</code> behavior on crash, and client sync of non-player relation entries.</li>
+<li>Whether <code>hyw$</code> marker methods are callable across the module and classloader boundary exactly as decompiled (expected: yes, interface is public).</li>
+<li>Whether Millénaire's resurrection resets anything we attached to the entity (attachments on a re-spawned entity are <strong>new</strong>, so key our veteran data by record UUID in SavedData).</li>
+<li>Dedicated-server behavior of the content-pack deployment path and <code>millenaire-custom</code> permissions.</li>
+<li>Performance with ~10 villages × 30 marked villagers × several HYW squads.</li>
+<li>The actual origin of "<code>VillageGuardsManager</code>".</li>
+</ol>
+</main></div></body></html>
