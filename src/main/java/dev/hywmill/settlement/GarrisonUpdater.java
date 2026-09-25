@@ -5,6 +5,9 @@ import dev.hywmill.core.HmLog;
 import dev.hywmill.core.HywMillRuntime;
 import dev.hywmill.core.Services;
 import dev.hywmill.faction.FactionMarker;
+import dev.hywmill.military.doctrine.DoctrineDefaults;
+import dev.hywmill.military.doctrine.DoctrineResolver;
+import dev.hywmill.military.doctrine.DoctrineTables;
 import net.minecraft.server.level.ServerLevel;
 
 import java.util.List;
@@ -17,7 +20,7 @@ import java.util.UUID;
  * Full snapshots are computed for active villages, plus once for newly discovered ones.
  */
 public final class GarrisonUpdater {
-    private static final List<String> HEADLINE_FIELDS = List.of("tier", "garrison", "fortification");
+    private static final List<String> HEADLINE_FIELDS = List.of("tier", "garrison", "fortification", "capacity", "controller");
 
     private GarrisonUpdater() {}
 
@@ -30,10 +33,26 @@ public final class GarrisonUpdater {
         int interval = HywMillConfig.LEDGER_UPDATE_INTERVAL.get();
         if (rt.cachedVillages == null || tick % interval == 0) {
             rt.cachedVillages = source.list(overworld);
+            rt.defense().prune(rt.cachedVillages.stream().map(SettlementSource.SettlementRef::id).toList());
             HmLog.diagThrottled("ledger-summary", 60_000L, "Ledger: {} village(s) known to Millénaire", rt.cachedVillages.size());
         }
         GarrisonLedger ledger = null;
         for (SettlementSource.SettlementRef ref : rt.cachedVillages) {
+            if (ref.active() && rt.scheduler().isDue(ref.id(), tick + interval / 2, interval)) {
+                // Identity sweep: once per interval like the refresh, but half an interval later, so the two
+                // per-village work slices never land in the same tick.
+                if (ledger == null) {
+                    ledger = GarrisonLedger.get(overworld);
+                }
+                VillageRecord rec = ledger.get(ref.id());
+                if (rec != null) {
+                    long ts = rt.perf().start();
+                    FactionMarker.SweepResult sweep = FactionMarker.sweep(overworld, ref.id());
+                    rec.loadedResidents = sweep.loaded();
+                    rec.markedResidents = sweep.marked();
+                    rt.perf().stop("profile.sweep", ts);
+                }
+            }
             if (!rt.scheduler().isDue(ref.id(), tick, interval)) {
                 continue;
             }
@@ -56,7 +75,9 @@ public final class GarrisonUpdater {
     /** Recomputes one village now (also used by /hywmill village info when a record is missing). */
     public static Optional<VillageRecord> refreshOne(ServerLevel overworld, HywMillRuntime rt, SettlementSource source,
                                                       GarrisonLedger ledger, UUID villageId, long tick) {
+        long t0 = rt.perf().start();
         Optional<SettlementSnapshot> snap = source.snapshot(overworld, villageId);
+        rt.perf().stop("profile.snapshot", t0);
         if (snap.isEmpty()) {
             return Optional.empty();
         }
@@ -64,14 +85,22 @@ public final class GarrisonUpdater {
         VillageRecord record = ledger.getOrCreate(villageId, tick);
         boolean firstUpdate = record.updateCount == 0;
         boolean migrated = record.needsRecompute;
+        long ta = rt.perf().start();
         List<String> diffs = record.apply(s, tick);
-        if (s.active()) {
+        rt.perf().stop("profile.apply", ta);
+        if (firstUpdate && s.active()) {
+            // A newly discovered village is swept right away; afterwards on its own staggered slot (see tick).
             FactionMarker.SweepResult sweep = FactionMarker.sweep(overworld, villageId);
             record.loadedResidents = sweep.loaded();
             record.markedResidents = sweep.marked();
         }
         ledger.setDirty();
-        rt.threats().updateVillage(s, record.factionId);
+        long td = rt.perf().start();
+        DoctrineResolver.Resolved doctrine = resolveDoctrine(record);
+        rt.threats().updateVillage(s, record.factionId, doctrine.doctrine(), record.controllerPlayerId);
+        rt.defense().configure(villageId, doctrine, s.center(), s.defendingPos());
+        rt.perf().stop("profile.doctrine", td);
+        long tl = rt.perf().start();
         if (firstUpdate) {
             HmLog.info("Village record initialized: '{}' tier={} garrison={} population={} defending={} fortification={} villagers={} buildings={} tags={}",
                     record.name, record.tier, record.garrison, record.population, record.defendingStrength, record.fortification,
@@ -89,6 +118,26 @@ public final class GarrisonUpdater {
         } else {
             HmLog.diag("Village record unchanged: '{}' (update #{})", record.name, record.updateCount);
         }
+        rt.perf().stop("profile.log", tl);
+        rt.perf().stop("profile.refresh", t0);
         return Optional.of(record);
+    }
+
+    /**
+     * The village's effective doctrine: culture → lone building → village type → tier → per-village
+     * override. Cached on the record and re-resolved only when an input changes (context, override,
+     * or a datapack reload replacing the defaults).
+     */
+    public static DoctrineResolver.Resolved resolveDoctrine(VillageRecord r) {
+        DoctrineDefaults defaults = DoctrineTables.current();
+        DoctrineResolver.Context ctx = new DoctrineResolver.Context(r.culture, r.type, r.villageRadius, r.loneBuilding, r.tier);
+        if (r.cachedDoctrine == null || r.cachedDoctrineDefaults != defaults || !ctx.equals(r.cachedDoctrineContext)
+                || r.cachedDoctrineOverride != r.doctrineOverride) {
+            r.cachedDoctrine = DoctrineResolver.resolve(defaults, ctx, r.doctrineOverride);
+            r.cachedDoctrineDefaults = defaults;
+            r.cachedDoctrineContext = ctx;
+            r.cachedDoctrineOverride = r.doctrineOverride;
+        }
+        return r.cachedDoctrine;
     }
 }

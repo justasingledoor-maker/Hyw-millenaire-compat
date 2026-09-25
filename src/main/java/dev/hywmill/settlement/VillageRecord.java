@@ -2,14 +2,22 @@ package dev.hywmill.settlement;
 
 import dev.hywmill.military.classify.BuildingRole;
 import dev.hywmill.military.classify.VillagerRole;
-import dev.hywmill.fortification.FortificationScore;
 import dev.hywmill.military.MilitaryTier;
+import dev.hywmill.military.classify.RoleTables;
+import dev.hywmill.military.defense.DefenseStats;
+import dev.hywmill.military.doctrine.DoctrineDefaults;
+import dev.hywmill.military.doctrine.DoctrineOverride;
+import dev.hywmill.military.doctrine.DoctrineResolver;
+import dev.hywmill.military.doctrine.DoctrinePatch;
+import dev.hywmill.military.profile.MilitaryProfile;
+import dev.hywmill.military.profile.ProfileCalculator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -20,13 +28,14 @@ import java.util.UUID;
 /**
  * One village's entry in our own ledger. Never written into Millénaire's files.
  *
- * <p>Format history: 1 = M1 (patrol-tag/keyword classification); 2 = M1.1 (role tables). Records
- * loaded from an older format keep their identity and history but are flagged
- * {@link #needsRecompute}, so their derived values are recomputed at the next update even if
- * the village is inactive.
+ * <p>Format history: 1 = M1 (patrol-tag/keyword classification); 2 = M1.1 (role tables);
+ * 3 = M2 (military profile, controller, doctrine override, defense statistics). Records loaded
+ * from an older format keep their identity, history and (from format 2) their role counts, and
+ * are flagged {@link #needsRecompute}, so their derived values are recomputed at the next update
+ * even if the village is inactive. New fields start empty; nothing is discarded.
  */
 public final class VillageRecord {
-    public static final int FORMAT = 2;
+    public static final int FORMAT = 3;
 
     public final UUID villageId;
     public UUID factionId;
@@ -52,8 +61,26 @@ public final class VillageRecord {
     public int updateCount;
     public int loadedResidents;
     public int markedResidents;
+    // ---- format 3 (M2) ----
+    public int capacity;
+    public int readiness;
+    /** -1 until measured on loaded defenders; then the last measured value. */
+    public double equipmentScore = -1;
+    public int villageRadius;
+    public boolean loneBuilding;
+    /** Controlling player of a player-controlled village. Never replaces {@link #factionId}. */
+    @Nullable public UUID controllerPlayerId;
+    public DoctrinePatch doctrineOverride = DoctrinePatch.EMPTY;
+    public DefenseStats stats = new DefenseStats();
     /** Not persisted: set when loaded from an older format. */
     public boolean needsRecompute;
+    /** Not persisted: resolved-doctrine cache (see GarrisonUpdater.resolveDoctrine). */
+    public DoctrineResolver.Resolved cachedDoctrine;
+    public DoctrineDefaults cachedDoctrineDefaults;
+    public DoctrineResolver.Context cachedDoctrineContext;
+    public DoctrinePatch cachedDoctrineOverride;
+    /** Not persisted: override entries dropped at load (reported by the ledger). */
+    public List<String> overrideProblems = List.of();
 
     public VillageRecord(UUID villageId, UUID factionId) {
         this.villageId = villageId;
@@ -65,8 +92,10 @@ public final class VillageRecord {
      * (empty on no change). Tier and fortification are derived here.
      */
     public List<String> apply(SettlementSnapshot s, long tick) {
-        int newFort = FortificationScore.compute(s.buildingRoles());
-        MilitaryTier newTier = MilitaryTier.assess(s.villagerRoles(), s.buildingRoles(), newFort);
+        MilitaryProfile p = ProfileCalculator.compute(s.villagerRoles(), s.buildingRoles(), s.buildingSlots(), s.loadedGear(),
+                RoleTables.current());
+        int newFort = p.fortification();
+        MilitaryTier newTier = p.tier();
         List<String> diffs = new ArrayList<>();
         diff(diffs, "tier", tier, newTier);
         diff(diffs, "garrison", garrison, s.garrison());
@@ -77,6 +106,8 @@ public final class VillageRecord {
         diff(diffs, "buildingRoles", buildingRoles, s.buildingRoles());
         diff(diffs, "tags", tagCounts, s.tagCounts());
         diff(diffs, "name", name, s.name());
+        diff(diffs, "capacity", capacity, p.capacity());
+        diff(diffs, "controller", String.valueOf(controllerPlayerId), String.valueOf(s.controllerId()));
 
         name = s.name();
         culture = s.culture();
@@ -95,6 +126,14 @@ public final class VillageRecord {
         ambiguousTypes = new ArrayList<>(s.ambiguousTypes());
         townhallPlan = s.townhallPlan();
         buildingsOperational = s.buildingsOperational();
+        capacity = p.capacity();
+        readiness = p.readiness();
+        if (p.equipmentScore() >= 0) {
+            equipmentScore = p.equipmentScore();
+        }
+        villageRadius = s.villageRadius();
+        loneBuilding = s.loneBuilding();
+        controllerPlayerId = s.controllerId();
         lastUpdateTick = tick;
         updateCount++;
         needsRecompute = false;
@@ -143,7 +182,34 @@ public final class VillageRecord {
         t.putInt("updateCount", updateCount);
         t.putInt("loadedResidents", loadedResidents);
         t.putInt("markedResidents", markedResidents);
+        t.putInt("capacity", capacity);
+        t.putInt("readiness", readiness);
+        t.putDouble("equipmentScore", equipmentScore);
+        t.putInt("villageRadius", villageRadius);
+        t.putBoolean("loneBuilding", loneBuilding);
+        if (controllerPlayerId != null) {
+            t.putUUID("controller", controllerPlayerId);
+        }
+        t.put("doctrineOverride", DoctrineOverride.save(doctrineOverride));
+        t.put("stats", stats.save());
         return t;
+    }
+
+    /** The profile as last computed (for commands); equipment -1 means "never measured". */
+    public MilitaryProfile profile() {
+        int soldiers = villagerRoles.getOrDefault(VillagerRole.SOLDIER, 0);
+        int militia = villagerRoles.getOrDefault(VillagerRole.MILITIA, 0);
+        int leaders = villagerRoles.getOrDefault(VillagerRole.LEADER, 0);
+        Map<BuildingRole, Integer> infra = new EnumMap<>(BuildingRole.class);
+        buildingRoles.forEach((r, c) -> {
+            if (r != BuildingRole.WALL && r != BuildingRole.TOWER && r != BuildingRole.GATE && r != BuildingRole.BORDER_MARKER
+                    && r != BuildingRole.NONE && c > 0) {
+                infra.put(r, c);
+            }
+        });
+        return new MilitaryProfile(soldiers, militia, leaders, soldiers + militia + leaders,
+                villagerRoles.getOrDefault(VillagerRole.OUTLAW, 0), villagerRoles.getOrDefault(VillagerRole.CIVILIAN, 0),
+                capacity, readiness, equipmentScore, -1, fortification, tier, buildingRoles, infra);
     }
 
     private static <E extends Enum<E>> CompoundTag saveEnumCounts(Map<E, Integer> m) {
@@ -199,6 +265,20 @@ public final class VillageRecord {
             for (int i = 0; i < ambiguous.size(); i++) {
                 r.ambiguousTypes.add(ambiguous.getString(i));
             }
+        } else {
+            r.needsRecompute = true;
+        }
+        if (format >= 3) {
+            r.capacity = t.getInt("capacity");
+            r.readiness = t.getInt("readiness");
+            r.equipmentScore = t.contains("equipmentScore") ? t.getDouble("equipmentScore") : -1;
+            r.villageRadius = t.getInt("villageRadius");
+            r.loneBuilding = t.getBoolean("loneBuilding");
+            r.controllerPlayerId = t.hasUUID("controller") ? t.getUUID("controller") : null;
+            List<String> problems = new ArrayList<>();
+            r.doctrineOverride = DoctrineOverride.load(t.getCompound("doctrineOverride"), problems);
+            r.overrideProblems = problems;
+            r.stats = DefenseStats.load(t.getCompound("stats"));
         } else {
             r.needsRecompute = true;
         }

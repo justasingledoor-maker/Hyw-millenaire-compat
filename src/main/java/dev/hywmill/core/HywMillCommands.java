@@ -81,10 +81,11 @@ public final class HywMillCommands {
                                 .then(Commands.argument("targets", EntityArgument.entities())
                                         .executes(HywMillCommands::devInspect)))));
         // Placeholder alias requested for M1 acceptance tests.
+        MilitaryCommands.register(dispatcher);
         dispatcher.register(Commands.literal("ourmod").redirect(root));
     }
 
-    private static void send(CommandSourceStack src, String text) {
+    static void send(CommandSourceStack src, String text) {
         src.sendSuccess(() -> Component.literal(text), false);
     }
 
@@ -107,7 +108,7 @@ public final class HywMillCommands {
         return 1;
     }
 
-    private static Optional<SettlementSource.SettlementRef> nearest(CommandSourceStack src) {
+    static Optional<SettlementSource.SettlementRef> nearest(CommandSourceStack src) {
         SettlementSource source = Services.settlements();
         if (source == null) {
             src.sendFailure(Component.literal("Millénaire integration is not active."));
@@ -292,7 +293,7 @@ public final class HywMillCommands {
         return id == null ? "-" : id.toString().substring(0, 8);
     }
 
-    private static boolean devEnabled(CommandSourceStack src) {
+    static boolean devEnabled(CommandSourceStack src) {
         if (!HywMillConfig.DEV_COMMANDS.get()) {
             src.sendFailure(Component.literal("Dev commands are disabled (general.devCommands=false)."));
             return false;

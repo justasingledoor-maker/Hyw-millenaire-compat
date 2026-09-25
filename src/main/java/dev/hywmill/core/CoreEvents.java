@@ -8,7 +8,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
+import dev.hywmill.faction.CombatFactionService;
+import dev.hywmill.military.IncidentLedger;
 import dev.hywmill.military.classify.RoleTableLoader;
+import dev.hywmill.military.defense.DefenseStatsRecorder;
+import dev.hywmill.military.doctrine.DoctrineLoader;
+import dev.hywmill.settlement.SettlementSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -42,6 +49,7 @@ public final class CoreEvents {
         }
         ServerLevel overworld = event.getServer().overworld();
         long tick = overworld.getGameTime();
+        long t0 = rt.perf().start();
         guarded("ledger update", () -> GarrisonUpdater.tick(overworld, rt));
         guarded("relation reconciliation", () -> EscalationGuard.reconcile(rt, tick));
         guarded("threat scan", () -> {
@@ -50,6 +58,7 @@ public final class CoreEvents {
                 rt.incidents().prune(tick);
             }
         });
+        rt.perf().stop("tick.total", t0);
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -72,13 +81,42 @@ public final class CoreEvents {
                     Entity attacker = event.getSource().getEntity();
                     if (attacker != null) {
                         EscalationGuard.afterDamage(attacker, event.getEntity());
+                        engageSignals(rt, inc, attacker, event.getEntity());
                     }
                 }));
+    }
+
+    /**
+     * Actual fighting between an HYW unit and a village moves the village to ENGAGED on the next
+     * tick (not the next staggered scan), so the response to a real attack is never delayed.
+     */
+    private static void engageSignals(HywMillRuntime rt, IncidentLedger.Incident inc, Entity attacker, LivingEntity victim) {
+        CombatFactionService factions = Services.factions();
+        SettlementSource settlements = Services.settlements();
+        if (factions == null || settlements == null) {
+            return;
+        }
+        if (inc.victimResidentOf() != null && factions.isCombatUnit(attacker)) {
+            rt.defense().engageSignal(inc.victimResidentOf());
+        }
+        if (factions.isCombatUnit(victim)) {
+            settlements.residentInfo(attacker).filter(r -> !r.raider())
+                    .ifPresent(r -> rt.defense().engageSignal(r.settlementId()));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onDeath(LivingDeathEvent event) {
+        if (HywMillRuntime.get() == null || !(event.getEntity().level() instanceof ServerLevel level)) {
+            return;
+        }
+        guarded("defense statistics", () -> DefenseStatsRecorder.onDeath(level, event.getEntity(), event.getSource().getEntity()));
     }
 
     @SubscribeEvent
     public static void onAddReloadListeners(AddReloadListenerEvent event) {
         event.addListener(new RoleTableLoader());
+        event.addListener(new DoctrineLoader());
     }
 
     @SubscribeEvent

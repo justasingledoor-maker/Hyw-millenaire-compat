@@ -38,6 +38,11 @@ final class HywCombatFactionService implements CombatFactionService {
         return entity instanceof BaseCombatEntity b && isCombatCapable(b);
     }
 
+    @Override
+    public boolean isHywUnit(Entity entity) {
+        return entity instanceof BaseCombatEntity && !(entity instanceof NonCombatUnit);
+    }
+
     /**
      * HYW's own notion of a combat-capable unit: alive, not a NonCombatUnit, and not a neutral
      * uncrewed siege weapon (a CrewOperatedSiegeWeapon with no operational crew, no owner and no

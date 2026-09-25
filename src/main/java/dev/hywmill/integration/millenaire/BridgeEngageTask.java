@@ -78,8 +78,7 @@ final class BridgeEngageTask implements VillagerTask {
         }
         HywMillRuntime rt = HywMillRuntime.get();
         if (rt == null || (ticks % RECHECK_INTERVAL == 0
-                && !rt.threats().isThreat(village, target)
-                && !rt.incidents().recentlyAttackedVillage(target.getUUID(), village, ctx.gameTime()))) {
+                && !rt.defense().mayEngage(village, v.getUUID(), target.getUUID(), MillTypes.selfDefense(v, target)))) {
             finished = true;
             return;
         }

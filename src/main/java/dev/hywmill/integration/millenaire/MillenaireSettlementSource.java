@@ -1,10 +1,13 @@
 package dev.hywmill.integration.millenaire;
 
+import dev.hywmill.core.HywMillRuntime;
+import dev.hywmill.core.PerfCounters;
 import dev.hywmill.military.classify.BuildingRole;
 import dev.hywmill.military.classify.RoleClassifier;
 import dev.hywmill.military.classify.RoleTable;
 import dev.hywmill.military.classify.RoleTables;
 import dev.hywmill.military.classify.VillagerRole;
+import dev.hywmill.military.profile.ProfileCalculator;
 import dev.hywmill.settlement.ResidentInfo;
 import dev.hywmill.settlement.SettlementSnapshot;
 import dev.hywmill.settlement.SettlementSource;
@@ -12,9 +15,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
 import org.millenaire.building.BuildingInstance;
+import org.millenaire.combat.raid.RaidManager;
 import org.millenaire.building.BuildingPlanSet;
 import org.millenaire.culture.ModCultures;
+import org.millenaire.culture.VillageType;
 import org.millenaire.culture.VillagerType;
 import org.millenaire.culture.WallType;
 import org.millenaire.entity.MillVillager;
@@ -47,6 +57,9 @@ import java.util.UUID;
  * BuildingInstance.isOperational/isWallSegment/getPlanSetId, BuildingPlanSet.isBorderPost,
  * ModCultures.getBuildingPlanSet/getAllWallTypes, WallType plan-set accessors and wallSpawn,
  * VillagerType.isHostile/isChild/isHelpInAttacks/isDefensive/isArcher/hasTag,
+ * BuildingInstance.getVariant/getLevel, BuildingPlanSet.maleResidentsAt/femaleResidentsAt/culture,
+ * ModCultures.getVillageType, VillageType.radius, Village.isLoneBuilding/isPlayerControlled/getOwnerUUID,
+ * RaidManager.resolveDefendingPos, MillVillager.getCombatWeapon,
  * MillVillager.getVillageId/getVillagerTypeId/isRaiderEntity, ModCultures.getVillagerType.
  */
 final class MillenaireSettlementSource implements SettlementSource {
@@ -79,6 +92,8 @@ final class MillenaireSettlementSource implements SettlementSource {
         if (v == null) {
             return Optional.empty();
         }
+        PerfCounters perf = perf();
+        long t0 = perf == null ? 0 : perf.start();
         RoleTable table = RoleTables.current();
         int population = 0, adults = 0, children = 0, garrison = 0;
         Map<VillagerRole, Integer> villagerRoles = new EnumMap<>(VillagerRole.class);
@@ -110,6 +125,7 @@ final class MillenaireSettlementSource implements SettlementSource {
             }
         }
 
+        long t1 = lap(perf, "snap.residents", t0);
         Map<String, Integer> tagCounts = new LinkedHashMap<>();
         for (String tag : SettlementSnapshot.TRACKED_TAGS) {
             tagCounts.put(tag, v.getOperationalBuildingsWithTag(tag).size());
@@ -135,19 +151,142 @@ final class MillenaireSettlementSource implements SettlementSource {
                 buildingRoles.merge(role, 1, Integer::sum);
             }
         }
+        long t2 = lap(perf, "snap.buildings", t1);
         BuildingInstance th = v.getTownhall();
         String thPlan = th != null && th.getPlanSetId() != null ? th.getPlanSetId().toString() : "";
+        VillageType vt = v.getVillageTypeId() != null ? ModCultures.getVillageType(v.getVillageTypeId()) : null;
+        UUID controller = v.isPlayerControlled() ? v.getOwnerUUID() : null;
 
+        AABB bounds = v.computeBounds();
+        int defending = v.getVillageDefendingStrength();
+        BlockPos defendingPos = defendingPos(v);
+        long t3 = lap(perf, "snap.village", t2);
+        List<ProfileCalculator.BuildingSlots> slots = buildingSlots(v);
+        long t4 = lap(perf, "snap.slots", t3);
+        List<ProfileCalculator.LoadedGear> gear = v.isActive() ? loadedGear(level, v) : List.of();
+        lap(perf, "snap.gear", t4);
         return Optional.of(new SettlementSnapshot(
                 settlementId, nameOf(v), String.valueOf(v.getCultureId()), String.valueOf(v.getVillageTypeId()),
-                v.getCenter(), v.computeBounds(), v.isActive(),
-                population, adults, children, garrison, v.getVillageDefendingStrength(),
+                v.getCenter(), bounds, v.isActive(),
+                population, adults, children, garrison, defending,
                 villagerRoles, buildingRoles, tagCounts, wallPending, List.copyOf(ambiguous), thPlan,
-                v.getBuildings().size(), operational));
+                v.getBuildings().size(), operational,
+                vt != null ? vt.radius() : DEFAULT_VILLAGE_RADIUS, v.isLoneBuilding(), controller, defendingPos,
+                slots, gear));
     }
 
-    /** Plan-set id → role, derived from every loaded Millénaire WallType (see RoleClassifier.wallRole). */
+    private static PerfCounters perf() {
+        HywMillRuntime rt = HywMillRuntime.get();
+        return rt == null ? null : rt.perf();
+    }
+
+    private static long lap(PerfCounters perf, String slice, long since) {
+        if (perf == null) {
+            return 0;
+        }
+        perf.stop(slice, since);
+        return perf.start();
+    }
+
+    /** Millénaire's default village radius (VillageTypeLoader), used if the type is not loaded. */
+    private static final int DEFAULT_VILLAGE_RADIUS = 90;
+
+    static BlockPos defendingPos(Village v) {
+        try {
+            BlockPos p = RaidManager.resolveDefendingPos(v);
+            return p != null ? p : v.getCenter();
+        } catch (RuntimeException e) {
+            return v.getCenter();
+        }
+    }
+
+    /**
+     * Declared resident slots of every operational building at its current variant and level
+     * (BuildingPlanSet.maleResidentsAt/femaleResidentsAt). Each building instance, sub-buildings
+     * included, lists only its own residents.
+     */
+    private static List<ProfileCalculator.BuildingSlots> buildingSlots(Village v) {
+        List<ProfileCalculator.BuildingSlots> out = new ArrayList<>();
+        for (BuildingInstance b : v.getBuildings()) {
+            if (!b.isOperational() || b.getPlanSetId() == null) {
+                continue;
+            }
+            BuildingPlanSet ps = ModCultures.getBuildingPlanSet(b.getPlanSetId());
+            if (ps == null) {
+                continue;
+            }
+            String variant = b.getVariant();
+            int level = b.getLevel();
+            List<RoleClassifier.VillagerFacts> slots = new ArrayList<>();
+            for (List<String> names : List.of(ps.maleResidentsAt(variant, level), ps.femaleResidentsAt(variant, level))) {
+                for (String name : names) {
+                    slots.add(factsOf(qualify(ps.culture(), name)));
+                }
+            }
+            out.add(new ProfileCalculator.BuildingSlots(b.getPlanSetId().toString(), variant, level, slots));
+        }
+        return out;
+    }
+
+    private static ResourceLocation qualify(ResourceLocation culture, String name) {
+        if (name.indexOf(':') >= 0) {
+            return ResourceLocation.parse(name);
+        }
+        return ResourceLocation.fromNamespaceAndPath(culture.getNamespace(), culture.getPath() + "/" + name);
+    }
+
+    static RoleClassifier.VillagerFacts factsOf(ResourceLocation typeId) {
+        VillagerType t = ModCultures.getVillagerType(typeId);
+        return t == null
+                ? new RoleClassifier.VillagerFacts(typeId.toString(), false, false, false)
+                : new RoleClassifier.VillagerFacts(typeId.toString(), t.isHostile(), t.isChild(), t.isHelpInAttacks());
+    }
+
+    private List<ProfileCalculator.LoadedGear> loadedGear(ServerLevel level, Village v) {
+        List<ProfileCalculator.LoadedGear> out = new ArrayList<>();
+        for (Entity e : loadedResidents(level, v.getId().uuid())) {
+            if (e instanceof MillVillager mv && !mv.isRaiderEntity() && mv.getVillagerTypeId() != null) {
+                out.add(new ProfileCalculator.LoadedGear(factsOf(mv.getVillagerTypeId()), mv.getArmorValue(),
+                        attackDamage(mv.getCombatWeapon())));
+            }
+        }
+        return out;
+    }
+
+    private static double attackDamage(ItemStack weapon) {
+        if (weapon == null || weapon.isEmpty()) {
+            return 0;
+        }
+        double[] sum = {0};
+        weapon.forEachModifier(EquipmentSlot.MAINHAND, (attr, mod) -> {
+            if (attr.equals(Attributes.ATTACK_DAMAGE) && mod.operation() == AttributeModifier.Operation.ADD_VALUE) {
+                sum[0] += mod.amount();
+            }
+        });
+        return sum[0];
+    }
+
+    private static volatile Map<String, BuildingRole> wallRolesCache;
+    private static volatile int wallRolesKey;
+
+    /**
+     * Plan-set id → role, derived from every loaded Millénaire WallType (see RoleClassifier.wallRole).
+     * Cached until Millénaire's wall-type registry changes (content reload).
+     */
     static Map<String, BuildingRole> wallDerivedRoles() {
+        Map<?, WallType> types = ModCultures.getAllWallTypes();
+        int key = System.identityHashCode(types) * 31 + types.size() * 17 + types.keySet().hashCode();
+        Map<String, BuildingRole> cached = wallRolesCache;
+        if (cached != null && key == wallRolesKey) {
+            return cached;
+        }
+        Map<String, BuildingRole> out = computeWallRoles();
+        wallRolesCache = out;
+        wallRolesKey = key;
+        return out;
+    }
+
+    private static Map<String, BuildingRole> computeWallRoles() {
         Map<String, BuildingRole> out = new HashMap<>();
         for (WallType w : ModCultures.getAllWallTypes().values()) {
             boolean spawn = w.wallSpawn();
@@ -216,6 +355,17 @@ final class MillenaireSettlementSource implements SettlementSource {
             Entity e = level.getEntity(id);
             if (e instanceof MillVillager && e.isAlive()) {
                 out.add(e);
+            }
+        }
+        return out;
+    }
+
+    @Override
+    public List<RosterEntry> defenseRoster(ServerLevel level, UUID settlementId) {
+        List<RosterEntry> out = new ArrayList<>();
+        for (Entity e : loadedResidents(level, settlementId)) {
+            if (e instanceof MillVillager mv && !mv.isRaiderEntity() && mv.getVillagerTypeId() != null) {
+                out.add(new RosterEntry(mv.getUUID(), factsOf(mv.getVillagerTypeId()), mv.getX(), mv.getY(), mv.getZ()));
             }
         }
         return out;

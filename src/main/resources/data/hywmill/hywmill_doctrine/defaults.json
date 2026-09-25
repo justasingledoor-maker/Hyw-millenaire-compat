@@ -1,0 +1,68 @@
+{
+  "baseline": {
+    "radiusOffset": 16,
+    "proactive": false,
+    "commitPerThreat": 3,
+    "reserve": 1,
+    "militiaPolicy": "ON_ENGAGED",
+    "shelterRadius": 48,
+    "assistPlayers": "MIN_REPUTATION",
+    "assistMinReputation": 0,
+    "assistProvokingPlayer": false,
+    "assistController": "ALWAYS",
+    "alertTicks": 100,
+    "engagedTicks": 200,
+    "recoveryTicks": 600
+  },
+  "tiers": {
+    "NONE": { "reserveSet": 0 },
+    "GARRISON": { "commitPerThreat": 1 },
+    "STRONGHOLD": { "commitPerThreat": 1, "reserve": 1, "radius": 16 }
+  },
+  "lone_building": {
+    "commitPerThreat": 2,
+    "reserve": 0,
+    "shelterRadius": -1
+  },
+  "cultures": {
+    "millenaire:norman": {},
+    "millenaire:byzantines": {
+      "radiusOffset": 16, "commitPerThreat": 3, "reserve": 2, "militiaPolicy": "WHEN_ATTACKED",
+      "shelterRadius": 48, "assistMinReputation": 256, "alertTicks": 100, "engagedTicks": 200, "recoveryTicks": 1200
+    },
+    "millenaire:seljuk": {
+      "radiusOffset": 24, "commitPerThreat": 3, "reserve": 1, "militiaPolicy": "ON_ENGAGED",
+      "shelterRadius": 48, "assistMinReputation": 0
+    },
+    "millenaire:indian": {},
+    "millenaire:japanese": { "commitPerThreat": 2, "reserve": 1, "shelterRadius": 32 },
+    "millenaire:mayan": { "commitPerThreat": 4, "reserve": 0, "militiaPolicy": "ALWAYS", "assistMinReputation": 256 },
+    "millenaire:inuits": {
+      "commitPerThreat": 4, "reserve": 0, "militiaPolicy": "ALWAYS", "shelterRadius": -1,
+      "assistMinReputation": 0, "recoveryTicks": 400
+    }
+  },
+  "village_types": {
+    "millenaire:norman/militaire": { "reserve": 2, "militiaPolicy": "WHEN_ATTACKED" },
+    "millenaire:norman/walledcontrolled": { "reserve": 2, "militiaPolicy": "WHEN_ATTACKED" },
+    "millenaire:norman/grosbourg": { "militiaPolicy": "WHEN_ATTACKED" },
+    "millenaire:norman/hameau_agricole": { "commitPerThreat": 2, "reserve": 0, "shelterRadius": -1 },
+    "millenaire:norman/hameau_artisans": { "commitPerThreat": 2, "reserve": 0, "shelterRadius": -1 },
+    "millenaire:norman/hameau_abbatiale": { "commitPerThreat": 2, "reserve": 0, "shelterRadius": -1 },
+    "millenaire:norman/ecclesiastique": { "reserve": 0 },
+    "millenaire:norman/notredame": { "radiusOffset": 0, "commitPerThreat": 2 },
+    "millenaire:byzantines/militaryvillage": { "reserve": 2, "commitPerThreat": 4 },
+    "millenaire:indian/fort": { "reserve": 2, "militiaPolicy": "WHEN_ATTACKED" },
+    "millenaire:indian/palace": { "reserve": 2, "militiaPolicy": "WHEN_ATTACKED" },
+    "millenaire:indian/palace_autonomous": { "reserve": 2, "militiaPolicy": "WHEN_ATTACKED" },
+    "millenaire:indian/controlled_walled": { "reserve": 2, "militiaPolicy": "WHEN_ATTACKED" },
+    "millenaire:indian/agricole": { "commitPerThreat": 2, "reserve": 0 },
+    "millenaire:indian/agricole_hamlet": { "commitPerThreat": 2, "reserve": 0 },
+    "millenaire:japanese/gunji": { "reserve": 2 },
+    "millenaire:japanese/seiji": { "reserve": 2 },
+    "millenaire:mayan/military": { "reserve": 1 },
+    "millenaire:seljuk/military_village_seljuks": { "reserve": 2, "militiaPolicy": "WHEN_ATTACKED" },
+    "millenaire:seljuk/controlled_fort_seljuks": { "reserve": 2, "militiaPolicy": "WHEN_ATTACKED" },
+    "millenaire:seljuk/*_small_seljuks": { "commitPerThreat": 2, "reserve": 0 }
+  }
+}

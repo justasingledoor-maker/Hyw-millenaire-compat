@@ -18,7 +18,8 @@ import java.util.UUID;
 /**
  * Walks a civilian to the same shelter Millénaire's own HideGoal uses: the town hall's
  * {@code shelterPos} special point, falling back to the town hall origin, then the village
- * center. Ends as soon as the threat tracker reports the village clear.
+ * center. Started when a threat is within the doctrine's shelter radius of the civilian (or
+ * village-wide); ends when the village leaves ALERT/ENGAGED.
  */
 final class BridgeHideTask implements VillagerTask {
     private static final double WALK_SPEED = 0.65;
@@ -46,7 +47,7 @@ final class BridgeHideTask implements VillagerTask {
         MillVillager v = ctx.villager();
         ticks++;
         HywMillRuntime rt = HywMillRuntime.get();
-        if (rt == null || !rt.threats().hasThreat(village) || ticks > MAX_TICKS) {
+        if (rt == null || !rt.defense().shelterContinues(village) || ticks > MAX_TICKS) {
             finished = true;
             return;
         }

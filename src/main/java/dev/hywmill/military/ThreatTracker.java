@@ -2,6 +2,11 @@ package dev.hywmill.military;
 
 import dev.hywmill.config.HywMillConfig;
 import dev.hywmill.core.HmLog;
+import dev.hywmill.core.PerfCounters;
+import dev.hywmill.military.defense.AssistPolicy;
+import dev.hywmill.military.defense.DefenseArea;
+import dev.hywmill.military.defense.DefenseService;
+import dev.hywmill.military.doctrine.Doctrine;
 import dev.hywmill.core.VillageScheduler;
 import dev.hywmill.core.Services;
 import dev.hywmill.faction.CombatFactionService;
@@ -29,7 +34,10 @@ import java.util.stream.Collectors;
 
 /**
  * Per-village snapshot of hostile HYW units, rebuilt every threatScanInterval ticks for active
- * villages only. Goal decorators query it every tick, so all queries are map lookups.
+ * villages only (staggered), or on the next tick after a resident is attacked. The scan covers
+ * the doctrine's defense radius around the village center (horizontal). Each scan result is
+ * handed to the {@link DefenseService}. Goal decorators query it every tick, so all queries are
+ * map lookups.
  *
  * <p>Classification only OBSERVES HYW state; it never changes HYW relations. One instance per server,
  * owned by {@link dev.hywmill.core.HywMillRuntime}.
@@ -54,6 +62,10 @@ public final class ThreatTracker {
         String name = "";
         AABB bounds;
         boolean active;
+        BlockPos center;
+        int defenseRadius;
+        Doctrine doctrine;
+        UUID controller;
         List<Threat> threats = List.of();
         Set<UUID> threatIds = Set.of();
 
@@ -63,20 +75,34 @@ public final class ThreatTracker {
     }
 
     private final Map<UUID, VillageState> states = new ConcurrentHashMap<>();
+    private final Set<UUID> urgent = ConcurrentHashMap.newKeySet();
     private final IncidentLedger incidents;
     private final VillageScheduler scheduler;
+    private final DefenseService defense;
+    private final PerfCounters perf;
 
-    public ThreatTracker(IncidentLedger incidents, VillageScheduler scheduler) {
+    public ThreatTracker(IncidentLedger incidents, VillageScheduler scheduler, DefenseService defense, PerfCounters perf) {
         this.incidents = incidents;
         this.scheduler = scheduler;
+        this.defense = defense;
+        this.perf = perf;
     }
 
-    public void updateVillage(SettlementSnapshot s, UUID faction) {
+    public void updateVillage(SettlementSnapshot s, UUID faction, Doctrine doctrine, @Nullable UUID controller) {
         VillageState st = states.computeIfAbsent(s.id(), VillageState::new);
         st.faction = faction;
         st.name = s.name();
         st.bounds = s.bounds();
         st.active = s.active();
+        st.center = s.center();
+        st.defenseRadius = doctrine.defenseRadius();
+        st.doctrine = doctrine;
+        st.controller = controller;
+    }
+
+    /** Scan this village on the next tick regardless of its staggered slot (a resident was just attacked). */
+    public void requestScan(UUID village) {
+        urgent.add(village);
     }
 
     public void markInactive(UUID village) {
@@ -103,12 +129,20 @@ public final class ThreatTracker {
         long now = level.getGameTime();
         int interval = HywMillConfig.THREAT_SCAN_INTERVAL.get();
         for (VillageState st : states.values()) {
-            if (!st.active || st.bounds == null || st.faction == null || !scheduler.isDue(st.village, now, interval)) {
+            boolean forced = urgent.remove(st.village);
+            if (!st.active || st.bounds == null || st.faction == null || st.doctrine == null
+                    || !(forced || scheduler.isDue(st.village, now, interval))) {
                 continue;
             }
-            AABB box = st.bounds.inflate(margin);
+            long t0 = perf.start();
+            int r = st.defenseRadius;
+            AABB box = new AABB(st.center.getX() - r, st.bounds.minY - margin, st.center.getZ() - r,
+                    st.center.getX() + r + 1, st.bounds.maxY + margin, st.center.getZ() + r + 1);
             List<Threat> found = new ArrayList<>();
             for (LivingEntity unit : factions.findCombatUnits(level, box)) {
+                if (!DefenseArea.inside(st.center.getX() + 0.5, st.center.getZ() + 0.5, r, unit.getX(), unit.getZ())) {
+                    continue;
+                }
                 EnumSet<Reason> reasons = classify(level, source, factions, st, unit, now);
                 if (!reasons.isEmpty()) {
                     found.add(new Threat(unit, reasons));
@@ -124,6 +158,8 @@ public final class ThreatTracker {
             } else if (!found.isEmpty()) {
                 HmLog.diagThrottled("threat-" + st.village, 10_000L, "Ongoing threat in village '{}': {}", st.name, describe(factions, found));
             }
+            perf.stop("scan.village", t0);
+            defense.onScan(level, st.village, st.threats, now);
         }
     }
 
@@ -153,14 +189,12 @@ public final class ThreatTracker {
         if (!HywMillConfig.GUARDS_ASSIST_PLAYERS.get() || player.isCreative() || player.isSpectator()) {
             return false;
         }
-        if (!st.bounds.contains(player.position())) {
+        if (!DefenseArea.inside(st.center.getX() + 0.5, st.center.getZ() + 0.5, st.defenseRadius, player.getX(), player.getZ())) {
             return false;
         }
-        if (source.playerReputation(level, st.village, player.getUUID()) < HywMillConfig.ASSIST_MIN_REPUTATION.get()) {
-            return false;
-        }
-        UUID first = incidents.firstStriker(player.getUUID(), unit.getUUID(), now);
-        return !player.getUUID().equals(first) || HywMillConfig.ASSIST_PROVOKING_PLAYER.get();
+        int reputation = source.playerReputation(level, st.village, player.getUUID());
+        boolean struckFirst = player.getUUID().equals(incidents.firstStriker(player.getUUID(), unit.getUUID(), now));
+        return AssistPolicy.qualifies(st.doctrine, player.getUUID(), st.controller, reputation, struckFirst);
     }
 
     private static String describe(CombatFactionService factions, List<Threat> threats) {
@@ -201,6 +235,26 @@ public final class ThreatTracker {
             }
         }
         return best;
+    }
+
+    /** A current threat of the village by entity UUID (alive), or null. */
+    @Nullable
+    public LivingEntity threatEntity(UUID village, @Nullable UUID id) {
+        VillageState st = states.get(village);
+        if (st == null || id == null || !st.threatIds.contains(id)) {
+            return null;
+        }
+        for (Threat t : st.threats) {
+            if (t.entity().getUUID().equals(id)) {
+                return t.entity().isAlive() && !t.entity().isRemoved() ? t.entity() : null;
+            }
+        }
+        return null;
+    }
+
+    public int defenseRadius(UUID village) {
+        VillageState st = states.get(village);
+        return st == null ? 0 : st.defenseRadius;
     }
 
     public List<Threat> threats(UUID village) {

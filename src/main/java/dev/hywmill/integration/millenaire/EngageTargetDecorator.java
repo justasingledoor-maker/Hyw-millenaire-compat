@@ -21,10 +21,14 @@ import java.util.UUID;
  * VillagerCombat.onHurt / CombatHelper.callForHelp is silently ignored. This decorator accepts
  * such a target only when:
  * <ul>
- *   <li>the villager is a defender (helpInAttacks, not a raid clone) — civilians never engage HYW units;</li>
+ *   <li>the villager is a HywMill defender (helpInAttacks, not a raid clone, role SOLDIER/LEADER/MILITIA)
+ *       — civilians never engage HYW units;</li>
  *   <li>the target is an HYW combat unit; and</li>
- *   <li>the threat tracker lists it for this village, or it damaged a resident within the recent window.</li>
+ *   <li>the defense coordinator assigned this defender to that unit (doctrine: commit, reserve,
+ *       militia policy, proactive), <b>or</b> the unit itself just damaged this defender
+ *       (self-defense is never restricted).</li>
  * </ul>
+ * Players, monsters and other villagers stay entirely Millénaire's.
  */
 final class EngageTargetDecorator extends BridgeDecorator {
     EngageTargetDecorator(VillagerGoal original) {
@@ -43,14 +47,11 @@ final class EngageTargetDecorator extends BridgeDecorator {
         }
         CombatFactionService factions = Services.factions();
         HywMillRuntime rt = HywMillRuntime.get();
-        if (rt == null || factions == null || !factions.isCombatUnit(t) || !MillTypes.isDefender(v)) {
+        if (rt == null || factions == null || !factions.isCombatUnit(t) || !MillTypes.isRoleDefender(v)) {
             return null;
         }
         UUID village = ctx.village().getId().uuid();
-        if (rt.threats().isThreat(village, t) || rt.incidents().recentlyAttackedVillage(t.getUUID(), village, ctx.gameTime())) {
-            return t;
-        }
-        return null;
+        return rt.defense().mayEngage(village, v.getUUID(), t.getUUID(), MillTypes.selfDefense(v, t)) ? t : null;
     }
 
     @Override

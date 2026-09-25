@@ -11,6 +11,7 @@ import org.millenaire.culture.VillagerType;
 import org.millenaire.entity.MillVillager;
 import org.millenaire.goal.GoalRegistry;
 import org.millenaire.goal.VillagerGoal;
+import org.millenaire.goal.impl.DefendVillageGoal;
 import org.millenaire.goal.impl.EngageTargetGoal;
 import org.millenaire.goal.impl.HideGoal;
 import org.millenaire.goal.impl.HuntMonsterGoal;
@@ -63,6 +64,9 @@ final class MillenaireGoalBridge {
         }
         if (HywMillConfig.HIDE_BRIDGE.get()) {
             results.add(replace(registry, HideGoal.ID, HideDecorator::new));
+        }
+        if (HywMillConfig.RESERVE_BRIDGE.get()) {
+            results.add(replace(registry, DefendVillageGoal.ID, DefendVillageDecorator::new));
         }
         int reinit = reinitLoadedVillagers(overworld, registry);
         report(String.join("; ", results) + "; loaded villagers re-initialized: " + reinit);

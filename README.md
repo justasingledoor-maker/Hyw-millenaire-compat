@@ -38,9 +38,43 @@ They are `compileOnly` dependencies. At runtime both are optional: the mod loads
 | `village residents` | Loaded residents: role, current goal, attack target (op) |
 | `threats` | Current HYW threats in the nearest village |
 | `incidents [n]` | Recent combat incidents (op) |
+| `village military` | Nearest village: military profile (roles, capacity, readiness, equipment, fortification), effective doctrine and its sources, alert state, threats, committed defenders, reserve, statistics |
+| `doctrine get` | Nearest village's effective doctrine, field by field, with the layer each value comes from |
+| `doctrine set <field> <value>` / `doctrine reset [field]` | Per-village override (op 2, or the controller of a player-controlled village); persisted |
+| `alerts` | Alert state of every village the defense system tracks |
+| `perf [reset]` | Timing of HywMill work slices (op) |
 | `admin clear-identities [all]` | Removes our village faction identity from residents of the nearest village (or all villages) and keeps it off (op 3) |
 | `admin restore-identities [all]` | Lifts that clearance; residents are marked again (op 3) |
-| `dev playerhit`, `dev relation`, `dev inspect` | Test helpers; need `general.devCommands=true` |
+| `dev playerhit`, `dev relation`, `dev inspect`, `dev capacity` | Test helpers; need `general.devCommands=true` |
+
+## Village defense doctrine (M2)
+
+Each village has an effective **doctrine**, resolved field by field from `data/<ns>/hywmill_doctrine/*.json` (shipped: `data/hywmill/hywmill_doctrine/defaults.json`):
+
+baseline → culture → lone building → village type (exact id, or a `*` glob such as `millenaire:seljuk/*_small_seljuks`) → military-tier modifier → per-village override.
+
+| Field | Baseline | Meaning |
+|---|---|---|
+| `radiusOffset` | 16 | `defenseRadius = villageRadius + offset (+ tier)`, clamped 40–160 (default villages: 106). Horizontal, around the village center. |
+| `proactive` | false | If false, defenders never start a fight with an HYW unit merely because HYW considers it an enemy. |
+| `commitPerThreat` | 3 | Defenders assigned to one threat (self-defense is extra). |
+| `reserve` | 1 | Defenders holding Millénaire's defending position; only when at least `commit + 2` defenders are eligible. |
+| `militiaPolicy` | ON_ENGAGED | NEVER, WHEN_ATTACKED (a resident was damaged), ON_ENGAGED, ALWAYS (ALERT or ENGAGED). |
+| `shelterRadius` | 48 | Civilians within this distance of a threat shelter; -1 = village-wide. |
+| `assistPlayers` / `assistMinReputation` | MIN_REPUTATION / 0 | Which players attacked by an HYW unit inside the radius are helped. |
+| `assistProvokingPlayer` | false | Help a player who struck the unit first. |
+| `assistController` | ALWAYS | The controller of a player-controlled village (ALWAYS, AS_PLAYER, NEVER). |
+| `alertTicks` / `engagedTicks` / `recoveryTicks` | 100 / 200 / 600 | Alert state machine timers. |
+
+Tier modifiers: NONE forces reserve 0; GARRISON commit +1; STRONGHOLD commit +1, reserve +1, radius +16.
+
+**What defenders do:**
+- **When they engage:** only a unit that is attacking a resident, has recently damaged one, or is attacking an assisted player (or any HYW enemy when `proactive=true`). A neutral or player-owned HYW army can walk through a village untouched.
+- **Who engages:** the defense coordinator assigns up to `commitPerThreat` SOLDIER/LEADER defenders (plus MILITIA per `militiaPolicy`) to each threat, closest first, and keeps the reserve.
+- **Self-defense:** a defender that is itself hit always fights back.
+- **Civilians:** never fight HYW units; they shelter.
+
+**Alert states:** CALM → ALERT (a threat is inside the radius) → ENGAGED (actual fighting) → RECOVERY → CALM. ALERT returns to CALM after `alertTicks` without a threat. While ALERT/ENGAGED/RECOVERY, the reserve holds the defending position; during a real Millénaire raid Millénaire's own `defend_village` runs unchanged.
 
 ## Removing the mod from a world
 

@@ -4,6 +4,7 @@ import dev.hywmill.faction.FactionRegistry;
 import dev.hywmill.military.DiplomacyPolicy;
 import dev.hywmill.military.IncidentLedger;
 import dev.hywmill.military.ThreatTracker;
+import dev.hywmill.military.defense.DefenseService;
 import dev.hywmill.settlement.SettlementSource;
 import net.minecraft.server.MinecraftServer;
 
@@ -27,8 +28,10 @@ public final class HywMillRuntime {
 
     private final MinecraftServer server;
     private final VillageScheduler scheduler = new VillageScheduler();
+    private final PerfCounters perf = new PerfCounters();
     private final IncidentLedger incidents = new IncidentLedger();
-    private final ThreatTracker threats = new ThreatTracker(incidents, scheduler);
+    private final DefenseService defense = new DefenseService(perf);
+    private final ThreatTracker threats = new ThreatTracker(incidents, scheduler, defense, perf);
     private final FactionRegistry factions = new FactionRegistry();
     private final DiplomacyPolicy diplomacy = DiplomacyPolicy.ALWAYS_REVERT;
     private final Map<String, AtomicLong> counters = new ConcurrentHashMap<>();
@@ -38,6 +41,7 @@ public final class HywMillRuntime {
     private HywMillRuntime(MinecraftServer server) {
         this.server = server;
         incidents.bind(threats);
+        defense.bind(threats);
     }
 
     static void start(MinecraftServer server) {
@@ -84,6 +88,14 @@ public final class HywMillRuntime {
 
     public ThreatTracker threats() {
         return threats;
+    }
+
+    public DefenseService defense() {
+        return defense;
+    }
+
+    public PerfCounters perf() {
+        return perf;
     }
 
     public FactionRegistry factions() {

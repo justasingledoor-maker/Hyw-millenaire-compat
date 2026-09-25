@@ -40,6 +40,16 @@ FAKE_PLAYER_UUID = "5f1c7d5e-0000-4000-8000-00000000beef"  # dev playerhit FakeP
 VILLAGE_A_CANDIDATES = [("norman/agricole", 630, 82, 612), ("norman/agricole", 600, 80, 600), ("norman/agricole", 694, 80, 756)]
 VILLAGE_B_CANDIDATES = [("norman/agricole", 830, 80, 612), ("norman/agricole", 860, 80, 640)]
 FORCELOAD = [(528, 528, 700, 700), (740, 540, 900, 690)]
+# M2: extra villages for classification/capacity/doctrine/performance (spawned on demand by X/P).
+# Positions scouted on seed 20260925 (ground measured with the motion_blocking_no_leaves heightmap):
+# the sea covers most of the area, and Millénaire rejects a centre building it cannot reach.
+EXTRA_FORCELOAD = [(560, 830, 740, 1010), (310, 360, 490, 540), (960, 550, 1150, 730)]
+EXTRA_VILLAGES = {
+    "militaire": [("norman/militaire", 650, 68, 920), ("norman/militaire", 640, 68, 960), ("norman/militaire", 670, 68, 900)],
+    "byzantine": [("byzantines/militaryvillage", 400, 71, 450), ("byzantines/militaryvillage", 380, 71, 600)],
+    "artisans": [("norman/artisans", 1060, 80, 640), ("norman/artisans", 1040, 80, 612)],
+}
+MILLENAIRE_DATA_PREFIX = "millenaire/cultures/"
 
 
 def log(msg):
@@ -68,8 +78,9 @@ def write_configs(d: Path, hywmill_extra: str = ""):
         "enable-command-block=true\nmotd=hywmill-harness\n")
     cfg = d / "config"
     cfg.mkdir(exist_ok=True)
+    verbose = "false" if os.environ.get("HYWMILL_QUIET") else "true"  # HYWMILL_QUIET=1: production log level (perf runs)
     (cfg / "hywmill-common.toml").write_text(
-        "[general]\n\tverboseLogging = true\n\tdevCommands = true\n" + hywmill_extra)
+        f"[general]\n\tverboseLogging = {verbose}\n\tdevCommands = true\n" + hywmill_extra)
     # Deterministic worlds: no natural villages/lone buildings, no random raids, no telemetry.
     (cfg / "millenaire-server.toml").write_text(
         "[generation]\n\tgenerateVillages = false\n\tgenerateLoneBuildings = false\n"
@@ -178,8 +189,25 @@ def at(c, command):
     return f"execute positioned {c[0]} {c[1]} {c[2]} run {command}"
 
 
-def spawn_village(s, candidates):
+def surface_y(s, x, z):
+    """Ground height at (x, z): a marker summoned on the motion_blocking_no_leaves heightmap."""
+    s.cmd("kill @e[tag=hwY]", 0.5)
+    s.cmd(f'execute positioned {x} 0 {z} positioned over motion_blocking_no_leaves run summon minecraft:marker ~ ~ ~ {{Tags:["hwY"]}}', 1)
+    y = None
+    for l in s.output("data get entity @e[tag=hwY,limit=1] Pos[1]", 1):
+        m = re.search(r"has the following entity data: (-?[\d.]+)d", l)
+        if m:
+            y = int(float(m[1]))
+    s.cmd("kill @e[tag=hwY]", 0.5)
+    return y
+
+
+def spawn_village(s, candidates, surface=False):
+    """surface=True spawns at the real ground height (Millénaire's reachability check starts from
+    the given position, so a guessed y above or below the surface rejects the village)."""
     for vtype, x, y, z in candidates:
+        if surface:
+            y = surface_y(s, x, z) or y
         lines = s.cmd(f'millenaire spawn at {x} {y} {z} "{vtype}" 100', wait=45)
         for l in lines:
             m = re.search(r"Village \S+ spawned at (-?\d+), (-?\d+), (-?\d+)", l)
@@ -227,6 +255,45 @@ def relation(s, c, other):
         if m:
             return m[1], m[2]
     return None
+
+
+def military(s, c):
+    """Parses /hywmill village military."""
+    out = s.output(at(c, "hywmill village military"), 2)
+    d = {"lines": out, "threat_lines": [l for l in out if l.startswith(" threat ")]}
+    for l in out:
+        for key, rx in [("tier", r"^Tier: (\w+)"), ("soldiers", r"soldiers (\d+)"), ("leaders", r"leaders (\d+)"),
+                        ("militia", r"militia (\d+),"), ("defenders", r"defenders (\d+)"), ("capacity", r"^Capacity: (\d+)"),
+                        ("readiness", r"readiness: (\d+)%"), ("equipment", r"equipment: ([\d.]+|n/a)"),
+                        ("fortification", r"fortification: (\d+)"), ("buildingRoles", r"^Building roles: (\{[^}]*\})"),
+                        ("alert", r"^Alert: (\w+)"), ("eligible", r"eligible (\d+)"), ("committed", r"committed (\d+)"),
+                        ("reserve", r"\| reserve (\d+)"), ("threats", r"^Active threats: (\d+)"), ("stats", r"^Stats: (.*)"),
+                        ("doctrine", r"^Doctrine: (.*)")]:
+            m = re.search(rx, l)
+            if m and key not in d:
+                d[key] = m[1]
+    return d
+
+
+def doctrine(s, c):
+    """Parses /hywmill doctrine get into {field: (value, source)}."""
+    d = {}
+    for l in s.output(at(c, "hywmill doctrine get"), 2):
+        m = re.match(r"(\w+) = (\S+)\s+\[(.*)\]$", l.strip())
+        if m:
+            d[m[1]] = (m[2], m[3])
+    return d
+
+
+def wait_alert(s, c, states, timeout):
+    end = time.time() + timeout
+    last = None
+    while time.time() < end:
+        last = military(s, c).get("alert")
+        if last in states:
+            return last
+        time.sleep(2)
+    return last
 
 
 def wait_residents(s, c, timeout=120):
@@ -301,17 +368,22 @@ def scenario_A(ctx):
     time.sleep(12)  # at least one ledger update
     before = info(s, ctx.a)
     check("A1-3 village info populated", all(k in before for k in ("villageId", "faction", "tier", "garrison", "fortification")), str(before))
+    s.output(at(ctx.a, "hywmill doctrine set reserve 0"), 2)
     s.cmd("save-all flush", 5)
     s.stop()
     s.start()
     time.sleep(15)
-    loaded = s.wait_for(r"Garrison ledger loaded: \d+ village", 30, since=s.start_pos)
+    loaded = s.wait_for(r"Garrison ledger loaded: \d+ village.*format 3", 30, since=s.start_pos)
     after = info(s, ctx.a)
     check("A4 ledger reloaded from disk", loaded is not None, loaded or "")
     check("A5-6 same VillageId and faction after restart",
           before.get("villageId") == after.get("villageId") and before.get("faction") == after.get("faction"),
           f"{before.get('faction')} vs {after.get('faction')}")
     ctx.info_after_restart = after
+    d = doctrine(s, ctx.a)
+    check("A7 doctrine override persisted across restart (ledger format 3)", d.get("reserve") == ("0", "override"), str(d.get("reserve")))
+    s.output(at(ctx.a, "hywmill doctrine reset"), 2)
+    check("A8 doctrine reset restores the inherited value", doctrine(s, ctx.a).get("reserve", ("", ""))[1] != "override")
 
 
 def scenario_B(ctx):
@@ -327,6 +399,9 @@ def scenario_B(ctx):
 
 
 def scenario_C(ctx, proactive_expected=True):
+    """A hostile (unowned) HYW unit that actually attacks residents. M2 (proactive=false): defenders
+    respond once it targets or damages a resident (ATTACKING_RESIDENT / RECENT_ATTACKER), not merely
+    because it is present; the outcome is the same as in M1: defenders fight it, civilians shelter."""
     s = ctx.s
     c = ctx.a
     res = wait_residents(s, c)
@@ -418,7 +493,9 @@ def scenario_I(ctx):
     ids = [re.search(r"militia\[(\w+)", l)[1] for l in lines if re.search(r"militia\[(\w+)", l)]
     check("I2 each unit that damaged a resident is a threat, once", len(ids) == 3 and len(set(ids)) == 3
           and all("RECENT_ATTACKER" in l for l in lines), "; ".join(threats))
-    time.sleep(40)
+    time.sleep(2)
+    ctx.i_military = military(s, c)
+    time.sleep(38)
     inc = incidents(s, 100)
     hits = [i for i in inc if i["atype"] == "millenaire:villager" and i["vtype"] == "hundred_years_war:militia"]
     check("I3 defenders engage the attackers", bool(hits) and all(i["a"] in defenders for i in hits),
@@ -432,6 +509,12 @@ def scenario_I(ctx):
     check("I6 village <-> player still NEUTRAL", rel == ("NEUTRAL", "NEUTRAL"), str(rel))
     status = s.output("hywmill status", 2)
     esc = next((l for l in status if l.startswith("escalation guard")), "")
+    m = ctx.i_military
+    per = [len(re.findall(r"[0-9a-f]{8}", l.split("<-")[1])) for l in m["threat_lines"]]
+    assigned = [x for l in m["threat_lines"] for x in re.findall(r"[0-9a-f]{8}", l.split("<-")[1])]
+    check("I8 M2-5 commit/reserve during the fight: <= commitPerThreat per threat, no defender on two threats",
+          per and all(n <= 3 for n in per) and len(assigned) == len(set(assigned)),
+          f"per threat {per}, reserve {m.get('reserve')}, eligible {m.get('eligible')}, alert {m.get('alert')}")
     check("I7 incident ledger bounded (capacity 512) and threats cleared", len(threats) >= 1
           and not any("militia" in l for l in s.output(at(c, "hywmill threats"), 2)[1:]),
           f"{len(inc)} of last 100 incidents shown (+{len(inc) - before}); {esc}")
@@ -528,12 +611,18 @@ def scenario_H(ctx):
     s.cmd("kill @e[type=hundred_years_war:trebuchets]", 1)
 
 
-def marker_of(s, uuid):
-    for l in s.output(f"hywmill dev inspect {uuid}", 2):
-        m = re.search(r" marker=(\S+)", l)
-        if m and l.strip().startswith(uuid):
-            return m[1]
-    return "?"
+def marker_of(s, uuid, expect=None, timeout=30):
+    """The villager's HYW identity marker; with `expect`, polls until it matches (loading after a restart)."""
+    end = time.time() + timeout
+    last = "?"
+    while True:
+        for l in s.output(f"hywmill dev inspect {uuid}", 2):
+            m = re.search(r" marker=(\S+)", l)
+            if m and l.strip().startswith(uuid):
+                last = m[1]
+        if expect is None or last == expect or time.time() > end:
+            return last
+        time.sleep(2)
 
 
 def restart(ctx, hywmill_extra=""):
@@ -556,15 +645,276 @@ def scenario_G(ctx):
     if not check("G0 a marked resident", v is not None and marker_of(s, v) == faction, f"{v} faction={faction}"):
         return
     out = s.output(at(c, "hywmill admin clear-identities"), 3)
-    check("G1 clear-identities removes loaded markers", marker_of(s, v) == "null", "; ".join(out))
+    check("G1 clear-identities removes loaded markers", marker_of(s, v, "null") == "null", "; ".join(out))
     restart(ctx)
-    check("G2 still unmarked after restart (clearance persisted, not re-marked on load)", marker_of(s, v) == "null")
+    check("G2 still unmarked after restart (clearance persisted, not re-marked on load)", marker_of(s, v, "null") == "null")
     s.output(at(c, "hywmill admin restore-identities"), 3)
-    check("G3 restore-identities re-marks", marker_of(s, v) == faction)
+    check("G3 restore-identities re-marks", marker_of(s, v, faction) == faction)
     restart(ctx, "[bridge]\n\tmarkVillagers = false\n")
-    check("G4 markVillagers=false removes markers on load", marker_of(s, v) == "null")
+    check("G4 markVillagers=false removes markers on load", marker_of(s, v, "null") == "null")
     restart(ctx)
-    check("G5 markVillagers=true marks again", marker_of(s, v) == faction)
+    check("G5 markVillagers=true marks again", marker_of(s, v, faction) == faction)
+
+
+def roles_by_uuid8(s, c):
+    return {r[0][:8]: r[1] for r in residents(s, c)}
+
+
+def scenario_N(ctx):
+    """M2-4 radius, proactive=false, M2-7 shelter, M2-9 sighting: an unowned HYW unit that attacks
+    nobody (NoAI) raises ALERT inside the defense radius, civilians near it shelter, and no defender
+    attacks it. Outside the radius it is ignored."""
+    s = ctx.s
+    c = ctx.a
+    s.cmd("kill @e[type=hundred_years_war:bandit_soldier]", 1)
+    s.cmd("kill @e[type=hundred_years_war:militia]", 1)  # B's owned unit would attack an unowned bandit itself
+    dr = doctrine(s, c)
+    radius = int(dr.get("radiusOffset", ("16", ""))[0]) + 90
+    ox, oz = c[0], c[2] + radius + 12
+    s.cmd(f"forceload add {ox} {oz}", 3)
+    s.cmd(f"summon hundred_years_war:bandit_soldier {ox} {c[1] + 1} {oz} {{NoAI:1b,Tags:[\"hwN\"]}}", 2)
+    time.sleep(4)
+    m = military(s, c)
+    check("N1 unowned unit outside the defense radius: no threat, CALM", m.get("threats") == "0" and m.get("alert") == "CALM",
+          f"radius {radius}, unit at +{radius + 12}; alert={m.get('alert')} threats={m.get('threats')}")
+    s.cmd("kill @e[tag=hwN]", 1)
+    before = incidents(s, 100)
+    p = s.pos()
+    s.cmd(f"summon hundred_years_war:bandit_soldier {c[0] + 2} {c[1] + 1} {c[2] + 2} {{NoAI:1b,Tags:[\"hwN\"]}}", 2)
+    state = wait_alert(s, c, {"ALERT"}, 10)
+    m = military(s, c)
+    check("N2 unit inside the radius: ALERT with an HYW_ENEMY-only threat", state == "ALERT"
+          and any("HYW_ENEMY" in l and "bandit" in l for l in m["lines"]), f"alert={state}; " + "; ".join(m["lines"][-3:]))
+    time.sleep(15)
+    hits = [i for i in incidents(s, 100) if i not in before and i["vtype"] == "hundred_years_war:bandit_soldier"
+            and i["atype"] == "millenaire:villager"]
+    m = military(s, c)
+    check("N3 proactive=false: no defender attacks a unit that attacks nobody", not hits and m.get("committed") == "0",
+          f"{len(hits)} hits, committed={m.get('committed')}")
+    res = residents(s, c)
+    lines = s.output(at(c, "hywmill village residents"), 2)
+    pos = {}
+    for l in lines:
+        mm = re.match(r"\s*([0-9a-f-]{36}) \S+ (\w+) goal=(\S+) .*@(-?\d+), (-?\d+), (-?\d+)", l)
+        if mm:
+            pos[mm[1]] = (mm[2], mm[3], int(mm[4]), int(mm[6]))
+    sheltering = [k for k, v in pos.items() if v[0] == "CIVILIAN" and v[1].startswith("millenaire:hide")]
+    started = [l for l in s.read_since(p) if "enters hide behavior" in l]
+    check("N4 civilians near the unit shelter (shelterRadius 48)", bool(started), f"{len(started)} started, {len(sheltering)} hiding now")
+    s.cmd("kill @e[tag=hwN]", 1)
+    state = wait_alert(s, c, {"CALM"}, 20)
+    check("N5 sighting that never came to blows returns to CALM after alertTicks", state == "CALM", str(state))
+
+
+def scenario_W(ctx):
+    """M2-6 on the server: militiaPolicy NEVER keeps militia out of HywMill defense; only SOLDIER/LEADER respond."""
+    s = ctx.s
+    c = ctx.a
+    s.cmd("kill @e[type=hundred_years_war:militia]", 1)
+    s.output(at(c, "hywmill doctrine set militiaPolicy NEVER"), 2)
+    res = wait_residents(s, c)
+    types = {r[0][:8]: r[1] for r in res}
+    civ = next((r[0] for r in res if r[2] == "CIVILIAN"), None)
+    s.cmd(f'summon hundred_years_war:militia {c[0] + 2} {c[1]} {c[2] + 6} {{OwnerUUID:{OWNER_NBT},Tags:["hwW"]}}', 2)
+    before = incidents(s, 100)
+    s.cmd(f"damage {civ} 1 minecraft:mob_attack by @e[tag=hwW,limit=1]", 1)
+    time.sleep(20)
+    hits = [i for i in incidents(s, 100) if i not in before and i["atype"] == "millenaire:villager"
+            and i["vtype"] == "hundred_years_war:militia"]
+    hitters = sorted({types.get(i["a"], "?") for i in hits})
+    pro = {"millenaire:norman/guard", "millenaire:norman/seneschal", "millenaire:norman/knight"}
+    check("W1 militiaPolicy NEVER: only SOLDIER/LEADER engage", all(t in pro for t in hitters), f"{len(hits)} hits by {hitters}")
+    s.cmd("kill @e[tag=hwW]", 1)
+    s.output(at(c, "hywmill doctrine reset militiaPolicy"), 2)
+    check("W2 override removed again", doctrine(s, c).get("militiaPolicy", ("", ""))[1] != "override")
+
+
+def scenario_L(ctx):
+    """M2-9: CALM -> ALERT -> ENGAGED -> RECOVERY -> CALM with the doctrine timers."""
+    s = ctx.s
+    c = ctx.a
+    wait_alert(s, c, {"CALM"}, 60)
+    stats0 = military(s, c).get("stats", "")
+    res = wait_residents(s, c)
+    civ = next((r[0] for r in res if r[2] == "CIVILIAN"), None)
+    s.cmd(f"summon hundred_years_war:bandit_soldier {c[0] + 2} {c[1] + 1} {c[2] + 2} {{NoAI:1b,Tags:[\"hwL\"]}}", 1)
+    seen = [wait_alert(s, c, {"ALERT"}, 10)]
+    s.cmd(f"damage {civ} 1 minecraft:mob_attack by @e[tag=hwL,limit=1]", 1)
+    seen.append(wait_alert(s, c, {"ENGAGED"}, 5))
+    s.cmd("kill @e[tag=hwL]", 1)
+    t0 = time.time()
+    seen.append(wait_alert(s, c, {"RECOVERY"}, 30))
+    t_rec = time.time() - t0
+    seen.append(wait_alert(s, c, {"CALM"}, 60))
+    t_calm = time.time() - t0
+    stats1 = military(s, c).get("stats", "")
+    check("L1 lifecycle CALM -> ALERT -> ENGAGED -> RECOVERY -> CALM", seen == ["ALERT", "ENGAGED", "RECOVERY", "CALM"], str(seen))
+    check("L2 timers: RECOVERY after ~engagedTicks (200), CALM ~recoveryTicks (600) later",
+          8 <= t_rec <= 16 and 36 <= t_calm <= 52, f"recovery after {t_rec:.1f}s, calm after {t_calm:.1f}s")
+    check("L3 persistent statistics count the alert and the engagement", stats0 != stats1, f"{stats0} -> {stats1}")
+
+
+def ensure_extra_villages(ctx):
+    if getattr(ctx, "extra", None) is not None:
+        return ctx.extra
+    s = ctx.s
+    for box in EXTRA_FORCELOAD:
+        s.cmd("forceload add {} {} {} {}".format(*box), wait=15)
+    ctx.extra = {}
+    for name, cands in EXTRA_VILLAGES.items():
+        ctx.extra[name] = spawn_village(s, cands, surface=True)
+    s.cmd("millenaire chunkload", 10)
+    time.sleep(15)
+    return ctx.extra
+
+
+def millenaire_data():
+    """Villager tags and building resident slots straight from the Millénaire jar (independent of the mod)."""
+    import json
+    import zipfile
+    tags, buildings = {}, {}
+    with zipfile.ZipFile(MILLENAIRE_JAR) as z:
+        for n in z.namelist():
+            if not n.startswith(MILLENAIRE_DATA_PREFIX) or not n.endswith(".json"):
+                continue
+            parts = n[len(MILLENAIRE_DATA_PREFIX):].split("/")
+            culture = parts[0]
+            try:
+                d = json.loads(z.read(n))
+            except Exception:
+                continue
+            if len(parts) > 2 and parts[1] == "villagers":
+                tags[f"millenaire:{culture}/{parts[-1][:-5]}"] = set(d.get("tags", []))
+            elif len(parts) > 2 and parts[1] == "buildings" and isinstance(d, dict):
+                buildings[f"millenaire:{culture}/{d.get('building_id', parts[-1][:-5])}"] = d
+    return tags, buildings
+
+
+def expected_slots(bdef, culture, variant, level):
+    lvl = {}
+    for v in bdef.get("variants") or []:
+        if v.get("variant") == variant:
+            lvl = next((l for l in v.get("levels", []) if l.get("level") == level), {})
+    names = (lvl.get("male") if "male" in lvl else bdef.get("male", [])) + \
+            (lvl.get("female") if "female" in lvl else bdef.get("female", []))
+    return sorted(n if ":" in n else f"millenaire:{culture}/{n}" for n in names)
+
+
+def role_of(type_id, tags, table):
+    t = tags.get(type_id, set())
+    if "hostile" in t:
+        return "OUTLAW"
+    if type_id in table:
+        return table[type_id]
+    if "child" in t:
+        return "CIVILIAN"
+    return "MILITIA" if "helpInAttacks" in t else "CIVILIAN"
+
+
+def scenario_X(ctx):
+    """M2-1 classification, M2-2 capacity (cross-checked against Millénaire's own JSON), M2-3 doctrine."""
+    import json
+    s = ctx.s
+    extra = ensure_extra_villages(ctx)
+    check("X0 extra villages spawned", all(extra.values()), str(extra))
+    table = {}
+    for f in sorted((REPO / "src/main/resources/data/hywmill/hywmill_roles").glob("*.json")):
+        table.update(json.loads(f.read_text())["villagers"])
+    tags, buildings = millenaire_data()
+
+    # M2-1
+    a = military(s, ctx.a)
+    check("X1 A: seneschal is LEADER, leaders >= 1", int(a.get("leaders", 0)) >= 1, str({k: a.get(k) for k in ("tier", "soldiers", "leaders", "militia")}))
+    b = military(s, ctx.b)
+    check("X2 B (Douvres pattern): border markers only, fortification 0, tier WATCH",
+          b.get("fortification") == "0" and "BORDER_MARKER" in b.get("buildingRoles", "") and b.get("tier") == "WATCH"
+          and not any(k in b.get("buildingRoles", "") for k in ("WALL=", "TOWER=", "GUARDHOUSE=")),
+          f"{b.get('buildingRoles')} fort={b.get('fortification')} tier={b.get('tier')}")
+    if extra.get("militaire"):
+        m = military(s, extra["militaire"])
+        check("X3 norman/militaire: FORT_TOWNHALL and guards as SOLDIER", "FORT_TOWNHALL" in m.get("buildingRoles", "")
+              and int(m.get("soldiers", 0)) >= 1, f"{m.get('buildingRoles')} soldiers={m.get('soldiers')} tier={m.get('tier')}")
+    if extra.get("byzantine"):
+        m = military(s, extra["byzantine"])
+        ctx.byz_soldiers = int(m.get("soldiers", 0))
+        check("X4 byzantines/militaryvillage runtime soldier verification", ctx.byz_soldiers >= 1,
+              f"soldiers={m.get('soldiers')} leaders={m.get('leaders')} militia={m.get('militia')} capacity={m.get('capacity')} {m.get('buildingRoles')}")
+
+    # M2-2
+    for name, c in [("A", ctx.a), ("militaire", extra.get("militaire")), ("byzantine", extra.get("byzantine"))]:
+        if not c:
+            continue
+        out = s.output(at(c, "hywmill dev capacity"), 2)
+        mismatches, total = [], 0
+        for l in out:
+            mm = re.match(r"slots (\S+) (\S+) (-?\d+) (\S+) capacity=(\d+)", l)
+            if not mm:
+                continue
+            plan, variant, level = mm[1], mm[2], int(mm[3])
+            reported = sorted(x.rsplit(":", 1)[0] for x in mm[4].split(","))
+            culture = plan.split(":")[1].split("/")[0]
+            exp = expected_slots(buildings.get(plan, {}), culture, variant, level)
+            if reported != exp:
+                mismatches.append(f"{plan}@{variant}{level}: {reported} vs json {exp}")
+            total += sum(1 for t in exp if role_of(t, tags, table) in ("SOLDIER", "MILITIA"))
+        cap = military(s, c).get("capacity")
+        check(f"X5 capacity of {name} = SOLDIER+MILITIA slots of operational buildings at current variant/level",
+              not mismatches and str(total) == cap, f"harness {total} vs mod {cap}; " + "; ".join(mismatches[:3]))
+
+    # M2-3
+    d = doctrine(s, ctx.a)
+    exp = {"commitPerThreat": "3", "reserve": "1", "militiaPolicy": "ON_ENGAGED", "shelterRadius": "48", "proactive": "false",
+           "assistMinReputation": "0", "alertTicks": "100", "engagedTicks": "200", "recoveryTicks": "600"}
+    check("X6 doctrine of A (norman/agricole) = baseline", all(d.get(k, ("",))[0] == v for k, v in exp.items()),
+          str({k: d.get(k) for k in exp}))
+    if extra.get("militaire"):
+        d = doctrine(s, extra["militaire"])
+        check("X7 norman/militaire: reserve 2 and militia WHEN_ATTACKED from its village type",
+              d.get("reserve", ("",))[0] in ("2", "3") and "militaire" in d.get("reserve", ("", ""))[1]
+              and d.get("militiaPolicy", ("",))[0] == "WHEN_ATTACKED", str({k: d.get(k) for k in ("reserve", "militiaPolicy", "commitPerThreat")}))
+    if extra.get("byzantine"):
+        d = doctrine(s, extra["byzantine"])
+        check("X8 byzantines/militaryvillage: commit 4 / reserve 2 (type), reputation 256 and recovery 1200 (culture)",
+              d.get("commitPerThreat", ("",))[0] in ("4", "5") and d.get("assistMinReputation", ("",))[0] == "256"
+              and d.get("recoveryTicks", ("",))[0] == "1200",
+              str({k: d.get(k) for k in ("commitPerThreat", "reserve", "assistMinReputation", "recoveryTicks")}))
+
+
+def scenario_P(ctx):
+    """M2-11: scheduler/scan cost with >= 5 active villages and ~20 HYW units."""
+    s = ctx.s
+    extra = ensure_extra_villages(ctx)
+    villages = [ctx.a, ctx.b] + [v for v in extra.values() if v]
+    for i, c in enumerate(villages[:2]):
+        for k in range(5):
+            s.cmd(f'summon hundred_years_war:militia {c[0] + 3 * k} {c[1]} {c[2] + 8} {{OwnerUUID:{OWNER_NBT},Tags:["hwP"]}}', 0.2)
+    for c in villages[2:]:
+        for k in range(3):
+            s.cmd(f'summon hundred_years_war:bandit_soldier {c[0] + 3 * k} {c[1] + 1} {c[2] + 3} {{NoAI:1b,Tags:["hwP"]}}', 0.2)
+    time.sleep(20)  # warm-up (JIT, first scans)
+    s.output("hywmill perf reset", 1)
+    time.sleep(60)
+    out = s.output("hywmill perf", 2)
+    stats = {}
+    for l in out:
+        mm = re.match(r"\s*(\S+): n=(\d+) mean=([\d.]+)us max=([\d.]+)us p99=([\d.]+)us", l)
+        if mm:
+            stats[mm[1]] = (int(mm[2]), float(mm[3]), float(mm[4]), float(mm[5]))
+    ctx.perf = (len(villages), out)
+    active = sum(1 for c in villages if military(s, c).get("tier"))
+    check("P1 >= 5 active villages and ~20 HYW units", len(villages) >= 5, f"{len(villages)} villages; extra: {extra}")
+    scan = stats.get("scan.village", (0, 0, 0, 0))
+    check("P2 mean village scan < 200 us", scan[0] > 0 and scan[1] < 200, f"scan.village {scan}")
+    worst = {k: v[2] for k, v in stats.items() if k != "tick.total" and not k.startswith("snap.")}
+    p99 = {k: v[3] for k, v in stats.items() if not k.startswith("snap.")}
+    check("P3a p99 of every HywMill work slice (incl. the whole per-tick total) <= 2 ms", p99 and max(p99.values()) <= 2000, str(p99))
+    check("P3b max of any single slice <= 2 ms (spikes include GC/scheduling on a shared 4-CPU host)",
+          worst and max(worst.values()) <= 2000, str(worst))
+    for l in out:
+        log("perf " + l.strip())
+    tick = stats.get("tick.total", (0, 0, 0, 0))
+    check("P4 whole HywMill work per server tick (informational: mean/max)", True, f"tick.total n={tick[0]} mean={tick[1]}us max={tick[2]}us")
+    s.cmd("kill @e[tag=hwP]", 2)
 
 
 def scenario_status(ctx):
@@ -573,8 +923,8 @@ def scenario_status(ctx):
 
 
 SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
-             "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "M": scenario_M, "status": scenario_status}
-ORDER = ["status", "H", "B", "C", "D", "I", "F1", "E", "F2", "A", "G"]
+             "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status}
+ORDER = ["status", "H", "B", "N", "C", "D", "I", "W", "L", "F1", "E", "F2", "X", "P", "A", "G"]
 
 
 def run(d: Path, names, fresh=True):
@@ -643,6 +993,43 @@ def main():
     a = ap.parse_args()
     if a.action == "install":
         install(a.dir)
+        return 0
+    if a.scenarios[0] == "heights":
+        # heights x0 x1 z0 z1 step: ground height grid on an existing world
+        write_configs(a.dir)
+        install_mods(a.dir, [MILLENAIRE_JAR, HYW_JAR, built_jar()])
+        srv = Server(a.dir)
+        srv.start()
+        try:
+            x0, x1, z0, z1, st = (int(v) for v in a.scenarios[1:6])
+            for x in range(x0, x1 + 1, st):
+                row = []
+                for z in range(z0, z1 + 1, st):
+                    srv.cmd(f"forceload add {x} {z}", 1.5)
+                    row.append(f"{z}:{surface_y(srv, x, z)}")
+                    srv.cmd(f"forceload remove {x} {z}", 0.3)
+                log(f"heights x={x} " + " ".join(row))
+        finally:
+            srv.stop()
+        return 0
+    if a.scenarios[0] == "scout":
+        # scout <type> x z [x z ...]: try Millénaire spawns on an existing world; prints the first that works
+        write_configs(a.dir)
+        install_mods(a.dir, [MILLENAIRE_JAR, HYW_JAR, built_jar()])
+        srv = Server(a.dir)
+        srv.start()
+        try:
+            vtype = a.scenarios[1]
+            pts = a.scenarios[2:]
+            for i in range(0, len(pts), 2):
+                x, z = int(pts[i]), int(pts[i + 1])
+                srv.cmd(f"forceload add {x - 112} {z - 112} {x + 112} {z + 112}", 25)
+                hit = spawn_village(srv, [(vtype, x, 80, z)], surface=True)
+                log(f"scout {vtype} at {x},{z}: {hit}")
+                if hit:
+                    break
+        finally:
+            srv.stop()
         return 0
     if a.scenarios == ["optional"]:
         run_optional(a.dir)

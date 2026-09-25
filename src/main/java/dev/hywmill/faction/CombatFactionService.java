@@ -19,6 +19,9 @@ public interface CombatFactionService {
     /** True for an HYW combat unit (excludes workers and other non-combat units). */
     boolean isCombatUnit(Entity entity);
 
+    /** An HYW combat unit type (BaseCombatEntity, not a NonCombatUnit), alive or not (death statistics). */
+    boolean isHywUnit(Entity entity);
+
     /** Owner UUID of a combat unit; null means HYW "null owner" (e.g. a summoned bandit). */
     @Nullable
     UUID ownerOf(Entity unit);

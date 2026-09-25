@@ -1,5 +1,6 @@
 package dev.hywmill.settlement;
 
+import dev.hywmill.military.classify.RoleClassifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -31,6 +32,14 @@ public interface SettlementSource {
 
     /** Settlement-mod reputation of a player (Millénaire combined village reputation). */
     int playerReputation(ServerLevel level, UUID settlementId, UUID playerId);
+
+    /**
+     * Loaded, living, non-raider residents with their role facts and position. Called by the
+     * defense coordinator on scans of a village that is not CALM (every 20 ticks at most).
+     */
+    List<RosterEntry> defenseRoster(ServerLevel level, UUID settlementId);
+
+    record RosterEntry(UUID id, RoleClassifier.VillagerFacts facts, double x, double y, double z) {}
 
     /** Human-readable diagnostic lines about loaded residents. */
     List<String> describeResidents(ServerLevel level, UUID settlementId);

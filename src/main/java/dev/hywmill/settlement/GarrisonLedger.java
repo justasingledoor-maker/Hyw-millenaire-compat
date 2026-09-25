@@ -71,6 +71,9 @@ public final class GarrisonLedger extends SavedData {
             if (r.needsRecompute) {
                 migrated++;
             }
+            for (String problem : r.overrideProblems) {
+                HmLog.warn("Doctrine override entry of village {} dropped at load: {}", r.villageId, problem);
+            }
             UUID expected = FactionIds.forVillage(r.villageId);
             if (!expected.equals(r.factionId)) {
                 // Would indicate a change in the derivation; keep the deterministic value authoritative.

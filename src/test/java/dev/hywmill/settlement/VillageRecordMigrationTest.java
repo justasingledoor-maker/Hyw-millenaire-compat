@@ -3,6 +3,8 @@ package dev.hywmill.settlement;
 import dev.hywmill.military.classify.BuildingRole;
 import dev.hywmill.military.classify.VillagerRole;
 import dev.hywmill.military.MilitaryTier;
+import dev.hywmill.military.doctrine.DoctrineField;
+import dev.hywmill.military.doctrine.MilitiaPolicy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -52,6 +54,47 @@ class VillageRecordMigrationTest {
         assertEquals(1000, r.firstSeenTick);
         assertEquals(42, r.updateCount);
         assertTrue(r.buildingRoles.isEmpty());
+    }
+
+    @Test
+    void format2IsMigratedToFormat3() {
+        VillageRecord v2 = VillageRecord.load(format1(), 1);
+        v2.buildingRoles.put(BuildingRole.BORDER_MARKER, 13);
+        v2.villagerRoles.put(VillagerRole.MILITIA, 12);
+        CompoundTag t = v2.save();
+        for (String k : new String[]{"capacity", "readiness", "equipmentScore", "villageRadius", "loneBuilding", "doctrineOverride", "stats"}) {
+            t.remove(k); // what a format-2 build wrote
+        }
+        VillageRecord r = VillageRecord.load(t, 2);
+        assertTrue(r.needsRecompute, "profile fields are recomputed");
+        assertEquals(13, r.buildingRoles.get(BuildingRole.BORDER_MARKER), "format-2 role counts are kept");
+        assertEquals(12, r.villagerRoles.get(VillagerRole.MILITIA));
+        assertEquals(FACTION, r.factionId);
+        assertTrue(r.doctrineOverride.isEmpty());
+        assertEquals(0, r.stats.alerts);
+        assertEquals(-1, r.equipmentScore);
+    }
+
+    @Test
+    void format3KeepsOverrideStatsAndControllerSeparateFromFaction() {
+        VillageRecord r = VillageRecord.load(format1(), 1);
+        UUID controller = UUID.fromString("11111111-2222-4333-8444-555555555555");
+        r.controllerPlayerId = controller;
+        r.capacity = 7;
+        r.equipmentScore = 5.5;
+        r.doctrineOverride = r.doctrineOverride.with(DoctrineField.RESERVE, 3).with(DoctrineField.MILITIA_POLICY, MilitiaPolicy.NEVER);
+        r.stats.hywKills = 4;
+        r.stats.lastEngagedTick = 1234;
+        VillageRecord back = VillageRecord.load(r.save(), VillageRecord.FORMAT);
+        assertEquals(controller, back.controllerPlayerId);
+        assertEquals(FACTION, back.factionId, "the controller never replaces the faction identity");
+        assertEquals(7, back.capacity);
+        assertEquals(5.5, back.equipmentScore);
+        assertEquals(3, back.doctrineOverride.values().get(DoctrineField.RESERVE));
+        assertEquals(MilitiaPolicy.NEVER, back.doctrineOverride.values().get(DoctrineField.MILITIA_POLICY));
+        assertEquals(4, back.stats.hywKills);
+        assertEquals(1234, back.stats.lastEngagedTick);
+        assertFalse(back.needsRecompute);
     }
 
     @Test
