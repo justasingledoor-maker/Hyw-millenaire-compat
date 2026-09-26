@@ -26,6 +26,17 @@ public final class RosterEntry {
     @Nullable private LossReason lossReason;
     public final boolean paid;
 
+    // ---- M4 duty (persisted as optional keys; an M3 roster loads as GARRISON) ----
+    /** Standing duty assigned by the duty allocation. */
+    public dev.hywmill.garrison.duty.Duty assignedDuty = dev.hywmill.garrison.duty.Duty.GARRISON;
+    /** Current duty: the standing duty, or DEFENSE/RAID/RETURNING while temporarily away from it. */
+    public dev.hywmill.garrison.duty.Duty duty = dev.hywmill.garrison.duty.Duty.GARRISON;
+    /** Post / route / pair index of the duty (-1: none). */
+    public int dutyIndex = -1;
+    /** Progress within the duty (patrol waypoint, scout phase step). */
+    public int dutyStep;
+    public long dutySince;
+
     public RosterEntry(UUID rosterId, String unitKey, String entityType, int equipmentLevel, long recruitedTick, boolean paid) {
         this(rosterId, unitKey, entityType, equipmentLevel, UnitState.RECRUITED, null, 0, recruitedTick, -1, recruitedTick, null, paid);
     }
@@ -101,6 +112,7 @@ public final class RosterEntry {
     @Override
     public String toString() {
         return shortId() + " " + unitKey + " lvl" + equipmentLevel + " " + state + (lossReason != null ? "(" + lossReason + ")" : "")
-                + " gen" + generation + (entityUuid != null ? " entity=" + entityUuid.toString().substring(0, 8) : "");
+                + " gen" + generation + (entityUuid != null ? " entity=" + entityUuid.toString().substring(0, 8) : "")
+                + " duty=" + duty + (duty != assignedDuty ? "/" + assignedDuty : "") + (dutyIndex >= 0 ? "#" + dutyIndex : "");
     }
 }
