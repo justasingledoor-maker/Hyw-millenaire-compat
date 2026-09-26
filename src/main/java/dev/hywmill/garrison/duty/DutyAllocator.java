@@ -11,9 +11,10 @@ import java.util.UUID;
 
 /**
  * Deterministic standing-duty allocation over existing garrison units (no units are created).
- * Pure. Stable: a unit keeps its duty (and post/pair index) while the quota for that duty still
- * has room; free places are filled by preference (scouts: cavalry, then ranged; sentries: ranged
- * and line; reserve: line), ties by rosterId.
+ * Pure. Scouts are chosen first, by preference (cavalry, then ranged, then levy), current scouts
+ * winning ties, so mounted units take over scouting as soon as the village has them. For the
+ * other duties a unit keeps its duty (and post/pair index) while the quota still has room; free
+ * places are filled by preference (sentries: ranged and line; reserve: line), ties by rosterId.
  */
 public final class DutyAllocator {
     private DutyAllocator() {}
@@ -27,11 +28,37 @@ public final class DutyAllocator {
         List<Candidate> sorted = new ArrayList<>(units);
         sorted.sort(Comparator.comparing(Candidate::rosterId));
         Map<UUID, Assignment> out = new HashMap<>();
+        // 0. scouts: best by preference; a current scout wins ties and keeps its post index
+        List<Candidate> byScout = new ArrayList<>(sorted);
+        byScout.sort(Comparator.comparingInt(DutyAllocator::scoutRank)
+                .thenComparingInt(c -> c.current() == Duty.SCOUT ? 0 : 1).thenComparing(Candidate::rosterId));
+        List<Candidate> scoutsChosen = byScout.subList(0, Math.min(q.scouts(), byScout.size()));
+        boolean[] scoutIdx = new boolean[q.scouts()];
+        List<Candidate> newScouts = new ArrayList<>();
+        for (Candidate c : scoutsChosen) {
+            if (c.current() == Duty.SCOUT && c.index() >= 0 && c.index() < q.scouts() && !scoutIdx[c.index()]) {
+                scoutIdx[c.index()] = true;
+                out.put(c.rosterId(), new Assignment(Duty.SCOUT, c.index()));
+            } else {
+                newScouts.add(c);
+            }
+        }
+        for (Candidate c : newScouts) {
+            int i = 0;
+            while (scoutIdx[i]) {
+                i++;
+            }
+            scoutIdx[i] = true;
+            out.put(c.rosterId(), new Assignment(Duty.SCOUT, i));
+        }
         // 1. keep existing assignments within quota (sentry pairs keep their post index)
         int[] pairFill = new int[q.sentryPairs()];
-        int patrol = 0, scouts = 0, reserve = 0;
-        boolean[] scoutIdx = new boolean[q.scouts()];
+        boolean[] patrolIdx = new boolean[q.patrol()];
+        int patrol = 0, reserve = 0;
         for (Candidate c : sorted) {
+            if (out.containsKey(c.rosterId())) {
+                continue;
+            }
             switch (c.current()) {
                 case SENTRY -> {
                     if (c.index() >= 0 && c.index() < q.sentryPairs() && pairFill[c.index()] < 2) {
@@ -40,15 +67,10 @@ public final class DutyAllocator {
                     }
                 }
                 case PATROL -> {
-                    if (patrol < q.patrol()) {
-                        out.put(c.rosterId(), new Assignment(Duty.PATROL, patrol++));
-                    }
-                }
-                case SCOUT -> {
-                    if (c.index() >= 0 && c.index() < q.scouts() && !scoutIdx[c.index()]) {
-                        scoutIdx[c.index()] = true;
-                        scouts++;
-                        out.put(c.rosterId(), new Assignment(Duty.SCOUT, c.index()));
+                    if (c.index() >= 0 && c.index() < q.patrol() && !patrolIdx[c.index()]) {
+                        patrolIdx[c.index()] = true;
+                        patrol++;
+                        out.put(c.rosterId(), new Assignment(Duty.PATROL, c.index()));
                     }
                 }
                 case RESERVE -> {
@@ -77,22 +99,16 @@ public final class DutyAllocator {
                 out.put(c.rosterId(), new Assignment(Duty.SENTRY, p));
             }
         }
-        for (int i = 0; i < q.scouts(); i++) {
-            if (scoutIdx[i]) {
+        for (int i = 0; i < q.patrol(); i++) {
+            if (patrolIdx[i]) {
                 continue;
             }
-            Candidate c = take(free, Comparator.comparingInt(DutyAllocator::scoutRank));
-            if (c == null) {
-                break;
-            }
-            out.put(c.rosterId(), new Assignment(Duty.SCOUT, i));
-        }
-        while (patrol < q.patrol()) {
             Candidate c = take(free, Comparator.comparingInt(DutyAllocator::patrolRank));
             if (c == null) {
                 break;
             }
-            out.put(c.rosterId(), new Assignment(Duty.PATROL, patrol++));
+            patrolIdx[i] = true;
+            out.put(c.rosterId(), new Assignment(Duty.PATROL, i));
         }
         while (reserve < q.reserve()) {
             Candidate c = take(free, Comparator.comparingInt(DutyAllocator::reserveRank));

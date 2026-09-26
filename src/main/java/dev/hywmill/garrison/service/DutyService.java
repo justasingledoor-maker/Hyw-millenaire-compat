@@ -260,7 +260,10 @@ public final class DutyService {
 
     private static final int[][] NEAR = {{0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {2, 0}, {-2, 0}, {0, 2}, {0, -2}, {2, 2}, {-2, -2}, {2, -2}, {-2, 2}};
 
-    /** Standable ground at or near {@code p} (its own Y first, then the surface); loaded, entity-ticking chunks only. */
+    /**
+     * Standable ground at or near {@code p}: first at its own height (within two blocks up or down)
+     * on it or around it, then on the surface; loaded, entity-ticking chunks only.
+     */
     @Nullable
     static BlockPos stand(ServerLevel level, BlockPos p) {
         for (int[] o : NEAR) {
@@ -273,6 +276,12 @@ public final class DutyService {
                 if (standable(level, f)) {
                     return f;
                 }
+            }
+        }
+        for (int[] o : NEAR) {
+            BlockPos q = p.offset(o[0], 0, o[1]);
+            if (!level.isPositionEntityTicking(q)) {
+                continue;
             }
             BlockPos top = new BlockPos(q.getX(), level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, q.getX(), q.getZ()), q.getZ());
             if (Math.abs(top.getY() - p.getY()) <= 24 && standable(level, top)) {

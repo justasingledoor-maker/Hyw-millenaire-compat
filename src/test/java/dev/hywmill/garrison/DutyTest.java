@@ -223,6 +223,30 @@ class DutyTest {
         assertEquals(2, second.values().stream().filter(x -> x.duty() == Duty.SENTRY && x.index() == 0).count());
     }
 
+    @Test
+    void cavalryTakesOverScoutingOnceAvailable() {
+        List<DutyAllocator.Candidate> u = new ArrayList<>();
+        u.add(new DutyAllocator.Candidate(new UUID(1, 1), UnitClass.RANGED, Duty.SCOUT, 0));
+        u.add(new DutyAllocator.Candidate(new UUID(1, 2), UnitClass.LINE, Duty.PATROL, 0));
+        u.add(new DutyAllocator.Candidate(new UUID(1, 3), UnitClass.CAVALRY, Duty.GARRISON, -1));
+        Map<UUID, DutyAllocator.Assignment> a = DutyAllocator.allocate(u, new DutyQuota(0, 1, 1, 0));
+        assertEquals(new DutyAllocator.Assignment(Duty.SCOUT, 0), a.get(new UUID(1, 3)));
+        assertEquals(new DutyAllocator.Assignment(Duty.PATROL, 0), a.get(new UUID(1, 2)), "patrol keeps its slot");
+        assertEquals(Duty.GARRISON, a.get(new UUID(1, 1)).duty());
+    }
+
+    @Test
+    void smallVillagesGetSeveralMusterPoints() {
+        Layout l = new Layout(BlockPos.ZERO.atY(64), new BlockPos(2, 64, 2), BlockPos.ZERO, 60,
+                List.of(new LayoutPoint(BuildingRole.WATCHTOWER, new BlockPos(5, 64, 5))),
+                List.of(new BlockPos(10, 64, 0), new BlockPos(-10, 64, 0), new BlockPos(0, 64, 12), new BlockPos(0, 64, -12),
+                        new BlockPos(20, 64, 20), new BlockPos(29, 64, 0), new BlockPos(50, 64, 0)));
+        List<BlockPos> m = DutyPlan.muster(l);
+        assertEquals(DutyPlan.MIN_MUSTER, m.size(), m.toString());
+        assertEquals(new BlockPos(5, 64, 5), m.get(0));
+        assertFalse(m.contains(new BlockPos(50, 64, 0)), "outside half the radius");
+    }
+
     // ---------------------------------------------------------------- plan
 
     static Layout layout() {

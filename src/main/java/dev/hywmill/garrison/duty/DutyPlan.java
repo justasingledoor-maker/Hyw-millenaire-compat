@@ -141,16 +141,44 @@ public record DutyPlan(List<BlockPos> sentryPosts, List<BlockPos> patrol, List<B
         return List.copyOf(out);
     }
 
-    /** GARRISON duty standing points: every military point (layout order), else the defending position. */
+    /** Fewest GARRISON standing points: villages with fewer military buildings also use their innermost building anchors. */
+    public static final int MIN_MUSTER = 6;
+
+    /**
+     * GARRISON duty standing points: every military point (layout order); below {@link #MIN_MUSTER},
+     * also the building anchors nearest the centre within half the village radius; never empty.
+     */
     public static List<BlockPos> muster(Layout l) {
         List<BlockPos> out = new ArrayList<>();
         for (LayoutPoint p : l.military()) {
             out.add(p.pos());
         }
+        if (out.size() < MIN_MUSTER) {
+            List<BlockPos> inner = new ArrayList<>();
+            double r = l.radius() * 0.5;
+            for (BlockPos a : l.anchors()) {
+                if (dist2(a, l.center()) <= r * r && minDist2Or(a, out) >= 16) {
+                    inner.add(a);
+                }
+            }
+            inner.sort(Comparator.comparingDouble((BlockPos a) -> dist2(a, l.center())).thenComparingLong(BlockPos::asLong));
+            for (BlockPos a : inner) {
+                if (out.size() >= MIN_MUSTER) {
+                    break;
+                }
+                if (minDist2Or(a, out) >= 16) {
+                    out.add(a);
+                }
+            }
+        }
         if (out.isEmpty()) {
             out.add(l.defendingPos());
         }
         return List.copyOf(out);
+    }
+
+    private static double minDist2Or(BlockPos c, List<BlockPos> chosen) {
+        return chosen.isEmpty() ? Double.MAX_VALUE : minDist2(c, chosen);
     }
 
     public static BlockPos reservePoint(Layout l) {
