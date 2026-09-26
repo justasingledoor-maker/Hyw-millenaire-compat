@@ -1,0 +1,193 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario H
+[harness] PASS H0 uncrewed trebuchet summoned Summoned new Trebuchets
+[harness] PASS H1 uncrewed trebuchet is not a threat Threats in Saint-Laurent les-pâtures: 0
+[harness] PASS H2 villagers leave the uncrewed trebuchet alone 0 incidents
+[harness] --- scenario B
+[harness] PASS B owned HYW unit does not attack villagers 0 attacks
+[harness] PASS B owned HYW unit is not a threat Threats in Saint-Laurent les-pâtures: 0
+[harness] --- scenario N
+[harness] PASS N1 unowned unit outside the defense radius: no threat, CALM radius 106, unit at +118; alert=CALM threats=0
+[harness] PASS N2 unit inside the radius: ALERT with an HYW_ENEMY-only threat alert=ALERT;  - bandit_soldier[b6939f5d owner=null] [HYW_ENEMY]; Stats: alerts=1 engagements=0 hywKills=0 residentLosses=0 lastAlert=4609 lastEngaged=-1; Garrison: 0/16 (tier cap 16) | alive 0, recruited 0, missing 0, deployed 0, returning 0 | levy 0.87/6 (+5.50/day) | equipment level 1
+[harness] PASS N3 proactive=false: no defender attacks a unit that attacks nobody 0 hits, committed=0
+[harness] PASS N4 civilians near the unit shelter (shelterRadius 48) 16 started, 16 hiding now
+[harness] PASS N5 sighting that never came to blows returns to CALM after alertTicks CALM
+[harness] --- scenario C
+[harness] PASS C1 threat detected 
+[harness] PASS C2 bandit attacks marked villagers 5 hits
+[harness] PASS C3 defenders fight back 10 hits by ['3a5ce3e7', '493ab279']
+[harness] PASS C4 civilians never attack HYW units 0
+[harness] PASS C4 civilians shelter 
+[harness] --- scenario D
+[harness] PASS D3-4 HYW temporary retaliation after player hits [True, True, True]
+[harness] PASS D5 village <-> player stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS D5 village <-> unit owner stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS D5-b a civilian to hit 
+[harness] PASS D5-b HYW escalated to HOSTILE on same-tick hits fake player hit 6597c2bd-7db7-4ce7-ab92-d2b0de731828 hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none relation(target->fakePlayer)=HOSTILE
+[harness] PASS D5-b reconciliation reset it to NEUTRAL within 200 ticks ('NEUTRAL', 'NEUTRAL') [07:02:40] [Server thread/WARN] [de.hy.co.HmLog/]: [hywmill] Permanent HYW HOSTILE between village faction a02e4936-bb6e-3e7e-ba29-6264774e48b9 and 5f1c7d5e-0000-4000-8000-00000000beef (found by reconciliation); reset to NEUTRAL (preventPermanentEscalation=true). HYW temporary retaliation is unaffected.
+[harness] --- scenario I
+[harness] PASS I1 3 owned units passing through are not threats Threats in Saint-Laurent les-pâtures: 0
+[harness] PASS I2 each unit that damaged a resident is a threat, once Threats in Saint-Laurent les-pâtures: 3;  - militia[bd15f678 owner=11111111] [RECENT_ATTACKER];  - militia[a4104009 owner=11111111] [RECENT_ATTACKER];  - militia[d33374fb owner=11111111] [RECENT_ATTACKER]
+[harness] PASS I3 defenders engage the attackers 20 hits by ['0cf57c83', '1fbc5d6d', '5edcbcbe', '773f0d71', 'b173ffc3', 'f5ea8ec0']
+[harness] PASS I4 civilians do not join the fight 
+[harness] PASS I5 village <-> unit owner NEUTRAL after the fight ('NEUTRAL', 'NEUTRAL')
+[harness] PASS I6 village <-> player still NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS I8 M2-5 commit/reserve during the fight: <= commitPerThreat per threat, no defender on two threats per threat [3, 3], reserve 1, eligible 17, alert ENGAGED
+[harness] PASS I7 incident ledger bounded (capacity 512) and threats cleared 100 of last 100 incidents shown (+20); escalation guard: detected=2 reverted=2
+[harness] --- scenario W
+[harness] PASS W1 militiaPolicy NEVER: only SOLDIER/LEADER engage 1 hits by ['millenaire:norman/guard']
+[harness] PASS W2 override removed again 
+[harness] --- scenario L
+[harness] PASS L1 lifecycle CALM -> ALERT -> ENGAGED -> RECOVERY -> CALM ['ALERT', 'ENGAGED', 'RECOVERY', 'CALM']
+[harness] PASS L2 timers: RECOVERY after ~engagedTicks (200), CALM ~recoveryTicks (600) later recovery after 14.0s, calm after 44.0s
+[harness] PASS L3 persistent statistics count the alert and the engagement alerts=4 engagements=3 hywKills=4 residentLosses=0 lastAlert=8811 lastEngaged=8811 -> alerts=5 engagements=4 hywKills=4 residentLosses=0 lastAlert=10229 lastEngaged=10271
+[harness] --- scenario F1
+[harness] PASS F1 villagers still fight vanilla monsters 7 hits after 1 zombie(s)
+[harness] --- scenario E
+[harness] PASS E0 a defender to kill 
+[harness] PASS E1 Millénaire resurrected the defender [07:07:42] [Server thread/INFO] [or.mi.vi.VillageIntegrityChecker/]: [Millenaire] Villager respawned: type=millenaire:norman/seneschal, old UUID=3a5ce3e7, new UUID=571fa599, pos=648, 81, 636
+[harness] PASS E2 resurrected villager got the village faction identity 571fa599
+[harness] --- scenario F2
+[harness] PASS F2a raid triggered Raid triggered: Saint-Laurent les-pâtures -> Cauvicourt les-pâtures (4 raiders dispatched)
+[harness] PASS F2b raid clone left unmarked 
+[harness] PASS F2c Millénaire resolved the raid [07:08:49] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Saint-Laurent les-pâtures repulsed at Cauvicourt les-pâtures.
+[harness] --- scenario X
+[harness] PASS X0 extra villages spawned {'militaire': (640, 72, 960), 'byzantine': (400, 71, 450), 'artisans': (1060, 87, 640)}
+[harness] PASS X1 A: seneschal is LEADER, leaders >= 1 {'tier': 'GUARD_POST', 'soldiers': '0', 'leaders': '1', 'militia': '13'}
+[harness] PASS X2 B (Douvres pattern): border markers only, fortification 0, tier WATCH {BORDER_MARKER=13} fort=0 tier=WATCH
+[harness] PASS X3 norman/militaire: FORT_TOWNHALL and guards as SOLDIER {WALL=26, TOWER=4, BORDER_MARKER=7, GUARDHOUSE=2, WATCHTOWER=2, ARMOURY=1, FORT_TOWNHALL=1} soldiers=4 tier=STRONGHOLD
+[harness] PASS X4 byzantines/militaryvillage runtime soldier verification soldiers=1 leaders=1 militia=12 capacity=13 {BORDER_MARKER=9, BARRACKS=1, ARMOURY=1, FORT_TOWNHALL=1}
+[harness] PASS X5 capacity of A = SOLDIER+MILITIA slots of operational buildings at current variant/level harness 16 vs mod 16; 
+[harness] PASS X5 capacity of militaire = SOLDIER+MILITIA slots of operational buildings at current variant/level harness 11 vs mod 11; 
+[harness] PASS X5 capacity of byzantine = SOLDIER+MILITIA slots of operational buildings at current variant/level harness 13 vs mod 13; 
+[harness] PASS X6 doctrine of A (norman/agricole) = baseline {'commitPerThreat': ('3', 'baseline'), 'reserve': ('1', 'baseline'), 'militiaPolicy': ('ON_ENGAGED', 'baseline'), 'shelterRadius': ('48', 'baseline'), 'proactive': ('false', 'baseline'), 'assistMinReputation': ('0', 'baseline'), 'alertTicks': ('100', 'baseline'), 'engagedTicks': ('200', 'baseline'), 'recoveryTicks': ('600', 'baseline')}
+[harness] PASS X7 norman/militaire: reserve 2 and militia WHEN_ATTACKED from its village type {'reserve': ('3', 'village type millenaire:norman/militaire + tier STRONGHOLD'), 'militiaPolicy': ('WHEN_ATTACKED', 'village type millenaire:norman/militaire'), 'commitPerThreat': ('4', 'baseline + tier STRONGHOLD')}
+[harness] PASS X8 byzantines/militaryvillage: commit 4 / reserve 2 (type), reputation 256 and recovery 1200 (culture) {'commitPerThreat': ('4', 'village type millenaire:byzantines/militaryvillage'), 'reserve': ('2', 'village type millenaire:byzantines/militaryvillage'), 'assistMinReputation': ('256', 'culture millenaire:byzantines'), 'recoveryTicks': ('1200', 'culture millenaire:byzantines')}
+[harness] --- scenario P
+[harness] PASS P1 >= 5 active villages and ~20 HYW units 5 villages; extra: {'militaire': (640, 72, 960), 'byzantine': (400, 71, 450), 'artisans': (1060, 87, 640)}
+[harness] PASS P2 mean village scan < 200 us scan.village (305, 74.2, 364.7, 247.3)
+[harness] PASS P3a p99 of every HywMill work slice (incl. the whole per-tick total) <= 2 ms {'defense.update': 170.2, 'duty.layout': 202.2, 'duty.tick': 222.5, 'garrison.deploy': 17.3, 'garrison.slot': 351.3, 'profile.apply': 320.7, 'profile.doctrine': 48.9, 'profile.log': 191.0, 'profile.refresh': 850.8, 'profile.snapshot': 484.9, 'profile.sweep': 180.3, 'raid.tick': 27.3, 'scan.village': 247.3, 'tick.total': 730.6}
+[harness] PASS P3b max of any single slice <= 2 ms (spikes include GC/scheduling on a shared 4-CPU host) {'defense.update': 193.8, 'duty.layout': 202.2, 'duty.tick': 240.9, 'garrison.deploy': 24.6, 'garrison.slot': 351.3, 'profile.apply': 320.7, 'profile.doctrine': 48.9, 'profile.log': 191.0, 'profile.refresh': 850.8, 'profile.snapshot': 484.9, 'profile.sweep': 180.3, 'raid.tick': 42.3, 'scan.village': 364.7}
+[harness] perf hywmill perf (per server since start or last reset):
+[harness] perf defense.update: n=305 mean=52.6us max=193.8us p99=170.2us total=16.1ms
+[harness] perf duty.layout: n=5 mean=161.8us max=202.2us p99=202.2us total=0.8ms
+[harness] perf duty.tick: n=152 mean=27.3us max=240.9us p99=222.5us total=4.2ms
+[harness] perf garrison.deploy: n=183 mean=8.0us max=24.6us p99=17.3us total=1.5ms
+[harness] perf garrison.slot: n=30 mean=123.4us max=351.3us p99=351.3us total=3.7ms
+[harness] perf profile.apply: n=30 mean=78.6us max=320.7us p99=320.7us total=2.4ms
+[harness] perf profile.doctrine: n=30 mean=22.8us max=48.9us p99=48.9us total=0.7ms
+[harness] perf profile.log: n=30 mean=127.8us max=191.0us p99=191.0us total=3.8ms
+[harness] perf profile.refresh: n=30 mean=560.0us max=850.8us p99=850.8us total=16.8ms
+[harness] perf profile.snapshot: n=30 mean=320.5us max=484.9us p99=484.9us total=9.6ms
+[harness] perf profile.sweep: n=30 mean=74.6us max=180.3us p99=180.3us total=2.2ms
+[harness] perf raid.tick: n=152 mean=11.0us max=42.3us p99=27.3us total=1.7ms
+[harness] perf scan.village: n=305 mean=74.2us max=364.7us p99=247.3us total=22.6ms
+[harness] perf snap.buildings: n=30 mean=86.0us max=119.8us p99=119.8us total=2.6ms
+[harness] perf snap.gear: n=30 mean=86.8us max=182.6us p99=182.6us total=2.6ms
+[harness] perf snap.residents: n=30 mean=44.9us max=68.3us p99=68.3us total=1.3ms
+[harness] perf snap.slots: n=30 mean=44.2us max=73.3us p99=73.3us total=1.3ms
+[harness] perf snap.village: n=30 mean=34.6us max=69.4us p99=69.4us total=1.0ms
+[harness] perf tick.total: n=1220 mean=66.0us max=1118.2us p99=730.6us total=80.5ms
+[harness] perf villages known: 5, with defense state: 5
+[harness] perf garrison: 5 roster(s), 0 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] PASS P4 whole HywMill work per server tick (informational: mean/max) tick.total n=1220 mean=66.0us max=1118.2us
+[harness] --- scenario A
+[harness] PASS A1-3 village info populated {'villageId': '8ce7b20d-f783-43b7-84a3-d572b25e6295', 'faction': 'a02e4936-bb6e-3e7e-ba29-6264774e48b9', 'tier': 'GUARD_POST', 'garrison': '14', 'fortification': '3', 'defending': '229', 'villagerRoles': '{LEADER=1, MILITIA=13, CIVILIAN=20}', 'buildingRoles': '{BORDER_MARKER=16, GUARDHOUSE=1} '}
+[harness] server stopped
+[harness] server started
+[harness] PASS A4 ledger reloaded from disk [07:16:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 5 village record(s), format 4, faction-id mismatches corrected: 0
+[harness] PASS A5-6 same VillageId and faction after restart a02e4936-bb6e-3e7e-ba29-6264774e48b9 vs a02e4936-bb6e-3e7e-ba29-6264774e48b9
+[harness] PASS A7 doctrine override persisted across restart (ledger format 3) ('0', 'override')
+[harness] PASS A8 doctrine reset restores the inherited value 
+[harness] --- scenario G
+[harness] PASS G0 a marked resident 6597c2bd-7db7-4ce7-ab92-d2b0de731828 faction=a02e4936-bb6e-3e7e-ba29-6264774e48b9
+[harness] PASS G1 clear-identities removes loaded markers Removed the village faction identity from 34 loaded resident(s) in 1 village(s). Unloaded residents are cleared when they load. Markers stay off until /hywmill admin restore-identities.
+[harness] server stopped
+[harness] server started
+[harness] PASS G2 still unmarked after restart (clearance persisted, not re-marked on load) 
+[harness] PASS G3 restore-identities re-marks 
+[harness] server stopped
+[harness] server started
+[harness] PASS G4 markVillagers=false removes markers on load 
+[harness] server stopped
+[harness] server started
+[harness] PASS G5 markVillagers=true marks again 
+[harness] server stopped
+[harness] RESULT 72/72 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  H0 uncrewed trebuchet summoned  Summoned new Trebuchets
+  PASS  H1 uncrewed trebuchet is not a threat  Threats in Saint-Laurent les-pâtures: 0
+  PASS  H2 villagers leave the uncrewed trebuchet alone  0 incidents
+  PASS  B owned HYW unit does not attack villagers  0 attacks
+  PASS  B owned HYW unit is not a threat  Threats in Saint-Laurent les-pâtures: 0
+  PASS  N1 unowned unit outside the defense radius: no threat, CALM  radius 106, unit at +118; alert=CALM threats=0
+  PASS  N2 unit inside the radius: ALERT with an HYW_ENEMY-only threat  alert=ALERT;  - bandit_soldier[b6939f5d owner=null] [HYW_ENEMY]; Stats: alerts=1 engagements=0 hywKills=0 residentLosses=0 lastAlert=4609 lastEngaged=-1; Garrison: 0/16 (tier cap 16) | alive 0, recruited 0, missing 0, deployed 0, returning 0 | levy 0.87/6 (+5.50/day) | equipment level 1
+  PASS  N3 proactive=false: no defender attacks a unit that attacks nobody  0 hits, committed=0
+  PASS  N4 civilians near the unit shelter (shelterRadius 48)  16 started, 16 hiding now
+  PASS  N5 sighting that never came to blows returns to CALM after alertTicks  CALM
+  PASS  C1 threat detected  
+  PASS  C2 bandit attacks marked villagers  5 hits
+  PASS  C3 defenders fight back  10 hits by ['3a5ce3e7', '493ab279']
+  PASS  C4 civilians never attack HYW units  0
+  PASS  C4 civilians shelter  
+  PASS  D3-4 HYW temporary retaliation after player hits  [True, True, True]
+  PASS  D5 village <-> player stays NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  D5 village <-> unit owner stays NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  D5-b a civilian to hit  
+  PASS  D5-b HYW escalated to HOSTILE on same-tick hits  fake player hit 6597c2bd-7db7-4ce7-ab92-d2b0de731828 hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none relation(target->fakePlayer)=HOSTILE
+  PASS  D5-b reconciliation reset it to NEUTRAL within 200 ticks  ('NEUTRAL', 'NEUTRAL') [07:02:40] [Server thread/WARN] [de.hy.co.HmLog/]: [hywmill] Permanent HYW HOSTILE between village faction a02e4936-bb6e-3e7e-ba29-6264774e48b9 and 5f1c7d5e-0000-4000-8000-00000000beef (found by reconciliation); reset to NEUTRAL (preventPermanentEscalation=true). HYW temporary retaliation is unaffected.
+  PASS  I1 3 owned units passing through are not threats  Threats in Saint-Laurent les-pâtures: 0
+  PASS  I2 each unit that damaged a resident is a threat, once  Threats in Saint-Laurent les-pâtures: 3;  - militia[bd15f678 owner=11111111] [RECENT_ATTACKER];  - militia[a4104009 owner=11111111] [RECENT_ATTACKER];  - militia[d33374fb owner=11111111] [RECENT_ATTACKER]
+  PASS  I3 defenders engage the attackers  20 hits by ['0cf57c83', '1fbc5d6d', '5edcbcbe', '773f0d71', 'b173ffc3', 'f5ea8ec0']
+  PASS  I4 civilians do not join the fight  
+  PASS  I5 village <-> unit owner NEUTRAL after the fight  ('NEUTRAL', 'NEUTRAL')
+  PASS  I6 village <-> player still NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  I8 M2-5 commit/reserve during the fight: <= commitPerThreat per threat, no defender on two threats  per threat [3, 3], reserve 1, eligible 17, alert ENGAGED
+  PASS  I7 incident ledger bounded (capacity 512) and threats cleared  100 of last 100 incidents shown (+20); escalation guard: detected=2 reverted=2
+  PASS  W1 militiaPolicy NEVER: only SOLDIER/LEADER engage  1 hits by ['millenaire:norman/guard']
+  PASS  W2 override removed again  
+  PASS  L1 lifecycle CALM -> ALERT -> ENGAGED -> RECOVERY -> CALM  ['ALERT', 'ENGAGED', 'RECOVERY', 'CALM']
+  PASS  L2 timers: RECOVERY after ~engagedTicks (200), CALM ~recoveryTicks (600) later  recovery after 14.0s, calm after 44.0s
+  PASS  L3 persistent statistics count the alert and the engagement  alerts=4 engagements=3 hywKills=4 residentLosses=0 lastAlert=8811 lastEngaged=8811 -> alerts=5 engagements=4 hywKills=4 residentLosses=0 lastAlert=10229 lastEngaged=10271
+  PASS  F1 villagers still fight vanilla monsters  7 hits after 1 zombie(s)
+  PASS  E0 a defender to kill  
+  PASS  E1 Millénaire resurrected the defender  [07:07:42] [Server thread/INFO] [or.mi.vi.VillageIntegrityChecker/]: [Millenaire] Villager respawned: type=millenaire:norman/seneschal, old UUID=3a5ce3e7, new UUID=571fa599, pos=648, 81, 636
+  PASS  E2 resurrected villager got the village faction identity  571fa599
+  PASS  F2a raid triggered  Raid triggered: Saint-Laurent les-pâtures -> Cauvicourt les-pâtures (4 raiders dispatched)
+  PASS  F2b raid clone left unmarked  
+  PASS  F2c Millénaire resolved the raid  [07:08:49] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Saint-Laurent les-pâtures repulsed at Cauvicourt les-pâtures.
+  PASS  X0 extra villages spawned  {'militaire': (640, 72, 960), 'byzantine': (400, 71, 450), 'artisans': (1060, 87, 640)}
+  PASS  X1 A: seneschal is LEADER, leaders >= 1  {'tier': 'GUARD_POST', 'soldiers': '0', 'leaders': '1', 'militia': '13'}
+  PASS  X2 B (Douvres pattern): border markers only, fortification 0, tier WATCH  {BORDER_MARKER=13} fort=0 tier=WATCH
+  PASS  X3 norman/militaire: FORT_TOWNHALL and guards as SOLDIER  {WALL=26, TOWER=4, BORDER_MARKER=7, GUARDHOUSE=2, WATCHTOWER=2, ARMOURY=1, FORT_TOWNHALL=1} soldiers=4 tier=STRONGHOLD
+  PASS  X4 byzantines/militaryvillage runtime soldier verification  soldiers=1 leaders=1 militia=12 capacity=13 {BORDER_MARKER=9, BARRACKS=1, ARMOURY=1, FORT_TOWNHALL=1}
+  PASS  X5 capacity of A = SOLDIER+MILITIA slots of operational buildings at current variant/level  harness 16 vs mod 16; 
+  PASS  X5 capacity of militaire = SOLDIER+MILITIA slots of operational buildings at current variant/level  harness 11 vs mod 11; 
+  PASS  X5 capacity of byzantine = SOLDIER+MILITIA slots of operational buildings at current variant/level  harness 13 vs mod 13; 
+  PASS  X6 doctrine of A (norman/agricole) = baseline  {'commitPerThreat': ('3', 'baseline'), 'reserve': ('1', 'baseline'), 'militiaPolicy': ('ON_ENGAGED', 'baseline'), 'shelterRadius': ('48', 'baseline'), 'proactive': ('false', 'baseline'), 'assistMinReputation': ('0', 'baseline'), 'alertTicks': ('100', 'baseline'), 'engagedTicks': ('200', 'baseline'), 'recoveryTicks': ('600', 'baseline')}
+  PASS  X7 norman/militaire: reserve 2 and militia WHEN_ATTACKED from its village type  {'reserve': ('3', 'village type millenaire:norman/militaire + tier STRONGHOLD'), 'militiaPolicy': ('WHEN_ATTACKED', 'village type millenaire:norman/militaire'), 'commitPerThreat': ('4', 'baseline + tier STRONGHOLD')}
+  PASS  X8 byzantines/militaryvillage: commit 4 / reserve 2 (type), reputation 256 and recovery 1200 (culture)  {'commitPerThreat': ('4', 'village type millenaire:byzantines/militaryvillage'), 'reserve': ('2', 'village type millenaire:byzantines/militaryvillage'), 'assistMinReputation': ('256', 'culture millenaire:byzantines'), 'recoveryTicks': ('1200', 'culture millenaire:byzantines')}
+  PASS  P1 >= 5 active villages and ~20 HYW units  5 villages; extra: {'militaire': (640, 72, 960), 'byzantine': (400, 71, 450), 'artisans': (1060, 87, 640)}
+  PASS  P2 mean village scan < 200 us  scan.village (305, 74.2, 364.7, 247.3)
+  PASS  P3a p99 of every HywMill work slice (incl. the whole per-tick total) <= 2 ms  {'defense.update': 170.2, 'duty.layout': 202.2, 'duty.tick': 222.5, 'garrison.deploy': 17.3, 'garrison.slot': 351.3, 'profile.apply': 320.7, 'profile.doctrine': 48.9, 'profile.log': 191.0, 'profile.refresh': 850.8, 'profile.snapshot': 484.9, 'profile.sweep': 180.3, 'raid.tick': 27.3, 'scan.village': 247.3, 'tick.total': 730.6}
+  PASS  P3b max of any single slice <= 2 ms (spikes include GC/scheduling on a shared 4-CPU host)  {'defense.update': 193.8, 'duty.layout': 202.2, 'duty.tick': 240.9, 'garrison.deploy': 24.6, 'garrison.slot': 351.3, 'profile.apply': 320.7, 'profile.doctrine': 48.9, 'profile.log': 191.0, 'profile.refresh': 850.8, 'profile.snapshot': 484.9, 'profile.sweep': 180.3, 'raid.tick': 42.3, 'scan.village': 364.7}
+  PASS  P4 whole HywMill work per server tick (informational: mean/max)  tick.total n=1220 mean=66.0us max=1118.2us
+  PASS  A1-3 village info populated  {'villageId': '8ce7b20d-f783-43b7-84a3-d572b25e6295', 'faction': 'a02e4936-bb6e-3e7e-ba29-6264774e48b9', 'tier': 'GUARD_POST', 'garrison': '14', 'fortification': '3', 'defending': '229', 'villagerRoles': '{LEADER=1, MILITIA=13, CIVILIAN=20}', 'buildingRoles': '{BORDER_MARKER=16, GUARDHOUSE=1} '}
+  PASS  A4 ledger reloaded from disk  [07:16:09] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 5 village record(s), format 4, faction-id mismatches corrected: 0
+  PASS  A5-6 same VillageId and faction after restart  a02e4936-bb6e-3e7e-ba29-6264774e48b9 vs a02e4936-bb6e-3e7e-ba29-6264774e48b9
+  PASS  A7 doctrine override persisted across restart (ledger format 3)  ('0', 'override')
+  PASS  A8 doctrine reset restores the inherited value  
+  PASS  G0 a marked resident  6597c2bd-7db7-4ce7-ab92-d2b0de731828 faction=a02e4936-bb6e-3e7e-ba29-6264774e48b9
+  PASS  G1 clear-identities removes loaded markers  Removed the village faction identity from 34 loaded resident(s) in 1 village(s). Unloaded residents are cleared when they load. Markers stay off until /hywmill admin restore-identities.
+  PASS  G2 still unmarked after restart (clearance persisted, not re-marked on load)  
+  PASS  G3 restore-identities re-marks  
+  PASS  G4 markVillagers=false removes markers on load  
+  PASS  G5 markVillagers=true marks again  

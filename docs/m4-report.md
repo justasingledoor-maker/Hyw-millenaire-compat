@@ -15,8 +15,8 @@ Branch: `claude/millenaire-hyw-audit-5n4u8s`.
 | JUnit | 172/172 (39 new for M4: duty data/quotas/allocation/plan/motion/persistence, raid planner, equipment profiles) |
 | G4 duty/raid acceptance, final jar | **31/31** (`docs/m4-test-evidence/g4-run4-final.txt`) |
 | G4 Epic Knights profiles | **10/10** (`g4-epic-knights.txt`, `equipcheck-report.txt`) |
-| M3 G3 regression with M4 | see §4 |
-| M2 regression (garrison disabled) | see §4 |
+| M3 G3 regression with M4 | **42/42** |
+| M2 regression (garrison disabled, the M2 baseline) | **72/72** |
 | Calm cost, same world, duties off → on | server tick mean 57.6 → 63.2 µs, p99 644 → 706 µs; duty tick ≈ 97 µs per village per 40 ticks |
 
 ## 2. Design
@@ -244,7 +244,17 @@ Runs 1–3 (evidence kept) found real defects, and each was fixed before the fin
 
 ## 4. Regression
 
-REGRESSION_PLACEHOLDER
+| Suite | Result | Evidence |
+|---|---|---|
+| M3 G3 suite (`run garrison`) with M4 duties active | **42/42** | `g3-with-m4.txt` |
+| M2 regression (`run all`, garrison disabled: the frozen M2 baseline) | **72/72**; the accepted performance-tail items P3a/P3b also passed this time | `m2-regression.txt` |
+| JUnit | 172/172 | `./gradlew test` |
+
+The first G3 run gave 41/42 (`g3-with-m4-run1.txt`). The failing check was G3-4: M2 deployed the
+two nearest garrison units, and both were in a well next to their duty spot, so they could not
+engage. They were within 2 blocks of their spot, only one block below it, so they were not counted
+as stuck. A unit that sits a block or more below its spot without moving now counts as trapped and
+gets the same fallback and unstick. The rerun gave 42/42.
 
 ## 5. Performance (section 10)
 
