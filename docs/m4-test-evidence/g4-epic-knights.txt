@@ -1,0 +1,34 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario G4_0
+[harness] G4 fill A (630, 82, 612): [('spear_man', 2), ('archer', 2), ('militia', 1), ('crossbowman', 1), ('warrior', 2)]
+[harness] G4 fill B (830, 80, 612): [('archer', 1), ('militia', 1), ('crossbowman', 1)]
+[harness] G4 fill M (650, 68, 920): [('spear_man', 19), ('archer', 13), ('light_lancer_rider', 8), ('archer_rider', 6), ('militia', 4), ('crossbowman', 2), ('shieldman', 2), ('warrior', 4)]
+[harness] G4 fill Z (400, 71, 450): [('spear_man', 2), ('archer', 2), ('militia', 1), ('crossbowman', 1), ('warrior', 1)]
+[harness] G4 A Plan: 1 sentry post(s) [624,81,632] | patrol [697,82,649 668,87,684 609,82,676 614,85,655 598,79,578 626,81,589 690,74,579 703,73,600] | scout posts [551,80,536 734,80,528 742,80,711 559,80,719] | res | quota {'pairs': 1, 'patrol': 3, 'scouts': 1, 'reserve': 1} | 16 units
+[harness] G4 B Plan: 1 sentry post(s) [847,87,636] | patrol [866,85,655 814,85,672 824,89,645 824,85,617 838,83,601 859,82,606 870,84,613] | scout posts [974,87,600 870,87,751 719,87,647 823,87,496] | reserve 847, 8 | quota {'pairs': 1, 'patrol': 1, 'scouts': 0, 'reserve': 1} | 7 units
+[harness] G4 M Plan: 24 sentry post(s) [664,69,914 640,75,966 677,72,936 613,72,907 694,69,883 637,78,883 613,67,964 637,73,988 667,69,988 718,57,901 612,82,882 612,71,989 719,68,882 613,65,945 656,62,883 613,66,925 | quota {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 9} | 64 units
+[harness] G4 Z Plan: 3 sentry post(s) [413,70,461 421,70,476 400,70,470] | patrol [474,67,506 423,71,531 410,73,498 393,79,497 354,78,463 403,71,409 437,71,407 447,66,469] | scout posts [308,70,403 486,70,358 531,70 | quota {'pairs': 0, 'patrol': 0, 'scouts': 0, 'reserve': 1} | 1 units
+[harness] PASS G4-0 garrisons filled and duty plans exist (A, B and the stronghold at least) {'A': (16, {'pairs': 1, 'patrol': 3, 'scouts': 1, 'reserve': 1}), 'B': (7, {'pairs': 1, 'patrol': 1, 'scouts': 0, 'reserve': 1}), 'M': (64, {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 9}), 'Z': (1, {'pairs': 0, 'patrol': 0, 'scouts': 0, 'reserve': 1})}
+[harness] --- scenario G4_EK
+[harness] PASS G4-EK1 admin equipcheck validates the profiles (Epic Knights loaded, no invalid items) equipcheck: 339 profile entries; 0 invalid item/slot, 160 incompatible item/unit pairs, 160 list/unit fallbacks; Epic Knights loaded
+[harness] PASS G4-EK2 culture: Norman heads are norman_helmet, Byzantine heads differ A ['magistuarmory:coif', 'magistuarmory:kettlehat', 'magistuarmory:norman_helmet'] Z ['magistuarmory:chainmail_helmet']
+[harness] PASS G4-EK3 role: sentries wear the sentry helmet (bascinet / greathelm) ['magistuarmory:bascinet', 'magistuarmory:grand_bascinet', 'magistuarmory:greathelm']
+[harness] PASS G4-EK4 tier: stronghold line units wear heavier armour than the smaller village's A ['magistuarmory:chainmail_chestplate', 'magistuarmory:gambeson_chestplate'] M ['magistuarmory:brigandine_chestplate', 'magistuarmory:platemail_chestplate']
+[harness] PASS G4-EK5 unsupported combinations fall back (no kiteshield on spear_man; archers keep a bow) spear_man offhand ['-']; shieldman offhand ['magistuarmory:steel_kiteshield']; archer mainhand ['magistuarmory:longbow']
+[harness] server stopped
+[harness] RESULT 10/10 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  G4-0 garrisons filled and duty plans exist (A, B and the stronghold at least)  {'A': (16, {'pairs': 1, 'patrol': 3, 'scouts': 1, 'reserve': 1}), 'B': (7, {'pairs': 1, 'patrol': 1, 'scouts': 0, 'reserve': 1}), 'M': (64, {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 9}), 'Z': (1, {'pairs': 0, 'patrol': 0, 'scouts': 0, 'reserve': 1})}
+  PASS  G4-EK1 admin equipcheck validates the profiles (Epic Knights loaded, no invalid items)  equipcheck: 339 profile entries; 0 invalid item/slot, 160 incompatible item/unit pairs, 160 list/unit fallbacks; Epic Knights loaded
+  PASS  G4-EK2 culture: Norman heads are norman_helmet, Byzantine heads differ  A ['magistuarmory:coif', 'magistuarmory:kettlehat', 'magistuarmory:norman_helmet'] Z ['magistuarmory:chainmail_helmet']
+  PASS  G4-EK3 role: sentries wear the sentry helmet (bascinet / greathelm)  ['magistuarmory:bascinet', 'magistuarmory:grand_bascinet', 'magistuarmory:greathelm']
+  PASS  G4-EK4 tier: stronghold line units wear heavier armour than the smaller village's  A ['magistuarmory:chainmail_chestplate', 'magistuarmory:gambeson_chestplate'] M ['magistuarmory:brigandine_chestplate', 'magistuarmory:platemail_chestplate']
+  PASS  G4-EK5 unsupported combinations fall back (no kiteshield on spear_man; archers keep a bow)  spear_man offhand ['-']; shieldman offhand ['magistuarmory:steel_kiteshield']; archer mainhand ['magistuarmory:longbow']
