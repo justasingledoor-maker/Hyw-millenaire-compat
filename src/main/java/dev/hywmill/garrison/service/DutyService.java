@@ -135,7 +135,7 @@ public final class DutyService {
             long[] last = rt.moves.get(e.rosterId);
             if (last != null && home != null && last[0] == goal.asLong() && last[1] == home.asLong() && last[2] == 1
                     && staticDuty(e.assignedDuty) && tick - last[3] >= table.move().hopTimeout()
-                    && DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().arriveRadius() + 1) {
+                    && (DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().arriveRadius() + 1 || below(ent, home, last))) {
                 // stuck short of a fixed spot (e.g. a tower top HYW cannot path to): try ground around it; then, if the
                 // unit has not moved at all (trapped in a pit or well), unstick it onto its spot; else hold where reachable
                 int attempt = (int) last[4] + 1;
@@ -341,6 +341,14 @@ public final class DutyService {
             }
         }
         return stand(level, p);
+    }
+
+    /**
+     * The unit sits a block or more below its home spot and has not moved since the last order: it is
+     * in a pit or well next to its spot (horizontally "arrived", but cannot see or reach anything).
+     */
+    static boolean below(Entity ent, BlockPos home, long[] last) {
+        return ent.getY() < home.getY() - 0.9 && trapped(ent, last);
     }
 
     /** The unit has not moved more than 2 blocks since its last move order (index 5 of the hop cache). */
