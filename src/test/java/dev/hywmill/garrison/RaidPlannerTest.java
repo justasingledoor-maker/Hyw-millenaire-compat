@@ -103,7 +103,9 @@ class RaidPlannerTest {
     void raidRecordSurvivesSaveAndLoad() {
         GarrisonRoster r = new GarrisonRoster(0);
         r.raid = new GarrisonRoster.RaidRecord(new UUID(3, 4), 2906, 1, "AWAY", 3500, 4);
+        r.lastRaidStart = 2906;
         GarrisonRoster back = GarrisonRoster.load(r.save(), 4000);
+        assertEquals(2906, back.lastRaidStart);
         assertNotNull(back.raid);
         assertEquals(new UUID(3, 4), back.raid.target);
         assertEquals(2906, back.raid.raidStart);

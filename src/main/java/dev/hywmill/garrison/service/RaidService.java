@@ -79,7 +79,8 @@ public final class RaidService {
         Optional<SettlementSource.RaidInfo> info = source.raidInfo(overworld, rec.villageId);
         GarrisonRoster.RaidRecord raid = r.raid;
         if (raid == null) {
-            if (info.isPresent() && info.get().target() != null && info.get().raidStart() > 0 && enabled() && alert == AlertState.CALM) {
+            if (info.isPresent() && info.get().target() != null && info.get().raidStart() > 0 && info.get().raidStart() != r.lastRaidStart
+                    && enabled() && alert == AlertState.CALM) {
                 changed |= start(overworld, rec, r, rule, info.get(), units, plan, tick);
             } else {
                 changed |= bringHomeStale(overworld, rec, r, units, tick); // only when no raid of ours is running
@@ -118,6 +119,7 @@ public final class RaidService {
         }
         List<UUID> chosen = RaidPlanner.select(rule, cands);
         r.raid = new GarrisonRoster.RaidRecord(info.target(), info.raidStart(), info.performed(), MUSTER, tick, chosen.size());
+        r.lastRaidStart = info.raidStart();
         BlockPos muster = plan != null ? plan.reserve() : rec.center;
         List<String> names = new ArrayList<>();
         for (UUID id : chosen) {
