@@ -1,6 +1,8 @@
 # HywMill M5: Player Politics (Design Audit and Proposal)
 
-Status: **design for review. Nothing here is implemented.** M3 and M4 stay frozen. M5 builds on
+Status: **design for review. Nothing here is implemented.** Two decisions are **locked** (§18,
+2026-09-26): the player-facing politics GUI with a keybind, and the larger garrison scale. M3 and M4
+stay frozen. M5 builds on
 the systems already in place:
 * Millénaire's reputation, relations and diplomacy;
 * the M2 defense doctrine;
@@ -226,8 +228,11 @@ The magnitude Δ follows Millénaire's own scale (about 10 × a reputation facto
 
 ### 7.5 Interface
 
-* **Commands**: `/hywmill diplomacy propose <kind> <from> <to>`, `status`, `cancel`.
-* A Millénaire GUI button would need Millénaire changes, so it is deferred.
+* **Commands first** (development, admin and headless testing): `/hywmill diplomacy status`,
+  `list`, `propose <reconcile|truce|encourage|sow_discord> <from> <to>`, `cancel`.
+* **The player interface is a GUI (locked, §18.1)**: a Politics / Diplomacy screen reached from the
+  village leader or town hall and from a configurable keybind. It is built after the backend and
+  its API boundary are stable, and it contains no political logic.
 * Proposals are allowed from anywhere, because envoys are letters and messengers, but only for
   villages the player has **discovered** (Millénaire's `hasDiscoveredVillage`).
 
@@ -423,8 +428,9 @@ Millénaire or HYW.
 | M5-4 | Envoy missions and truces (Millénaire relation API, delayed resolution, backfire) |
 | M5-5 | Requests: escort and detachment (M4 temporary duties), evaluator, favor costs, casualties |
 | M5-5b | Rules of engagement (§16): wars, campaigns, relation projector and reconciliation, `ENEMY_COMBATANT`, combatant-only engagement |
-| M5-G | Garrison population scaling (§17): development-driven target, levy scaled with target, M4 duty/raid data retune; independent of the politics steps; requires spike S-G and explicit approval (changes frozen M3/M4 code) |
+| M5-G | Garrison population scaling (§17, locked by §18.2): spike S-G first (targets from real harness villages, reachability of the locked caps, duties, raids, M2 deployment, spawning, server scale test); then the target and levy formulas through the existing data-driven tier machinery, with a neutral-values regression. Independent of the politics steps |
 | M5-6 | Armoury (if spike 7 allows) and honours |
+| M5-UI | Politics / Diplomacy GUI (§18.1): client keybind, screen, network payloads over the `PoliticsView` API; after M5-1..M5-5 are stable |
 | M5-7 | Harness suite G5, M4/M3/M2 regressions, performance, report |
 
 ---
@@ -439,7 +445,8 @@ Millénaire or HYW.
    sworn only, with the exposure backfire.
 4. **Escorts leaving the village's lands.** They cross unloaded terrain only with the player present
    (chunks are loaded by the player). Acceptable?
-5. **Commands only for the interface in M5.** Acceptable?
+5. ~~**Commands only for the interface in M5.**~~ **Decided (§18.1):** commands first for testing
+   and admin; a player-facing GUI with a configurable keybind follows once the backend is stable.
 6. **Automatic war between villages.** Should village ↔ village war projection (HOSTILE between
    faction garrisons at ≤ −90) be on by default? Proposed: yes, with a minimum duration at open
    conflict, and a server config switch.
@@ -447,9 +454,12 @@ Millénaire or HYW.
    friendly-fire protection) or only kept NEUTRAL (no mutual targeting, but stray hits count)?
    Proposed: FRIENDLY, for the campaign only.
 8. **Combatant-only engagement for M4 raid contingents** (a small change to frozen M4). Approve?
-9. **Garrison scaling (§17).** Approve the development-driven target and levy scaling as step M5-G,
-   and which target band for strongholds: about double (≈ 96) or up to triple (≈ 128), pending the
-   scale spike?
+9. ~~**Garrison scaling (§17).**~~ **Decided (§18.2):** caps WATCH 24, GUARD_POST 48, GARRISON 72,
+   STRONGHOLD 128; about 2–3× today's garrisons where the settlement supports it; development-driven
+   target and levy scaling as M5-G, after spike S-G.
+10. **M4 duty and raid data at the larger sizes (§18.2.4).** At 128 units the current STRONGHOLD
+    duty maxima employ about 40 units and raids commit at most 12. Retuning those **data** values is
+    a change to frozen M4 data and needs its own approval. Approve it as part of M5-G?
 
 ---
 
@@ -620,6 +630,11 @@ workaround.
 
 ## 17. Garrison population scaling (balance audit; M3/M4 unchanged)
 
+> **Superseded in part by §18.2 (locked).** The caps are now WATCH 24, GUARD_POST 48, GARRISON 72,
+> STRONGHOLD 128, and the scale is about 2–3× today's garrisons. Population is **not** a realism
+> limit: a garrison larger than the village's civilian population is acceptable. The example caps and
+> the population-ceiling framing below are kept as the original audit; §18.2 governs.
+
 **Request.** Developed settlements should field a garrison that looks like one (roughly double or
 triple the current higher tiers), while hamlets stay lightly defended. Military population should
 follow the settlement's real development, not a flat per-tier army. This section audits the current
@@ -785,3 +800,182 @@ command could be optional.
 6. **Politics tie-in (optional):** a patron's or sworn player's donations could add levy points, or
    Favor could fund a temporary `levy` boost. This would use the existing levy pool; no new
    recruitment path.
+
+---
+
+## 18. Locked decisions (2026-09-26)
+
+These two decisions are settled. They are recorded here as requirements, not proposals. The audit
+below checks each against the frozen M3/M4 architecture: **no technical contradiction was found.**
+The items that need care are listed as notes, not objections.
+
+### 18.1 Player-facing politics GUI
+
+**Requirement.** Commands are for development, admin and debug. The player experience is a GUI:
+
+```
+Village leader / town hall (or the Politics keybind)
+  → Politics / Diplomacy screen
+  → select a discovered village
+  → inspect relation and political status
+  → choose an available action
+  → envoy travels, proposal resolves
+  → result shown to the player and written to the relevant village chronicles
+```
+
+**Home view (the village the player is dealing with):**
+* the player's standing (Stranger / Unwelcome / Trusted / Patron / Sworn);
+* reputation and Favor;
+* current grievances and any current truce;
+* relations with discovered villages;
+* recent relevant history.
+
+**Selected village view:**
+* current relation, political status and trend;
+* relevant recent incidents;
+* whether the village is willing to negotiate;
+* the available actions (Reconcile, Truce, Encourage, Sow Discord), each with its required
+  reputation or Favor, diplomacy-point cost, cooldown, and general expected outcome.
+
+Player requests go through the same screen later: intelligence, escort, detachment, truce-related
+requests, and chronicle and honours.
+
+**Keybind.** A standard `KeyMapping`, registered through NeoForge's `RegisterKeyMappingsEvent` in a
+HywMill category, so it appears in Controls. **Default unbound** (`InputConstants.UNKNOWN`). Pressing
+it asks the server for the Politics screen; there is no hard-coded key and no command-only path for
+players.
+
+**The GUI holds no political logic.** The backend is authoritative for reputation, standing,
+grievances, Favor, diplomacy points, eligibility, willingness, odds, envoy travel time, resolution,
+relation changes, truces, consequences, refusal during alerts or raid preparation, and all
+persistence. The screen shows a snapshot and submits intents.
+
+**Architecture (API boundary first):**
+
+| Layer | Content |
+|---|---|
+| `politics.api` (pure, server) | `PoliticsView`: builds immutable snapshots (`HomeView`, `VillageView`, `ActionOption` with requirements, cost, cooldown and an outcome band). `PoliticsActions`: validates and submits intents, returning `Accepted` or a typed `Refusal` (not discovered, standing, Favor, points, cooldown, alert, raid preparation, truce rules...) |
+| Commands (M5-1..M5-5) | `/hywmill diplomacy status / list / propose <kind> <from> <to> / cancel` call **the same** `PoliticsView` and `PoliticsActions`. So the headless harness tests exactly what the GUI will use |
+| Network (M5-UI) | Versioned custom payloads: client → server `OpenPolitics(villageHint)`, `SelectVillage(id)`, `SubmitAction(kind, from, to)`; server → client `PoliticsSnapshot`, `ActionResult`. The server re-validates every intent (standing, discovery, distance-free rules, cooldowns), rate-limits requests, and sends only what that player may see |
+| Client (M5-UI) | `KeyMapping`, the screen and widgets. Client-only classes behind `Dist.CLIENT`; nothing in the client decides anything |
+
+**Technical notes (not contradictions):**
+1. **HywMill has no client-side code or payloads today.** M5-UI adds the first. The mod is
+   already declared on both sides (`side="BOTH"`) and Millénaire and HYW are client-required
+   anyway, so players install nothing new. The server must still behave correctly with a client
+   that never opens the screen, since commands remain.
+2. **"An extension of Millénaire".** Adding a tab **inside** Millénaire's own leader or town hall
+   screen would need Millénaire changes or a mixin, which M5 avoids. The additive plan:
+   * the keybind is the primary entry;
+   * an interaction on the village leader or town hall sign that Millénaire does not already consume
+     (for example sneak + use, **spike**) opens the same screen with that village preselected;
+   * the screen follows Millénaire's look (parchment panels, village and culture names, its
+     chronicle wording), referencing Millénaire's loaded textures by resource location where
+     practical rather than copying assets.
+
+   Millénaire's GUI is not rewritten.
+3. **Order.** The GUI comes after the backend and `politics.api` are stable. Building the API
+   boundary into M5-1..M5-5 from the start is cheap and avoids a later rewrite.
+
+### 18.2 Garrison population scaling: intentionally much larger
+
+**Principle.** Realism-inspired gameplay, not a population simulator. A garrison larger than the
+village's civilian population is acceptable when it makes a more convincing medieval military world.
+Believable defenses, visible military presence, meaningful patrols, sentries and scouts, and enough
+manpower for raids and defense are the goals. Demographic ratios are not.
+
+**Locked caps** (ceilings; the target formula decides how much of each a settlement fills):
+
+| Tier | Current cap | Locked cap |
+|---|---|---|
+| WATCH | 8 | **24** |
+| GUARD_POST | 16 | **48** |
+| GARRISON | 32 | **72** |
+| STRONGHOLD | 64 | **128** |
+
+**Requirements.**
+1. Higher tiers produce substantially larger garrisons: about **2–3× today's** where the settlement
+   supports it.
+2. Military infrastructure, settlement size, and culture and village type all raise the target.
+3. The caps are actually reached by large, developed settlements.
+4. Deterministic and data-driven.
+5. No new persistence format for this change.
+6. The M3/M4 lifecycle, ownership, deterministic UUIDs, roster, duties, equipment provider,
+   faction and controller identity, and relation semantics are untouched.
+7. Levy scales with the target (for example `perTargetDaily ≈ 0.12`,
+   `poolCap = max(poolCap[tier], 0.25 × target)`), with no offline catch-up. It is still one paid
+   recruit per recruit interval, under the existing calm, paused and cooldown rules. Replacements
+   stay paid through levy. There is no global server cap unless the scale test proves one is needed.
+8. A regression path: with the new factors at neutral values, the current target and levy are
+   reproduced exactly (JUnit).
+9. Performance is not solved by shrinking armies back. If the scale test finds a bottleneck, it is
+   identified and fixed where it is.
+
+#### 18.2.1 Fit with the frozen architecture (audit)
+
+* **Target and levy are computed, not stored.** `Recruitment.target` and `dailyRate` are pure
+  functions of the village record and `GarrisonTable`. The new terms read fields the ledger already
+  has: `capacity`, `population`, `adults`, `buildingRoles`, `fortification`, `culture`, `type`.
+  **No ledger format change.**
+* **`TierRule` gains optional fields** (`perSlot`, `levyShare`, `supportRatio`, `perTargetDaily`,
+  `poolCapShare`) plus a table-level `infraBonus` map and a `typeFactor` patch. Missing fields
+  default to the neutral values (`perSlot` = current `perCapacity`, all others 0 or off), so an old
+  datapack behaves exactly as today.
+* **Caps are data** (`maxUnits`, `maxTarget` in `hywmill_garrison/defaults.json`). Recruitment's
+  `TIER_CAP` and `TARGET_REACHED` blockers, the starting grant (50 % of target, once), the wipe-out
+  rule (75 % of target) and cooldowns keep their meaning at the larger sizes.
+* **Existing villages** keep `startingGranted = true`, so their larger target fills through levy;
+  there is no mass spawn on update. The throttles (`spawnsPerSlot`, `spawnsPerTick`) are unchanged.
+* **The M3 freeze text** ("caps 0/8/16/32/64") gets an addendum when M5-G is implemented, like the
+  spawn-fallback addendum.
+
+#### 18.2.2 First reading of the investigation values (on paper, from harness villages)
+
+The M4 harness logs record capacity for three villages; population and adults will come from the
+spike (assumed about 30 adults here, only to show the shape):
+
+| Harness village | Tier | Capacity (= target today) | Investigation formula | vs today |
+|---|---|---|---|---|
+| Norman "Ondefontaine les-pâtures" | GUARD_POST | 16 | 16 × 1.25 + guard buildings (≈ 2–4) + 0.15 × 30 ≈ **27–29** | ≈ 1.7–1.8× |
+| Byzantine military village (barracks, armoury, fort townhall; 2 professionals, so GUARD_POST) | GUARD_POST | 16 | 20 + 8 + 4 + 8 + 4.5 ≈ **45** | ≈ 2.8× |
+| "militaire" | depends on buildings | 11 | spike | spike |
+
+**Finding.** The investigation values reach the 2–3× goal where military buildings exist, but they
+undershoot it for ordinary villages at the lower tiers. They also make WATCH 24 and GUARD_POST 48
+hard to reach. The main reasons:
+* `supportRatio` 0.5 and 0.75 would cap WATCH at half the population, which conflicts with the
+  locked principle;
+* `perSlot` is only 1.0–1.25 at the lower tiers.
+
+The spike should therefore tune toward an effective 2–3 troops per soldier or militia slot, with
+`supportRatio` defaulting to **off** (kept only as an optional data knob). It should confirm on real
+villages that each locked cap is reachable by a well-developed settlement of that tier. Setting the
+values themselves is spike work; the direction is settled.
+
+#### 18.2.3 Spike S-G (before any M3/M4 change)
+
+1. Inspect the target and levy implementation (done in §17.1).
+2. Dump every harness village's inputs on a dedicated server: tier, capacity, population, adults,
+   building roles, fortification, culture, type. Use a read-only command or the existing
+   `/hywmill village` output; no behaviour change.
+3. Compute targets per tier with candidate values in a pure offline table (JUnit-style), check the
+   2–3× band, and check that each locked cap is reachable.
+4. Duty allocation at 24, 48, 72 and 128 with the current M4 duty data (pure `DutyAllocator` runs).
+5. Raid contingent sizes at those sizes (current `commitFraction` and `maxCommit`).
+6. M2 deployment with large rosters: deploy latency and coordinator cost during an alert.
+7. Spawning and equipment load: time to spawn a 64-unit starting grant, and profile application cost.
+8. **Server scale test:** 2 strongholds × 128 + 2 garrisons × 72 + smaller villages, all loaded.
+   Measure MSPT mean and p99, the HYW entity tick share, HywMill duty and recruitment cost, target
+   and pathfinding behaviour, and client FPS. Run it while CALM, during an alert, and during a raid.
+9. Report. If performance is acceptable, implement through the existing data-driven tier
+   machinery. If not, name the bottleneck and propose a targeted fix.
+
+#### 18.2.4 Consequences to decide separately
+
+* **M4 duty data.** STRONGHOLD maxima (8 sentry pairs, 8 patrol, 4 scouts, reserve 15 %) staff about
+  40 units. At 128, about 85 would stand on GARRISON duty at the muster points, which also crowd,
+  since units are spread by UUID hash over the muster list. The locked decision keeps M4 duties
+  unchanged unless separately approved, so retuning these **data** maxima is **open question 10**.
+  No code change to the duty system is needed; it is already quota-driven.
+* **M4 raid data.** `maxCommit` 12 (16 Seljuk) caps contingents regardless of garrison size. The same
+  question 10 covers scaling it per tier.
