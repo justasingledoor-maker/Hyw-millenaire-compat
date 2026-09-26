@@ -2030,7 +2030,344 @@ def scenario_G4_explore(ctx):
     log("G4 perf:\n  " + "\n  ".join(s.output("hywmill perf", 2)))
 
 
-SCENARIOS = {"G4_explore": scenario_G4_explore, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+# --------------------------------------------------------------------------- M4 acceptance (G4)
+
+G4_A_SCOUT_FORCELOAD = [(500, 470, 760, 612), (500, 612, 760, 760)]
+
+
+def g4_villages(ctx):
+    return {k: v for k, v in [("A", ctx.a), ("B", ctx.b), ("M", ctx.extra.get("militaire")), ("Z", ctx.extra.get("byzantine"))] if v}
+
+
+def assignments(d):
+    return {r["slot"]: (r["assigned"], r["index"]) for r in d["rows"]}
+
+
+def hdist(a, b):
+    return ((a[0] - b[0]) ** 2 + (a[2] - b[2]) ** 2) ** 0.5
+
+
+def scenario_G4_0(ctx):
+    """Setup for the M4 suite: the extra villages, a loaded scout ring around A, every garrison
+    filled to its tier cap (admin grant of tier-allowed units), then time for duties to settle."""
+    s = ctx.s
+    extra = ensure_extra_villages(ctx)
+    for name in [k for k, v in extra.items() if v is None]:
+        for attempt in range(3):
+            extra[name] = spawn_village(s, EXTRA_VILLAGES[name], surface=True)
+            if extra[name]:
+                break
+    for box in G4_A_SCOUT_FORCELOAD:
+        s.cmd("forceload add {} {} {} {}".format(*box), wait=15)
+    time.sleep(20)
+    vs = g4_villages(ctx)
+    for k, c in vs.items():
+        log(f"G4 fill {k} {c}: {fill_garrison(s, c)}")
+    end = time.time() + 900
+    while time.time() < end and sum(garrison(s, c).get("recruited", 0) for c in vs.values()) > 0:
+        time.sleep(15)
+    time.sleep(90)
+    ctx.g4 = {k: duties(s, c) for k, c in vs.items()}
+    for k, d in ctx.g4.items():
+        log(f"G4 {k} {d['plan'][:200]} | quota {d['quota']} | {len(d['rows'])} units")
+    check("G4-0 garrisons filled and duty plans exist", all(d["plan"] and d["rows"] for d in ctx.g4.values()),
+          {k: (len(d["rows"]), d["quota"]) for k, d in ctx.g4.items()})
+
+
+def scenario_G4_1(ctx):
+    """Distributed standing troops: quotas never exceed the living garrison, strongholds are more
+    militarised, small garrisons are not over-tasked, and units stand at many different points."""
+    s = ctx.s
+    ok_sum, spread, detail = True, True, {}
+    for k, c in g4_villages(ctx).items():
+        d = duties(s, c)
+        q = d["quota"]
+        live = [r for r in d["rows"] if r["state"] in ("GARRISONED", "RECOVERED", "DEPLOYED", "RETURNING", "SPAWNED")]
+        total = 2 * q.get("pairs", 0) + q.get("patrol", 0) + q.get("scouts", 0) + q.get("reserve", 0)
+        ok_sum &= total <= len(live)
+        homes = {r["home"] for r in live if r["home"]}
+        spread &= len(homes) >= min(6, max(2, len(live) // 3))
+        by = {}
+        for r in live:
+            by[r["assigned"]] = by.get(r["assigned"], 0) + 1
+        detail[k] = (len(live), q, by, len(homes))
+    check("G4-1a duty quotas never exceed the living garrison", ok_sum, detail)
+    check("G4-1b standing troops are distributed (many distinct home points per village)", spread, {k: v[3] for k, v in detail.items()})
+    m = detail.get("M")
+    small = min(detail.values(), key=lambda v: v[0])
+    check("G4-1c the stronghold fields more sentries/patrols/scouts than the smallest garrison; the smallest is not over-tasked",
+          m is not None and m[1].get("pairs", 0) > small[1].get("pairs", 0) and m[1].get("scouts", 0) >= 2
+          and not (small[1].get("pairs", 0) >= 2 and small[1].get("patrol", 0) > 0 and small[1].get("scouts", 0) > 0),
+          f"stronghold {m[1] if m else None} vs smallest ({small[0]} units) {small[1]}")
+
+
+def scenario_G4_2(ctx):
+    """Sentries stand in pairs at posts taken from Millénaire's buildings (walls, gates, towers...)."""
+    s = ctx.s
+    ok, detail = True, {}
+    for k, c in g4_villages(ctx).items():
+        d = duties(s, c)
+        pairs = {}
+        for r in d["rows"]:
+            if r["assigned"] == "SENTRY" and r["state"] == "GARRISONED":
+                pairs.setdefault(r["index"], []).append(r)
+        want = d["quota"].get("pairs", 0)
+        posts = d.get("posts", [])
+        full = all(len(pairs.get(i, [])) == 2 for i in range(want))
+        at_post = all(r["pos"] and posts and hdist(r["pos"], posts[r["index"] % len(posts)]) <= 7 for v in pairs.values() for r in v)
+        distinct = len({tuple(posts[i % len(posts)]) for i in pairs}) == len(pairs) if posts else not pairs
+        ok &= full and at_post and distinct
+        detail[k] = (want, {i: [x["pos"] for x in v] for i, v in sorted(pairs.items())}, full, at_post, distinct)
+    check("G4-2 every sentry pair has two units, standing at its own post (from building data)", ok, detail)
+
+
+def scenario_G4_3(ctx):
+    """Patrols follow a deterministic closed route inside the defensive area and keep moving."""
+    s = ctx.s
+    c = ctx.extra.get("militaire") or ctx.a
+    d0 = duties(s, c)
+    p0 = {r["slot"]: (r["progress"], r["pos"]) for r in d0["rows"] if r["assigned"] == "PATROL"}
+    samples = [p0]
+    for _ in range(3):
+        time.sleep(40)
+        d = duties(s, c)
+        samples.append({r["slot"]: (r["progress"], r["pos"]) for r in d["rows"] if r["assigned"] == "PATROL"})
+    moved = 0
+    for slot in p0:
+        wps = {smp[slot][0] for smp in samples if slot in smp}
+        poss = [smp[slot][1] for smp in samples if slot in smp and smp[slot][1]]
+        if len(wps) >= 2 or (poss and max(hdist(poss[0], p) for p in poss) >= 8):
+            moved += 1
+    d1 = duties(s, c)
+    check("G4-3a patrol route is deterministic (identical on every read)", d0.get("patrol") and d0.get("patrol") == d1.get("patrol"),
+          f"{len(d0.get('patrol', []))} waypoints")
+    check("G4-3b patrol units advance along the route", p0 and moved >= max(1, int(0.7 * len(p0))), f"{moved}/{len(p0)} moved over 120 s")
+
+
+def scenario_G4_4(ctx):
+    """Scouts ride out of the village to their posts and come back; mounted units are preferred."""
+    s = ctx.s
+    best, mounted_ok, detail = {}, True, {}
+    for k in ("A", "M"):
+        c = g4_villages(ctx).get(k)
+        if not c:
+            continue
+        d = duties(s, c)
+        scouts = [r for r in d["rows"] if r["assigned"] == "SCOUT"]
+        units = [r["unit"] for r in d["rows"] if r["state"] == "GARRISONED"]
+        riders = [u for u in units if u.endswith("_rider")]
+        if riders:
+            mounted_ok &= all(r["unit"].endswith("_rider") for r in scouts) or len(scouts) > len(riders)
+        detail[k] = [(r["slot"], r["unit"], r["progress"]) for r in scouts]
+        posts = d.get("scoutposts", [])
+        ring = hdist(posts[0], c) if posts else 0
+        best[k] = (0.0, ring, set())
+    end = time.time() + 300
+    while time.time() < end:
+        for k in list(best):
+            c = g4_villages(ctx)[k]
+            for r in duties(s, c)["rows"]:
+                if r["assigned"] == "SCOUT" and r["pos"]:
+                    dd = hdist(r["pos"], c)
+                    b = best[k]
+                    best[k] = (max(b[0], dd), b[1], b[2] | {r["progress"]})
+        if all(b[0] >= b[1] - 40 and "back" in b[2] | {"rest"} for b in best.values()) and all(len(b[2]) >= 3 for b in best.values()):
+            break
+        time.sleep(15)
+    check("G4-4a scouts: mounted riders are chosen as scouts where the village has them", mounted_ok, detail)
+    check("G4-4b scouts ride outside the village radius (ring - scout distance) and cycle out/watch/back",
+          all(b[0] >= b[1] - 40 and len(b[2]) >= 2 for b in best.values()),
+          {k: (round(b[0]), round(b[1]), sorted(b[2])) for k, b in best.items()})
+
+
+def scenario_G4_5(ctx):
+    """Duties survive a restart: same assignments, same posts and routes, no duplicates."""
+    s = ctx.s
+    vs = g4_villages(ctx)
+    before = {k: duties(s, c) for k, c in vs.items()}
+    restart(ctx)
+    time.sleep(60)
+    after = {k: duties(s, c) for k, c in vs.items()}
+    same = {k: assignments(before[k]) == {sl: v for sl, v in assignments(after[k]).items() if sl in assignments(before[k])} for k in vs}
+    plans = {k: (before[k].get("posts"), before[k].get("patrol"), before[k].get("scoutposts")) ==
+                (after[k].get("posts"), after[k].get("patrol"), after[k].get("scoutposts")) for k in vs}
+    check("G4-5a duty assignments are identical after a restart", all(same.values()), same)
+    check("G4-5b sentry posts, patrol route and scout posts are identical after a restart", all(plans.values()), plans)
+    cs = {k: census(s, c) for k, c in vs.items()}
+    check("G4-5c no duplicate or unbound units after the restart", all(x.get("dupSlots") == 0 and x.get("unbound") == 0 and x.get("badOwner") == 0
+                                                                     for x in cs.values()), cs)
+
+
+def scenario_G4_6(ctx):
+    """M2 defense overrides duties (DEFENSE), then every unit returns to its standing duty."""
+    s = ctx.s
+    c = ctx.a
+    before = assignments(duties(s, c))
+    for i in range(2):
+        s.cmd(ground(c[0] + 6 + 2 * i, c[2] + 4, "summon hundred_years_war:bandit_soldier ~ ~ ~ {Tags:['hwG4']}"), 1)
+    seen = {}
+    for _ in range(40):
+        time.sleep(2)
+        for r in duties(s, c)["rows"]:
+            if r["state"] == "DEPLOYED":
+                seen[r["slot"]] = (r["duty"], r["assigned"])
+        if len(seen) >= 2:
+            break
+    check("G4-6a deployed units are on DEFENSE, keeping their standing duty", seen and all(v[0] == "DEFENSE" and v[1] == before.get(sl, (v[1],))[0]
+                                                                                        for sl, v in seen.items()), seen)
+    time.sleep(60)
+    s.cmd("kill @e[tag=hwG4]", 1)
+    g = wait_garrison(s, c, lambda g: g.get("deployed", 1) == 0 and g.get("returning", 1) == 0, 240)
+    time.sleep(10)
+    after = duties(s, c)
+    back = all(r["duty"] == r["assigned"] for r in after["rows"] if r["state"] == "GARRISONED")
+    kept = all(assignments(after).get(sl) == v for sl, v in before.items() if sl in assignments(after) and sl in seen)
+    check("G4-6b after the fight every unit is back on its standing duty (same assignment)", back and g.get("deployed") == 0,
+          f"deployed {g.get('deployed')} returning {g.get('returning')}; kept {kept}")
+
+
+def scenario_G4_7(ctx):
+    """Casualties are permanent (no respawn); the sentry pair is refilled from the living garrison."""
+    s = ctx.s
+    c = ctx.extra.get("militaire") or ctx.a
+    d = duties(s, c)
+    sentries = [r for r in d["rows"] if r["assigned"] == "SENTRY" and r["state"] == "GARRISONED"]
+    if not check("G4-7 a sentry to kill", bool(sentries)):
+        return
+    v = sentries[0]
+    g0 = garrison(s, c)
+    s.cmd(f"kill {full_uuid(s, [u['entity'] for u in g_units(s, c) if u['slot'] == v['slot']][0])}", 2)
+    time.sleep(50)
+    rows = {u["slot"]: u for u in g_units(s, c)}
+    g1 = garrison(s, c)
+    d1 = duties(s, c)
+    pair = [r for r in d1["rows"] if r["assigned"] == "SENTRY" and r["index"] == v["index"]]
+    check("G4-7a the killed sentry is DEAD, its slot is not respawned", rows[v["slot"]]["state"] == "DEAD" and g1.get("t_spawned") == g0.get("t_spawned")
+          and g1.get("t_killed") == g0.get("t_killed", 0) + 1, str(rows[v["slot"]]))
+    check("G4-7b its pair is manned again by another living unit", len(pair) == 2 and v["slot"] not in [r["slot"] for r in pair],
+          [(r["slot"], r["unit"]) for r in pair])
+
+
+def scenario_G4_8(ctx):
+    """Raids: the stronghold raids village A with Millénaire's own raid; a HYW contingent from its
+    living garrison joins, the home keeps its share, deaths are permanent, survivors come back."""
+    s = ctx.s
+    m, a = ctx.extra.get("militaire"), ctx.a
+    if not check("G4-8 attacker village present", m is not None):
+        return
+    g0 = garrison(s, m)
+    alive0 = g0.get("alive", 0)
+    p = s.pos()
+    out = s.output(f"millenaire dev raid trigger {m[0]} {m[1]} {m[2]} {a[0]} {a[1]} {a[2]}", 3)
+    joined = s.wait_for(r"raids .*: (\d+) of (\d+) available garrison unit\(s\) join the raid", 30, since=p)
+    mm = re.search(r": (\d+) of (\d+) available garrison unit", joined or "")
+    k, n = (int(mm[1]), int(mm[2])) if mm else (0, 0)
+    d = duties(s, m)
+    raiders = [r for r in d["rows"] if r["duty"] == "RAID"]
+    home = [r for r in d["rows"] if r["state"] in ("GARRISONED", "RECOVERED") and r["duty"] != "RAID"]
+    check("G4-8a a contingent of the attacker's own living garrison joins (no new units); the home keeps at least half",
+          k > 0 and len(raiders) == k and len(home) >= (n + 1) // 2 and garrison(s, m).get("t_spawned") == g0.get("t_spawned"),
+          f"{'; '.join(out)[:80]} | {k} of {n} sent; {len(home)} at home; raiders {[r['unit'] for r in raiders]}")
+    landed = s.wait_for(r"Raid contingent of village .* moved to Millénaire's landing point", 90, since=p)
+    time.sleep(20)
+    near = [r for r in duties(s, m)["rows"] if r["duty"] == "RAID" and r["pos"] and hdist(r["pos"], a) <= 120]
+    check("G4-8b the contingent is moved to Millénaire's landing point and fights at the target", landed is not None and len(near) >= 1,
+          f"{landed and landed.split(']: ')[-1]} ; {len(near)} raid unit(s) within 120 blocks of the target")
+    ended = s.wait_for(r"Raid (FAILURE|SUCCESS)|bringing the contingent home", 240, since=p)
+    back = s.wait_for(r"Raid contingent of village .*: \d+ survivor\(s\) back home|bringing the contingent home", 60, since=p)
+    time.sleep(40)
+    d2 = duties(s, m)
+    units2 = {u["slot"]: u for u in g_units(s, m)}
+    raid_slots = [r["slot"] for r in raiders]
+    dead = [sl for sl in raid_slots if units2.get(sl, {}).get("state") == "DEAD"]
+    still_raid = [r for r in d2["rows"] if r["duty"] == "RAID"]
+    g2 = garrison(s, m)
+    check("G4-8c raid over: survivors are back on their standing duties; no unit spawned for the raid",
+          ended is not None and not still_raid and g2.get("t_spawned") == g0.get("t_spawned"),
+          f"{ended and ended.split(']: ')[-1][:90]}; dead {len(dead)}/{len(raid_slots)}; still RAID {len(still_raid)}; alive {alive0}->{g2.get('alive')}")
+    time.sleep(30)
+    units3 = {u["slot"]: u for u in g_units(s, m)}
+    check("G4-8d raid deaths are permanent (DEAD, never respawned)", all(units3[sl]["state"] == "DEAD" for sl in dead)
+          and garrison(s, m).get("t_spawned") == g0.get("t_spawned"), f"{len(dead)} raid death(s)")
+
+
+def scenario_G4_9(ctx):
+    """Wand of Negation on a garrisoned village: its own deletion path; no recruitment into it;
+    the garrison is LOST(VILLAGE_GONE) after the grace period."""
+    s = ctx.s
+    b = ctx.b
+    name = garrison(s, b)["lines"][0].split(" of ", 1)[1].split(" (")[0] if garrison(s, b)["lines"] else "?"
+    s.output(at(b, "hywmill admin setpoints 10"), 1)
+    p = s.pos()
+    out = s.output(at(b, "hywmill dev negate"), 3)
+    gone = s.wait_for(r"is missing from Millénaire's village list", 30, since=p)
+    time.sleep(30)
+    lines = s.read_since(p)
+    rec = [l for l in lines if f"Village '{name}' recruits" in l or (f"village '{name}'" in l and "spawned" in l)]
+    check("G4-9a negation wand deletes the village; HywMill notices; no recruitment or spawning into it", gone is not None and not rec,
+          f"{'; '.join(out)[:80]} | {len(rec)} recruit/spawn lines")
+    sprint(s, 6200)
+    lost = s.wait_for(r"garrison slot\(s\) LOST\(VILLAGE_GONE\)", 60, since=p)
+    check("G4-9b after the grace period its garrison is LOST(VILLAGE_GONE)", lost is not None, lost and lost.split("]: ")[-1][:120])
+
+
+def scenario_G4_10(ctx):
+    """Invariants and cost: no duplicates anywhere; duty/raid work per village stays small."""
+    s = ctx.s
+    vs = {k: c for k, c in g4_villages(ctx).items() if k != "B"}
+    cs = {k: census(s, c) for k, c in vs.items()}
+    check("G4-10a M3 invariants: no duplicate, unbound or foreign-owned garrison units",
+          all(x.get("dupSlots") == 0 and x.get("unbound") == 0 and x.get("badOwner") == 0 and x.get("tagged") == x.get("bound") for x in cs.values()), cs)
+    s.cmd("hywmill perf reset", 1)
+    time.sleep(120)
+    rows = perf_rows(s.output("hywmill perf", 2))
+    log("G4 perf (120 s CALM):\n  " + "\n  ".join(f"{k}: {v}" for k, v in rows.items()))
+    dt = rows.get("duty.tick", {})
+    check("G4-10b duty tick cost per village stays small (mean < 0.5 ms)", dt and dt.get("mean", 1e9) < 500,
+          {k: rows.get(k) for k in ("duty.tick", "duty.layout", "raid.tick", "tick.total")})
+
+
+def scenario_G4_EK(ctx):
+    """Optional Epic Knights profiles (run with HYWMILL_EXTRA_MODS=<dir with Epic Knights jars>):
+    equipment varies by culture, tier and role; unsupported combinations fall back to HYW's gear."""
+    s = ctx.s
+    out = s.output("hywmill admin equipcheck", 4)
+    summary = next((l for l in out if l.startswith("equipcheck:")), "")
+    check("G4-EK1 admin equipcheck validates the profiles (Epic Knights loaded, no invalid items)",
+          "Epic Knights loaded" in summary and " 0 invalid item/slot" in summary, summary)
+    vs = g4_villages(ctx)
+    gear = {}
+    for k, c in vs.items():
+        d = {r["slot"]: r for r in duties(s, c)["rows"]}
+        ents = unit_entities(s, c)
+        units = {u["entity"]: u for u in g_units(s, c) if u["entity"]}
+        for uuid, row in ents.items():
+            u = units.get(uuid[:8])
+            if u and u["slot"] in d:
+                gear[(k, u["slot"])] = (u["unit"], d[u["slot"]]["assigned"], row.get("slots", {}))
+    def items(pred, slot):
+        return {v[2].get(slot, "") for key, v in gear.items() if pred(key, v)}
+    heads_a = items(lambda key, v: key[0] == "A" and v[1] not in ("SENTRY",), "head")
+    heads_z = items(lambda key, v: key[0] == "Z" and v[1] not in ("SENTRY",), "head")
+    check("G4-EK2 culture: Norman heads are norman_helmet, Byzantine heads differ", any("norman_helmet" in h for h in heads_a)
+          and heads_z and not any("norman_helmet" in h for h in heads_z), f"A {sorted(heads_a)} Z {sorted(heads_z)}")
+    sentry_heads = items(lambda key, v: key[0] in ("A", "M") and v[1] == "SENTRY", "head")
+    check("G4-EK3 role: sentries wear the sentry helmet (bascinet / greathelm)", sentry_heads and all(("bascinet" in h or "greathelm" in h) for h in sentry_heads),
+          sorted(sentry_heads))
+    chest_a = items(lambda key, v: key[0] == "A" and v[1] == "GARRISON" and v[0] in ("spear_man", "warrior"), "chest")
+    chest_m = items(lambda key, v: key[0] == "M" and v[1] == "GARRISON" and v[0] in ("spear_man", "warrior"), "chest")
+    check("G4-EK4 tier: stronghold line units wear heavier armour than the smaller village's", chest_m and chest_a and chest_m != chest_a
+          and any("platemail" in x or "brigandine" in x for x in chest_m), f"A {sorted(chest_a)} M {sorted(chest_m)}")
+    spear_off = items(lambda key, v: v[0] == "spear_man", "offhand")
+    shield_off = items(lambda key, v: v[0] == "shieldman" and key[0] in ("A", "M"), "offhand")
+    archer_main = items(lambda key, v: v[0] == "archer", "mainhand")
+    check("G4-EK5 unsupported combinations fall back (no kiteshield on spear_man; archers keep a bow)",
+          not any("kiteshield" in x for x in spear_off) and all(("longbow" in x or "bow" in x) for x in archer_main)
+          and (not shield_off or any("kiteshield" in x or "shield" in x for x in shield_off)),
+          f"spear_man offhand {sorted(spear_off)}; shieldman offhand {sorted(shield_off)}; archer mainhand {sorted(archer_main)}")
+
+
+SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
@@ -2038,12 +2375,15 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "A": scenario_A, "B": scenario_B
              "G3_17": scenario_G3_17, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "S4b": scenario_S4b}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
             "G3_15", "G3_14", "G3_perf"]
+ORDER_G4 = ["status", "G4_0", "G4_1", "G4_2", "G4_3", "G4_4", "G4_5", "G4_6", "G4_7", "G4_8", "G4_10", "G4_9"]
+ORDER_G4_EK = ["status", "G4_0", "G4_EK"]
 ORDER = ["status", "H", "B", "N", "C", "D", "I", "W", "L", "F1", "E", "F2", "X", "P", "A", "G"]
 
 
 def run(d: Path, names, fresh=True):
     write_configs(d)
-    install_mods(d, [MILLENAIRE_JAR, HYW_JAR, built_jar()])
+    extra_mods = sorted(Path(os.environ["HYWMILL_EXTRA_MODS"]).glob("*.jar")) if os.environ.get("HYWMILL_EXTRA_MODS") else []
+    install_mods(d, [MILLENAIRE_JAR, HYW_JAR, built_jar()] + extra_mods)
     if fresh and (d / "world").exists():
         shutil.rmtree(d / "world")
     s = Server(d)
@@ -2054,7 +2394,8 @@ def run(d: Path, names, fresh=True):
             setup(ctx)
         else:
             reuse(ctx)
-        for n in (ORDER if names == ["all"] else ORDER_G3 if names == ["garrison"] else names):
+        order = {"all": ORDER, "garrison": ORDER_G3, "duties": ORDER_G4, "duties-ek": ORDER_G4_EK}
+        for n in (order[names[0]] if len(names) == 1 and names[0] in order else names):
             if ctx.a is None:
                 break
             log(f"--- scenario {n}")

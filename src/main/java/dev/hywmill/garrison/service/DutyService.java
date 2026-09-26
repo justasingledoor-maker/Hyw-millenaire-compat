@@ -61,6 +61,8 @@ public final class DutyService {
         String culture = "";
         long allocationSig;
         DutyQuota quota = new DutyQuota(0, 0, 0, 0);
+        /** rosterId → {goal, home set for it}: a unit still travelling to a valid hop needs no new ground search. */
+        final Map<UUID, long[]> moves = new HashMap<>();
     }
 
     public DutyService(PerfCounters perf) {
@@ -124,16 +126,25 @@ public final class DutyService {
             DutyMotion.Ctx ctx = new DutyMotion.Ctx(table.move(), table.scout(), rec.center, calm, member, rt.quota.patrol());
             int stepBefore = e.dutyStep;
             BlockPos goal = DutyMotion.goal(e, ent.getX(), ent.getZ(), plan, ctx, tick);
+            changed |= e.dutyStep != stepBefore;
+            BlockPos home = units.home(ent);
+            long[] last = rt.moves.get(e.rosterId);
+            if (last != null && home != null && last[0] == goal.asLong() && last[1] == home.asLong()
+                    && (last[2] == 1 || DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().maxHop() / 2.0)) {
+                continue; // same goal, its hop is still the unit's home: at its final spot, or still on the way
+            }
             BlockPos target = hopTarget(level, ent, goal, table.move().maxHop());
             if (target == null) {
                 DutyMotion.blocked(e, plan, tick);
+                rt.moves.remove(e.rosterId);
             } else {
-                BlockPos home = units.home(ent);
                 if (home == null || home.distSqr(target) > 2) {
                     units.setHome(ent, target);
+                    home = target;
                 }
+                boolean fin = DutyMotion.horizontal(target.getX() + 0.5, target.getZ() + 0.5, goal) <= 3;
+                rt.moves.put(e.rosterId, new long[]{goal.asLong(), home.asLong(), fin ? 1 : 0});
             }
-            changed |= e.dutyStep != stepBefore;
         }
         if (changed) {
             ledger.setDirty();
@@ -215,6 +226,9 @@ public final class DutyService {
             return false;
         }
         rt.allocationSig = sig;
+        java.util.Set<UUID> ids = new java.util.HashSet<>();
+        cands.forEach(c -> ids.add(c.rosterId()));
+        rt.moves.keySet().retainAll(ids);
         DutyQuota q = DutyQuota.of(table.tier(rec.tier), cands.size(), plan.sentryPosts().size());
         rt.quota = q;
         Map<UUID, DutyAllocator.Assignment> out = DutyAllocator.allocate(cands, q);
