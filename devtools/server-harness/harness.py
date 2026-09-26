@@ -2287,7 +2287,13 @@ def scenario_G4_8(ctx):
     end = time.time() + 240
     while time.time() < end:  # sample while the contingent is away
         rows = [r for r in duties(s, m)["rows"] if r["duty"] == "RAID"]
-        near_max = max(near_max, len([r for r in rows if r["pos"] and hdist(r["pos"], a) <= 120]))
+        near = [r for r in rows if r["pos"] and hdist(r["pos"], a) <= 120]
+        near_max = max(near_max, len(near))
+        if near and not getattr(ctx, "g4_raid_casualty", None):
+            # a raid casualty (as if killed by the defenders): must stay DEAD, never respawned
+            ctx.g4_raid_casualty = near[0]["slot"]
+            e8 = [u["entity"] for u in g_units(s, m) if u["slot"] == near[0]["slot"]][0]
+            s.cmd(f"kill {full_uuid(s, e8)}", 1)
         if not rows or s.wait_for(r"Raid (FAILURE|SUCCESS)", 0.1, since=p):
             break
         time.sleep(3)
@@ -2302,6 +2308,7 @@ def scenario_G4_8(ctx):
     units2 = {u["slot"]: u for u in g_units(s, m)}
     raid_slots = [r["slot"] for r in raiders]
     dead = [sl for sl in raid_slots if units2.get(sl, {}).get("state") == "DEAD"]
+    casualty = getattr(ctx, "g4_raid_casualty", None)
     still_raid = [r for r in d2["rows"] if r["duty"] == "RAID"]
     g2 = garrison(s, m)
     check("G4-8c raid over: survivors are back on their standing duties; no unit spawned for the raid",
@@ -2309,8 +2316,8 @@ def scenario_G4_8(ctx):
           f"{ended and ended.split(']: ')[-1][:90]}; dead {len(dead)}/{len(raid_slots)}; still RAID {len(still_raid)}; alive {alive0}->{g2.get('alive')}")
     time.sleep(30)
     units3 = {u["slot"]: u for u in g_units(s, m)}
-    check("G4-8d raid deaths are permanent (DEAD, never respawned)", all(units3[sl]["state"] == "DEAD" for sl in dead)
-          and garrison(s, m).get("t_spawned") == g0.get("t_spawned"), f"{len(dead)} raid death(s)")
+    check("G4-8d raid deaths are permanent (DEAD, never respawned)", casualty in dead and all(units3[sl]["state"] == "DEAD" for sl in dead)
+          and garrison(s, m).get("t_spawned") == g0.get("t_spawned"), f"{len(dead)} raid death(s), incl. the casualty {casualty}")
 
 
 def scenario_G4_9(ctx):
