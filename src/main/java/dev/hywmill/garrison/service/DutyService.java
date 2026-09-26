@@ -136,17 +136,21 @@ public final class DutyService {
             if (last != null && home != null && last[0] == goal.asLong() && last[1] == home.asLong() && last[2] == 1
                     && staticDuty(e.assignedDuty) && tick - last[3] >= table.move().hopTimeout()
                     && DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().arriveRadius() + 1) {
-                // stuck short of a fixed spot (e.g. a tower top HYW cannot path to): try ground around it, then hold where reachable
+                // stuck short of a fixed spot (e.g. a tower top HYW cannot path to): try ground around it; then, if the
+                // unit has not moved at all (trapped in a pit or well), unstick it onto its spot; else hold where reachable
                 int attempt = (int) last[4] + 1;
                 BlockPos alt = attempt <= 3 ? around(level, goal, 2 + 2 * attempt, member * 4 + attempt, home) : null;
-                if (alt == null && DutyMotion.horizontal(ent.getX(), ent.getZ(), goal) <= 24) {
+                if (alt == null && trapped(ent, last) && unstick(level, ent, stand(level, goal))) {
+                    alt = BlockPos.containing(ent.getX(), ent.getY(), ent.getZ());
+                    HmLog.diag("Duty unit {} of village '{}' was trapped; moved onto its {} spot {}", e.shortId(), rec.name, e.assignedDuty, alt.toShortString());
+                } else if (alt == null && DutyMotion.horizontal(ent.getX(), ent.getZ(), goal) <= 24) {
                     alt = stand(level, ent.blockPosition());
                 }
                 if (alt != null) {
                     units.setHome(ent, alt);
                     home = alt;
                 }
-                rt.moves.put(e.rosterId, new long[]{goal.asLong(), home.asLong(), 1, tick, attempt});
+                rt.moves.put(e.rosterId, new long[]{goal.asLong(), home.asLong(), 1, tick, attempt, ent.blockPosition().asLong()});
                 continue;
             }
             if (last != null && home != null && last[0] == goal.asLong() && last[1] == home.asLong() && last[2] == 0
@@ -155,12 +159,15 @@ public final class DutyService {
                 // not reaching an intermediate hop: detour (rotated hops, alternating sides), then give the leg up
                 int attempt = (int) last[4] + 1;
                 BlockPos alt = attempt <= 4 ? hopTarget(level, ent, goal, table.move().maxHop(), attempt) : null;
-                if (alt == null) {
+                if (alt == null && trapped(ent, last) && unstick(level, ent, home)) {
+                    HmLog.diag("Duty unit {} of village '{}' was trapped; moved onto its {} hop {}", e.shortId(), rec.name, e.assignedDuty, home.toShortString());
+                    rt.moves.remove(e.rosterId);
+                } else if (alt == null) {
                     DutyMotion.blocked(e, plan, tick);
                     rt.moves.remove(e.rosterId);
                 } else {
                     units.setHome(ent, alt);
-                    rt.moves.put(e.rosterId, new long[]{goal.asLong(), alt.asLong(), 0, tick, attempt});
+                    rt.moves.put(e.rosterId, new long[]{goal.asLong(), alt.asLong(), 0, tick, attempt, ent.blockPosition().asLong()});
                 }
                 continue;
             }
@@ -178,7 +185,7 @@ public final class DutyService {
                     home = target;
                 }
                 boolean fin = DutyMotion.horizontal(target.getX() + 0.5, target.getZ() + 0.5, goal) <= 3;
-                rt.moves.put(e.rosterId, new long[]{goal.asLong(), home.asLong(), fin ? 1 : 0, tick, 0});
+                rt.moves.put(e.rosterId, new long[]{goal.asLong(), home.asLong(), fin ? 1 : 0, tick, 0, ent.blockPosition().asLong()});
             }
         }
         if (changed) {
@@ -334,6 +341,24 @@ public final class DutyService {
             }
         }
         return stand(level, p);
+    }
+
+    /** The unit has not moved more than 2 blocks since its last move order (index 5 of the hop cache). */
+    static boolean trapped(Entity ent, long[] last) {
+        return last.length > 5 && BlockPos.of(last[5]).distSqr(ent.blockPosition()) <= 4;
+    }
+
+    /**
+     * Last resort for a trapped unit (it has not moved through every detour): moves it (with its
+     * mount) onto {@code spot} if that is standable, loaded and at most 40 blocks away. Returns true if moved.
+     */
+    static boolean unstick(ServerLevel level, Entity ent, @Nullable BlockPos spot) {
+        if (spot == null || DutyMotion.horizontal(ent.getX(), ent.getZ(), spot) > 40 || !level.isPositionEntityTicking(spot)
+                || !standable(level, spot)) {
+            return false;
+        }
+        RaidService.teleport(ent, net.minecraft.world.phys.Vec3.atBottomCenterOf(spot));
+        return true;
     }
 
     static boolean staticDuty(Duty d) {
