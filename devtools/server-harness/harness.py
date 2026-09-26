@@ -1627,9 +1627,10 @@ def forced_chunks(s):
 
 
 def roof(s, p, block_from, block_to):
-    """A barrier roof 4..5 above p over the whole 17x17 candidate area: raises the heightmap there, so
-    the M3 spot search rejects every candidate (roofs are refused) without touching the ground."""
-    s.cmd(f"fill {p[0] - 9} {p[1] + 4} {p[2] - 9} {p[0] + 9} {p[1] + 5} {p[2] + 9} {block_to} replace {block_from}", 2)
+    """A barrier roof 4..5 above p over exactly the candidate area (radius SpawnSpots.MAX_RADIUS = 8):
+    raises the heightmap there, so the M3 spot search rejects every candidate (roofs are refused)
+    without touching the ground."""
+    s.cmd(f"fill {p[0] - 8} {p[1] + 4} {p[2] - 8} {p[0] + 8} {p[1] + 5} {p[2] + 8} {block_to} replace {block_from}", 2)
 
 
 def scenario_G3_18(ctx):
@@ -1642,7 +1643,7 @@ def scenario_G3_18(ctx):
     if not check("G3-18 spawn anchor and village centre reported", anchor is not None, f"{anchor} {centre}"):
         return
     sep = max(abs(anchor[0] - centre[0]), abs(anchor[2] - centre[2]))
-    if not check("G3-18 anchor and centre are apart (separate candidate areas)", sep >= 19, f"separation {sep}"):
+    if not check("G3-18 anchor and centre are apart (part of the centre's candidate area is outside the anchor's)", sep >= 10, f"separation {sep}"):
         return
     forced0 = forced_chunks(s)
     plan0 = duties(s, c)
