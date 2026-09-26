@@ -1,0 +1,106 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario G4_0
+[harness] G4 fill A (630, 82, 612): [('spear_man', 2), ('archer', 2), ('militia', 1), ('crossbowman', 1), ('warrior', 2)]
+[harness] G4 fill B (830, 80, 612): [('archer', 1), ('militia', 1), ('crossbowman', 1)]
+[harness] G4 fill M (650, 68, 920): [('spear_man', 19), ('archer', 13), ('light_lancer_rider', 9), ('archer_rider', 6), ('militia', 4), ('crossbowman', 2), ('shieldman', 2), ('warrior', 4)]
+[harness] G4 fill Z (400, 71, 450): [('spear_man', 2), ('archer', 2), ('militia', 1), ('crossbowman', 1), ('warrior', 1)]
+[harness] G4 A Plan: 1 sentry post(s) [645,81,606] | patrol [688,84,658 684,87,680 633,84,653 604,84,660 606,79,596 644,80,592 686,74,578 701,73,592] | scout posts [719,80,731 539,80,696 574,80,516 754,80,551] | res | quota {'pairs': 1, 'patrol': 3, 'scouts': 1, 'reserve': 1} | 16 units
+[harness] G4 B Plan: 1 sentry post(s) [847,87,636] | patrol [879,90,655 866,85,655 814,85,672 805,84,613 904,83,588] | scout posts [731,87,684 786,87,508 962,87,563 907,87,739] | reserve 847, 87, 636 | muster 6 | quota {'pairs': 1, 'patrol': 1, 'scouts': 0, 'reserve': 1} | 6 units
+[harness] G4 M Plan: 24 sentry post(s) [644,73,933 687,70,916 677,72,936 637,73,988 637,78,883 613,72,907 613,67,964 694,69,883 667,69,988 718,57,901 612,82,882 612,71,989 719,68,882 613,65,945 656,62,883 613,66,925 | quota {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 9} | 64 units
+[harness] G4 Z Plan: 3 sentry post(s) [413,70,461 421,70,476 400,70,470] | patrol [470,67,482 452,70,518 415,73,528 385,77,487 360,77,452 392,71,410 434,71,415 460,69,430] | scout posts [484,70,582 307,70,534 355,70 | quota {'pairs': 0, 'patrol': 0, 'scouts': 0, 'reserve': 0} | 0 units
+[harness] FAIL G4-0 garrisons filled and duty plans exist {'A': (16, {'pairs': 1, 'patrol': 3, 'scouts': 1, 'reserve': 1}), 'B': (6, {'pairs': 1, 'patrol': 1, 'scouts': 0, 'reserve': 1}), 'M': (64, {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 9}), 'Z': (0, {'pairs': 0, 'patrol': 0, 'scouts': 0, 'reserve': 0})}
+[harness] --- scenario G4_1
+[harness] PASS G4-1a duty quotas never exceed the living garrison {'A': (16, {'pairs': 1, 'patrol': 3, 'scouts': 1, 'reserve': 1}, {'RESERVE': 1, 'SENTRY': 2, 'GARRISON': 9, 'PATROL': 3, 'SCOUT': 1}, 9), 'B': (6, {'pairs': 1, 'patrol': 1, 'scouts': 0, 'reserve': 1}, {'SENTRY': 2, 'RESERVE': 1, 'PATROL': 1, 'GARRISON': 2}, 6), 'M': (64, {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 9}, {'RESERVE': 9, 'SENTRY': 16, 'PATROL': 8, 'GARRISON': 27, 'SCOUT': 4}, 57), 'Z': (0, {'pairs': 0, 'patrol': 0, 'scouts': 0, 'reserve': 0}, {}, 0)}
+[harness] FAIL G4-1b standing troops are distributed (many distinct home points per village) {'A': 9, 'B': 6, 'M': 57, 'Z': 0}
+[harness] PASS G4-1c the stronghold fields more sentries/patrols/scouts than the smallest garrison; the smallest is not over-tasked stronghold {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 9} vs smallest (0 units) {'pairs': 0, 'patrol': 0, 'scouts': 0, 'reserve': 0}
+[harness] --- scenario G4_2
+[harness] FAIL G4-2 every sentry pair has two units, standing at (within 10 blocks of) its own post (from building data) {'A': (1, {0: [(652, 79, 613), (652, 79, 613)]}, True, True, True), 'B': (1, {0: [(850, 87, 633), (845, 87, 638)]}, True, True, True), 'M': (8, {0: [(646, 73, 936), (646, 73, 931)], 1: [(690, 70, 915), (685, 70, 915)], 2: [(677, 72, 939), (676, 72, 940)], 3: [(638, 72, 988), (637, 72, 987)], 4: [(660, 63, 882), (656, 74, 874)], 5: [(610, 73, 908), (617, 72, 905)], 6: [(614, 66, 965), (615, 63, 957)], 7: [(696, 69, 886), (668, 65, 894)]}, True, False, True), 'Z': (0, {}, True, True, True)}
+[harness] --- scenario G4_3
+[harness] PASS G4-3a patrol route is deterministic (identical on every read) 8 waypoints
+[harness] PASS G4-3b patrol units advance along the route 8/8 moved over 120 s
+[harness] --- scenario G4_4
+[harness] PASS G4-4a scouts: mounted riders are chosen as scouts where the village has them {'A': [('8d9a12cc', 'crossbowman', 'out')], 'M': [('1c39e9bb', 'light_lancer_rider', 'rest'), ('5b1c3074', 'light_lancer_rider', 'rest'), ('87cd26f5', 'light_lancer_rider', 'watch'), ('91927d90', 'light_lancer_rider', 'rest')]}
+[harness] PASS G4-4b scouts ride outside the village radius (ring - scout distance) and cycle out/watch/back {'A': (152, 149, ['back', 'out', 'watch']), 'M': (140, 149, ['back', 'out', 'rest', 'watch'])}
+[harness] --- scenario G4_5
+[harness] server stopped
+[harness] server started
+[harness] PASS G4-5a duty assignments are identical after a restart {'A': True, 'B': True, 'M': True, 'Z': True}
+[harness] PASS G4-5b sentry posts, patrol route and scout posts are identical after a restart {'A': True, 'B': True, 'M': True, 'Z': True}
+[harness] PASS G4-5c no duplicate or unbound units after the restart {'A': {'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}, 'B': {'tagged': 6, 'slots': 6, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 6, 'live': 6, 'bound': 6}, 'M': {'tagged': 64, 'slots': 64, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 64, 'live': 64, 'bound': 64}, 'Z': {'tagged': 0, 'slots': 0, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 0, 'live': 16, 'bound': 0}}
+[harness] --- scenario G4_6
+[harness] PASS G4-6a deployed units are on DEFENSE, keeping their standing duty {'8d9a12cc': ('DEFENSE', 'SCOUT'), '5fb08aa0': ('DEFENSE', 'GARRISON')}
+[harness] PASS G4-6b after the fight every unit is back on its standing duty (same assignment) deployed 0 returning 0; kept True
+[harness] --- scenario G4_7
+[harness] PASS G4-7 a sentry to kill 
+[harness] PASS G4-7a the killed sentry is DEAD, its slot is not respawned {'slot': 'e34c8a2d', 'unit': 'archer', 'lvl': 3, 'state': 'DEAD', 'reason': 'KILLED', 'gen': 1, 'entity': '8f1ed041'}
+[harness] PASS G4-7b its pair is manned again by another living unit [('eff69287', 'archer'), ('9233b8da', 'crossbowman')]
+[harness] --- scenario G4_8
+[harness] PASS G4-8 attacker village present 
+[harness] PASS G4-8a a contingent of the attacker's own living garrison joins (no new units); the home keeps at least half Raid triggered: Saint-Denis le-fort -> Saint-Germain les-pâtures (6 raiders disp | 12 of 62 sent; 51 at home; raiders ['light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'archer_rider', 'archer_rider', 'militia', 'militia', 'militia', 'crossbowman', 'warrior', 'warrior']
+[harness] FAIL G4-8b the contingent is moved to Millénaire's landing point and fights at the target [hywmill] Raid contingent of village 'Saint-Denis le-fort' (12 unit(s)) moved to Millénaire's landing point 650, 89, 711 near 'Saint-Germain les-pâtures' ; 0 raid unit(s) within 120 blocks of the target
+[harness] PASS G4-8c raid over: survivors are back on their standing duties; no unit spawned for the raid [Millenaire] Raid FAILURE: Saint-Denis le-fort repulsed at Saint-Germain les-pâtures.; dead 0/12; still RAID 0; alive 63->63
+[harness] PASS G4-8d raid deaths are permanent (DEAD, never respawned) 0 raid death(s)
+[harness] --- scenario G4_10
+[harness] PASS G4-10a M3 invariants: no duplicate, unbound or foreign-owned garrison units {'A': {'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}, 'M': {'tagged': 63, 'slots': 63, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 63, 'live': 63, 'bound': 63}, 'Z': {'tagged': 0, 'slots': 0, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 0, 'live': 16, 'bound': 0}}
+[harness] G4 perf (120 s CALM):
+  defense.update: {'n': 605, 'mean': 2.8, 'max': 61.5, 'p99': 15.6, 'total': 1.7}
+  duty.layout: {'n': 10, 'mean': 220.8, 'max': 387.3, 'p99': 387.3, 'total': 2.2}
+  duty.tick: {'n': 303, 'mean': 106.7, 'max': 987.8, 'p99': 784.7, 'total': 32.3}
+  garrison.event: {'n': 1, 'mean': 248.4, 'max': 248.4, 'p99': 248.4, 'total': 0.2}
+  garrison.slot: {'n': 60, 'mean': 299.1, 'max': 4353.4, 'p99': 4353.4, 'total': 17.9}
+  garrison.spawn: {'n': 1, 'mean': 8361.9, 'max': 8361.9, 'p99': 8361.9, 'total': 8.4}
+  profile.apply: {'n': 63, 'mean': 165.7, 'max': 2226.4, 'p99': 2226.4, 'total': 10.4}
+  profile.doctrine: {'n': 63, 'mean': 69.0, 'max': 783.2, 'p99': 783.2, 'total': 4.3}
+  profile.log: {'n': 63, 'mean': 189.3, 'max': 1479.7, 'p99': 1479.7, 'total': 11.9}
+  profile.refresh: {'n': 63, 'mean': 884.6, 'max': 5875.4, 'p99': 5875.4, 'total': 55.7}
+  profile.snapshot: {'n': 63, 'mean': 449.8, 'max': 2083.8, 'p99': 2083.8, 'total': 28.3}
+  profile.sweep: {'n': 60, 'mean': 79.0, 'max': 206.7, 'p99': 206.7, 'total': 4.7}
+  raid.tick: {'n': 303, 'mean': 11.2, 'max': 186.4, 'p99': 107.8, 'total': 3.4}
+  scan.village: {'n': 605, 'mean': 36.2, 'max': 195.2, 'p99': 119.8, 'total': 21.9}
+  snap.buildings: {'n': 63, 'mean': 130.4, 'max': 476.1, 'p99': 476.1, 'total': 8.2}
+  snap.gear: {'n': 63, 'mean': 96.8, 'max': 650.1, 'p99': 650.1, 'total': 6.1}
+  snap.residents: {'n': 63, 'mean': 66.3, 'max': 239.4, 'p99': 239.4, 'total': 4.2}
+  snap.slots: {'n': 63, 'mean': 61.3, 'max': 422.1, 'p99': 422.1, 'total': 3.9}
+  snap.village: {'n': 63, 'mean': 57.7, 'max': 436.6, 'p99': 436.6, 'total': 3.6}
+  tick.total: {'n': 2420, 'mean': 71.2, 'max': 13210.1, 'p99': 821.2, 'total': 172.3}
+[harness] PASS G4-10b duty tick cost per village stays small (mean < 0.5 ms) {'duty.tick': {'n': 303, 'mean': 106.7, 'max': 987.8, 'p99': 784.7, 'total': 32.3}, 'duty.layout': {'n': 10, 'mean': 220.8, 'max': 387.3, 'p99': 387.3, 'total': 2.2}, 'raid.tick': {'n': 303, 'mean': 11.2, 'max': 186.4, 'p99': 107.8, 'total': 3.4}, 'tick.total': {'n': 2420, 'mean': 71.2, 'max': 13210.1, 'p99': 821.2, 'total': 172.3}}
+[harness] --- scenario G4_9
+[harness] PASS G4-9a negation wand deletes the village; HywMill notices; no recruitment or spawning into it negate Saint-Philbert les-pâtures 13ef993b-ff71-4da3-a133-e111fc5ff6f6: true | 0 recruit/spawn lines
+[harness] PASS G4-9b after the grace period its garrison is LOST(VILLAGE_GONE) [hywmill] Village 'Saint-Philbert les-pâtures' 13ef993b-ff71-4da3-a133-e111fc5ff6f6 is gone: 6 garrison slot(s) LOST(VIL
+[harness] server stopped
+[harness] RESULT 26/30 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  FAIL  G4-0 garrisons filled and duty plans exist  {'A': (16, {'pairs': 1, 'patrol': 3, 'scouts': 1, 'reserve': 1}), 'B': (6, {'pairs': 1, 'patrol': 1, 'scouts': 0, 'reserve': 1}), 'M': (64, {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 9}), 'Z': (0, {'pairs': 0, 'patrol': 0, 'scouts': 0, 'reserve': 0})}
+  PASS  G4-1a duty quotas never exceed the living garrison  {'A': (16, {'pairs': 1, 'patrol': 3, 'scouts': 1, 'reserve': 1}, {'RESERVE': 1, 'SENTRY': 2, 'GARRISON': 9, 'PATROL': 3, 'SCOUT': 1}, 9), 'B': (6, {'pairs': 1, 'patrol': 1, 'scouts': 0, 'reserve': 1}, {'SENTRY': 2, 'RESERVE': 1, 'PATROL': 1, 'GARRISON': 2}, 6), 'M': (64, {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 9}, {'RESERVE': 9, 'SENTRY': 16, 'PATROL': 8, 'GARRISON': 27, 'SCOUT': 4}, 57), 'Z': (0, {'pairs': 0, 'patrol': 0, 'scouts': 0, 'reserve': 0}, {}, 0)}
+  FAIL  G4-1b standing troops are distributed (many distinct home points per village)  {'A': 9, 'B': 6, 'M': 57, 'Z': 0}
+  PASS  G4-1c the stronghold fields more sentries/patrols/scouts than the smallest garrison; the smallest is not over-tasked  stronghold {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 9} vs smallest (0 units) {'pairs': 0, 'patrol': 0, 'scouts': 0, 'reserve': 0}
+  FAIL  G4-2 every sentry pair has two units, standing at (within 10 blocks of) its own post (from building data)  {'A': (1, {0: [(652, 79, 613), (652, 79, 613)]}, True, True, True), 'B': (1, {0: [(850, 87, 633), (845, 87, 638)]}, True, True, True), 'M': (8, {0: [(646, 73, 936), (646, 73, 931)], 1: [(690, 70, 915), (685, 70, 915)], 2: [(677, 72, 939), (676, 72, 940)], 3: [(638, 72, 988), (637, 72, 987)], 4: [(660, 63, 882), (656, 74, 874)], 5: [(610, 73, 908), (617, 72, 905)], 6: [(614, 66, 965), (615, 63, 957)], 7: [(696, 69, 886), (668, 65, 894)]}, True, False, True), 'Z': (0, {}, True, True, True)}
+  PASS  G4-3a patrol route is deterministic (identical on every read)  8 waypoints
+  PASS  G4-3b patrol units advance along the route  8/8 moved over 120 s
+  PASS  G4-4a scouts: mounted riders are chosen as scouts where the village has them  {'A': [('8d9a12cc', 'crossbowman', 'out')], 'M': [('1c39e9bb', 'light_lancer_rider', 'rest'), ('5b1c3074', 'light_lancer_rider', 'rest'), ('87cd26f5', 'light_lancer_rider', 'watch'), ('91927d90', 'light_lancer_rider', 'rest')]}
+  PASS  G4-4b scouts ride outside the village radius (ring - scout distance) and cycle out/watch/back  {'A': (152, 149, ['back', 'out', 'watch']), 'M': (140, 149, ['back', 'out', 'rest', 'watch'])}
+  PASS  G4-5a duty assignments are identical after a restart  {'A': True, 'B': True, 'M': True, 'Z': True}
+  PASS  G4-5b sentry posts, patrol route and scout posts are identical after a restart  {'A': True, 'B': True, 'M': True, 'Z': True}
+  PASS  G4-5c no duplicate or unbound units after the restart  {'A': {'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}, 'B': {'tagged': 6, 'slots': 6, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 6, 'live': 6, 'bound': 6}, 'M': {'tagged': 64, 'slots': 64, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 64, 'live': 64, 'bound': 64}, 'Z': {'tagged': 0, 'slots': 0, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 0, 'live': 16, 'bound': 0}}
+  PASS  G4-6a deployed units are on DEFENSE, keeping their standing duty  {'8d9a12cc': ('DEFENSE', 'SCOUT'), '5fb08aa0': ('DEFENSE', 'GARRISON')}
+  PASS  G4-6b after the fight every unit is back on its standing duty (same assignment)  deployed 0 returning 0; kept True
+  PASS  G4-7 a sentry to kill  
+  PASS  G4-7a the killed sentry is DEAD, its slot is not respawned  {'slot': 'e34c8a2d', 'unit': 'archer', 'lvl': 3, 'state': 'DEAD', 'reason': 'KILLED', 'gen': 1, 'entity': '8f1ed041'}
+  PASS  G4-7b its pair is manned again by another living unit  [('eff69287', 'archer'), ('9233b8da', 'crossbowman')]
+  PASS  G4-8 attacker village present  
+  PASS  G4-8a a contingent of the attacker's own living garrison joins (no new units); the home keeps at least half  Raid triggered: Saint-Denis le-fort -> Saint-Germain les-pâtures (6 raiders disp | 12 of 62 sent; 51 at home; raiders ['light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'archer_rider', 'archer_rider', 'militia', 'militia', 'militia', 'crossbowman', 'warrior', 'warrior']
+  FAIL  G4-8b the contingent is moved to Millénaire's landing point and fights at the target  [hywmill] Raid contingent of village 'Saint-Denis le-fort' (12 unit(s)) moved to Millénaire's landing point 650, 89, 711 near 'Saint-Germain les-pâtures' ; 0 raid unit(s) within 120 blocks of the target
+  PASS  G4-8c raid over: survivors are back on their standing duties; no unit spawned for the raid  [Millenaire] Raid FAILURE: Saint-Denis le-fort repulsed at Saint-Germain les-pâtures.; dead 0/12; still RAID 0; alive 63->63
+  PASS  G4-8d raid deaths are permanent (DEAD, never respawned)  0 raid death(s)
+  PASS  G4-10a M3 invariants: no duplicate, unbound or foreign-owned garrison units  {'A': {'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}, 'M': {'tagged': 63, 'slots': 63, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 63, 'live': 63, 'bound': 63}, 'Z': {'tagged': 0, 'slots': 0, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 0, 'live': 16, 'bound': 0}}
+  PASS  G4-10b duty tick cost per village stays small (mean < 0.5 ms)  {'duty.tick': {'n': 303, 'mean': 106.7, 'max': 987.8, 'p99': 784.7, 'total': 32.3}, 'duty.layout': {'n': 10, 'mean': 220.8, 'max': 387.3, 'p99': 387.3, 'total': 2.2}, 'raid.tick': {'n': 303, 'mean': 11.2, 'max': 186.4, 'p99': 107.8, 'total': 3.4}, 'tick.total': {'n': 2420, 'mean': 71.2, 'max': 13210.1, 'p99': 821.2, 'total': 172.3}}
+  PASS  G4-9a negation wand deletes the village; HywMill notices; no recruitment or spawning into it  negate Saint-Philbert les-pâtures 13ef993b-ff71-4da3-a133-e111fc5ff6f6: true | 0 recruit/spawn lines
+  PASS  G4-9b after the grace period its garrison is LOST(VILLAGE_GONE)  [hywmill] Village 'Saint-Philbert les-pâtures' 13ef993b-ff71-4da3-a133-e111fc5ff6f6 is gone: 6 garrison slot(s) LOST(VIL
