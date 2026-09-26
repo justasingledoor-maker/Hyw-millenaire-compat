@@ -81,8 +81,9 @@ public final class RaidService {
         if (raid == null) {
             if (info.isPresent() && info.get().target() != null && info.get().raidStart() > 0 && enabled() && alert == AlertState.CALM) {
                 changed |= start(overworld, rec, r, rule, info.get(), units, plan, tick);
+            } else {
+                changed |= bringHomeStale(overworld, rec, r, units, tick); // only when no raid of ours is running
             }
-            changed |= bringHomeStale(overworld, rec, r, units, tick);
         } else {
             boolean over = info.isEmpty() || !raid.target.equals(info.get().target()) || info.get().performed() > raid.performedBase
                     || tick - raid.raidStart > MAX_RAID;
