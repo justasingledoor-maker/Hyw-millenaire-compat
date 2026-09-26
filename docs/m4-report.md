@@ -13,10 +13,10 @@ Branch: `claude/millenaire-hyw-audit-5n4u8s`.
 |---|---|
 | M4-0 spikes (raid lifecycle, Wand of Negation, mounted scouts, Epic Knights) | Feasible with public APIs; no mixins, no changes to Millénaire or HYW (`docs/m4-spike.md`) |
 | JUnit | 178/178 (45 new for M4: duty data/quotas/allocation/plan/motion/persistence, raid planner, equipment profiles, spawn-location fallback) |
-| G4 duty/raid acceptance, final jar | **31/31** (`docs/m4-test-evidence/spawn-fallback/g4-final.txt`; earlier also `g4-run4-final.txt`) |
+| G4 duty/raid acceptance, final jar | **31/31** (`docs/m4-test-evidence/spawn-fallback/g4-final.txt`; the pre-final run `g4-run4-final.txt` was also 31/31) |
 | G4 Epic Knights profiles | **10/10** (`g4-epic-knights.txt`, `equipcheck-report.txt`) |
 | M3 G3 suite with M4, incl. the spawn fallback (G3-18) | **51/51** |
-| M2 regression (garrison disabled, the M2 baseline) | **70/72**; only the accepted performance-tail items P3a/P3b (an earlier run was 72/72) |
+| M2 regression (garrison disabled, the M2 baseline) | **70/72**; the only failures are the accepted performance-tail items P3a/P3b (a pre-final run was 72/72) |
 | Calm cost, same world, duties off → on | server tick mean 57.6 → 63.2 µs, p99 644 → 706 µs; duty tick ≈ 97 µs per village per 40 ticks |
 
 ## 2. Design
@@ -244,17 +244,22 @@ Runs 1–3 (evidence kept) found real defects, and each was fixed before the fin
 
 ## 4. Regression
 
-| Suite | Result | Evidence |
-|---|---|---|
-| M3 G3 suite (`run garrison`) with M4 duties active | **42/42** | `g3-with-m4.txt` |
-| M2 regression (`run all`, garrison disabled: the frozen M2 baseline) | **72/72**; the accepted performance-tail items P3a/P3b also passed this time | `m2-regression.txt` |
-| JUnit | 172/172 | `./gradlew test` |
+Final results are from the reruns on the final jar, after the spawn-location fallback (§8). The
+earlier pre-final results are kept for history.
 
-The first G3 run gave 41/42 (`g3-with-m4-run1.txt`). The failing check was G3-4: M2 deployed the
-two nearest garrison units, and both were in a well next to their duty spot, so they could not
-engage. They were within 2 blocks of their spot, only one block below it, so they were not counted
-as stuck. A unit that sits a block or more below its spot without moving now counts as trapped and
-gets the same fallback and unstick. The rerun gave 42/42.
+| Suite | Final (post-fallback) | Evidence | Earlier (pre-final) |
+|---|---|---|---|
+| M3 G3 suite (`run garrison`) with M4 | **51/51** (42 M3/M4 checks + 9 G3-18 fallback checks) | `spawn-fallback/g3-final.txt` | 41/42, then 42/42 (`g3-with-m4-run1.txt`, `g3-with-m4.txt`) |
+| M2 regression (`run all`, garrison disabled: the frozen M2 baseline) | **70/72**; the only failures are the accepted performance-tail items P3a/P3b (the frozen M2 baseline is 70/72) | `spawn-fallback/m2-final.txt` | 72/72 (`m2-regression.txt`; P3a/P3b passed in that run) |
+| JUnit | **178/178** | `./gradlew test` | 172/172 before the 6 fallback tests |
+
+In the first pre-final G3 run (41/42), the failing check was G3-4:
+* M2 deployed the two nearest garrison units, and both were in a well next to their duty spot, so
+  they could not engage.
+* They were within 2 blocks of their spot, only one block below it, so they were not counted as
+  stuck.
+* A unit that sits a block or more below its spot without moving now counts as trapped, and gets the
+  same fallback and unstick. The pre-final rerun gave 42/42.
 
 ## 5. Performance (section 10)
 
@@ -306,11 +311,15 @@ gets the same fallback and unstick. The rerun gave 42/42.
 | `m4-0-spike-*.txt` | The M4-0 spikes |
 | `g4-explore.txt` | First duty run |
 | `g4-run1.txt`, `g4-run2.txt`, `g4-run3.txt` | Runs with defects found |
-| `g4-run4-final.txt` | 31/31 on the final jar |
+| `g4-run4-final.txt` | 31/31, the last pre-fallback run |
 | `g4-epic-knights.txt` | 10/10 |
 | `equipcheck-report.txt` | The full validation report |
-| `g3-with-m4.txt` | M3 G3 regression |
-| `m2-regression.txt` | M2 regression |
+| `g3-with-m4-run1.txt`, `g3-with-m4.txt` | M3 G3 regression, pre-final (41/42, then 42/42) |
+| `m2-regression.txt` | M2 regression, pre-final (72/72) |
+| `spawn-fallback/*-attempt1.txt` | First post-fallback attempt (failures and causes in §8) |
+| `spawn-fallback/g3-final.txt` | **Final** M3 G3 suite: 51/51 |
+| `spawn-fallback/g4-final.txt` | **Final** M4 acceptance: 31/31 |
+| `spawn-fallback/m2-final.txt` | **Final** M2 regression: 70/72 (only P3a/P3b) |
 
 ## 8. Post-M4 fix: spawn-location fallback (approved change to M3)
 
@@ -380,6 +389,12 @@ The first attempt's failures, with their causes, are kept in
 
 ## 9. Freeze
 
-**M3 and M4 are frozen** as of this commit on `claude/millenaire-hyw-audit-5n4u8s`. The M3 freeze
+**M3 and M4 are frozen** on `claude/millenaire-hyw-audit-5n4u8s`. The final results are the
+same in §1, §4 and §8:
+* JUnit 178/178;
+* M3 G3 suite 51/51;
+* M4 acceptance 31/31;
+* Epic Knights 10/10;
+* M2 regression 70/72 (only the accepted P3a/P3b). The M3 freeze
 (`docs/m3-freeze.md`) holds, with the single approved addition in §8. Further work is limited to
 documentation and cleanup unless a new reproducible correctness defect is found.
