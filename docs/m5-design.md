@@ -378,6 +378,7 @@ forgiving; names and values to be decided in M5-1.
   culture reputation; player-to-player politics (one player as another's envoy; shared favor in
   multiplayer teams).
 * **FRIENDLY HYW relation for patrons**, whose semantics are unverified (spike first).
+* **Wars without villages.** Player-declared wars on villages without an allied village (M5 reaches hostility through acts and outlawry only); multi-front campaigns; HYW team-wide campaigns; formations and orders for mixed allied armies.
 
 ---
 
@@ -421,6 +422,7 @@ Millénaire or HYW.
 | M5-3 | Outlaw: `OUTLAWED_PLAYER` threat, `PoliticalPolicy` with HYW HOSTILE, pardon |
 | M5-4 | Envoy missions and truces (Millénaire relation API, delayed resolution, backfire) |
 | M5-5 | Requests: escort and detachment (M4 temporary duties), evaluator, favor costs, casualties |
+| M5-5b | Rules of engagement (§16): wars, campaigns, relation projector and reconciliation, `ENEMY_COMBATANT`, combatant-only engagement |
 | M5-6 | Armoury (if spike 7 allows) and honours |
 | M5-7 | Harness suite G5, M4/M3/M2 regressions, performance, report |
 
@@ -437,3 +439,175 @@ Millénaire or HYW.
 4. **Escorts leaving the village's lands.** They cross unloaded terrain only with the player present
    (chunks are loaded by the player). Acceptable?
 5. **Commands only for the interface in M5.** Acceptable?
+6. **Automatic war between villages.** Should village ↔ village war projection (HOSTILE between
+   faction garrisons at ≤ −90) be on by default? Proposed: yes, with a minimum duration at open
+   conflict, and a server config switch.
+7. **Co-belligerents as FRIENDLY in HYW.** Should co-belligerents be projected as FRIENDLY (full
+   friendly-fire protection) or only kept NEUTRAL (no mutual targeting, but stray hits count)?
+   Proposed: FRIENDLY, for the campaign only.
+8. **Combatant-only engagement for M4 raid contingents** (a small change to frozen M4). Approve?
+
+---
+
+## 16. Rules of engagement and allied warfare
+
+**Goal.** A player can take part in a legitimate war with their own HYW troops on HYW's normal
+(DEFAULT) attack strategy, not INDISCRIMINATE:
+* the enemy's soldiers are valid targets;
+* allies and neutrals are not;
+* civilians are never targets by default.
+
+This should follow from the political state M5 establishes, through HYW's existing public relation
+API, with **no mixins and no HYW changes**.
+
+### 16.1 HYW audit (0.7.1r-fix1, bytecode of the relevant methods)
+
+| HYW mechanism | What it does |
+|---|---|
+| **Relation identity** (`ServerRelationHelper.getRelationIdentity/getRelationUUID`) | Every entity resolves to an identity: an owner UUID, a known null owner (e.g. bandits), or unknown. Resolution goes through owner, summoner and rider chains, and a marker is cached on the entity (`RelationOwnerMarkedEntity`). HywMill already uses this: garrison units have **owner = village faction UUID** (M3), and Millénaire residents are **marked** with the faction identity (M1) |
+| **Relations** (`RelationSystem.getRelation(a, b)` / `setRelation`) | **Directed**, identity → identity. HOSTILE / NEUTRAL / FRIENDLY / CONTROL; the default is **NEUTRAL**; an identity against itself is CONTROL. Persisted by HYW itself (`saveRelations`). Changing HOSTILE → NEUTRAL starts an **immunity window** (`hostileToNeutralSwitchTime`, `RELATION_IMMUNITY_TIME`) |
+| **Teams** (`createTeam/joinTeam/getPlayerTeamUUID`, `TeamRelationData`) | Player teams (owner/admin/member) with a team UUID. It is unknown **(spike)** whether a team member's units resolve to the team UUID for relations |
+| **Target selection** (`BaseCombatEntity.isValidTarget`), for DEFAULT, FREE_FIGHT and FREE_ROAM | In order: <br>1. rejects: siege weapons, blacklist, creative players, `CEASE_FIRE`; <br>2. **temporary hostility** (`TemporaryHostileTargetManager.isHostile`, about 11 s): the target is valid unless relation-protected; <br>3. **relation participants** (target is an HYW unit, **a player** or a tamed animal, with a known identity): valid **iff `isEnemyRelation`**, i.e. the relation is HOSTILE; <br>4. **monsters** (`Enemy`): valid; <br>5. anything else, **including Millénaire villagers, whatever their faction**: not a target |
+| `INDISCRIMINATE` | Every living thing except the same owner and FRIENDLY/CONTROL identities, **villagers and neutrals included**. This is why players reach for it today |
+| **Protection and friendly fire** | `isRelationProtected` (same owner, target blacklist); `shouldCancelFriendlyDamage` / `shouldIgnoreFriendlyCollision` (FRIENDLY/CONTROL and same owner; player friendly fire has its own config) |
+| **Automatic escalation** | `BaseCombatEntity.die`: a unit killed by a **NEUTRAL** identity sets that relation to **HOSTILE** (`setRelation`), and HYW records damage (`recordDamage`). HywMill's M1.1 escalation guard reverts this today (`DiplomacyPolicy.ALWAYS_REVERT`) |
+
+**Conclusion.** HYW already implements, in DEFAULT mode, most of the rules of engagement asked for:
+* **soldiers versus soldiers by relation**;
+* **no civilians** (villagers are never relation targets);
+* **neutrals ignored**;
+* **friendly fire suppressed for FRIENDLY identities**.
+
+What is missing is only **who is HOSTILE or FRIENDLY to whom, and when**. That is exactly what a
+diplomatic layer can supply through `setRelation`. **No mixin is needed.**
+
+### 16.2 The model: political state first, HYW relations as its projection
+
+HywMill keeps the political truth in its own ledger. It **projects** that truth onto HYW relations,
+and the projection is recomputed and reconciled; it is never the source of truth. The three states
+the review asked to keep apart:
+
+| State | Meaning | HYW projection |
+|---|---|---|
+| **Friendship** (standing) | A lasting good relationship: the player is a patron or sworn friend of A, or two villages are at EXCELLENT relations | None by default (NEUTRAL already means "do not attack"). Optionally FRIENDLY for sworn friends, for friendly-fire protection **(spike)** |
+| **Co-belligerence** (a *campaign*) | "We are fighting the same enemy, for now": time-bounded, tied to a specific war, can end without any friendship | **FRIENDLY between the co-belligerents' identities for the campaign's duration**, for friendly fire and collision; restored to the previous relation afterwards |
+| **War** (belligerence) | An open, declared or recognized conflict between two parties | **HOSTILE in both directions** between their identities, for the war's duration |
+| Retaliation | A one-off answer to a specific attack | **HYW temporary hostility** (about 11 s, per unit and target), as M2/M3 use today. **Never** a relation change |
+
+Friendship is about **who we like**; co-belligerence is about **who is on our side in this fight**.
+A player can be:
+* a co-belligerent of a village that only tolerates them;
+* a friend of a village that stays out of their war.
+
+### 16.3 Who is at war with whom
+
+* **Village ↔ village war.** It follows Millénaire's own state: relation ≤ OPEN_CONFLICT (−90),
+  or a raid in progress between them.
+  * It starts after the relation has been at open conflict for a minimum time (no flapping on
+    nightly drift).
+  * It ends at truce or peace (§7), or once the relation has been above −90 for a minimum time.
+  * The projection is HOSTILE between the two **village faction UUIDs**, which covers all M3
+    garrison units and M4 raid contingents automatically.
+* **A player joins a war** (`/hywmill war join <A> against <B>`). This needs:
+  * standing **trusted or better** with A;
+  * **not trusted** by B, or at least accepting the political cost below;
+  * an active A ↔ B war.
+
+  Effects:
+  * a **campaign** is recorded (A, the player and B, with an end tick);
+  * projection: player ↔ B **HOSTILE** (both directions), player ↔ A **FRIENDLY** for the
+    campaign;
+  * **political cost with B**: a grievance, standing at most "enemy combatant" for the duration
+    (see below), and a chronicle entry in both villages.
+* **A player's own private war** (the player versus B, without A). That is the outlaw path of §4
+  seen from B's side. A player cannot start a war on a village by declaration alone in M5; they get
+  there through acts, and B's response is outlawry.
+* **Leaving and ending.** `/hywmill war leave`, an expiry (for example, seven in-game days,
+  renewable), peace between A and B, or the player losing standing with A.
+  * Projections are removed and prior relations restored.
+  * HYW's immunity window then prevents instant re-hostility.
+  * B's grievance **decays** normally, so the player is not an outlaw by default after the war.
+
+**Enemy combatant** is a new, temporary status of a player with B during a campaign. The player is
+a legitimate military target of B, as with outlawry: the M2 threat reason `ENEMY_COMBATANT`, plus
+the HYW HOSTILE projection. It **ends with the campaign**, without the long pardon process an outlaw
+needs.
+
+### 16.4 How the requested behaviour follows
+
+| Requirement | How it follows (DEFAULT strategy, no INDISCRIMINATE) |
+|---|---|
+| **Allied forces do not attack each other** | FRIENDLY projection (co-belligerents) or NEUTRAL (the default): not relation targets; FRIENDLY also cancels friendly damage and collision |
+| **Allies protected from normal hostile targeting** | Only HOSTILE identities, monsters and temporary-hostility targets are ever targets; allies are none of these |
+| **Allies operate together** | M2 of A treats co-belligerent units as allies: never threats (they are not HOSTILE); assisted when attacked through the existing `ATTACKING_ALLY_PLAYER` reason, extended to "attacking a co-belligerent's unit" |
+| **Enemy military forces can be attacked** | Player ↔ B HOSTILE: the player's units target B's **garrison units** (owner = B's faction) and B's co-belligerent players' units |
+| **The enemy can attack back** | HOSTILE is set in both directions, so B's garrison targets the player's units and the player natively; B's M2 sees them as `HYW_ENEMY` / `ENEMY_COMBATANT` threats and deploys under its doctrine |
+| **Neutral forces stay out** | Third parties keep NEUTRAL; stray damage that HYW would escalate on a kill is **reverted by the escalation guard** unless a campaign or war covers the pair |
+| **Civilians are not targets** | Millénaire villagers are never relation targets in DEFAULT mode. **Combatant villagers** (M2 roles SOLDIER/LEADER, and MILITIA per doctrine) of an enemy village are made targets only through **temporary hostility**, marked by HywMill for units within the campaign's engagement area. Never by relation, so civilians are never included |
+
+### 16.5 Interactions
+
+| System | Interaction |
+|---|---|
+| **M2 village defense** | Enemy HYW units are already threats through `HYW_ENEMY` (explicit HOSTILE). Adds the additive reasons `ENEMY_COMBATANT` (players at war with the village) and the co-belligerent assist. The doctrine (commitment, reserve, `proactive`) is unchanged; `proactive=false` still keeps the garrison from chasing enemies merely present, except those declared enemies. The defense coordinator never targets FRIENDLY or co-belligerent units |
+| **M3 ownership** | Unchanged. Garrison units belong to the village faction; the faction's relations apply to all of them. Controller = permissions, not identity (unchanged) |
+| **M4 raid contingents** | In a war, contingents fight B's garrison natively through HOSTILE. Their resident engagement (currently the nearest resident, civilians included) should be restricted to **combatant villagers**. That is a small behavioural change to frozen M4, proposed here for approval as part of M5 |
+| **Player-owned HYW units** | Identity = the player (or the player's HYW team, **spike**). The player keeps choosing strategies; DEFAULT is enough for war. INDISCRIMINATE stays available but is never needed |
+| **Village-owned units** | Identity = the village faction. They never use INDISCRIMINATE; HywMill sets DEFAULT (M3) |
+| **Village ↔ village wars** | HOSTILE between faction UUIDs while at war: garrisons, scouts and raiders of warring villages fight on sight wherever they meet (loaded chunks only) |
+| **Player in village wars** | Through a campaign (§16.3), with standing prerequisites and political costs |
+| **Temporary versus permanent** | Temporary hostility = retaliation and targeted strikes (seconds). A campaign or war projection = the duration of the conflict (days). Outlawry = until pardon. HYW's automatic escalation (killed by a neutral) is **reverted** unless one of these political states covers the pair |
+| **Friendly fire** | FRIENDLY projection for co-belligerents and (optionally) sworn friends; HYW's own `shouldCancelFriendlyDamage`. Player friendly fire stays governed by HYW's own config |
+
+### 16.6 Architecture
+
+* **`politics.war` (pure).**
+  * `War` (pair of villages, since, cause).
+  * `Campaign` (player, ally, enemy, until).
+  * `RoeState` (combatant categories).
+  * `RelationPlan`: computes the **desired HYW relation** for every (identity, identity) pair
+    HywMill manages. Pure, and unit-tested for symmetry, expiry and restoration.
+* **`RelationProjector`** (service, in `HywMillRuntime`).
+  * Applies the plan's differences through `CombatFactionService`, with new adapter methods
+    `setRelation(a, b, type)` and `relation(a, b)`.
+  * Remembers the **previous relation** it replaced, so ending a campaign restores it.
+  * **Reconciles at startup and on every ledger interval**: it removes HywMill-made relations that
+    no longer have a political cause, so HYW's persisted relations never drift from HywMill's
+    ledger.
+  * It never touches pairs it did not create.
+  * An admin command clears all HywMill projections (uninstall hygiene, like M1.1
+    `clear-identities`).
+* **`PoliticalPolicy`** (the `DiplomacyPolicy` SPI from M1.1) consults the plan. The escalation guard
+  keeps HOSTILE only where the plan wants it; everything else is reverted as today.
+* **Persistence** (ledger format 5, optional keys): wars per village pair, campaigns per player, and
+  the projector's "previous relation" records.
+* **No static state** of HywMill's own. HYW's relation store is static by HYW's design, and HywMill
+  treats it as an external system it reconciles against.
+* **Cost.** Projections change only when a war or campaign starts or ends: a handful of `setRelation`
+  calls. There is no per-tick work; HYW's own targeting does the fighting.
+
+### 16.7 Spikes for M5-0 (added)
+
+1. **Identity of player-owned units:**
+   * the player's UUID, or the HYW team UUID when the player is in a team;
+   * whether `setRelation` on the player's UUID governs the player's units.
+2. **War projection.** Player ↔ village faction HOSTILE (both directions) under DEFAULT:
+   * the player's units attack B's garrison units, and not B's villagers;
+   * B's garrison attacks the player's units and the player;
+   * nobody else is affected.
+3. **FRIENDLY between co-belligerents:**
+   * no targeting;
+   * melee, arrow and area friendly-fire cancellation;
+   * collision.
+4. **Restoration.** After HOSTILE → NEUTRAL: the immunity window, no residual targets, and whether
+   HYW's own `saveRelations` persists the change.
+5. **Escalation guard.** A unit killed by a neutral third party is escalated by HYW (`die`), and the
+   guard with `PoliticalPolicy` must revert it only when no war or campaign covers the pair.
+6. **Combatant villagers.** Temporary hostility on SOLDIER/LEADER villagers of the enemy village;
+   civilians untouched.
+7. **Faction ↔ faction HOSTILE.** Two garrisons meeting in the field; M2 `HYW_ENEMY` alerts at both
+   villages; no effect on the villages' residents.
+
+**Stop condition as before.** If spike 1 or 2 shows that DEFAULT targeting cannot be driven by
+relations for player-owned units without HYW changes, stop and report before designing a
+workaround.
