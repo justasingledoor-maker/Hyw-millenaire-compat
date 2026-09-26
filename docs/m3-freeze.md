@@ -58,3 +58,15 @@ See `docs/m3-report.md` §18.
   player client.
 * **Occasional single-tick maxima.** Maxima of 10–14 ms occurred during fights and fills on the
   shared test host. They are not fully attributable; per-tick p99 was ≤0.7 ms.
+
+## Addendum: approved M3 change (spawn-location fallback)
+
+The only change to M3 behaviour after the freeze, approved explicitly:
+* If the unchanged defending-position spot search finds no safe spot, the same bounded
+  deterministic search runs around the village centre, for that spawn attempt only (loaded chunks
+  only, no force-loading).
+* If that finds nothing too, the slot stays RECRUITED and is retried as before.
+* The anchor, recruitment, roster state, caps, ownership, duplication prevention, duties,
+  equipment and the M2 doctrine are unchanged.
+
+Details and results are in `docs/m4-report.md` §8. M3 is frozen again.

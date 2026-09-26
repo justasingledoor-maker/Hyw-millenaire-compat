@@ -5,7 +5,7 @@ Millénaire, HYW or Epic Knights is bundled.
 
 | Jar | Content | SHA-256 |
 |---|---|---|
-| `hywmill-m4.jar` (current) | M4: duties (sentries, patrols, scouts, reserve), raid contingents, optional Epic Knights profiles; includes everything in M3 | `299b4165c7cd048957e8b122de87e15c4a230a01b7b2b9904fb472bae75ee111` |
+| `hywmill-m4.jar` (current) | M4: duties (sentries, patrols, scouts, reserve), raid contingents, optional Epic Knights profiles; includes everything in M3 plus the approved spawn-location fallback | `e6712d3af1c14eb30f54920aab61f8fd3cfd95de49dd76fb98e457406776880f` |
 | `hywmill-m3.jar` | The frozen M3 build (garrisons, M2 doctrine, M1.1 bridge) | `82908266de9ec48535582fd64e5d11516d005dbafda349b7fb3c7a90a5206458` |
 
 ## Install

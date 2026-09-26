@@ -12,11 +12,11 @@ Branch: `claude/millenaire-hyw-audit-5n4u8s`.
 | Area | Result |
 |---|---|
 | M4-0 spikes (raid lifecycle, Wand of Negation, mounted scouts, Epic Knights) | Feasible with public APIs; no mixins, no changes to Millénaire or HYW (`docs/m4-spike.md`) |
-| JUnit | 172/172 (39 new for M4: duty data/quotas/allocation/plan/motion/persistence, raid planner, equipment profiles) |
-| G4 duty/raid acceptance, final jar | **31/31** (`docs/m4-test-evidence/g4-run4-final.txt`) |
+| JUnit | 178/178 (45 new for M4: duty data/quotas/allocation/plan/motion/persistence, raid planner, equipment profiles, spawn-location fallback) |
+| G4 duty/raid acceptance, final jar | **31/31** (`docs/m4-test-evidence/spawn-fallback/g4-final.txt`; earlier also `g4-run4-final.txt`) |
 | G4 Epic Knights profiles | **10/10** (`g4-epic-knights.txt`, `equipcheck-report.txt`) |
-| M3 G3 regression with M4 | **42/42** |
-| M2 regression (garrison disabled, the M2 baseline) | **72/72** |
+| M3 G3 suite with M4, incl. the spawn fallback (G3-18) | **51/51** |
+| M2 regression (garrison disabled, the M2 baseline) | **70/72**; only the accepted performance-tail items P3a/P3b (an earlier run was 72/72) |
 | Calm cost, same world, duties off → on | server tick mean 57.6 → 63.2 µs, p99 644 → 706 µs; duty tick ≈ 97 µs per village per 40 ticks |
 
 ## 2. Design
@@ -277,11 +277,8 @@ gets the same fallback and unstick. The rerun gave 42/42.
 
 ## 6. Known limitations
 
-* **M3 spawn spots.** In two of the six M4 test worlds, the Byzantine village's garrison never spawned.
-  M3's spawn-spot search (24 candidates near Millénaire's defending position) found no safe spot, so
-  the units stay RECRUITED; they are never lost, duplicated or charged twice. This is M3 behaviour
-  and is left unchanged under the M3 freeze. The proposed fix is to fall back to the village centre
-  (and the townhall anchor) when the defending position has no spot; it needs your approval.
+* **M3 spawn spots (resolved, §8).** A garrison whose defending position had no safe spot used to
+  wait unspawned. It now falls back to the village centre for that attempt.
 * **Raid combat is brief.** Millénaire resolves a raid by its own strength rules, usually within a
   minute of materialization. The contingent is present and engaging (HYW temporary hostility,
   re-engaged every duty tick), but it lands few hits in that window, and it does not change
@@ -289,8 +286,9 @@ gets the same fallback and unstick. The rerun gave 42/42.
 * **Unstick moves.** A unit that has not moved through every detour is moved onto its spot or hop
   (≤ 40 blocks, loaded ground). This is the only movement besides the HYW home; the raid landing and
   return use Millénaire's own materialization model.
-* **Raised posts.** Wall walks and tower tops are replaced by the building's ground-level anchor.
-  Sentries stand at the foot of towers and gates, not on them.
+* **Raised posts.** Wall walks and tower tops are replaced by the building's ground-level anchor
+  where Millénaire gives one. A post still out of HYW's reach (a tower top) gets its sentry moved
+  onto it once, after the fallback ground spots.
 * **Scouts need loaded, dry ground.** Scouts ride only through entity-ticking chunks, and HywMill
   never force-loads. Without players nearby, scouts watch from the edge of the loaded area; a post
   across water is watched from the shore, and the next ride tries the next post.
@@ -313,3 +311,75 @@ gets the same fallback and unstick. The rerun gave 42/42.
 | `equipcheck-report.txt` | The full validation report |
 | `g3-with-m4.txt` | M3 G3 regression |
 | `m2-regression.txt` | M2 regression |
+
+## 8. Post-M4 fix: spawn-location fallback (approved change to M3)
+
+**Problem.** In two of the six M4 test worlds, a village's garrison never spawned. M3's spot search
+(24 deterministic candidates within 8 blocks of Millénaire's defending position, loaded chunks only)
+found no safe spot, so the units stayed RECRUITED indefinitely.
+
+**Fix.** The change is surgical, as approved:
+1. `SpawnSpots.choose` first runs the **unchanged** M3 search around the defending position.
+2. Only if that finds nothing, it runs the same bounded, deterministic search around the **village
+   centre**, for that spawn attempt only. The search uses loaded chunks only (`hasChunk`) and never
+   force-loads.
+3. If neither location has a safe spot, the slot stays RECRUITED and is retried on the next garrison
+   slot, exactly as before.
+
+What does not change:
+* The spawn request's HYW home is still the defending position; the stored anchor is not replaced.
+* Recruitment, roster state, tier caps, ownership, deterministic UUIDs, join adjudication, duties,
+  equipment and the M2 doctrine are untouched.
+* The garrison summary now also reports the spawn anchor and the fallback centre (read-only).
+
+**Tests.** JUnit `SpawnFallbackTest` (6 tests):
+* the normal defending-position spawn is used, and the centre is not searched;
+* when the defending position has no spot, the centre fallback succeeds within the bounded area;
+* when both fail over 1000 garrison passes, the slot stays RECRUITED, never lost, at generation 0,
+  and the same slot spawns later;
+* unloaded terrain is skipped and never loaded;
+* a centre equal to the defending position is searched once;
+* a fallback spawn keeps the deterministic UUID, is rebound once after a restart, a second copy is
+  refused, and its duty assignment is unchanged.
+
+**Dedicated server: G3-18, 9/9.** Barrier roofs over the real candidate areas force each case:
+
+| Check | Result |
+|---|---|
+| (a) Normal spawn | At the defending position |
+| (b) Defending position blocked | The unit spawned near the centre: (652, 80, 625), with the centre at (647, 80, 624) |
+| (c) Both blocked | The slot stayed RECRUITED, with no entity and not lost |
+| (d) Roofs removed | The **same** slot spawned |
+| (e) Force-loading | `forceload query` unchanged |
+| (f) Stored state | The anchor and the duty plan are unchanged |
+| (g) Restart | No duplicate; the fallback-spawned unit is bound once with the same duty |
+
+**Also fixed in the same reruns (M4 duties).** A sentry whose post is on a tower HYW cannot path
+up to is now moved onto the post once, after the three fallback ground spots (≤ 40 blocks, loaded,
+standable).
+
+Harness robustness:
+* G4-6 now uses a player-owned attacker, which HYW's own targeting ignores, so M2 is what deploys
+  (as in G3-4).
+* G4-4b samples scouts for 10 minutes.
+* G3-18's roof covers exactly the 8-block candidate area.
+
+The first attempt's failures, with their causes, are kept in
+`docs/m4-test-evidence/spawn-fallback/*-attempt1.txt`:
+* G3-18 roof too wide for that world's 12-block anchor/centre separation;
+* G4-2 tower post;
+* G4-4b short sampling window;
+* G4-6a bandits killed by native HYW targeting before any deployment;
+* M2 I2: a defender killed an attacker before the threat list was read, with the garrison disabled.
+
+**Final reruns on the final jar (SHA-256 `e6712d3a…880f`):**
+* M3 garrison suite: **51/51**;
+* M4 acceptance: **31/31**;
+* M2 regression, garrison disabled: **70/72**, only the accepted P3a/P3b;
+* JUnit: **178/178**.
+
+## 9. Freeze
+
+**M3 and M4 are frozen** as of this commit on `claude/millenaire-hyw-audit-5n4u8s`. The M3 freeze
+(`docs/m3-freeze.md`) holds, with the single approved addition in §8. Further work is limited to
+documentation and cleanup unless a new reproducible correctness defect is found.
