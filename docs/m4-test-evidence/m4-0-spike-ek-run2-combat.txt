@@ -1,0 +1,36 @@
+[harness] server started
+[harness] server stopped
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] server stopped
+[harness] server started
+[harness] ekspike {"after15s": "magistuarmory:norman_helmet", "afterRestart": "magistuarmory:norman_helmet", "base": "magistuarmory:greathelm", "fought": true, "item": "magistuarmory:norman_helmet", "kind": "armor", "set": true, "slot": "head", "unit": "spear_man", "zombie": 30.059078}
+[harness] ekspike {"after15s": "magistuarmory:lamellar_chestplate", "afterRestart": "magistuarmory:lamellar_chestplate", "base": "magistuarmory:chainmail_chestplate", "fought": true, "item": "magistuarmory:lamellar_chestplate", "kind": "armor", "set": true, "slot": "chest", "unit": "spear_man", "zombie": null}
+[harness] ekspike {"after15s": "magistuarmory:steel_ahlspiess", "afterRestart": "magistuarmory:steel_ahlspiess", "base": "magistuarmory:steel_pike", "fought": true, "item": "magistuarmory:steel_ahlspiess", "kind": "same-family weapon", "set": true, "slot": "mainhand", "unit": "spear_man", "zombie": null}
+[harness] ekspike {"after15s": "magistuarmory:steel_kiteshield", "afterRestart": "magistuarmory:steel_kiteshield", "base": "magistuarmory:iron_heatershield", "fought": false, "item": "magistuarmory:steel_kiteshield", "kind": "shield", "set": true, "slot": "offhand", "unit": "shieldman", "zombie": 40.0}
+[harness] ekspike {"after15s": "magistuarmory:shishak", "afterRestart": "magistuarmory:shishak", "base": "magistuarmory:barbute", "fought": true, "item": "magistuarmory:shishak", "kind": "armor", "set": true, "slot": "head", "unit": "shieldman", "zombie": 12.899351}
+[harness] ekspike {"after15s": "magistuarmory:steel_lochaberaxe", "afterRestart": "magistuarmory:steel_lochaberaxe", "base": "magistuarmory:iron_bastardsword", "fought": true, "item": "magistuarmory:steel_lochaberaxe", "kind": "same-family weapon", "set": true, "slot": "mainhand", "unit": "warrior", "zombie": null}
+[harness] ekspike {"after15s": "magistuarmory:steel_shortsword", "afterRestart": "magistuarmory:steel_shortsword", "base": "magistuarmory:messer_sword", "fought": false, "item": "magistuarmory:steel_shortsword", "kind": "same-family weapon", "set": true, "slot": "mainhand", "unit": "militia", "zombie": 40.0}
+[harness] ekspike {"after15s": "magistuarmory:gambeson_chestplate", "afterRestart": "magistuarmory:gambeson_chestplate", "base": "magistuarmory:chainmail_chestplate", "fought": true, "item": "magistuarmory:gambeson_chestplate", "kind": "armor", "set": true, "slot": "chest", "unit": "militia", "zombie": 15.899352}
+[harness] ekspike {"after15s": "magistuarmory:shishak", "afterRestart": "magistuarmory:shishak", "base": "magistuarmory:bascinet", "fought": true, "item": "magistuarmory:shishak", "kind": "armor", "set": true, "slot": "head", "unit": "archer", "zombie": 36.556}
+[harness] ekspike {"after15s": "magistuarmory:lamellar_chestplate", "afterRestart": "magistuarmory:lamellar_chestplate", "base": "magistuarmory:halfarmor_chestplate", "fought": true, "item": "magistuarmory:lamellar_chestplate", "kind": "armor", "set": true, "slot": "chest", "unit": "archer", "zombie": null}
+[harness] ekspike {"after15s": "magistuarmory:kettlehat", "afterRestart": "magistuarmory:kettlehat", "base": "magistuarmory:chainmail_helmet", "fought": true, "item": "magistuarmory:kettlehat", "kind": "armor", "set": true, "slot": "head", "unit": "crossbowman", "zombie": 23.764}
+[harness] ekspike {"after15s": "magistuarmory:norman_helmet", "afterRestart": "magistuarmory:norman_helmet", "base": "magistuarmory:kettlehat", "fought": true, "item": "magistuarmory:norman_helmet", "kind": "armor", "set": true, "slot": "head", "unit": "mounted_light_lancer_rider", "zombie": 38.0}
+[harness] ekspike {"after15s": "magistuarmory:steel_pike", "afterRestart": "magistuarmory:steel_pike", "base": "magistuarmory:longbow", "fought": true, "item": "magistuarmory:steel_pike", "kind": "cross-family weapon", "set": true, "slot": "mainhand", "unit": "archer", "zombie": null}
+[harness] ekspike {"after15s": "magistuarmory:longbow", "afterRestart": "magistuarmory:longbow", "base": "magistuarmory:heavy_crossbow", "fought": true, "item": "magistuarmory:longbow", "kind": "cross-family weapon", "set": true, "slot": "mainhand", "unit": "crossbowman", "zombie": null}
+[harness] ekspike {"after15s": "magistuarmory:longbow", "afterRestart": "magistuarmory:longbow", "base": "magistuarmory:iron_ahlspiess", "fought": true, "item": "magistuarmory:longbow", "kind": "cross-family weapon", "set": true, "slot": "mainhand", "unit": "spear_man", "zombie": 38.605}
+[harness] ekspike {"after15s": "magistuarmory:steel_pike", "afterRestart": "magistuarmory:steel_pike", "base": "magistuarmory:iron_kiteshield", "fought": true, "item": "magistuarmory:steel_pike", "kind": "cross-family offhand", "set": true, "slot": "offhand", "unit": "shieldman", "zombie": 37.37927}
+[harness] ekspike {"after15s": "magistuarmory:barbute", "afterRestart": "magistuarmory:barbute", "base": "magistuarmory:barbute", "fought": true, "item": "magistuarmory:no_such_item", "kind": "unregistered", "set": false, "slot": "head", "unit": "militia", "zombie": null}
+[harness] PASS EK-0 overlay tool ran on every M3 unit type + mounted rider 17 cases
+[harness] PASS EK-1 unregistered item is rejected (falls back) [{'unit': 'militia', 'slot': 'head', 'item': 'magistuarmory:no_such_item', 'kind': 'unregistered', 'set': False, 'base': 'magistuarmory:barbute', 'after15s': 'magistuarmory:barbute', 'afterRestart': 'magistuarmory:barbute', 'fought': True, 'zombie': None}]
+[harness] PASS EK-2 matrix recorded (see ekspike lines) 16/16 overlays still present after 15 s
+[harness] server stopped
+[harness] RESULT 6/6 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  EK-0 overlay tool ran on every M3 unit type + mounted rider  17 cases
+  PASS  EK-1 unregistered item is rejected (falls back)  [{'unit': 'militia', 'slot': 'head', 'item': 'magistuarmory:no_such_item', 'kind': 'unregistered', 'set': False, 'base': 'magistuarmory:barbute', 'after15s': 'magistuarmory:barbute', 'afterRestart': 'magistuarmory:barbute', 'fought': True, 'zombie': None}]
+  PASS  EK-2 matrix recorded (see ekspike lines)  16/16 overlays still present after 15 s
