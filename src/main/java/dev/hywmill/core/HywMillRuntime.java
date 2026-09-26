@@ -12,6 +12,7 @@ import net.minecraft.server.MinecraftServer;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -117,6 +118,22 @@ public final class HywMillRuntime {
 
     public DiplomacyPolicy diplomacy() {
         return diplomacy;
+    }
+
+    /**
+     * M5-0 follow-up spike only ({@code /hywmill dev m5 resident on|off}): when set, residents are
+     * marked with this per-village identity instead of the village faction UUID. Null (the default,
+     * and always after a restart) keeps M1.1 behaviour. Not persisted.
+     */
+    @Nullable private volatile java.util.function.Function<UUID, UUID> residentIdentityForSpike;
+
+    @Nullable
+    public java.util.function.Function<UUID, UUID> residentIdentityForSpike() {
+        return residentIdentityForSpike;
+    }
+
+    public void setResidentIdentityForSpike(@Nullable java.util.function.Function<UUID, UUID> f) {
+        residentIdentityForSpike = f;
     }
 
     /** M5-0 spike only ({@code /hywmill dev m5 policy}); null restores ALWAYS_REVERT. Not persisted. */

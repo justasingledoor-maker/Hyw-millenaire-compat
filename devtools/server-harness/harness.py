@@ -3392,6 +3392,136 @@ def scenario_S5_W(ctx):
     s.cmd("forceload remove {} {} {} {}".format(*box), 5)
 
 
+def resident_id(s, c):
+    l = m5_1(s, f"resident id {c[0]} {c[1]} {c[2]}")
+    m = re.search(r"resident id (\S+) faction (\S+)", l)
+    return m[1] if m else None
+
+
+def scenario_S5_O(ctx):
+    """Option 1 follow-up spike: residents carry a per-village resident identity (dev override of the
+    M1.1 marker), resident<->faction FRIENDLY both ways; wars are projected on the faction only."""
+    s, a, b, fa, fb = ctx.s, ctx.a, ctx.b, ctx.fa, ctx.fb
+    ra, rb = resident_id(s, a), resident_id(s, b)
+    if garrison(s, b).get("alive", 0) < 4:  # earlier spikes may have killed B's garrison: refill (admin grant, no rule change)
+        log(f"S5-O refill B: {fill_garrison(s, b)}")
+        wait_garrison(s, b, lambda g: g.get("recruited", 1) == 0 and g.get("alive", 0) >= 4, 300)
+    stale = (rel(s, P_UUID, ra), rel(s, P_UUID, rb))
+    note("S5-O HYW relation player<->resident identities at start (left by an earlier run?)", str(stale))
+    m5(s, "resident on")
+    time.sleep(45)
+    after_guard = (rel(s, P_UUID, ra), rel(s, P_UUID, rb))
+    check("S5-O the escalation guard (resident identities registered) reverts a stale HOSTILE on a resident identity",
+          all(x == ("NEUTRAL", "NEUTRAL") for x in after_guard), f"start {stale} -> after one reconciliation window {after_guard}")  # M1.1 sweeps re-mark loaded residents on the ledger interval
+    rows = []
+    for l in s.output(at(a, "hywmill village residents"), 2):
+        m = re.match(r"\s*([0-9a-f-]{36}) (\S+) (\w+) goal=", l)
+        if m:
+            rows.append((m[1], m[2], m[3]))
+    civs = [r for r in rows if r[2] == "CIVILIAN"]
+    defs = [r for r in rows if r[2] == "DEFENDER"]
+    ids = [m5_1(s, f"hyw ident {r[0]}", 0.5) for r in (civs[:2] + defs[:1])]
+    check("S5-O residents re-marked with the resident identity", ids and all(f"rel={ra}" in x for x in ids), " || ".join(ids))
+    gu = next(iter(unit_entities(s, a)))
+    c0, d0 = civs[0][0], defs[0][0]
+    v_neutral = m5_1(s, f"hyw valid {gu} {c0}")
+    note("S5-O garrison -> civilian with resident identity, NO FRIENDLY yet", v_neutral)
+    for x, f in ((ra, fa), (rb, fb)):
+        m5(s, f"hyw relset {x} {f} FRIENDLY", 0.5)
+        m5(s, f"hyw relset {f} {x} FRIENDLY", 0.5)
+    v_fr = m5_1(s, f"hyw valid {gu} {c0}")
+    check("S5-O with resident<->faction FRIENDLY the garrison-to-civilian protection is back (not a target, damage cancelled, no collision)",
+          all(k in v_fr for k in ("valid=false", "protected=true", "cancelDamage=true", "ignoreCollision=true")), v_fr)
+    s.cmd(f"effect give {c0} minecraft:resistance 60 1 true", 0.3)
+    h0 = hp_of(s, c0)
+    hl = m5_1(s, f"hyw hit {gu} {c0} 2 melee", 0.5)
+    h1 = hp_of(s, c0)
+    check("S5-O a garrison hit on a civilian is cancelled (FRIENDLY)", h0 is not None and h0 == h1, f"{h0} -> {h1}; {hl}")
+    # war projected on the FACTION only
+    summon_unit(s, a[0] + 3, a[2] + 3, "spear_man", OWNER_NBT, "hwM5O", "NoAI:1b")
+    u = "@e[tag=hwM5O,limit=1]"
+    m5(s, f"hyw strategy {u} DEFAULT", 0.5)
+    m5(s, f"policy allow {fa} {P_UUID}")
+    m5(s, f"hyw relset {P_UUID} {fa} HOSTILE")
+    vc = m5_1(s, f"hyw valid {u} {c0}")
+    vd = m5_1(s, f"hyw valid {u} {d0}")
+    vg = m5_1(s, f"hyw valid {u} {gu}")
+    check("S5-O under player<->faction HOSTILE: civilian NOT a valid target", "valid=false" in vc, vc)
+    check("S5-O under player<->faction HOSTILE: Millénaire defender NOT a relation target (temporary hostility only)", "valid=false" in vd, vd)
+    check("S5-O under player<->faction HOSTILE: garrison unit IS a valid target", "valid=true" in vg, vg)
+    s.cmd("kill @e[tag=hwM5O]", 0.5)
+    # in-village live run (the S5-B situation)
+    gu0, g0 = outdoor_unit(s, a)
+    gx, gz = g0["pos"][0], g0["pos"][2]
+    for i in range(3):
+        summon_unit(s, gx + 6, gz - 2 + 2 * i, "spear_man", OWNER_NBT, "hwM5OB")
+    for x in tagged(s, "hwM5OB"):
+        m5(s, f"hyw strategy {x} DEFAULT", 0.3)
+    s.cmd("effect give @e[tag=hwM5OB] minecraft:resistance 600 2 true", 0.5)
+    res = {r[0][:8]: r for r in residents(s, a)}
+    garr_ids = {x[:8] for x in unit_entities(s, a)}
+    cnt = {"pu->garr": 0, "pu->defender": 0, "pu->civilian": 0, "samples": 0}
+    first_hits = []
+    p0 = s.pos()
+    for _ in range(10):
+        time.sleep(4)
+        cnt["samples"] += 1
+        for r in tagged(s, "hwM5OB").values():
+            t = tgt8(r)
+            cnt["pu->garr"] += t in garr_ids
+            cnt["pu->defender"] += t in res and res[t][2] == "DEFENDER"
+            cnt["pu->civilian"] += t in res and res[t][2] == "CIVILIAN"
+    inc = [l for l in s.read_since(p0) if "Combat incident recorded" in l and "owner" not in l]
+    first = [l.split("Incident[", 1)[1][:170] for l in inc if "attackerFaction=11111111" in l][:3]
+    note("S5-O in-village live run: target counts", str(cnt))
+    time.sleep(15)
+    rr = rel(s, P_UUID, ra)
+    check("S5-O after the in-village fight no permanent HOSTILE is left on the resident identity (guard)", rr == ("NEUTRAL", "NEUTRAL"),
+          f"{rr}; guard lines {len([l for l in s.read_since(p0) if 'resident identity' in l or 'Permanent HYW HOSTILE' in l])}")
+    note("S5-O first incidents caused by the player's units", str(first))
+    check("S5-O in-village: the player's units fight the garrison", cnt["pu->garr"] > 0, str(cnt))
+    check("S5-O in-village: the player's units never select a civilian", cnt["pu->civilian"] == 0, str(cnt))
+    neutral(s, P_UUID, fa)
+    s.cmd("kill @e[tag=hwM5OB]", 1)
+    # village vs village inside B
+    m5(s, f"policy allow {fa} {fb}")
+    m5(s, f"hyw relset {fa} {fb} HOSTILE")
+    s.cmd("hywmill dev duties off", 1)
+    gb = unit_entities(s, b)
+    b0 = next(iter(gb.values()))
+    ga = list(unit_entities(s, a))[:3]
+    for i, x in enumerate(ga):
+        tx, tz = b0["pos"][0] - 10, b0["pos"][2] - 2 + 2 * i
+        ty = surface_y(s, tx, tz) or b0["pos"][1]
+        s.cmd(f"tp {x} {tx} {ty} {tz}", 0.5)
+        s.cmd(f"hywmill dev spike-home {x} {tx} {ty} {tz}", 0.5)
+        s.cmd(f"effect give {x} minecraft:resistance 600 2 true", 0.3)
+    aids, bids = {x[:8] for x in ga}, {x[:8] for x in gb}
+    n = {"a->b": 0, "a->civilian": 0, "a->defender": 0}
+    for _ in range(8):
+        time.sleep(4)
+        resb = {x[0][:8]: x for x in residents(s, b)}
+        rows2 = spike_info(s, "@e[type=!minecraft:player]")
+        for uu, rr in rows2.items():
+            if uu[:8] in aids:
+                t = tgt8(rr)
+                n["a->b"] += t in bids
+                n["a->civilian"] += t in resb and resb[t][2] == "CIVILIAN"
+                n["a->defender"] += t in resb and resb[t][2] == "DEFENDER"
+    note("S5-O village vs village inside B", str(n))
+    check("S5-O inside the enemy village: A's garrison fights B's garrison", n["a->b"] > 0, str(n))
+    check("S5-O inside the enemy village: A's garrison never selects B's civilians", n["a->civilian"] == 0, str(n))
+    neutral(s, fa, fb)
+    m5(s, "policy clear")
+    s.cmd("hywmill dev duties on", 1)
+    m5(s, "resident off")
+    for x, f in ((ra, fa), (rb, fb)):
+        neutral(s, x, f)
+    time.sleep(45)
+    back = m5_1(s, f"hyw ident {c0}")
+    check("S5-O override off: residents return to the M1.1 faction identity", f"rel={fa}" in back, back)
+
+
 def write_m5_content(d: Path):
     """Spike I content: a Millénaire sub-mod under <server>/millenaire-custom/ (no code, no jar)."""
     base = d / "millenaire-custom" / "hywmill_armoury" / "cultures" / "norman"
@@ -3665,7 +3795,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
-             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W,
+             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_O": scenario_S5_O,
              "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
              "SG_5": scenario_SG_5}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",

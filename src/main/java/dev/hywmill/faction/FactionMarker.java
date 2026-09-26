@@ -59,6 +59,10 @@ public final class FactionMarker {
             return Outcome.RAIDER_UNMARKED;
         }
         UUID faction = rt.factions().register(r.settlementId());
+        java.util.function.Function<UUID, UUID> spike = rt.residentIdentityForSpike();
+        if (spike != null) {
+            faction = spike.apply(r.settlementId()); // M5-0 spike only; null by default
+        }
         UUID current = factions.markedIdentity(entity);
         if (!HywMillConfig.MARK_VILLAGERS.get() || isCleared(entity, r.settlementId())) {
             if (current != null && (current.equals(faction) || rt.factions().isVillageFaction(current))) {

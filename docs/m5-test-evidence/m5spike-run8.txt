@@ -1,0 +1,47 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624)]
+[harness] --- scenario S5_0
+[harness] PASS S5-0 both garrisons alive, factions known A 978bfc54-3ce8-3128-b854-9f290f8ac543 7 units; B a2835a9f-bdf8-30fc-b8af-67a6dd94ad47 3 units
+[harness] --- scenario S5_O
+[harness] S5-O refill B: [('archer', 1), ('militia', 1)]
+[harness] NOTE S5-O HYW relation player<->resident identities at start (left by an earlier run?): (('HOSTILE', 'HOSTILE'), ('NEUTRAL', 'NEUTRAL'))
+[harness] PASS S5-O the escalation guard (resident identities registered) reverts a stale HOSTILE on a resident identity start (('HOSTILE', 'HOSTILE'), ('NEUTRAL', 'NEUTRAL')) -> after one reconciliation window (('NEUTRAL', 'NEUTRAL'), ('NEUTRAL', 'NEUTRAL'))
+[harness] PASS S5-O residents re-marked with the resident identity m5 ident 5b68dc10-2f05-495c-b5a6-a574b663b27b rel=e49963bc-8555-3737-a755-7759efe07b15 owner=null team=null describe=e49963bc-8555-3737-a755-7759efe07b15 || m5 ident 22c3b4e4-1fa1-40c8-b171-544a5ccb86cb rel=e49963bc-8555-3737-a755-7759efe07b15 owner=null team=null describe=e49963bc-8555-3737-a755-7759efe07b15 || m5 ident 46724e75-3739-4eeb-bad5-eeca7c639aee rel=e49963bc-8555-3737-a755-7759efe07b15 owner=null team=null describe=e49963bc-8555-3737-a755-7759efe07b15
+[harness] NOTE S5-O garrison -> civilian with resident identity, NO FRIENDLY yet: m5 valid 923cb51e->5b68dc10 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] PASS S5-O with resident<->faction FRIENDLY the garrison-to-civilian protection is back (not a target, damage cancelled, no collision) m5 valid 923cb51e->5b68dc10 valid=false enemy=false protected=true cancelDamage=true ignoreCollision=true temp=false strategy=DEFAULT target=null
+[harness] PASS S5-O a garrison hit on a civilian is cancelled (FRIENDLY) 20.0 -> 20.0; m5 hit melee 923cb51e->5b68dc10 applied=false before=20.0 now=20.0 cancelDamage=true
+[harness] PASS S5-O under player<->faction HOSTILE: civilian NOT a valid target m5 valid e73124e4->5b68dc10 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] PASS S5-O under player<->faction HOSTILE: Millénaire defender NOT a relation target (temporary hostility only) m5 valid e73124e4->46724e75 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] PASS S5-O under player<->faction HOSTILE: garrison unit IS a valid target m5 valid e73124e4->923cb51e valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] NOTE S5-O in-village live run: target counts: {'pu->garr': 6, 'pu->defender': 0, 'pu->civilian': 0, 'samples': 10}
+[harness] PASS S5-O after the in-village fight no permanent HOSTILE is left on the resident identity (guard) ('NEUTRAL', 'NEUTRAL'); guard lines 1
+[harness] NOTE S5-O first incidents caused by the player's units: ['tick=78010, attacker=c5df0624-6f88-4c33-bf22-849889fee1e5, attackerType=hundred_years_war:spear_man, attackerFaction=11111111-2222-4333-8444-555555555555, victim=460d6b70', 'tick=78016, attacker=a48b9e55-ced4-4998-8c0e-6d356b72b6e5, attackerType=hundred_years_war:spear_man, attackerFaction=11111111-2222-4333-8444-555555555555, victim=460d6b70', 'tick=78024, attacker=d95611f7-711d-45dd-a828-f94dbbe89c40, attackerType=hundred_years_war:spear_man, attackerFaction=11111111-2222-4333-8444-555555555555, victim=460d6b70']
+[harness] PASS S5-O in-village: the player's units fight the garrison {'pu->garr': 6, 'pu->defender': 0, 'pu->civilian': 0, 'samples': 10}
+[harness] PASS S5-O in-village: the player's units never select a civilian {'pu->garr': 6, 'pu->defender': 0, 'pu->civilian': 0, 'samples': 10}
+[harness] NOTE S5-O village vs village inside B: {'a->b': 3, 'a->civilian': 0, 'a->defender': 0}
+[harness] PASS S5-O inside the enemy village: A's garrison fights B's garrison {'a->b': 3, 'a->civilian': 0, 'a->defender': 0}
+[harness] PASS S5-O inside the enemy village: A's garrison never selects B's civilians {'a->b': 3, 'a->civilian': 0, 'a->defender': 0}
+[harness] PASS S5-O override off: residents return to the M1.1 faction identity m5 ident 5b68dc10-2f05-495c-b5a6-a574b663b27b rel=978bfc54-3ce8-3128-b854-9f290f8ac543 owner=null team=null describe=978bfc54-3ce8-3128-b854-9f290f8ac543
+[harness] server stopped
+[harness] RESULT 15/15 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624)]
+  PASS  S5-0 both garrisons alive, factions known  A 978bfc54-3ce8-3128-b854-9f290f8ac543 7 units; B a2835a9f-bdf8-30fc-b8af-67a6dd94ad47 3 units
+  PASS  S5-O the escalation guard (resident identities registered) reverts a stale HOSTILE on a resident identity  start (('HOSTILE', 'HOSTILE'), ('NEUTRAL', 'NEUTRAL')) -> after one reconciliation window (('NEUTRAL', 'NEUTRAL'), ('NEUTRAL', 'NEUTRAL'))
+  PASS  S5-O residents re-marked with the resident identity  m5 ident 5b68dc10-2f05-495c-b5a6-a574b663b27b rel=e49963bc-8555-3737-a755-7759efe07b15 owner=null team=null describe=e49963bc-8555-3737-a755-7759efe07b15 || m5 ident 22c3b4e4-1fa1-40c8-b171-544a5ccb86cb rel=e49963bc-8555-3737-a755-7759efe07b15 owner=null team=null describe=e49963bc-8555-3737-a755-7759efe07b15 || m5 ident 46724e75-3739-4eeb-bad5-eeca7c639aee rel=e49963bc-8555-3737-a755-7759efe07b15 owner=null team=null describe=e49963bc-8555-3737-a755-7759efe07b15
+  PASS  S5-O with resident<->faction FRIENDLY the garrison-to-civilian protection is back (not a target, damage cancelled, no collision)  m5 valid 923cb51e->5b68dc10 valid=false enemy=false protected=true cancelDamage=true ignoreCollision=true temp=false strategy=DEFAULT target=null
+  PASS  S5-O a garrison hit on a civilian is cancelled (FRIENDLY)  20.0 -> 20.0; m5 hit melee 923cb51e->5b68dc10 applied=false before=20.0 now=20.0 cancelDamage=true
+  PASS  S5-O under player<->faction HOSTILE: civilian NOT a valid target  m5 valid e73124e4->5b68dc10 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+  PASS  S5-O under player<->faction HOSTILE: Millénaire defender NOT a relation target (temporary hostility only)  m5 valid e73124e4->46724e75 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+  PASS  S5-O under player<->faction HOSTILE: garrison unit IS a valid target  m5 valid e73124e4->923cb51e valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+  PASS  S5-O after the in-village fight no permanent HOSTILE is left on the resident identity (guard)  ('NEUTRAL', 'NEUTRAL'); guard lines 1
+  PASS  S5-O in-village: the player's units fight the garrison  {'pu->garr': 6, 'pu->defender': 0, 'pu->civilian': 0, 'samples': 10}
+  PASS  S5-O in-village: the player's units never select a civilian  {'pu->garr': 6, 'pu->defender': 0, 'pu->civilian': 0, 'samples': 10}
+  PASS  S5-O inside the enemy village: A's garrison fights B's garrison  {'a->b': 3, 'a->civilian': 0, 'a->defender': 0}
+  PASS  S5-O inside the enemy village: A's garrison never selects B's civilians  {'a->b': 3, 'a->civilian': 0, 'a->defender': 0}
+  PASS  S5-O override off: residents return to the M1.1 faction identity  m5 ident 5b68dc10-2f05-495c-b5a6-a574b663b27b rel=978bfc54-3ce8-3128-b854-9f290f8ac543 owner=null team=null describe=978bfc54-3ce8-3128-b854-9f290f8ac543
+  NOTE  S5-O HYW relation player<->resident identities at start (left by an earlier run?)  (('HOSTILE', 'HOSTILE'), ('NEUTRAL', 'NEUTRAL'))
+  NOTE  S5-O garrison -> civilian with resident identity, NO FRIENDLY yet  m5 valid 923cb51e->5b68dc10 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+  NOTE  S5-O in-village live run: target counts  {'pu->garr': 6, 'pu->defender': 0, 'pu->civilian': 0, 'samples': 10}
+  NOTE  S5-O first incidents caused by the player's units  ['tick=78010, attacker=c5df0624-6f88-4c33-bf22-849889fee1e5, attackerType=hundred_years_war:spear_man, attackerFaction=11111111-2222-4333-8444-555555555555, victim=460d6b70', 'tick=78016, attacker=a48b9e55-ced4-4998-8c0e-6d356b72b6e5, attackerType=hundred_years_war:spear_man, attackerFaction=11111111-2222-4333-8444-555555555555, victim=460d6b70', 'tick=78024, attacker=d95611f7-711d-45dd-a828-f94dbbe89c40, attackerType=hundred_years_war:spear_man, attackerFaction=11111111-2222-4333-8444-555555555555, victim=460d6b70']
+  NOTE  S5-O village vs village inside B  {'a->b': 3, 'a->civilian': 0, 'a->defender': 0}
+EXIT 0

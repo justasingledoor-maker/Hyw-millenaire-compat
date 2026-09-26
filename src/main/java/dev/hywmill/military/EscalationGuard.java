@@ -42,10 +42,28 @@ public final class EscalationGuard {
             return;
         }
         UUID village = registry.isVillageFaction(a) ? a : registry.isVillageFaction(v) ? v : null;
+        if (village == null) {
+            village = spikeResidentIdentity(rt, a) ? a : spikeResidentIdentity(rt, v) ? v : null;
+        }
         if (village == null || !factions.isHostileEitherWay(a, v)) {
             return;
         }
         handle(rt, factions, village, village.equals(a) ? v : a, "after repeated damage");
+    }
+
+    /** M5-0 follow-up spike only: a resident identity produced by the dev override counts as a village identity. */
+    private static boolean spikeResidentIdentity(HywMillRuntime rt, UUID id) {
+        java.util.function.Function<UUID, UUID> f = rt.residentIdentityForSpike();
+        if (f == null) {
+            return false;
+        }
+        for (UUID faction : rt.factions().factions()) {
+            UUID village = rt.factions().villageOf(faction);
+            if (village != null && id.equals(f.apply(village))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -68,6 +86,15 @@ public final class EscalationGuard {
             for (UUID other : factions.permanentHostilesOf(faction)) {
                 if (!other.equals(faction)) {
                     handle(rt, factions, faction, other, "found by reconciliation");
+                }
+            }
+            java.util.function.Function<UUID, UUID> spike = rt.residentIdentityForSpike(); // M5-0 spike only; null by default
+            if (spike != null) {
+                UUID residents = spike.apply(village);
+                for (UUID other : factions.permanentHostilesOf(residents)) {
+                    if (!other.equals(residents)) {
+                        handle(rt, factions, residents, other, "found by reconciliation (resident identity)");
+                    }
                 }
             }
         }
