@@ -136,11 +136,12 @@ public final class DutyService {
             if (last != null && home != null && last[0] == goal.asLong() && last[1] == home.asLong() && last[2] == 1
                     && staticDuty(e.assignedDuty) && tick - last[3] >= table.move().hopTimeout()
                     && (DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().arriveRadius() + 1 || below(ent, home, last))) {
-                // stuck short of a fixed spot (e.g. a tower top HYW cannot path to): try ground around it; then, if the
-                // unit has not moved at all (trapped in a pit or well), unstick it onto its spot; else hold where reachable
+                // stuck short of a fixed spot (e.g. a tower top HYW cannot path to): try ground around it (attempts 1-3);
+                // then move it onto its spot (attempt 4, or whenever it is trapped in a pit or well); else hold where reachable
                 int attempt = (int) last[4] + 1;
                 BlockPos alt = attempt <= 3 ? around(level, goal, 2 + 2 * attempt, member * 4 + attempt, home) : null;
-                if (alt == null && trapped(ent, last) && unstick(level, ent, stand(level, goal))) {
+                // after the fallback spots: onto the spot itself (a sentry post on a tower HYW cannot path up to), once
+                if (alt == null && (trapped(ent, last) || attempt == 4) && unstick(level, ent, stand(level, goal))) {
                     alt = BlockPos.containing(ent.getX(), ent.getY(), ent.getZ());
                     HmLog.diag("Duty unit {} of village '{}' was trapped; moved onto its {} spot {}", e.shortId(), rec.name, e.assignedDuty, alt.toShortString());
                 } else if (alt == null && DutyMotion.horizontal(ent.getX(), ent.getZ(), goal) <= 24) {

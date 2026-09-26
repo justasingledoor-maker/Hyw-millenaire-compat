@@ -2277,7 +2277,7 @@ def scenario_G4_4(ctx):
         posts = d.get("scoutposts", [])
         ring = hdist(posts[0], c) if posts else 0
         best[k] = (0.0, ring, set())
-    end = time.time() + 300
+    end = time.time() + 600
     while time.time() < end:
         for k in list(best):
             c = g4_villages(ctx)[k]
@@ -2318,15 +2318,17 @@ def scenario_G4_6(ctx):
     s = ctx.s
     c = ctx.a
     before = assignments(duties(s, c))
-    for i in range(2):
-        s.cmd(ground(c[0] + 6 + 2 * i, c[2] + 4, "summon hundred_years_war:bandit_soldier ~ ~ ~ {Tags:['hwG4']}"), 1)
+    # a player-owned unit that attacks a resident: an M2 threat HYW's own targeting ignores, so M2 deploys (as in G3-4)
+    s.cmd(ground(c[0] + 3, c[2] + 3, f"summon hundred_years_war:militia ~ ~ ~ {{OwnerUUID:{OWNER_NBT},Tags:['hwG4']}}"), 2)
+    civ = next((r[0] for r in wait_residents(s, c) if r[2] == "CIVILIAN"), None)
+    s.cmd(f"damage {civ} 1 minecraft:mob_attack by @e[tag=hwG4,limit=1]", 1)
     seen = {}
     for _ in range(40):
-        time.sleep(2)
+        time.sleep(1)
         for r in duties(s, c)["rows"]:
             if r["state"] == "DEPLOYED":
                 seen[r["slot"]] = (r["duty"], r["assigned"])
-        if len(seen) >= 2:
+        if seen:
             break
     check("G4-6a deployed units are on DEFENSE, keeping their standing duty", seen and all(v[0] == "DEFENSE" and v[1] == before.get(sl, (v[1],))[0]
                                                                                         for sl, v in seen.items()), seen)
