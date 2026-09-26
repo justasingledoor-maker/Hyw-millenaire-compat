@@ -129,6 +129,22 @@ public final class DutyService {
             changed |= e.dutyStep != stepBefore;
             BlockPos home = units.home(ent);
             long[] last = rt.moves.get(e.rosterId);
+            if (last != null && home != null && last[0] == goal.asLong() && last[1] == home.asLong() && last[2] == 1
+                    && staticDuty(e.assignedDuty) && tick - last[3] >= table.move().hopTimeout()
+                    && DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().arriveRadius() + 1) {
+                // stuck short of a fixed spot (e.g. a tower top HYW cannot path to): try ground around it, then hold where reachable
+                int attempt = (int) last[4] + 1;
+                BlockPos alt = attempt <= 3 ? around(level, goal, 2 + 2 * attempt, member * 4 + attempt, home) : null;
+                if (alt == null && DutyMotion.horizontal(ent.getX(), ent.getZ(), goal) <= 24) {
+                    alt = stand(level, ent.blockPosition());
+                }
+                if (alt != null) {
+                    units.setHome(ent, alt);
+                    home = alt;
+                }
+                rt.moves.put(e.rosterId, new long[]{goal.asLong(), home.asLong(), 1, tick, attempt});
+                continue;
+            }
             if (last != null && home != null && last[0] == goal.asLong() && last[1] == home.asLong()
                     && (last[2] == 1 || DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().maxHop() / 2.0)) {
                 continue; // same goal, its hop is still the unit's home: at its final spot, or still on the way
@@ -143,7 +159,7 @@ public final class DutyService {
                     home = target;
                 }
                 boolean fin = DutyMotion.horizontal(target.getX() + 0.5, target.getZ() + 0.5, goal) <= 3;
-                rt.moves.put(e.rosterId, new long[]{goal.asLong(), home.asLong(), fin ? 1 : 0});
+                rt.moves.put(e.rosterId, new long[]{goal.asLong(), home.asLong(), fin ? 1 : 0, tick, 0});
             }
         }
         if (changed) {
@@ -266,6 +282,25 @@ public final class DutyService {
         for (int h = (int) Math.min(maxHop, Math.ceil(d)); h > 0; h -= 8) {
             BlockPos s = stand(level, DutyMotion.hop(ent.getX(), ent.getY(), ent.getZ(), goal, Math.max(1, h)));
             if (s != null) {
+                return s;
+            }
+        }
+        return null;
+    }
+
+    static boolean staticDuty(Duty d) {
+        return d == Duty.SENTRY || d == Duty.RESERVE || d == Duty.GARRISON;
+    }
+
+    private static final int[][] DIRS = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
+
+    /** A standable spot about {@code radius} blocks around {@code center} (directions from {@code start}), not {@code not}. */
+    @Nullable
+    static BlockPos around(ServerLevel level, BlockPos center, int radius, int start, BlockPos not) {
+        for (int i = 0; i < DIRS.length; i++) {
+            int[] d = DIRS[Math.floorMod(start + i, DIRS.length)];
+            BlockPos s = stand(level, center.offset(d[0] * radius, 0, d[1] * radius));
+            if (s != null && !s.equals(not)) {
                 return s;
             }
         }

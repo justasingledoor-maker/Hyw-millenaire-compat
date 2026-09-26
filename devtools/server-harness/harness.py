@@ -2114,11 +2114,11 @@ def scenario_G4_2(ctx):
         want = d["quota"].get("pairs", 0)
         posts = d.get("posts", [])
         full = all(len(pairs.get(i, [])) == 2 for i in range(want))
-        at_post = all(r["pos"] and posts and hdist(r["pos"], posts[r["index"] % len(posts)]) <= 7 for v in pairs.values() for r in v)
+        at_post = all(r["pos"] and posts and hdist(r["pos"], posts[r["index"] % len(posts)]) <= 10 for v in pairs.values() for r in v)
         distinct = len({tuple(posts[i % len(posts)]) for i in pairs}) == len(pairs) if posts else not pairs
         ok &= full and at_post and distinct
         detail[k] = (want, {i: [x["pos"] for x in v] for i, v in sorted(pairs.items())}, full, at_post, distinct)
-    check("G4-2 every sentry pair has two units, standing at its own post (from building data)", ok, detail)
+    check("G4-2 every sentry pair has two units, standing at (within 10 blocks of) its own post (from building data)", ok, detail)
 
 
 def scenario_G4_3(ctx):
