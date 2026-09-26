@@ -2281,10 +2281,20 @@ def scenario_G4_8(ctx):
           k > 0 and len(raiders) == k and len(home) >= (n + 1) // 2 and garrison(s, m).get("t_spawned") == g0.get("t_spawned"),
           f"{'; '.join(out)[:80]} | {k} of {n} sent; {len(home)} at home; raiders {[r['unit'] for r in raiders]}")
     landed = s.wait_for(r"Raid contingent of village .* moved to Millénaire's landing point", 90, since=p)
-    time.sleep(20)
-    near = [r for r in duties(s, m)["rows"] if r["duty"] == "RAID" and r["pos"] and hdist(r["pos"], a) <= 120]
-    check("G4-8b the contingent is moved to Millénaire's landing point and fights at the target", landed is not None and len(near) >= 1,
-          f"{landed and landed.split(']: ')[-1]} ; {len(near)} raid unit(s) within 120 blocks of the target")
+    raid_ents = {r["slot"] for r in raiders}
+    before_inc = incidents(s, 200)
+    near_max = 0
+    end = time.time() + 240
+    while time.time() < end:  # sample while the contingent is away
+        rows = [r for r in duties(s, m)["rows"] if r["duty"] == "RAID"]
+        near_max = max(near_max, len([r for r in rows if r["pos"] and hdist(r["pos"], a) <= 120]))
+        if not rows or s.wait_for(r"Raid (FAILURE|SUCCESS)", 0.1, since=p):
+            break
+        time.sleep(3)
+    ents8 = {u["entity"] for u in g_units(s, m) if u["slot"] in raid_ents and u["entity"]}
+    hits = [i for i in incidents(s, 200) if i not in before_inc and i["a"] in ents8 and i["resident"]]
+    check("G4-8b the contingent is moved to Millénaire's landing point and fights at the target", landed is not None and near_max >= 1,
+          f"{landed and landed.split(']: ')[-1]} ; up to {near_max} raid unit(s) within 120 blocks of the target; {len(hits)} hit(s) on its residents")
     ended = s.wait_for(r"Raid (FAILURE|SUCCESS)|bringing the contingent home", 240, since=p)
     back = s.wait_for(r"Raid contingent of village .*: \d+ survivor\(s\) back home|bringing the contingent home", 60, since=p)
     time.sleep(40)

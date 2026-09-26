@@ -37,7 +37,7 @@ import java.util.UUID;
  * <ol>
  *   <li>Raid started (target set, raid start &gt; 0) while the village is CALM: a contingent is
  *       chosen by {@link RaidPlanner} from units at home, marked DEPLOYED + RAID and mustered.</li>
- *   <li>When Millénaire materializes its own raiders ({@link #MATERIALIZE} ticks after the start)
+ *   <li>When Millénaire materializes its own raiders (the contingent lands {@link #MATERIALIZE} ticks after the start)
  *       and the target is entity-ticking, the contingent is moved to Millénaire's own landing
  *       point (as Millénaire moves its raiders), then advances on the target by HYW home hops and
  *       engages the target's residents with temporary hostility only.</li>
@@ -47,8 +47,12 @@ import java.util.UUID;
  * </ol>
  */
 public final class RaidService {
-    /** Millénaire materializes its raiders about this many ticks after the raid starts (RaidManager). */
-    public static final long MATERIALIZE = 500;
+    /**
+     * The contingent is moved this many ticks after the raid starts. Millénaire materializes its own
+     * raiders at the target within the first ~500 ticks (observed: sooner); landing early means the
+     * contingent is there when they are.
+     */
+    public static final long MATERIALIZE = 100;
     /** A raid record older than this is ended regardless (Millénaire raids last well under a day). */
     public static final long MAX_RAID = 24000;
     /** Residents within this distance of a raid unit are engaged. */
