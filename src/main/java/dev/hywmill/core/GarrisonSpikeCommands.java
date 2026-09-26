@@ -135,7 +135,11 @@ final class GarrisonSpikeCommands {
                     + " pos=" + e.blockPosition().toShortString() + " " + units.describe(e)
                     + " tag=" + (tag == null ? "none" : tag.villageId() + "/" + tag.rosterId() + "/" + tag.generation())
                     + " target=" + (t == null ? "none" : net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(t.getType()) + "[" + t.getUUID().toString().substring(0, 8) + "]")
-                    + (t == null ? "" : " tempHostile=" + units.isTemporarilyHostile(e, t)));
+                    + (t == null ? "" : " tempHostile=" + units.isTemporarilyHostile(e, t))
+                    + (e instanceof LivingEntity le ? " slots=" + M4SpikeCommands.slots(le) : "")
+                    + " mount=" + (units.mount(e) == null ? "none" : net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(units.mount(e).getType())
+                    + "[" + units.mount(e).getUUID().toString().substring(0, 8) + "]")
+                    + " health=" + (e instanceof LivingEntity le2 ? le2.getHealth() : -1));
         }
         return 1;
     }

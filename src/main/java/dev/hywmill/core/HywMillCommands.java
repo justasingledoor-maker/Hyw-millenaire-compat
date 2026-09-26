@@ -80,6 +80,11 @@ public final class HywMillCommands {
                         .then(GarrisonSpikeCommands.spawnNode())
                         .then(GarrisonSpikeCommands.engageNode())
                         .then(GarrisonSpikeCommands.infoNode())
+                        .then(M4SpikeCommands.raidState())
+                        .then(M4SpikeCommands.raidPoint())
+                        .then(M4SpikeCommands.negate())
+                        .then(M4SpikeCommands.home())
+                        .then(M4SpikeCommands.equip())
                         .then(Commands.literal("inspect")
                                 .then(Commands.argument("targets", EntityArgument.entities())
                                         .executes(HywMillCommands::devInspect)))));

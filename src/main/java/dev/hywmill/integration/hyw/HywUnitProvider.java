@@ -117,6 +117,19 @@ public final class HywUnitProvider implements UnitProvider {
     }
 
     @Override
+    public void setHome(Entity unit, BlockPos home) {
+        if (unit instanceof BaseCombatEntity b) {
+            b.setHomePosition(home);
+        }
+    }
+
+    @Override
+    @Nullable
+    public Entity mount(Entity unit) {
+        return unit.getVehicle();
+    }
+
+    @Override
     public boolean isTemporarilyHostile(Entity unit, LivingEntity target) {
         return unit instanceof BaseCombatEntity b && TemporaryHostileTargetManager.isHostile(b, target);
     }

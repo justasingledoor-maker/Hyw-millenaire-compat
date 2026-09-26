@@ -405,4 +405,38 @@ final class MillenaireSettlementSource implements SettlementSource {
         VillageSavedData.get(level).setDirty();
         return true;
     }
+
+    // ---- M4: raid observation (public Village getters; Millénaire fires no raid events) ----
+
+    @Override
+    public Optional<RaidInfo> raidInfo(ServerLevel level, UUID settlementId) {
+        Village v = manager(level).getVillage(new VillageId(settlementId));
+        if (v == null) {
+            return Optional.empty();
+        }
+        VillageId t = v.getRaidTarget();
+        return Optional.of(new RaidInfo(t != null ? t.uuid() : null, v.getRaidPlanningStart(), v.getRaidStart(), v.isUnderAttack(),
+                v.getRaidsPerformed().size(), v.getRaidsSuffered().size()));
+    }
+
+    /** Millénaire's own raider landing point ({@code RaidSpawnLocator.findSpawnPoint}, public). */
+    @Override
+    public Optional<BlockPos> raidLandingPoint(ServerLevel level, UUID targetId, BlockPos attackerCenter) {
+        Village target = manager(level).getVillage(new VillageId(targetId));
+        if (target == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(org.millenaire.combat.raid.RaidSpawnLocator.findSpawnPoint(level, target, attackerCenter));
+    }
+
+    /** The Wand of Negation's confirmed deletion ({@code NegationWandItem.performDeletion}, public static). */
+    @Override
+    public boolean devNegate(ServerLevel level, UUID settlementId, net.minecraft.server.level.ServerPlayer player) {
+        Village v = manager(level).getVillage(new VillageId(settlementId));
+        if (v == null) {
+            return false;
+        }
+        org.millenaire.item.NegationWandItem.performDeletion(level, VillageSavedData.get(level), v, player);
+        return true;
+    }
 }

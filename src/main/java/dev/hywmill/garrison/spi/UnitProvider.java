@@ -42,6 +42,13 @@ public interface UnitProvider {
     /** Whether HYW's temporary hostility from {@code unit} to {@code target} is currently active. */
     boolean isTemporarilyHostile(Entity unit, LivingEntity target);
 
+    /** Moves the unit's HYW home position (its idle/return anchor). */
+    void setHome(Entity unit, BlockPos home);
+
+    /** The vehicle (e.g. an HYW rider's horse) the unit is riding, or null. */
+    @Nullable
+    Entity mount(Entity unit);
+
     /** One-line diagnostic description. */
     String describe(Entity entity);
 }

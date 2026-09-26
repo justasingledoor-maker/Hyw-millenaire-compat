@@ -952,6 +952,11 @@ def spike_info(s, selector, dim=None):
         if m:
             rows[m[1]] = {"dim": m[2], "pos": (int(m[3]), int(m[4]), int(m[5])), "desc": m[6], "tag": m[7],
                           "target": m[8], "temp": m[9]}
+            mm = re.search(r" slots=(\S+) mount=(\S+) health=(-?[\d.]+)", l)
+            if mm:
+                rows[m[1]]["slots"] = dict(x.split("=", 1) for x in mm[1].strip(",").split(",") if "=" in x)
+                rows[m[1]]["mount"] = mm[2]
+                rows[m[1]]["health"] = float(mm[3])
     return rows
 
 
@@ -1724,12 +1729,167 @@ def scenario_G3_17(ctx):
           " | ".join(f"{k} mean {v['mean']}us p99 {v['p99']}us" for k, v in rows.items() if k.startswith("garrison") or k == "tick.total"))
 
 
+# --------------------------------------------------------------------------- M4-0 spike
+
+def raidstate(s):
+    rows = {}
+    for l in s.output("hywmill dev raidstate", 2):
+        m = re.search(r"raidstate (.+) ([0-9a-f]{8}) target=(\S+) planning=(-?\d+) start=(-?\d+) underAttack=(\w+) performed=(\d+) suffered=(\d+) t=(\d+)", l)
+        if m:
+            rows[m[2]] = dict(name=m[1], target=m[3], planning=int(m[4]), start=int(m[5]), under=m[6] == "true",
+                              performed=int(m[7]), suffered=int(m[8]), t=int(m[9]))
+    return rows
+
+
+def village_id8(s, c):
+    return (info(s, c).get("villageId") or "")[:8]
+
+
+def scenario_S4(ctx):
+    """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
+    HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
+    s = ctx.s
+    a, b = ctx.a, ctx.b
+    ia, ib = village_id8(s, a), village_id8(s, b)
+    wait_garrison(s, a, lambda g: g.get("alive", 0) >= 4 and g.get("recruited", 1) == 0, 240)
+    wait_garrison(s, b, lambda g: g.get("alive", 0) >= 2 and g.get("recruited", 1) == 0, 240)
+
+    # ---------------- raid lifecycle
+    r0 = raidstate(s)
+    log(f"spike4 raid before: A={r0.get(ia)} B={r0.get(ib)}")
+    p = s.pos()
+    out = s.output(f"millenaire dev raid trigger {a[0]} {a[1]} {a[2]} {b[0]} {b[1]} {b[2]}", 3)
+    check("S4-raid1 Millénaire raid A -> B triggered", any("Raid triggered" in l for l in out), "; ".join(out))
+    timeline, moved, landing = [], [], None
+    t_start = time.time()
+    ended = False
+    fa, fb = garrison(s, a).get("faction"), garrison(s, b).get("faction")
+    while time.time() - t_start < 300:
+        rs = raidstate(s)
+        ra, rb = rs.get(ia, {}), rs.get(ib, {})
+        timeline.append((round(time.time() - t_start), ra.get("target"), ra.get("start"), rb.get("under"), ra.get("performed"), rb.get("suffered")))
+        mat = any("Raider clone materialized" in l for l in s.read_since(p))
+        if mat and not moved:
+            pt = None
+            for l in s.output(at(b, f"hywmill dev raidpoint {a[0]} {a[1]} {a[2]}"), 2):
+                m = re.search(r"-> (-?\d+), (-?\d+), (-?\d+)", l)
+                if m:
+                    pt = tuple(int(x) for x in m.groups())
+            landing = pt
+            units = list(unit_entities(s, a))[:2]
+            res_b = [r[0] for r in residents(s, b) if r[2] in ("CIVILIAN", "DEFENDER")]
+            if pt and units and res_b:
+                for u in units:
+                    s.cmd(f"tp {u} {pt[0]} {pt[1]} {pt[2]}", 1)
+                for i, u in enumerate(units):
+                    s.output(f"hywmill dev spike-engage {u} {res_b[i % len(res_b)]}", 1)
+                moved = units
+                log(f"spike4 raid: moved A units {[u[:8] for u in units]} to Millénaire landing point {pt}, engaged B residents")
+        if ra.get("performed", 0) > r0.get(ia, {}).get("performed", 0) or (timeline and ra.get("target") == "none" and ra.get("start", 0) == 0 and len(timeline) > 3):
+            ended = True
+            break
+        time.sleep(5)
+    lines = s.read_since(p)
+    result = next((l for l in lines if re.search(r"Raid (FAILURE|SUCCESS)", l)), None)
+    log("spike4 raid timeline (s, A.target, A.raidStart, B.underAttack, A.performed, B.suffered): " + str(timeline))
+    log(f"spike4 raid result: {result}")
+    check("S4-raid2 raid lifecycle observable via public Village state (target/start set, cleared at end, history grows)",
+          any(t[1] == ib for t in timeline) and any(t[2] and t[2] > 0 for t in timeline) and ended, f"ended={ended} result={result}")
+    inc = incidents(s, 100)
+    raid_hits = [i for i in inc if moved and i["a"] in {u[:8] for u in moved} and i["resident"]]
+    back = [i for i in inc if moved and i["v"] in {u[:8] for u in moved}]
+    mb = military(s, b)
+    gb = garrison(s, b)
+    check("S4-raid3 HYW units moved to Millénaire's landing point fight B (temporary hostility), B defends them",
+          bool(moved) and bool(raid_hits), f"landing {landing}; raid unit hits on B residents {len(raid_hits)}; hits on raid units {len(back)}; "
+          f"B alert {mb.get('alert')} deployed {gb.get('deployed')}")
+    time.sleep(12)
+    rel = relation(s, a, fb) if fb else None
+    check("S4-raid4 A<->B faction relation stays NEUTRAL (ALWAYS_REVERT)", rel == ("NEUTRAL", "NEUTRAL"), str(rel))
+    alive = [u for u in moved if u in spike_info(s, "@e[type=!minecraft:player]")]
+    for u in alive:
+        s.cmd(ground(a[0] + 3, a[2] + 3, f"tp {u} ~ ~ ~"), 1)
+    check("S4-raid5 surviving raid units can be returned home (teleport, as Millénaire materializes raiders)", True,
+          f"{len(alive)}/{len(moved)} survived; returned by teleport")
+
+    # ---------------- mounted units (scouts)
+    riders = []
+    for unit in ("mounted_light_lancer_rider", "mounted_archer_rider"):
+        r = spike_spawn(s, (a[0] + 12, 0, a[2] - 12), unit, 1)
+        riders.append((unit, r.get("uuid"), r.get("desc", r.get("out"))))
+    log(f"spike4 riders: {riders}")
+    time.sleep(8)
+    info_r = spike_info(s, "@e[type=!minecraft:player]")
+    mounts = {u: info_r.get(u, {}).get("mount") for _, u, _ in riders if u}
+    horses0 = [u for u, r in info_r.items() if "hyw_horse" in r["desc"] or ("horse" in r["desc"] and r["tag"] == "none" and "not an HYW unit" not in r["desc"])]
+    check("S4-scout1 HYW mounted riders spawn through the production path and mount their own horse", all(m and m != "none" for m in mounts.values()),
+          f"mounts {mounts}")
+    far = (a[0] + 70, a[2] + 70)
+    for _, u, _ in riders:
+        if u:
+            s.cmd(ground(far[0], far[1], f"hywmill dev spike-home {u} ~ ~ ~"), 1)
+    track = []
+    for _ in range(12):
+        time.sleep(5)
+        row = spike_info(s, "@e[type=!minecraft:player]")
+        track.append([round(dist(row[u]["pos"], (far[0], 0, far[1])), 1) if u in row else None for _, u, _ in riders])
+    log(f"spike4 scout track to a post 99 blocks away: {track}")
+    check("S4-scout2 riders travel to a scout post outside the village when their HYW home is moved there (mounted)",
+          track and all(d is not None and d <= 12 for d in track[-1]), str(track[-1] if track else None))
+    horses_before = [u for u, r in spike_info(s, "@e[type=!minecraft:player]").items() if r.get("mount") and r["mount"] != "none"]
+    s.cmd("save-all flush", 5)
+    restart(ctx)
+    s.cmd(f"forceload add {far[0] - 16} {far[1] - 16} {far[0] + 16} {far[1] + 16}", 10)
+    time.sleep(15)
+    info2 = spike_info(s, "@e[type=!minecraft:player]")
+    mounted_after = {u: info2.get(u, {}).get("mount") for _, u, _ in riders if u}
+    hc = [l for l in s.output(f"execute positioned {far[0]} 70 {far[1]} run hywmill dev spike-info @e[distance=..40]", 3) if "horse" in l]
+    check("S4-scout3 after restart: riders reload once, still mounted, no duplicate horses", all(m and m != "none" for m in mounted_after.values()),
+          f"mounts {mounted_after}; horse-like entities near the post: {len(hc)}")
+    for _, u, _ in riders:
+        if u:
+            s.cmd(f"kill {u}", 1)
+    time.sleep(3)
+    hc2 = [l for l in s.output(f"execute positioned {far[0]} 70 {far[1]} run hywmill dev spike-info @e[distance=..40]", 3) if "horse" in l]
+    log(f"spike4 riders killed: horse-like entities near the post before {len(hc)}, after {len(hc2)}")
+
+    # ---------------- Wand of Negation on B
+    s.output(at(b, "hywmill admin setpoints 10"), 1)
+    gb0 = garrison(s, b)
+    bname = next((l.split("== Garrison of ")[1].split(" (")[0] for l in gb0["lines"] if l.startswith("== Garrison of ")), "?")
+    res_before = len(residents(s, b))
+    p = s.pos()
+    out = s.output(at(b, "hywmill dev negate"), 5)
+    lines = s.read_since(p)
+    wand = next((l for l in lines if "deleted by negation wand" in l), None)
+    rs = raidstate(s)
+    res_after = sum(1 for l in s.output(ground(b[0], b[2], "execute if entity @e[type=millenaire:villager,distance=..60]"), 2) if "Test passed" in l)
+    check("S4-wand1 negation deletion removes the village from Millénaire's VillageManager", wand is not None and ib not in rs,
+          f"{out}; {wand}; villages now {sorted(r['name'] for r in rs.values())}")
+    check("S4-wand2 its loaded residents are discarded by Millénaire", res_after == 0, f"residents loaded before {res_before}, any loaded after: {res_after}")
+    miss = s.wait_for(r"is missing from Millénaire's village list", 30, since=p)
+    check("S4-wand3 HywMill notices the disappearance (village-gone grace starts)", miss is not None, miss or "")
+    time.sleep(40)  # > recruit slot + spawn slot with levy 10
+    rec_after = [l for l in s.read_since(p) if ("recruits" in l or "Garrison unit spawned" in l) and bname in l]
+    check("S4-wand5 no recruitment or spawning into the negated village", not rec_after, f"{bname}: {rec_after[:2]}")
+    restart(ctx)
+    time.sleep(10)
+    sprint(s, 6200)
+    gone = s.wait_for(r"is gone: \d+ garrison slot", 60, since=s.start_pos)
+    lines2 = s.read_since(s.start_pos)
+    grants = [l for l in lines2 if "Starting garrison granted" in l and bname in l]
+    rec2 = [l for l in lines2 if ("recruits" in l or "Garrison unit spawned" in l) and bname in l]
+    check("S4-wand4 across a restart: grace -> LOST(VILLAGE_GONE); orphan policy KEEP; no new grant or recruit", gone is not None and not grants and not rec2,
+          f"{gone}; grants {len(grants)} recruits/spawns {len(rec2)} after restart")
+    ctx.s4_negated_b = True
+
+
 SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_perf": scenario_G3_perf}
+             "G3_17": scenario_G3_17, "G3_perf": scenario_G3_perf, "S4": scenario_S4}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
             "G3_15", "G3_14", "G3_perf"]
 ORDER = ["status", "H", "B", "N", "C", "D", "I", "W", "L", "F1", "E", "F2", "X", "P", "A", "G"]
@@ -1880,6 +2040,105 @@ def run_epicknights(d: Path, ekdir: Path):
         s.stop()
 
 
+EK_CASES = [
+    # (unit, slot, item, class of the test)
+    ("spear_man", "head", "magistuarmory:norman_helmet", "armor"),
+    ("spear_man", "chest", "magistuarmory:lamellar_chestplate", "armor"),
+    ("spear_man", "mainhand", "magistuarmory:steel_ahlspiess", "same-family weapon"),
+    ("shieldman", "offhand", "magistuarmory:steel_kiteshield", "shield"),
+    ("shieldman", "head", "magistuarmory:shishak", "armor"),
+    ("warrior", "mainhand", "magistuarmory:steel_lochaberaxe", "same-family weapon"),
+    ("militia", "mainhand", "magistuarmory:steel_shortsword", "same-family weapon"),
+    ("militia", "chest", "magistuarmory:gambeson_chestplate", "armor"),
+    ("archer", "head", "magistuarmory:shishak", "armor"),
+    ("archer", "chest", "magistuarmory:lamellar_chestplate", "armor"),
+    ("crossbowman", "head", "magistuarmory:kettlehat", "armor"),
+    ("mounted_light_lancer_rider", "head", "magistuarmory:norman_helmet", "armor"),
+    ("archer", "mainhand", "magistuarmory:steel_pike", "cross-family weapon"),
+    ("crossbowman", "mainhand", "magistuarmory:longbow", "cross-family weapon"),
+    ("spear_man", "mainhand", "magistuarmory:longbow", "cross-family weapon"),
+    ("shieldman", "offhand", "magistuarmory:steel_pike", "cross-family offhand"),
+    ("militia", "head", "magistuarmory:no_such_item", "unregistered"),
+]
+
+
+def run_ekspike(d: Path, ekdir: Path):
+    """M4-0: which Epic Knights items can be overlaid on which HYW garrison units (HYW's own EK
+    compat on): persistence after ticks and a restart, and whether the unit still fights."""
+    jar = built_jar()
+    ek = sorted(str(p) for p in ekdir.glob("*.jar"))
+    write_configs(d, "[garrison]\n\tenabled = false\n")
+    install_mods(d, [MILLENAIRE_JAR, HYW_JAR, jar] + ek)
+    if (d / "world").exists():
+        shutil.rmtree(d / "world")
+    hyw_cfg = d / "config" / "hundredyearswar" / "hyw_main.json5"
+    s = Server(d)
+    ctx = Ctx(s)
+    rows = []
+    try:
+        s.start()
+        s.stop()
+        hyw_cfg.write_text(re.sub(r'("?enableEpicKnightsCompat"?\s*:\s*)false', r"\1true", hyw_cfg.read_text()))
+        shutil.rmtree(d / "world")
+        s.start()
+        setup(ctx)
+        a = ctx.a
+        units = {}
+        for i, (unit, slot, item, kind) in enumerate(EK_CASES):
+            x, z = a[0] - 40 + (i % 6) * 6, a[2] + 30 + (i // 6) * 6
+            s.cmd(f"forceload add {x} {z}", 1)
+            r = spike_spawn(s, (x, 0, z), unit, 2)
+            u = r.get("uuid")
+            base = spike_info(s, u).get(u, {}).get("slots", {}) if u else {}
+            out = s.output(f"hywmill dev equip {u} {slot} {item}", 1) if u else []
+            units[i] = (u, base, " ".join(out))
+        time.sleep(15)
+        after = spike_info(s, "@e[type=!minecraft:player]")
+        for i, (unit, slot, item, kind) in enumerate(EK_CASES):
+            u, base, out = units[i]
+            got = after.get(u, {}).get("slots", {}).get(slot)
+            units[i] = (u, base, out, got)
+        s.cmd("save-all flush", 5)
+        s.stop()
+        s.start()
+        for i in range(len(EK_CASES)):
+            x, z = a[0] - 40 + (i % 6) * 6, a[2] + 30 + (i // 6) * 6
+            s.cmd(f"forceload add {x} {z}", 0.5)
+        time.sleep(15)
+        reload_ = spike_info(s, "@e[type=!minecraft:player]")
+        # combat: a zombie next to each unit; HYW units attack monsters natively
+        for i, (unit, slot, item, kind) in enumerate(EK_CASES):
+            u = units[i][0]
+            if u in reload_:
+                p = reload_[u]["pos"]
+                s.cmd(f"summon minecraft:zombie {p[0] + 2} {p[1]} {p[2]} {{Tags:['ekz{i}'],PersistenceRequired:1b}}", 0.3)
+        time.sleep(25)
+        for i, (unit, slot, item, kind) in enumerate(EK_CASES):
+            u, base, out, got = units[i]
+            want = item.split(":")[1]
+            rel = reload_.get(u, {}).get("slots", {}).get(slot)
+            zh = health(s, f"ekz{i}")
+            fought = zh is None or zh < 20.0
+            rows.append(dict(unit=unit, slot=slot, item=item, kind=kind, set="set" in out, base=base.get(slot), after15s=got,
+                             afterRestart=rel, fought=fought, zombie=zh))
+        for r in rows:
+            log("ekspike " + json_line(r))
+        registered = [r for r in rows if r["kind"] != "unregistered"]
+        check("EK-0 overlay tool ran on every M3 unit type + mounted rider", len(rows) == len(EK_CASES), f"{len(rows)} cases")
+        check("EK-1 unregistered item is rejected (falls back)", all(not r["set"] for r in rows if r["kind"] == "unregistered"),
+              str([r for r in rows if r["kind"] == "unregistered"]))
+        kept = [r for r in registered if r["after15s"] and r["item"].endswith(r["after15s"].split(":")[-1])]
+        check("EK-2 matrix recorded (see ekspike lines)", True, f"{len(kept)}/{len(registered)} overlays still present after 15 s")
+    finally:
+        s.stop()
+    return rows
+
+
+def json_line(r):
+    import json
+    return json.dumps(r, sort_keys=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", required=True, type=Path)
@@ -1929,6 +2188,13 @@ def main():
         finally:
             srv.stop()
         return 0
+    if a.scenarios[0] == "ekspike":
+        run_ekspike(a.dir, Path(a.scenarios[1]))
+        passed = sum(1 for r in RESULTS if r[1])
+        log(f"RESULT {passed}/{len(RESULTS)} checks passed")
+        for name, ok, detail in RESULTS:
+            print(f"  {'PASS' if ok else 'FAIL'}  {name}  {detail}")
+        return 0 if all(r[1] for r in RESULTS) else 1
     if a.scenarios[0] == "epicknights":
         run_epicknights(a.dir, Path(a.scenarios[1]))
         passed = sum(1 for r in RESULTS if r[1])

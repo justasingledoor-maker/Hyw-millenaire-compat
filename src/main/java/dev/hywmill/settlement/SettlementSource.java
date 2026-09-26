@@ -54,4 +54,31 @@ public interface SettlementSource {
     }
 
     record SettlementRef(UUID id, String name, BlockPos center, boolean active) {}
+
+    /**
+     * Raid state of a settlement as its own mod keeps it (M4). {@code target} is the settlement it
+     * is planning or conducting a raid against (null if none); {@code raidStart} is 0 while only
+     * planning; {@code performed}/{@code suffered} are the lengths of its raid histories (they grow
+     * by one when a raid ends).
+     */
+    record RaidInfo(@javax.annotation.Nullable UUID target, long planningStart, long raidStart, boolean underAttack,
+                    int performed, int suffered) {}
+
+    /** Raid state, read-only; empty if unknown or unsupported. Cheap (field reads). */
+    default Optional<RaidInfo> raidInfo(ServerLevel level, UUID settlementId) {
+        return Optional.empty();
+    }
+
+    /** Where the settlement mod lands raiders attacking {@code targetId} from {@code attackerCenter}; empty if unsupported. */
+    default Optional<BlockPos> raidLandingPoint(ServerLevel level, UUID targetId, BlockPos attackerCenter) {
+        return Optional.empty();
+    }
+
+    /**
+     * DEV ONLY (M4-0 spike, {@code /hywmill dev negate}): runs the settlement mod's own player
+     * deletion path (Millénaire: the Wand of Negation's confirmed deletion) for the settlement.
+     */
+    default boolean devNegate(ServerLevel level, UUID settlementId, net.minecraft.server.level.ServerPlayer player) {
+        return false;
+    }
 }
