@@ -111,7 +111,7 @@ changed. `DutyPlan` is pure:
 
 ### 2.5 Movement (sections 3, 4, 10)
 
-Units are moved **only** by setting their HYW home; there is no pathfinding of our own:
+Units are moved by setting their HYW home; HywMill does not implement an independent pathfinding algorithm:
 * **Hops.** One hop of at most 32 blocks, per the M4-0 finding.
 * **Ground.** Standable ground near the point at its own height first, then the surface, only in
   entity-ticking chunks. HywMill never force-loads.
