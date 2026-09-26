@@ -1,8 +1,9 @@
 # HywMill M5: Player Politics (Design Audit and Proposal)
 
-Status: **design for review. Nothing here is implemented.** Two decisions are **locked** (§18,
-2026-09-26): the player-facing politics GUI with a keybind, and the larger garrison scale. M3 and M4
-stay frozen. M5 builds on
+Status: **approved design direction; nothing is implemented yet.** Locked decisions are in §18
+(2026-09-26): the player-facing politics GUI with a keybind, the larger garrison scale, and the
+answers to every open question (§15, §18.3). M3 and M4 stay frozen except for the changes §18.3
+approves, each made in its own M5 step. M5 builds on
 the systems already in place:
 * Millénaire's reputation, relations and diplomacy;
 * the M2 defense doctrine;
@@ -124,8 +125,8 @@ status than to enter it. Changes are logged in the village's own history.
 
 | Status | Entered when (defaults; all data-driven) | Consequences |
 |---|---|---|
-| **Outlaw** (the village's ban) | Grievance ≥ `outlaw` (e.g. a killing, or repeated assaults within the memory window) **and** combined reputation ≤ −1024 (already boycotted). Or combined reputation ≤ −4096 regardless | • An **M2 threat** inside the defense radius (new additive reason `OUTLAWED_PLAYER`), so the garrison and Millénaire defenders respond under the unchanged doctrine and coordinator. • **HYW relation** village faction → player = HOSTILE (allowed by the new `DiplomacyPolicy`), so garrison units engage on sight. • Chronicle entry. • Neighbouring friendly same-culture villages treat the player as **unwelcome** (word travels) |
-| **Unwelcome** | Combined reputation ≤ −1024 (Millénaire's own boycott), or grievance ≥ `warning` | • Millénaire's boycott already applies. • HywMill: a message at the village edge; **sentries and patrols watch** (M4 duties; no attack); requests, intelligence and diplomacy are refused. • Any new offence **inside** the village escalates straight to outlaw |
+| **Outlaw** (the village's ban) | **Normal rule:** a grievance ≥ `outlaw` (a serious offence such as killing a resident or garrison member) **and** combined reputation ≤ −1024. **Exception:** killing a resident or garrison member **inside the village during peacetime** makes the player an outlaw at once, whatever their reputation. Severity and context (where, whether at peace) come from the grievance record, not from a second meter (approved, §18.3) | • An **M2 threat** inside the defense radius (new additive reason `OUTLAWED_PLAYER`), so the garrison and Millénaire defenders respond under the unchanged doctrine and coordinator. • **HYW relation** village faction → player = HOSTILE (allowed by the new `DiplomacyPolicy`), so garrison units engage on sight. • Chronicle entry. • Neighbouring friendly same-culture villages treat the player as **unwelcome** (word travels) |
+| **Unwelcome** | Combined reputation ≤ −1024 (Millénaire's own boycott), or grievance ≥ `warning` | • Millénaire's boycott already applies. • HywMill: a message at the village edge; **sentries and patrols watch** (M4 duties; no attack); requests, intelligence and diplomacy are refused. • A killing **inside** the village makes them an outlaw at once (the exception above, as for anyone) |
 | **Stranger** | Default | Nothing extra |
 | **Trusted** | Combined reputation ≥ 4096 (Millénaire's hire threshold) and no open grievance | • **Intelligence**, coarse (see §8). • May ask for an **escort** (small). • May propose **reconciliation** diplomacy |
 | **Patron** | Combined reputation ≥ 8192 (`FRIEND_OF_THE_VILLAGE`), favor ≥ `patron`, no grievance in the memory window | • Detailed intelligence. • Larger escorts and **detachments**. • **Truce** proposals. • Armoury access **(spike)**. • A chronicle honour |
@@ -159,6 +160,10 @@ village integer (default cap 100). It is earned **only by observable service**:
 | Successful diplomacy the village asked for (§7) | + |
 | Escort or detachment returned with no losses caused by the player | small |
 | Long good standing (monthly, at reputation ≥ trusted, no grievance) | + 1 |
+
+**Trade never earns Favor** (approved, §18.3): trade already earns Millénaire reputation, and
+counting it twice would let money buy military obligation. Only the service deeds above, and any
+future deed explicitly defined as service, earn Favor.
 
 Favor is spent on requests (§9). Soldiers lost on the player's errand **cost** favor ("you got our
 sons killed"). Favor never turns into reputation, and reputation never into favor: goodwill and
@@ -198,7 +203,16 @@ obligation are different things. There is no passive regeneration beyond the mon
 | **Reconcile** (A ↔ B) | Trusted with A, known to B (discovered, reputation ≥ 0) | Relation +Δ (larger when it is very bad and recently calm) | Small relation drop; −reputation with B |
 | **Truce** (A ↔ B, at ≤ OPEN_CONFLICT or after a recent raid) | Patron with A, reputation ≥ decent with B | Relation raised above −90, so **Millénaire aborts planned raids**. A **dated truce** is recorded; during it HywMill **holds the floor** at −85 nightly (`setRelation`) and no HywMill raid contingent joins raids between them | A raid is triggered sooner (the relation drops) |
 | **Encourage** (improve an already fair relation) | Trusted with A | +Δ, small | None |
-| **Sow discord** (A ↔ C, where C is A's rival) | Sworn with A, **not** trusted by C | −Δ | **Exposed**: a grievance with C, and a relation drop between A and the player's other patrons |
+| **Sow discord** (A ↔ C, where C is A's rival) | **Sworn** with A, **not** trusted by C; a diplomacy point of A **and** Favor with A; limits below | −Δ | **Exposed**: a grievance with C, and a relation drop between A and the player's other patrons (standing elsewhere can suffer) |
+
+**Sow discord limits (approved, §18.3).** It is powerful by design (Sworn is rare), so it must not
+be spammable:
+* a per-player cooldown (for example one attempt per in-game week), and a per-pair cooldown for the
+  same A ↔ C pair shared by all players;
+* at most one pending sow-discord envoy per player;
+* it costs Favor as well as the diplomacy point, and the cost rises with each recent attempt;
+* the exposure chance grows with repeated attempts against the same village;
+* it can fail outright, and a failure still spends the point and the Favor.
 
 ### 7.3 Outcome
 
@@ -428,38 +442,29 @@ Millénaire or HYW.
 | M5-4 | Envoy missions and truces (Millénaire relation API, delayed resolution, backfire) |
 | M5-5 | Requests: escort and detachment (M4 temporary duties), evaluator, favor costs, casualties |
 | M5-5b | Rules of engagement (§16): wars, campaigns, relation projector and reconciliation, `ENEMY_COMBATANT`, combatant-only engagement |
-| M5-G | Garrison population scaling (§17, locked by §18.2): spike S-G first (targets from real harness villages, reachability of the locked caps, duties, raids, M2 deployment, spawning, server scale test); then the target and levy formulas through the existing data-driven tier machinery, with a neutral-values regression. Independent of the politics steps |
+| M5-G | Garrison population scaling (§17, locked by §18.2): spike S-G first (targets from real harness villages, reachability of the locked caps, duties, raids, M2 deployment, spawning, server scale test); then the target and levy formulas through the existing data-driven tier machinery, with a neutral-values regression, and the M4 duty and raid **data** retuned to the new sizes (approved, Q10). Independent of the politics steps |
 | M5-6 | Armoury (if spike 7 allows) and honours |
 | M5-UI | Politics / Diplomacy GUI (§18.1): client keybind, screen, network payloads over the `PoliticsView` API; after M5-1..M5-5 are stable |
 | M5-7 | Harness suite G5, M4/M3/M2 regressions, performance, report |
 
 ---
 
-## 15. Open questions for review
+## 15. Decisions on the open questions
 
-1. **Outlaw trigger.** Should a single killing be enough, or must reputation also be ≤ −1024?
-   Proposed: both, except for a killing **inside** the village during peace, which alone is enough.
-2. **Favor.** Should it also be earned from trade volume (medieval merchants did buy influence)?
-   Proposed: no; trade already raises Millénaire reputation.
-3. **Sow discord.** Should it exist at all in M5? It is powerful and easy to abuse. Proposed: yes,
-   sworn only, with the exposure backfire.
-4. **Escorts leaving the village's lands.** They cross unloaded terrain only with the player present
-   (chunks are loaded by the player). Acceptable?
-5. ~~**Commands only for the interface in M5.**~~ **Decided (§18.1):** commands first for testing
-   and admin; a player-facing GUI with a configurable keybind follows once the backend is stable.
-6. **Automatic war between villages.** Should village ↔ village war projection (HOSTILE between
-   faction garrisons at ≤ −90) be on by default? Proposed: yes, with a minimum duration at open
-   conflict, and a server config switch.
-7. **Co-belligerents as FRIENDLY in HYW.** Should co-belligerents be projected as FRIENDLY (full
-   friendly-fire protection) or only kept NEUTRAL (no mutual targeting, but stray hits count)?
-   Proposed: FRIENDLY, for the campaign only.
-8. **Combatant-only engagement for M4 raid contingents** (a small change to frozen M4). Approve?
-9. ~~**Garrison scaling (§17).**~~ **Decided (§18.2):** caps WATCH 24, GUARD_POST 48, GARRISON 72,
-   STRONGHOLD 128; about 2–3× today's garrisons where the settlement supports it; development-driven
-   target and levy scaling as M5-G, after spike S-G.
-10. **M4 duty and raid data at the larger sizes (§18.2.4).** At 128 units the current STRONGHOLD
-    duty maxima employ about 40 units and raids commit at most 12. Retuning those **data** values is
-    a change to frozen M4 data and needs its own approval. Approve it as part of M5-G?
+All questions are answered (2026-09-26). The binding text is §18.3; this is the index.
+
+| # | Question | Decision |
+|---|---|---|
+| 1 | Outlaw trigger | Serious grievance **and** reputation ≤ −1024; a killing inside the village in peacetime is enough alone. Hysteresis for leaving outlawry unchanged |
+| 2 | Favor from trade | **No.** Favor comes from service only |
+| 3 | Sow discord | **Yes**, Sworn only, costs Favor and a diplomacy point, cooldowns and limits, can fail, exposure backfires |
+| 4 | Escorts and unloaded terrain | **Accepted.** No force-loading; escorts hold when the terrain ahead is not loaded, never teleport |
+| 5 | Interface | Commands first; a GUI with a configurable keybind later (§18.1) |
+| 6 | Automatic war between villages | **Yes, on by default**, after a configurable minimum duration at ≤ −90, with a server switch; truce or peace ends it |
+| 7 | Co-belligerents | **FRIENDLY** both ways for the campaign only; the previous relation is restored afterwards |
+| 8 | M4 raid contingents | **Approved:** engage combatant villagers only (a narrow change to frozen M4 target selection) |
+| 9 | Garrison scaling | Caps 24 / 48 / 72 / 128, about 2–3× today (§18.2) |
+| 10 | Duty and raid data at the larger sizes | **Approved** as part of M5-G, data only |
 
 ---
 
@@ -520,6 +525,10 @@ A player can be:
   * It starts after the relation has been at open conflict for a minimum time (no flapping on
     nightly drift).
   * It ends at truce or peace (§7), or once the relation has been above −90 for a minimum time.
+  * **On by default** (approved). Server config: `politics.autoWar` (default true) disables the
+    HYW war projection entirely, and `politics.warMinConflictTicks` sets the minimum duration.
+    Millénaire's relation remains the diplomatic fact; the war state is only its military
+    projection.
   * The projection is HOSTILE between the two **village faction UUIDs**, which covers all M3
     garrison units and M4 raid contingents automatically.
 * **A player joins a war** (`/hywmill war join <A> against <B>`). This needs:
@@ -975,7 +984,105 @@ values themselves is spike work; the direction is settled.
 * **M4 duty data.** STRONGHOLD maxima (8 sentry pairs, 8 patrol, 4 scouts, reserve 15 %) staff about
   40 units. At 128, about 85 would stand on GARRISON duty at the muster points, which also crowd,
   since units are spread by UUID hash over the muster list. The locked decision keeps M4 duties
-  unchanged unless separately approved, so retuning these **data** maxima is **open question 10**.
-  No code change to the duty system is needed; it is already quota-driven.
-* **M4 raid data.** `maxCommit` 12 (16 Seljuk) caps contingents regardless of garrison size. The same
-  question 10 covers scaling it per tier.
+  unchanged unless separately approved, so retuning these **data** maxima was open question 10, now
+  **approved** (§18.3). No code change to the duty system is needed; it is already quota-driven.
+* **M4 raid data.** `maxCommit` 12 (16 Seljuk) caps contingents regardless of garrison size. Scaling
+  it per tier is approved with question 10 (§18.3).
+
+### 18.3 Approved answers to the open questions (binding)
+
+**Q1. Outlaw trigger.**
+* **Normal rule:** a serious grievance (killing a resident or garrison member, or the equivalent
+  severity) **and** combined Millénaire reputation ≤ −1024.
+* **Exception:** killing a resident or garrison member **inside the village during peacetime**
+  makes the player an outlaw at once, whatever their reputation.
+* Severity and context come from the **grievance record**; there is no new meter. Each grievance
+  stores its kind, the place (inside the village radius or not) and whether it was peacetime.
+  "Peacetime" means no war or campaign (§16) puts the player against that village, and the player
+  was not already a legitimate threat of the village. A killing in self-defence, where the victim
+  attacked first according to the incident ledger, is recorded at a lower severity.
+* The removed rule: the earlier draft also made reputation ≤ −4096 alone enough. That clause is
+  **dropped**, since it was not approved.
+* Leaving outlawry keeps the §4 hysteresis: the grievance must decay below `pardon` **and**
+  reputation must be above −1024.
+
+**Q2. Favor.** No trade-based Favor. Favor is earned only through service: defending the village,
+successful diplomacy the village asked for, successful escorts and detachments, long good standing,
+and future deeds explicitly defined as service.
+
+**Q3. Sow discord.** Included; Sworn only; costs a diplomacy point and Favor; cooldowns and limits
+as in §7.2; can fail; exposure gives a grievance with the target village and can hurt the player's
+standing elsewhere. It must not be a spammable relation lever.
+
+**Q4. Escorts and unloaded terrain.** No force-loading for escorts, ever.
+* Escort units move normally through loaded, ticking terrain.
+* They cross unloaded terrain only when the player travels with them and loads it naturally.
+* If the player gets too far ahead and the terrain ahead is not loaded, the escort **holds** where
+  it is. It does not force-load and does not teleport.
+* **Integration defect found (needs a small, approved M3 change in M5-5).** M3's `Reconciler`
+  marks a unit MISSING after `missingGrace` of *village-active* time without being seen, then LOST
+  after `lostTimeout`. It is correct for home units, and M4 raid contingents never sit away in
+  unloaded terrain (Millénaire's raid materialization moves them). An escort or detachment holding
+  in unloaded terrain while its home village is loaded would be **wrongly marked MISSING and then
+  LOST**. This contradicts M3's own principle, "unloaded is never dead and never lost".
+  * **Proposed fix:** for a unit on an away temporary duty (ESCORT / DETACHED), the reconciler does
+    not run the missing clock while the chunk of its last known position is not loaded. It resumes
+    once that chunk is loaded and the unit is still not found.
+  * It is additive, keyed on the new duty values, and leaves home units, raids and the M3 lifecycle
+    unchanged.
+  * It will be implemented and tested as part of M5-5, under an explicit approval for that step.
+  * If the chunk is loaded and the unit is truly gone, the normal MISSING and LOST path applies,
+    and the loss costs Favor as §5 says.
+
+**Q5. Interface.** Commands first; the GUI with a configurable keybind follows (§18.1).
+
+**Q6. Automatic war between villages.** On by default. When the Millénaire relation between two
+villages is ≤ −90 (OPEN_CONFLICT) for at least the configured minimum duration, HywMill projects
+A faction → HOSTILE → B faction and B → HOSTILE → A. Details:
+* not at the instant the relation reaches −90;
+* a truce or peace ends the projection;
+* the server switch `politics.autoWar` turns it off entirely;
+* Millénaire's relation stays the diplomatic fact, and the war state is its military consequence.
+
+**Q7. Co-belligerents.** FRIENDLY in both directions between the player and the allied village
+faction, for the campaign only, so HYW's full friendly-fire protection applies. The player's
+participating units use the player's identity (spike 1 settles team identities). When the campaign
+ends:
+* the projector restores the previous relation;
+* the temporary FRIENDLY is removed;
+* the normal political relationship is not changed by the campaign ending.
+
+**Q8. Raid contingents engage combatants only.**
+* This is a narrow change to frozen M4 target selection in `RaidService`, which today engages the
+  nearest target residents with temporary hostility. It will engage only combatant villagers of
+  the target village: SOLDIER and LEADER always, and MILITIA unless the target village's
+  `militiaPolicy` is NEVER. Roles come from the M1.1 role tables.
+* Civilians are never raid targets, however close.
+* Millénaire's raid mechanics and participant list are unchanged, and M3 ownership and lifecycle
+  are unchanged.
+* If no combatant is in reach, the contingent holds its position in the raid and keeps
+  retaliating (HYW temporary hostility) against whatever attacks it.
+* It is delivered in M5-5b and tested in the G4 raid scenarios.
+
+**Q9. Garrison scale.** Caps WATCH 24, GUARD_POST 48, GARRISON 72, STRONGHOLD 128; about 2–3×
+today's garrisons. The scale spike checks technical and performance viability, not realism
+(§18.2).
+
+**Q10. Duty and raid data at the larger sizes.** Approved for M5-G: raise the data values for
+sentry pairs, patrol, scouts, reserve, their minimum and maximum quotas, and raid commitment
+(`maxCommit` per tier), so that a 128-unit stronghold has substantially more than about 40 units on
+active roles.
+* Raids still respect the minimum home share, kept sentry pairs, reserve, patrol and scout
+  constraints, M2 readiness, village willingness, doctrine and living units.
+* The exact values come from the spike's duty-capacity analysis.
+* **Data only.** The duty algorithms change only if the spike proves they cannot support the larger
+  values; that would be reported first.
+
+**Changes to frozen M3/M4 now approved, and where they land:**
+
+| Change | Kind | Step |
+|---|---|---|
+| Target and levy formula terms; caps 24/48/72/128 | M3 code (pure functions) + data | M5-G |
+| Duty quotas and raid commitment at the new sizes | M4 data only | M5-G |
+| Raid contingents engage combatants only | M4 code (`RaidService` target selection) | M5-5b |
+| Missing clock paused for away units in unloaded terrain | M3 code (`Reconciler`), additive | M5-5 (**requires your confirmation**; found in this audit) |
