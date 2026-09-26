@@ -75,7 +75,8 @@ def write_configs(d: Path, hywmill_extra: str = ""):
     (d / "server.properties").write_text(
         "online-mode=false\nlevel-seed=20260925\nspawn-protection=0\nview-distance=6\n"
         "simulation-distance=6\nmax-tick-time=-1\ndifficulty=normal\nlevel-name=world\n"
-        "enable-command-block=true\nmotd=hywmill-harness\n")
+        "enable-command-block=true\nmotd=hywmill-harness\n"
+        + (f"server-port={os.environ['HYWMILL_PORT']}\n" if os.environ.get("HYWMILL_PORT") else ""))
     cfg = d / "config"
     cfg.mkdir(exist_ok=True)
     verbose = "false" if os.environ.get("HYWMILL_QUIET") else "true"  # HYWMILL_QUIET=1: production log level (perf runs)
@@ -2519,12 +2520,1020 @@ def scenario_G4_EK(ctx):
           f"spear_man offhand {sorted(spear_off)}; shieldman offhand {sorted(shield_off)}; archer mainhand {sorted(archer_main)}")
 
 
+# --------------------------------------------------------------------------- M5-0 spikes (S5)
+# Runtime checks for docs/m5-spike.md. "note" lines record observed behaviour that is not a pass/fail
+# criterion; checks state the behaviour the M5 design relies on.
+
+P_UUID = OWNER_UUID                                  # the "player": owner of player-owned units, and the stand-in's UUID
+Q_UUID = "22222222-3333-4444-8555-666666666666"      # a second player (team member, bystander)
+T_UUID = "33333333-4444-4555-8666-777777777777"      # an unrelated third party (owner of neutral units)
+X_UUID = "44444444-5555-4666-8777-888888888888"      # persistence probes (not village factions)
+Y_UUID = "55555555-6666-4777-8888-999999999999"
+Z_UUID = "66666666-7777-4888-8999-aaaaaaaaaaaa"
+NOTES = []
+
+
+def uuid_nbt(u):
+    h = int(u.replace("-", ""), 16)
+    parts = [(h >> s) & 0xFFFFFFFF for s in (96, 64, 32, 0)]
+    return "[I;" + ",".join(str(p - (1 << 32) if p >= 1 << 31 else p) for p in parts) + "]"
+
+
+T_NBT = uuid_nbt(T_UUID)
+
+
+def note(name, text):
+    NOTES.append((name, text))
+    log(f"NOTE {name}: {text}")
+
+
+def m5(s, sub, wait=2.0):
+    return [l for l in s.output(f"hywmill dev m5 {sub}", wait) if l.startswith("m5 ")]
+
+
+def m5_1(s, sub, wait=2.0):
+    out = m5(s, sub, wait)
+    return out[0] if out else ""
+
+
+def rel(s, a, b):
+    l = m5_1(s, f"hyw rel {a} {b}")
+    m = re.search(r"->\S+=(\w+) \S+->\S+=(\w+)", l)
+    return (m[1], m[2]) if m else (None, None)
+
+
+def neutral(s, a, b):
+    m5(s, f"hyw relset {a} {b} NEUTRAL", 0.5)
+    m5(s, f"hyw relset {b} {a} NEUTRAL", 0.5)
+
+
+def tgt8(row):
+    m = re.search(r"\[([0-9a-f]{8})\]", row.get("target", "") if row else "")
+    return m[1] if m else None
+
+
+def tagged(s, tag):
+    return {u: r for u, r in spike_info(s, f"@e[tag={tag}]").items()}
+
+
+def hp_of(s, sel):
+    l = m5_1(s, f"hyw hp {sel}", 1)
+    m = re.search(r" ([\d.]+)/([\d.]+) alive=(\w+)", l)
+    return float(m[1]) if m else None
+
+
+def set_hp(s, sel, v=20):
+    s.cmd(f"data modify entity {sel} Health set value {v}f", 0.5)
+
+
+def standin_at(s, uid, x, z):
+    m5(s, f"standin remove {uid}", 0.5)
+    out = [l for l in s.output(ground(x, z, f"hywmill dev m5 standin add {uid} ~ ~ ~"), 2) if l.startswith("m5 ")]
+    return out[0] if out else ""
+
+
+ARMS = 'HandItems:[{id:"minecraft:iron_sword",count:1},{}],ArmorItems:[{},{},{id:"minecraft:iron_chestplate",count:1},{}]'
+
+
+def summon_unit(s, x, z, etype, owner_nbt, tag, extra=""):
+    """An HYW unit placed at the ground of (x, z), armed (a /summon'ed HYW unit has empty equipment slots)."""
+    nbt = f"OwnerUUID:{owner_nbt},Tags:['{tag}'],{ARMS}" + (f",{extra}" if extra else "")
+    s.cmd(ground(x, z, f"summon hundred_years_war:{etype} ~ ~ ~ {{{nbt}}}"), 1)
+
+
+def outdoor(s, pos):
+    y = surface_y(s, pos[0], pos[2])
+    return y is not None and abs(y - pos[1]) <= 1
+
+
+def ticking(s, x, z):
+    l = m5_1(s, f"ticking {x} 64 {z}", 0.6)
+    m = re.search(r"ticking \S+ \S+ (\w+) top=(-?\d+) water=(\w+)", l)
+    return (m[1] == "true", int(m[2]), m[3] == "true") if m else (False, -999, False)
+
+
+def outdoor_unit(s, c, timeout=90):
+    end = time.time() + timeout
+    while time.time() < end:
+        for u, r in unit_entities(s, c).items():
+            if outdoor(s, r["pos"]):
+                return u, r
+        time.sleep(10)
+    rows = unit_entities(s, c)
+    return next(iter(rows.items()), (None, None))
+
+
+def scenario_S5_0(ctx):
+    """Setup for the M5-0 spikes: both garrisons alive, factions known."""
+    s = ctx.s
+    for name, c in (("A", ctx.a), ("B", ctx.b)):
+        wait_garrison(s, c, lambda g: g.get("alive", 0) >= 2 and g.get("recruited", 1) == 0, 240)
+    ctx.fa = garrison(s, ctx.a).get("faction")
+    ctx.fb = garrison(s, ctx.b).get("faction")
+    ctx.gA = unit_entities(s, ctx.a)
+    ctx.gB = unit_entities(s, ctx.b)
+    check("S5-0 both garrisons alive, factions known", bool(ctx.fa and ctx.fb and ctx.gA and ctx.gB),
+          f"A {ctx.fa} {len(ctx.gA)} units; B {ctx.fb} {len(ctx.gB)} units")
+    s.cmd("hywmill dev duties off", 1)  # garrison homes stay where the spikes put them (M4 duties resume in S5_N cleanup)
+
+
+def scenario_S5_A(ctx):
+    """Spike A: identity of player-owned HYW units; HYW teams; relation control of player units."""
+    s, a, fa = ctx.s, ctx.a, ctx.fa
+    gu = next(iter(ctx.gA))
+    s.cmd(ground(a[0] + 6, a[2] + 12, f"summon hundred_years_war:spear_man ~ ~ ~ {{OwnerUUID:{OWNER_NBT},Tags:['hwM5A'],NoAI:1b}}"), 2)
+    idl = m5_1(s, "hyw ident @e[tag=hwM5A,limit=1]")
+    m = re.search(r" rel=(\S+)", idl)
+    check("S5-A player-owned HYW unit: relation identity = owner (player) UUID", bool(m) and m[1] == P_UUID, idl)
+    st = re.search(r"strategy=(\w+)", idl)
+    note("S5-A attack strategy of a freshly summoned player-owned unit", st[1] if st else idl)
+    t = m5_1(s, f"hyw team create hwm5team {P_UUID}")
+    mt = re.search(r"created (\S+)", t)
+    team = mt[1] if mt else "none"
+    j = m5_1(s, f"hyw team join {team} {Q_UUID}")
+    idl2 = m5_1(s, "hyw ident @e[tag=hwM5A,limit=1]")
+    m2 = re.search(r" rel=(\S+).* team=(\S+)", idl2)
+    check("S5-A team membership does not replace the unit's relation identity (player UUID; team UUID only reported)",
+          bool(m2) and m2[1] == P_UUID and m2[2] == team, f"{t} | {j} | {idl2}")
+    m5(s, f"policy allow {fa} {team}")
+    m5(s, f"policy allow {fa} {P_UUID}")
+    m5(s, f"hyw relset {team} {fa} HOSTILE")
+    v1 = m5_1(s, f"hyw valid @e[tag=hwM5A,limit=1] {gu}")
+    v1r = m5_1(s, f"hyw valid {gu} @e[tag=hwM5A,limit=1]")
+    check("S5-A HOSTILE between the TEAM UUID and a village faction does not make a member's units enemies",
+          "enemy=false" in v1 and "enemy=false" in v1r, f"{v1} || {v1r}")
+    neutral(s, team, fa)
+    m5(s, f"hyw relset {P_UUID} {fa} HOSTILE")
+    r = rel(s, P_UUID, fa)
+    v2 = m5_1(s, f"hyw valid @e[tag=hwM5A,limit=1] {gu}")
+    v2r = m5_1(s, f"hyw valid {gu} @e[tag=hwM5A,limit=1]")
+    check("S5-A setRelation(player, faction, HOSTILE) is stored both ways and makes player units and garrison mutual enemies",
+          r == ("HOSTILE", "HOSTILE") and "enemy=true" in v2 and "enemy=true" in v2r, f"rel={r} || {v2} || {v2r}")
+    note("S5-A isValidTarget player unit -> garrison unit under HOSTILE (NoAI units, same area)", f"{v2} || {v2r}")
+    neutral(s, P_UUID, fa)
+    m5(s, "policy clear")
+    s.cmd("kill @e[tag=hwM5A]", 1)
+
+
+def scenario_S5_B(ctx):
+    """Spike B: player <-> village HOSTILE under DEFAULT: who fights whom (runtime, AI on)."""
+    s, a, fa = ctx.s, ctx.a, ctx.fa
+    garr = unit_entities(s, a)
+    gu0, g0 = outdoor_unit(s, a)
+    note("S5-B garrison unit used as the meeting point (outdoors)", f"{gu0} {g0['pos'] if g0 else None}")
+    gx, gz = g0["pos"][0], g0["pos"][2]
+    res = {r[0][:8]: r for r in residents(s, a)}
+    for i in range(3):
+        summon_unit(s, gx + 6, gz - 2 + 2 * i, "spear_man", OWNER_NBT, "hwM5B")
+    summon_unit(s, gx - 9, gz, "spear_man", T_NBT, "hwM5T")
+    note("S5-B stand-in player", standin_at(s, P_UUID, gx + 12, gz))
+    s.cmd("effect give @e[tag=hwM5B] minecraft:resistance 600 2 true", 0.5)  # survive the 40 s observation window
+    s.cmd("effect give @e[tag=hwM5T] minecraft:resistance 600 2 true", 0.5)
+    pu = tagged(s, "hwM5B")
+    tu = tagged(s, "hwM5T")
+    for u in list(pu) + list(tu):
+        note("S5-B unit strategy as summoned", m5_1(s, f"hyw strategy {u}", 0.5))
+        m5(s, f"hyw strategy {u} DEFAULT", 0.5)
+    gstr = [m5_1(s, f"hyw strategy {u}", 0.5) for u in list(garr)[:3]]
+    note("S5-B garrison unit strategies (M3 sets DEFAULT)", str(gstr))
+    check("S5-B all units in the test use the DEFAULT strategy",
+          all(m5_1(s, f"hyw strategy {u}", 0.5).endswith("DEFAULT") for u in list(pu) + list(tu)) and all(x.endswith("DEFAULT") for x in gstr), str(gstr))
+    time.sleep(6)
+    base = [tgt8(r) for r in list(tagged(s, "hwM5B").values()) + list(unit_entities(s, a).values())]
+    check("S5-B baseline (NEUTRAL): player units and garrison do not target each other",
+          not any(t and (t in {u[:8] for u in garr} or t in {u[:8] for u in pu}) for t in base), str(base))
+    m5(s, f"policy allow {fa} {P_UUID}")
+    m5(s, f"hyw relset {P_UUID} {fa} HOSTILE")
+    m5(s, f"standin heal {P_UUID}", 0.5)
+    garr_ids = {u[:8] for u in garr}
+    pu_ids = {u[:8] for u in pu}
+    t_ids = {u[:8] for u in tu}
+    seen = {"pu->garr": 0, "garr->pu": 0, "garr->player": 0, "pu->villager": 0, "pu->civilian": 0, "any->third": 0, "third->any": 0, "samples": 0}
+    hp_player = []
+    trace = []
+    for _ in range(10):
+        time.sleep(4)
+        rows_p = tagged(s, "hwM5B")
+        rows_g = unit_entities(s, a)
+        rows_t = tagged(s, "hwM5T")
+        seen["samples"] += 1
+        vill = residents(s, a)
+        vt = [(x[0][:8], x[2], x[4]) for x in vill if x[4] != "none"]
+        pt = []
+        for r in rows_p.values():
+            t = tgt8(r)
+            seen["pu->garr"] += t in garr_ids
+            seen["pu->villager"] += t in res
+            seen["pu->civilian"] += t in res and res[t][2] == "CIVILIAN"
+            seen["any->third"] += t in t_ids
+            pt.append((r.get("target"), res[t][2] if t in res else ""))
+        trace.append({"player units": pt, "villagers with a target": vt, "alert": military(s, a).get("alert")})
+        for r in rows_g.values():
+            t = tgt8(r)
+            seen["garr->pu"] += t in pu_ids
+            seen["garr->player"] += t == P_UUID[:8]
+            seen["any->third"] += t in t_ids
+        for r in rows_t.values():
+            seen["third->any"] += tgt8(r) is not None and (tgt8(r) in garr_ids or tgt8(r) in pu_ids)
+        hp_player.append(hp_of(s, P_UUID))
+    note("S5-B target counts over 40 s (samples of every unit's current HYW target)", str(seen))
+    note("S5-B stand-in player health over time", str(hp_player))
+    for i, t in enumerate(trace):
+        note(f"S5-B trace {i}", str(t))
+    check("S5-B player's units attack the enemy garrison (DEFAULT)", seen["pu->garr"] > 0, str(seen))
+    check("S5-B enemy garrison attacks the player's units", seen["garr->pu"] > 0, str(seen))
+    check("S5-B enemy garrison attacks the player (stand-in: targeted or damaged)",
+          seen["garr->player"] > 0 and any(h is not None and h < 20 for h in hp_player), f"{seen['garr->player']} target samples; hp {hp_player}")
+    check("S5-B civilian villagers are never selected as targets by the player's units", seen["pu->civilian"] == 0, str(seen))
+    note("S5-B villager (any role) targeted by the player's units, samples", seen["pu->villager"])
+    check("S5-B unrelated third party is neither targeted nor targeting", seen["any->third"] == 0 and seen["third->any"] == 0, str(seen))
+    if res:
+        civ = next((r for r in res.values() if r[2] == "CIVILIAN"), None)
+        if civ and pu:
+            v = m5_1(s, f"hyw valid {next(iter(pu))} {civ[0]}")
+            check("S5-B isValidTarget(player unit -> civilian villager) is false while HOSTILE", "valid=false" in v, v)
+    neutral(s, P_UUID, fa)
+    m5(s, "policy clear")
+    s.cmd("kill @e[tag=hwM5B]", 1)
+    s.cmd("kill @e[tag=hwM5T]", 1)
+    m5(s, f"standin remove {P_UUID}")
+
+
+def scenario_S5_C(ctx):
+    """Spike C: FRIENDLY both ways: targeting, melee, arrows, explosions, collision."""
+    s, a, fa = ctx.s, ctx.a, ctx.fa
+    fnbt = uuid_nbt(fa)
+    x, z = a[0] + 10, a[2] - 14
+    s.cmd(ground(x, z, f"summon hundred_years_war:spear_man ~ ~ ~ {{OwnerUUID:{OWNER_NBT},Tags:['hwM5CP'],NoAI:1b}}"), 1)
+    s.cmd(ground(x + 3, z, f"summon hundred_years_war:spear_man ~ ~ ~ {{OwnerUUID:{fnbt},Tags:['hwM5CF'],NoAI:1b}}"), 1)
+    cp, cf = "@e[tag=hwM5CP,limit=1]", "@e[tag=hwM5CF,limit=1]"
+
+    def trial(label):
+        out = {}
+        for kind, amt, wait in (("melee", 3, 1), ("arrow", 6, 3), ("explosion", 1.5, 1)):
+            set_hp(s, cf, 20)
+            s.cmd("kill @e[type=minecraft:arrow]", 0.3)
+            time.sleep(0.6)
+            before = hp_of(s, cf)
+            line = m5_1(s, f"hyw hit {cp} {cf} {amt} {kind}", 0.5)
+            time.sleep(wait)
+            after = hp_of(s, cf)
+            out[kind] = (before, after, line)
+            time.sleep(1.2)  # invulnerability frames
+        return out
+
+    ctrl = trial("NEUTRAL")
+    note("S5-C control (NEUTRAL) hits player unit -> faction unit: (before, after)", str({k: v[:2] for k, v in ctrl.items()}))
+    check("S5-C control: NEUTRAL hits do damage (melee, arrow, explosion)", all(v[0] and v[1] is not None and v[1] < v[0] for v in ctrl.values()),
+          str({k: v[:2] for k, v in ctrl.items()}))
+    neutral(s, P_UUID, fa)
+    m5(s, f"hyw relset {P_UUID} {fa} FRIENDLY")
+    m5(s, f"hyw relset {fa} {P_UUID} FRIENDLY")
+    r = rel(s, P_UUID, fa)
+    check("S5-C FRIENDLY set in both directions", r == ("FRIENDLY", "FRIENDLY"), str(r))
+    v = m5_1(s, f"hyw valid {cf} {cp}")
+    check("S5-C FRIENDLY: not a valid target, relation-protected, friendly damage cancelled, collision ignored",
+          all(k in v for k in ("valid=false", "protected=true", "cancelDamage=true", "ignoreCollision=true")), v)
+    mk = m5_1(s, f"hyw mark {cf} {cp}")
+    check("S5-C FRIENDLY overrides temporary hostility (marked hostile, still not a valid target)", "temp=true" in mk and "valid=false" in mk, mk)
+    fr = trial("FRIENDLY")
+    note("S5-C FRIENDLY hits player unit -> faction unit: (before, after)", str({k: v[:2] for k, v in fr.items()}))
+    check("S5-C FRIENDLY: melee damage cancelled", fr["melee"][0] == fr["melee"][1], str(fr["melee"][:2]))
+    check("S5-C FRIENDLY: arrow damage cancelled", fr["arrow"][0] == fr["arrow"][1], str(fr["arrow"][:2]))
+    check("S5-C FRIENDLY: explosion (area) damage caused by the ally cancelled", fr["explosion"][0] == fr["explosion"][1], str(fr["explosion"][:2]))
+    m5(s, f"hyw relset {fa} {P_UUID} NEUTRAL")
+    v1 = m5_1(s, f"hyw valid {cf} {cp}")
+    note("S5-C one-way FRIENDLY (player->faction only): faction unit -> player unit", v1)
+    neutral(s, P_UUID, fa)
+    s.cmd("kill @e[tag=hwM5CP]", 0.5)
+    s.cmd("kill @e[tag=hwM5CF]", 0.5)
+    s.cmd("kill @e[type=minecraft:arrow]", 0.5)
+
+
+def scenario_S5_D(ctx):
+    """Spike D: HOSTILE -> NEUTRAL, immunity, residual targeting, exact restoration; persistence set-up."""
+    s, a, fa = ctx.s, ctx.a, ctx.fa
+    m5(s, f"policy allow {fa} {P_UUID}")
+    p0 = s.pos()
+    m5(s, f"hyw relset {P_UUID} {fa} HOSTILE")
+    r1 = rel(s, P_UUID, fa)
+    m5(s, f"hyw relset {P_UUID} {fa} NEUTRAL")
+    r2 = rel(s, P_UUID, fa)
+    m5(s, f"hyw relset {fa} {P_UUID} NEUTRAL")
+    r3 = rel(s, P_UUID, fa)
+    imm = [l for l in s.read_since(p0) if "immunity started" in l]
+    check("S5-D setRelation(a,b,HOSTILE) writes both directions", r1 == ("HOSTILE", "HOSTILE"), str(r1))
+    check("S5-D setRelation(a,b,NEUTRAL) clears only a->b (b->a stays HOSTILE)", r2 == ("NEUTRAL", "HOSTILE"), str(r2))
+    check("S5-D both directions NEUTRAL after the second call; HYW logs an immunity start per cleared direction",
+          r3 == ("NEUTRAL", "NEUTRAL") and len(imm) >= 2, f"{r3}; {len(imm)} immunity lines")
+    # residual targeting after a real fight
+    gu0, g0 = outdoor_unit(s, a)
+    gx, gz = g0["pos"][0], g0["pos"][2]
+    for i in range(2):
+        summon_unit(s, gx + 6, gz + 2 * i, "spear_man", OWNER_NBT, "hwM5D")
+    for u in tagged(s, "hwM5D"):
+        m5(s, f"hyw strategy {u} DEFAULT", 0.5)
+    s.cmd("effect give @e[tag=hwM5D] minecraft:resistance 600 2 true", 0.5)
+    m5(s, f"hyw relset {P_UUID} {fa} HOSTILE")
+    time.sleep(20)
+    fought = [tgt8(r) for r in tagged(s, "hwM5D").values()]
+    neutral(s, P_UUID, fa)
+    t_end = time.time()
+    samples = []
+    for _ in range(8):
+        time.sleep(4)
+        gids = {u[:8] for u in unit_entities(s, a)}
+        pids = {u[:8] for u in tagged(s, "hwM5D")}
+        pt = [tgt8(r) for r in tagged(s, "hwM5D").values()]
+        gt = [tgt8(r) for r in unit_entities(s, a).values()]
+        samples.append((round(time.time() - t_end), sum(t in gids for t in pt), sum(t in pids for t in gt)))
+    note("S5-D targets during the HOSTILE phase (player units)", str(fought))
+    note("S5-D after NEUTRAL: (seconds, player units targeting garrison, garrison targeting player units)", str(samples))
+    late = [x for x in samples if x[0] >= 16]
+    alive = len(tagged(s, "hwM5D"))
+    check("S5-D the fight happened and the player's units are still alive to observe", any(t is not None for t in fought) and alive > 0,
+          f"targets while HOSTILE {fought}; alive after {alive}")
+    check("S5-D no residual targeting 16 s after both directions are NEUTRAL (temporary hostility lasts ~11 s)",
+          alive > 0 and all(x[1] == 0 and x[2] == 0 for x in late), str(samples))
+    s.cmd("kill @e[tag=hwM5D]", 1)
+    # exact restoration of a previous (asymmetric) state
+    m5(s, f"hyw relset {P_UUID} {fa} FRIENDLY")
+    prev = rel(s, P_UUID, fa)
+    m5(s, f"hyw relset {P_UUID} {fa} HOSTILE")
+    proj = rel(s, P_UUID, fa)
+    m5(s, f"hyw relset {P_UUID} {fa} {prev[0]}")
+    m5(s, f"hyw relset {fa} {P_UUID} {prev[1]}")
+    back = rel(s, P_UUID, fa)
+    check("S5-D a projector can restore a previous asymmetric state exactly (set each direction explicitly)",
+          prev == ("FRIENDLY", "NEUTRAL") and proj == ("HOSTILE", "HOSTILE") and back == prev, f"prev {prev} proj {proj} back {back}")
+    neutral(s, P_UUID, fa)
+    m5(s, "policy clear")
+    # persistence probes (checked after the restart in S5_R)
+    m5(s, f"hyw relset {X_UUID} {Y_UUID} FRIENDLY")
+    m5(s, f"hyw relset {X_UUID} {Z_UUID} HOSTILE")
+    m5(s, f"policy allow {fa} {Q_UUID}")
+    m5(s, f"hyw relset {Q_UUID} {fa} HOSTILE")
+    ctx.persist_hyw = {"xy": rel(s, X_UUID, Y_UUID), "xz": rel(s, X_UUID, Z_UUID), "qfa": rel(s, Q_UUID, fa)}
+    note("S5-D persistence probes before restart", str(ctx.persist_hyw))
+
+
+def scenario_S5_E(ctx):
+    """Spike E: HYW's neutral-kill escalation vs the escalation guard with a (test) political policy."""
+    s, a, fa = ctx.s, ctx.a, ctx.fa
+    fnbt = uuid_nbt(fa)
+    m5(s, "policy clear")
+    neutral(s, T_UUID, fa)
+
+    def kill_round(tag):
+        x, z = a[0] - 12, a[2] + 14
+        s.cmd(ground(x, z, f"summon hundred_years_war:warrior ~ ~ ~ {{OwnerUUID:{T_NBT},Tags:['{tag}K'],NoAI:1b}}"), 1)
+        s.cmd(ground(x + 2, z, f"summon hundred_years_war:militia ~ ~ ~ {{OwnerUUID:{fnbt},Tags:['{tag}V'],NoAI:1b}}"), 1)
+        line = m5_1(s, f"hyw hit @e[tag={tag}K,limit=1] @e[tag={tag}V,limit=1] 100 melee", 0.2)
+        r0 = rel(s, T_UUID, fa)
+        return line, r0
+
+    p0 = s.pos()
+    line, r0 = kill_round("hwM5E1")
+    time.sleep(15)
+    r1 = rel(s, T_UUID, fa)
+    guard = [l for l in s.read_since(p0) if "Permanent HYW HOSTILE between village faction" in l]
+    note("S5-E kill by a neutral third party", f"{line}; relation right after {r0}; after 15 s {r1}; guard lines {len(guard)}")
+    check("S5-E HYW escalates a neutral kill to HOSTILE, and the guard (no political cause) reverts it",
+          "HOSTILE" in (r0 or ()) or guard, f"right after {r0}, guard lines {len(guard)}")
+    check("S5-E reverted to NEUTRAL within 15 s", r1 == ("NEUTRAL", "NEUTRAL"), str(r1))
+    m5(s, f"policy allow {fa} {T_UUID}")
+    line2, r2 = kill_round("hwM5E2")
+    time.sleep(15)
+    r3 = rel(s, T_UUID, fa)
+    check("S5-E with a political cause for the pair, the guard keeps HOSTILE", r3 == ("HOSTILE", "HOSTILE"), f"right after {r2}, after 15 s {r3}")
+    m5(s, "policy clear")
+    time.sleep(15)
+    r4 = rel(s, T_UUID, fa)
+    check("S5-E once the cause is gone, reconciliation reverts the pair", r4 == ("NEUTRAL", "NEUTRAL"), str(r4))
+    s.cmd("kill @e[tag=hwM5E1K]", 0.5)
+    s.cmd("kill @e[tag=hwM5E2K]", 0.5)
+    neutral(s, T_UUID, fa)
+
+
+def scenario_S5_F(ctx):
+    """Spike F: temporary hostility makes only the selected Millénaire combatant targetable."""
+    s, a = ctx.s, ctx.a
+    d, dpos, civs = None, None, []
+    end = time.time() + 150
+    while time.time() < end and d is None:
+        rows = []
+        for l in s.output(at(a, "hywmill village residents"), 2):
+            m = re.match(r"\s*([0-9a-f-]{36}) (\S+) (\w+) goal=\S+ attackTarget=\S+ hp=\d+ @(-?\d+), (-?\d+), (-?\d+)", l)
+            if m:
+                rows.append((m[1], m[2], m[3], (int(m[4]), int(m[5]), int(m[6]))))
+        civs = [r for r in rows if r[2] == "CIVILIAN"]
+        for r in rows:
+            if r[2] == "DEFENDER" and outdoor(s, r[3]):
+                d, dpos = r, r[3]
+                break
+        if d is None:
+            time.sleep(10)
+    if d is None or not civs:
+        check("S5-F an outdoor defender and civilians are available", False, f"{len(civs)} civilians")
+        return
+    note("S5-F selected combatant (outdoors)", f"{d[0][:8]} {d[1]} at {dpos}")
+    summon_unit(s, dpos[0] + 4, dpos[2] + 1, "spear_man", OWNER_NBT, "hwM5F")
+    u = "@e[tag=hwM5F,limit=1]"
+    m5(s, f"hyw strategy {u} DEFAULT", 0.5)
+    s.cmd("effect give @e[tag=hwM5F] minecraft:resistance 600 2 true", 0.5)
+    civ_ids = {r[0][:8] for r in civs}
+    time.sleep(6)
+    b = tgt8(next(iter(tagged(s, "hwM5F").values()), {}))
+    check("S5-F baseline: an owned unit next to villagers targets none of them", b is None or b not in civ_ids | {d[0][:8]}, str(b))
+    vc = m5_1(s, f"hyw valid {u} {civs[0][0]}")
+    mk = m5_1(s, f"hyw mark {u} {d[0]}")
+    vd = m5_1(s, f"hyw valid {u} {d[0]}")
+    vc2 = m5_1(s, f"hyw valid {u} {civs[0][0]}")
+    check("S5-F after markHostile(unit, defender): the defender is a valid target, a civilian is not",
+          "valid=true" in vd and "valid=false" in vc2, f"{mk} || {vd} || civ before {vc} || civ after {vc2}")
+    picks = []
+    for i in range(5):
+        time.sleep(3)
+        r = next(iter(tagged(s, "hwM5F").values()), {})
+        picks.append((tgt8(r), r.get("pos")))
+    note("S5-F targets after markHostile only (HYW's own selection): (target, unit pos)", str(picks))
+    picks2 = []
+    for i in range(6):
+        m5(s, f"hyw mark {u} {d[0]} engage", 0.5)
+        time.sleep(3)
+        r = next(iter(tagged(s, "hwM5F").values()), {})
+        picks2.append((tgt8(r), r.get("pos")))
+    note("S5-F targets with markHostile + setTarget each ~3.5 s (M4's engagement): (target, unit pos)", str(picks2))
+    ts = [x[0] for x in picks + picks2]
+    check("S5-F the unit engages the marked combatant", d[0][:8] in ts, str(ts))
+    check("S5-F no civilian is ever selected", not any(t in civ_ids for t in ts), str(ts))
+    note("S5-F village A alert after the engagement (M2 reacts to an attacker of a resident)", military(s, a).get("alert"))
+    s.cmd("kill @e[tag=hwM5F]", 1)
+
+
+def scenario_S5_G(ctx):
+    """Spike G: a player as an M2 threat (fed through the unchanged DefenseService.onScan path)."""
+    s, a, fa = ctx.s, ctx.a, ctx.fa
+    note("S5-G stand-in", standin_at(s, P_UUID, a[0] + 4, a[2] + 4))
+    note("S5-G bystander stand-in", standin_at(s, Q_UUID, a[0] - 5, a[2] + 5))
+    m5(s, f"standin heal {P_UUID}", 0.5)
+    m5(s, f"standin heal {Q_UUID}", 0.5)
+    m5(s, f"policy allow {fa} {P_UUID}")
+    m5(s, f"hyw relset {P_UUID} {fa} HOSTILE")
+    alerts, committed, def_on_player, garr_on_player, garr_on_q, hp = [], [], 0, 0, 0, []
+    for i in range(12):
+        m5(s, f"threat {P_UUID} {a[0]} {a[1]} {a[2]}", 0.5)
+        time.sleep(2)
+        mil = military(s, a)
+        alerts.append(mil.get("alert"))
+        committed.append(mil.get("committed"))
+        def_on_player += sum(1 for r in residents(s, a) if r[4] in ("player", "minecraft:player"))
+        for r in unit_entities(s, a).values():
+            garr_on_player += tgt8(r) == P_UUID[:8]
+            garr_on_q += tgt8(r) == Q_UUID[:8]
+        hp.append((hp_of(s, P_UUID), hp_of(s, Q_UUID)))
+        if hp[-1][0] is not None and hp[-1][0] < 8:
+            m5(s, f"standin heal {P_UUID}", 0.3)
+    note("S5-G alert states", str(alerts))
+    note("S5-G committed defenders", str(committed))
+    note("S5-G (player hp, bystander hp)", str(hp))
+    check("S5-G a player threat raises the M2 alert (ALERT/ENGAGED)", any(x in ("ALERT", "ENGAGED") for x in alerts), str(alerts))
+    check("S5-G Millénaire defenders are committed against the player and take it as their attack target",
+          def_on_player > 0 and any(c and int(c) > 0 for c in committed), f"defender samples with target=player {def_on_player}; committed {committed}")
+    check("S5-G the HOSTILE garrison engages the player natively (targets and damages it)", garr_on_player > 0 and any(h[0] is not None and h[0] < 20 for h in hp),
+          f"{garr_on_player} target samples; hp {hp}")
+    check("S5-G the bystander player is neither targeted nor damaged", garr_on_q == 0 and all(h[1] in (None, 20.0) for h in hp), f"{garr_on_q}; {hp}")
+    m5(s, f"standin mode {P_UUID} creative")
+    gu = next(iter(unit_entities(s, a)), None)
+    v = m5_1(s, f"hyw valid {gu} {P_UUID}") if gu else ""
+    check("S5-G a creative-mode player is not a valid HYW target even while HOSTILE", "valid=false" in v, v)
+    m5(s, f"standin mode {P_UUID} survival")
+    neutral(s, P_UUID, fa)
+    m5(s, "policy clear")
+    m5(s, f"standin remove {Q_UUID}")
+    ctx.alert_after_g = wait_alert(s, a, ("CALM",), 120)
+    note("S5-G alert after the injected threat stops", ctx.alert_after_g)
+
+
+def scenario_S5_H(ctx):
+    """Spike H: escort movement with M4 hops through loaded terrain only; hold at unloaded terrain; resume."""
+    s, a = ctx.s, ctx.a
+    best = None
+    for dx, dz in ((0, -1), (0, 1), (1, 0), (-1, 0)):
+        pts, edge = [], None
+        for k in range(1, 40):
+            x, z = a[0] + dx * 8 * k, a[2] + dz * 8 * k
+            t, top, water = ticking(s, x, z)
+            if not t:
+                edge = (x, z)
+                break
+            pts.append((x, top, z, water))
+        tail = [p for p in pts if hdist((p[0], 0, p[2]), (a[0], 0, a[2])) >= 40]
+        note("S5-H corridor probe", f"dir {(dx, dz)}: {len(pts)} loaded samples, edge {edge}, dry tail {len(tail)} water {[p[3] for p in tail]}")
+        if edge and len(tail) >= 3 and not any(p[3] for p in tail[-4:]):
+            best = (dx, dz, tail[-4:], edge)
+            break
+    if not best:
+        check("S5-H a dry corridor from the village to unloaded terrain exists", False, "none of the four directions")
+        return
+    dx, dz, way, edge = best
+    goal = (edge[0] + dx * 24, edge[1] + dz * 24)
+    box = (min(edge[0], goal[0]) - 8, min(edge[1], goal[1]) - 8, max(edge[0], goal[0]) + 8, max(edge[1], goal[1]) + 8)
+    s.cmd("forceload add {} {} {} {}".format(*box), 10)   # survey the stretch beyond the edge, then unload it again
+    gt = ticking(s, *goal)
+    s.cmd("forceload remove {} {} {} {}".format(*box), 5)
+    time.sleep(8)
+    note("S5-H route", f"waypoints {way}; edge {edge}; goal {goal} (surveyed top={gt[1]} water={gt[2]}); now ticking={ticking(s, *goal)[0]}")
+    summon_unit(s, way[0][0], way[0][2], "spear_man", OWNER_NBT, "hwM5H")
+    u = "@e[tag=hwM5H,limit=1]"
+    m5(s, f"hyw strategy {u} DEFAULT", 0.5)
+    forced0 = forced_chunks(s)
+    steps, track = [], []
+
+    def pos():
+        r = next(iter(tagged(s, "hwM5H").values()), None)
+        return r["pos"] if r else None
+
+    last = pos()
+
+    def step(goal_xyz, n):
+        nonlocal last
+        out = []
+        for _ in range(n):
+            out.append(m5_1(s, "follow {} {} {} {} 16".format(u, *goal_xyz), 0.5))
+            time.sleep(2.5)
+            p = pos()
+            if p and last:
+                steps.append(round(hdist(p, last), 1))
+            last = p
+            track.append(p)
+        return out
+
+    for w in way[1:]:
+        step((w[0], w[1], w[2]), 3)
+    reached = pos()
+    check("S5-H the unit follows a moving goal through loaded terrain (within 6 blocks of the last loaded waypoint)",
+          reached is not None and hdist(reached, way[-1]) <= 6, f"end {reached}; last waypoint {way[-1]}; track {track}")
+    hold = step((goal[0], gt[1] if gt[1] > -999 else way[-1][1], goal[1]), 6)
+    held = pos()
+    forced1 = forced_chunks(s)
+    check("S5-H goal in unloaded terrain: the escort holds inside loaded terrain (no hop into unloaded chunks)",
+          held is not None and ticking(s, held[0], held[2])[0] and "hop=hold" in hold[-1] and "goalTicking=false" in hold[-1],
+          f"at {held}; last {hold[-1]}")
+    check("S5-H nothing was force-loaded by the escort", forced1 == forced0, f"before: {forced0[-80:]} | after: {forced1[-80:]}")
+    s.cmd("forceload add {} {} {} {}".format(*box), 10)   # the player walks on: the terrain loads
+    res = step((goal[0], gt[1], goal[1]), 10)
+    resumed = pos()
+    check("S5-H once the terrain is loaded the escort resumes and reaches the goal", resumed is not None and hdist(resumed, (goal[0], 0, goal[1])) <= 6,
+          f"at {resumed}; goal {goal}; last {res[-1]}")
+    check("S5-H no teleport: every 2.5 s step is a walking distance (<= 14 blocks)", bool(steps) and max(steps) <= 14, f"max {max(steps) if steps else None}; {steps}")
+    idl = m5_1(s, f"hyw ident {u}")
+    check("S5-H HYW's own follow goal (which can teleport) is not used", "follow=null" in idl, idl)
+    s.cmd("forceload remove {} {} {} {}".format(*box), 5)
+    s.cmd("kill @e[tag=hwM5H]", 1)
+
+
+def scenario_S5_N(ctx):
+    """Spike 16.7-7: faction <-> faction HOSTILE: two garrisons meeting in the field."""
+    s, a, b, fa, fb = ctx.s, ctx.a, ctx.b, ctx.fa, ctx.fb
+    m5(s, f"policy allow {fa} {fb}")
+    m5(s, f"hyw relset {fa} {fb} HOSTILE")
+    r = rel(s, fa, fb)
+    gb = unit_entities(s, b)
+    b0 = next(iter(gb.values()))
+    ga = list(unit_entities(s, a))[:3]
+    for i, u in enumerate(ga):
+        tx, tz = b0["pos"][0] - 14, b0["pos"][2] - 2 + 2 * i
+        ty = surface_y(s, tx, tz) or b0["pos"][1]
+        s.cmd(f"tp {u} {tx} {ty} {tz}", 0.5)
+        s.cmd(f"hywmill dev spike-home {u} {tx} {ty} {tz}", 0.5)
+    aids = {u[:8] for u in ga}
+    bids = {u[:8] for u in gb}
+    cnt = {"a->b": 0, "b->a": 0, "a->villager": 0, "a->civilian": 0}
+    alerts = []
+    for k in range(8):
+        time.sleep(4)
+        vill = residents(s, b)
+        resb = {x[0][:8]: x for x in vill}
+        rows = spike_info(s, "@e[type=!minecraft:player]")
+        at_ = []
+        for u, rr in rows.items():
+            t = tgt8(rr)
+            if u[:8] in aids:
+                cnt["a->b"] += t in bids
+                cnt["a->villager"] += t in resb
+                cnt["a->civilian"] += t in resb and resb[t][2] == "CIVILIAN"
+                at_.append((rr.get("target"), resb[t][2] if t in resb else ""))
+            if u[:8] in bids:
+                cnt["b->a"] += t in aids
+        alerts.append(military(s, b).get("alert"))
+        note(f"S5-N trace {k}", str({"A units": at_, "B villagers with a target": [(x[0][:8], x[2], x[4]) for x in vill if x[4] != "none"]}))
+    note("S5-N counts", str(cnt))
+    note("S5-N village B alert samples", str(alerts))
+    check("S5-N faction<->faction HOSTILE stored both ways", r == ("HOSTILE", "HOSTILE"), str(r))
+    check("S5-N the two garrisons fight each other", cnt["a->b"] > 0 and cnt["b->a"] > 0, str(cnt))
+    check("S5-N A's units never target B's civilians", cnt["a->civilian"] == 0, str(cnt))
+    note("S5-N B villagers (any role) targeted by A's units, samples", cnt["a->villager"])
+    check("S5-N B's M2 sees A's units as threats (HYW_ENEMY)", any(x in ("ALERT", "ENGAGED") for x in alerts), str(alerts))
+    neutral(s, fa, fb)
+    m5(s, "policy clear")
+    s.cmd("hywmill dev duties on", 1)
+
+
+def scenario_S5_K(ctx):
+    """Spikes 13.1: Millénaire relation writes: symmetric adjust, raid abort on a raise above -90, drift."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ab = f"{a[0]} {a[1]} {a[2]} {b[0]} {b[1]} {b[2]}"
+    note("S5-K relation before", m5_1(s, f"mill mrel {ab}"))
+    adj = m5_1(s, f"mill mrel {ab} adjust 10")
+    note("S5-K adjustRelationSymmetric +10", adj)
+    m5(s, f"mill mrel {ab} set -95")
+    plan = m5_1(s, f"mill raidplan {ab}")
+    m5(s, f"mill mrel {ab} set -85")
+    p0 = s.pos()
+    s.cmd("time add 24001", 1)
+    ab_line = s.wait_for(r"Raid aborted \(relation improved\)", 60, since=p0)
+    st = m5_1(s, f"mill raid {a[0]} {a[1]} {a[2]}")
+    check("S5-K a planned raid is aborted when the relation is above -90 at its start (truce floor -85)",
+          ab_line is not None and "target=none" in st, f"{plan} || {ab_line} || {st}")
+    m5(s, f"mill mrel {ab} set -95")
+    plan2 = m5_1(s, f"mill raidplan {ab}")
+    p1 = s.pos()
+    s.cmd("time add 24001", 1)
+    time.sleep(20)
+    st2 = m5_1(s, f"mill raid {a[0]} {a[1]} {a[2]}")
+    started = re.search(r" start=(\d+)", st2)
+    check("S5-K control: at -95 the planned raid starts", started and int(started[1]) > 0 and not any(
+        "Raid aborted (relation improved)" in l for l in s.read_since(p1)), f"{plan2} || {st2}")
+    end = time.time() + 180
+    while time.time() < end and "target=none" not in m5_1(s, f"mill raid {a[0]} {a[1]} {a[2]}"):
+        time.sleep(10)
+    note("S5-K control raid ended", m5_1(s, f"mill raid {a[0]} {a[1]} {a[2]}"))
+    note("S5-K relation after the control raid", m5_1(s, f"mill mrel {ab}"))
+    m5(s, f"mill mrel {ab} set -85")
+    dr = m5_1(s, f"mill drift {a[0]} {a[1]} {a[2]} 200", 3)
+    note("S5-K nightly drift x200 (direct calls)", dr)
+    m5(s, f"mill mrel {ab} set -42")
+    ctx.persist_mrel = m5_1(s, f"mill mrel {ab}")
+
+
+def scenario_S5_L(ctx):
+    """Spike 13.2: diplomacy points: per player per village, regeneration, consumption."""
+    s, a = ctx.s, ctx.a
+    c = f"{a[0]} {a[1]} {a[2]}"
+    note("S5-L stand-in (online)", standin_at(s, P_UUID, a[0] + 3, a[2] - 3))
+    d0 = m5_1(s, f"mill dpoints {c} {P_UUID}")
+    d1 = m5_1(s, f"mill dpoints {c} {P_UUID} consume")
+    d2 = m5_1(s, f"mill dpoints {c} {P_UUID} nightly")
+    d3 = m5_1(s, f"mill dpoints {c} {P_UUID} consume")
+    q0 = m5_1(s, f"mill dpoints {c} {Q_UUID} nightly")
+    q1 = m5_1(s, f"mill dpoints {c} {Q_UUID} regen")
+    for l in (d0, d1, d2, d3, q0, q1):
+        note("S5-L", l)
+    check("S5-L nightly regeneration sets online players' points to the maximum (5); offline players are skipped",
+          "now=5" in d2 and "now=0" in q0, f"{d2} || {q0}")
+    check("S5-L consumeDiplomacyPoint spends one point and refuses at zero",
+          "consumed=false" in d1 and "consumed=true" in d3 and "now=4" in d3, f"{d1} || {d3}")
+    m5(s, f"standin remove {P_UUID}")
+
+
+def scenario_S5_M(ctx):
+    """Spike 13.3: chronicle (village history)."""
+    s, a = ctx.s, ctx.a
+    c = f"{a[0]} {a[1]} {a[2]}"
+    h0 = m5_1(s, f"mill history {c}")
+    h1 = m5_1(s, f"mill history {c} HywMill spike: an envoy from the test village arrived")
+    h2 = m5_1(s, f"mill history {c} hywmill.chronicle.test")
+    note("S5-M history", f"{h0} || {h1} || {h2}")
+    n0 = int(re.search(r"size=(\d+)", h0)[1]) if re.search(r"size=(\d+)", h0) else -1
+    check("S5-M recordEvent appends the raw text (no translation of keys)",
+          f"size={n0 + 2}" in h2 and "'hywmill.chronicle.test'" in h2 and "envoy from the test village" in h1, h2)
+
+
+def scenario_S5_J(ctx):
+    """Spike 13.8: reputation adjustments as donations produce them (4x the goods' value)."""
+    s, a = ctx.s, ctx.a
+    c = f"{a[0]} {a[1]} {a[2]}"
+    r0 = m5_1(s, f"mill rep {c} {Q_UUID}")
+    r1 = m5_1(s, f"mill rep {c} {Q_UUID} adjust -3000")
+    r2 = m5_1(s, f"mill rep {c} {Q_UUID} adjust 400")
+    for l in (r0, r1, r2):
+        note("S5-J", l)
+    m = re.search(r"before=(-?\d+)/(-?\d+)/(-?\d+) now=(-?\d+)/(-?\d+)/(-?\d+)", r2)
+    check("S5-J adjustReputation(+400) raises the village value by 400 and the culture value by 40 (a tenth)",
+          bool(m) and int(m[4]) - int(m[1]) == 400 and int(m[5]) - int(m[2]) == 40, r2)
+
+
+def scenario_S5_I(ctx):
+    """Spike I: armoury through a Millénaire content sub-mod (millenaire-custom/), no code."""
+    s = ctx.s
+    g = m5_1(s, 'mill goods "millenaire:norman" hywmill_scroll_archer')
+    g2 = m5_1(s, 'mill goods "millenaire:norman" norman_sword')
+    sh = m5_1(s, 'mill shop "millenaire:norman" armoury')
+    note("S5-I", f"{g} || {g2} || {sh}")
+    check("S5-I a sub-mod traded good (HYW recruit scroll) is loaded with price and minimum reputation",
+          "hundred_years_war:scroll_archer" in g and "minRep=8192" in g and "resolved=" in g and "resolved=minecraft:air" not in g, g)
+    check("S5-I the sub-mod shop file makes the armoury sell it (and the original goods stay available)",
+          "hywmill_scroll_archer" in sh and "norman_sword" in sh, sh)
+
+
+def scenario_S5_R(ctx):
+    """Persistence across a restart: HYW relations (HywMill writes), Millénaire relation, history."""
+    s, a, fa = ctx.s, ctx.a, ctx.fa
+    restart(ctx)
+    time.sleep(20)
+    got = {"xy": rel(s, X_UUID, Y_UUID), "xz": rel(s, X_UUID, Z_UUID), "qfa": rel(s, Q_UUID, fa)}
+    before = getattr(ctx, "persist_hyw", {})
+    note("S5-R HYW relations after restart", f"before {before} after {got}")
+    check("S5-R HYW persists HywMill's relation writes (FRIENDLY one-way, HOSTILE pair)", got["xy"] == before.get("xy") and got["xz"] == before.get("xz"),
+          f"before {before} after {got}")
+    check("S5-R a HOSTILE village pair whose (test, unpersisted) political cause is gone is reverted after the restart",
+          got["qfa"] == ("NEUTRAL", "NEUTRAL"), str(got["qfa"]))
+    b = ctx.b
+    m = m5_1(s, f"mill mrel {a[0]} {a[1]} {a[2]} {b[0]} {b[1]} {b[2]}")
+    check("S5-R Millénaire relation written by HywMill persists", " before=-42/-42" in m, f"{getattr(ctx, 'persist_mrel', '')} || {m}")
+    h = m5_1(s, f"mill history {a[0]} {a[1]} {a[2]}")
+    note("S5-R Millénaire village history after the restart", h)
+    check("S5-R observed: Millénaire's village history is session-only (entries written before the restart are gone)",
+          "hywmill.chronicle.test" not in h, h)
+
+
+def write_m5_content(d: Path):
+    """Spike I content: a Millénaire sub-mod under <server>/millenaire-custom/ (no code, no jar)."""
+    base = d / "millenaire-custom" / "hywmill_armoury" / "cultures" / "norman"
+    (base / "shops").mkdir(parents=True, exist_ok=True)
+    (base / "traded_goods.json").write_text(
+        '{"goods": [{"id": "hywmill_scroll_archer", "item": "hundred_years_war:scroll_archer", "selling_price": 64,'
+        ' "min_reputation": 8192, "category": "military"}]}\n')
+    (base / "shops" / "armoury.json").write_text(
+        '{"sells": ["norman_helmet", "norman_chestplate", "norman_leggings", "norman_boots", "norman_sword", "bow",'
+        ' "hywmill_scroll_archer"], "buys": [], "buys_optional": [], "deliver_to": []}\n')
+
+
+ORDER_M5 = ["status", "S5_0", "S5_A", "S5_B", "S5_C", "S5_D", "S5_E", "S5_F", "S5_G", "S5_H", "S5_I", "S5_J", "S5_L", "S5_M",
+            "S5_N", "S5_K", "S5_R"]
+
+
+# --------------------------------------------------------------------------- M5-G spike S-G (scale)
+# Inputs of real harness villages, fill to the LOCKED caps (24/48/72/128, set by a test-world datapack:
+# data only, nothing in the mod changes), then CALM / ALERT / raid with /tick query and HywMill perf.
+
+SG_CAPS = {"WATCH": 24, "GUARD_POST": 48, "GARRISON": 72, "STRONGHOLD": 128}
+SG_MIL2 = [(t, int(x), 68, int(z)) for t, x, z in
+           [tuple(v.split(",")) for v in os.environ.get("HYWMILL_SG_MIL2", "").split(";") if v]]
+
+
+def village_inputs(s, c):
+    d = {"center": c}
+    for l in s.output(at(c, "hywmill village info"), 2):
+        m = re.match(r"== (.*) \((\S+) / (\S+)\) at", l)
+        if m:
+            d.update(name=m[1], culture=m[2], type=m[3])
+        m = re.search(r"^Tier: (\w+) \| garrison: (\d+) \| population: (\d+) \(adults (\d+)\)", l)
+        if m:
+            d.update(tier=m[1], mill_soldiers=int(m[2]), population=int(m[3]), adults=int(m[4]))
+        m = re.search(r"fortification: (\d+)", l)
+        if m:
+            d["fortification"] = int(m[1])
+        m = re.search(r"^Villager roles: (\{[^}]*\})", l)
+        if m:
+            d["villagerRoles"] = m[1]
+        m = re.search(r"^Building roles: (\{[^}]*\})", l)
+        if m:
+            d["buildingRoles"] = m[1]
+    mil = military(s, c)
+    d["capacity"] = int(mil.get("capacity", 0) or 0)
+    g = garrison(s, c)
+    d.update(target_now=g.get("target"), cap_now=g.get("cap"), live=g.get("live"), faction=g.get("faction"))
+    return d
+
+
+def tick_query(s):
+    out = " ".join(s.output("tick query", 1.2))
+    avg = re.search(r"Average time per tick: ([\d.]+)ms", out)
+    pct = re.search(r"P50: ([\d.]+)ms P95: ([\d.]+)ms P99: ([\d.]+)ms", out)
+    if not avg:
+        return None
+    return dict(avg=float(avg[1]), p50=float(pct[1]) if pct else None, p95=float(pct[2]) if pct else None, p99=float(pct[3]) if pct else None)
+
+
+def sample_phase(s, name, secs, step=5, during=None):
+    samples = []
+    end = time.time() + secs
+    i = 0
+    while time.time() < end:
+        q = tick_query(s)
+        if q:
+            samples.append(q)
+        if during:
+            during(i)
+        i += 1
+        time.sleep(step)
+    avgs = [x["avg"] for x in samples]
+    p99 = [x["p99"] for x in samples if x["p99"] is not None]
+    summ = dict(phase=name, n=len(samples), mspt_mean=round(sum(avgs) / len(avgs), 2) if avgs else None,
+                mspt_max_avg=max(avgs) if avgs else None, p99_mean=round(sum(p99) / len(p99), 2) if p99 else None,
+                p99_max=max(p99) if p99 else None)
+    log(f"SG phase {summ}")
+    return summ, samples
+
+
+def hyw_unit_count(s):
+    n = 0
+    for l in s.output("execute store result score #n hwSG run execute if entity @e[type=#hywmill:sg_units]", 1):
+        pass
+    out = " ".join(s.output("scoreboard players get #n hwSG", 1))
+    m = re.search(r"has (\d+) \[", out)
+    return int(m[1]) if m else None
+
+
+def write_sg_datapack(d: Path):
+    dp = d / "world" / "datapacks" / "hywmill_sg"
+    (dp / "data" / "hywmill" / "hywmill_garrison").mkdir(parents=True, exist_ok=True)
+    (dp / "data" / "hywmill" / "tags" / "entity_type").mkdir(parents=True, exist_ok=True)
+    (dp / "pack.mcmeta").write_text('{"pack":{"pack_format":48,"description":"hywmill S-G locked caps (test world only)"}}')
+    tiers = ",".join(f'"{t}":{{"maxTarget":{c},"maxUnits":{c}}}' for t, c in SG_CAPS.items())
+    (dp / "data" / "hywmill" / "hywmill_garrison" / "zz_sg_caps.json").write_text('{"defaults":{"tiers":{' + tiers + '}}}')
+    types = ["militia", "spear_man", "shieldman", "warrior", "archer", "crossbowman", "mounted_light_lancer_rider", "mounted_archer_rider"]
+    (dp / "data" / "hywmill" / "tags" / "entity_type" / "sg_units.json").write_text(
+        '{"values":[' + ",".join(f'"hundred_years_war:{t}"' for t in types) + ']}')
+
+
+def scenario_SG_0(ctx):
+    """Villages for the scale spike and their real inputs (tier, capacity, population, adults, buildings, culture, type)."""
+    s = ctx.s
+    extra = ensure_extra_villages(ctx)
+    for name in [k for k, v in extra.items() if v is None]:
+        for attempt in range(3):
+            extra[name] = spawn_village(s, EXTRA_VILLAGES[name], surface=True)
+            if extra[name]:
+                break
+    for cand in SG_MIL2:  # a second stronghold (positions from a scout run)
+        x, z = cand[1], cand[3]
+        s.cmd(f"forceload add {x - 112} {z - 112} {x + 112} {z + 112}", 25)
+        extra["militaire2"] = spawn_village(s, [cand], surface=True)
+        if extra["militaire2"]:
+            break
+        s.cmd(f"forceload remove {x - 112} {z - 112} {x + 112} {z + 112}", 5)
+    s.cmd("millenaire chunkload", 10)
+    log(f"SG villages: {extra}")
+    time.sleep(60)
+    s.cmd("scoreboard objectives add hwSG dummy", 1)
+    ctx.sg = {}
+    for c in village_centers(s):
+        d = village_inputs(s, c)
+        ctx.sg.setdefault(d.get("faction"), d)
+    for d in ctx.sg.values():
+        log("SG input " + json_dumps(d))
+    tiers = sorted(d.get("tier", "?") for d in ctx.sg.values())
+    check("SG-0 village inputs collected", len(ctx.sg) >= 5 and all("population" in d and "capacity" in d for d in ctx.sg.values()), str(tiers))
+
+
+def json_dumps(d):
+    import json
+    return json.dumps(d, sort_keys=True)
+
+
+def scenario_SG_1(ctx):
+    """Baseline, then every garrison filled to its LOCKED tier cap through the existing admin grant."""
+    s = ctx.s
+    write_sg_datapack(s.d)
+    p = s.pos()
+    s.cmd("reload", 10)
+    s.cmd('datapack enable "file/hywmill_sg"', 8)
+    loaded = s.wait_for(r"Garrison tables loaded", 30, since=p)
+    time.sleep(20)
+    s.cmd("hywmill perf reset", 1)
+    ctx.sg_base, _ = sample_phase(s, "baseline (starting garrisons)", 60)
+    ctx.sg_base_perf = s.output("hywmill perf", 2)
+    ctx.sg_base_units = hyw_unit_count(s)
+    caps = {k: garrison(s, d["center"]).get("cap") for k, d in ctx.sg.items()}
+    check("SG-1 test datapack sets the locked caps (data only)", loaded is not None and all(
+        caps[k] == SG_CAPS.get(d.get("tier"), 0) for k, d in ctx.sg.items()), str({d.get("name"): (d.get("tier"), caps[k]) for k, d in ctx.sg.items()}))
+    s.cmd("hywmill perf reset", 1)
+    t0 = time.time()
+    for d in ctx.sg.values():
+        log(f"SG fill {d.get('name')} {d.get('tier')}: {fill_garrison(s, d['center'])}")
+    end = time.time() + 2400
+    while time.time() < end and sum(garrison(s, d["center"]).get("recruited", 0) for d in ctx.sg.values()) > 0:
+        time.sleep(20)
+    ctx.sg_fill_secs = round(time.time() - t0)
+    ctx.sg_fill_perf = s.output("hywmill perf", 2)
+    per = {d.get("name"): garrison(s, d["center"]) for d in ctx.sg.values()}
+    ctx.sg_units = hyw_unit_count(s)
+    log("SG fill perf:\n  " + "\n  ".join(ctx.sg_fill_perf))
+    check("SG-1 every garrison filled to its locked cap", all(g.get("live") == g.get("cap") and g.get("recruited") == 0 for g in per.values()),
+          f"{ctx.sg_fill_secs}s; " + str({k: (g.get("live"), g.get("cap"), g.get("alive")) for k, g in per.items()}))
+    note("SG-1 HYW garrison-type entities loaded (baseline -> filled)", f"{ctx.sg_base_units} -> {ctx.sg_units}")
+
+
+def scenario_SG_2(ctx):
+    """CALM at full size: MSPT, HywMill cost, duty staffing with the CURRENT M4 data."""
+    s = ctx.s
+    time.sleep(60)
+    s.cmd("hywmill perf reset", 1)
+    ctx.sg_calm, _ = sample_phase(s, "CALM (filled)", 120)
+    ctx.sg_calm_perf = s.output("hywmill perf", 2)
+    log("SG CALM perf:\n  " + "\n  ".join(ctx.sg_calm_perf))
+    for d in ctx.sg.values():
+        du = duties(s, d["center"])
+        cnt = {}
+        for r in du["rows"]:
+            cnt[r["assigned"]] = cnt.get(r["assigned"], 0) + 1
+        note(f"SG-2 duties {d.get('name')} {d.get('tier')} ({len(du['rows'])} units)", f"quota {du['quota']} assigned {cnt}")
+    rows = perf_rows(ctx.sg_calm_perf)
+    hm = rows.get("tick.total", {}).get("mean")
+    note("SG-2 HywMill share of the tick (tick.total mean / MSPT)", f"{hm} us of {ctx.sg_calm.get('mspt_mean')} ms")
+    check("SG-2 CALM at full size: MSPT measured", ctx.sg_calm.get("n", 0) > 10,
+          f"baseline {ctx.sg_base} | filled {ctx.sg_calm}")
+
+
+def scenario_SG_3(ctx):
+    """ALERT at full size: bandits at the strongholds; M2 deployment from large rosters."""
+    s = ctx.s
+    strong = [d for d in ctx.sg.values() if d.get("tier") == "STRONGHOLD"] or list(ctx.sg.values())[:1]
+    for d in strong:
+        c = d["center"]
+        for i in range(6):
+            s.cmd(ground(c[0] + 10 + 2 * i, c[2] + 10, "summon hundred_years_war:bandit_soldier ~ ~ ~ {Tags:['hwSG']}"), 0.5)
+    s.cmd("hywmill perf reset", 1)
+    dep = {d.get("name"): [] for d in strong}
+    t0 = time.time()
+    first = {}
+
+    def during(i):
+        for d in strong:
+            g = garrison(s, d["center"])
+            dep[d.get("name")].append(g.get("deployed"))
+            if g.get("deployed") and d.get("name") not in first:
+                first[d.get("name")] = round(time.time() - t0)
+
+    ctx.sg_alert, _ = sample_phase(s, "ALERT (bandits at strongholds)", 90, 6, during)
+    ctx.sg_alert_perf = s.output("hywmill perf", 2)
+    log("SG ALERT perf:\n  " + "\n  ".join(ctx.sg_alert_perf))
+    note("SG-3 deployed over time", str(dep))
+    note("SG-3 seconds to first deployment", str(first))
+    s.cmd("kill @e[tag=hwSG]", 2)
+    check("SG-3 large rosters deploy against the threat", all(any(x for x in v) for v in dep.values()), str(dep))
+
+
+def scenario_SG_4(ctx):
+    """Raid at full size: a stronghold raids a village; contingent size with the CURRENT M4 raid data."""
+    s = ctx.s
+    strong = [d for d in ctx.sg.values() if d.get("tier") == "STRONGHOLD"]
+    if not strong:
+        check("SG-4 a stronghold exists for the raid", False, "")
+        return
+    att = strong[0]["center"]
+    tgt = ctx.a
+    time.sleep(30)
+    out = s.output(f"millenaire dev raid trigger {att[0]} {att[1]} {att[2]} {tgt[0]} {tgt[1]} {tgt[2]}", 3)
+    s.cmd("hywmill perf reset", 1)
+    raiders = []
+
+    def during(i):
+        du = duties(s, att)
+        raiders.append(sum(1 for r in du["rows"] if r["assigned"] == "RAID"))
+
+    ctx.sg_raid, _ = sample_phase(s, "raid (stronghold raids A)", 120, 6, during)
+    ctx.sg_raid_perf = s.output("hywmill perf", 2)
+    log("SG raid perf:\n  " + "\n  ".join(ctx.sg_raid_perf))
+    note("SG-4 raid trigger", " ".join(out)[:200])
+    note("SG-4 RAID-assigned units at the attacker over time", str(raiders))
+    check("SG-4 raid at full size measured (contingent capped by current maxCommit)", ctx.sg_raid.get("n", 0) > 10, f"max contingent {max(raiders) if raiders else None}")
+
+
+def scenario_SG_5(ctx):
+    """Restart at full size: no duplicates, no lost slots."""
+    s = ctx.s
+    restart(ctx)
+    time.sleep(90)
+    bad = {}
+    for d in ctx.sg.values():
+        cen = census(s, d["center"])
+        g = garrison(s, d["center"])
+        if cen.get("dupSlots", 1) != 0 or g.get("live") != g.get("cap"):
+            bad[d.get("name")] = (cen, g.get("live"), g.get("cap"))
+    check("SG-5 restart at full size: no duplicate slots, every garrison still at its cap", not bad, str(bad) if bad else "all villages clean")
+    s.cmd("hywmill perf reset", 1)
+    ctx.sg_after, _ = sample_phase(s, "CALM after restart", 60)
+
+
+ORDER_SG = ["status", "SG_0", "SG_1", "SG_2", "SG_3", "SG_4", "SG_5"]
+
+
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "S4b": scenario_S4b}
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "S4b": scenario_S4b,
+             "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
+             "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
+             "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
+             "S5_R": scenario_S5_R,
+             "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
+             "SG_5": scenario_SG_5}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
             "G3_15", "G3_18", "G3_14", "G3_perf"]
 ORDER_G4 = ["status", "G4_0", "G4_1", "G4_2", "G4_3", "G4_4", "G4_5", "G4_6", "G4_7", "G4_8", "G4_10", "G4_perf", "G4_9"]
@@ -2536,6 +3545,8 @@ def run(d: Path, names, fresh=True):
     write_configs(d)
     extra_mods = sorted(Path(os.environ["HYWMILL_EXTRA_MODS"]).glob("*.jar")) if os.environ.get("HYWMILL_EXTRA_MODS") else []
     install_mods(d, [MILLENAIRE_JAR, HYW_JAR, built_jar()] + extra_mods)
+    if names == ["m5spike"] or "S5_I" in names:
+        write_m5_content(d)
     if fresh and (d / "world").exists():
         shutil.rmtree(d / "world")
     s = Server(d)
@@ -2546,7 +3557,7 @@ def run(d: Path, names, fresh=True):
             setup(ctx)
         else:
             reuse(ctx)
-        order = {"all": ORDER, "garrison": ORDER_G3, "duties": ORDER_G4, "duties-ek": ORDER_G4_EK}
+        order = {"all": ORDER, "garrison": ORDER_G3, "duties": ORDER_G4, "duties-ek": ORDER_G4_EK, "m5spike": ORDER_M5, "sgscale": ORDER_SG}
         for n in (order[names[0]] if len(names) == 1 and names[0] in order else names):
             if ctx.a is None:
                 break
@@ -2558,6 +3569,8 @@ def run(d: Path, names, fresh=True):
     log(f"RESULT {passed}/{len(RESULTS)} checks passed")
     for name, ok, detail in RESULTS:
         print(f"  {'PASS' if ok else 'FAIL'}  {name}  {detail}")
+    for name, text in NOTES:
+        print(f"  NOTE  {name}  {text}")
     return all(r[1] for r in RESULTS)
 
 

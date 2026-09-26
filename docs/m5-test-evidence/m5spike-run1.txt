@@ -1,0 +1,241 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario S5_0
+[harness] PASS S5-0 both garrisons alive, factions known A 8d399302-959d-324c-ad69-66d2ab206e3c 8 units; B 1a05d9ae-b752-323e-a3c3-8e2ab24fd097 4 units
+[harness] --- scenario S5_A
+[harness] PASS S5-A player-owned HYW unit: relation identity = owner (player) UUID m5 ident 02ab9803-1cf2-4a9e-bb8a-c6672d50d842 rel=11111111-2222-4333-8444-555555555555 owner=11111111-2222-4333-8444-555555555555 team=null describe=11111111-2222-4333-8444-555555555555 strategy=FREE_FIGHT follow=null home=none
+[harness] NOTE S5-A attack strategy of a freshly summoned player-owned unit: FREE_FIGHT
+[harness] PASS S5-A team membership does not replace the unit's relation identity (player UUID; team UUID only reported) m5 team created 1f692691-9e53-4cb9-bd51-e114290c9d2a owner=11111111-2222-4333-8444-555555555555 playerTeam=1f692691-9e53-4cb9-bd51-e114290c9d2a | m5 team join false member=22222222-3333-4444-8555-666666666666 playerTeam=null | m5 ident 02ab9803-1cf2-4a9e-bb8a-c6672d50d842 rel=11111111-2222-4333-8444-555555555555 owner=11111111-2222-4333-8444-555555555555 team=1f692691-9e53-4cb9-bd51-e114290c9d2a describe=11111111-2222-4333-8444-555555555555 strategy=FREE_FIGHT follow=null home=none
+[harness] PASS S5-A HOSTILE between the TEAM UUID and a village faction does not make a member's units enemies m5 valid 02ab9803->4cb81b0f valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null || m5 valid 4cb81b0f->02ab9803 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] PASS S5-A setRelation(player, faction, HOSTILE) is stored both ways and makes player units and garrison mutual enemies rel=('HOSTILE', 'HOSTILE') || m5 valid 02ab9803->4cb81b0f valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null || m5 valid 4cb81b0f->02ab9803 valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] NOTE S5-A isValidTarget player unit -> garrison unit under HOSTILE (NoAI units, same area): m5 valid 02ab9803->4cb81b0f valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null || m5 valid 4cb81b0f->02ab9803 valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] --- scenario S5_B
+[harness] NOTE S5-B stand-in player: m5 standin added 11111111-2222-4333-8444-555555555555 at 661, 82, 639 health=20.0 creative=false players=1
+[harness] NOTE S5-B unit strategy: m5 strategy a36c0469 FREE_FIGHT
+[harness] NOTE S5-B unit strategy: m5 strategy 5149db75 FREE_FIGHT
+[harness] NOTE S5-B unit strategy: m5 strategy 0849f4cb FREE_FIGHT
+[harness] NOTE S5-B unit strategy: m5 strategy 591d2153 FREE_FIGHT
+[harness] PASS S5-B baseline (NEUTRAL): player units and garrison do not target each other [None, None, None, None, None, None, None, None, None, None, None]
+[harness] NOTE S5-B target counts over 40 s (samples of every unit's current HYW target): {'pu->garr': 0, 'garr->pu': 1, 'garr->player': 19, 'pu->villager': 2, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] NOTE S5-B stand-in player health over time: [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+[harness] FAIL S5-B player's units attack the enemy garrison (DEFAULT) {'pu->garr': 0, 'garr->pu': 1, 'garr->player': 19, 'pu->villager': 2, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] PASS S5-B enemy garrison attacks the player's units {'pu->garr': 0, 'garr->pu': 1, 'garr->player': 19, 'pu->villager': 2, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] PASS S5-B enemy garrison attacks the player (stand-in: targeted or damaged) 19 target samples; hp [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+[harness] FAIL S5-B Millénaire villagers are never selected as targets by the player's units {'pu->garr': 0, 'garr->pu': 1, 'garr->player': 19, 'pu->villager': 2, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] PASS S5-B unrelated third party is neither targeted nor targeting {'pu->garr': 0, 'garr->pu': 1, 'garr->player': 19, 'pu->villager': 2, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] FAIL S5-B isValidTarget(player unit -> civilian villager) is false while HOSTILE 
+[harness] --- scenario S5_C
+[harness] NOTE S5-C control (NEUTRAL) hits player unit -> faction unit: (before, after): {'melee': (20.0, 18.5), 'arrow': (20.0, 17.5), 'explosion': (20.0, 10.026667)}
+[harness] PASS S5-C control: NEUTRAL hits do damage (melee, arrow, explosion) {'melee': (20.0, 18.5), 'arrow': (20.0, 17.5), 'explosion': (20.0, 10.026667)}
+[harness] PASS S5-C FRIENDLY set in both directions ('FRIENDLY', 'FRIENDLY')
+[harness] PASS S5-C FRIENDLY: not a valid target, relation-protected, friendly damage cancelled, collision ignored m5 valid 3f0ef499->fe92916f valid=false enemy=false protected=true cancelDamage=true ignoreCollision=true temp=false strategy=FREE_FIGHT target=null
+[harness] PASS S5-C FRIENDLY overrides temporary hostility (marked hostile, still not a valid target) m5 mark 3f0ef499->fe92916f temp=true valid=false engage=false
+[harness] NOTE S5-C FRIENDLY hits player unit -> faction unit: (before, after): {'melee': (20.0, 20.0), 'arrow': (20.0, 20.0), 'explosion': (20.0, 20.0)}
+[harness] PASS S5-C FRIENDLY: melee damage cancelled (20.0, 20.0)
+[harness] PASS S5-C FRIENDLY: arrow damage cancelled (20.0, 20.0)
+[harness] PASS S5-C FRIENDLY: explosion (area) damage caused by the ally cancelled (20.0, 20.0)
+[harness] NOTE S5-C one-way FRIENDLY (player->faction only): faction unit -> player unit: m5 valid 3f0ef499->fe92916f valid=false enemy=false protected=true cancelDamage=true ignoreCollision=true temp=true strategy=FREE_FIGHT target=null
+[harness] --- scenario S5_D
+[harness] PASS S5-D setRelation(a,b,HOSTILE) writes both directions ('HOSTILE', 'HOSTILE')
+[harness] PASS S5-D setRelation(a,b,NEUTRAL) clears only a->b (b->a stays HOSTILE) ('NEUTRAL', 'HOSTILE')
+[harness] PASS S5-D both directions NEUTRAL after the second call; HYW logs an immunity start per cleared direction ('NEUTRAL', 'NEUTRAL'); 2 immunity lines
+[harness] NOTE S5-D targets during the HOSTILE phase (player units): []
+[harness] NOTE S5-D after NEUTRAL: (seconds, player units targeting garrison, garrison targeting player units): [(16, 0, 0), (32, 0, 0), (48, 0, 0), (64, 0, 0), (80, 0, 0), (96, 0, 0), (112, 0, 0), (128, 0, 0)]
+[harness] PASS S5-D no residual targeting 16 s after both directions are NEUTRAL (temporary hostility lasts ~11 s) [(16, 0, 0), (32, 0, 0), (48, 0, 0), (64, 0, 0), (80, 0, 0), (96, 0, 0), (112, 0, 0), (128, 0, 0)]
+[harness] PASS S5-D a projector can restore a previous asymmetric state exactly (set each direction explicitly) prev ('FRIENDLY', 'NEUTRAL') proj ('HOSTILE', 'HOSTILE') back ('FRIENDLY', 'NEUTRAL')
+[harness] NOTE S5-D persistence probes before restart: {'xy': ('FRIENDLY', 'NEUTRAL'), 'xz': ('HOSTILE', 'HOSTILE'), 'qfa': ('HOSTILE', 'HOSTILE')}
+[harness] --- scenario S5_E
+[harness] NOTE S5-E kill by a neutral third party: m5 hit melee 9f35778a->6edfa1f0 applied=true before=20.0 now=0.0 cancelDamage=false; relation right after ('HOSTILE', 'HOSTILE'); after 15 s ('NEUTRAL', 'NEUTRAL'); guard lines 1
+[harness] PASS S5-E HYW escalates a neutral kill to HOSTILE, and the guard (no political cause) reverts it right after ('HOSTILE', 'HOSTILE'), guard lines 1
+[harness] PASS S5-E reverted to NEUTRAL within 15 s ('NEUTRAL', 'NEUTRAL')
+[harness] PASS S5-E with a political cause for the pair, the guard keeps HOSTILE right after ('HOSTILE', 'HOSTILE'), after 15 s ('HOSTILE', 'HOSTILE')
+[harness] PASS S5-E once the cause is gone, reconciliation reverts the pair ('NEUTRAL', 'NEUTRAL')
+[harness] --- scenario S5_F
+[harness] PASS S5-F baseline: an owned unit next to villagers targets none of them None
+[harness] PASS S5-F after markHostile(unit, defender): the defender is a valid target, a civilian is not m5 mark df9123fa->9b0b84b6 temp=true valid=true engage=false || m5 valid df9123fa->9b0b84b6 valid=true enemy=false protected=false cancelDamage=false ignoreCollision=false temp=true strategy=FREE_FIGHT target=null || civ before m5 valid df9123fa->7adfb635 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null || civ after m5 valid df9123fa->7adfb635 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null
+[harness] NOTE S5-F targets after markHostile only (HYW's own selection): [None, None, None, None, None, None]
+[harness] NOTE S5-F targets with markHostile + setTarget each 3.5 s (M4's engagement): [None, None, None, None, None, None]
+[harness] FAIL S5-F the unit engages the marked combatant [None, None, None, None, None, None] / [None, None, None, None, None, None]
+[harness] PASS S5-F no civilian is ever selected [None, None, None, None, None, None] / [None, None, None, None, None, None]
+[harness] NOTE S5-F civilian residents still loaded after the test: 26 of 23
+[harness] NOTE S5-F village A alert after the engagement (M2 reacts to an attacker of a resident): CALM
+[harness] --- scenario S5_G
+[harness] NOTE S5-G stand-in: m5 standin added 11111111-2222-4333-8444-555555555555 at 634, 91, 616 health=20.0 creative=false players=1
+[harness] NOTE S5-G bystander stand-in: m5 standin added 22222222-3333-4444-8555-666666666666 at 625, 83, 617 health=20.0 creative=false players=2
+[harness] NOTE S5-G alert states: ['ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ENGAGED', 'ENGAGED', 'ENGAGED', 'ENGAGED', 'ENGAGED']
+[harness] NOTE S5-G committed defenders: ['2', '2', '2', '2', '2', '2', '2', '6', '6', '6', '6', '6']
+[harness] NOTE S5-G (player hp, bystander hp): [(20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0)]
+[harness] PASS S5-G a player threat raises the M2 alert (ALERT/ENGAGED) ['ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ENGAGED', 'ENGAGED', 'ENGAGED', 'ENGAGED', 'ENGAGED']
+[harness] PASS S5-G Millénaire defenders are committed against the player (bridge accepts a Player target) defender samples on player 0; committed ['2', '2', '2', '2', '2', '2', '2', '6', '6', '6', '6', '6']
+[harness] PASS S5-G the HOSTILE garrison engages the player natively 26 target samples; hp [(20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0)]
+[harness] PASS S5-G the bystander player is neither targeted nor damaged 0; [(20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0)]
+[harness] PASS S5-G a creative-mode player is not a valid HYW target even while HOSTILE m5 valid 4cb81b0f->11111111 valid=false enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] NOTE S5-G alert after the injected threat stops: CALM
+[harness] --- scenario S5_H
+[harness] FAIL S5-H the unit follows a moving goal through loaded terrain (within 8 blocks of the last loaded goal) end (653, 79, 613); track [(644, 90, 619), (643, 85, 619), (643, 85, 620), (649, 80, 620), (649, 80, 620), (658, 80, 622), (657, 79, 613), (653, 79, 613), (653, 79, 613), (653, 79, 613), (653, 79, 613), (653, 79, 613)]
+[harness] FAIL S5-H goal in unloaded terrain: the escort holds at the loaded edge (no hop into unloaded chunks) at (653, 79, 613); last m5 follow 31c3c4ab pos=653, 79, 613 goal=725, 90, 612 goalTicking=true hop=669, 79, 613 home=669, 79, 613 forced=242
+[harness] PASS S5-H nothing was force-loaded by the escort forceload query before: , [48, 43], [49, 43], [50, 43], [51, 43], [52, 43], [53, 43], [54, 43], [55, 43], [56, 43] | after: , [48, 43], [49, 43], [50, 43], [51, 43], [52, 43], [53, 43], [54, 43], [55, 43], [56, 43]
+[harness] FAIL S5-H once the terrain is loaded the escort resumes and reaches the goal at (653, 79, 613)
+[harness] PASS S5-H no teleport: every 2.5 s step is a walking distance (<= 14 blocks) max 9.2; [8.6, 1.0, 1.0, 6.0, 0.0, 9.2, 9.1, 4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+[harness] PASS S5-H HYW's own follow goal (which can teleport) is not used m5 ident 31c3c4ab-6068-4fbf-86c3-70f8f24a0315 rel=11111111-2222-4333-8444-555555555555 owner=11111111-2222-4333-8444-555555555555 team=1f692691-9e53-4cb9-bd51-e114290c9d2a describe=11111111-2222-4333-8444-555555555555 strategy=FREE_FIGHT follow=null home=669, 79, 613
+[harness] --- scenario S5_I
+[harness] NOTE S5-I: m5 goods millenaire:norman total=185 hywmill_scroll_archer=hundred_years_war:scroll_archer sell=64 buy=0 minRep=8192 resolved=hundred_years_war:scroll_archer || m5 goods millenaire:norman total=185 norman_sword=millenaire:norman_sword sell=4096 buy=3840 minRep=0 resolved=millenaire:norman_sword || m5 shop millenaire:norman armoury = ShopProfile[sells=[norman_helmet, norman_chestplate, norman_leggings, norman_boots, norman_sword, bow, hywmill_scroll_archer], buys=[], buysOptional=[], deliverTo=[]]
+[harness] PASS S5-I a sub-mod traded good (HYW recruit scroll) is loaded with price and minimum reputation m5 goods millenaire:norman total=185 hywmill_scroll_archer=hundred_years_war:scroll_archer sell=64 buy=0 minRep=8192 resolved=hundred_years_war:scroll_archer
+[harness] PASS S5-I the sub-mod shop file makes the armoury sell it (and the original goods stay available) m5 shop millenaire:norman armoury = ShopProfile[sells=[norman_helmet, norman_chestplate, norman_leggings, norman_boots, norman_sword, bow, hywmill_scroll_archer], buys=[], buysOptional=[], deliverTo=[]]
+[harness] --- scenario S5_J
+[harness] NOTE S5-J: m5 rep 7507e2cd player=22222222 village/culture/combined before=0/0/0 now=0/0/0
+[harness] NOTE S5-J: m5 rep 7507e2cd player=22222222 village/culture/combined before=0/0/0 now=-3000/-300/-3300 adjust=-3000 returned=-3000
+[harness] NOTE S5-J: m5 rep 7507e2cd player=22222222 village/culture/combined before=-3000/-300/-3300 now=-2600/-260/-2860 adjust=400 returned=-2600
+[harness] PASS S5-J adjustReputation(+400) raises the village value by 400 and the culture value by 40 (a tenth) m5 rep 7507e2cd player=22222222 village/culture/combined before=-3000/-300/-3300 now=-2600/-260/-2860 adjust=400 returned=-2600
+[harness] --- scenario S5_L
+[harness] NOTE S5-L stand-in (online): m5 standin added 11111111-2222-4333-8444-555555555555 at 633, 82, 609 health=20.0 creative=false players=1
+[harness] NOTE S5-L: m5 dpoints 7507e2cd player=11111111 before=0 now=0 max=5 op=
+[harness] NOTE S5-L: m5 dpoints 7507e2cd player=11111111 before=0 consumed=false now=0 max=5 op=consume
+[harness] NOTE S5-L: m5 dpoints 7507e2cd player=11111111 before=0 now=5 max=5 op=nightly
+[harness] NOTE S5-L: m5 dpoints 7507e2cd player=11111111 before=5 consumed=true now=4 max=5 op=consume
+[harness] NOTE S5-L: m5 dpoints 7507e2cd player=22222222 before=0 now=0 max=5 op=nightly
+[harness] NOTE S5-L: m5 dpoints 7507e2cd player=22222222 before=0 now=5 max=5 op=regen
+[harness] PASS S5-L nightly regeneration sets online players' points to the maximum (5); offline players are skipped m5 dpoints 7507e2cd player=11111111 before=0 now=5 max=5 op=nightly || m5 dpoints 7507e2cd player=22222222 before=0 now=0 max=5 op=nightly
+[harness] PASS S5-L consumeDiplomacyPoint spends one point and refuses at zero m5 dpoints 7507e2cd player=11111111 before=0 consumed=false now=0 max=5 op=consume || m5 dpoints 7507e2cd player=11111111 before=5 consumed=true now=4 max=5 op=consume
+[harness] --- scenario S5_M
+[harness] NOTE S5-M history: m5 history 7507e2cd size=177 startTick=469 | t=13474 'Birth: Valborg Ingmar (FEMALE)' | t=13933 'Birth: Sighild Ditmar (FEMALE)' | t=21872 'Villager died: norman/shepherd [3f2b6155] — cause: mob at 695, 76, 608' || m5 history 7507e2cd size=178 startTick=469 | t=13933 'Birth: Sighild Ditmar (FEMALE)' | t=21872 'Villager died: norman/shepherd [3f2b6155] — cause: mob at 695, 76, 608' | t=23548 'HywMill spike: an envoy from the test village arrived' || m5 history 7507e2cd size=179 startTick=469 | t=21872 'Villager died: norman/shepherd [3f2b6155] — cause: mob at 695, 76, 608' | t=23548 'HywMill spike: an envoy from the test village arrived' | t=23588 'hywmill.chronicle.test'
+[harness] PASS S5-M recordEvent appends the raw text (no translation of keys) m5 history 7507e2cd size=179 startTick=469 | t=21872 'Villager died: norman/shepherd [3f2b6155] — cause: mob at 695, 76, 608' | t=23548 'HywMill spike: an envoy from the test village arrived' | t=23588 'hywmill.chronicle.test'
+[harness] --- scenario S5_N
+[harness] NOTE S5-N counts: {'a->b': 0, 'b->a': 6, 'a->villager': 5}
+[harness] NOTE S5-N village B alert samples: ['ENGAGED', 'ENGAGED', 'ENGAGED', 'RECOVERY', 'RECOVERY', 'RECOVERY', 'RECOVERY', 'CALM']
+[harness] PASS S5-N faction<->faction HOSTILE stored both ways ('HOSTILE', 'HOSTILE')
+[harness] FAIL S5-N the two garrisons fight each other {'a->b': 0, 'b->a': 6, 'a->villager': 5}
+[harness] FAIL S5-N A's units never target B's villagers {'a->b': 0, 'b->a': 6, 'a->villager': 5}
+[harness] PASS S5-N B's M2 sees A's units as threats (HYW_ENEMY) ['ENGAGED', 'ENGAGED', 'ENGAGED', 'RECOVERY', 'RECOVERY', 'RECOVERY', 'RECOVERY', 'CALM']
+[harness] --- scenario S5_K
+[harness] NOTE S5-K relation before: m5 mrel 7507e2cd<->f1ce74df before=50/50 now=50/50 op=null v=null
+[harness] NOTE S5-K adjustRelationSymmetric +10: m5 mrel 7507e2cd<->f1ce74df before=50/50 now=60/60 op=adjust v=10
+[harness] PASS S5-K a planned raid is aborted when the relation is above -90 at its start (truce floor -85) m5 raidplan 7507e2cd->f1ce74df planning=26240 start=0 dayTime=26240 relation=-95 || [22:15:37] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid aborted (relation improved): Saint-Pierre les-pâtures -> Sainte-Honorine les-pâtures. || m5 raid 7507e2cd target=none planning=0 start=0 dayTime=50341 performed=0
+[harness] PASS S5-K control: at -95 the planned raid starts m5 raidplan 7507e2cd->f1ce74df planning=50421 start=0 dayTime=50421 relation=-95 || m5 raid 7507e2cd target=f1ce74df planning=50421 start=74462 dayTime=74882 performed=0
+[harness] NOTE S5-K control raid ended: m5 raid 7507e2cd target=none planning=0 start=0 dayTime=75922 performed=1
+[harness] NOTE S5-K relation after the control raid: m5 mrel 7507e2cd<->f1ce74df before=-95/-95 now=-95/-95 op=null v=null
+[harness] NOTE S5-K nightly drift x200 (direct calls): m5 drift 7507e2cd nights=200 pairChanges=1 totalAbs=15 start=[-85] end=[-100]
+[harness] --- scenario S5_R
+[harness] server stopped
+[harness] server started
+[harness] NOTE S5-R HYW relations after restart: before {'xy': ('FRIENDLY', 'NEUTRAL'), 'xz': ('HOSTILE', 'HOSTILE'), 'qfa': ('HOSTILE', 'HOSTILE')} after {'xy': ('FRIENDLY', 'NEUTRAL'), 'xz': ('HOSTILE', 'HOSTILE'), 'qfa': ('NEUTRAL', 'NEUTRAL')}
+[harness] PASS S5-R HYW persists HywMill's relation writes (FRIENDLY one-way, HOSTILE pair) before {'xy': ('FRIENDLY', 'NEUTRAL'), 'xz': ('HOSTILE', 'HOSTILE'), 'qfa': ('HOSTILE', 'HOSTILE')} after {'xy': ('FRIENDLY', 'NEUTRAL'), 'xz': ('HOSTILE', 'HOSTILE'), 'qfa': ('NEUTRAL', 'NEUTRAL')}
+[harness] PASS S5-R a HOSTILE village pair whose (test, unpersisted) political cause is gone is reverted after the restart ('NEUTRAL', 'NEUTRAL')
+[harness] PASS S5-R Millénaire relation written by HywMill persists m5 mrel 7507e2cd<->f1ce74df before=-42/-42 now=-42/-42 op=null v=null || m5 mrel 7507e2cd<->f1ce74df before=-42/-42 now=-42/-42 op=null v=null
+[harness] FAIL S5-R chronicle entries persist m5 history 7507e2cd size=0 startTick=-1
+[harness] server stopped
+[harness] RESULT 53/63 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  S5-0 both garrisons alive, factions known  A 8d399302-959d-324c-ad69-66d2ab206e3c 8 units; B 1a05d9ae-b752-323e-a3c3-8e2ab24fd097 4 units
+  PASS  S5-A player-owned HYW unit: relation identity = owner (player) UUID  m5 ident 02ab9803-1cf2-4a9e-bb8a-c6672d50d842 rel=11111111-2222-4333-8444-555555555555 owner=11111111-2222-4333-8444-555555555555 team=null describe=11111111-2222-4333-8444-555555555555 strategy=FREE_FIGHT follow=null home=none
+  PASS  S5-A team membership does not replace the unit's relation identity (player UUID; team UUID only reported)  m5 team created 1f692691-9e53-4cb9-bd51-e114290c9d2a owner=11111111-2222-4333-8444-555555555555 playerTeam=1f692691-9e53-4cb9-bd51-e114290c9d2a | m5 team join false member=22222222-3333-4444-8555-666666666666 playerTeam=null | m5 ident 02ab9803-1cf2-4a9e-bb8a-c6672d50d842 rel=11111111-2222-4333-8444-555555555555 owner=11111111-2222-4333-8444-555555555555 team=1f692691-9e53-4cb9-bd51-e114290c9d2a describe=11111111-2222-4333-8444-555555555555 strategy=FREE_FIGHT follow=null home=none
+  PASS  S5-A HOSTILE between the TEAM UUID and a village faction does not make a member's units enemies  m5 valid 02ab9803->4cb81b0f valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null || m5 valid 4cb81b0f->02ab9803 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+  PASS  S5-A setRelation(player, faction, HOSTILE) is stored both ways and makes player units and garrison mutual enemies  rel=('HOSTILE', 'HOSTILE') || m5 valid 02ab9803->4cb81b0f valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null || m5 valid 4cb81b0f->02ab9803 valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+  PASS  S5-B baseline (NEUTRAL): player units and garrison do not target each other  [None, None, None, None, None, None, None, None, None, None, None]
+  FAIL  S5-B player's units attack the enemy garrison (DEFAULT)  {'pu->garr': 0, 'garr->pu': 1, 'garr->player': 19, 'pu->villager': 2, 'any->third': 0, 'third->any': 0, 'samples': 10}
+  PASS  S5-B enemy garrison attacks the player's units  {'pu->garr': 0, 'garr->pu': 1, 'garr->player': 19, 'pu->villager': 2, 'any->third': 0, 'third->any': 0, 'samples': 10}
+  PASS  S5-B enemy garrison attacks the player (stand-in: targeted or damaged)  19 target samples; hp [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+  FAIL  S5-B Millénaire villagers are never selected as targets by the player's units  {'pu->garr': 0, 'garr->pu': 1, 'garr->player': 19, 'pu->villager': 2, 'any->third': 0, 'third->any': 0, 'samples': 10}
+  PASS  S5-B unrelated third party is neither targeted nor targeting  {'pu->garr': 0, 'garr->pu': 1, 'garr->player': 19, 'pu->villager': 2, 'any->third': 0, 'third->any': 0, 'samples': 10}
+  FAIL  S5-B isValidTarget(player unit -> civilian villager) is false while HOSTILE  
+  PASS  S5-C control: NEUTRAL hits do damage (melee, arrow, explosion)  {'melee': (20.0, 18.5), 'arrow': (20.0, 17.5), 'explosion': (20.0, 10.026667)}
+  PASS  S5-C FRIENDLY set in both directions  ('FRIENDLY', 'FRIENDLY')
+  PASS  S5-C FRIENDLY: not a valid target, relation-protected, friendly damage cancelled, collision ignored  m5 valid 3f0ef499->fe92916f valid=false enemy=false protected=true cancelDamage=true ignoreCollision=true temp=false strategy=FREE_FIGHT target=null
+  PASS  S5-C FRIENDLY overrides temporary hostility (marked hostile, still not a valid target)  m5 mark 3f0ef499->fe92916f temp=true valid=false engage=false
+  PASS  S5-C FRIENDLY: melee damage cancelled  (20.0, 20.0)
+  PASS  S5-C FRIENDLY: arrow damage cancelled  (20.0, 20.0)
+  PASS  S5-C FRIENDLY: explosion (area) damage caused by the ally cancelled  (20.0, 20.0)
+  PASS  S5-D setRelation(a,b,HOSTILE) writes both directions  ('HOSTILE', 'HOSTILE')
+  PASS  S5-D setRelation(a,b,NEUTRAL) clears only a->b (b->a stays HOSTILE)  ('NEUTRAL', 'HOSTILE')
+  PASS  S5-D both directions NEUTRAL after the second call; HYW logs an immunity start per cleared direction  ('NEUTRAL', 'NEUTRAL'); 2 immunity lines
+  PASS  S5-D no residual targeting 16 s after both directions are NEUTRAL (temporary hostility lasts ~11 s)  [(16, 0, 0), (32, 0, 0), (48, 0, 0), (64, 0, 0), (80, 0, 0), (96, 0, 0), (112, 0, 0), (128, 0, 0)]
+  PASS  S5-D a projector can restore a previous asymmetric state exactly (set each direction explicitly)  prev ('FRIENDLY', 'NEUTRAL') proj ('HOSTILE', 'HOSTILE') back ('FRIENDLY', 'NEUTRAL')
+  PASS  S5-E HYW escalates a neutral kill to HOSTILE, and the guard (no political cause) reverts it  right after ('HOSTILE', 'HOSTILE'), guard lines 1
+  PASS  S5-E reverted to NEUTRAL within 15 s  ('NEUTRAL', 'NEUTRAL')
+  PASS  S5-E with a political cause for the pair, the guard keeps HOSTILE  right after ('HOSTILE', 'HOSTILE'), after 15 s ('HOSTILE', 'HOSTILE')
+  PASS  S5-E once the cause is gone, reconciliation reverts the pair  ('NEUTRAL', 'NEUTRAL')
+  PASS  S5-F baseline: an owned unit next to villagers targets none of them  None
+  PASS  S5-F after markHostile(unit, defender): the defender is a valid target, a civilian is not  m5 mark df9123fa->9b0b84b6 temp=true valid=true engage=false || m5 valid df9123fa->9b0b84b6 valid=true enemy=false protected=false cancelDamage=false ignoreCollision=false temp=true strategy=FREE_FIGHT target=null || civ before m5 valid df9123fa->7adfb635 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null || civ after m5 valid df9123fa->7adfb635 valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null
+  FAIL  S5-F the unit engages the marked combatant  [None, None, None, None, None, None] / [None, None, None, None, None, None]
+  PASS  S5-F no civilian is ever selected  [None, None, None, None, None, None] / [None, None, None, None, None, None]
+  PASS  S5-G a player threat raises the M2 alert (ALERT/ENGAGED)  ['ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ENGAGED', 'ENGAGED', 'ENGAGED', 'ENGAGED', 'ENGAGED']
+  PASS  S5-G Millénaire defenders are committed against the player (bridge accepts a Player target)  defender samples on player 0; committed ['2', '2', '2', '2', '2', '2', '2', '6', '6', '6', '6', '6']
+  PASS  S5-G the HOSTILE garrison engages the player natively  26 target samples; hp [(20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0)]
+  PASS  S5-G the bystander player is neither targeted nor damaged  0; [(20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0)]
+  PASS  S5-G a creative-mode player is not a valid HYW target even while HOSTILE  m5 valid 4cb81b0f->11111111 valid=false enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+  FAIL  S5-H the unit follows a moving goal through loaded terrain (within 8 blocks of the last loaded goal)  end (653, 79, 613); track [(644, 90, 619), (643, 85, 619), (643, 85, 620), (649, 80, 620), (649, 80, 620), (658, 80, 622), (657, 79, 613), (653, 79, 613), (653, 79, 613), (653, 79, 613), (653, 79, 613), (653, 79, 613)]
+  FAIL  S5-H goal in unloaded terrain: the escort holds at the loaded edge (no hop into unloaded chunks)  at (653, 79, 613); last m5 follow 31c3c4ab pos=653, 79, 613 goal=725, 90, 612 goalTicking=true hop=669, 79, 613 home=669, 79, 613 forced=242
+  PASS  S5-H nothing was force-loaded by the escort  forceload query before: , [48, 43], [49, 43], [50, 43], [51, 43], [52, 43], [53, 43], [54, 43], [55, 43], [56, 43] | after: , [48, 43], [49, 43], [50, 43], [51, 43], [52, 43], [53, 43], [54, 43], [55, 43], [56, 43]
+  FAIL  S5-H once the terrain is loaded the escort resumes and reaches the goal  at (653, 79, 613)
+  PASS  S5-H no teleport: every 2.5 s step is a walking distance (<= 14 blocks)  max 9.2; [8.6, 1.0, 1.0, 6.0, 0.0, 9.2, 9.1, 4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  PASS  S5-H HYW's own follow goal (which can teleport) is not used  m5 ident 31c3c4ab-6068-4fbf-86c3-70f8f24a0315 rel=11111111-2222-4333-8444-555555555555 owner=11111111-2222-4333-8444-555555555555 team=1f692691-9e53-4cb9-bd51-e114290c9d2a describe=11111111-2222-4333-8444-555555555555 strategy=FREE_FIGHT follow=null home=669, 79, 613
+  PASS  S5-I a sub-mod traded good (HYW recruit scroll) is loaded with price and minimum reputation  m5 goods millenaire:norman total=185 hywmill_scroll_archer=hundred_years_war:scroll_archer sell=64 buy=0 minRep=8192 resolved=hundred_years_war:scroll_archer
+  PASS  S5-I the sub-mod shop file makes the armoury sell it (and the original goods stay available)  m5 shop millenaire:norman armoury = ShopProfile[sells=[norman_helmet, norman_chestplate, norman_leggings, norman_boots, norman_sword, bow, hywmill_scroll_archer], buys=[], buysOptional=[], deliverTo=[]]
+  PASS  S5-J adjustReputation(+400) raises the village value by 400 and the culture value by 40 (a tenth)  m5 rep 7507e2cd player=22222222 village/culture/combined before=-3000/-300/-3300 now=-2600/-260/-2860 adjust=400 returned=-2600
+  PASS  S5-L nightly regeneration sets online players' points to the maximum (5); offline players are skipped  m5 dpoints 7507e2cd player=11111111 before=0 now=5 max=5 op=nightly || m5 dpoints 7507e2cd player=22222222 before=0 now=0 max=5 op=nightly
+  PASS  S5-L consumeDiplomacyPoint spends one point and refuses at zero  m5 dpoints 7507e2cd player=11111111 before=0 consumed=false now=0 max=5 op=consume || m5 dpoints 7507e2cd player=11111111 before=5 consumed=true now=4 max=5 op=consume
+  PASS  S5-M recordEvent appends the raw text (no translation of keys)  m5 history 7507e2cd size=179 startTick=469 | t=21872 'Villager died: norman/shepherd [3f2b6155] — cause: mob at 695, 76, 608' | t=23548 'HywMill spike: an envoy from the test village arrived' | t=23588 'hywmill.chronicle.test'
+  PASS  S5-N faction<->faction HOSTILE stored both ways  ('HOSTILE', 'HOSTILE')
+  FAIL  S5-N the two garrisons fight each other  {'a->b': 0, 'b->a': 6, 'a->villager': 5}
+  FAIL  S5-N A's units never target B's villagers  {'a->b': 0, 'b->a': 6, 'a->villager': 5}
+  PASS  S5-N B's M2 sees A's units as threats (HYW_ENEMY)  ['ENGAGED', 'ENGAGED', 'ENGAGED', 'RECOVERY', 'RECOVERY', 'RECOVERY', 'RECOVERY', 'CALM']
+  PASS  S5-K a planned raid is aborted when the relation is above -90 at its start (truce floor -85)  m5 raidplan 7507e2cd->f1ce74df planning=26240 start=0 dayTime=26240 relation=-95 || [22:15:37] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid aborted (relation improved): Saint-Pierre les-pâtures -> Sainte-Honorine les-pâtures. || m5 raid 7507e2cd target=none planning=0 start=0 dayTime=50341 performed=0
+  PASS  S5-K control: at -95 the planned raid starts  m5 raidplan 7507e2cd->f1ce74df planning=50421 start=0 dayTime=50421 relation=-95 || m5 raid 7507e2cd target=f1ce74df planning=50421 start=74462 dayTime=74882 performed=0
+  PASS  S5-R HYW persists HywMill's relation writes (FRIENDLY one-way, HOSTILE pair)  before {'xy': ('FRIENDLY', 'NEUTRAL'), 'xz': ('HOSTILE', 'HOSTILE'), 'qfa': ('HOSTILE', 'HOSTILE')} after {'xy': ('FRIENDLY', 'NEUTRAL'), 'xz': ('HOSTILE', 'HOSTILE'), 'qfa': ('NEUTRAL', 'NEUTRAL')}
+  PASS  S5-R a HOSTILE village pair whose (test, unpersisted) political cause is gone is reverted after the restart  ('NEUTRAL', 'NEUTRAL')
+  PASS  S5-R Millénaire relation written by HywMill persists  m5 mrel 7507e2cd<->f1ce74df before=-42/-42 now=-42/-42 op=null v=null || m5 mrel 7507e2cd<->f1ce74df before=-42/-42 now=-42/-42 op=null v=null
+  FAIL  S5-R chronicle entries persist  m5 history 7507e2cd size=0 startTick=-1
+  NOTE  S5-A attack strategy of a freshly summoned player-owned unit  FREE_FIGHT
+  NOTE  S5-A isValidTarget player unit -> garrison unit under HOSTILE (NoAI units, same area)  m5 valid 02ab9803->4cb81b0f valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null || m5 valid 4cb81b0f->02ab9803 valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+  NOTE  S5-B stand-in player  m5 standin added 11111111-2222-4333-8444-555555555555 at 661, 82, 639 health=20.0 creative=false players=1
+  NOTE  S5-B unit strategy  m5 strategy a36c0469 FREE_FIGHT
+  NOTE  S5-B unit strategy  m5 strategy 5149db75 FREE_FIGHT
+  NOTE  S5-B unit strategy  m5 strategy 0849f4cb FREE_FIGHT
+  NOTE  S5-B unit strategy  m5 strategy 591d2153 FREE_FIGHT
+  NOTE  S5-B target counts over 40 s (samples of every unit's current HYW target)  {'pu->garr': 0, 'garr->pu': 1, 'garr->player': 19, 'pu->villager': 2, 'any->third': 0, 'third->any': 0, 'samples': 10}
+  NOTE  S5-B stand-in player health over time  [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+  NOTE  S5-C control (NEUTRAL) hits player unit -> faction unit: (before, after)  {'melee': (20.0, 18.5), 'arrow': (20.0, 17.5), 'explosion': (20.0, 10.026667)}
+  NOTE  S5-C FRIENDLY hits player unit -> faction unit: (before, after)  {'melee': (20.0, 20.0), 'arrow': (20.0, 20.0), 'explosion': (20.0, 20.0)}
+  NOTE  S5-C one-way FRIENDLY (player->faction only): faction unit -> player unit  m5 valid 3f0ef499->fe92916f valid=false enemy=false protected=true cancelDamage=true ignoreCollision=true temp=true strategy=FREE_FIGHT target=null
+  NOTE  S5-D targets during the HOSTILE phase (player units)  []
+  NOTE  S5-D after NEUTRAL: (seconds, player units targeting garrison, garrison targeting player units)  [(16, 0, 0), (32, 0, 0), (48, 0, 0), (64, 0, 0), (80, 0, 0), (96, 0, 0), (112, 0, 0), (128, 0, 0)]
+  NOTE  S5-D persistence probes before restart  {'xy': ('FRIENDLY', 'NEUTRAL'), 'xz': ('HOSTILE', 'HOSTILE'), 'qfa': ('HOSTILE', 'HOSTILE')}
+  NOTE  S5-E kill by a neutral third party  m5 hit melee 9f35778a->6edfa1f0 applied=true before=20.0 now=0.0 cancelDamage=false; relation right after ('HOSTILE', 'HOSTILE'); after 15 s ('NEUTRAL', 'NEUTRAL'); guard lines 1
+  NOTE  S5-F targets after markHostile only (HYW's own selection)  [None, None, None, None, None, None]
+  NOTE  S5-F targets with markHostile + setTarget each 3.5 s (M4's engagement)  [None, None, None, None, None, None]
+  NOTE  S5-F civilian residents still loaded after the test  26 of 23
+  NOTE  S5-F village A alert after the engagement (M2 reacts to an attacker of a resident)  CALM
+  NOTE  S5-G stand-in  m5 standin added 11111111-2222-4333-8444-555555555555 at 634, 91, 616 health=20.0 creative=false players=1
+  NOTE  S5-G bystander stand-in  m5 standin added 22222222-3333-4444-8555-666666666666 at 625, 83, 617 health=20.0 creative=false players=2
+  NOTE  S5-G alert states  ['ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ALERT', 'ENGAGED', 'ENGAGED', 'ENGAGED', 'ENGAGED', 'ENGAGED']
+  NOTE  S5-G committed defenders  ['2', '2', '2', '2', '2', '2', '2', '6', '6', '6', '6', '6']
+  NOTE  S5-G (player hp, bystander hp)  [(20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0), (20.0, 20.0)]
+  NOTE  S5-G alert after the injected threat stops  CALM
+  NOTE  S5-I  m5 goods millenaire:norman total=185 hywmill_scroll_archer=hundred_years_war:scroll_archer sell=64 buy=0 minRep=8192 resolved=hundred_years_war:scroll_archer || m5 goods millenaire:norman total=185 norman_sword=millenaire:norman_sword sell=4096 buy=3840 minRep=0 resolved=millenaire:norman_sword || m5 shop millenaire:norman armoury = ShopProfile[sells=[norman_helmet, norman_chestplate, norman_leggings, norman_boots, norman_sword, bow, hywmill_scroll_archer], buys=[], buysOptional=[], deliverTo=[]]
+  NOTE  S5-J  m5 rep 7507e2cd player=22222222 village/culture/combined before=0/0/0 now=0/0/0
+  NOTE  S5-J  m5 rep 7507e2cd player=22222222 village/culture/combined before=0/0/0 now=-3000/-300/-3300 adjust=-3000 returned=-3000
+  NOTE  S5-J  m5 rep 7507e2cd player=22222222 village/culture/combined before=-3000/-300/-3300 now=-2600/-260/-2860 adjust=400 returned=-2600
+  NOTE  S5-L stand-in (online)  m5 standin added 11111111-2222-4333-8444-555555555555 at 633, 82, 609 health=20.0 creative=false players=1
+  NOTE  S5-L  m5 dpoints 7507e2cd player=11111111 before=0 now=0 max=5 op=
+  NOTE  S5-L  m5 dpoints 7507e2cd player=11111111 before=0 consumed=false now=0 max=5 op=consume
+  NOTE  S5-L  m5 dpoints 7507e2cd player=11111111 before=0 now=5 max=5 op=nightly
+  NOTE  S5-L  m5 dpoints 7507e2cd player=11111111 before=5 consumed=true now=4 max=5 op=consume
+  NOTE  S5-L  m5 dpoints 7507e2cd player=22222222 before=0 now=0 max=5 op=nightly
+  NOTE  S5-L  m5 dpoints 7507e2cd player=22222222 before=0 now=5 max=5 op=regen
+  NOTE  S5-M history  m5 history 7507e2cd size=177 startTick=469 | t=13474 'Birth: Valborg Ingmar (FEMALE)' | t=13933 'Birth: Sighild Ditmar (FEMALE)' | t=21872 'Villager died: norman/shepherd [3f2b6155] — cause: mob at 695, 76, 608' || m5 history 7507e2cd size=178 startTick=469 | t=13933 'Birth: Sighild Ditmar (FEMALE)' | t=21872 'Villager died: norman/shepherd [3f2b6155] — cause: mob at 695, 76, 608' | t=23548 'HywMill spike: an envoy from the test village arrived' || m5 history 7507e2cd size=179 startTick=469 | t=21872 'Villager died: norman/shepherd [3f2b6155] — cause: mob at 695, 76, 608' | t=23548 'HywMill spike: an envoy from the test village arrived' | t=23588 'hywmill.chronicle.test'
+  NOTE  S5-N counts  {'a->b': 0, 'b->a': 6, 'a->villager': 5}
+  NOTE  S5-N village B alert samples  ['ENGAGED', 'ENGAGED', 'ENGAGED', 'RECOVERY', 'RECOVERY', 'RECOVERY', 'RECOVERY', 'CALM']
+  NOTE  S5-K relation before  m5 mrel 7507e2cd<->f1ce74df before=50/50 now=50/50 op=null v=null
+  NOTE  S5-K adjustRelationSymmetric +10  m5 mrel 7507e2cd<->f1ce74df before=50/50 now=60/60 op=adjust v=10
+  NOTE  S5-K control raid ended  m5 raid 7507e2cd target=none planning=0 start=0 dayTime=75922 performed=1
+  NOTE  S5-K relation after the control raid  m5 mrel 7507e2cd<->f1ce74df before=-95/-95 now=-95/-95 op=null v=null
+  NOTE  S5-K nightly drift x200 (direct calls)  m5 drift 7507e2cd nights=200 pairChanges=1 totalAbs=15 start=[-85] end=[-100]
+  NOTE  S5-R HYW relations after restart  before {'xy': ('FRIENDLY', 'NEUTRAL'), 'xz': ('HOSTILE', 'HOSTILE'), 'qfa': ('HOSTILE', 'HOSTILE')} after {'xy': ('FRIENDLY', 'NEUTRAL'), 'xz': ('HOSTILE', 'HOSTILE'), 'qfa': ('NEUTRAL', 'NEUTRAL')}
+EXIT 1

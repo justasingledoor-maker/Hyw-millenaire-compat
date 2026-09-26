@@ -18,6 +18,7 @@ public final class MillenaireIntegration implements Integration {
     @Override
     public void init(IEventBus modBus) {
         Services.registerSettlements(new MillenaireSettlementSource());
+        Services.registerSpikeCommands(MillM5Spike::node);
         // LOW: must run after Millénaire's own NORMAL-priority ServerStartedEvent listener,
         // which calls GoalRegistry.resetToBuiltins().
         NeoForge.EVENT_BUS.addListener(EventPriority.LOW, false, ServerStartedEvent.class, MillenaireGoalBridge::onServerStarted);

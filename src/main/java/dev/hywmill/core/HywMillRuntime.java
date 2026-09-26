@@ -36,7 +36,8 @@ public final class HywMillRuntime {
     private final dev.hywmill.garrison.service.DutyService duties = new dev.hywmill.garrison.service.DutyService(perf);
     private final ThreatTracker threats = new ThreatTracker(incidents, scheduler, defense, perf);
     private final FactionRegistry factions = new FactionRegistry();
-    private final DiplomacyPolicy diplomacy = DiplomacyPolicy.ALWAYS_REVERT;
+    /** ALWAYS_REVERT unless an M5-0 spike command installs a test policy (dev only, this server run only). */
+    private volatile DiplomacyPolicy diplomacy = DiplomacyPolicy.ALWAYS_REVERT;
     private final Map<String, AtomicLong> counters = new ConcurrentHashMap<>();
     /** Village list cache, refreshed once per ledger interval by GarrisonUpdater. Server thread only. */
     @Nullable public List<SettlementSource.SettlementRef> cachedVillages;
@@ -116,6 +117,11 @@ public final class HywMillRuntime {
 
     public DiplomacyPolicy diplomacy() {
         return diplomacy;
+    }
+
+    /** M5-0 spike only ({@code /hywmill dev m5 policy}); null restores ALWAYS_REVERT. Not persisted. */
+    public void setDiplomacyForSpike(@Nullable DiplomacyPolicy policy) {
+        diplomacy = policy != null ? policy : DiplomacyPolicy.ALWAYS_REVERT;
     }
 
     public long increment(String counter) {

@@ -20,6 +20,9 @@ public final class Services {
     @Nullable private static volatile UnitProvider units;
     private static final Map<String, EquipmentProvider> EQUIPMENT = new java.util.concurrent.ConcurrentHashMap<>();
     private static final Map<String, Supplier<String>> DIAGNOSTICS = new LinkedHashMap<>();
+    /** M5-0 spike command subtrees contributed by integrations (dev only; added under /hywmill dev m5). */
+    private static final java.util.List<Supplier<com.mojang.brigadier.builder.LiteralArgumentBuilder<net.minecraft.commands.CommandSourceStack>>> SPIKE_COMMANDS =
+            new java.util.concurrent.CopyOnWriteArrayList<>();
 
     private Services() {}
 
@@ -56,6 +59,14 @@ public final class Services {
 
     public static void registerSettlements(SettlementSource source) {
         settlements = source;
+    }
+
+    public static void registerSpikeCommands(Supplier<com.mojang.brigadier.builder.LiteralArgumentBuilder<net.minecraft.commands.CommandSourceStack>> node) {
+        SPIKE_COMMANDS.add(node);
+    }
+
+    public static java.util.List<Supplier<com.mojang.brigadier.builder.LiteralArgumentBuilder<net.minecraft.commands.CommandSourceStack>>> spikeCommands() {
+        return SPIKE_COMMANDS;
     }
 
     public static void registerFactions(CombatFactionService service) {
