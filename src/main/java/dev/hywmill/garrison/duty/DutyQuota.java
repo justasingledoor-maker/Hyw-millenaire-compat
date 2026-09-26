@@ -7,14 +7,15 @@ public record DutyQuota(int sentryPairs, int patrol, int scouts, int reserve) {
     }
 
     /**
-     * Quotas for {@code living} available units with at most {@code posts} sentry posts. The sum
+     * Quotas for {@code living} available units with at most {@code posts} sentry posts. A duty is
+     * staffed once the garrison reaches its minimum size (then with at least one unit or pair). The sum
      * never exceeds {@code living}: when it would, scouts are cut first, then patrol, then sentry
      * pairs, then the reserve.
      */
     public static DutyQuota of(DutyRule r, int living, int posts) {
-        int pairs = living >= r.minUnitsForSentries() ? Math.min(Math.min(r.maxSentryPairs(), posts), (int) Math.floor(living * r.sentryShare() / 2.0 + 1e-9)) : 0;
-        int patrol = living >= r.minUnitsForPatrol() ? Math.min(r.maxPatrol(), (int) Math.floor(living * r.patrolShare() + 1e-9)) : 0;
-        int scouts = living >= r.minUnitsForScouts() ? Math.min(r.maxScouts(), (int) Math.floor(living * r.scoutShare() + 1e-9)) : 0;
+        int pairs = living >= r.minUnitsForSentries() ? Math.min(Math.min(r.maxSentryPairs(), posts), atLeastOne(living * r.sentryShare() / 2.0)) : 0;
+        int patrol = living >= r.minUnitsForPatrol() ? Math.min(r.maxPatrol(), atLeastOne(living * r.patrolShare())) : 0;
+        int scouts = living >= r.minUnitsForScouts() ? Math.min(r.maxScouts(), atLeastOne(living * r.scoutShare())) : 0;
         int reserve = Math.min(living, Math.max(r.minReserve(), (int) Math.floor(living * r.reserveShare() + 1e-9)));
         pairs = Math.max(0, pairs);
         while (2 * pairs + patrol + scouts + reserve > living) {
@@ -29,5 +30,10 @@ public record DutyQuota(int sentryPairs, int patrol, int scouts, int reserve) {
             }
         }
         return new DutyQuota(pairs, patrol, scouts, Math.max(0, reserve));
+    }
+
+    /** A staffed duty (its minimum garrison reached, share &gt; 0) gets at least one unit (or pair). */
+    private static int atLeastOne(double share) {
+        return share <= 0 ? 0 : Math.max(1, (int) Math.floor(share + 1e-9));
     }
 }

@@ -50,6 +50,7 @@ import java.util.UUID;
 public final class DutyService {
     private final PerfCounters perf;
     private final Map<UUID, Rt> villages = new HashMap<>();
+    private final RaidService raids;
 
     /** Runtime (not persisted) duty state of one village. Everything here is recomputable. */
     static final class Rt {
@@ -64,6 +65,7 @@ public final class DutyService {
 
     public DutyService(PerfCounters perf) {
         this.perf = perf;
+        this.raids = new RaidService(perf);
     }
 
     public static boolean enabled() {
@@ -75,21 +77,27 @@ public final class DutyService {
         GarrisonRoster r = rec.hywRoster;
         UnitProvider units = Services.units();
         SettlementSource source = Services.settlements();
-        if (r == null || units == null || source == null || !enabled()) {
+        if (r == null || units == null || source == null) {
             return;
         }
         long t0 = perf.start();
         Rt rt = villages.computeIfAbsent(rec.villageId, k -> new Rt());
         DutyTables tables = DutyTables.current();
         DutyTable table = tables.forCulture(rec.culture);
-        if (!replan(overworld, source, rec, rt, table, tables, tick)) {
+        boolean duties = enabled() && replan(overworld, source, rec, rt, table, tables, tick);
+        AlertState alert = alertState(rec.villageId);
+        // raids first: a contingent leaving or coming back changes who is available for duties
+        boolean changed = raids.tick(overworld, ledger, rec, r, table.raid(), duties ? rt.plan : null, alert, tick);
+        if (!duties) {
+            if (changed) {
+                ledger.setDirty();
+            }
             perf.stop("duty.tick", t0);
             return;
         }
         DutyPlan plan = rt.plan;
-        boolean changed = allocate(rec, r, rt, table, plan, tick);
+        changed |= allocate(rec, r, rt, table, plan, tick);
 
-        AlertState alert = alertState(rec.villageId);
         boolean calm = alert == AlertState.CALM;
         Map<Integer, List<UUID>> pairs = new HashMap<>();
         for (RosterEntry e : r.entries()) {

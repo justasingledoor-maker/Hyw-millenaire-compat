@@ -250,6 +250,10 @@ public final class GarrisonService {
 
     /** Spawn anchor: Millénaire's defending position (as resolved at the last profile refresh), else the village centre. */
     BlockPos anchor(VillageRecord rec) {
+        return anchorOf(rec);
+    }
+
+    static BlockPos anchorOf(VillageRecord rec) {
         dev.hywmill.core.HywMillRuntime rt = dev.hywmill.core.HywMillRuntime.get();
         VillageDefenseState st = rt != null ? rt.defense().get(rec.villageId) : null;
         if (st != null && st.defendingPos() != null) {

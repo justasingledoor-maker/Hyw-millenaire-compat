@@ -60,6 +60,7 @@ final class GarrisonCommands {
                 .then(Commands.literal("village")
                         .then(Commands.literal("garrison").executes(GarrisonCommands::summary)
                                 .then(Commands.literal("units").executes(GarrisonCommands::units))
+                                .then(Commands.literal("duties").executes(GarrisonCommands::duties))
                                 .then(Commands.literal("pause").executes(ctx -> pause(ctx, true)))
                                 .then(Commands.literal("resume").executes(ctx -> pause(ctx, false)))
                                 .then(Commands.literal("recall").executes(GarrisonCommands::recall))))
@@ -164,6 +165,56 @@ final class GarrisonCommands {
                     + " at " + e.lastSeenX + "," + e.lastSeenY + "," + e.lastSeenZ + (e.paid ? "" : " unpaid"));
         }
         return g.entries().size();
+    }
+
+    /** M4: the duty plan and every living unit's duty, position and HYW home (one DUTY line per unit). */
+    private static int duties(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack src = ctx.getSource();
+        Optional<VillageRecord> or = record(src);
+        if (or.isEmpty() || !mayControl(src, or.get())) {
+            return 0;
+        }
+        VillageRecord r = or.get();
+        GarrisonRoster g = r.hywRoster;
+        dev.hywmill.garrison.service.DutyService ds = HywMillRuntime.require().duties();
+        dev.hywmill.garrison.duty.DutyPlan plan = ds.plan(r.villageId);
+        dev.hywmill.garrison.duty.DutyQuota q = ds.quota(r.villageId);
+        send(src, "== Duties of " + r.name + " (" + r.culture + ", " + r.tier + ")" + (dev.hywmill.garrison.service.DutyService.enabled() ? "" : " | DUTIES DISABLED"));
+        if (plan == null) {
+            send(src, "No duty plan yet (computed on the village's next duty tick).");
+        } else {
+            send(src, "Plan: " + plan.sentryPosts().size() + " sentry post(s) " + posList(plan.sentryPosts()) + " | patrol " + posList(plan.patrol())
+                    + " | scout posts " + posList(plan.scoutPosts()) + " | reserve " + plan.reserve().toShortString() + " | muster " + plan.muster().size());
+            send(src, "Quota: " + q.sentryPairs() + " sentry pair(s), " + q.patrol() + " patrol, " + q.scouts() + " scout(s), " + q.reserve() + " reserve");
+        }
+        if (g == null) {
+            return 0;
+        }
+        int n = 0;
+        for (RosterEntry e : g.entries()) {
+            if (!e.state().bound()) {
+                continue;
+            }
+            net.minecraft.world.entity.Entity ent = e.entityUuid != null ? GarrisonService.find(src.getServer(), e.entityUuid) : null;
+            dev.hywmill.garrison.spi.UnitProvider units = Services.units();
+            net.minecraft.core.BlockPos home = ent != null && units != null ? units.home(ent) : null;
+            net.minecraft.world.entity.Entity mount = ent != null && units != null ? units.mount(ent) : null;
+            send(src, "DUTY " + e.shortId() + " " + e.unitKey + " " + e.state() + " " + e.duty + "/" + e.assignedDuty + "#" + e.dutyIndex
+                    + " " + dev.hywmill.garrison.duty.DutyMotion.progress(e)
+                    + (ent != null ? " pos " + ent.getBlockX() + "," + ent.getBlockY() + "," + ent.getBlockZ() : " unloaded")
+                    + (home != null ? " home " + home.getX() + "," + home.getY() + "," + home.getZ() : "")
+                    + (mount != null ? " mounted" : ""));
+            n++;
+        }
+        return n;
+    }
+
+    private static String posList(java.util.List<net.minecraft.core.BlockPos> l) {
+        StringBuilder b = new StringBuilder("[");
+        for (net.minecraft.core.BlockPos p : l) {
+            b.append(b.length() > 1 ? " " : "").append(p.getX()).append(',').append(p.getY()).append(',').append(p.getZ());
+        }
+        return b.append(']').toString();
     }
 
     private static int pause(CommandContext<CommandSourceStack> ctx, boolean paused) {

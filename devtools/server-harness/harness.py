@@ -1967,7 +1967,70 @@ def scenario_S4b(ctx):
     check("S4b-raid2 relation still NEUTRAL after the fight", relation(s, a, fb) == ("NEUTRAL", "NEUTRAL"), str(relation(s, a, fb)))
 
 
-SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+# --------------------------------------------------------------------------- M4 duties
+
+def duties(s, c):
+    """Parses /hywmill village garrison duties: {'plan': line, 'quota': dict, 'rows': [dict]}."""
+    out = s.output(at(c, "hywmill village garrison duties"), 2)
+    d = {"lines": out, "rows": [], "quota": {}, "plan": ""}
+    for l in out:
+        if l.startswith("Plan: "):
+            d["plan"] = l
+            m = re.search(r"Plan: (\d+) sentry post\(s\) \[([^\]]*)\] \| patrol \[([^\]]*)\] \| scout posts \[([^\]]*)\] \| reserve (\S+)", l)
+            if m:
+                pts = lambda t: [tuple(int(v) for v in x.split(",")) for x in t.split()] if t else []
+                d["posts"], d["patrol"], d["scoutposts"] = pts(m[2]), pts(m[3]), pts(m[4])
+        m = re.match(r"Quota: (\d+) sentry pair\(s\), (\d+) patrol, (\d+) scout\(s\), (\d+) reserve", l)
+        if m:
+            d["quota"] = dict(zip(["pairs", "patrol", "scouts", "reserve"], map(int, m.groups())))
+        m = re.match(r"DUTY ([0-9a-f]{8}) (\S+) (\w+) (\w+)/(\w+)#(-?\d+) (\S*) ?(?:pos (-?\d+),(-?\d+),(-?\d+)|unloaded)(?: home (-?\d+),(-?\d+),(-?\d+))?( mounted)?", l)
+        if m:
+            d["rows"].append(dict(slot=m[1], unit=m[2], state=m[3], duty=m[4], assigned=m[5], index=int(m[6]), progress=m[7],
+                                  pos=(int(m[8]), int(m[9]), int(m[10])) if m[8] else None,
+                                  home=(int(m[11]), int(m[12]), int(m[13])) if m[11] else None, mounted=bool(m[14])))
+    return d
+
+
+def fill_garrison(s, c, units=("spear_man", "archer", "light_lancer_rider", "archer_rider", "militia", "crossbowman", "shieldman", "warrior")):
+    """Admin-grants units (only those the village's tier allows) until the garrison is at its tier cap."""
+    g = garrison(s, c)
+    head = g.get("cap", 0) - g.get("live", 0)
+    granted = []
+    for u in units:
+        if head <= 0:
+            break
+        n = max(1, head // 3) if u != units[-1] else head
+        out = " ".join(s.output(at(c, f"hywmill admin grant {u} {min(n, head)}"), 1))
+        if "may not" not in out and "Unknown" not in out:
+            granted.append((u, min(n, head)))
+            head = garrison(s, c).get("cap", 0) - garrison(s, c).get("live", 0)
+    return granted
+
+
+def scenario_G4_explore(ctx):
+    """Exploratory M4 duty run: fill garrisons, then sample duties and positions over time."""
+    s = ctx.s
+    extra = ensure_extra_villages(ctx)
+    log(f"G4 extra villages: {extra}")
+    time.sleep(20)
+    villages = [c for c in [ctx.a, ctx.b] + [v for v in extra.values() if v]]
+    for c in villages:
+        log(f"G4 fill {c}: {fill_garrison(s, c)}")
+    end = time.time() + 600
+    while time.time() < end and sum(garrison(s, c).get("recruited", 0) for c in villages) > 0:
+        time.sleep(15)
+    for rnd in range(4):
+        time.sleep(45)
+        for c in villages:
+            d = duties(s, c)
+            log(f"G4 round {rnd} village {c}: {d['plan'][:300]} quota {d['quota']}")
+            for r in d["rows"]:
+                log(f"   {r}")
+    s.cmd("hywmill perf", 1)
+    log("G4 perf:\n  " + "\n  ".join(s.output("hywmill perf", 2)))
+
+
+SCENARIOS = {"G4_explore": scenario_G4_explore, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

@@ -32,6 +32,31 @@ public final class GarrisonRoster {
     public long goneSinceTick = -1;
     public final Totals totals = new Totals();
     private final List<RosterEntry> entries = new ArrayList<>();
+    /** M4: this village's own current Millénaire raid, if a contingent was sent (persisted as an optional key). */
+    @Nullable public RaidRecord raid;
+
+    /**
+     * M4 raid in progress. {@code performedBase}: the attacker's raid-history length when the raid
+     * started (it grows by one when the raid ends); {@code phase}: MUSTER until the contingent is
+     * moved to the landing point, AWAY while it fights, then the record is cleared.
+     */
+    public static final class RaidRecord {
+        public final UUID target;
+        public final long raidStart;
+        public final int performedBase;
+        public String phase;
+        public long phaseSince;
+        public int sent;
+
+        public RaidRecord(UUID target, long raidStart, int performedBase, String phase, long phaseSince, int sent) {
+            this.target = target;
+            this.raidStart = raidStart;
+            this.performedBase = performedBase;
+            this.phase = phase;
+            this.phaseSince = phaseSince;
+            this.sent = sent;
+        }
+    }
 
     public static final class Totals {
         public int recruited, spawned, killed, lost, recovered, duplicatesDiscarded;
@@ -174,6 +199,16 @@ public final class GarrisonRoster {
         tot.putInt("recovered", totals.recovered);
         tot.putInt("duplicatesDiscarded", totals.duplicatesDiscarded);
         t.put("totals", tot);
+        if (raid != null) {
+            CompoundTag rd = new CompoundTag();
+            rd.putUUID("target", raid.target);
+            rd.putLong("raidStart", raid.raidStart);
+            rd.putInt("performedBase", raid.performedBase);
+            rd.putString("phase", raid.phase);
+            rd.putLong("phaseSince", raid.phaseSince);
+            rd.putInt("sent", raid.sent);
+            t.put("raid", rd);
+        }
         ListTag list = new ListTag();
         for (RosterEntry e : entries) {
             CompoundTag c = new CompoundTag();
@@ -227,6 +262,13 @@ public final class GarrisonRoster {
         r.totals.lost = tot.getInt("lost");
         r.totals.recovered = tot.getInt("recovered");
         r.totals.duplicatesDiscarded = tot.getInt("duplicatesDiscarded");
+        if (t.contains("raid", Tag.TAG_COMPOUND)) {
+            CompoundTag rd = t.getCompound("raid");
+            if (rd.hasUUID("target")) {
+                r.raid = new RaidRecord(rd.getUUID("target"), rd.getLong("raidStart"), rd.getInt("performedBase"), rd.getString("phase"),
+                        rd.getLong("phaseSince"), rd.getInt("sent"));
+            }
+        }
         ListTag list = t.getList("entries", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag c = list.getCompound(i);
