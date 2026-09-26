@@ -423,6 +423,7 @@ Millénaire or HYW.
 | M5-4 | Envoy missions and truces (Millénaire relation API, delayed resolution, backfire) |
 | M5-5 | Requests: escort and detachment (M4 temporary duties), evaluator, favor costs, casualties |
 | M5-5b | Rules of engagement (§16): wars, campaigns, relation projector and reconciliation, `ENEMY_COMBATANT`, combatant-only engagement |
+| M5-G | Garrison population scaling (§17): development-driven target, levy scaled with target, M4 duty/raid data retune; independent of the politics steps; requires spike S-G and explicit approval (changes frozen M3/M4 code) |
 | M5-6 | Armoury (if spike 7 allows) and honours |
 | M5-7 | Harness suite G5, M4/M3/M2 regressions, performance, report |
 
@@ -446,6 +447,9 @@ Millénaire or HYW.
    friendly-fire protection) or only kept NEUTRAL (no mutual targeting, but stray hits count)?
    Proposed: FRIENDLY, for the campaign only.
 8. **Combatant-only engagement for M4 raid contingents** (a small change to frozen M4). Approve?
+9. **Garrison scaling (§17).** Approve the development-driven target and levy scaling as step M5-G,
+   and which target band for strongholds: about double (≈ 96) or up to triple (≈ 128), pending the
+   scale spike?
 
 ---
 
@@ -611,3 +615,173 @@ needs.
 **Stop condition as before.** If spike 1 or 2 shows that DEFAULT targeting cannot be driven by
 relations for player-owned units without HYW changes, stop and report before designing a
 workaround.
+
+---
+
+## 17. Garrison population scaling (balance audit; M3/M4 unchanged)
+
+**Request.** Developed settlements should field a garrison that looks like one (roughly double or
+triple the current higher tiers), while hamlets stay lightly defended. Military population should
+follow the settlement's real development, not a flat per-tier army. This section audits the current
+system and proposes a model. **Nothing in M3/M4 has been changed.** The example numbers below are
+illustrations, not approved values.
+
+### 17.1 What decides the garrison today (audit)
+
+Source: `Recruitment.target`, `TierRule`, `hywmill_garrison/defaults.json`, and
+`ProfileCalculator.capacity`.
+
+```
+target   = min( clamp(round(capacity × perCapacity), minTarget, maxTarget), maxUnits )
+capacity = SOLDIER + MILITIA resident slots declared by the village's operational buildings,
+           at their current variant and level (M2)
+```
+
+| Tier | perCapacity | minTarget | maxTarget = maxUnits (the "tier cap") | Levy/day | Pool cap | Classes |
+|---|---|---|---|---|---|---|
+| WATCH | 1.0 | 1 | 8 | 1.0 + 0.25 × capacity | 4 | LEVY, RANGED |
+| GUARD_POST | 1.0 | 2 | 16 | 1.5 + 0.25 × capacity | 6 | + LINE |
+| GARRISON | 1.0 | 3 | 32 | 2.0 + 0.25 × capacity | 10 | + GUNPOWDER (off), CAVALRY |
+| STRONGHOLD | 1.0 | 4 | 64 | 3.0 + 0.25 × capacity | 16 | same |
+
+* **The tier cap is a ceiling, not the target.** With `perCapacity = 1.0`, the target is
+  simply **one HYW troop per Millénaire soldier or militia slot**, with a small floor. The cap only
+  binds when a village declares more slots than the cap. Few Millénaire villages do, so in practice
+  **capacity, not the tier, decides the garrison size.**
+* The **tier** is decided separately (`MilitaryTier.assess`): professionals, military buildings,
+  fortification and walls. It unlocks classes, equipment level, levy base and duty quotas, but
+  adds almost nothing to the target itself (only `minTarget`).
+* **Population, village type and non-slot infrastructure do not enter the target at all.** A large
+  town with one guardhouse gets the same target as a hamlet with one guardhouse.
+* **Recruitment throughput.**
+  * Starting grant: 50 % of the target, free, once per village (`startingGranted` is never reset).
+  * After that, paid recruits: at most one every `recruitIntervalTicks` (2400 ticks, so ≤ 10 per
+    in-game day). Recruits happen only while CALM, and only while the levy covers the unit cost:
+    1–4 points, averaging about 1.8 for the default composition and about 2.5 for Norman.
+  * Death and wipe-out cooldowns apply.
+  * Levy accrues only while the village is active (loaded); there is no offline catch-up.
+
+### 17.2 Why a village shows "6/8 (tier cap 16)"
+
+`/hywmill garrison` prints `live/target (tier cap maxUnits)`. That GUARD_POST village declares
+**8 soldier and militia slots**, so its target is `min(clamp(8 × 1.0, 2, 16), 16) = 8`, and the 16 is
+never reached. It has 6 live (non-terminal) entries: 4 from the starting grant (50 % of 8), plus
+2 paid recruits so far. The rest are waiting on one of these, which the summary names as the blocker:
+* levy (`POINTS`);
+* the recruit interval (`INTERVAL`);
+* an alert (`NOT_CALM`);
+* a death cooldown.
+
+It is working as designed. The tier cap simply has no effect on most villages.
+
+### 17.3 Recommended model: development-driven target
+
+Keep the structure (pure, data-driven, per-village, no global state), but compute the target from
+the settlement's actual development:
+
+```
+target = min(
+    maxUnits[tier],                                           // tier ceiling (raised)
+    floor(supportRatio[tier] × population),                   // what the settlement can feed
+    clamp(round( slots × perSlot[tier]                        // Millénaire's own military slots
+               + Σ infraBonus[role] × buildings[role]         // barracks, armoury, walls...
+               + levyShare[tier] × adults                     // levy from the working population
+               ) × typeFactor[culture/type],
+          minTarget[tier], maxTarget[tier]) )
+```
+
+| Term | Purpose | Example values (not approved) |
+|---|---|---|
+| `perSlot` | A Millénaire soldier slot stands for a small squad, not one man | WATCH 1.0, GUARD_POST 1.25, GARRISON 1.5, STRONGHOLD 2.0 |
+| `infraBonus` | Military infrastructure supports troops beyond resident slots | BARRACKS +8, FORT_TOWNHALL +8, ARMOURY +4, TRAINING +4, GUARDHOUSE +2, WATCHTOWER +2, TOWER +1, plus fortification / 4 (capped at +16) |
+| `levyShare × adults` | Every village can raise some levy; bigger ones raise more | WATCH 0.10, GUARD_POST 0.15, GARRISON 0.20, STRONGHOLD 0.25 |
+| `supportRatio × population` | **Realism ceiling:** a hamlet cannot keep an army larger than its people; a fortified seat draws on its hinterland | WATCH 0.5, GUARD_POST 0.75, GARRISON 1.5, STRONGHOLD 2.5 |
+| `typeFactor` | Millénaire village types and cultures: military outposts and forts above 1, farming and fishing villages below 1 | a data patch per culture and village type, as M3/M4 cultures already patch |
+| `maxUnits` | Hard per-village ceiling, still data | WATCH 12, GUARD_POST 24, GARRISON 64, STRONGHOLD 128 |
+
+**Worked examples** (the current target is shown for comparison):
+
+| Settlement | Inputs | Current target | Proposed target |
+|---|---|---|---|
+| Farming hamlet, WATCH | 1 slot, 10 adults, pop 14, type 0.8 | 1 | `(1 + 0 + 1) × 0.8` → **2** (ceiling 7) |
+| Village with guardhouse, GUARD_POST | 8 slots, 25 adults, pop 35, guardhouse | 8 | `10 + 2 + 3.75` → **16** (ceiling 26) |
+| Market town, GARRISON | 12 slots, 40 adults, pop 55, barracks + armoury, fortification 12 | 12 | `18 + 12 + 3 + 8` → **41** (ceiling 82) |
+| Norman fort, STRONGHOLD | 16 slots, 40 adults, pop 55, fort townhall + barracks + armoury + training, fortification 40 | 16 | `32 + 24 + 10 + 10` → **76** (ceiling 137) |
+| Large walled city, STRONGHOLD | 30 slots, 70 adults, pop 90, same buildings, fortification 60 | 30 | `60 + 24 + 15 + 17.5` → **117** (cap 128; ceiling 225) |
+
+So hamlets stay at 1–3, strongholds reach roughly 70–128, and the shape comes from slots,
+buildings and population, not from the tier alone. **Both** the cap and the calculated target must
+change: raising only the caps would change almost nothing (§17.1).
+
+**Cavalry availability.** Today cavalry is gated by tier (GARRISON+) and culture composition only.
+There is no stable building role. Proposal: an optional `STABLE` building role (role-table data) and
+a cavalry share ceiling (for example ≤ 10 %, or ≤ 4 riders per stable). This needs a spike to see
+whether Millénaire plans expose stables reliably; until then keep the composition weights.
+
+### 17.4 Levy: is a larger garrison reachable?
+
+Current rates with larger targets (STRONGHOLD, capacity 16, about 2.5 points per unit):
+* Levy is 3 + 0.25 × 16 = **7 points/day**, about 2.8 units/day.
+* A target of 76 grants 38 at once; the other 38 take **about 14 active in-game days**.
+* Rebuilding after a wipe-out (75 % of 76 = 57 dead) takes about 20 active days. **Too slow.**
+
+Proposal: levy scales with the target, so that time-to-fill stays about constant:
+
+```
+dailyRate = baseDaily[tier] + perCapacityDaily × capacity + perTargetDaily × target
+poolCap   = max(poolCap[tier], 0.25 × target)
+```
+
+Example: with `perTargetDaily` = 0.12, the rate at a target of 76 is 3 + 4 + 9.1 = 16.1 points/day,
+about 6.4 units/day.
+* The remaining 38 fill in **about 6 active days**.
+* A wipe-out rebuild takes about 9 days.
+* The recruit interval (≤ 10/day) remains the throughput guard, and at target 128 it becomes the
+  binding limit, about 7 days to fill the non-granted half.
+* Levy stays active-time only (no offline catch-up), so unloaded villages do not silently build
+  armies.
+
+**Existing villages** keep `startingGranted = true`. Their larger target is filled by levy, not by a
+second free grant, so an update does not spawn dozens of units at once. A one-time `top-up` admin
+command could be optional.
+
+### 17.5 Impact on M4 duties, raids, defense and performance
+
+| Area | Impact | Needed change (data, M5 step) |
+|---|---|---|
+| **Duty quotas** | STRONGHOLD maxima (8 sentry pairs, 8 patrol, 4 scouts, reserve 15 %) staff about 40 units. At 128, about 85 would stand at muster on GARRISON duty. That is visually a "standing garrison", but it crowds the muster points (units are spread by a UUID hash over the muster list) | Raise maxima: sentry pairs ≤ posts (already bounded by the layout), patrol ≤ 16, possibly as two patrol groups on the same ring, scouts ≤ 6, reserve 20 %. Add a "barracks duty" idle point per BARRACKS building so idle troops gather at military buildings, not the townhall |
+| **Sentry posts** | Posts come from the layout (walls, gates, towers). More troops do not create more posts | None; the extra troops go to patrol, reserve or barracks |
+| **Raids (M4)** | `maxCommit` 12 (16 Seljuk) caps the contingent. The commit fraction is unaffected. Millénaire still decides raid outcomes by its own rules | Scale `maxCommit` per tier (for example STRONGHOLD 24). Keep `minHome` 0.5 |
+| **M2 defense** | Deployment is `commitPerThreat` × threats, bounded by doctrine and reserve. Larger pools mean more responders and a stronger reserve. Coordinator cost grows with pool size only during alerts | None required; verify deploy latency with a pool of 128 |
+| **Spawning** | `spawnsPerSlot` 2 per slot interval, `spawnsPerTick` 2. A 64-unit starting grant would take many slots. That is intended, as a throughput guard | None (it is only the first fill) |
+| **Equipment** | Profiles are applied once at spawn, so there is no per-tick cost. More entities carry more item data for clients (Epic Knights armour included) | None; measure client FPS in the spike |
+| **HywMill CPU** | Duty tick is roughly linear in units: about 97 µs for a 64-unit village (G4-P), so about 200 µs at 128 per village tick every 40 ticks. Recruitment and reconcile are per village, not per unit | Negligible |
+| **HYW entity AI (the real cost)** | Each HYW unit runs its own target scans, pathfinding and (for riders) horse AI every tick. M3 validated **112** loaded units. Several loaded strongholds at 128 means 300–500 HYW entities | **Scale spike required** (below); a server `garrisonScale` multiplier (default 1.0) and an optional per-server ceiling of loaded garrison units (off by default) for low-end servers |
+
+### 17.6 Recommendation
+
+1. **Change both the formula and the caps**, driven by development (§17.3), with population as the
+   realism ceiling. Do not simply multiply the caps.
+2. **Scale the levy with the target** (§17.4) so larger garrisons fill in about a week of active
+   play, and rebuild in about ten days.
+3. **Retune M4 duty and raid data** so the added troops have jobs (§17.5).
+4. **Implement it as a separate M5 step (M5-G)**, independent of the politics steps, so it can be
+   approved and shipped on its own. It is the only M5 step that changes frozen M3/M4 code:
+   * `Recruitment.target` and `dailyRate` gain terms;
+   * `TierRule` gains optional fields;
+   * the rest is data.
+   * No new persisted state: the target is still computed, and the ledger format is unchanged.
+
+   With every new factor at zero and the current caps, it reproduces today's numbers exactly. That
+   is a JUnit regression requirement, so the frozen M3/M4 behaviour stays available as a data
+   setting.
+5. **Gate it behind a scale spike (M5-0, spike S-G):**
+   * 2 STRONGHOLD at 128 + 2 GARRISON at 64 (384 units) loaded on a dedicated server;
+   * measure MSPT (mean and p99), HYW entity tick share, duty tick and client FPS;
+   * include a raid and an M2 alert at full size.
+
+   If MSPT exceeds budget, the defaults drop to about double (STRONGHOLD 96, GARRISON 48) and
+   `garrisonScale` remains the lever.
+6. **Politics tie-in (optional):** a patron's or sworn player's donations could add levy points, or
+   Favor could fund a temporary `levy` boost. This would use the existing levy pool; no new
+   recruitment path.
