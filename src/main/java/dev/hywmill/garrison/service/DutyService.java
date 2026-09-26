@@ -145,6 +145,21 @@ public final class DutyService {
                 rt.moves.put(e.rosterId, new long[]{goal.asLong(), home.asLong(), 1, tick, attempt});
                 continue;
             }
+            if (last != null && home != null && last[0] == goal.asLong() && last[1] == home.asLong() && last[2] == 0
+                    && tick - last[3] >= table.move().hopTimeout()
+                    && DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().arriveRadius() + 1) {
+                // not reaching an intermediate hop: detour (rotated hops, alternating sides), then give the leg up
+                int attempt = (int) last[4] + 1;
+                BlockPos alt = attempt <= 4 ? hopTarget(level, ent, goal, table.move().maxHop(), attempt) : null;
+                if (alt == null) {
+                    DutyMotion.blocked(e, plan, tick);
+                    rt.moves.remove(e.rosterId);
+                } else {
+                    units.setHome(ent, alt);
+                    rt.moves.put(e.rosterId, new long[]{goal.asLong(), alt.asLong(), 0, tick, attempt});
+                }
+                continue;
+            }
             if (last != null && home != null && last[0] == goal.asLong() && last[1] == home.asLong()
                     && (last[2] == 1 || DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().maxHop() / 2.0)) {
                 continue; // same goal, its hop is still the unit's home: at its final spot, or still on the way
@@ -278,14 +293,43 @@ public final class DutyService {
      */
     @Nullable
     static BlockPos hopTarget(ServerLevel level, Entity ent, BlockPos goal, int maxHop) {
+        return hopTarget(level, ent, goal, maxHop, 0);
+    }
+
+    /**
+     * As above; {@code turn} (detour attempts) rotates an intermediate hop by 35° steps, alternating
+     * sides, to get round an obstacle. Intermediate hops prefer the surface; the final spot is
+     * looked for at its own height first (a wall walk or tower floor).
+     */
+    @Nullable
+    static BlockPos hopTarget(ServerLevel level, Entity ent, BlockPos goal, int maxHop, int turn) {
         double d = DutyMotion.horizontal(ent.getX(), ent.getZ(), goal);
         for (int h = (int) Math.min(maxHop, Math.ceil(d)); h > 0; h -= 8) {
-            BlockPos s = stand(level, DutyMotion.hop(ent.getX(), ent.getY(), ent.getZ(), goal, Math.max(1, h)));
+            BlockPos p = DutyMotion.hop(ent.getX(), ent.getY(), ent.getZ(), goal, Math.max(1, h));
+            boolean last = p.equals(goal);
+            if (!last && turn > 0) {
+                double a = Math.toRadians(35 * ((turn + 1) / 2)) * (turn % 2 == 1 ? 1 : -1);
+                double dx = p.getX() + 0.5 - ent.getX(), dz = p.getZ() + 0.5 - ent.getZ();
+                p = BlockPos.containing(ent.getX() + dx * Math.cos(a) - dz * Math.sin(a), ent.getY(), ent.getZ() + dx * Math.sin(a) + dz * Math.cos(a));
+            }
+            BlockPos s = last ? stand(level, p) : surface(level, p);
             if (s != null) {
                 return s;
             }
         }
         return null;
+    }
+
+    /** Surface first (within 12 blocks of the point's height), else {@link #stand}. */
+    @Nullable
+    static BlockPos surface(ServerLevel level, BlockPos p) {
+        if (level.isPositionEntityTicking(p)) {
+            BlockPos top = new BlockPos(p.getX(), level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, p.getX(), p.getZ()), p.getZ());
+            if (Math.abs(top.getY() - p.getY()) <= 12 && standable(level, top)) {
+                return top;
+            }
+        }
+        return stand(level, p);
     }
 
     static boolean staticDuty(Duty d) {

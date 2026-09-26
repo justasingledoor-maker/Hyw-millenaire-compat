@@ -2059,6 +2059,10 @@ def scenario_G4_0(ctx):
                 break
     for box in G4_A_SCOUT_FORCELOAD:
         s.cmd("forceload add {} {} {} {}".format(*box), wait=15)
+    m = extra.get("militaire")
+    if m:  # the stronghold's scout ring (radius + 40) loaded as a nearby player would have it
+        for box in [(m[0] - 150, m[2] - 150, m[0] + 150, m[2]), (m[0] - 150, m[2], m[0] + 150, m[2] + 150)]:
+            s.cmd("forceload add {} {} {} {}".format(*box), wait=15)
     time.sleep(20)
     vs = g4_villages(ctx)
     for k, c in vs.items():
