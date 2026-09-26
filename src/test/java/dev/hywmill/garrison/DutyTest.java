@@ -388,8 +388,8 @@ class DutyTest {
         DutyMotion.goal(e, p.scoutBase().getX(), p.scoutBase().getZ(), p, c, 200 + s.dwell());
         assertEquals(DutyMotion.REST, e.dutyStep);
         assertFalse(DutyMotion.scoutAway(e));
-        assertEquals(post, DutyMotion.goal(e, 0, 0, p, c, 200 + s.dwell() + s.rest()));
-        assertEquals(DutyMotion.OUT, e.dutyStep);
+        assertEquals(p.scoutPost(2), DutyMotion.goal(e, 0, 0, p, c, 200 + s.dwell() + s.rest()), "the next ride goes to the next post");
+        assertEquals(DutyMotion.OUT, DutyMotion.phase(e));
     }
 
     @Test

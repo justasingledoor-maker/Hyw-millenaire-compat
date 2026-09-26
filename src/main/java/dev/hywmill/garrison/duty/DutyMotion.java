@@ -8,8 +8,9 @@ import net.minecraft.core.BlockPos;
  * patrol waypoint or scout phase is complete. Pure; progress lives in the roster entry
  * ({@code dutyStep}, {@code dutySince}) so it survives restarts and unloads.
  *
- * <p>Patrol step: {@code waypoint * 2 + (arrived ? 1 : 0)}. Scout step: one of {@link #REST},
- * {@link #OUT}, {@link #DWELL}, {@link #BACK}.
+ * <p>Patrol step: {@code waypoint * 2 + (arrived ? 1 : 0)}. Scout step: {@code phase + 4 * ride}, the phase
+ * one of {@link #REST}, {@link #OUT}, {@link #DWELL}, {@link #BACK}; each ride goes to the next scout post
+ * (the scout's own index plus the ride count), so scouts cover every direction over time.
  */
 public final class DutyMotion {
     public static final int REST = 0, OUT = 1, DWELL = 2, BACK = 3;
@@ -80,13 +81,21 @@ public final class DutyMotion {
         return m.hopTimeout() * (1 + (long) (remaining / m.maxHop()));
     }
 
+    public static int phase(RosterEntry e) {
+        return Math.floorMod(e.dutyStep, 4);
+    }
+
+    static int ride(RosterEntry e) {
+        return Math.floorDiv(e.dutyStep, 4);
+    }
+
     private static BlockPos scoutGoal(RosterEntry e, double x, double z, DutyPlan plan, Ctx c, long tick) {
-        BlockPos post = plan.scoutPost(e.dutyIndex);
+        BlockPos post = plan.scoutPost(e.dutyIndex + ride(e));
         BlockPos base = plan.scoutBase();
-        if (!c.calm() && (e.dutyStep == OUT || e.dutyStep == DWELL)) {
+        if (!c.calm() && (phase(e) == OUT || phase(e) == DWELL)) {
             phase(e, BACK, tick); // any alert recalls scouts at once
         }
-        switch (e.dutyStep) {
+        switch (phase(e)) {
             case OUT -> {
                 if (horizontal(x, z, post) <= c.move().arriveRadius() || tick - e.dutySince >= c.scout().phaseTimeout()) {
                     phase(e, DWELL, tick);
@@ -108,8 +117,9 @@ public final class DutyMotion {
             }
             default -> {
                 if (c.calm() && tick - e.dutySince >= c.scout().rest()) {
-                    phase(e, OUT, tick);
-                    return post;
+                    e.dutyStep = 4 * ((ride(e) + 1) % 64) + OUT; // next ride, next post
+                    e.dutySince = tick;
+                    return plan.scoutPost(e.dutyIndex + ride(e));
                 }
                 return base;
             }
@@ -121,9 +131,9 @@ public final class DutyMotion {
      * a scout riding out watches from where it is, a patrol unit skips to the next waypoint.
      */
     public static void blocked(RosterEntry e, DutyPlan plan, long tick) {
-        if (e.assignedDuty == Duty.SCOUT && e.dutyStep == OUT) {
+        if (e.assignedDuty == Duty.SCOUT && phase(e) == OUT) {
             phase(e, DWELL, tick);
-        } else if (e.assignedDuty == Duty.SCOUT && e.dutyStep == BACK) {
+        } else if (e.assignedDuty == Duty.SCOUT && phase(e) == BACK) {
             phase(e, REST, tick);
         } else if (e.assignedDuty == Duty.PATROL && (e.dutyStep & 1) == 0) {
             next(e, Math.floorMod(e.dutyStep / 2, plan.patrol().size()), plan.patrol().size(), tick);
@@ -132,11 +142,12 @@ public final class DutyMotion {
 
     /** Whether a scout is outside on its ride (OUT or DWELL). */
     public static boolean scoutAway(RosterEntry e) {
-        return e.assignedDuty == Duty.SCOUT && (e.dutyStep == OUT || e.dutyStep == DWELL);
+        return e.assignedDuty == Duty.SCOUT && (phase(e) == OUT || phase(e) == DWELL);
     }
 
-    private static void phase(RosterEntry e, int step, long tick) {
-        e.dutyStep = step;
+    /** Sets the scout phase, keeping the ride count. */
+    private static void phase(RosterEntry e, int phase, long tick) {
+        e.dutyStep = 4 * ride(e) + phase;
         e.dutySince = tick;
     }
 
@@ -163,7 +174,7 @@ public final class DutyMotion {
     public static String progress(RosterEntry e) {
         return switch (e.assignedDuty) {
             case PATROL -> "wp" + e.dutyStep / 2 + ((e.dutyStep & 1) == 1 ? "(pause)" : "");
-            case SCOUT -> switch (e.dutyStep) {
+            case SCOUT -> switch (phase(e)) {
                 case OUT -> "out";
                 case DWELL -> "watch";
                 case BACK -> "back";
