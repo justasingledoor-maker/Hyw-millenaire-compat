@@ -81,4 +81,32 @@ public interface SettlementSource {
     default boolean devNegate(ServerLevel level, UUID settlementId, net.minecraft.server.level.ServerPlayer player) {
         return false;
     }
+
+    /** A military building's standing point (its defending position, else its path anchor, else its origin). */
+    record LayoutPoint(dev.hywmill.military.classify.BuildingRole role, BlockPos pos) {}
+
+    /**
+     * Operational building geometry for M4 duties. {@code military}: buildings with a military
+     * role; {@code anchors}: path anchors of every operational building (patrol geometry);
+     * {@code townhall}: the townhall's anchor (or the centre). Read on duty (re)planning only.
+     */
+    record Layout(BlockPos center, BlockPos defendingPos, BlockPos townhall, int radius, List<LayoutPoint> military,
+                  List<BlockPos> anchors) {
+        /** Changes whenever the geometry duties are planned from changes. */
+        public long key() {
+            long h = center.asLong() * 31 + defendingPos.asLong() * 17 + townhall.asLong() * 13 + radius;
+            for (LayoutPoint p : military) {
+                h = h * 1_000_003L + p.pos().asLong() * 7 + p.role().ordinal();
+            }
+            for (BlockPos p : anchors) {
+                h = h * 1_000_003L + p.asLong();
+            }
+            return h;
+        }
+    }
+
+    /** Current layout, in the settlement mod's own (stable) building order; empty if unknown or unsupported. */
+    default Optional<Layout> layout(ServerLevel level, UUID settlementId) {
+        return Optional.empty();
+    }
 }

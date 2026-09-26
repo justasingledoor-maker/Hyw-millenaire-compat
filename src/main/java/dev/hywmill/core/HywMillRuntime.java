@@ -33,6 +33,7 @@ public final class HywMillRuntime {
     private final IncidentLedger incidents = new IncidentLedger();
     private final DefenseService defense = new DefenseService(perf);
     private final GarrisonService garrison = new GarrisonService(perf);
+    private final dev.hywmill.garrison.service.DutyService duties = new dev.hywmill.garrison.service.DutyService(perf);
     private final ThreatTracker threats = new ThreatTracker(incidents, scheduler, defense, perf);
     private final FactionRegistry factions = new FactionRegistry();
     private final DiplomacyPolicy diplomacy = DiplomacyPolicy.ALWAYS_REVERT;
@@ -99,6 +100,10 @@ public final class HywMillRuntime {
 
     public GarrisonService garrison() {
         return garrison;
+    }
+
+    public dev.hywmill.garrison.service.DutyService duties() {
+        return duties;
     }
 
     public PerfCounters perf() {

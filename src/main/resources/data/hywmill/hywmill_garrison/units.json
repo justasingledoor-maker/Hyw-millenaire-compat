@@ -1,5 +1,5 @@
 {
-  "_comment": "HywMill M3 garrison unit catalogue. 'entity' must be a registered HYW combat unit from the M3 set (militia, spear_man, shieldman, warrior, archer, crossbowman; gunpowder only when enabled). Invalid entries are logged and skipped.",
+  "_comment": "HywMill M3 garrison unit catalogue. 'entity' must be a registered HYW combat unit from the M3 set (militia, spear_man, shieldman, warrior, archer, crossbowman; gunpowder only when enabled). M4 adds the light mounted riders (class CAVALRY, used as scouts; each rider manages its own HYW horse). Invalid entries are logged and skipped.",
   "units": {
     "militia":       { "entity": "hundred_years_war:militia",       "class": "LEVY",      "cost": 1, "minTier": "WATCH" },
     "spear_man":     { "entity": "hundred_years_war:spear_man",     "class": "LINE",      "cost": 2, "minTier": "GUARD_POST" },
@@ -8,6 +8,8 @@
     "archer":        { "entity": "hundred_years_war:archer",        "class": "RANGED",    "cost": 2, "minTier": "WATCH" },
     "crossbowman":   { "entity": "hundred_years_war:crossbowman",   "class": "RANGED",    "cost": 3, "minTier": "WATCH" },
     "handgonne_man": { "entity": "hundred_years_war:handgonne_man", "class": "GUNPOWDER", "cost": 4, "minTier": "GARRISON",   "enabled": false },
-    "matchlock_man": { "entity": "hundred_years_war:matchlock_man", "class": "GUNPOWDER", "cost": 5, "minTier": "STRONGHOLD", "enabled": false }
+    "matchlock_man": { "entity": "hundred_years_war:matchlock_man", "class": "GUNPOWDER", "cost": 5, "minTier": "STRONGHOLD", "enabled": false },
+    "light_lancer_rider": { "entity": "hundred_years_war:mounted_light_lancer_rider", "class": "CAVALRY", "cost": 4, "minTier": "GARRISON" },
+    "archer_rider":       { "entity": "hundred_years_war:mounted_archer_rider",       "class": "CAVALRY", "cost": 4, "minTier": "GARRISON" }
   }
 }

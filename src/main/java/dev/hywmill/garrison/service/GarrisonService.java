@@ -490,15 +490,17 @@ public final class GarrisonService {
         List<Deployment.UnitView> views = new ArrayList<>();
         Map<UUID, Entity> entities = new HashMap<>();
         for (RosterEntry e : r.entries()) {
-            if (e.entityUuid == null || !e.state().deployable()) {
-                continue;
+            if (e.entityUuid == null || !e.state().deployable() || e.duty == dev.hywmill.garrison.duty.Duty.RAID) {
+                continue; // M4: a raid contingent is away with its village's raid, not part of the home defense
             }
             Entity ent = find(server, e.entityUuid);
             if (ent == null || !ent.isAlive()) {
                 continue;
             }
             entities.put(e.entityUuid, ent);
-            views.add(new Deployment.UnitView(e, new DefenseCoordinator.Pos(ent.getX(), ent.getY(), ent.getZ())));
+            BlockPos home = units.home(ent);
+            views.add(new Deployment.UnitView(e, new DefenseCoordinator.Pos(ent.getX(), ent.getY(), ent.getZ()),
+                    home != null ? new DefenseCoordinator.Pos(home.getX() + 0.5, home.getY(), home.getZ() + 0.5) : null));
         }
         CombatFactionService factions = Services.factions();
         List<DefenseCoordinator.ThreatView> valid = new ArrayList<>();
@@ -562,8 +564,9 @@ public final class GarrisonService {
         long tick = server.overworld().getGameTime();
         int n = 0;
         for (RosterEntry e : r.entries()) {
-            if (e.state() == UnitState.DEPLOYED) {
+            if (e.state() == UnitState.DEPLOYED && e.duty != dev.hywmill.garrison.duty.Duty.RAID) {
                 e.transition(UnitState.RETURNING, tick);
+                e.duty = dev.hywmill.garrison.duty.Duty.RETURNING;
                 Entity ent = find(server, e.entityUuid);
                 if (ent != null) {
                     units.disengage(ent);

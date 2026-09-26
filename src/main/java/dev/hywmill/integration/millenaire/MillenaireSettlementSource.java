@@ -11,6 +11,8 @@ import dev.hywmill.military.profile.ProfileCalculator;
 import dev.hywmill.settlement.ResidentInfo;
 import dev.hywmill.settlement.SettlementSnapshot;
 import dev.hywmill.settlement.SettlementSource;
+import dev.hywmill.settlement.SettlementSource.Layout;
+import dev.hywmill.settlement.SettlementSource.LayoutPoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -438,5 +440,54 @@ final class MillenaireSettlementSource implements SettlementSource {
         }
         org.millenaire.item.NegationWandItem.performDeletion(level, VillageSavedData.get(level), v, player);
         return true;
+    }
+
+    // ---- M4: layout for duties (operational buildings and their special points) ----
+
+    @Override
+    public Optional<Layout> layout(ServerLevel level, UUID settlementId) {
+        Village v = manager(level).getVillage(new VillageId(settlementId));
+        if (v == null) {
+            return Optional.empty();
+        }
+        RoleTable table = RoleTables.current();
+        Map<String, BuildingRole> wallDerived = wallDerivedRoles();
+        List<LayoutPoint> military = new ArrayList<>();
+        List<BlockPos> anchors = new ArrayList<>();
+        for (BuildingInstance b : v.getBuildings()) {
+            if (!b.isOperational()) {
+                continue;
+            }
+            BlockPos anchor = anchorOf(b);
+            if (anchor == null) {
+                continue;
+            }
+            anchors.add(anchor.immutable());
+            ResourceLocation planSetId = b.getPlanSetId();
+            if (planSetId == null) {
+                continue;
+            }
+            BuildingPlanSet planSet = ModCultures.getBuildingPlanSet(planSetId);
+            BuildingRole role = RoleClassifier.building(planSetId.toString(), planSet != null && planSet.isBorderPost(), wallDerived, table);
+            if (role != null && role != BuildingRole.NONE && role != BuildingRole.BORDER_MARKER) {
+                BlockPos def = b.getFirstPointPos(org.millenaire.building.SpecialPoint.DEFENDING_POS);
+                military.add(new LayoutPoint(role, (def != null ? def : anchor).immutable()));
+            }
+        }
+        BuildingInstance th = v.getTownhall();
+        BlockPos thPos = th != null ? anchorOf(th) : null;
+        VillageType vt = v.getVillageTypeId() != null ? ModCultures.getVillageType(v.getVillageTypeId()) : null;
+        return Optional.of(new Layout(v.getCenter().immutable(), defendingPos(v).immutable(),
+                (thPos != null ? thPos : v.getCenter()).immutable(), vt != null ? vt.radius() : DEFAULT_VILLAGE_RADIUS,
+                List.copyOf(military), List.copyOf(anchors)));
+    }
+
+    private static BlockPos anchorOf(BuildingInstance b) {
+        try {
+            BlockPos p = b.resolvePathAnchor();
+            return p != null ? p : b.getOrigin();
+        } catch (RuntimeException e) {
+            return b.getOrigin();
+        }
     }
 }

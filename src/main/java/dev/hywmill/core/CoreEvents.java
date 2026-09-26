@@ -147,6 +147,7 @@ public final class CoreEvents {
         event.addListener(new RoleTableLoader());
         event.addListener(new DoctrineLoader());
         event.addListener(new GarrisonTableLoader());
+        event.addListener(new dev.hywmill.garrison.duty.DutyTableLoader());
     }
 
     @SubscribeEvent

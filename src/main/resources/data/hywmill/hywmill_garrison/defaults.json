@@ -1,12 +1,12 @@
 {
-  "_comment": "HywMill M3 garrison rules. target = min(clamp(round(capacity * perCapacity), minTarget, maxTarget), maxUnits); maxUnits is the per-village tier ceiling (there is no server-wide cap). Levy: baseDaily + perCapacityDaily * capacity points per active in-game day, capped at poolCap. Culture entries patch the defaults (composition replaces, tiers merge per field).",
+  "_comment": "HywMill M3 garrison rules. target = min(clamp(round(capacity * perCapacity), minTarget, maxTarget), maxUnits); maxUnits is the per-village tier ceiling (there is no server-wide cap). Levy: baseDaily + perCapacityDaily * capacity points per active in-game day, capped at poolCap. Culture entries patch the defaults (composition replaces, tiers merge per field). M4: CAVALRY (light mounted scouts) is allowed from GARRISON tier and appears only in the compositions of horse-riding cultures (not Mayan or Inuit).",
   "defaults": {
     "tiers": {
       "NONE":       { "perCapacity": 0.0, "minTarget": 0, "maxTarget": 0,  "maxUnits": 0,  "baseDaily": 0.0, "poolCap": 0,  "equipmentLevel": 0, "classes": [] },
       "WATCH":      { "perCapacity": 1.0, "minTarget": 1, "maxTarget": 8,  "maxUnits": 8,  "baseDaily": 1.0, "poolCap": 4,  "equipmentLevel": 0, "classes": ["LEVY", "RANGED"] },
       "GUARD_POST": { "perCapacity": 1.0, "minTarget": 2, "maxTarget": 16, "maxUnits": 16, "baseDaily": 1.5, "poolCap": 6,  "equipmentLevel": 1, "classes": ["LEVY", "LINE", "RANGED"] },
-      "GARRISON":   { "perCapacity": 1.0, "minTarget": 3, "maxTarget": 32, "maxUnits": 32, "baseDaily": 2.0, "poolCap": 10, "equipmentLevel": 2, "classes": ["LEVY", "LINE", "RANGED", "GUNPOWDER"] },
-      "STRONGHOLD": { "perCapacity": 1.0, "minTarget": 4, "maxTarget": 64, "maxUnits": 64, "baseDaily": 3.0, "poolCap": 16, "equipmentLevel": 3, "classes": ["LEVY", "LINE", "RANGED", "GUNPOWDER"] }
+      "GARRISON":   { "perCapacity": 1.0, "minTarget": 3, "maxTarget": 32, "maxUnits": 32, "baseDaily": 2.0, "poolCap": 10, "equipmentLevel": 2, "classes": ["LEVY", "LINE", "RANGED", "GUNPOWDER", "CAVALRY"] },
+      "STRONGHOLD": { "perCapacity": 1.0, "minTarget": 4, "maxTarget": 64, "maxUnits": 64, "baseDaily": 3.0, "poolCap": 16, "equipmentLevel": 3, "classes": ["LEVY", "LINE", "RANGED", "GUNPOWDER", "CAVALRY"] }
     },
     "perCapacityDaily": 0.25,
     "startingFraction": 0.5,
@@ -15,11 +15,11 @@
     "equipmentProvider": "hyw"
   },
   "cultures": {
-    "millenaire:norman":     { "composition": { "militia": 1, "spear_man": 3, "shieldman": 2, "crossbowman": 2, "archer": 1 } },
-    "millenaire:byzantines": { "composition": { "militia": 1, "spear_man": 2, "shieldman": 3, "archer": 2 } },
-    "millenaire:seljuk":     { "composition": { "militia": 1, "spear_man": 2, "warrior": 1, "archer": 4 } },
-    "millenaire:japanese":   { "composition": { "militia": 1, "spear_man": 4, "archer": 3 } },
-    "millenaire:indian":     { "composition": { "militia": 2, "spear_man": 2, "warrior": 2, "archer": 2 } },
+    "millenaire:norman":     { "composition": { "militia": 1, "spear_man": 3, "shieldman": 2, "crossbowman": 2, "archer": 1, "light_lancer_rider": 1 } },
+    "millenaire:byzantines": { "composition": { "militia": 1, "spear_man": 2, "shieldman": 3, "archer": 2, "light_lancer_rider": 1 } },
+    "millenaire:seljuk":     { "composition": { "militia": 1, "spear_man": 2, "warrior": 1, "archer": 4, "archer_rider": 2 } },
+    "millenaire:japanese":   { "composition": { "militia": 1, "spear_man": 4, "archer": 3, "archer_rider": 1 } },
+    "millenaire:indian":     { "composition": { "militia": 2, "spear_man": 2, "warrior": 2, "archer": 2, "light_lancer_rider": 1 } },
     "millenaire:mayan":      { "composition": { "militia": 2, "spear_man": 2, "warrior": 2, "archer": 2 } },
     "millenaire:inuits":     { "composition": { "militia": 3, "spear_man": 1, "archer": 2 } }
   }

@@ -38,6 +38,10 @@ public final class HywMillConfig {
     public static final ModConfigSpec.IntValue GARRISON_RETURN_TIMEOUT;
     public static final ModConfigSpec.EnumValue<GarrisonSettings.OrphanPolicy> GARRISON_ORPHAN_POLICY;
     public static final ModConfigSpec.BooleanValue GARRISON_EQUIPMENT_DROPS;
+    public static final ModConfigSpec.BooleanValue DUTIES_ENABLED;
+    public static final ModConfigSpec.IntValue DUTY_INTERVAL;
+    public static final ModConfigSpec.IntValue DUTY_LAYOUT_RECHECK;
+    public static final ModConfigSpec.BooleanValue RAIDS_ENABLED;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -119,6 +123,21 @@ public final class HywMillConfig {
                 .defineEnum("orphanPolicy", GarrisonSettings.OrphanPolicy.KEEP);
         GARRISON_EQUIPMENT_DROPS = b.comment("Whether garrison units drop their equipment on death (false: no gear farming).")
                 .define("equipmentDrops", false);
+        b.pop();
+
+        b.push("duties");
+        DUTIES_ENABLED = b.comment("M4 standing duties (sentries, patrols, scouts, reserve) of village garrisons. false leaves every unit",
+                        "on GARRISON duty at the spawn anchor as in M3. Quotas are datapack data (data/<ns>/hywmill_duties/).")
+                .define("enabled", true);
+        DUTY_INTERVAL = b.comment("Ticks between two duty updates of one village (staggered per village). Must divide the ledger interval.")
+                .defineInRange("intervalTicks", 40, 20, 400);
+        DUTY_LAYOUT_RECHECK = b.comment("Ticks between two reads of a village's building layout (duty posts and routes are recomputed only if it changed).")
+                .defineInRange("layoutRecheckTicks", 1200, 200, 24000);
+        b.pop();
+
+        b.push("raids");
+        RAIDS_ENABLED = b.comment("M4: HYW garrison contingents join their village's own Millénaire raids (sizes: hywmill_duties 'raid').")
+                .define("enabled", true);
         b.pop();
 
         SPEC = b.build();

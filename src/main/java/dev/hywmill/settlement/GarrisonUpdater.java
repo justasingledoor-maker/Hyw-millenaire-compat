@@ -35,6 +35,7 @@ public final class GarrisonUpdater {
             rt.cachedVillages = source.list(overworld);
             rt.defense().prune(rt.cachedVillages.stream().map(SettlementSource.SettlementRef::id).toList());
             rt.garrison().prune(rt.cachedVillages.stream().map(SettlementSource.SettlementRef::id).toList());
+            rt.duties().prune(rt.cachedVillages.stream().map(SettlementSource.SettlementRef::id).toList());
             java.util.Set<UUID> present = new java.util.HashSet<>();
             rt.cachedVillages.forEach(v -> present.add(v.id()));
             rt.garrison().goneCheck(overworld, GarrisonLedger.get(overworld), present, tick);
@@ -66,6 +67,18 @@ public final class GarrisonUpdater {
                 VillageRecord rec = ledger.get(ref.id());
                 if (rec != null && rec.updateCount > 0) {
                     rt.garrison().slot(overworld, ledger, rec, tick);
+                }
+            }
+            int dutyInterval = HywMillConfig.DUTY_INTERVAL.get();
+            if (ref.active() && rt.scheduler().isDue(ref.id(), tick + 5, dutyInterval)) {
+                // M4 duties: 5 ticks off the village's phase, so with the default 40/200 intervals it never
+                // shares a tick with the refresh (0), the garrison slot (interval/4) or the sweep (interval/2).
+                if (ledger == null) {
+                    ledger = GarrisonLedger.get(overworld);
+                }
+                VillageRecord rec = ledger.get(ref.id());
+                if (rec != null && rec.updateCount > 0) {
+                    rt.duties().tick(overworld, ledger, rec, tick);
                 }
             }
             if (!rt.scheduler().isDue(ref.id(), tick, interval)) {

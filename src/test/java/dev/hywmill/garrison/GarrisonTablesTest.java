@@ -27,8 +27,9 @@ class GarrisonTablesTest {
     static final Set<String> REGISTERED = Set.of("hundred_years_war:militia", "hundred_years_war:spear_man", "hundred_years_war:shieldman",
             "hundred_years_war:warrior", "hundred_years_war:archer", "hundred_years_war:crossbowman", "hundred_years_war:handgonne_man",
             "hundred_years_war:matchlock_man", "hundred_years_war:mounted_lancer_rider", "hundred_years_war:siege_engineer",
-            "hundred_years_war:farmer", "hundred_years_war:bandit_soldier");
-    static final Predicate<String> VALID = id -> REGISTERED.contains(id) && Recruitment.M3_ENTITY_TYPES.contains(id);
+            "hundred_years_war:farmer", "hundred_years_war:bandit_soldier", "hundred_years_war:mounted_light_lancer_rider",
+            "hundred_years_war:mounted_archer_rider");
+    static final Predicate<String> VALID = id -> REGISTERED.contains(id) && Recruitment.allowedType(id);
 
     static JsonObject read(String name) throws IOException {
         return JsonParser.parseString(Files.readString(DIR.resolve(name))).getAsJsonObject();
@@ -46,7 +47,8 @@ class GarrisonTablesTest {
         // defaults.json is read before units.json, so its composition cannot see the units yet: the loader
         // must still resolve compositions against the final unit set.
         assertEquals(List.of(), problems);
-        assertEquals(Set.of("militia", "spear_man", "shieldman", "warrior", "archer", "crossbowman", "handgonne_man", "matchlock_man"),
+        assertEquals(Set.of("militia", "spear_man", "shieldman", "warrior", "archer", "crossbowman", "handgonne_man", "matchlock_man",
+                        "light_lancer_rider", "archer_rider"),
                 t.units().keySet());
     }
 
@@ -78,11 +80,11 @@ class GarrisonTablesTest {
     @Test
     void cultureCompositionsMatchTheAuthorization() throws IOException {
         GarrisonTables t = shipped(new ArrayList<>());
-        assertEquals(Map.of("militia", 1, "spear_man", 3, "shieldman", 2, "crossbowman", 2, "archer", 1), t.forCulture("millenaire:norman").composition());
-        assertEquals(Map.of("militia", 1, "spear_man", 2, "shieldman", 3, "archer", 2), t.forCulture("millenaire:byzantines").composition());
-        assertEquals(Map.of("militia", 1, "spear_man", 2, "warrior", 1, "archer", 4), t.forCulture("millenaire:seljuk").composition());
-        assertEquals(Map.of("militia", 1, "spear_man", 4, "archer", 3), t.forCulture("millenaire:japanese").composition());
-        assertEquals(Map.of("militia", 2, "spear_man", 2, "warrior", 2, "archer", 2), t.forCulture("millenaire:indian").composition());
+        assertEquals(Map.of("militia", 1, "spear_man", 3, "shieldman", 2, "crossbowman", 2, "archer", 1, "light_lancer_rider", 1), t.forCulture("millenaire:norman").composition());
+        assertEquals(Map.of("militia", 1, "spear_man", 2, "shieldman", 3, "archer", 2, "light_lancer_rider", 1), t.forCulture("millenaire:byzantines").composition());
+        assertEquals(Map.of("militia", 1, "spear_man", 2, "warrior", 1, "archer", 4, "archer_rider", 2), t.forCulture("millenaire:seljuk").composition());
+        assertEquals(Map.of("militia", 1, "spear_man", 4, "archer", 3, "archer_rider", 1), t.forCulture("millenaire:japanese").composition());
+        assertEquals(Map.of("militia", 2, "spear_man", 2, "warrior", 2, "archer", 2, "light_lancer_rider", 1), t.forCulture("millenaire:indian").composition());
         assertEquals(Map.of("militia", 2, "spear_man", 2, "warrior", 2, "archer", 2), t.forCulture("millenaire:mayan").composition());
         assertEquals(Map.of("militia", 3, "spear_man", 1, "archer", 2), t.forCulture("millenaire:inuits").composition());
         assertEquals(t.defaults().composition(), t.forCulture("millenaire:unknown").composition());
@@ -91,10 +93,11 @@ class GarrisonTablesTest {
     }
 
     @Test
-    void gunpowderIsDisabledByDefaultAndEveryUnitIsAnM3Type() throws IOException {
+    void gunpowderIsDisabledByDefaultAndEveryUnitIsAnAllowedType() throws IOException {
         GarrisonTables t = shipped(new ArrayList<>());
         for (UnitSpec u : t.units().values()) {
-            assertTrue(Recruitment.M3_ENTITY_TYPES.contains(u.entityType()), u.key());
+            assertTrue(Recruitment.allowedType(u.entityType()), u.key());
+            assertEquals(u.unitClass() == UnitClass.CAVALRY, Recruitment.M4_CAVALRY_TYPES.contains(u.entityType()), u.key());
             assertEquals(u.unitClass() != UnitClass.GUNPOWDER, u.enabled(), u.key());
         }
     }

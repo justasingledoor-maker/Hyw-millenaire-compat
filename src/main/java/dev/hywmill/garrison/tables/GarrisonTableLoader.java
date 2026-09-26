@@ -42,7 +42,7 @@ public final class GarrisonTableLoader extends SimpleJsonResourceReloadListener 
         }
         UnitProvider units = Services.units();
         GarrisonTables t = GarrisonTables.fromJson(ordered,
-                id -> units != null && Recruitment.M3_ENTITY_TYPES.contains(id) && units.isValidUnitType(id), problems);
+                id -> units != null && Recruitment.allowedType(id) && units.isValidUnitType(id), problems);
         GarrisonTables.set(t);
         HmLog.info("Garrison tables loaded from {} file(s): {} unit type(s) ({} enabled), {} culture(s); tier caps {}",
                 ordered.size(), t.units().size(), t.units().values().stream().filter(UnitSpec::enabled).count(), t.cultures().size(),

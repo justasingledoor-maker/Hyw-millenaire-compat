@@ -26,6 +26,14 @@ public final class Recruitment {
             "hundred_years_war:militia", "hundred_years_war:spear_man", "hundred_years_war:shieldman",
             "hundred_years_war:warrior", "hundred_years_war:archer", "hundred_years_war:crossbowman",
             "hundred_years_war:handgonne_man", "hundred_years_war:matchlock_man");
+    /** M4: light mounted HYW riders (class CAVALRY, scouts). They manage their own HYW horse; the rider is the roster unit. */
+    public static final Set<String> M4_CAVALRY_TYPES = Set.of(
+            "hundred_years_war:mounted_light_lancer_rider", "hundred_years_war:mounted_archer_rider");
+
+    /** Every HYW entity type a garrison may use (M3 set plus the M4 riders). */
+    public static boolean allowedType(String entityType) {
+        return M3_ENTITY_TYPES.contains(entityType) || M4_CAVALRY_TYPES.contains(entityType);
+    }
 
     public static final long DAY = 24000L;
     /** Wipe-out: at least this share of the target killed during one alert. */
@@ -71,7 +79,7 @@ public final class Recruitment {
      * tier reaches the unit's minTier, and the tier allows its class (e.g. WATCH: LEVY/RANGED only).
      */
     public static boolean allowedAtTier(UnitSpec u, MilitaryTier tier, GarrisonTable table) {
-        return u.enabled() && M3_ENTITY_TYPES.contains(u.entityType()) && tier.ordinal() >= u.minTier().ordinal()
+        return u.enabled() && allowedType(u.entityType()) && tier.ordinal() >= u.minTier().ordinal()
                 && table.tier(tier).classes().contains(u.unitClass());
     }
 

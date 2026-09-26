@@ -1,5 +1,6 @@
 package dev.hywmill.garrison;
 
+import dev.hywmill.garrison.duty.Duty;
 import dev.hywmill.military.classify.VillagerRole;
 import dev.hywmill.military.defense.AlertState;
 import dev.hywmill.military.defense.DefenseCoordinator;
@@ -23,7 +24,12 @@ public final class Deployment {
 
     private Deployment() {}
 
-    public record UnitView(RosterEntry entry, DefenseCoordinator.Pos pos) {}
+    /** {@code home}: the unit's standing-duty home (M4), also accepted as "back" when returning; null in M3. */
+    public record UnitView(RosterEntry entry, DefenseCoordinator.Pos pos, @javax.annotation.Nullable DefenseCoordinator.Pos home) {
+        public UnitView(RosterEntry entry, DefenseCoordinator.Pos pos) {
+            this(entry, pos, null);
+        }
+    }
 
     public enum ActionKind { ENGAGE, DISENGAGE }
 
@@ -52,7 +58,8 @@ public final class Deployment {
     /**
      * Applies a plan to the roster states: assigned units become DEPLOYED (ENGAGE on their threat),
      * DEPLOYED units without an assignment become RETURNING (DISENGAGE), and RETURNING units within
-     * {@link #HOME_RADIUS} of the anchor or past {@code returnTimeout} become GARRISONED.
+     * {@link #HOME_RADIUS} of the anchor (or of their duty home) or past {@code returnTimeout} become GARRISONED.
+     * M4: the unit's current duty follows (DEFENSE, RETURNING, then back to its standing duty).
      */
     public static List<Action> apply(List<UnitView> units, Map<UUID, UUID> assignments, DefenseCoordinator.Pos anchor, long tick,
                                      long returnTimeout) {
@@ -67,15 +74,22 @@ public final class Deployment {
                 if (e.state() != UnitState.DEPLOYED) {
                     e.transition(UnitState.DEPLOYED, tick);
                 }
+                e.duty = Duty.DEFENSE;
                 out.add(new Action(ActionKind.ENGAGE, e, threat));
             } else if (e.state() == UnitState.DEPLOYED) {
                 e.transition(UnitState.RETURNING, tick);
+                e.duty = Duty.RETURNING;
                 out.add(new Action(ActionKind.DISENGAGE, e, null));
             } else if (e.state() == UnitState.RETURNING) {
                 double dx = u.pos().x() - anchor.x(), dz = u.pos().z() - anchor.z();
                 double d2 = dx * dx + dz * dz;
+                if (u.home() != null) {
+                    double hx = u.pos().x() - u.home().x(), hz = u.pos().z() - u.home().z();
+                    d2 = Math.min(d2, hx * hx + hz * hz);
+                }
                 if (d2 <= HOME_RADIUS * HOME_RADIUS || tick - e.stateSinceTick >= returnTimeout) {
                     e.transition(UnitState.GARRISONED, tick);
+                    e.duty = e.assignedDuty;
                 }
             }
         }

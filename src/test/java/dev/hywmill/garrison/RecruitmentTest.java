@@ -144,12 +144,12 @@ class RecruitmentTest {
     void compositionConvergesToWeights() {
         List<UnitSpec> u = Recruitment.eligibleUnits(MilitaryTier.GARRISON, norman, tables.units());
         Map<String, Integer> counts = new HashMap<>();
-        for (int seq = 0; seq < 90; seq++) {
+        for (int seq = 0; seq < 100; seq++) {
             UnitSpec s = Recruitment.chooseUnit(VILLAGE, seq, u, norman.composition(), counts);
             counts.merge(s.key(), 1, Integer::sum);
         }
-        // weights 1:3:2:2:1 over 9 -> 10:30:20:20:10 of 90
-        assertEquals(Map.of("militia", 10, "spear_man", 30, "shieldman", 20, "crossbowman", 20, "archer", 10), counts);
+        // weights 1:3:2:2:1 (+1 light rider, M4) over 10 -> 10:30:20:20:10:10 of 100
+        assertEquals(Map.of("militia", 10, "spear_man", 30, "shieldman", 20, "crossbowman", 20, "archer", 10, "light_lancer_rider", 10), counts);
     }
 
     @Test

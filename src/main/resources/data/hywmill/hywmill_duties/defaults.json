@@ -1,0 +1,37 @@
+{
+  "_comment": "HywMill M4 duty allocation. Quotas are shares of the village's living, available garrison (floored) with hard maxima and a minimum garrison size below which a duty is not staffed; the sum never exceeds the garrison (scouts are cut first, then patrol, then sentry pairs, then reserve). Sentries stand in pairs, never more pairs than sentry posts. Units not given a duty stay on GARRISON duty. Culture entries patch the defaults per field. 'raid' is how much of the garrison joins the village's own Millénaire raids; it is independent of the M2 doctrine.",
+  "defaults": {
+    "tiers": {
+      "WATCH":      { "sentryShare": 0.4, "maxSentryPairs": 1, "minUnitsForSentries": 4,
+                      "patrolShare": 0.25, "maxPatrol": 2, "minUnitsForPatrol": 3,
+                      "scoutShare": 0.0, "maxScouts": 0, "minUnitsForScouts": 99,
+                      "reserveShare": 0.0, "minReserve": 1 },
+      "GUARD_POST": { "sentryShare": 0.3, "maxSentryPairs": 2, "minUnitsForSentries": 6,
+                      "patrolShare": 0.2, "maxPatrol": 3, "minUnitsForPatrol": 5,
+                      "scoutShare": 0.1, "maxScouts": 1, "minUnitsForScouts": 8,
+                      "reserveShare": 0.1, "minReserve": 1 },
+      "GARRISON":   { "sentryShare": 0.3, "maxSentryPairs": 4, "minUnitsForSentries": 6,
+                      "patrolShare": 0.2, "maxPatrol": 5, "minUnitsForPatrol": 5,
+                      "scoutShare": 0.1, "maxScouts": 2, "minUnitsForScouts": 10,
+                      "reserveShare": 0.15, "minReserve": 2 },
+      "STRONGHOLD": { "sentryShare": 0.3, "maxSentryPairs": 8, "minUnitsForSentries": 6,
+                      "patrolShare": 0.2, "maxPatrol": 8, "minUnitsForPatrol": 5,
+                      "scoutShare": 0.08, "maxScouts": 4, "minUnitsForScouts": 12,
+                      "reserveShare": 0.15, "minReserve": 3 }
+    },
+    "movement": { "maxHop": 32, "arriveRadius": 4, "hopTimeout": 600, "patrolRadius": 0.75, "patrolPoints": 8, "patrolPause": 100, "sentrySpacing": 3 },
+    "scouting": { "distance": 40, "posts": 4, "dwell": 1200, "rest": 2400, "phaseTimeout": 2400 },
+    "raid": { "enabled": true, "commitFraction": 0.35, "minCommit": 2, "maxCommit": 12, "minHome": 0.5, "keepSentryPairs": 1, "keepReserve": 1, "minGarrison": 6 }
+  },
+  "cultures": {
+    "millenaire:norman":     { "raid": { "commitFraction": 0.35 } },
+    "millenaire:byzantines": { "tiers": { "STRONGHOLD": { "maxSentryPairs": 10 } }, "raid": { "commitFraction": 0.3 } },
+    "millenaire:seljuk":     { "tiers": { "GARRISON": { "scoutShare": 0.15, "maxScouts": 3 }, "STRONGHOLD": { "scoutShare": 0.12, "maxScouts": 6 } },
+                               "scouting": { "distance": 56 }, "raid": { "commitFraction": 0.45, "maxCommit": 16 } },
+    "millenaire:japanese":   { "tiers": { "GARRISON": { "sentryShare": 0.35, "maxSentryPairs": 5 }, "STRONGHOLD": { "sentryShare": 0.35, "maxSentryPairs": 10 } } },
+    "millenaire:indian":     { "raid": { "commitFraction": 0.3 } },
+    "millenaire:mayan":      { "tiers": { "GUARD_POST": { "patrolShare": 0.25 }, "GARRISON": { "patrolShare": 0.25 } }, "raid": { "commitFraction": 0.4 } },
+    "millenaire:inuits":     { "tiers": { "WATCH": { "scoutShare": 0.2, "maxScouts": 1, "minUnitsForScouts": 5 }, "GUARD_POST": { "scoutShare": 0.2, "maxScouts": 2 } },
+                               "scouting": { "distance": 56 }, "raid": { "commitFraction": 0.25 } }
+  }
+}
