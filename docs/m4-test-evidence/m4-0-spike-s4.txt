@@ -1,0 +1,50 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario S4
+[harness] spike4 raid before: A={'name': 'Le Bô les-pâtures', 'target': 'none', 'planning': 0, 'start': 0, 'under': False, 'performed': 0, 'suffered': 0, 't': 2283} B={'name': 'Le Détroit les-pâtures', 'target': 'none', 'planning': 0, 'start': 0, 'under': False, 'performed': 0, 'suffered': 0, 't': 2283}
+[harness] PASS S4-raid1 Millénaire raid A -> B triggered Raid triggered: Le Bô les-pâtures -> Le Détroit les-pâtures (4 raiders dispatched)
+[harness] spike4 raid: moved A units ['1643dcd6', '98022b72'] to Millénaire landing point (757, 69, 620), engaged B residents
+[harness] spike4 raid timeline (s, A.target, A.raidStart, B.underAttack, A.performed, B.suffered): [(6, 'af5ebc84', 2906, True, 0, 0), (13, 'af5ebc84', 2906, True, 0, 0), (20, 'af5ebc84', 2906, True, 0, 0), (27, 'af5ebc84', 2906, True, 0, 0), (46, 'af5ebc84', 2906, True, 0, 0), (53, 'af5ebc84', 2906, True, 0, 0), (60, 'af5ebc84', 2906, True, 0, 0), (67, 'af5ebc84', 2906, True, 0, 0), (74, 'none', 0, False, 1, 1)]
+[harness] spike4 raid result: [01:30:22] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Le Bô les-pâtures repulsed at Le Détroit les-pâtures.
+[harness] PASS S4-raid2 raid lifecycle observable via public Village state (target/start set, cleared at end, history grows) ended=True result=[01:30:22] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Le Bô les-pâtures repulsed at Le Détroit les-pâtures.
+[harness] FAIL S4-raid3 HYW units moved to Millénaire's landing point fight B (temporary hostility), B defends them landing (757, 69, 620); raid unit hits on B residents 0; hits on raid units 0; B alert CALM deployed 0
+[harness] PASS S4-raid4 A<->B faction relation stays NEUTRAL (ALWAYS_REVERT) ('NEUTRAL', 'NEUTRAL')
+[harness] PASS S4-raid5 surviving raid units can be returned home (teleport, as Millénaire materializes raiders) 2/2 survived; returned by teleport
+[harness] spike4 riders: [('mounted_light_lancer_rider', '261d08da-ccf0-33f2-b2f8-2a277f08e4e5', 'hundred_years_war:mounted_light_lancer_rider owner=8e32ca4c-3d50-3d9d-9695-59a5cdd106d0 equipment=1 home=642, 82, 600 supply=false despawn=false'), ('mounted_archer_rider', '7da2f356-c675-36ad-9af7-d74a461d3d74', 'hundred_years_war:mounted_archer_rider owner=8e32ca4c-3d50-3d9d-9695-59a5cdd106d0 equipment=1 home=642, 82, 600 supply=false despawn=false')]
+[harness] PASS S4-scout1 HYW mounted riders spawn through the production path and mount their own horse mounts {'261d08da-ccf0-33f2-b2f8-2a277f08e4e5': 'hundred_years_war:hyw_horse[bbb95295]', '7da2f356-c675-36ad-9af7-d74a461d3d74': 'hundred_years_war:hyw_horse[33d8e335]'}
+[harness] spike4 scout track to a post 99 blocks away: [[95.4, 96.6], [95.4, 96.6], [95.4, 96.6], [95.4, 96.6], [95.4, 96.6], [95.4, 96.6], [95.4, 96.6], [95.4, 96.6], [95.4, 96.6], [95.4, 96.6], [95.4, 96.6], [95.4, 96.6]]
+[harness] FAIL S4-scout2 riders travel to a scout post outside the village when their HYW home is moved there (mounted) [95.4, 96.6]
+[harness] server stopped
+[harness] server started
+[harness] PASS S4-scout3 after restart: riders reload once, still mounted, no duplicate horses mounts {'261d08da-ccf0-33f2-b2f8-2a277f08e4e5': 'hundred_years_war:hyw_horse[bbb95295]', '7da2f356-c675-36ad-9af7-d74a461d3d74': 'hundred_years_war:hyw_horse[33d8e335]'}; horse-like entities near the post: 0
+[harness] spike4 riders killed: horse-like entities near the post before 0, after 0
+[harness] PASS S4-wand1 negation deletion removes the village from Millénaire's VillageManager ['negate Le Détroit les-pâtures af5ebc84-16ae-4ef0-86b7-aa4ac0177602: true']; [01:34:05] [Server thread/INFO] [or.mi.it.NegationWandItem/]: [Millénaire] Village af5ebc84 deleted by negation wand (13 villagers removed); villages now ['Le Bô les-pâtures']
+[harness] PASS S4-wand2 its loaded residents are discarded by Millénaire residents loaded before 13, any loaded after: 0
+[harness] PASS S4-wand3 HywMill notices the disappearance (village-gone grace starts) [01:34:12] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village 'Le Détroit les-pâtures' af5ebc84-16ae-4ef0-86b7-aa4ac0177602 is missing from Millénaire's village list; garrison grace period 6000 ticks
+[harness] PASS S4-wand5 no recruitment or spawning into the negated village Le Détroit les-pâtures: []
+[harness] server stopped
+[harness] server started
+[harness] PASS S4-wand4 across a restart: grace -> LOST(VILLAGE_GONE); orphan policy KEEP; no new grant or recruit [01:36:11] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village 'Le Détroit les-pâtures' af5ebc84-16ae-4ef0-86b7-aa4ac0177602 is gone: 5 garrison slot(s) LOST(VILLAGE_GONE); orphan policy KEEP applied to 5 loaded unit(s); grants 0 recruits/spawns 0 after restart
+[harness] server stopped
+[harness] RESULT 15/17 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  S4-raid1 Millénaire raid A -> B triggered  Raid triggered: Le Bô les-pâtures -> Le Détroit les-pâtures (4 raiders dispatched)
+  PASS  S4-raid2 raid lifecycle observable via public Village state (target/start set, cleared at end, history grows)  ended=True result=[01:30:22] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Le Bô les-pâtures repulsed at Le Détroit les-pâtures.
+  FAIL  S4-raid3 HYW units moved to Millénaire's landing point fight B (temporary hostility), B defends them  landing (757, 69, 620); raid unit hits on B residents 0; hits on raid units 0; B alert CALM deployed 0
+  PASS  S4-raid4 A<->B faction relation stays NEUTRAL (ALWAYS_REVERT)  ('NEUTRAL', 'NEUTRAL')
+  PASS  S4-raid5 surviving raid units can be returned home (teleport, as Millénaire materializes raiders)  2/2 survived; returned by teleport
+  PASS  S4-scout1 HYW mounted riders spawn through the production path and mount their own horse  mounts {'261d08da-ccf0-33f2-b2f8-2a277f08e4e5': 'hundred_years_war:hyw_horse[bbb95295]', '7da2f356-c675-36ad-9af7-d74a461d3d74': 'hundred_years_war:hyw_horse[33d8e335]'}
+  FAIL  S4-scout2 riders travel to a scout post outside the village when their HYW home is moved there (mounted)  [95.4, 96.6]
+  PASS  S4-scout3 after restart: riders reload once, still mounted, no duplicate horses  mounts {'261d08da-ccf0-33f2-b2f8-2a277f08e4e5': 'hundred_years_war:hyw_horse[bbb95295]', '7da2f356-c675-36ad-9af7-d74a461d3d74': 'hundred_years_war:hyw_horse[33d8e335]'}; horse-like entities near the post: 0
+  PASS  S4-wand1 negation deletion removes the village from Millénaire's VillageManager  ['negate Le Détroit les-pâtures af5ebc84-16ae-4ef0-86b7-aa4ac0177602: true']; [01:34:05] [Server thread/INFO] [or.mi.it.NegationWandItem/]: [Millénaire] Village af5ebc84 deleted by negation wand (13 villagers removed); villages now ['Le Bô les-pâtures']
+  PASS  S4-wand2 its loaded residents are discarded by Millénaire  residents loaded before 13, any loaded after: 0
+  PASS  S4-wand3 HywMill notices the disappearance (village-gone grace starts)  [01:34:12] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village 'Le Détroit les-pâtures' af5ebc84-16ae-4ef0-86b7-aa4ac0177602 is missing from Millénaire's village list; garrison grace period 6000 ticks
+  PASS  S4-wand5 no recruitment or spawning into the negated village  Le Détroit les-pâtures: []
+  PASS  S4-wand4 across a restart: grace -> LOST(VILLAGE_GONE); orphan policy KEEP; no new grant or recruit  [01:36:11] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village 'Le Détroit les-pâtures' af5ebc84-16ae-4ef0-86b7-aa4ac0177602 is gone: 5 garrison slot(s) LOST(VILLAGE_GONE); orphan policy KEEP applied to 5 loaded unit(s); grants 0 recruits/spawns 0 after restart
