@@ -224,9 +224,17 @@ HYW defense layer working (the same behavior G3-6 verifies). As decided, the gar
 weakened or bypassed and scenario C is not modified. The garrison-disabled run confirms that M2's
 own behavior is unchanged.
 
+**Jar versions.** The M2 regression runs, the migration run (G3-16) and the Epic Knights run used
+the jar built before `80b3e99`. That commit changed only two things:
+* the `admin grant` tier check, which none of those scenarios uses;
+* where the `garrison.slot` timer stops (measurement only).
+
+The final G3 suite and the scale run (47/47) used the final jar. JUnit (133/133) passes on the
+final commit.
+
 ## 14. JUnit
 
-**133 tests pass (77 new).**
+**133 tests pass (77 new)**, verified with a clean build of the final commit.
 
 | Class | Tests |
 |---|---|
