@@ -232,8 +232,10 @@ public final class GarrisonService {
                     new UnitSpec(e.unitKey, e.entityType, UnitClass.LINE, 1, MilitaryTier.WATCH, true));
             long t0 = perf.start();
             GarrisonTag tag = r.beginSpawn(rec.villageId, e, tick);
+            e.equipRole = "";
             SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, rec.factionId, e.entityUuid, pos, anchor, e.equipmentLevel,
-                    s.equipmentDrops(), tag, eq));
+                    s.equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture, rec.tier, "",
+                    dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId)));
             perf.stop("garrison.spawn", t0);
             spawnsThisTick++;
             if (res.ok()) {

@@ -1,0 +1,976 @@
+{
+ "_comment": "HywMill M4 optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded, each slot takes an item from the first matching list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all'. An item is used only if it is registered, fits its armour slot, and (weapons, offhand) belongs to an item family HYW itself gives that unit; otherwise the next list is tried and finally HYW's own item stays. Choices are deterministic per unit. Validate with /hywmill dev equipcheck.",
+ "defaults": {
+  "tiers": {
+   "WATCH": {
+    "all": {
+     "head": [
+      "magistuarmory:coif"
+     ],
+     "chest": [
+      "magistuarmory:gambeson_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose"
+     ],
+     "feet": [
+      "magistuarmory:gambeson_boots"
+     ]
+    },
+    "militia": {
+     "mainhand": [
+      "magistuarmory:club",
+      "magistuarmory:barbedclub",
+      "magistuarmory:wood_shortsword",
+      "magistuarmory:stone_shortsword"
+     ],
+     "chest": [
+      "magistuarmory:gambeson_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose"
+     ]
+    },
+    "line": {
+     "mainhand": [
+      "magistuarmory:wood_pike",
+      "magistuarmory:wood_ahlspiess",
+      "magistuarmory:wood_shortsword",
+      "magistuarmory:wood_katzbalger",
+      "magistuarmory:wood_bastardsword",
+      "magistuarmory:wood_heavymace",
+      "magistuarmory:stone_pike",
+      "magistuarmory:stone_ahlspiess",
+      "magistuarmory:stone_shortsword",
+      "magistuarmory:stone_katzbalger",
+      "magistuarmory:stone_bastardsword",
+      "magistuarmory:stone_heavymace"
+     ]
+    },
+    "ranged": {
+     "mainhand": [
+      "magistuarmory:longbow",
+      "magistuarmory:heavy_crossbow"
+     ],
+     "chest": [
+      "magistuarmory:gambeson_chestplate"
+     ]
+    },
+    "sentry": {
+     "offhand": [
+      "magistuarmory:wood_heatershield",
+      "magistuarmory:wood_kiteshield",
+      "magistuarmory:stone_heatershield",
+      "magistuarmory:stone_kiteshield"
+     ],
+     "head": [
+      "magistuarmory:coif"
+     ]
+    },
+    "patrol": {
+     "head": [
+      "magistuarmory:kettlehat"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose"
+     ]
+    },
+    "scout": {
+     "head": [
+      "magistuarmory:coif"
+     ],
+     "chest": [
+      "magistuarmory:gambeson_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose"
+     ],
+     "feet": [
+      "magistuarmory:gambeson_boots"
+     ]
+    },
+    "reserve": {
+     "chest": [
+      "magistuarmory:chainmail_chestplate"
+     ]
+    }
+   },
+   "GUARD_POST": {
+    "all": {
+     "head": [
+      "magistuarmory:kettlehat",
+      "magistuarmory:coif"
+     ],
+     "chest": [
+      "magistuarmory:chainmail_chestplate",
+      "magistuarmory:gambeson_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:chainmail_leggings",
+      "magistuarmory:pantyhose"
+     ],
+     "feet": [
+      "magistuarmory:chainmail_boots"
+     ]
+    },
+    "militia": {
+     "mainhand": [
+      "magistuarmory:iron_shortsword",
+      "magistuarmory:iron_katzbalger"
+     ],
+     "chest": [
+      "magistuarmory:gambeson_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose"
+     ]
+    },
+    "line": {
+     "mainhand": [
+      "magistuarmory:iron_pike",
+      "magistuarmory:iron_ahlspiess",
+      "magistuarmory:iron_shortsword",
+      "magistuarmory:iron_katzbalger",
+      "magistuarmory:iron_bastardsword",
+      "magistuarmory:iron_heavymace"
+     ]
+    },
+    "ranged": {
+     "mainhand": [
+      "magistuarmory:longbow",
+      "magistuarmory:heavy_crossbow"
+     ],
+     "chest": [
+      "magistuarmory:gambeson_chestplate"
+     ]
+    },
+    "sentry": {
+     "offhand": [
+      "magistuarmory:iron_heatershield",
+      "magistuarmory:iron_kiteshield"
+     ],
+     "head": [
+      "magistuarmory:bascinet"
+     ]
+    },
+    "patrol": {
+     "head": [
+      "magistuarmory:kettlehat"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose",
+      "magistuarmory:chainmail_leggings"
+     ]
+    },
+    "scout": {
+     "head": [
+      "magistuarmory:coif"
+     ],
+     "chest": [
+      "magistuarmory:gambeson_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose"
+     ],
+     "feet": [
+      "magistuarmory:gambeson_boots"
+     ]
+    },
+    "reserve": {
+     "chest": [
+      "magistuarmory:brigandine_chestplate"
+     ]
+    }
+   },
+   "GARRISON": {
+    "all": {
+     "head": [
+      "magistuarmory:kettlehat",
+      "magistuarmory:barbute",
+      "magistuarmory:bascinet"
+     ],
+     "chest": [
+      "magistuarmory:brigandine_chestplate",
+      "magistuarmory:chainmail_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:chainmail_leggings"
+     ],
+     "feet": [
+      "magistuarmory:chainmail_boots"
+     ]
+    },
+    "militia": {
+     "mainhand": [
+      "magistuarmory:steel_shortsword",
+      "magistuarmory:steel_katzbalger",
+      "magistuarmory:iron_shortsword",
+      "magistuarmory:iron_katzbalger"
+     ],
+     "chest": [
+      "magistuarmory:chainmail_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose"
+     ]
+    },
+    "line": {
+     "mainhand": [
+      "magistuarmory:steel_pike",
+      "magistuarmory:steel_ahlspiess",
+      "magistuarmory:steel_shortsword",
+      "magistuarmory:steel_katzbalger",
+      "magistuarmory:steel_bastardsword",
+      "magistuarmory:steel_heavymace",
+      "magistuarmory:iron_pike",
+      "magistuarmory:iron_ahlspiess",
+      "magistuarmory:iron_shortsword",
+      "magistuarmory:iron_katzbalger",
+      "magistuarmory:iron_bastardsword",
+      "magistuarmory:iron_heavymace"
+     ]
+    },
+    "ranged": {
+     "mainhand": [
+      "magistuarmory:longbow",
+      "magistuarmory:heavy_crossbow"
+     ],
+     "chest": [
+      "magistuarmory:chainmail_chestplate"
+     ]
+    },
+    "sentry": {
+     "offhand": [
+      "magistuarmory:steel_heatershield",
+      "magistuarmory:steel_kiteshield",
+      "magistuarmory:iron_heatershield",
+      "magistuarmory:iron_kiteshield"
+     ],
+     "head": [
+      "magistuarmory:bascinet"
+     ]
+    },
+    "patrol": {
+     "head": [
+      "magistuarmory:kettlehat"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose",
+      "magistuarmory:chainmail_leggings"
+     ]
+    },
+    "scout": {
+     "head": [
+      "magistuarmory:coif"
+     ],
+     "chest": [
+      "magistuarmory:gambeson_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose"
+     ],
+     "feet": [
+      "magistuarmory:gambeson_boots"
+     ]
+    },
+    "reserve": {
+     "chest": [
+      "magistuarmory:platemail_chestplate"
+     ]
+    }
+   },
+   "STRONGHOLD": {
+    "all": {
+     "head": [
+      "magistuarmory:bascinet",
+      "magistuarmory:sallet",
+      "magistuarmory:armet"
+     ],
+     "chest": [
+      "magistuarmory:platemail_chestplate",
+      "magistuarmory:brigandine_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:platemail_leggings"
+     ],
+     "feet": [
+      "magistuarmory:platemail_boots"
+     ]
+    },
+    "militia": {
+     "mainhand": [
+      "magistuarmory:steel_shortsword",
+      "magistuarmory:steel_katzbalger"
+     ],
+     "chest": [
+      "magistuarmory:brigandine_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose"
+     ]
+    },
+    "line": {
+     "mainhand": [
+      "magistuarmory:steel_pike",
+      "magistuarmory:steel_ahlspiess",
+      "magistuarmory:steel_shortsword",
+      "magistuarmory:steel_katzbalger",
+      "magistuarmory:steel_bastardsword",
+      "magistuarmory:steel_heavymace"
+     ]
+    },
+    "ranged": {
+     "mainhand": [
+      "magistuarmory:longbow",
+      "magistuarmory:heavy_crossbow"
+     ],
+     "chest": [
+      "magistuarmory:brigandine_chestplate"
+     ]
+    },
+    "sentry": {
+     "offhand": [
+      "magistuarmory:steel_heatershield",
+      "magistuarmory:steel_kiteshield"
+     ],
+     "head": [
+      "magistuarmory:greathelm",
+      "magistuarmory:grand_bascinet"
+     ]
+    },
+    "patrol": {
+     "head": [
+      "magistuarmory:kettlehat"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose",
+      "magistuarmory:chainmail_leggings"
+     ]
+    },
+    "scout": {
+     "head": [
+      "magistuarmory:coif"
+     ],
+     "chest": [
+      "magistuarmory:gambeson_chestplate"
+     ],
+     "legs": [
+      "magistuarmory:pantyhose"
+     ],
+     "feet": [
+      "magistuarmory:gambeson_boots"
+     ]
+    },
+    "reserve": {
+     "chest": [
+      "magistuarmory:platemail_chestplate"
+     ]
+    }
+   }
+  }
+ },
+ "cultures": {
+  "millenaire:norman": {
+   "tiers": {
+    "WATCH": {
+     "all": {
+      "head": [
+       "magistuarmory:norman_helmet"
+      ],
+      "offhand": [
+       "magistuarmory:wood_kiteshield",
+       "magistuarmory:stone_kiteshield"
+      ]
+     }
+    },
+    "GUARD_POST": {
+     "all": {
+      "head": [
+       "magistuarmory:norman_helmet"
+      ],
+      "offhand": [
+       "magistuarmory:iron_kiteshield"
+      ]
+     }
+    },
+    "GARRISON": {
+     "all": {
+      "head": [
+       "magistuarmory:norman_helmet"
+      ],
+      "offhand": [
+       "magistuarmory:steel_kiteshield",
+       "magistuarmory:iron_kiteshield"
+      ]
+     }
+    },
+    "STRONGHOLD": {
+     "all": {
+      "head": [
+       "magistuarmory:greathelm",
+       "magistuarmory:norman_helmet"
+      ],
+      "offhand": [
+       "magistuarmory:steel_kiteshield"
+      ]
+     }
+    }
+   }
+  },
+  "millenaire:byzantines": {
+   "tiers": {
+    "WATCH": {
+     "all": {
+      "head": [
+       "magistuarmory:chainmail_helmet"
+      ],
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "feet": [
+       "magistuarmory:gambeson_boots"
+      ],
+      "offhand": [
+       "magistuarmory:wood_kiteshield",
+       "magistuarmory:wood_roundshield",
+       "magistuarmory:stone_kiteshield",
+       "magistuarmory:stone_roundshield"
+      ]
+     }
+    },
+    "GUARD_POST": {
+     "all": {
+      "head": [
+       "magistuarmory:chainmail_helmet"
+      ],
+      "chest": [
+       "magistuarmory:lamellar_chestplate"
+      ],
+      "feet": [
+       "magistuarmory:lamellar_boots"
+      ],
+      "offhand": [
+       "magistuarmory:iron_kiteshield",
+       "magistuarmory:iron_roundshield"
+      ]
+     }
+    },
+    "GARRISON": {
+     "all": {
+      "head": [
+       "magistuarmory:sallet",
+       "magistuarmory:chainmail_helmet"
+      ],
+      "chest": [
+       "magistuarmory:lamellar_chestplate"
+      ],
+      "feet": [
+       "magistuarmory:lamellar_boots"
+      ],
+      "offhand": [
+       "magistuarmory:steel_kiteshield",
+       "magistuarmory:steel_roundshield",
+       "magistuarmory:iron_kiteshield",
+       "magistuarmory:iron_roundshield"
+      ]
+     }
+    },
+    "STRONGHOLD": {
+     "all": {
+      "head": [
+       "magistuarmory:sallet",
+       "magistuarmory:chainmail_helmet"
+      ],
+      "chest": [
+       "magistuarmory:lamellar_chestplate"
+      ],
+      "feet": [
+       "magistuarmory:lamellar_boots"
+      ],
+      "offhand": [
+       "magistuarmory:steel_kiteshield",
+       "magistuarmory:steel_roundshield"
+      ]
+     }
+    }
+   }
+  },
+  "millenaire:seljuk": {
+   "tiers": {
+    "WATCH": {
+     "all": {
+      "head": [
+       "magistuarmory:coif"
+      ],
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "offhand": [
+       "magistuarmory:wood_roundshield",
+       "magistuarmory:wood_buckler",
+       "magistuarmory:stone_roundshield",
+       "magistuarmory:stone_buckler"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:wood_shortsword",
+       "magistuarmory:wood_ahlspiess",
+       "magistuarmory:wood_pike",
+       "magistuarmory:wood_heavymace",
+       "magistuarmory:stone_shortsword",
+       "magistuarmory:stone_ahlspiess",
+       "magistuarmory:stone_pike",
+       "magistuarmory:stone_heavymace"
+      ]
+     }
+    },
+    "GUARD_POST": {
+     "all": {
+      "head": [
+       "magistuarmory:shishak"
+      ],
+      "chest": [
+       "magistuarmory:lamellar_chestplate"
+      ],
+      "offhand": [
+       "magistuarmory:iron_roundshield",
+       "magistuarmory:iron_buckler"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:iron_shortsword",
+       "magistuarmory:iron_ahlspiess",
+       "magistuarmory:iron_pike",
+       "magistuarmory:iron_heavymace"
+      ]
+     }
+    },
+    "GARRISON": {
+     "all": {
+      "head": [
+       "magistuarmory:shishak"
+      ],
+      "chest": [
+       "magistuarmory:lamellar_chestplate"
+      ],
+      "offhand": [
+       "magistuarmory:steel_roundshield",
+       "magistuarmory:steel_buckler",
+       "magistuarmory:iron_roundshield",
+       "magistuarmory:iron_buckler"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:steel_shortsword",
+       "magistuarmory:steel_ahlspiess",
+       "magistuarmory:steel_pike",
+       "magistuarmory:steel_heavymace",
+       "magistuarmory:iron_shortsword",
+       "magistuarmory:iron_ahlspiess",
+       "magistuarmory:iron_pike",
+       "magistuarmory:iron_heavymace"
+      ]
+     }
+    },
+    "STRONGHOLD": {
+     "all": {
+      "head": [
+       "magistuarmory:shishak"
+      ],
+      "chest": [
+       "magistuarmory:lamellar_chestplate"
+      ],
+      "offhand": [
+       "magistuarmory:steel_roundshield",
+       "magistuarmory:steel_buckler"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:steel_shortsword",
+       "magistuarmory:steel_ahlspiess",
+       "magistuarmory:steel_pike",
+       "magistuarmory:steel_heavymace"
+      ]
+     }
+    }
+   }
+  },
+  "millenaire:indian": {
+   "tiers": {
+    "WATCH": {
+     "all": {
+      "head": [
+       "magistuarmory:coif"
+      ],
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "offhand": [
+       "magistuarmory:wood_roundshield",
+       "magistuarmory:wood_buckler",
+       "magistuarmory:stone_roundshield",
+       "magistuarmory:stone_buckler"
+      ]
+     }
+    },
+    "GUARD_POST": {
+     "all": {
+      "head": [
+       "magistuarmory:chainmail_helmet"
+      ],
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "offhand": [
+       "magistuarmory:iron_roundshield",
+       "magistuarmory:iron_buckler"
+      ]
+     }
+    },
+    "GARRISON": {
+     "all": {
+      "head": [
+       "magistuarmory:chainmail_helmet"
+      ],
+      "chest": [
+       "magistuarmory:brigandine_chestplate"
+      ],
+      "offhand": [
+       "magistuarmory:steel_roundshield",
+       "magistuarmory:steel_buckler",
+       "magistuarmory:iron_roundshield",
+       "magistuarmory:iron_buckler"
+      ]
+     }
+    },
+    "STRONGHOLD": {
+     "all": {
+      "head": [
+       "magistuarmory:chainmail_helmet"
+      ],
+      "chest": [
+       "magistuarmory:brigandine_chestplate"
+      ],
+      "offhand": [
+       "magistuarmory:steel_roundshield",
+       "magistuarmory:steel_buckler"
+      ]
+     }
+    }
+   }
+  },
+  "millenaire:japanese": {
+   "tiers": {
+    "WATCH": {
+     "all": {
+      "head": [
+       "magistuarmory:kettlehat"
+      ],
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "feet": [
+       "magistuarmory:gambeson_boots"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:wood_pike",
+       "magistuarmory:wood_ahlspiess",
+       "magistuarmory:wood_katzbalger",
+       "magistuarmory:stone_pike",
+       "magistuarmory:stone_ahlspiess",
+       "magistuarmory:stone_katzbalger"
+      ]
+     }
+    },
+    "GUARD_POST": {
+     "all": {
+      "head": [
+       "magistuarmory:kettlehat"
+      ],
+      "chest": [
+       "magistuarmory:lamellar_chestplate"
+      ],
+      "feet": [
+       "magistuarmory:lamellar_boots"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:iron_pike",
+       "magistuarmory:iron_ahlspiess",
+       "magistuarmory:iron_katzbalger"
+      ]
+     }
+    },
+    "GARRISON": {
+     "all": {
+      "head": [
+       "magistuarmory:kettlehat"
+      ],
+      "chest": [
+       "magistuarmory:lamellar_chestplate"
+      ],
+      "feet": [
+       "magistuarmory:lamellar_boots"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:steel_pike",
+       "magistuarmory:steel_ahlspiess",
+       "magistuarmory:steel_katzbalger",
+       "magistuarmory:iron_pike",
+       "magistuarmory:iron_ahlspiess",
+       "magistuarmory:iron_katzbalger"
+      ]
+     }
+    },
+    "STRONGHOLD": {
+     "all": {
+      "head": [
+       "magistuarmory:kettlehat"
+      ],
+      "chest": [
+       "magistuarmory:lamellar_chestplate"
+      ],
+      "feet": [
+       "magistuarmory:lamellar_boots"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:steel_pike",
+       "magistuarmory:steel_ahlspiess",
+       "magistuarmory:steel_katzbalger"
+      ]
+     }
+    }
+   }
+  },
+  "millenaire:mayan": {
+   "tiers": {
+    "WATCH": {
+     "all": {
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "legs": [
+       "magistuarmory:pantyhose"
+      ],
+      "feet": [
+       "magistuarmory:gambeson_boots"
+      ],
+      "offhand": [
+       "magistuarmory:wood_roundshield",
+       "magistuarmory:wood_buckler"
+      ]
+     },
+     "militia": {
+      "mainhand": [
+       "magistuarmory:club",
+       "magistuarmory:barbedclub"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:club",
+       "magistuarmory:barbedclub",
+       "magistuarmory:wood_heavymace",
+       "magistuarmory:wood_ahlspiess",
+       "magistuarmory:stone_heavymace",
+       "magistuarmory:stone_ahlspiess"
+      ]
+     }
+    },
+    "GUARD_POST": {
+     "all": {
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "legs": [
+       "magistuarmory:pantyhose"
+      ],
+      "feet": [
+       "magistuarmory:gambeson_boots"
+      ],
+      "offhand": [
+       "magistuarmory:wood_roundshield",
+       "magistuarmory:wood_buckler"
+      ]
+     },
+     "militia": {
+      "mainhand": [
+       "magistuarmory:club",
+       "magistuarmory:barbedclub"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:club",
+       "magistuarmory:barbedclub",
+       "magistuarmory:iron_heavymace",
+       "magistuarmory:iron_ahlspiess"
+      ]
+     }
+    },
+    "GARRISON": {
+     "all": {
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "legs": [
+       "magistuarmory:pantyhose"
+      ],
+      "feet": [
+       "magistuarmory:gambeson_boots"
+      ],
+      "offhand": [
+       "magistuarmory:steel_roundshield",
+       "magistuarmory:iron_roundshield"
+      ]
+     },
+     "militia": {
+      "mainhand": [
+       "magistuarmory:club",
+       "magistuarmory:barbedclub"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:club",
+       "magistuarmory:barbedclub",
+       "magistuarmory:steel_heavymace",
+       "magistuarmory:steel_ahlspiess",
+       "magistuarmory:iron_heavymace",
+       "magistuarmory:iron_ahlspiess"
+      ]
+     }
+    },
+    "STRONGHOLD": {
+     "all": {
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "legs": [
+       "magistuarmory:pantyhose"
+      ],
+      "feet": [
+       "magistuarmory:gambeson_boots"
+      ],
+      "offhand": [
+       "magistuarmory:steel_roundshield"
+      ]
+     },
+     "militia": {
+      "mainhand": [
+       "magistuarmory:club",
+       "magistuarmory:barbedclub"
+      ]
+     },
+     "line": {
+      "mainhand": [
+       "magistuarmory:club",
+       "magistuarmory:barbedclub",
+       "magistuarmory:steel_heavymace",
+       "magistuarmory:steel_ahlspiess"
+      ]
+     }
+    }
+   }
+  },
+  "millenaire:inuits": {
+   "tiers": {
+    "WATCH": {
+     "all": {
+      "head": [
+       "magistuarmory:coif"
+      ],
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "legs": [
+       "magistuarmory:pantyhose"
+      ],
+      "feet": [
+       "magistuarmory:gambeson_boots"
+      ]
+     },
+     "militia": {
+      "mainhand": [
+       "magistuarmory:club"
+      ]
+     }
+    },
+    "GUARD_POST": {
+     "all": {
+      "head": [
+       "magistuarmory:coif"
+      ],
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "legs": [
+       "magistuarmory:pantyhose"
+      ],
+      "feet": [
+       "magistuarmory:gambeson_boots"
+      ]
+     },
+     "militia": {
+      "mainhand": [
+       "magistuarmory:club"
+      ]
+     }
+    },
+    "GARRISON": {
+     "all": {
+      "head": [
+       "magistuarmory:coif"
+      ],
+      "chest": [
+       "magistuarmory:gambeson_chestplate"
+      ],
+      "legs": [
+       "magistuarmory:pantyhose"
+      ],
+      "feet": [
+       "magistuarmory:gambeson_boots"
+      ]
+     },
+     "militia": {
+      "mainhand": [
+       "magistuarmory:club"
+      ]
+     }
+    },
+    "STRONGHOLD": {
+     "all": {
+      "head": [
+       "magistuarmory:coif"
+      ],
+      "chest": [
+       "magistuarmory:chainmail_chestplate"
+      ],
+      "legs": [
+       "magistuarmory:pantyhose"
+      ],
+      "feet": [
+       "magistuarmory:gambeson_boots"
+      ]
+     },
+     "militia": {
+      "mainhand": [
+       "magistuarmory:club"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

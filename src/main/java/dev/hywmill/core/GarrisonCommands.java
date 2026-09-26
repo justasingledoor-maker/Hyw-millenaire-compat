@@ -43,7 +43,7 @@ import static dev.hywmill.core.HywMillCommands.send;
  * <ul>
  *   <li>{@code village garrison}: summary (everyone); {@code units} (op 2 or controller);
  *       {@code pause|resume|recall} (op 2 or the controller of a player-controlled village).</li>
- *   <li>{@code admin grant|purge|reconcile|setpoints} (op 3, like the other admin commands).</li>
+ *   <li>{@code admin grant|purge|reconcile|setpoints|equipcheck} (op 3, like the other admin commands).</li>
  *   <li>{@code dev spawn-now|rewind|census} (op 2 and devCommands=true; tests only).</li>
  * </ul>
  */
@@ -71,6 +71,7 @@ final class GarrisonCommands {
                                         .then(Commands.argument("count", IntegerArgumentType.integer(1, 64))
                                                 .executes(ctx -> grant(ctx, IntegerArgumentType.getInteger(ctx, "count"))))))
                         .then(Commands.literal("purge").executes(GarrisonCommands::purge))
+                        .then(M4SpikeCommands.equipCheck())
                         .then(Commands.literal("reconcile").executes(GarrisonCommands::reconcile))
                         .then(Commands.literal("setpoints")
                                 .then(Commands.argument("points", DoubleArgumentType.doubleArg(0, 100000))

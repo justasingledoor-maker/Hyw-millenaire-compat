@@ -1,5 +1,5 @@
 {
-  "_comment": "HywMill M3 garrison rules. target = min(clamp(round(capacity * perCapacity), minTarget, maxTarget), maxUnits); maxUnits is the per-village tier ceiling (there is no server-wide cap). Levy: baseDaily + perCapacityDaily * capacity points per active in-game day, capped at poolCap. Culture entries patch the defaults (composition replaces, tiers merge per field). M4: CAVALRY (light mounted scouts) is allowed from GARRISON tier and appears only in the compositions of horse-riding cultures (not Mayan or Inuit).",
+  "_comment": "HywMill M3 garrison rules. target = min(clamp(round(capacity * perCapacity), minTarget, maxTarget), maxUnits); maxUnits is the per-village tier ceiling (there is no server-wide cap). Levy: baseDaily + perCapacityDaily * capacity points per active in-game day, capped at poolCap. Culture entries patch the defaults (composition replaces, tiers merge per field). M4: equipmentProvider 'hyw_profiles' is HYW's own equipment plus optional Epic Knights profiles (hywmill_equipment; identical to 'hyw' without Epic Knights). CAVALRY (light mounted scouts) is allowed from GARRISON tier and appears only in the compositions of horse-riding cultures (not Mayan or Inuit).",
   "defaults": {
     "tiers": {
       "NONE":       { "perCapacity": 0.0, "minTarget": 0, "maxTarget": 0,  "maxUnits": 0,  "baseDaily": 0.0, "poolCap": 0,  "equipmentLevel": 0, "classes": [] },
@@ -12,7 +12,7 @@
     "startingFraction": 0.5,
     "commitPerThreat": 2,
     "composition": { "militia": 1, "spear_man": 3, "archer": 2 },
-    "equipmentProvider": "hyw"
+    "equipmentProvider": "hyw_profiles"
   },
   "cultures": {
     "millenaire:norman":     { "composition": { "militia": 1, "spear_man": 3, "shieldman": 2, "crossbowman": 2, "archer": 1, "light_lancer_rider": 1 } },

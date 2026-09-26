@@ -56,6 +56,29 @@ final class M4SpikeCommands {
                         .then(Commands.argument("item", StringArgumentType.greedyString()).executes(M4SpikeCommands::equipCmd))));
     }
 
+    /** M4 validation tool ({@code /hywmill admin equipcheck}, op 3): checks the equipment profiles against every garrison unit type (log + chat summary). */
+    static LiteralArgumentBuilder<CommandSourceStack> equipCheck() {
+        return Commands.literal("equipcheck").executes(ctx -> {
+            CommandSourceStack src = ctx.getSource();
+            dev.hywmill.garrison.spi.EquipmentProvider p = Services.equipment("hyw_profiles");
+            if (p == null) {
+                src.sendFailure(Component.literal("Equipment provider 'hyw_profiles' is not available (HYW not loaded?)."));
+                return 0;
+            }
+            java.util.List<String> report = p.validate(dev.hywmill.garrison.tables.GarrisonTables.current().units().values());
+            for (String l : report) {
+                HmLog.info("equipcheck {}", l);
+            }
+            int shown = 0;
+            for (String l : report) {
+                if (shown++ < 40 || l.startsWith("equipcheck:")) {
+                    src.sendSuccess(() -> Component.literal(l), false);
+                }
+            }
+            return report.size();
+        });
+    }
+
     static String id8(UUID u) {
         return u == null ? "none" : u.toString().substring(0, 8);
     }

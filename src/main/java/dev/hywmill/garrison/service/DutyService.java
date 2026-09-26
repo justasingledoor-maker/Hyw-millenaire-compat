@@ -119,6 +119,7 @@ public final class DutyService {
             if (ent == null || !ent.isAlive() || !(ent.level() instanceof ServerLevel level)) {
                 continue;
             }
+            reequip(rec, e, ent, units);
             int member = e.assignedDuty == Duty.SENTRY ? Math.max(0, pairs.getOrDefault(e.dutyIndex, List.of()).indexOf(e.rosterId)) : 0;
             DutyMotion.Ctx ctx = new DutyMotion.Ctx(table.move(), table.scout(), rec.center, calm, member, rt.quota.patrol());
             int stepBefore = e.dutyStep;
@@ -138,6 +139,27 @@ public final class DutyService {
             ledger.setDirty();
         }
         perf.stop("duty.tick", t0);
+    }
+
+    /**
+     * Profile equipment (M4, optional): when the village's provider depends on the duty role and the
+     * unit's role changed since its equipment was applied, re-applies it (HYW's level, then the overlay).
+     */
+    private static void reequip(VillageRecord rec, RosterEntry e, Entity ent, UnitProvider units) {
+        String role = dev.hywmill.garrison.equip.EquipmentProfiles.dutyRole(e.assignedDuty);
+        if (role.equals(e.equipRole)) {
+            return;
+        }
+        GarrisonTables gt = GarrisonTables.current();
+        dev.hywmill.garrison.spi.EquipmentProvider eq = Services.equipment(gt.forCulture(rec.culture).equipmentProvider());
+        UnitSpec spec = gt.units().get(e.unitKey);
+        if (eq == null || !eq.reequips() || spec == null) {
+            e.equipRole = role;
+            return;
+        }
+        eq.apply(ent, spec, e.equipmentLevel, new dev.hywmill.garrison.spi.EquipmentProvider.Context(rec.culture, rec.tier, role,
+                dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId));
+        e.equipRole = role;
     }
 
     /** Reads the layout when due and recomputes posts and routes if it (or the data) changed. False if there is no plan. */

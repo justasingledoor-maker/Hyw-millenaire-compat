@@ -229,13 +229,17 @@ public final class GarrisonRoster {
                 c.putString("lossReason", e.lossReason().name());
             }
             c.putBoolean("paid", e.paid);
-            if (e.assignedDuty != dev.hywmill.garrison.duty.Duty.GARRISON || e.duty != dev.hywmill.garrison.duty.Duty.GARRISON || e.dutyIndex >= 0) {
+            if (e.assignedDuty != dev.hywmill.garrison.duty.Duty.GARRISON || e.duty != dev.hywmill.garrison.duty.Duty.GARRISON || e.dutyIndex >= 0
+                    || !e.equipRole.isEmpty()) {
                 CompoundTag d = new CompoundTag();
                 d.putString("assigned", e.assignedDuty.name());
                 d.putString("current", e.duty.name());
                 d.putInt("index", e.dutyIndex);
                 d.putInt("step", e.dutyStep);
                 d.putLong("since", e.dutySince);
+                if (!e.equipRole.isEmpty()) {
+                    d.putString("equipRole", e.equipRole);
+                }
                 c.put("duty", d);
             }
             list.add(c);
@@ -300,6 +304,7 @@ public final class GarrisonRoster {
                 e.dutyIndex = d.getInt("index");
                 e.dutyStep = d.getInt("step");
                 e.dutySince = d.getLong("since");
+                e.equipRole = d.getString("equipRole");
             }
             if (pos.length == 3) {
                 e.lastSeenX = pos[0];

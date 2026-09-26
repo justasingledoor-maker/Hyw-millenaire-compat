@@ -23,6 +23,7 @@ public final class HywIntegration implements Integration {
         Services.registerFactions(new HywCombatFactionService());
         Services.registerUnits(new HywUnitProvider());
         Services.registerEquipment(new HywEquipmentProvider());
+        Services.registerEquipment(new HywProfileEquipmentProvider());
         Services.putDiagnostic("hyw.identityMarker", "RelationOwnerMarkedEntity present on Entity");
         HmLog.info("HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).");
     }

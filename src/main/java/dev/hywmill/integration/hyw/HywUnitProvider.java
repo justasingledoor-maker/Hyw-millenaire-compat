@@ -56,7 +56,8 @@ public final class HywUnitProvider implements UnitProvider {
         unit.setOwnerUUID(req.owner());
         unit.setRequiresSupply(false);
         unit.setCanNaturalDespawn(false);
-        int applied = req.equipment().apply(unit, req.unit(), req.equipmentLevel());
+        int applied = req.context() != null ? req.equipment().apply(unit, req.unit(), req.equipmentLevel(), req.context())
+                : req.equipment().apply(unit, req.unit(), req.equipmentLevel());
         unit.setHomePosition(req.home());
         unit.setAttackStrategy(AttackStrategy.DEFAULT);
         if (!req.equipmentDrops()) {

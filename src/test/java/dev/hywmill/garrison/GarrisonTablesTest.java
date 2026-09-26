@@ -69,7 +69,7 @@ class GarrisonTablesTest {
         assertEquals(0.25, d.perCapacityDaily());
         assertEquals(0.5, d.startingFraction());
         assertEquals(2, d.commitPerThreat());
-        assertEquals("hyw", d.equipmentProvider());
+        assertEquals("hyw_profiles", d.equipmentProvider());
         assertEquals(0, d.tier(MilitaryTier.WATCH).equipmentLevel());
         assertEquals(1, d.tier(MilitaryTier.GUARD_POST).equipmentLevel());
         assertEquals(2, d.tier(MilitaryTier.GARRISON).equipmentLevel());

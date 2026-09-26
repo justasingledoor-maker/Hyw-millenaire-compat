@@ -148,6 +148,7 @@ public final class CoreEvents {
         event.addListener(new DoctrineLoader());
         event.addListener(new GarrisonTableLoader());
         event.addListener(new dev.hywmill.garrison.duty.DutyTableLoader());
+        event.addListener(new dev.hywmill.garrison.equip.EquipmentProfileLoader());
     }
 
     @SubscribeEvent

@@ -36,6 +36,8 @@ public final class RosterEntry {
     /** Progress within the duty (patrol waypoint, scout phase step). */
     public int dutyStep;
     public long dutySince;
+    /** Duty role the unit's equipment was last applied for ("" = class role only, as at spawn). */
+    public String equipRole = "";
 
     public RosterEntry(UUID rosterId, String unitKey, String entityType, int equipmentLevel, long recruitedTick, boolean paid) {
         this(rosterId, unitKey, entityType, equipmentLevel, UnitState.RECRUITED, null, 0, recruitedTick, -1, recruitedTick, null, paid);
