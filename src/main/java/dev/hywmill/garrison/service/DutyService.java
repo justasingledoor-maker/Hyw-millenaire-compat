@@ -70,8 +70,12 @@ public final class DutyService {
         this.raids = new RaidService(perf);
     }
 
+    /** DEV ONLY ({@code /hywmill dev duties on|off}, cost comparison): overrides the config switch until restart. */
+    @Nullable public static volatile Boolean devOverride;
+
     public static boolean enabled() {
-        return HywMillConfig.DUTIES_ENABLED.get();
+        Boolean o = devOverride;
+        return o != null ? o : HywMillConfig.DUTIES_ENABLED.get();
     }
 
     /** Called for every active village with a record, once per duty interval (staggered). */

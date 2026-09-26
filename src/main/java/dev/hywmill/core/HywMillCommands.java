@@ -84,6 +84,7 @@ public final class HywMillCommands {
                         .then(M4SpikeCommands.raidPoint())
                         .then(M4SpikeCommands.negate())
                         .then(M4SpikeCommands.home())
+                        .then(M4SpikeCommands.duties())
                         .then(M4SpikeCommands.equip())
                         .then(Commands.literal("inspect")
                                 .then(Commands.argument("targets", EntityArgument.entities())

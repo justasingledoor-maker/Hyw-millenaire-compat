@@ -2356,6 +2356,24 @@ def scenario_G4_10(ctx):
           {k: rows.get(k) for k in ("duty.tick", "duty.layout", "raid.tick", "tick.total")})
 
 
+def scenario_G4_perf(ctx):
+    """Like-for-like cost: 120 s CALM with M4 duties off, then 120 s with them on, same world and units."""
+    s = ctx.s
+    res = {}
+    for state in ("off", "on"):
+        s.output(f"hywmill dev duties {state}", 1)
+        time.sleep(20)
+        s.cmd("hywmill perf reset", 1)
+        time.sleep(120)
+        res[state] = perf_rows(s.output("hywmill perf", 2))
+        log(f"G4 perf duties {state}:\n  " + "\n  ".join(f"{k}: {v}" for k, v in res[state].items()))
+    t_off, t_on = res["off"].get("tick.total", {}), res["on"].get("tick.total", {})
+    check("G4-P calm tick cost with duties on stays comparable to duties off (mean within +50 us)",
+          t_off and t_on and t_on["mean"] <= t_off["mean"] + 50,
+          f"tick.total mean off {t_off.get('mean')} us / on {t_on.get('mean')} us; p99 off {t_off.get('p99')} / on {t_on.get('p99')}; "
+          f"duty.tick {res['on'].get('duty.tick')}")
+
+
 def scenario_G4_EK(ctx):
     """Optional Epic Knights profiles (run with HYWMILL_EXTRA_MODS=<dir with Epic Knights jars>):
     equipment varies by culture, tier and role; unsupported combinations fall back to HYW's gear."""
@@ -2396,7 +2414,7 @@ def scenario_G4_EK(ctx):
           f"spear_man offhand {sorted(spear_off)}; shieldman offhand {sorted(shield_off)}; archer mainhand {sorted(archer_main)}")
 
 
-SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
@@ -2404,7 +2422,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_17": scenario_G3_17, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "S4b": scenario_S4b}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
             "G3_15", "G3_14", "G3_perf"]
-ORDER_G4 = ["status", "G4_0", "G4_1", "G4_2", "G4_3", "G4_4", "G4_5", "G4_6", "G4_7", "G4_8", "G4_10", "G4_9"]
+ORDER_G4 = ["status", "G4_0", "G4_1", "G4_2", "G4_3", "G4_4", "G4_5", "G4_6", "G4_7", "G4_8", "G4_10", "G4_perf", "G4_9"]
 ORDER_G4_EK = ["status", "G4_0", "G4_EK"]
 ORDER = ["status", "H", "B", "N", "C", "D", "I", "W", "L", "F1", "E", "F2", "X", "P", "A", "G"]
 

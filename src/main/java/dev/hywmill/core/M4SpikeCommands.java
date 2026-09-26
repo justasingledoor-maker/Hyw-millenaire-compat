@@ -79,6 +79,20 @@ final class M4SpikeCommands {
         });
     }
 
+    /** DEV: {@code dev duties on|off} switches M4 duties at runtime (cost comparison in one world). */
+    static LiteralArgumentBuilder<CommandSourceStack> duties() {
+        return Commands.literal("duties").then(Commands.argument("state", StringArgumentType.word()).executes(ctx -> {
+            CommandSourceStack src = ctx.getSource();
+            if (!HywMillCommands.devEnabled(src)) {
+                return 0;
+            }
+            boolean on = StringArgumentType.getString(ctx, "state").equals("on");
+            dev.hywmill.garrison.service.DutyService.devOverride = on;
+            src.sendSuccess(() -> Component.literal("duties " + (on ? "on" : "off") + " (dev override until restart)"), true);
+            return 1;
+        }));
+    }
+
     static String id8(UUID u) {
         return u == null ? "none" : u.toString().substring(0, 8);
     }
