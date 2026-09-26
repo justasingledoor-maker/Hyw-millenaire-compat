@@ -2168,7 +2168,7 @@ def run_ekspike(d: Path, ekdir: Path):
         a = ctx.a
         units = {}
         for i, (unit, slot, item, kind) in enumerate(EK_CASES):
-            x, z = a[0] - 40 + (i % 6) * 6, a[2] + 30 + (i // 6) * 6
+            x, z = a[0] - 100 + (i % 6) * 32, a[2] + 60 + (i // 6) * 32
             s.cmd(f"forceload add {x} {z}", 1)
             r = spike_spawn(s, (x, 0, z), unit, 2)
             u = r.get("uuid")
@@ -2185,7 +2185,7 @@ def run_ekspike(d: Path, ekdir: Path):
         s.stop()
         s.start()
         for i in range(len(EK_CASES)):
-            x, z = a[0] - 40 + (i % 6) * 6, a[2] + 30 + (i // 6) * 6
+            x, z = a[0] - 100 + (i % 6) * 32, a[2] + 60 + (i // 6) * 32
             s.cmd(f"forceload add {x} {z}", 0.5)
         time.sleep(15)
         reload_ = spike_info(s, "@e[type=!minecraft:player]")
@@ -2194,14 +2194,15 @@ def run_ekspike(d: Path, ekdir: Path):
             u = units[i][0]
             if u in reload_:
                 p = reload_[u]["pos"]
-                s.cmd(f"summon minecraft:zombie {p[0] + 2} {p[1]} {p[2]} {{Tags:['ekz{i}'],PersistenceRequired:1b}}", 0.3)
-        time.sleep(25)
+                # a husk does not burn in daylight; units are 32 blocks apart, so damage is this unit's
+                s.cmd(f"summon minecraft:husk {p[0] + 3} {p[1]} {p[2]} {{Tags:['ekz{i}'],PersistenceRequired:1b,Health:40f,attributes:[{{id:'minecraft:generic.max_health',base:40}}]}}", 0.3)
+        time.sleep(30)
         for i, (unit, slot, item, kind) in enumerate(EK_CASES):
             u, base, out, got = units[i]
             want = item.split(":")[1]
             rel = reload_.get(u, {}).get("slots", {}).get(slot)
             zh = health(s, f"ekz{i}")
-            fought = zh is None or zh < 20.0
+            fought = zh is None or zh < 40.0
             rows.append(dict(unit=unit, slot=slot, item=item, kind=kind, set="set" in out, base=base.get(slot), after15s=got,
                              afterRestart=rel, fought=fought, zombie=zh))
         for r in rows:

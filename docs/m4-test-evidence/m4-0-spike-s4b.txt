@@ -1,0 +1,23 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario S4b
+[harness] spike4b hop: remaining distance after 40 s per (unit, hop) {('spear_man', 16): 2.0, ('spear_man', 24): 1.0, ('spear_man', 32): 2.0, ('spear_man', 48): 2.0, ('spear_man', 64): 2.2, ('mounted_light_lancer_rider', 16): 1.0, ('mounted_light_lancer_rider', 24): 3.6, ('mounted_light_lancer_rider', 32): 3.0, ('mounted_light_lancer_rider', 48): 3.0, ('mounted_light_lancer_rider', 64): 3.2}
+[harness] PASS S4b-hop1 reachable single hop measured for infantry and mounted units {('spear_man', 16): 2.0, ('spear_man', 24): 1.0, ('spear_man', 32): 2.0, ('spear_man', 48): 2.0, ('spear_man', 64): 2.2, ('mounted_light_lancer_rider', 16): 1.0, ('mounted_light_lancer_rider', 24): 3.6, ('mounted_light_lancer_rider', 32): 3.0, ('mounted_light_lancer_rider', 48): 3.0, ('mounted_light_lancer_rider', 64): 3.2}
+[harness] spike4b waypoints: reached [True, True, True, True, False], 10.2 blocks from the post after 113 s
+[harness] FAIL S4b-way1 a mounted scout reaches a ~99-block post through 20-block waypoint hops [True, True, True, True, False] left 10.2
+[harness] PASS S4b-raid1 raid units near the target, re-engaged, fight the defending village; the village defends raid hits on B residents 4, hits on raid units 26, B alert RECOVERY, B garrison deployed 0
+[harness] PASS S4b-raid2 relation still NEUTRAL after the fight ('NEUTRAL', 'NEUTRAL')
+[harness] server stopped
+[harness] RESULT 7/8 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  S4b-hop1 reachable single hop measured for infantry and mounted units  {('spear_man', 16): 2.0, ('spear_man', 24): 1.0, ('spear_man', 32): 2.0, ('spear_man', 48): 2.0, ('spear_man', 64): 2.2, ('mounted_light_lancer_rider', 16): 1.0, ('mounted_light_lancer_rider', 24): 3.6, ('mounted_light_lancer_rider', 32): 3.0, ('mounted_light_lancer_rider', 48): 3.0, ('mounted_light_lancer_rider', 64): 3.2}
+  FAIL  S4b-way1 a mounted scout reaches a ~99-block post through 20-block waypoint hops  [True, True, True, True, False] left 10.2
+  PASS  S4b-raid1 raid units near the target, re-engaged, fight the defending village; the village defends  raid hits on B residents 4, hits on raid units 26, B alert RECOVERY, B garrison deployed 0
+  PASS  S4b-raid2 relation still NEUTRAL after the fight  ('NEUTRAL', 'NEUTRAL')
