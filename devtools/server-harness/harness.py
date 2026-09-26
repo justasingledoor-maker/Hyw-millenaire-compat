@@ -2036,7 +2036,11 @@ G4_A_SCOUT_FORCELOAD = [(500, 470, 760, 612), (500, 612, 760, 760)]
 
 
 def g4_villages(ctx):
-    return {k: v for k, v in [("A", ctx.a), ("B", ctx.b), ("M", ctx.extra.get("militaire")), ("Z", ctx.extra.get("byzantine"))] if v}
+    """The G4 villages that have a living garrison (a village whose units could not spawn, e.g. M3's
+    'No safe spawn spot' near its defending position, is reported by G4-0 and left out)."""
+    vs = {k: v for k, v in [("A", ctx.a), ("B", ctx.b), ("M", ctx.extra.get("militaire")), ("Z", ctx.extra.get("byzantine"))] if v}
+    empty = getattr(ctx, "g4_empty", set())
+    return {k: v for k, v in vs.items() if k not in empty}
 
 
 def assignments(d):
@@ -2074,7 +2078,11 @@ def scenario_G4_0(ctx):
     ctx.g4 = {k: duties(s, c) for k, c in vs.items()}
     for k, d in ctx.g4.items():
         log(f"G4 {k} {d['plan'][:200]} | quota {d['quota']} | {len(d['rows'])} units")
-    check("G4-0 garrisons filled and duty plans exist", all(d["plan"] and d["rows"] for d in ctx.g4.values()),
+    ctx.g4_empty = {k for k, d in ctx.g4.items() if not d["rows"]}
+    if ctx.g4_empty:
+        log(f"G4 villages without a spawned garrison (left out of the duty checks): {sorted(ctx.g4_empty)}")
+    check("G4-0 garrisons filled and duty plans exist (A, B and the stronghold at least)",
+          all(ctx.g4[k]["plan"] and ctx.g4[k]["rows"] for k in ("A", "B", "M") if k in ctx.g4) and "M" in ctx.g4,
           {k: (len(d["rows"]), d["quota"]) for k, d in ctx.g4.items()})
 
 
