@@ -470,8 +470,11 @@ final class MillenaireSettlementSource implements SettlementSource {
             BuildingPlanSet planSet = ModCultures.getBuildingPlanSet(planSetId);
             BuildingRole role = RoleClassifier.building(planSetId.toString(), planSet != null && planSet.isBorderPost(), wallDerived, table);
             if (role != null && role != BuildingRole.NONE && role != BuildingRole.BORDER_MARKER) {
+                // Millénaire's defending point, unless it is up on a wall walk or tower top (more than 3 blocks
+                // above the building's ground-level path anchor), which HYW units cannot path to: then the anchor
                 BlockPos def = b.getFirstPointPos(org.millenaire.building.SpecialPoint.DEFENDING_POS);
-                military.add(new LayoutPoint(role, (def != null ? def : anchor).immutable()));
+                boolean usable = def != null && Math.abs(def.getY() - anchor.getY()) <= 3;
+                military.add(new LayoutPoint(role, (usable ? def : anchor).immutable()));
             }
         }
         BuildingInstance th = v.getTownhall();

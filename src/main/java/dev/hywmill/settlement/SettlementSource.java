@@ -82,7 +82,7 @@ public interface SettlementSource {
         return false;
     }
 
-    /** A military building's standing point (its defending position, else its path anchor, else its origin). */
+    /** A military building's standing point: its defending position if near ground level, else its path anchor (else its origin). */
     record LayoutPoint(dev.hywmill.military.classify.BuildingRole role, BlockPos pos) {}
 
     /**
