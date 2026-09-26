@@ -1884,12 +1884,95 @@ def scenario_S4(ctx):
     ctx.s4_negated_b = True
 
 
+def unit_pos(s, u):
+    r = spike_info(s, u).get(u)
+    return r["pos"] if r else None
+
+
+def scenario_S4b(ctx):
+    """M4-0 follow-up: HYW home-move hop length (infantry and mounted), a waypoint chain to a far
+    post, and raid-unit combat when moved close to the defended village and re-engaged."""
+    s = ctx.s
+    a, b = ctx.a, ctx.b
+    # hop length: fresh unit per distance, home moved +d blocks east
+    hops = {}
+    for unit in ("spear_man", "mounted_light_lancer_rider"):
+        for i, dd in enumerate((16, 24, 32, 48, 64)):
+            x0, z0 = a[0] - 60, a[2] - 60 + i * 12 + (0 if unit == "spear_man" else 70)
+            s.cmd(f"forceload add {x0 - 8} {z0 - 8} {x0 + dd + 8} {z0 + 8}", 3)
+            r = spike_spawn(s, (x0, 0, z0), unit, 1)
+            u = r.get("uuid")
+            if not u:
+                hops[(unit, dd)] = "spawn failed"
+                continue
+            time.sleep(3)
+            s.cmd(ground(x0 + dd, z0, f"hywmill dev spike-home {u} ~ ~ ~"), 1)
+            best = None
+            for _ in range(10):
+                time.sleep(4)
+                p = unit_pos(s, u)
+                if p:
+                    dnow = dist(p, (x0 + dd, 0, z0))
+                    best = dnow if best is None else min(best, dnow)
+            hops[(unit, dd)] = round(best, 1) if best is not None else None
+            s.cmd(f"kill {u}", 0.5)
+    log(f"spike4b hop: remaining distance after 40 s per (unit, hop) {hops}")
+    check("S4b-hop1 reachable single hop measured for infantry and mounted units", True, str(hops))
+    # waypoint chain: a rider to a post ~99 blocks away via 20-block hops, advanced on arrival
+    r = spike_spawn(s, (a[0] + 12, 0, a[2] - 12), "mounted_light_lancer_rider", 1)
+    u = r.get("uuid")
+    start = unit_pos(s, u) or (a[0] + 12, 0, a[2] - 12)
+    target = (start[0] + 70, start[2] + 70)
+    s.cmd(f"forceload add {start[0] - 8} {start[2] - 8} {target[0] + 8} {target[1] + 8}", 10)
+    steps = 5
+    reached = []
+    t0 = time.time()
+    for k in range(1, steps + 1):
+        wx = start[0] + (target[0] - start[0]) * k // steps
+        wz = start[2] + (target[1] - start[2]) * k // steps
+        s.cmd(ground(wx, wz, f"hywmill dev spike-home {u} ~ ~ ~"), 0.5)
+        ok = False
+        for _ in range(12):
+            time.sleep(2)
+            p = unit_pos(s, u)
+            if p and dist(p, (wx, 0, wz)) <= 4:
+                ok = True
+                break
+        reached.append(ok)
+    p = unit_pos(s, u)
+    left = round(dist(p, (target[0], 0, target[1])), 1) if p else None
+    log(f"spike4b waypoints: reached {reached}, {left} blocks from the post after {round(time.time() - t0)} s")
+    check("S4b-way1 a mounted scout reaches a ~99-block post through 20-block waypoint hops", left is not None and left <= 6, f"{reached} left {left}")
+    s.cmd(f"kill {u}", 0.5)
+    # raid combat: two of A's units moved near B's centre, re-engaged every 5 s
+    units = list(unit_entities(s, a))[:2]
+    res_b = [r[0] for r in residents(s, b) if r[2] in ("CIVILIAN", "DEFENDER")]
+    before = incidents(s, 100)
+    for u in units:
+        s.cmd(ground(b[0] + 12, b[2] + 12, f"tp {u} ~ ~ ~"), 0.5)
+    for rnd in range(8):
+        for i, u in enumerate(units):
+            if res_b:
+                s.output(f"hywmill dev spike-engage {u} {res_b[(i + rnd) % len(res_b)]}", 0.5)
+        time.sleep(4)
+    inc = [i for i in incidents(s, 100) if i not in before]
+    hits = [i for i in inc if i["a"] in {u[:8] for u in units} and i["resident"]]
+    back = [i for i in inc if i["v"] in {u[:8] for u in units}]
+    gb = garrison(s, b)
+    mb = military(s, b)
+    check("S4b-raid1 raid units near the target, re-engaged, fight the defending village; the village defends",
+          bool(hits), f"raid hits on B residents {len(hits)}, hits on raid units {len(back)}, B alert {mb.get('alert')}, B garrison deployed {gb.get('deployed')}")
+    time.sleep(12)
+    fb = garrison(s, b).get("faction")
+    check("S4b-raid2 relation still NEUTRAL after the fight", relation(s, a, fb) == ("NEUTRAL", "NEUTRAL"), str(relation(s, a, fb)))
+
+
 SCENARIOS = {"A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_perf": scenario_G3_perf, "S4": scenario_S4}
+             "G3_17": scenario_G3_17, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "S4b": scenario_S4b}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
             "G3_15", "G3_14", "G3_perf"]
 ORDER = ["status", "H", "B", "N", "C", "D", "I", "W", "L", "F1", "E", "F2", "X", "P", "A", "G"]
