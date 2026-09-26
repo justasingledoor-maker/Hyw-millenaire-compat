@@ -1,0 +1,25 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624)]
+[harness] --- scenario S5_H
+[harness] NOTE S5-H corridor probe: dir (0, -1): 16 loaded samples, edge (647, 488), tail tops [72, 65, 66, 69] water [False, False, False, False]
+[harness] NOTE S5-H survey: dir (0, -1) goal (647, 472) (True, 68, False)
+[harness] NOTE S5-H route: waypoints [(647, 72, 520, False), (647, 65, 512, False), (647, 66, 504, False), (647, 69, 496, False)]; edge (647, 488); goal (647, 472) (surveyed top=68 water=False); now ticking=False
+[harness] PASS S5-H the unit follows a moving goal through loaded terrain (within 6 blocks of the last loaded waypoint) end (648, 69, 498); last waypoint (647, 69, 496, False); track [(646, 69, 513), (647, 65, 512), (647, 65, 512), (649, 67, 506), (648, 67, 505), (648, 67, 505), (648, 69, 498), (648, 69, 498), (648, 69, 498)]
+[harness] PASS S5-H goal in unloaded terrain: the escort holds inside loaded terrain (no hop into unloaded chunks) at (648, 69, 498); last m5 follow d8131cc9 pos=648, 69, 498 goal=647, 68, 472 goalTicking=false hop=hold home=647, 69, 496 forced=242
+[harness] PASS S5-H nothing was force-loaded by the escort before: , [49, 43], [50, 43], [51, 43], [52, 43], [53, 43], [54, 43], [55, 43], [56, 43] | after: , [49, 43], [50, 43], [51, 43], [52, 43], [53, 43], [54, 43], [55, 43], [56, 43]
+[harness] PASS S5-H once the terrain is loaded the escort resumes and reaches the goal at (647, 68, 474); goal (647, 472); last m5 follow d8131cc9 pos=647, 68, 474 goal=647, 68, 472 goalTicking=true hop=647, 68, 472 home=647, 68, 472 forced=248
+[harness] PASS S5-H no teleport: every 2.5 s step is a walking distance (<= 14 blocks) max 14.0; [5.4, 1.4, 0.0, 6.3, 1.4, 0.0, 7.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 8.0, 14.0, 2.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+[harness] PASS S5-H HYW's own follow goal (which can teleport) is not used m5 ident d8131cc9-5336-4721-9734-1ba39b422041 rel=11111111-2222-4333-8444-555555555555 owner=11111111-2222-4333-8444-555555555555 team=ed14d9cf-f8d0-4846-a6bc-67b56914fa10 describe=11111111-2222-4333-8444-555555555555 strategy=DEFAULT follow=null home=647, 68, 472
+[harness] server stopped
+[harness] RESULT 7/7 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624)]
+  PASS  S5-H the unit follows a moving goal through loaded terrain (within 6 blocks of the last loaded waypoint)  end (648, 69, 498); last waypoint (647, 69, 496, False); track [(646, 69, 513), (647, 65, 512), (647, 65, 512), (649, 67, 506), (648, 67, 505), (648, 67, 505), (648, 69, 498), (648, 69, 498), (648, 69, 498)]
+  PASS  S5-H goal in unloaded terrain: the escort holds inside loaded terrain (no hop into unloaded chunks)  at (648, 69, 498); last m5 follow d8131cc9 pos=648, 69, 498 goal=647, 68, 472 goalTicking=false hop=hold home=647, 69, 496 forced=242
+  PASS  S5-H nothing was force-loaded by the escort  before: , [49, 43], [50, 43], [51, 43], [52, 43], [53, 43], [54, 43], [55, 43], [56, 43] | after: , [49, 43], [50, 43], [51, 43], [52, 43], [53, 43], [54, 43], [55, 43], [56, 43]
+  PASS  S5-H once the terrain is loaded the escort resumes and reaches the goal  at (647, 68, 474); goal (647, 472); last m5 follow d8131cc9 pos=647, 68, 474 goal=647, 68, 472 goalTicking=true hop=647, 68, 472 home=647, 68, 472 forced=248
+  PASS  S5-H no teleport: every 2.5 s step is a walking distance (<= 14 blocks)  max 14.0; [5.4, 1.4, 0.0, 6.3, 1.4, 0.0, 7.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 8.0, 14.0, 2.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  PASS  S5-H HYW's own follow goal (which can teleport) is not used  m5 ident d8131cc9-5336-4721-9734-1ba39b422041 rel=11111111-2222-4333-8444-555555555555 owner=11111111-2222-4333-8444-555555555555 team=ed14d9cf-f8d0-4846-a6bc-67b56914fa10 describe=11111111-2222-4333-8444-555555555555 strategy=DEFAULT follow=null home=647, 68, 472
+  NOTE  S5-H corridor probe  dir (0, -1): 16 loaded samples, edge (647, 488), tail tops [72, 65, 66, 69] water [False, False, False, False]
+  NOTE  S5-H survey  dir (0, -1) goal (647, 472) (True, 68, False)
+  NOTE  S5-H route  waypoints [(647, 72, 520, False), (647, 65, 512, False), (647, 66, 504, False), (647, 69, 496, False)]; edge (647, 488); goal (647, 472) (surveyed top=68 water=False); now ticking=False
+EXIT 0

@@ -1,0 +1,24 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624)]
+[harness] --- scenario S5_0
+[harness] PASS S5-0 both garrisons alive, factions known A 978bfc54-3ce8-3128-b854-9f290f8ac543 10 units; B a2835a9f-bdf8-30fc-b8af-67a6dd94ad47 4 units
+[harness] --- scenario S5_W
+[harness] NOTE S5-W field: (647, 454) ticking=True top=66 water=False; A centre (647, 80, 624), distance 170
+[harness] NOTE S5-W player units vs garrison: (player units targeting garrison, garrison targeting player units, player units alive): baseline [(0, 0, 3), (0, 0, 3), (0, 0, 3)] | HOSTILE [(3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3)] | after NEUTRAL (4 s steps) [(0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3)]
+[harness] PASS S5-W field: under HOSTILE the player's units and the garrison target each other (DEFAULT) [(3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3)]
+[harness] PASS S5-W field: baseline NEUTRAL, no mutual targeting [(0, 0, 3), (0, 0, 3), (0, 0, 3)]
+[harness] PASS S5-W field: 16 s after both directions are NEUTRAL there is no residual targeting (units alive) [(0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3)]
+[harness] NOTE S5-W faction vs faction: (A targeting B, B targeting A): baseline 0 | HOSTILE [(3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3)]
+[harness] PASS S5-W field: two village garrisons at war (faction HOSTILE) fight each other [(3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3)]
+[harness] server stopped
+[harness] RESULT 6/6 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624)]
+  PASS  S5-0 both garrisons alive, factions known  A 978bfc54-3ce8-3128-b854-9f290f8ac543 10 units; B a2835a9f-bdf8-30fc-b8af-67a6dd94ad47 4 units
+  PASS  S5-W field: under HOSTILE the player's units and the garrison target each other (DEFAULT)  [(3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3)]
+  PASS  S5-W field: baseline NEUTRAL, no mutual targeting  [(0, 0, 3), (0, 0, 3), (0, 0, 3)]
+  PASS  S5-W field: 16 s after both directions are NEUTRAL there is no residual targeting (units alive)  [(0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3)]
+  PASS  S5-W field: two village garrisons at war (faction HOSTILE) fight each other  [(3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3)]
+  NOTE  S5-W field  (647, 454) ticking=True top=66 water=False; A centre (647, 80, 624), distance 170
+  NOTE  S5-W player units vs garrison: (player units targeting garrison, garrison targeting player units, player units alive)  baseline [(0, 0, 3), (0, 0, 3), (0, 0, 3)] | HOSTILE [(3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3)] | after NEUTRAL (4 s steps) [(0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3)]
+  NOTE  S5-W faction vs faction: (A targeting B, B targeting A)  baseline 0 | HOSTILE [(3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3), (3, 3)]
+EXIT 0

@@ -2928,7 +2928,7 @@ def scenario_S5_F(ctx):
                 rows.append((m[1], m[2], m[3], (int(m[4]), int(m[5]), int(m[6]))))
         civs = [r for r in rows if r[2] == "CIVILIAN"]
         for r in rows:
-            if r[2] == "DEFENDER" and outdoor(s, r[3]):
+            if r[2] == "DEFENDER":
                 d, dpos = r, r[3]
                 break
         if d is None:
@@ -2938,6 +2938,7 @@ def scenario_S5_F(ctx):
         return
     note("S5-F selected combatant (outdoors)", f"{d[0][:8]} {d[1]} at {dpos}")
     summon_unit(s, dpos[0] + 4, dpos[2] + 1, "spear_man", OWNER_NBT, "hwM5F")
+    s.cmd(f"tp @e[tag=hwM5F] {dpos[0] + 1} {dpos[1]} {dpos[2]}", 1)  # next to the combatant, indoors or not
     u = "@e[tag=hwM5F,limit=1]"
     m5(s, f"hyw strategy {u} DEFAULT", 0.5)
     s.cmd("effect give @e[tag=hwM5F] minecraft:resistance 600 2 true", 0.5)
@@ -3018,7 +3019,7 @@ def scenario_S5_G(ctx):
 def scenario_S5_H(ctx):
     """Spike H: escort movement with M4 hops through loaded terrain only; hold at unloaded terrain; resume."""
     s, a = ctx.s, ctx.a
-    best = None
+    best, goal, gt = None, None, (False, -999, True)
     for dx, dz in ((0, -1), (0, 1), (1, 0), (-1, 0)):
         pts, edge = [], None
         for k in range(1, 40):
@@ -3029,19 +3030,30 @@ def scenario_S5_H(ctx):
                 break
             pts.append((x, top, z, water))
         tail = [p for p in pts if hdist((p[0], 0, p[2]), (a[0], 0, a[2])) >= 40]
-        note("S5-H corridor probe", f"dir {(dx, dz)}: {len(pts)} loaded samples, edge {edge}, dry tail {len(tail)} water {[p[3] for p in tail]}")
-        if edge and len(tail) >= 3 and not any(p[3] for p in tail[-4:]):
-            best = (dx, dz, tail[-4:], edge)
+        flat = len(tail) >= 4 and max(p[1] for p in tail[-4:]) - min(p[1] for p in tail[-4:]) <= 8
+        note("S5-H corridor probe", f"dir {(dx, dz)}: {len(pts)} loaded samples, edge {edge}, tail tops {[p[1] for p in tail[-4:]]} water {[p[3] for p in tail[-4:]]}")
+        if not (edge and flat and not any(p[3] for p in tail[-4:])):
+            continue
+        way = tail[-4:]
+        far = (edge[0] + dx * 48, edge[1] + dz * 48)
+        sbox = (min(edge[0], far[0]) - 8, min(edge[1], far[1]) - 8, max(edge[0], far[0]) + 8, max(edge[1], far[1]) + 8)
+        s.cmd("forceload add {} {} {} {}".format(*sbox), 12)   # survey beyond the edge (first dry spot), then unload it again
+        for k in range(2, 7):
+            g = (edge[0] + dx * 8 * k, edge[1] + dz * 8 * k)
+            t = ticking(s, *g)
+            if t[0] and not t[2] and abs(t[1] - way[-1][1]) <= 10:
+                goal, gt = g, t
+                break
+        s.cmd("forceload remove {} {} {} {}".format(*sbox), 5)
+        note("S5-H survey", f"dir {(dx, dz)} goal {goal} {gt}")
+        if goal:
+            best = (dx, dz, way, edge)
             break
     if not best:
-        check("S5-H a dry corridor from the village to unloaded terrain exists", False, "none of the four directions")
+        check("S5-H a dry corridor and a dry goal beyond the loaded edge exist", False, "none of the four directions")
         return
     dx, dz, way, edge = best
-    goal = (edge[0] + dx * 24, edge[1] + dz * 24)
     box = (min(edge[0], goal[0]) - 8, min(edge[1], goal[1]) - 8, max(edge[0], goal[0]) + 8, max(edge[1], goal[1]) + 8)
-    s.cmd("forceload add {} {} {} {}".format(*box), 10)   # survey the stretch beyond the edge, then unload it again
-    gt = ticking(s, *goal)
-    s.cmd("forceload remove {} {} {} {}".format(*box), 5)
     time.sleep(8)
     note("S5-H route", f"waypoints {way}; edge {edge}; goal {goal} (surveyed top={gt[1]} water={gt[2]}); now ticking={ticking(s, *goal)[0]}")
     summon_unit(s, way[0][0], way[0][2], "spear_man", OWNER_NBT, "hwM5H")
@@ -3082,7 +3094,7 @@ def scenario_S5_H(ctx):
           f"at {held}; last {hold[-1]}")
     check("S5-H nothing was force-loaded by the escort", forced1 == forced0, f"before: {forced0[-80:]} | after: {forced1[-80:]}")
     s.cmd("forceload add {} {} {} {}".format(*box), 10)   # the player walks on: the terrain loads
-    res = step((goal[0], gt[1], goal[1]), 10)
+    res = step((goal[0], gt[1], goal[1]), 14)
     resumed = pos()
     check("S5-H once the terrain is loaded the escort resumes and reaches the goal", resumed is not None and hdist(resumed, (goal[0], 0, goal[1])) <= 6,
           f"at {resumed}; goal {goal}; last {res[-1]}")
@@ -3256,6 +3268,128 @@ def scenario_S5_R(ctx):
     note("S5-R Millénaire village history after the restart", h)
     check("S5-R observed: Millénaire's village history is session-only (entries written before the restart are gone)",
           "hywmill.chronicle.test" not in h, h)
+
+
+def scenario_S5_V(ctx):
+    """Controlled check of HYW's relation-participant rule for identity-marked Millénaire residents
+    (NoAI player unit; direct isValidTarget / identity probes; NEUTRAL vs HOSTILE; one civilian unmarked)."""
+    s, a, fa = ctx.s, ctx.a, ctx.fa
+    rows = []
+    for l in s.output(at(a, "hywmill village residents"), 2):
+        m = re.match(r"\s*([0-9a-f-]{36}) (\S+) (\w+) goal=", l)
+        if m:
+            rows.append((m[1], m[2], m[3]))
+    civs = [r for r in rows if r[2] == "CIVILIAN"]
+    defs = [r for r in rows if r[2] == "DEFENDER"]
+    if len(civs) < 2 or not defs:
+        check("S5-V residents available", False, f"{len(civs)} civilians, {len(defs)} defenders")
+        return
+    summon_unit(s, a[0] + 3, a[2] + 3, "spear_man", OWNER_NBT, "hwM5V", "NoAI:1b")
+    u = "@e[tag=hwM5V,limit=1]"
+    m5(s, f"hyw strategy {u} DEFAULT", 0.5)
+    c0, c1, d0 = civs[0][0], civs[1][0], defs[0][0]
+    note("S5-V civilian identity", m5_1(s, f"hyw ident {c0}"))
+    note("S5-V defender identity", m5_1(s, f"hyw ident {d0}"))
+    neutral(s, P_UUID, fa)
+    vn = [m5_1(s, f"hyw valid {u} {x}") for x in (c0, d0)]
+    note("S5-V NEUTRAL: player unit -> civilian, defender", " || ".join(vn))
+    m5(s, f"policy allow {fa} {P_UUID}")
+    m5(s, f"hyw relset {P_UUID} {fa} HOSTILE")
+    vh = [m5_1(s, f"hyw valid {u} {x}") for x in (c0, d0)]
+    note("S5-V HOSTILE: player unit -> civilian, defender", " || ".join(vh))
+    check("S5-V observed: under player<->faction HOSTILE an identity-marked CIVILIAN is a valid DEFAULT target (relation participant)",
+          "valid=true" in vh[0] and "enemy=true" in vh[0], vh[0])
+    check("S5-V observed: under player<->faction HOSTILE an identity-marked DEFENDER is a valid DEFAULT target", "valid=true" in vh[1], vh[1])
+    um = m5_1(s, f"hyw unmark {c1}")
+    vu = m5_1(s, f"hyw valid {u} {c1}")
+    note("S5-V unmarked civilian", f"{um} || {vu}")
+    check("S5-V an UNMARKED civilian is not a relation participant and not a valid target under HOSTILE", "participant=false" in um and "valid=false" in vu, f"{um} || {vu}")
+    time.sleep(25)
+    note("S5-V unmarked civilian 25 s later (M1.1 marker lifecycle)", m5_1(s, f"hyw ident {c1}"))
+    gu = next(iter(unit_entities(s, a)), None)
+    if gu:
+        note("S5-V garrison unit -> unmarked civilian (friendly-fire protection without a marker)", m5_1(s, f"hyw valid {gu} {c1}"))
+        note("S5-V garrison unit -> marked civilian", m5_1(s, f"hyw valid {gu} {c0}"))
+    neutral(s, P_UUID, fa)
+    m5(s, "policy clear")
+    s.cmd("kill @e[tag=hwM5V]", 1)
+    s.cmd(at(a, "hywmill admin restore-identities"), 2)
+
+
+def scenario_S5_W(ctx):
+    """Field test away from every village (outside all defense radii): player units vs garrison
+    units under HOSTILE, residual targeting after NEUTRAL (units kept alive), and faction vs faction."""
+    s, a, b, fa, fb = ctx.s, ctx.a, ctx.b, ctx.fa, ctx.fb
+    fx, fz = a[0], a[2] - 170
+    box = (fx - 24, fz - 24, fx + 24, fz + 24)
+    s.cmd("forceload add {} {} {} {}".format(*box), 12)
+    t = ticking(s, fx, fz)
+    note("S5-W field", f"({fx}, {fz}) ticking={t[0]} top={t[1]} water={t[2]}; A centre {a}, distance {round(hdist((fx, 0, fz), a))}")
+    s.cmd("hywmill dev duties off", 1)
+    ga = list(unit_entities(s, a))[:3]
+    gb = list(unit_entities(s, b))[:3]
+    for i, u in enumerate(ga):
+        y = surface_y(s, fx - 6, fz - 3 + 3 * i)
+        s.cmd(f"tp {u} {fx - 6} {y} {fz - 3 + 3 * i}", 0.5)
+        s.cmd(f"hywmill dev spike-home {u} {fx - 6} {y} {fz - 3 + 3 * i}", 0.5)
+    for i in range(3):
+        summon_unit(s, fx + 6, fz - 3 + 3 * i, "spear_man", OWNER_NBT, "hwM5W")
+    for u in tagged(s, "hwM5W"):
+        m5(s, f"hyw strategy {u} DEFAULT", 0.3)
+    s.cmd("effect give @e[tag=hwM5W] minecraft:resistance 600 3 true", 0.5)
+    for u in ga + gb:
+        s.cmd(f"effect give {u} minecraft:resistance 600 3 true", 0.3)
+    aids = {u[:8] for u in ga}
+
+    def sample(n, step=3):
+        out = []
+        for _ in range(n):
+            time.sleep(step)
+            pu = tagged(s, "hwM5W")
+            pids = {u[:8] for u in pu}
+            rows = spike_info(s, "@e[type=!minecraft:player]")
+            pt = sum(tgt8(r) in aids for r in pu.values())
+            gt = sum(tgt8(rows[u]) in pids for u in rows if u[:8] in aids)
+            out.append((pt, gt, len(pu)))
+        return out
+
+    base = sample(3)
+    m5(s, f"policy allow {fa} {P_UUID}")
+    m5(s, f"hyw relset {P_UUID} {fa} HOSTILE")
+    war = sample(8)
+    neutral(s, P_UUID, fa)
+    after = sample(8, 4)
+    note("S5-W player units vs garrison: (player units targeting garrison, garrison targeting player units, player units alive)",
+         f"baseline {base} | HOSTILE {war} | after NEUTRAL (4 s steps) {after}")
+    check("S5-W field: under HOSTILE the player's units and the garrison target each other (DEFAULT)",
+          any(x[0] > 0 for x in war) and any(x[1] > 0 for x in war), str(war))
+    check("S5-W field: baseline NEUTRAL, no mutual targeting", all(x[0] == 0 and x[1] == 0 for x in base), str(base))
+    check("S5-W field: 16 s after both directions are NEUTRAL there is no residual targeting (units alive)",
+          all(x[2] > 0 for x in after) and all(x[0] == 0 and x[1] == 0 for x in after[4:]), str(after))
+    m5(s, "policy clear")
+    s.cmd("kill @e[tag=hwM5W]", 1)
+    # faction vs faction in the field
+    for i, u in enumerate(gb):
+        y = surface_y(s, fx + 6, fz - 3 + 3 * i)
+        s.cmd(f"tp {u} {fx + 6} {y} {fz - 3 + 3 * i}", 0.5)
+        s.cmd(f"hywmill dev spike-home {u} {fx + 6} {y} {fz - 3 + 3 * i}", 0.5)
+    bids = {u[:8] for u in gb}
+    m5(s, f"policy allow {fa} {fb}")
+    time.sleep(6)
+    rows = spike_info(s, "@e[type=!minecraft:player]")
+    base2 = sum(tgt8(rows[u]) in bids for u in rows if u[:8] in aids) + sum(tgt8(rows[u]) in aids for u in rows if u[:8] in bids)
+    m5(s, f"hyw relset {fa} {fb} HOSTILE")
+    cnt = []
+    for _ in range(8):
+        time.sleep(3)
+        rows = spike_info(s, "@e[type=!minecraft:player]")
+        cnt.append((sum(tgt8(rows[u]) in bids for u in rows if u[:8] in aids), sum(tgt8(rows[u]) in aids for u in rows if u[:8] in bids)))
+    note("S5-W faction vs faction: (A targeting B, B targeting A)", f"baseline {base2} | HOSTILE {cnt}")
+    check("S5-W field: two village garrisons at war (faction HOSTILE) fight each other", base2 == 0 and any(x[0] > 0 for x in cnt) and any(x[1] > 0 for x in cnt), str(cnt))
+    neutral(s, fa, fb)
+    m5(s, "policy clear")
+    s.cmd("hywmill dev duties on", 1)
+    s.cmd("forceload remove {} {} {} {}".format(*box), 5)
 
 
 def write_m5_content(d: Path):
@@ -3531,7 +3665,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
-             "S5_R": scenario_S5_R,
+             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W,
              "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
              "SG_5": scenario_SG_5}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",

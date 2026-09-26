@@ -64,7 +64,14 @@ public final class HywM5Spike {
                         .then(Commands.argument("victim", EntityArgument.entity())
                                 .then(Commands.argument("amount", FloatArgumentType.floatArg(0.1f, 100f))
                                         .then(Commands.argument("kind", StringArgumentType.word()).executes(HywM5Spike::hit))))))
-                .then(Commands.literal("hp").then(Commands.argument("e", EntityArgument.entity()).executes(HywM5Spike::hp)));
+                .then(Commands.literal("hp").then(Commands.argument("e", EntityArgument.entity()).executes(HywM5Spike::hp)))
+                .then(Commands.literal("unmark").then(Commands.argument("e", EntityArgument.entity()).executes(ctx -> {
+                    Entity e = EntityArgument.getEntity(ctx, "e");
+                    ((ydmsama.hundred_years_war.main.utils.RelationOwnerMarkedEntity) e).hyw$clearRelationIdentityMarker();
+                    send(ctx.getSource(), "m5 unmark " + e.getUUID() + " rel=" + ServerRelationHelper.getRelationUUID(e)
+                            + " participant=" + ServerRelationHelper.canParticipateInRelation(e));
+                    return 1;
+                })));
     }
 
     private static void send(CommandSourceStack src, String s) {

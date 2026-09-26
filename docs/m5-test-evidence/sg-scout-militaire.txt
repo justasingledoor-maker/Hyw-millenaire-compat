@@ -1,0 +1,3 @@
+[harness] server started
+[harness] scout norman/militaire at 380,600: (380, 72, 600)
+[harness] server stopped

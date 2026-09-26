@@ -481,6 +481,13 @@ API, with **no mixins and no HYW changes**.
 
 ### 16.1 HYW audit (0.7.1r-fix1, bytecode of the relevant methods)
 
+> **Erratum (M5-0, `docs/m5-spike.md` §2 Spike B).** The row below saying villagers are "not a
+> target" and the conclusion "no civilians" hold only for entities **without** a relation identity.
+> HYW treats any entity with a known relation identity as a relation participant
+> (`canParticipateInRelation`), and M1.1 marks every Millénaire resident with the village faction
+> identity. So under a HOSTILE projection on the faction, marked residents, civilians included, are
+> valid DEFAULT targets. A decision is pending (spike report §4).
+
 | HYW mechanism | What it does |
 |---|---|
 | **Relation identity** (`ServerRelationHelper.getRelationIdentity/getRelationUUID`) | Every entity resolves to an identity: an owner UUID, a known null owner (e.g. bandits), or unknown. Resolution goes through owner, summoner and rider chains, and a marker is cached on the entity (`RelationOwnerMarkedEntity`). HywMill already uses this: garrison units have **owner = village faction UUID** (M3), and Millénaire residents are **marked** with the faction identity (M1) |
