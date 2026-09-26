@@ -222,11 +222,18 @@ public final class GarrisonService {
             if (e.state() != UnitState.RECRUITED || !units.isValidUnitType(e.entityType)) {
                 continue;
             }
-            Vec3 pos = findSpot(overworld, anchor, e.rosterId);
-            if (pos == null) {
+            // the defending position first (M3 search, unchanged); the village centre only for this attempt if it has no safe spot
+            SpawnSpots.Choice<Vec3> choice = SpawnSpots.choose(anchor, rec.center, e.rosterId, (a, id) -> findSpot(overworld, a, id));
+            if (choice == null) {
                 HmLog.warnThrottled("garrison-spot-" + rec.villageId, 60_000L,
-                        "No safe spawn spot near {} for the garrison of village '{}'; retrying next slot", anchor.toShortString(), rec.name);
+                        "No safe spawn spot near {} or the village centre {} for the garrison of village '{}'; retrying next slot",
+                        anchor.toShortString(), rec.center.toShortString(), rec.name);
                 break;
+            }
+            Vec3 pos = choice.spot();
+            if (choice.fallback()) {
+                HmLog.info("No safe spawn spot near the defending position {} of village '{}'; slot {} spawns near the village centre {}",
+                        anchor.toShortString(), rec.name, e.shortId(), rec.center.toShortString());
             }
             UnitSpec spec = tables.units().getOrDefault(e.unitKey,
                     new UnitSpec(e.unitKey, e.entityType, UnitClass.LINE, 1, MilitaryTier.WATCH, true));
@@ -252,6 +259,11 @@ public final class GarrisonService {
 
     /** Spawn anchor: Millénaire's defending position (as resolved at the last profile refresh), else the village centre. */
     BlockPos anchor(VillageRecord rec) {
+        return anchorOf(rec);
+    }
+
+    /** The preferred spawn anchor (read-only; for the garrison summary). */
+    public static BlockPos spawnAnchor(VillageRecord rec) {
         return anchorOf(rec);
     }
 

@@ -1612,6 +1612,108 @@ def scenario_G3_15(ctx):
     s.cmd("datapack disable \"file/hwm3test\"", 8)
 
 
+def spawn_anchor(s, c):
+    for l in garrison(s, c)["lines"]:
+        m = re.search(r"^Spawn anchor: (-?\d+), (-?\d+), (-?\d+) \(defending position\) \| fallback: village centre (-?\d+), (-?\d+), (-?\d+)", l)
+        if m:
+            v = [int(x) for x in m.groups()]
+            return tuple(v[:3]), tuple(v[3:])
+    return None, None
+
+
+def forced_chunks(s):
+    out = " ".join(s.output("forceload query", 2))
+    return out
+
+
+def roof(s, p, block_from, block_to):
+    """A barrier roof 4..5 above p over the whole 17x17 candidate area: raises the heightmap there, so
+    the M3 spot search rejects every candidate (roofs are refused) without touching the ground."""
+    s.cmd(f"fill {p[0] - 9} {p[1] + 4} {p[2] - 9} {p[0] + 9} {p[1] + 5} {p[2] + 9} {block_to} replace {block_from}", 2)
+
+
+def scenario_G3_18(ctx):
+    """Spawn-location fallback: defending position first; with no safe spot there, the village centre
+    for that attempt only; with neither, the slot stays RECRUITED and spawns later. No force-loading,
+    no duplicates, the anchor and duties unchanged."""
+    s = ctx.s
+    c = ctx.a
+    anchor, centre = spawn_anchor(s, c)
+    if not check("G3-18 spawn anchor and village centre reported", anchor is not None, f"{anchor} {centre}"):
+        return
+    sep = max(abs(anchor[0] - centre[0]), abs(anchor[2] - centre[2]))
+    if not check("G3-18 anchor and centre are apart (separate candidate areas)", sep >= 19, f"separation {sep}"):
+        return
+    forced0 = forced_chunks(s)
+    plan0 = duties(s, c)
+    g0 = garrison(s, c)
+    if g0.get("live", 0) >= g0.get("cap", 0):
+        check("G3-18 room below the tier cap for test grants", False, str(g0.get("lines", [""])[1:2]))
+        return
+    # 1. normal: a grant spawns at the defending position
+    p = s.pos()
+    s.output(at(c, "hywmill admin grant archer 1"), 1)
+    normal = s.wait_for(r"Garrison unit spawned for village .* at (-?\d+), (-?\d+), (-?\d+)", 90, since=p)
+    m = re.search(r"at (-?\d+), (-?\d+), (-?\d+)$", normal or "")
+    npos = tuple(int(x) for x in m.groups()) if m else None
+    fb_line = [l for l in s.read_since(p) if "spawns near the village centre" in l]
+    check("G3-18a normal: the unit spawns at the defending position (no fallback)", npos is not None and hdist(npos, anchor) <= 10 and not fb_line,
+          f"spawned at {npos}, anchor {anchor}")
+    # 2. defending position blocked -> village centre
+    roof(s, anchor, "minecraft:air", "minecraft:barrier")
+    p = s.pos()
+    s.output(at(c, "hywmill admin grant archer 1"), 1)
+    fb = s.wait_for(r"spawns near the village centre", 90, since=p)
+    spawned = s.wait_for(r"Garrison unit spawned for village .* at (-?\d+), (-?\d+), (-?\d+)", 30, since=p)
+    m = re.search(r"at (-?\d+), (-?\d+), (-?\d+)$", spawned or "")
+    fpos = tuple(int(x) for x in m.groups()) if m else None
+    fb_slot = re.search(r"slot ([0-9a-f]{8}) spawns", fb or "")
+    fb_slot = fb_slot[1] if fb_slot else None
+    check("G3-18b defending position has no safe spot: the unit spawns near the village centre", fb is not None and fpos is not None
+          and hdist(fpos, centre) <= 12, f"{fb and fb.split(']: ')[-1][:120]}; spawned at {fpos}, centre {centre}")
+    # 3. both blocked -> stays RECRUITED, never lost; spawns once terrain allows
+    roof(s, centre, "minecraft:air", "minecraft:barrier")
+    p = s.pos()
+    g1 = garrison(s, c)
+    known = {u["slot"] for u in g_units(s, c)}
+    s.output(at(c, "hywmill admin grant archer 1"), 1)
+    time.sleep(40)
+    rows = {u["slot"]: u for u in g_units(s, c)}
+    waiting = [u for sl, u in rows.items() if sl not in known]
+    waiting = [u for u in waiting if u["state"] == "RECRUITED"] if len(waiting) == 1 else waiting
+    g2 = garrison(s, c)
+    none_line = [l for l in s.read_since(p) if "or the village centre" in l]
+    check("G3-18c neither has a safe spot: the slot stays RECRUITED (not lost, no entity)", len(waiting) == 1 and not waiting[0]["entity"]
+          and g2.get("t_lost") == g1.get("t_lost") and g2.get("t_spawned") == g1.get("t_spawned") and none_line,
+          f"waiting {[(u['slot'], u['state']) for u in waiting]}; lost {g1.get('t_lost')}->{g2.get('t_lost')}; {len(none_line)} warning line(s)")
+    roof(s, anchor, "minecraft:barrier", "minecraft:air")
+    roof(s, centre, "minecraft:barrier", "minecraft:air")
+    w = waiting[0]["slot"] if waiting else None
+    g3 = wait_garrison(s, c, lambda g: g.get("recruited", 1) == 0, 90)
+    rows3 = {u["slot"]: u for u in g_units(s, c)}
+    check("G3-18d once terrain allows it, the same slot spawns (retried, not replaced)", w is not None and rows3.get(w, {}).get("state") in ("SPAWNED", "GARRISONED")
+          and g3.get("t_recruited") == g2.get("t_recruited"), f"slot {w}: {rows3.get(w)}")
+    # 4. no force-loading, anchor and duty plan unchanged
+    anchor2, centre2 = spawn_anchor(s, c)
+    plan1 = duties(s, c)
+    check("G3-18e no chunk was force-loaded by the fallback", forced_chunks(s) == forced0, "forceload query unchanged")
+    check("G3-18f the fallback does not change the stored anchor or the duty plan", anchor2 == anchor and centre2 == centre
+          and (plan0.get("posts"), plan0.get("patrol"), plan0.get("scoutposts")) == (plan1.get("posts"), plan1.get("patrol"), plan1.get("scoutposts")),
+          f"anchor {anchor}->{anchor2}")
+    time.sleep(30)
+    before = assignments(duties(s, c))
+    # 5. restart: no duplicate, same duties
+    restart(ctx)
+    time.sleep(40)
+    cs = census(s, c)
+    after = assignments(duties(s, c))
+    rows4 = {u["slot"]: u for u in g_units(s, c)}
+    check("G3-18g after a restart: no duplicate; the fallback-spawned unit is bound once with the same duty",
+          cs.get("dupSlots") == 0 and cs.get("unbound") == 0 and cs.get("tagged") == cs.get("bound")
+          and fb_slot in rows4 and rows4[fb_slot]["state"] in ("GARRISONED", "RECOVERED") and after.get(fb_slot) == before.get(fb_slot),
+          f"census {cs}; slot {fb_slot} {rows4.get(fb_slot)} duty {before.get(fb_slot)}->{after.get(fb_slot)}")
+
+
 def scenario_G3_perf(ctx):
     """End of the garrison suite: the perf counters over the whole suite (spawns, slots, events, deploys)."""
     out = ctx.s.output("hywmill perf", 2)
@@ -2419,9 +2521,9 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "S4b": scenario_S4b}
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "S4b": scenario_S4b}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
-            "G3_15", "G3_14", "G3_perf"]
+            "G3_15", "G3_18", "G3_14", "G3_perf"]
 ORDER_G4 = ["status", "G4_0", "G4_1", "G4_2", "G4_3", "G4_4", "G4_5", "G4_6", "G4_7", "G4_8", "G4_10", "G4_perf", "G4_9"]
 ORDER_G4_EK = ["status", "G4_0", "G4_EK"]
 ORDER = ["status", "H", "B", "N", "C", "D", "I", "W", "L", "F1", "E", "F2", "X", "P", "A", "G"]

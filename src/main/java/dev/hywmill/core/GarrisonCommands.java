@@ -23,6 +23,7 @@ import dev.hywmill.garrison.tag.GarrisonTag;
 import dev.hywmill.settlement.GarrisonLedger;
 import dev.hywmill.settlement.VillageRecord;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -140,6 +141,9 @@ final class GarrisonCommands {
                     + (tick >= g.lastRecruitTick + HywMillConfig.GARRISON_RECRUIT_INTERVAL.get() ? "now" : "in " + (g.lastRecruitTick + HywMillConfig.GARRISON_RECRUIT_INTERVAL.get() - tick) + " ticks")
                     + " | last slot: " + gs.lastBlocker(r.villageId) + " | settled " + gs.settled(r.villageId, tick)
                     + " | alert " + gs.alertState(r.villageId));
+            BlockPos anchor = GarrisonService.spawnAnchor(r);
+            send(src, "Spawn anchor: " + anchor.getX() + ", " + anchor.getY() + ", " + anchor.getZ() + " (defending position) | fallback: village centre "
+                    + r.center.getX() + ", " + r.center.getY() + ", " + r.center.getZ());
             send(src, "Totals: recruited " + g.totals.recruited + ", spawned " + g.totals.spawned + ", killed " + g.totals.killed + ", lost "
                     + g.totals.lost + ", recovered " + g.totals.recovered + ", duplicates refused " + g.totals.duplicatesDiscarded
                     + (g.goneSinceTick >= 0 ? " | village missing since " + g.goneSinceTick : ""));
