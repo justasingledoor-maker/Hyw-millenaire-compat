@@ -106,8 +106,8 @@ Target formula: `min(clamp(round(capacity × perCapacity), minTarget, maxTarget)
 * A small stronghold stays small: capacity 5 gives 5.
 * A large one reaches 64.
 
-On the server, all five garrisons were filled to their caps at once (16 + 8 + 64 + 16 + 8 =
-**112 units**, G3-17).
+On the server, every live village's garrison was filled to its cap at once, twice: 16 + 8 + 64 +
+16 + 8 and 16 + 16 + 64 + 16, both **112 units** (G3-17, §16).
 
 `admin grant` is bounded by the tier cap and refuses units the tier may not have (for example a
 shieldman for a WATCH village), using the same rule as recruitment (`Recruitment.allowedAtTier`).
@@ -153,7 +153,7 @@ the residents' relation marker and the village faction are identical (G3-2).
 | Zombie (G3-5) | Killed by HYW's native AI; no HywMill deployment |
 | Unowned bandit (G3-6) | Fought and killed by the garrison; 0 hits on residents |
 | Player-owned HYW units standing in the village (G3-17) | Not counted: garrison 16 → 16, census unchanged |
-| `recall` mid-fight (G3-17) | 6 deployed units recalled, deployed 4 → 0 immediately; deployment stays off until the alert ends |
+| `recall` mid-fight (G3-17, scale run 1) | 6 deployed units recalled, deployed 4 → 0 immediately; deployment stays off until the alert ends. In the final run the fight ended between the harness reading "deployed 2" and issuing the recall ("Recalled 0"), so that run does not add evidence; the check now requires at least one unit actually recalled. |
 | Millénaire owner change (G3-12a) | Units and faction unchanged |
 | Player-controlled village (G3-12b) | controllerPlayerId is separate from the faction; that non-op controller can pause the garrison, a stranger cannot |
 
@@ -247,48 +247,86 @@ own behavior is unchanged.
 | M3-0 spike (S) | 17/18; the only FAIL is a measurement regex, and bystanders were verified unharmed in the log | `m3-spike-run4.txt` |
 | G3-1 … G3-15 | **41/41** | `m3-g3-run3-final.txt` |
 | G3-16 migration | 7/7 | `m3-migration-g3-16.txt` |
-| G3-17 scale and performance (5 villages, 112 units) | 8/8; values in §16 | `m3-performance-scale-112-units.txt` |
-| G3 suite rerun on the final jar | FINAL_G3 | `m3-g3-final.txt` |
+| G3-17 scale run 1 (5 villages, 112 units) | 8/8; values in §16 | `m3-performance-scale-112-units.txt` |
+| G3 suite on the final jar + scale (final combined run) | **47/47** | `m3-final-combined-g3-and-scale.txt` |
+| Earlier G3 run on the final jar | 41/42: G3-7 counted a legitimate paid recruit after a restart as a respawn; the check now requires that no *existing* slot respawns, and it passes in the final run | `m3-g3-run4-final-jar.txt` |
 | G3-18 M2 regression | 70/72 (garrison off), 67/72 (on) | `m2-regression-*.txt` |
 | Optional: Epic Knights | 7/7 | `m3-epic-knights-optional.txt` |
 
 ## 16. Performance
 
-Measured, not assumed. Production logging (`verboseLogging=false`), on a shared 4-CPU container.
-All times are per call. Evidence: `m3-performance-scale-112-units.txt` (scale run) and
-`m3-performance-light.txt` (first run).
+Measured, not assumed. Production logging (`verboseLogging=false`), on a shared 4-CPU cloud
+container, with the game server and the harness on the same host. All times are per call, from
+HywMill's own counters.
 
-**Scale run (G3-17):**
-* 5 populated Millénaire villages: A and B (norman/agricole), norman/militaire (STRONGHOLD),
-  byzantines/militaryvillage and norman/artisans.
-* Every garrison was filled to its tier cap (16, 8, 64, 16, 8), giving **112 village-owned HYW
-  units alive at once**.
-* There is no server-wide cap; nothing HywMill does scales with the world's HYW entity count.
+### 16.1 Scale runs (G3-17): 112 village-owned HYW units
 
-| Counter | CALM 120 s: mean / p99 / max | Fight 90 s (5 bandits, 2 villages, recall mid-fight): mean / p99 / max |
+Every live village's garrison was filled to its tier cap with `admin grant`. There is no server-wide
+cap, and nothing HywMill does scales with the world's HYW entity count.
+
+| Run | Villages (tier caps) | Units alive | Evidence |
+|---|---|---|---|
+| Scale run 1 | A 16, B 8, norman/militaire (STRONGHOLD) 64, byzantines/militaryvillage 16, norman/artisans 8 | **112** | `m3-performance-scale-112-units.txt` |
+| Final combined run (after the whole G3 suite) | A 16, player-controlled norman village 16, norman/militaire 64, byzantines/militaryvillage 16 | **112** (roster total) | `m3-final-combined-g3-and-scale.txt` |
+
+In the final run the harness printed "5 villages, 128 units". That was a harness double count: the
+village list still held the record of the village deleted in G3-14, whose position resolved to
+village A. The roster total printed in the same output is 112. The harness now counts each live
+village once.
+
+**Spawning while filling to the caps** (final combined run, warm JVM, n = 97 spawns):
+
+| Counter | mean | p99 = max (n ≈ 100) |
 |---|---|---|
-| `garrison.slot` (per village per 200 ticks; excludes spawns) | 192 µs / 1.12 ms / 1.12 ms | 125 µs / 0.64 ms / 0.64 ms |
-| `garrison.deploy` (per M2 scan while not CALM or units moving) | n/a | 131 µs / 1.82 ms / 1.82 ms |
-| `defense.update` (M2) | 2 µs / 16 µs / 52 µs | 54 µs / 0.80 ms / 6.43 ms |
-| `profile.refresh` (M2, accepted tail) | 679 µs / 2.63 ms / 2.63 ms | 558 µs / 1.62 ms / 1.62 ms |
-| **`tick.total`** (all of HywMill per server tick) | **48 µs / 0.65 ms / 2.8 ms** | **68 µs / 0.61 ms / 9.95 ms** |
+| `garrison.spawn` (one unit: create, configure, equipment, add, join adjudication) | **1.17 ms** | 6.0 ms |
+| `garrison.event` (join adjudication of a tagged unit) | 66 µs | 0.33 ms |
+| `garrison.slot` (excludes spawns) | 208 µs | p99 1.28 ms, max 3.7 ms |
+| `tick.total` (all of HywMill per server tick) | 45 µs | p99 0.55 ms, max 12.7 ms |
 
-SPAWN_PLACEHOLDER
+**Steady state with 112 units:**
 
-Reading:
-* **Per-tick cost.** HywMill's mean contribution per server tick stayed under 0.07 ms with 112
-  garrison units, which is about 0.1–0.2% of a 50 ms tick.
-* **Garrison slices.** p99 is at or below 1.8 ms for every garrison slice.
-* **Where the one high tick came from.** The single ~10 ms `tick.total` maximum in the fight
-  coincides with M2's `defense.update` maximum (6.4 ms). On a shared 4-core host it includes
-  scheduling and GC. It is not in garrison code: the garrison slices stayed ≤1.8 ms.
-* **Accepted M2 tail.** The M2 tail (`profile.refresh` p99 above 2 ms) is the accepted item from M2
-  and is unchanged by M3.
-* **Cost scaling.** Slot cost scales with the number of roster entries of one village (hash lookups
-  by UUID), and deployment cost with the deployed village's units times its M2 threats. Neither
-  scans HYW entities.
-* **Spawn throttling.** Spawning is throttled to ≤2 per village slot and ≤2 per server tick, so
-  filling the 64-unit stronghold took about 5 minutes of game time with no tick spike.
+| Counter | CALM 120 s, run 1: mean / p99 / max | CALM 120 s, final run | Fight 90 s, run 1 | Fight 90 s, final run |
+|---|---|---|---|---|
+| `garrison.slot` | 192 µs / 1.12 / 1.12 ms | 190 µs / 0.65 / 0.65 ms | 125 µs / 0.64 / 0.64 ms | 155 µs / 0.70 / 0.70 ms |
+| `garrison.deploy` | n/a | n/a | 131 µs / 1.82 / 1.82 ms | 134 µs / 1.03 / 1.89 ms |
+| `defense.update` (M2) | 2 µs / 16 / 52 µs | 0.2 µs / 0.6 / 0.8 µs | 54 µs / 0.80 / 6.43 ms | 80 µs / 0.90 / 6.57 ms |
+| **`tick.total`** | **48 µs / 0.65 / 2.8 ms** | **37 µs / 0.67 / 1.6 ms** | **68 µs / 0.61 / 9.95 ms** | **81 µs / 0.69 / 13.7 ms** |
+
+### 16.2 Whole G3 suite (restarts, cold JVMs, tick sprints)
+
+These figures come from the final combined run.
+
+| Counter | n | mean | p99 | max |
+|---|---|---|---|---|
+| `garrison.slot` | 267 | 0.38 ms | 2.3 ms | 3.9 ms |
+| `garrison.spawn` | 13 | 4.5 ms | 17 ms | 17 ms |
+| `garrison.event` | 28 | 0.22 ms | 2.0 ms | 2.0 ms |
+
+These include the first calls after each of the suite's server starts (class loading, JIT
+warm-up) and ticks during `tick sprint`. That is why they are higher than the warm figures in 16.1.
+
+### 16.3 Reading
+
+* **Per-tick cost.** HywMill's mean contribution per server tick stayed at 37–81 µs with 112
+  garrison units, calm or fighting: under 0.2% of a 50 ms tick. The p99 per tick is ≤0.7 ms.
+* **Garrison slices.** Warm, every garrison slice other than spawning has p99 ≤1.3 ms and max
+  ≤3.7 ms.
+* **Spawning is the most expensive single operation.** It costs 1.2 ms on average and up to 6 ms
+  warm; the first spawns after a start are slower (up to 17 ms). That is why it is throttled
+  (`spawnsPerSlot = 2`, `spawnsPerTick = 2`). The worst warm case is therefore about 12 ms of spawn
+  work in one tick, and the throttle is what prevents a fill of 64 units from becoming a single
+  spike: that fill was spread over about 5 minutes. A server that wants a lower worst case can set
+  `spawnsPerTick = 1`. The default was left at 2 because 1 would in effect override the
+  authorized `spawnsPerSlot = 2`.
+* **Single-tick maxima are not attributed with certainty.** The maxima of 10–14 ms occurred during
+  fights and fills. During fights they coincide with M2's `defense.update` maximum (6.4–6.6 ms). The
+  rest is spawn work or GC and scheduling on the shared host; the counters cannot separate these.
+  They are single ticks: the p99s stay ≤0.7 ms.
+* **Accepted M2 tail.** The M2 tail (`profile.refresh` p99 above 2 ms in the regression's P3
+  checks) is the accepted item from M2 and is unchanged by M3.
+* **Cost scaling.** Slot cost scales with one village's roster size (UUID hash lookups), and
+  deployment cost with the deployed village's units times its M2 threats. Nothing scans HYW
+  entities.
 
 ## 17. Optional dependencies (Epic Knights)
 

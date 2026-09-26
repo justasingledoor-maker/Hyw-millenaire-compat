@@ -1663,12 +1663,15 @@ def scenario_G3_17(ctx):
         if pend == 0:
             break
         time.sleep(15)
-    per = {c: garrison(s, c) for c in villages}
+    per = {}
+    for c in villages:  # the list also holds records of deleted villages; count each live village once
+        g = garrison(s, c)
+        per.setdefault(g.get("faction"), g)
     live = sum(g.get("alive", 0) for g in per.values())
     caps = sum(g.get("cap", 0) for g in per.values())
-    ctx.g3_scale = (len(villages), live, caps)
+    ctx.g3_scale = (len(per), live, caps)
     check("G3-17 every garrison filled to its tier cap (no server-wide cap)", all(g.get("live") == g.get("cap") and g.get("recruited") == 0 for g in per.values()),
-          f"{len(villages)} villages, {live} units alive of caps {[g.get('cap') for g in per.values()]}")
+          f"{len(per)} villages, {live} units alive of caps {[g.get('cap') for g in per.values()]}")
     # equipment drops disabled on garrison units
     sample = list(unit_entities(s, ctx.a))[:3]
     drops = [" ".join(s.output(f"data get entity {u} ArmorDropChances", 1) + s.output(f"data get entity {u} HandDropChances", 1)) for u in sample]
@@ -1706,13 +1709,14 @@ def scenario_G3_17(ctx):
             break
     rec = s.output(at(ctx.a, "hywmill village garrison recall"), 1)
     after = garrison(s, ctx.a).get("deployed", -1)
-    check("G3-17 recall: deployed units return at once", dep > 0 and after == 0 and any("Recalled" in l for l in rec),
+    recalled = next((int(m[1]) for l in rec for m in [re.search(r"Recalled (\d+) deployed", l)] if m), 0)
+    check("G3-17 recall: deployed units return at once", dep > 0 and recalled > 0 and after == 0,
           f"deployed {dep} -> {after}; {rec}")
     time.sleep(90)
     s.cmd("kill @e[tag=hwPerf]", 1)
     fight = s.output("hywmill perf", 2)
     ctx.g3_perf = (calm, fight)
-    log("G3-17 scale: %d villages, %d garrison units" % (len(villages), live))
+    log("G3-17 scale: %d villages, %d garrison units" % (len(per), live))
     log("G3-17 perf CALM 120 s:\n  " + "\n  ".join(calm))
     log("G3-17 perf fight 90 s:\n  " + "\n  ".join(fight))
     rows = perf_rows(calm)

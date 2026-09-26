@@ -1,0 +1,207 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario G3_1
+[harness] PASS G3-1 A starting grant = ceil(target/2) = 8, all spawned Garrison: 8/16 (tier cap 16) | alive 8, recruited 0, missing 0, deployed 0, returning 0 | levy 0.27/6 (+5.50/day) | equipment level 1; Starting grant: done | next recruit: now | last slot: POINTS | settled true | alert CALM
+[harness] PASS G3-1 A census: one tagged entity per slot, faction-owned {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}
+[harness] PASS G3-1 B starting grant = ceil(target/2) = 4, all spawned Garrison: 4/7 (tier cap 8) | alive 4, recruited 0, missing 0, deployed 0, returning 0 | levy 0.07/4 (+2.75/day) | equipment level 0; Starting grant: done | next recruit: now | last slot: POINTS | settled true | alert CALM
+[harness] PASS G3-1 B census: one tagged entity per slot, faction-owned {'tagged': 4, 'slots': 4, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 4, 'live': 4, 'bound': 4}
+[harness] PASS G3-1 units: HYW OwnerUUID = village faction (never a player), supply off, no despawn, tier equipment level 8 units, tier level 1; e.g. hundred_years_war:spear_man owner=a684e79c-be6b-381b-80d8-d34b427c9565 equipment=1 home=647, 80, 636 supply=false despawn=false
+[harness] server stopped
+[harness] server started
+[harness] PASS G3-1 no second grant after restart Garrison: 8/16 (tier cap 16) | alive 8, recruited 0, missing 0, deployed 0, returning 0 | levy 0.64/6 (+5.50/day) | equipment level 1; Starting grant: done | next recruit: now | last slot: POINTS | settled true | alert CALM
+[harness] --- scenario G3_2
+[harness] PASS G3-2 garrison never attacks its own residents []
+[harness] PASS G3-2 residents never attack their garrison []
+[harness] PASS G3-2 garrison owner == residents' relation marker == village faction marker a684e79c-be6b-381b-80d8-d34b427c9565 faction a684e79c-be6b-381b-80d8-d34b427c9565
+[harness] --- scenario G3_3
+[harness] PASS G3-3 player-owned units passing through: no garrison target, no deployment, unharmed targets [] deployed 0 health [20.0] -> 20.0
+[harness] PASS G3-3 village <-> unit owner stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] --- scenario G3_4
+[harness] PASS G3-4 an attacker and a civilian a0620a09-d7a9-4d3b-9d0a-c710b4d8c245 4f83777a-bce8-47ee-a217-8e9f5f91f923
+[harness] PASS G3-4 garrison deployed on the attacker with temporary HYW hostility, within commitPerThreat deployed 2, targeting 1, temp ['true'], alert ENGAGED
+[harness] PASS G3-4 after the threat: units return (RETURNING -> GARRISONED) Garrison: 8/16 (tier cap 16) | alive 8, recruited 0, missing 0, deployed 0, returning 0 | levy 1.28/6 (+5.50/day) | equipment level 1
+[harness] PASS G3-4 relation stays NEUTRAL (ALWAYS_REVERT) ('NEUTRAL', 'NEUTRAL')
+[harness] --- scenario G3_5
+[harness] PASS G3-5 zombie is handled (HYW native targeting of monsters) without HywMill deployment zombie alive False, max deployed 0
+[harness] --- scenario G3_6
+[harness] PASS G3-6 garrison fights the unowned bandit 7 garrison hits, max deployed 2, bandit dead True
+[harness] PASS G3-6 garrison never hits residents []
+[harness] --- scenario G3_7
+[harness] server stopped
+[harness] server started
+[harness] server stopped
+[harness] server started
+[harness] server stopped
+[harness] server started
+[harness] PASS G3-7 three restarts: no existing slot respawned, one entity per slot, no duplicates before {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}; #1: tagged 8 bound 8 dup 0 unbound 0 spawns 0 (new slots 0, existing slots 0) | #2: tagged 8 bound 8 dup 0 unbound 0 spawns 0 (new slots 0, existing slots 0) | #3: tagged 8 bound 8 dup 0 unbound 0 spawns 0 (new slots 0, existing slots 0)
+[harness] --- scenario G3_8
+[harness] PASS G3-8 two garrisoned slots to rewind [{'slot': 'a17ecd76', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '06256e5f'}, {'slot': 'cb319cc3', 'unit': 'crossbowman', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '046d2dad'}, {'slot': '5d440f00', 'unit': 'archer', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': 'b6605b39'}, {'slot': 'c8b49b6c', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '41e9ab07'}, {'slot': 'f64ca27d', 'unit': 'militia', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': 'ff3c2750'}, {'slot': 'ad288efd', 'unit': 'crossbowman', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '86f0af7f'}, {'slot': 'f46336df', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '87740910'}, {'slot': '49d017e8', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '61f908bd'}]
+[harness] PASS G3-8 loaded: spawn refused, slot adopts its unit, one entity per slot {'slot': 'a17ecd76', 'unit': 'spear_man', 'lvl': 1, 'state': 'RECOVERED', 'reason': None, 'gen': 1, 'entity': '06256e5f'} census {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8} -> {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}
+[harness] PASS G3-8 unloaded: respawn reuses the slot's UUID; the stale copy is refused on chunk load; one unit per slot spawn-now ['spawn-now: 1 unit(s) spawned for Ussy les-pâtures']; refusal [23:55:31] [Server thread/WARN] [minecraft/PersistentEntitySectionManager]: UUID of added entity already exists: CrossbowmanEntity['Crossbowman'/385, l='ServerLevel[world]', x=1228.27, y=62.64, z=1210.27]; census {'tagged': 9, 'slots': 9, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 9, 'live': 9, 'bound': 9}
+[harness] --- scenario G3_9
+[harness] PASS G3-9 a garrisoned unit 
+[harness] PASS G3-9 unloaded unit: still bound before the grace, MISSING after it (never DEAD), no replacement states GARRISONED -> MISSING; live 9 -> 9
+[harness] PASS G3-9 unit loaded again: RECOVERED -> GARRISONED, same slot and entity GARRISONED
+[harness] --- scenario G3_10
+[harness] PASS G3-10 a unit to kill 
+[harness] PASS G3-10 killed unit: DEAD(KILLED), no respawn of that slot {'slot': 'a17ecd76', 'unit': 'spear_man', 'lvl': 1, 'state': 'DEAD', 'reason': 'KILLED', 'gen': 1, 'entity': '06256e5f'}
+[harness] PASS G3-10 replacement only after the cooldown, as a new paid slot (levy spent) early=False; new [{'slot': '7bb17f1b', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': 'a6c34cc6'}, {'slot': '6588a0c9', 'unit': 'militia', 'lvl': 1, 'state': 'SPAWNED', 'reason': None, 'gen': 1, 'entity': '25960a85'}]; levy 3.55
+[harness] --- scenario G3_11
+[harness] PASS G3-11 a unit to capture 
+[harness] PASS G3-11 owner mismatch -> LOST(CAPTURED); owner not rewritten; tag removed {'slot': 'cb319cc3', 'unit': 'crossbowman', 'lvl': 1, 'state': 'LOST', 'reason': 'CAPTURED', 'gen': 1, 'entity': '046d2dad'} {'dim': 'minecraft:overworld', 'pos': (646, 79, 637), 'desc': 'hundred_years_war:crossbowman owner=11111111-2222-4333-8444-555555555555 equipment=1 home=647, 80, 636 supply=false despawn=false', 'tag': 'none', 'target': 'none', 'temp': None}
+[harness] --- scenario G3_12
+[harness] PASS G3-12a Millénaire owner change: faction and every unit owner unchanged ["Village 'Saint-Pierre les-pâtures' ownership transferred to hwctl"]; 4 units
+[harness] PASS G3-12b player-controlled village spawned (1060, 87, 640)
+[harness] PASS G3-12b controllerPlayerId set from Millénaire, separate from the faction controller 530dc1ec-ad7d-3daf-94c3-9c0ca79a6137 faction 7289209e-0d37-3a9f-9a45-a75ce9530d54
+[harness] PASS G3-12b the (non-op) controller pauses its garrison; a stranger is refused [hywmill] [runas 530dc1ec] permission level <2 runs: hywmill village garrison pause; [hywmill] [runas 530dc1ec] Garrison recruitment of Lantheuil paused.; [hywmill] [runas 00000000] permission level <2 runs: hywmill village garrison resume; [hywmill] [runas 00000000] Only an operator or the controller of this player-controlled village may do that.
+[harness] --- scenario G3_13
+[harness] PASS G3-13 non-op stranger: summary yes; units/pause/recall refused; admin/dev commands unavailable summary True, refused 3, unavailable 3; [hywmill] [runas 00000000] permission level <2 runs: hywmill village garrison | [hywmill] [runas 00000000] == Garrison of Ussy les-pâtures (millenaire:norman, GUARD_POST, capacity 16) faction a684e79c-be6b-381b-80d8-d34b427c9565 | [hywmill] [runas 00000000] Garrison: 10/16 (tier cap 16) | alive 10, recruited 0, missing 0, deployed 0, returning 0 | levy 1.24/6 (+5.50/day) | equipment level 1 | [hywmill] [runas 00000000] Starting grant: done | next recruit: in 1659 ticks | last slot: INTERVAL | settled true | alert CALM | [hywmill] [runas 00000000] Totals: recruited 12, spawned 13, killed 1, lost 1, recovered 2, duplicates refused 0 | [hywmill] [runas 00000000] permission level <2 runs: hywmill village garrison units | [hywmill] [runas 00000000] Only an operator or the controller of this player-controlled village may do that. | [hywmill] [runas 00000000] permission level <2 runs: hywmill village garrison pause | [hywmill] [runas 00000000] Only an operator or the controller of this player-controlled village may do that. | [hywmill] [runas 00000000] permission level <2 runs: hywmill village garrison recall | [hywmill] [runas 00000000] Only an operator or the controller of this player-controlled village may do that. | [hywmill] [runas 00000000] permission level <2 runs: hywmill admin setpoints 5
+[harness] --- scenario G3_15
+[harness] PASS G3-15 reload: existing slots unchanged, new recruits use the new composition new [('b72abb8d', 'militia')]
+[harness] --- scenario G3_14
+[harness] PASS G3-14 village gone -> grace period -> LOST(VILLAGE_GONE); KEEP leaves units alive, untagged, owner unchanged ['remove-village Saint-Pierre les-pâtures 80afeeed-687d-43c5-9bff-19e805a962e5: true']; [00:02:58] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village 'Saint-Pierre les-pâtures' 80afeeed-687d-43c5-9bff-19e805a962e5 is gone: 6 garrison slot(s) LOST(VILLAGE_GONE); orphan policy KEEP applied to 6 loaded unit(s); kept 6/6
+[harness] --- scenario G3_perf
+[harness] G3 suite perf (whole run):
+  hywmill perf (per server since start or last reset):
+   defense.update: n=2637 mean=3.3us max=218.1us p99=15.6us total=8.8ms
+   garrison.event: n=28 mean=218.9us max=2027.3us p99=2027.3us total=6.1ms
+   garrison.slot: n=267 mean=378.6us max=3893.0us p99=2311.0us total=101.1ms
+   garrison.spawn: n=13 mean=4486.8us max=17063.6us p99=17063.6us total=58.3ms
+   profile.apply: n=264 mean=183.4us max=1739.3us p99=896.0us total=48.4ms
+   profile.doctrine: n=264 mean=103.3us max=4679.4us p99=566.6us total=27.3ms
+   profile.log: n=264 mean=99.2us max=1506.3us p99=855.6us total=26.2ms
+   profile.refresh: n=264 mean=1033.0us max=16792.7us p99=4489.6us total=272.7ms
+   profile.snapshot: n=265 mean=633.1us max=10100.1us p99=2645.3us total=167.8ms
+   profile.sweep: n=265 mean=210.6us max=1153.9us p99=1074.6us total=55.8ms
+   scan.village: n=2956 mean=36.2us max=1940.6us p99=131.3us total=107.1ms
+   snap.buildings: n=264 mean=162.1us max=1613.7us p99=575.3us total=42.8ms
+   snap.gear: n=264 mean=157.4us max=2241.1us p99=606.7us total=41.6ms
+   snap.residents: n=264 mean=89.8us max=859.9us p99=417.6us total=23.7ms
+   snap.slots: n=264 mean=84.2us max=1846.8us p99=473.4us total=22.2ms
+   snap.village: n=264 mean=104.3us max=3385.9us p99=578.5us total=27.5ms
+   tick.total: n=23586 mean=40.4us max=19533.6us p99=569.0us total=951.9ms
+   villages known: 2, with defense state: 2
+   garrison: 3 roster(s), 15 live slot(s) (no server-wide cap), duplicates refused 0, adopted 1, orphans 6
+[harness] PASS G3 suite perf recorded, incl. garrison.spawn garrison.event n=28 mean 218.9us p99 2027.3us max 2027.3us | garrison.slot n=267 mean 378.6us p99 2311.0us max 3893.0us | garrison.spawn n=13 mean 4486.8us p99 17063.6us max 17063.6us
+[harness] --- scenario G3_17
+[harness] G3-17 extra villages: {'militaire': (650, 68, 920), 'byzantine': (400, 71, 450), 'artisans': None}
+[harness] G3-17 grants: [((647, 80, 624), 16, 'Granted 1 x archer to Ussy les-pâtures; they spawn at the next eligible garrison slot.'), ((1075, 85, 657), 16, 'Granted 13 x archer to Lantheuil; they spawn at the next eligible garrison slot.'), ((666, 72, 936), 64, 'Granted 58 x archer to Rapilly le-fort; they spawn at the next eligible garrison slot.'), ((420, 70, 470), 16, 'Granted 7 x archer to Lappa; they spawn at the next eligible garrison slot.')]
+[harness] PASS G3-17 every garrison filled to its tier cap (no server-wide cap) 5 villages, 128 units alive of caps [16, 16, 16, 64, 16]
+[harness] PASS G3-17 equipmentDrops=false: garrison units have drop chance 0 in every slot 3 units, 18 slot chances, max 0.0
+[harness] PASS G3-17 player-owned HYW units in the village are not counted as garrison live 16->16 census {'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}->{'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}
+[harness] G3-17 perf while filling the garrisons (spawns):
+  hywmill perf (per server since start or last reset):
+   defense.update: n=3672 mean=1.3us max=87.1us p99=0.7us total=4.9ms
+   garrison.event: n=97 mean=66.1us max=330.5us p99=330.5us total=6.4ms
+   garrison.slot: n=367 mean=207.7us max=3720.2us p99=1275.8us total=76.2ms
+   garrison.spawn: n=97 mean=1172.1us max=6024.2us p99=6024.2us total=113.7ms
+   profile.apply: n=369 mean=112.0us max=664.5us p99=659.6us total=41.3ms
+   profile.doctrine: n=369 mean=45.5us max=457.5us p99=324.8us total=16.8ms
+   profile.log: n=369 mean=86.4us max=830.4us p99=698.0us total=31.9ms
+   profile.refresh: n=369 mean=664.3us max=3710.1us p99=2837.9us total=245.1ms
+   profile.snapshot: n=369 mean=413.2us max=1924.7us p99=1525.0us total=152.5ms
+   profile.sweep: n=366 mean=76.6us max=425.4us p99=212.4us total=28.0ms
+   scan.village: n=4625 mean=33.9us max=1396.4us p99=129.8us total=156.6ms
+   snap.buildings: n=369 mean=109.0us max=502.7us p99=399.5us total=40.2ms
+   snap.gear: n=369 mean=94.1us max=409.5us p99=288.9us total=34.7ms
+   snap.residents: n=369 mean=71.1us max=380.3us p99=247.1us total=26.2ms
+   snap.slots: n=369 mean=52.1us max=352.9us p99=180.8us total=19.2ms
+   snap.village: n=369 mean=50.8us max=405.8us p99=292.7us total=18.7ms
+   tick.total: n=19068 mean=44.7us max=12730.8us p99=548.9us total=853.0ms
+   villages known: 4, with defense state: 4
+   garrison: 5 roster(s), 112 live slot(s) (no server-wide cap), duplicates refused 0, adopted 1, orphans 6
+[harness] PASS G3-17 recall: deployed units return at once deployed 2 -> 0; ['Recalled 0 deployed unit(s) of Ussy les-pâtures; deployment stays off until the alert ends.']
+[harness] G3-17 scale: 5 villages, 128 garrison units
+[harness] G3-17 perf CALM 120 s:
+  hywmill perf (per server since start or last reset):
+   defense.update: n=484 mean=0.2us max=0.8us p99=0.6us total=0.1ms
+   garrison.slot: n=48 mean=189.7us max=647.3us p99=647.3us total=9.1ms
+   profile.apply: n=48 mean=92.2us max=408.9us p99=408.9us total=4.4ms
+   profile.doctrine: n=48 mean=40.7us max=202.4us p99=202.4us total=2.0ms
+   profile.log: n=48 mean=75.3us max=170.2us p99=170.2us total=3.6ms
+   profile.refresh: n=48 mean=602.6us max=1523.6us p99=1523.6us total=28.9ms
+   profile.snapshot: n=48 mean=387.7us max=726.8us p99=726.8us total=18.6ms
+   profile.sweep: n=50 mean=66.4us max=180.8us p99=180.8us total=3.3ms
+   scan.village: n=605 mean=36.4us max=173.6us p99=119.1us total=22.0ms
+   snap.buildings: n=48 mean=109.0us max=239.5us p99=239.5us total=5.2ms
+   snap.gear: n=48 mean=101.1us max=186.5us p99=186.5us total=4.9ms
+   snap.residents: n=48 mean=72.6us max=142.7us p99=142.7us total=3.5ms
+   snap.slots: n=48 mean=28.2us max=65.7us p99=65.7us total=1.4ms
+   snap.village: n=48 mean=39.4us max=133.5us p99=133.5us total=1.9ms
+   tick.total: n=2420 mean=37.1us max=1605.7us p99=670.3us total=89.8ms
+   villages known: 4, with defense state: 4
+   garrison: 5 roster(s), 112 live slot(s) (no server-wide cap), duplicates refused 0, adopted 1, orphans 6
+[harness] G3-17 perf fight 90 s:
+  hywmill perf (per server since start or last reset):
+   defense.update: n=434 mean=79.9us max=6568.0us p99=899.2us total=34.7ms
+   garrison.deploy: n=128 mean=133.6us max=1885.6us p99=1031.2us total=17.1ms
+   garrison.slot: n=42 mean=154.9us max=696.1us p99=696.1us total=6.5ms
+   profile.apply: n=43 mean=117.0us max=472.7us p99=472.7us total=5.0ms
+   profile.doctrine: n=43 mean=55.0us max=410.6us p99=410.6us total=2.4ms
+   profile.log: n=43 mean=77.0us max=166.2us p99=166.2us total=3.3ms
+   profile.refresh: n=43 mean=690.8us max=2437.2us p99=2437.2us total=29.7ms
+   profile.snapshot: n=43 mean=434.8us max=1388.9us p99=1388.9us total=18.7ms
+   profile.sweep: n=40 mean=65.0us max=128.4us p99=128.4us total=2.6ms
+   scan.village: n=537 mean=73.1us max=5127.8us p99=317.6us total=39.2ms
+   snap.buildings: n=43 mean=113.3us max=299.6us p99=299.6us total=4.9ms
+   snap.gear: n=43 mean=125.0us max=635.3us p99=635.3us total=5.4ms
+   snap.residents: n=43 mean=78.6us max=245.2us p99=245.2us total=3.4ms
+   snap.slots: n=43 mean=26.0us max=66.9us p99=66.9us total=1.1ms
+   snap.village: n=43 mean=45.4us max=162.5us p99=162.5us total=2.0ms
+   tick.total: n=2060 mean=80.9us max=13733.4us p99=692.4us total=166.6ms
+   villages known: 4, with defense state: 4
+   garrison: 5 roster(s), 112 live slot(s) (no server-wide cap), duplicates refused 0, adopted 1, orphans 6
+[harness] PASS G3-17 perf recorded at scale (values in the report) garrison.slot mean 189.7us p99 647.3us | tick.total mean 37.1us p99 670.3us
+[harness] server stopped
+[harness] RESULT 47/47 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  G3-1 A starting grant = ceil(target/2) = 8, all spawned  Garrison: 8/16 (tier cap 16) | alive 8, recruited 0, missing 0, deployed 0, returning 0 | levy 0.27/6 (+5.50/day) | equipment level 1; Starting grant: done | next recruit: now | last slot: POINTS | settled true | alert CALM
+  PASS  G3-1 A census: one tagged entity per slot, faction-owned  {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}
+  PASS  G3-1 B starting grant = ceil(target/2) = 4, all spawned  Garrison: 4/7 (tier cap 8) | alive 4, recruited 0, missing 0, deployed 0, returning 0 | levy 0.07/4 (+2.75/day) | equipment level 0; Starting grant: done | next recruit: now | last slot: POINTS | settled true | alert CALM
+  PASS  G3-1 B census: one tagged entity per slot, faction-owned  {'tagged': 4, 'slots': 4, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 4, 'live': 4, 'bound': 4}
+  PASS  G3-1 units: HYW OwnerUUID = village faction (never a player), supply off, no despawn, tier equipment level  8 units, tier level 1; e.g. hundred_years_war:spear_man owner=a684e79c-be6b-381b-80d8-d34b427c9565 equipment=1 home=647, 80, 636 supply=false despawn=false
+  PASS  G3-1 no second grant after restart  Garrison: 8/16 (tier cap 16) | alive 8, recruited 0, missing 0, deployed 0, returning 0 | levy 0.64/6 (+5.50/day) | equipment level 1; Starting grant: done | next recruit: now | last slot: POINTS | settled true | alert CALM
+  PASS  G3-2 garrison never attacks its own residents  []
+  PASS  G3-2 residents never attack their garrison  []
+  PASS  G3-2 garrison owner == residents' relation marker == village faction  marker a684e79c-be6b-381b-80d8-d34b427c9565 faction a684e79c-be6b-381b-80d8-d34b427c9565
+  PASS  G3-3 player-owned units passing through: no garrison target, no deployment, unharmed  targets [] deployed 0 health [20.0] -> 20.0
+  PASS  G3-3 village <-> unit owner stays NEUTRAL  ('NEUTRAL', 'NEUTRAL')
+  PASS  G3-4 an attacker and a civilian  a0620a09-d7a9-4d3b-9d0a-c710b4d8c245 4f83777a-bce8-47ee-a217-8e9f5f91f923
+  PASS  G3-4 garrison deployed on the attacker with temporary HYW hostility, within commitPerThreat  deployed 2, targeting 1, temp ['true'], alert ENGAGED
+  PASS  G3-4 after the threat: units return (RETURNING -> GARRISONED)  Garrison: 8/16 (tier cap 16) | alive 8, recruited 0, missing 0, deployed 0, returning 0 | levy 1.28/6 (+5.50/day) | equipment level 1
+  PASS  G3-4 relation stays NEUTRAL (ALWAYS_REVERT)  ('NEUTRAL', 'NEUTRAL')
+  PASS  G3-5 zombie is handled (HYW native targeting of monsters) without HywMill deployment  zombie alive False, max deployed 0
+  PASS  G3-6 garrison fights the unowned bandit  7 garrison hits, max deployed 2, bandit dead True
+  PASS  G3-6 garrison never hits residents  []
+  PASS  G3-7 three restarts: no existing slot respawned, one entity per slot, no duplicates  before {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}; #1: tagged 8 bound 8 dup 0 unbound 0 spawns 0 (new slots 0, existing slots 0) | #2: tagged 8 bound 8 dup 0 unbound 0 spawns 0 (new slots 0, existing slots 0) | #3: tagged 8 bound 8 dup 0 unbound 0 spawns 0 (new slots 0, existing slots 0)
+  PASS  G3-8 two garrisoned slots to rewind  [{'slot': 'a17ecd76', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '06256e5f'}, {'slot': 'cb319cc3', 'unit': 'crossbowman', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '046d2dad'}, {'slot': '5d440f00', 'unit': 'archer', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': 'b6605b39'}, {'slot': 'c8b49b6c', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '41e9ab07'}, {'slot': 'f64ca27d', 'unit': 'militia', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': 'ff3c2750'}, {'slot': 'ad288efd', 'unit': 'crossbowman', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '86f0af7f'}, {'slot': 'f46336df', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '87740910'}, {'slot': '49d017e8', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': '61f908bd'}]
+  PASS  G3-8 loaded: spawn refused, slot adopts its unit, one entity per slot  {'slot': 'a17ecd76', 'unit': 'spear_man', 'lvl': 1, 'state': 'RECOVERED', 'reason': None, 'gen': 1, 'entity': '06256e5f'} census {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8} -> {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}
+  PASS  G3-8 unloaded: respawn reuses the slot's UUID; the stale copy is refused on chunk load; one unit per slot  spawn-now ['spawn-now: 1 unit(s) spawned for Ussy les-pâtures']; refusal [23:55:31] [Server thread/WARN] [minecraft/PersistentEntitySectionManager]: UUID of added entity already exists: CrossbowmanEntity['Crossbowman'/385, l='ServerLevel[world]', x=1228.27, y=62.64, z=1210.27]; census {'tagged': 9, 'slots': 9, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 9, 'live': 9, 'bound': 9}
+  PASS  G3-9 a garrisoned unit  
+  PASS  G3-9 unloaded unit: still bound before the grace, MISSING after it (never DEAD), no replacement  states GARRISONED -> MISSING; live 9 -> 9
+  PASS  G3-9 unit loaded again: RECOVERED -> GARRISONED, same slot and entity  GARRISONED
+  PASS  G3-10 a unit to kill  
+  PASS  G3-10 killed unit: DEAD(KILLED), no respawn of that slot  {'slot': 'a17ecd76', 'unit': 'spear_man', 'lvl': 1, 'state': 'DEAD', 'reason': 'KILLED', 'gen': 1, 'entity': '06256e5f'}
+  PASS  G3-10 replacement only after the cooldown, as a new paid slot (levy spent)  early=False; new [{'slot': '7bb17f1b', 'unit': 'spear_man', 'lvl': 1, 'state': 'GARRISONED', 'reason': None, 'gen': 1, 'entity': 'a6c34cc6'}, {'slot': '6588a0c9', 'unit': 'militia', 'lvl': 1, 'state': 'SPAWNED', 'reason': None, 'gen': 1, 'entity': '25960a85'}]; levy 3.55
+  PASS  G3-11 a unit to capture  
+  PASS  G3-11 owner mismatch -> LOST(CAPTURED); owner not rewritten; tag removed  {'slot': 'cb319cc3', 'unit': 'crossbowman', 'lvl': 1, 'state': 'LOST', 'reason': 'CAPTURED', 'gen': 1, 'entity': '046d2dad'} {'dim': 'minecraft:overworld', 'pos': (646, 79, 637), 'desc': 'hundred_years_war:crossbowman owner=11111111-2222-4333-8444-555555555555 equipment=1 home=647, 80, 636 supply=false despawn=false', 'tag': 'none', 'target': 'none', 'temp': None}
+  PASS  G3-12a Millénaire owner change: faction and every unit owner unchanged  ["Village 'Saint-Pierre les-pâtures' ownership transferred to hwctl"]; 4 units
+  PASS  G3-12b player-controlled village spawned  (1060, 87, 640)
+  PASS  G3-12b controllerPlayerId set from Millénaire, separate from the faction  controller 530dc1ec-ad7d-3daf-94c3-9c0ca79a6137 faction 7289209e-0d37-3a9f-9a45-a75ce9530d54
+  PASS  G3-12b the (non-op) controller pauses its garrison; a stranger is refused  [hywmill] [runas 530dc1ec] permission level <2 runs: hywmill village garrison pause; [hywmill] [runas 530dc1ec] Garrison recruitment of Lantheuil paused.; [hywmill] [runas 00000000] permission level <2 runs: hywmill village garrison resume; [hywmill] [runas 00000000] Only an operator or the controller of this player-controlled village may do that.
+  PASS  G3-13 non-op stranger: summary yes; units/pause/recall refused; admin/dev commands unavailable  summary True, refused 3, unavailable 3; [hywmill] [runas 00000000] permission level <2 runs: hywmill village garrison | [hywmill] [runas 00000000] == Garrison of Ussy les-pâtures (millenaire:norman, GUARD_POST, capacity 16) faction a684e79c-be6b-381b-80d8-d34b427c9565 | [hywmill] [runas 00000000] Garrison: 10/16 (tier cap 16) | alive 10, recruited 0, missing 0, deployed 0, returning 0 | levy 1.24/6 (+5.50/day) | equipment level 1 | [hywmill] [runas 00000000] Starting grant: done | next recruit: in 1659 ticks | last slot: INTERVAL | settled true | alert CALM | [hywmill] [runas 00000000] Totals: recruited 12, spawned 13, killed 1, lost 1, recovered 2, duplicates refused 0 | [hywmill] [runas 00000000] permission level <2 runs: hywmill village garrison units | [hywmill] [runas 00000000] Only an operator or the controller of this player-controlled village may do that. | [hywmill] [runas 00000000] permission level <2 runs: hywmill village garrison pause | [hywmill] [runas 00000000] Only an operator or the controller of this player-controlled village may do that. | [hywmill] [runas 00000000] permission level <2 runs: hywmill village garrison recall | [hywmill] [runas 00000000] Only an operator or the controller of this player-controlled village may do that. | [hywmill] [runas 00000000] permission level <2 runs: hywmill admin setpoints 5
+  PASS  G3-15 reload: existing slots unchanged, new recruits use the new composition  new [('b72abb8d', 'militia')]
+  PASS  G3-14 village gone -> grace period -> LOST(VILLAGE_GONE); KEEP leaves units alive, untagged, owner unchanged  ['remove-village Saint-Pierre les-pâtures 80afeeed-687d-43c5-9bff-19e805a962e5: true']; [00:02:58] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village 'Saint-Pierre les-pâtures' 80afeeed-687d-43c5-9bff-19e805a962e5 is gone: 6 garrison slot(s) LOST(VILLAGE_GONE); orphan policy KEEP applied to 6 loaded unit(s); kept 6/6
+  PASS  G3 suite perf recorded, incl. garrison.spawn  garrison.event n=28 mean 218.9us p99 2027.3us max 2027.3us | garrison.slot n=267 mean 378.6us p99 2311.0us max 3893.0us | garrison.spawn n=13 mean 4486.8us p99 17063.6us max 17063.6us
+  PASS  G3-17 every garrison filled to its tier cap (no server-wide cap)  5 villages, 128 units alive of caps [16, 16, 16, 64, 16]
+  PASS  G3-17 equipmentDrops=false: garrison units have drop chance 0 in every slot  3 units, 18 slot chances, max 0.0
+  PASS  G3-17 player-owned HYW units in the village are not counted as garrison  live 16->16 census {'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}->{'tagged': 16, 'slots': 16, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 16, 'live': 16, 'bound': 16}
+  PASS  G3-17 recall: deployed units return at once  deployed 2 -> 0; ['Recalled 0 deployed unit(s) of Ussy les-pâtures; deployment stays off until the alert ends.']
+  PASS  G3-17 perf recorded at scale (values in the report)  garrison.slot mean 189.7us p99 647.3us | tick.total mean 37.1us p99 670.3us
