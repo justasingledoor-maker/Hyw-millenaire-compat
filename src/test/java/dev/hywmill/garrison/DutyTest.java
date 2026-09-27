@@ -7,6 +7,7 @@ import dev.hywmill.garrison.duty.DutyAllocator;
 import dev.hywmill.garrison.duty.DutyMotion;
 import dev.hywmill.garrison.duty.DutyPlan;
 import dev.hywmill.garrison.duty.DutyQuota;
+import dev.hywmill.garrison.duty.RaidPlanner;
 import dev.hywmill.garrison.duty.DutyRule;
 import dev.hywmill.garrison.duty.DutyTable;
 import dev.hywmill.garrison.duty.DutyTables;
@@ -69,7 +70,7 @@ class DutyTest {
         DutyTable seljuk = t.forCulture("millenaire:seljuk");
         assertEquals(56, seljuk.scout().distance());
         assertEquals(t.defaults().scout().dwell(), seljuk.scout().dwell());
-        assertEquals(6, seljuk.tier(MilitaryTier.STRONGHOLD).maxScouts());
+        assertEquals(12, seljuk.tier(MilitaryTier.STRONGHOLD).maxScouts());
         assertEquals(t.defaults().tier(MilitaryTier.STRONGHOLD).maxSentryPairs(), seljuk.tier(MilitaryTier.STRONGHOLD).maxSentryPairs());
         assertEquals(0.45, seljuk.raid().commitFraction());
         assertEquals(t.defaults().raid().minHome(), seljuk.raid().minHome());
@@ -86,6 +87,24 @@ class DutyTest {
         assertEquals(5, problems.size(), problems.toString());
         assertEquals(MoveRule.DEFAULT.maxHop(), t.defaults().move().maxHop());
         assertEquals(0, t.defaults().tier(MilitaryTier.WATCH).sentryShare());
+    }
+
+    /** M5-G (Q10): at the locked caps most of the garrison has an active role, and raids scale with it. */
+    @Test
+    void retunedDataStaffsTheLargerGarrisons() throws IOException {
+        DutyTables t = shipped(new ArrayList<>());
+        DutyQuota s = DutyQuota.of(t.defaults().tier(MilitaryTier.STRONGHOLD), 128, 16);
+        assertEquals(new DutyQuota(16, 24, 8, 25), s);
+        assertTrue(s.total() > 80, "M4 data staffed about 40 of 128: " + s.total());
+        assertTrue(DutyQuota.of(t.defaults().tier(MilitaryTier.GARRISON), 72, 10).total() >= 45);
+        assertTrue(DutyQuota.of(t.defaults().tier(MilitaryTier.GUARD_POST), 48, 6).total() >= 25);
+        assertTrue(DutyQuota.of(t.defaults().tier(MilitaryTier.WATCH), 24, 4).total() >= 12);
+        // raids: the commit fraction decides, maxCommit no longer pins every stronghold at 12; minHome still holds
+        assertEquals(44, RaidPlanner.size(t.defaults().raid(), 128));
+        assertEquals(16, RaidPlanner.size(t.defaults().raid(), 48));
+        assertEquals(56, RaidPlanner.size(t.forCulture("millenaire:seljuk").raid(), 128));
+        assertEquals(10, RaidPlanner.size(t.forCulture("millenaire:seljuk").raid(), 24)); // 45 % of a small garrison
+        assertEquals(64, RaidPlanner.size(new dev.hywmill.garrison.duty.RaidRule(true, 0.9, 1, 64, 0.5, 0, 0, 1), 128)); // minHome 0.5 still holds
     }
 
     @Test

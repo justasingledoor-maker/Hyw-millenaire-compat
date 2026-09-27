@@ -5,6 +5,7 @@ import dev.hywmill.garrison.tables.TierRule;
 import dev.hywmill.garrison.tables.UnitClass;
 import dev.hywmill.garrison.tables.UnitSpec;
 import dev.hywmill.military.MilitaryTier;
+import dev.hywmill.military.classify.BuildingRole;
 
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
@@ -42,21 +43,80 @@ public final class Recruitment {
     private Recruitment() {}
 
     /**
+     * Inputs of the garrison target, all from the village record (M5-G).
+     *
+     * @param capacity      M2 military capacity (soldier/militia slots)
+     * @param adults        adult residents
+     * @param population    all residents
+     * @param buildings     operational buildings per role
+     * @param fortification fortification score
+     * @param type          Millénaire village type key
+     */
+    public record TargetInputs(int capacity, int adults, int population, Map<BuildingRole, Integer> buildings, int fortification, String type) {
+        /** Capacity only: what M3 used. */
+        public static TargetInputs capacityOnly(int capacity) {
+            return new TargetInputs(capacity, 0, 0, Map.of(), 0, "");
+        }
+    }
+
+    /**
      * {@code clamp(round(capacity * perCapacity), minTarget, maxTarget)}, then at most the tier's
-     * per-village maximum. NONE tier and lone buildings: 0.
+     * per-village maximum. NONE tier and lone buildings: 0. (M3 signature; same as the M5-G formula
+     * with capacity as the only input.)
      */
     public static int target(int capacity, MilitaryTier tier, boolean loneBuilding, GarrisonTable table) {
+        return target(TargetInputs.capacityOnly(capacity), tier, loneBuilding, table);
+    }
+
+    /**
+     * M5-G garrison target:
+     * <pre>
+     * raw    = capacity * perCapacity + sum(infraBonus[role] * buildings[role])
+     *        + min(fortification / fortDiv, fortCap) + levyShare * adults
+     * target = min(maxUnits, clamp(round(raw * typeFactor[type]), minTarget, maxTarget))
+     * target = min(target, floor(supportRatio * population))   only when supportRatio > 0
+     * </pre>
+     * With every M5-G term neutral (no infraBonus, fortDiv 0, levyShare 0, no type factor,
+     * supportRatio 0) this is exactly the M3 target. NONE tier and lone buildings: 0.
+     */
+    public static int target(TargetInputs in, MilitaryTier tier, boolean loneBuilding, GarrisonTable table) {
         if (tier == MilitaryTier.NONE || loneBuilding) {
             return 0;
         }
         TierRule r = table.tier(tier);
-        long raw = Math.round(capacity * r.perCapacity());
-        int t = (int) Math.max(r.minTarget(), Math.min(r.maxTarget(), raw));
-        return Math.max(0, Math.min(t, r.maxUnits()));
+        double raw = in.capacity() * r.perCapacity();
+        for (Map.Entry<BuildingRole, Integer> e : in.buildings().entrySet()) {
+            raw += table.infraBonus().getOrDefault(e.getKey(), 0.0) * e.getValue();
+        }
+        if (r.fortDiv() > 0) {
+            raw += Math.min(in.fortification() / r.fortDiv(), r.fortCap());
+        }
+        raw += r.levyShare() * in.adults();
+        raw *= table.typeFactors().getOrDefault(in.type(), 1.0);
+        long rounded = Math.round(raw);
+        int t = (int) Math.max(r.minTarget(), Math.min(r.maxTarget(), rounded));
+        t = Math.max(0, Math.min(t, r.maxUnits()));
+        if (r.supportRatio() > 0) {
+            t = Math.min(t, (int) Math.floor(r.supportRatio() * in.population() + 1e-9));
+        }
+        return t;
     }
 
+    /** M3 levy rate (no target term). */
     public static double dailyRate(int capacity, MilitaryTier tier, GarrisonTable table) {
-        return table.tier(tier).baseDaily() + table.perCapacityDaily() * capacity;
+        return dailyRate(capacity, 0, tier, table);
+    }
+
+    /** Levy points per active day: {@code baseDaily + perCapacityDaily * capacity + perTargetDaily * target}. */
+    public static double dailyRate(int capacity, int target, MilitaryTier tier, GarrisonTable table) {
+        TierRule r = table.tier(tier);
+        return r.baseDaily() + table.perCapacityDaily() * capacity + r.perTargetDaily() * target;
+    }
+
+    /** Levy pool cap: {@code max(poolCap, poolCapShare * target)}. */
+    public static double poolCap(int target, MilitaryTier tier, GarrisonTable table) {
+        TierRule r = table.tier(tier);
+        return Math.max(r.poolCap(), r.poolCapShare() * target);
     }
 
     /**

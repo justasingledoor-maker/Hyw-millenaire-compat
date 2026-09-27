@@ -11,6 +11,7 @@ import dev.hywmill.garrison.GarrisonSettings;
 import dev.hywmill.garrison.JoinAdjudicator;
 import dev.hywmill.garrison.LossReason;
 import dev.hywmill.garrison.Reconciler;
+import dev.hywmill.garrison.ScalingGate;
 import dev.hywmill.garrison.Recruitment;
 import dev.hywmill.garrison.RosterEntry;
 import dev.hywmill.garrison.SpawnSpots;
@@ -47,6 +48,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -83,6 +85,10 @@ public final class GarrisonService {
         Set<UUID> reserve = Set.of();
         boolean recalled;
         String lastBlocker = "";
+        /** M5-G: target inputs must be authoritative before the target may grow (see ScalingGate). */
+        final ScalingGate gate = new ScalingGate();
+        boolean authoritative;
+        int computedTarget;
     }
 
     public GarrisonService(PerfCounters perf) {
@@ -118,11 +124,16 @@ public final class GarrisonService {
         GarrisonTables tables = GarrisonTables.current();
         GarrisonTable table = tables.forCulture(rec.culture);
         MilitaryTier tier = rec.tier;
-        int target = Recruitment.target(rec.capacity, tier, rec.loneBuilding, table);
+        int computed = target(rec, table);
+        v.authoritative = v.gate.observe(inputsKey(rec), tick, v.activeSince, rec.lastUpdateTick,
+                rec.updateCount > 0 && !rec.needsRecompute, s.settleTicks());
+        v.computedTarget = computed;
+        int target = ScalingGate.gated(computed, v.authoritative, r.live());
         int tierMax = table.tier(tier).maxUnits();
 
         Reconciler.excludeInactive(r, tick, s);
-        Recruitment.accrue(r, tick, s.maxActiveStep(), Recruitment.dailyRate(rec.capacity, tier, table), table.tier(tier).poolCap());
+        Recruitment.accrue(r, tick, s.maxActiveStep(), Recruitment.dailyRate(rec.capacity, target, tier, table),
+                Recruitment.poolCap(target, tier, table));
 
         for (RosterEntry e : r.entries()) {
             if (!e.state().terminal() && !units.isValidUnitType(e.entityType)) {
@@ -179,6 +190,31 @@ public final class GarrisonService {
         if (s.enabled() && settled && (alert == AlertState.CALM || alert == AlertState.RECOVERY)) {
             spawnPending(overworld, rec, r, table, tables, units, s, tick, s.spawnsPerSlot());
         }
+    }
+
+    /** The garrison target of a village from its record (M5-G formula; the scaling gate is applied by the slot). */
+    public static int target(VillageRecord rec, GarrisonTable table) {
+        return Recruitment.target(new Recruitment.TargetInputs(rec.capacity, rec.adults, rec.population, rec.buildingRoles,
+                rec.fortification, rec.type), rec.tier, rec.loneBuilding, table);
+    }
+
+    static int inputsKey(VillageRecord rec) {
+        return Objects.hash(rec.tier, rec.capacity, rec.loneBuilding, rec.adults, rec.population, rec.fortification, rec.buildingRoles,
+                rec.type, rec.culture);
+    }
+
+    /** Whether the village's target inputs were authoritative at its last slot (false before the first slot). */
+    public boolean scalingAuthoritative(UUID village) {
+        VillageRt v = villages.get(village);
+        return v != null && v.authoritative;
+    }
+
+    /** The village's garrison target as its last slot acted on it, or the computed target if it has had no slot. */
+    public int effectiveTarget(VillageRecord rec) {
+        VillageRt v = villages.get(rec.villageId);
+        int computed = target(rec, GarrisonTables.current().forCulture(rec.culture));
+        GarrisonRoster r = rec.hywRoster;
+        return v == null || r == null ? computed : ScalingGate.gated(computed, v.authoritative, r.live());
     }
 
     /** The village's roster, created on first use (new village or migrated from ledger format 3). */
@@ -433,7 +469,7 @@ public final class GarrisonService {
         VillageRt v = villages.computeIfAbsent(rec.villageId, k -> new VillageRt());
         if (alertState(rec.villageId) != AlertState.CALM) {
             v.deathsThisAlert++;
-            int target = Recruitment.target(rec.capacity, rec.tier, rec.loneBuilding, GarrisonTables.current().forCulture(rec.culture));
+            int target = target(rec, GarrisonTables.current().forCulture(rec.culture));
             if (Recruitment.wipedOut(v.deathsThisAlert, target)) {
                 Recruitment.cooldown(r, tick, s.wipeoutCooldown(), s.recruitInterval());
                 HmLog.info("Village '{}' garrison wiped out ({} of target {} killed in this alert): recruitment cooldown {} ticks",

@@ -109,10 +109,13 @@ final class GarrisonCommands {
     static String line(VillageRecord r, long tick) {
         GarrisonRoster g = r.hywRoster;
         GarrisonTable table = GarrisonTables.current().forCulture(r.culture);
-        int target = Recruitment.target(r.capacity, r.tier, r.loneBuilding, table);
+        GarrisonService gs = HywMillRuntime.require().garrison();
+        int computed = GarrisonService.target(r, table);
+        int target = gs.effectiveTarget(r);
+        String gate = target == computed ? "" : " | scaling to " + computed + " waits for the village to finish loading";
         int cap = table.tier(r.tier).maxUnits();
         if (g == null) {
-            return "Garrison: not created yet | target " + target + " (tier cap " + cap + ")";
+            return "Garrison: not created yet | target " + target + gate + " (tier cap " + cap + ")";
         }
         Map<UnitState, Integer> c = g.countByState();
         int alive = c.getOrDefault(UnitState.GARRISONED, 0) + c.getOrDefault(UnitState.DEPLOYED, 0) + c.getOrDefault(UnitState.RETURNING, 0)
@@ -120,8 +123,8 @@ final class GarrisonCommands {
         return "Garrison: " + g.live() + "/" + target + " (tier cap " + cap + ") | alive " + alive + ", recruited " + c.getOrDefault(UnitState.RECRUITED, 0)
                 + ", missing " + c.getOrDefault(UnitState.MISSING, 0) + ", deployed " + c.getOrDefault(UnitState.DEPLOYED, 0)
                 + ", returning " + c.getOrDefault(UnitState.RETURNING, 0) + " | levy " + String.format("%.2f", g.levyPoints) + "/"
-                + String.format("%.0f", table.tier(r.tier).poolCap()) + " (+" + String.format("%.2f", Recruitment.dailyRate(r.capacity, r.tier, table))
-                + "/day) | equipment level " + Recruitment.equipmentLevel(r.tier, table) + (g.paused ? " | PAUSED" : "");
+                + String.format("%.0f", Recruitment.poolCap(target, r.tier, table)) + " (+" + String.format("%.2f", Recruitment.dailyRate(r.capacity, target, r.tier, table))
+                + "/day) | equipment level " + Recruitment.equipmentLevel(r.tier, table) + (g.paused ? " | PAUSED" : "") + gate;
     }
 
     private static int summary(CommandContext<CommandSourceStack> ctx) {

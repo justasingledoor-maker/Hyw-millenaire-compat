@@ -1,13 +1,18 @@
 {
-  "_comment": "HywMill M3 garrison rules. target = min(clamp(round(capacity * perCapacity), minTarget, maxTarget), maxUnits); maxUnits is the per-village tier ceiling (there is no server-wide cap). Levy: baseDaily + perCapacityDaily * capacity points per active in-game day, capped at poolCap. Culture entries patch the defaults (composition replaces, tiers merge per field). M4: equipmentProvider 'hyw_profiles' is HYW's own equipment plus optional Epic Knights profiles (hywmill_equipment; identical to 'hyw' without Epic Knights). CAVALRY (light mounted scouts) is allowed from GARRISON tier and appears only in the compositions of horse-riding cultures (not Mayan or Inuit).",
+  "_comment": "HywMill garrison rules (M5-G formula C3). raw = capacity * perCapacity + sum(infraBonus[role] * operational buildings of that role) + min(fortification / fortDiv, fortCap) + levyShare * adults; target = min(clamp(round(raw * typeFactors[type]), minTarget, maxTarget), maxUnits); maxUnits is the per-village tier ceiling (locked caps 24/48/72/128; there is no server-wide cap). Population is not a ceiling unless a tier sets supportRatio. Levy: baseDaily + perCapacityDaily * capacity + perTargetDaily * target points per active in-game day, capped at max(poolCap, poolCapShare * target). With levyShare/fortDiv/perTargetDaily/poolCapShare 0 and no infraBonus the formula is exactly M3's. Culture entries patch the defaults (composition replaces, tiers merge per field). M4: equipmentProvider 'hyw_profiles' is HYW's own equipment plus optional Epic Knights profiles (hywmill_equipment; identical to 'hyw' without Epic Knights). CAVALRY (light mounted scouts) is allowed from GARRISON tier and appears only in the compositions of horse-riding cultures (not Mayan or Inuit).",
   "defaults": {
     "tiers": {
       "NONE":       { "perCapacity": 0.0, "minTarget": 0, "maxTarget": 0,  "maxUnits": 0,  "baseDaily": 0.0, "poolCap": 0,  "equipmentLevel": 0, "classes": [] },
-      "WATCH":      { "perCapacity": 1.0, "minTarget": 1, "maxTarget": 8,  "maxUnits": 8,  "baseDaily": 1.0, "poolCap": 4,  "equipmentLevel": 0, "classes": ["LEVY", "RANGED"] },
-      "GUARD_POST": { "perCapacity": 1.0, "minTarget": 2, "maxTarget": 16, "maxUnits": 16, "baseDaily": 1.5, "poolCap": 6,  "equipmentLevel": 1, "classes": ["LEVY", "LINE", "RANGED"] },
-      "GARRISON":   { "perCapacity": 1.0, "minTarget": 3, "maxTarget": 32, "maxUnits": 32, "baseDaily": 2.0, "poolCap": 10, "equipmentLevel": 2, "classes": ["LEVY", "LINE", "RANGED", "GUNPOWDER", "CAVALRY"] },
-      "STRONGHOLD": { "perCapacity": 1.0, "minTarget": 4, "maxTarget": 64, "maxUnits": 64, "baseDaily": 3.0, "poolCap": 16, "equipmentLevel": 3, "classes": ["LEVY", "LINE", "RANGED", "GUNPOWDER", "CAVALRY"] }
+      "WATCH":      { "perCapacity": 2.0,  "minTarget": 1, "maxTarget": 24,  "maxUnits": 24,  "baseDaily": 1.0, "poolCap": 4,  "equipmentLevel": 0, "classes": ["LEVY", "RANGED"],
+                      "levyShare": 0.15, "fortDiv": 3, "fortCap": 30, "perTargetDaily": 0.12, "poolCapShare": 0.25 },
+      "GUARD_POST": { "perCapacity": 2.25, "minTarget": 2, "maxTarget": 48,  "maxUnits": 48,  "baseDaily": 1.5, "poolCap": 6,  "equipmentLevel": 1, "classes": ["LEVY", "LINE", "RANGED"],
+                      "levyShare": 0.20, "fortDiv": 3, "fortCap": 30, "perTargetDaily": 0.12, "poolCapShare": 0.25 },
+      "GARRISON":   { "perCapacity": 2.5,  "minTarget": 3, "maxTarget": 72,  "maxUnits": 72,  "baseDaily": 2.0, "poolCap": 10, "equipmentLevel": 2, "classes": ["LEVY", "LINE", "RANGED", "GUNPOWDER", "CAVALRY"],
+                      "levyShare": 0.25, "fortDiv": 3, "fortCap": 30, "perTargetDaily": 0.12, "poolCapShare": 0.25 },
+      "STRONGHOLD": { "perCapacity": 3.0,  "minTarget": 4, "maxTarget": 128, "maxUnits": 128, "baseDaily": 3.0, "poolCap": 16, "equipmentLevel": 3, "classes": ["LEVY", "LINE", "RANGED", "GUNPOWDER", "CAVALRY"],
+                      "levyShare": 0.30, "fortDiv": 3, "fortCap": 30, "perTargetDaily": 0.12, "poolCapShare": 0.25 }
     },
+    "infraBonus": { "BARRACKS": 8, "FORT_TOWNHALL": 8, "ARMOURY": 4, "TRAINING": 4, "GUARDHOUSE": 3, "WATCHTOWER": 3, "TOWER": 2, "GATE": 1 },
     "perCapacityDaily": 0.25,
     "startingFraction": 0.5,
     "commitPerThreat": 2,

@@ -5,10 +5,14 @@ import dev.hywmill.garrison.tables.GarrisonTables;
 import dev.hywmill.garrison.tables.UnitClass;
 import dev.hywmill.garrison.tables.UnitSpec;
 import dev.hywmill.military.MilitaryTier;
+import dev.hywmill.military.classify.BuildingRole;
+import dev.hywmill.garrison.tables.TierRule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.EnumMap;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,38 +26,171 @@ class RecruitmentTest {
     static GarrisonTables tables;
     static GarrisonTable norman;
     static GarrisonTable dflt;
+    /** The M3 rules as frozen (hywmill_garrison/defaults.json before M5-G), every M5-G term neutral. */
+    static GarrisonTable m3;
 
     @BeforeAll
     static void load() throws IOException {
         tables = GarrisonTablesTest.shipped(new ArrayList<>());
         norman = tables.forCulture("millenaire:norman");
         dflt = tables.defaults();
+        Map<MilitaryTier, TierRule> t = new EnumMap<>(MilitaryTier.class);
+        t.put(MilitaryTier.NONE, TierRule.NONE);
+        t.put(MilitaryTier.WATCH, new TierRule(1.0, 1, 8, 8, 1.0, 4, 0, Set.of(UnitClass.LEVY, UnitClass.RANGED)));
+        t.put(MilitaryTier.GUARD_POST, new TierRule(1.0, 2, 16, 16, 1.5, 6, 1, Set.of(UnitClass.LEVY, UnitClass.LINE, UnitClass.RANGED)));
+        t.put(MilitaryTier.GARRISON, new TierRule(1.0, 3, 32, 32, 2.0, 10, 2, GarrisonTables.ALL_CLASSES));
+        t.put(MilitaryTier.STRONGHOLD, new TierRule(1.0, 4, 64, 64, 3.0, 16, 3, GarrisonTables.ALL_CLASSES));
+        m3 = new GarrisonTable(t, 0.25, 0.5, 2, dflt.composition(), "hyw_profiles");
     }
 
     // ---- target ----
 
     @Test
-    void targetScalesWithCapacityWithinTierBounds() {
-        assertEquals(6, Recruitment.target(6, MilitaryTier.GARRISON, false, dflt));
-        assertEquals(3, Recruitment.target(1, MilitaryTier.GARRISON, false, dflt)); // minTarget
-        assertEquals(1, Recruitment.target(0, MilitaryTier.WATCH, false, dflt));
-        assertEquals(2, Recruitment.target(2, MilitaryTier.GUARD_POST, false, dflt));
+    void m3TargetScalesWithCapacityWithinTierBounds() {
+        assertEquals(6, Recruitment.target(6, MilitaryTier.GARRISON, false, m3));
+        assertEquals(3, Recruitment.target(1, MilitaryTier.GARRISON, false, m3)); // minTarget
+        assertEquals(1, Recruitment.target(0, MilitaryTier.WATCH, false, m3));
+        assertEquals(2, Recruitment.target(2, MilitaryTier.GUARD_POST, false, m3));
     }
 
     @Test
-    void tierMaxIsACeilingNotAnAllocation() {
-        assertEquals(8, Recruitment.target(500, MilitaryTier.WATCH, false, dflt));
-        assertEquals(16, Recruitment.target(500, MilitaryTier.GUARD_POST, false, dflt));
-        assertEquals(32, Recruitment.target(500, MilitaryTier.GARRISON, false, dflt));
-        assertEquals(64, Recruitment.target(500, MilitaryTier.STRONGHOLD, false, dflt));
-        assertEquals(5, Recruitment.target(5, MilitaryTier.STRONGHOLD, false, dflt)); // a small stronghold stays small
-        assertEquals(40, Recruitment.target(40, MilitaryTier.STRONGHOLD, false, dflt));
+    void m3TierMaxIsACeilingNotAnAllocation() {
+        assertEquals(8, Recruitment.target(500, MilitaryTier.WATCH, false, m3));
+        assertEquals(16, Recruitment.target(500, MilitaryTier.GUARD_POST, false, m3));
+        assertEquals(32, Recruitment.target(500, MilitaryTier.GARRISON, false, m3));
+        assertEquals(64, Recruitment.target(500, MilitaryTier.STRONGHOLD, false, m3));
+        assertEquals(5, Recruitment.target(5, MilitaryTier.STRONGHOLD, false, m3)); // a small stronghold stays small
+        assertEquals(40, Recruitment.target(40, MilitaryTier.STRONGHOLD, false, m3));
     }
 
     @Test
     void noneTierAndLoneBuildingsHaveNoGarrison() {
-        assertEquals(0, Recruitment.target(30, MilitaryTier.NONE, false, dflt));
-        assertEquals(0, Recruitment.target(30, MilitaryTier.STRONGHOLD, true, dflt));
+        for (GarrisonTable t : List.of(m3, dflt)) {
+            assertEquals(0, Recruitment.target(30, MilitaryTier.NONE, false, t));
+            assertEquals(0, Recruitment.target(30, MilitaryTier.STRONGHOLD, true, t));
+            assertEquals(0, Recruitment.target(new Recruitment.TargetInputs(30, 50, 50, Map.of(BuildingRole.BARRACKS, 3), 90, "x"),
+                    MilitaryTier.STRONGHOLD, true, t));
+        }
+    }
+
+    // ---- M5-G ----
+
+    /** With every M5-G term neutral the new formula is exactly M3's, whatever the other inputs are. */
+    @Test
+    void neutralM5TermsReproduceM3Exactly() {
+        Map<BuildingRole, Integer> b = Map.of(BuildingRole.BARRACKS, 2, BuildingRole.TOWER, 5, BuildingRole.WALL, 30);
+        for (MilitaryTier tier : MilitaryTier.values()) {
+            for (int cap = 0; cap <= 80; cap++) {
+                int expected = Recruitment.target(cap, tier, false, m3);
+                assertEquals(expected, Recruitment.target(new Recruitment.TargetInputs(cap, 40, 55, b, 90, "militaire"), tier, false, m3),
+                        tier + " capacity " + cap);
+                assertEquals(Recruitment.dailyRate(cap, tier, m3), Recruitment.dailyRate(cap, expected, tier, m3), 1e-12);
+                assertEquals(m3.tier(tier).poolCap(), Recruitment.poolCap(expected, tier, m3), 1e-12);
+            }
+        }
+    }
+
+    static Recruitment.TargetInputs in(int capacity, int adults, int fort, Map<BuildingRole, Integer> b) {
+        return new Recruitment.TargetInputs(capacity, adults, adults, b, fort, "");
+    }
+
+    /** C3 on the inputs of the six real harness villages (docs/m5-test-evidence/sg-model-real-inputs.txt). */
+    @Test
+    void c3OnTheRealHarnessVillages() {
+        Map<BuildingRole, Integer> militaire = Map.of(BuildingRole.WALL, 26, BuildingRole.TOWER, 4, BuildingRole.BORDER_MARKER, 7,
+                BuildingRole.GUARDHOUSE, 2, BuildingRole.WATCHTOWER, 2, BuildingRole.ARMOURY, 1, BuildingRole.FORT_TOWNHALL, 1);
+        Map<BuildingRole, Integer> barbery = Map.of(BuildingRole.WALL, 49, BuildingRole.TOWER, 8, BuildingRole.BORDER_MARKER, 14,
+                BuildingRole.GUARDHOUSE, 2, BuildingRole.WATCHTOWER, 2, BuildingRole.ARMOURY, 1, BuildingRole.FORT_TOWNHALL, 1);
+        assertEquals(47, Recruitment.target(in(16, 36, 3, Map.of(BuildingRole.BORDER_MARKER, 16, BuildingRole.GUARDHOUSE, 1)),
+                MilitaryTier.GUARD_POST, false, dflt)); // Sainte-Marguerite
+        assertEquals(14, Recruitment.target(in(6, 15, 0, Map.of(BuildingRole.BORDER_MARKER, 13)), MilitaryTier.WATCH, false, dflt)); // Isigny
+        assertEquals(90, Recruitment.target(in(11, 22, 55, militaire), MilitaryTier.STRONGHOLD, false, norman)); // Crèvecoeur
+        assertEquals(48, Recruitment.target(in(14, 32, 9, Map.of(BuildingRole.BORDER_MARKER, 9, BuildingRole.BARRACKS, 1,
+                BuildingRole.ARMOURY, 1, BuildingRole.FORT_TOWNHALL, 1)), MilitaryTier.GUARD_POST, false, tables.forCulture("millenaire:byzantines"))); // Phaistos
+        assertEquals(24, Recruitment.target(in(8, 16, 44, Map.of(BuildingRole.WALL, 29, BuildingRole.TOWER, 5, BuildingRole.BORDER_MARKER, 3)),
+                MilitaryTier.WATCH, false, norman)); // Grainville
+        assertEquals(110, Recruitment.target(in(11, 22, 90, barbery), MilitaryTier.STRONGHOLD, false, norman)); // Barbery
+    }
+
+    @Test
+    void c3NeverExceedsTheLockedCaps() {
+        Map<BuildingRole, Integer> huge = Map.of(BuildingRole.BARRACKS, 10, BuildingRole.FORT_TOWNHALL, 3, BuildingRole.TOWER, 40);
+        assertEquals(24, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.WATCH, false, dflt));
+        assertEquals(48, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.GUARD_POST, false, dflt));
+        assertEquals(72, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.GARRISON, false, dflt));
+        assertEquals(128, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.STRONGHOLD, false, dflt));
+        // fortification adds at most fortCap (30): 4 slots * 3 + 30
+        assertEquals(42, Recruitment.target(in(4, 0, 100000, Map.of()), MilitaryTier.STRONGHOLD, false, dflt));
+        // an empty village of a tier still gets the tier's floor
+        assertEquals(4, Recruitment.target(in(0, 0, 0, Map.of()), MilitaryTier.STRONGHOLD, false, dflt));
+    }
+
+    @Test
+    void populationIsNoCeilingUnlessSupportRatioIsSet() {
+        Map<MilitaryTier, TierRule> t = new EnumMap<>(dflt.tiers());
+        TierRule s = dflt.tier(MilitaryTier.STRONGHOLD);
+        t.put(MilitaryTier.STRONGHOLD, new TierRule(s.perCapacity(), s.minTarget(), s.maxTarget(), s.maxUnits(), s.baseDaily(), s.poolCap(),
+                s.equipmentLevel(), s.classes(), s.levyShare(), s.fortDiv(), s.fortCap(), s.perTargetDaily(), s.poolCapShare(), 2.0));
+        GarrisonTable capped = new GarrisonTable(t, dflt.perCapacityDaily(), dflt.startingFraction(), dflt.commitPerThreat(), dflt.composition(),
+                dflt.equipmentProvider(), dflt.infraBonus(), dflt.typeFactors());
+        Recruitment.TargetInputs small = new Recruitment.TargetInputs(20, 10, 10, Map.of(BuildingRole.BARRACKS, 1), 30, "");
+        int free = Recruitment.target(small, MilitaryTier.STRONGHOLD, false, dflt);
+        assertTrue(free > 20, "no ceiling by default: " + free);
+        assertEquals(20, Recruitment.target(small, MilitaryTier.STRONGHOLD, false, capped));
+    }
+
+    @Test
+    void typeFactorScalesTheRawTarget() {
+        GarrisonTable t = new GarrisonTable(dflt.tiers(), dflt.perCapacityDaily(), dflt.startingFraction(), dflt.commitPerThreat(),
+                dflt.composition(), dflt.equipmentProvider(), dflt.infraBonus(), Map.of("militaire", 1.5));
+        Recruitment.TargetInputs a = new Recruitment.TargetInputs(10, 0, 0, Map.of(), 0, "militaire");
+        Recruitment.TargetInputs b = new Recruitment.TargetInputs(10, 0, 0, Map.of(), 0, "agricole");
+        assertEquals(45, Recruitment.target(a, MilitaryTier.STRONGHOLD, false, t));
+        assertEquals(30, Recruitment.target(b, MilitaryTier.STRONGHOLD, false, t));
+    }
+
+    @Test
+    void levyScalesWithTheTarget() {
+        // STRONGHOLD, capacity 11, target 110: 3.0 + 0.25 * 11 + 0.12 * 110
+        assertEquals(3.0 + 2.75 + 13.2, Recruitment.dailyRate(11, 110, MilitaryTier.STRONGHOLD, dflt), 1e-9);
+        assertEquals(27.5, Recruitment.poolCap(110, MilitaryTier.STRONGHOLD, dflt), 1e-9);
+        assertEquals(16.0, Recruitment.poolCap(10, MilitaryTier.STRONGHOLD, dflt), 1e-9); // never below the M3 pool cap
+    }
+
+    // ---- scaling gate ----
+
+    @Test
+    void gateWaitsForARefreshAndStableInputsAfterActivation() {
+        ScalingGate g = new ScalingGate();
+        long settle = 400;
+        // activated at 1000; record last refreshed before the activation (last session's state)
+        assertFalse(g.observe(7, 1000, 1000, 900, true, settle));
+        assertFalse(g.observe(7, 1400, 1000, 900, true, settle), "no refresh since activation");
+        assertTrue(g.observe(7, 1600, 1000, 1200, true, settle));
+        // an input changes (residents finished loading): wait again
+        assertFalse(g.observe(8, 1800, 1000, 1800, true, settle));
+        assertFalse(g.observe(8, 2000, 1000, 2000, true, settle));
+        assertTrue(g.observe(8, 2200, 1000, 2200, true, settle));
+        // a record awaiting its migration recompute is never authoritative
+        assertFalse(g.observe(8, 2400, 1000, 2400, false, settle));
+    }
+
+    @Test
+    void gateRestartsOnReactivation() {
+        ScalingGate g = new ScalingGate();
+        assertFalse(g.observe(5, 1000, 1000, 1000, true, 400));
+        assertTrue(g.observe(5, 1400, 1000, 1200, true, 400));
+        // unloaded, then active again at 50000 with the same inputs: they must settle again
+        assertFalse(g.observe(5, 50000, 50000, 50000, true, 400));
+        assertTrue(g.observe(5, 50400, 50000, 50200, true, 400));
+    }
+
+    @Test
+    void gatedTargetNeverGrowsNorTrims() {
+        assertEquals(128, ScalingGate.gated(128, true, 20));
+        assertEquals(20, ScalingGate.gated(128, false, 20)); // no growth from an incomplete load
+        assertEquals(48, ScalingGate.gated(48, false, 128)); // a transient lower tier: no trimming either (live stays)
+        assertEquals(0, ScalingGate.gated(90, false, 0)); // nothing granted before the state is authoritative
     }
 
     // ---- levy ----
@@ -61,7 +198,7 @@ class RecruitmentTest {
     @Test
     void accrualIsPerActiveDayAndCapped() {
         GarrisonRoster r = new GarrisonRoster(0);
-        double rate = Recruitment.dailyRate(8, MilitaryTier.GARRISON, dflt); // 2.0 + 0.25 * 8
+        double rate = Recruitment.dailyRate(8, MilitaryTier.GARRISON, m3); // 2.0 + 0.25 * 8
         assertEquals(4.0, rate, 1e-9);
         for (long t = 200; t <= 24000; t += 200) {
             Recruitment.accrue(r, t, 400, rate, 10);

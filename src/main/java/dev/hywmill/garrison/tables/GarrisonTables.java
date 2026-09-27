@@ -3,6 +3,7 @@ package dev.hywmill.garrison.tables;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.hywmill.military.MilitaryTier;
+import dev.hywmill.military.classify.BuildingRole;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +28,9 @@ import java.util.function.Predicate;
  *                 "commitPerThreat", "composition": { key: weight }, "equipmentProvider" },
  *   "cultures": { "millenaire:norman": { same fields as defaults; composition replaces, tiers merge per field } } }
  * </pre>
+ * M5-G adds optional fields, all neutral when absent: per tier {@code levyShare, fortDiv, fortCap,
+ * perTargetDaily, poolCapShare, supportRatio}; per table {@code infraBonus: { ROLE: points }} and
+ * {@code typeFactors: { villageType: factor }} (both replace as a whole, like composition).
  */
 public final class GarrisonTables {
     /** Unit classes allowed to M3 (mounted/siege/worker units have no class and cannot be declared). */
@@ -201,7 +205,34 @@ public final class GarrisonTables {
         } else {
             composition = base != null ? base.composition() : Map.of();
         }
-        return new GarrisonTable(Collections.unmodifiableMap(tiers), perCapacityDaily, startingFraction, commit, composition, provider);
+        Map<BuildingRole, Double> infra = base != null ? base.infraBonus() : Map.of();
+        if (o.has("infraBonus") && o.get("infraBonus").isJsonObject()) {
+            Map<BuildingRole, Double> m = new EnumMap<>(BuildingRole.class);
+            for (Map.Entry<String, JsonElement> e : o.getAsJsonObject("infraBonus").entrySet()) {
+                BuildingRole role;
+                try {
+                    role = BuildingRole.valueOf(e.getKey());
+                } catch (IllegalArgumentException ex) {
+                    problems.add(where + ": infraBonus names unknown building role " + e.getKey() + "; skipped");
+                    continue;
+                }
+                double v = num(o.getAsJsonObject("infraBonus"), e.getKey(), 0, 0, 1024, where + " infraBonus", problems);
+                if (v > 0) {
+                    m.put(role, v);
+                }
+            }
+            infra = Collections.unmodifiableMap(m);
+        }
+        Map<String, Double> typeFactors = base != null ? base.typeFactors() : Map.of();
+        if (o.has("typeFactors") && o.get("typeFactors").isJsonObject()) {
+            Map<String, Double> m = new LinkedHashMap<>();
+            for (String k : o.getAsJsonObject("typeFactors").keySet()) {
+                m.put(k, num(o.getAsJsonObject("typeFactors"), k, 1, 0, 10, where + " typeFactors", problems));
+            }
+            typeFactors = Collections.unmodifiableMap(m);
+        }
+        return new GarrisonTable(Collections.unmodifiableMap(tiers), perCapacityDaily, startingFraction, commit, composition, provider,
+                infra, typeFactors);
     }
 
     private static TierRule tierRule(JsonObject o, TierRule b, String where, List<String> problems) {
@@ -222,7 +253,10 @@ public final class GarrisonTables {
         int maxTarget = (int) num(o, "maxTarget", b.maxTarget(), 0, 1024, where, problems);
         return new TierRule(num(o, "perCapacity", b.perCapacity(), 0, 100, where, problems), minTarget, Math.max(minTarget, maxTarget),
                 maxUnits, num(o, "baseDaily", b.baseDaily(), 0, 1000, where, problems), num(o, "poolCap", b.poolCap(), 0, 100000, where, problems),
-                (int) num(o, "equipmentLevel", b.equipmentLevel(), 0, 3, where, problems), classes);
+                (int) num(o, "equipmentLevel", b.equipmentLevel(), 0, 3, where, problems), classes,
+                num(o, "levyShare", b.levyShare(), 0, 10, where, problems), num(o, "fortDiv", b.fortDiv(), 0, 1000, where, problems),
+                num(o, "fortCap", b.fortCap(), 0, 1024, where, problems), num(o, "perTargetDaily", b.perTargetDaily(), 0, 100, where, problems),
+                num(o, "poolCapShare", b.poolCapShare(), 0, 10, where, problems), num(o, "supportRatio", b.supportRatio(), 0, 100, where, problems));
     }
 
     private static double num(JsonObject o, String key, double dflt, double min, double max, String where, List<String> problems) {

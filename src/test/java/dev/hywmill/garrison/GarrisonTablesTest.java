@@ -53,13 +53,16 @@ class GarrisonTablesTest {
     }
 
     @Test
-    void tierCapsAre0_8_16_32_64() throws IOException {
+    void tierCapsAreTheLockedM5Caps0_24_48_72_128() throws IOException {
         GarrisonTable d = shipped(new ArrayList<>()).defaults();
         assertEquals(0, d.tier(MilitaryTier.NONE).maxUnits());
-        assertEquals(8, d.tier(MilitaryTier.WATCH).maxUnits());
-        assertEquals(16, d.tier(MilitaryTier.GUARD_POST).maxUnits());
-        assertEquals(32, d.tier(MilitaryTier.GARRISON).maxUnits());
-        assertEquals(64, d.tier(MilitaryTier.STRONGHOLD).maxUnits());
+        assertEquals(24, d.tier(MilitaryTier.WATCH).maxUnits());
+        assertEquals(48, d.tier(MilitaryTier.GUARD_POST).maxUnits());
+        assertEquals(72, d.tier(MilitaryTier.GARRISON).maxUnits());
+        assertEquals(128, d.tier(MilitaryTier.STRONGHOLD).maxUnits());
+        for (MilitaryTier t : MilitaryTier.values()) {
+            assertEquals(d.tier(t).maxUnits(), d.tier(t).maxTarget(), t.name());
+        }
     }
 
     @Test
@@ -89,7 +92,8 @@ class GarrisonTablesTest {
         assertEquals(Map.of("militia", 3, "spear_man", 1, "archer", 2), t.forCulture("millenaire:inuits").composition());
         assertEquals(t.defaults().composition(), t.forCulture("millenaire:unknown").composition());
         // culture patches inherit tiers
-        assertEquals(64, t.forCulture("millenaire:norman").tier(MilitaryTier.STRONGHOLD).maxUnits());
+        assertEquals(128, t.forCulture("millenaire:norman").tier(MilitaryTier.STRONGHOLD).maxUnits());
+        assertEquals(t.defaults().infraBonus(), t.forCulture("millenaire:norman").infraBonus());
     }
 
     @Test
