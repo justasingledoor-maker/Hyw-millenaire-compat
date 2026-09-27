@@ -3787,6 +3787,15 @@ def forceload_list(s):
     return " ".join(s.output("forceload query", 1))
 
 
+def make_calm(s, c, timeout=90):
+    """Day, no hostile mobs near the village, and wait for its alert to settle to CALM (requests are refused otherwise)."""
+    s.cmd("time set day", 0.5)
+    for mob in ("zombie", "skeleton", "creeper", "spider", "witch", "drowned", "husk", "stray", "pillager", "enderman"):
+        s.cmd(f"kill @e[type=minecraft:{mob}]", 0.2)
+    wait_garrison(s, c, lambda g: g.get("alert") == "CALM", timeout)
+    return garrison(s, c).get("alert")
+
+
 def scenario_G5_5(ctx):
     """M5-5: escort (follows by hops, never teleports, never force-loads), dismissal and Favor, detachment,
     casualty cost, and the approved Reconciler pause for an errand unit whose chunk unloads."""
@@ -3795,6 +3804,7 @@ def scenario_G5_5(ctx):
     wait_garrison(s, a, lambda g: g.get("alive", 0) >= 8 and g.get("recruited", 1) == 0, 600)
     note("G5-5 garrison", str({k: v for k, v in garrison(s, a).items() if k != "lines"}))
     note("G5-5 stand-in", standin_at(s, V_UUID, a[0] + 2, a[2] + 2))
+    note("G5-5 alert before requests", str(make_calm(s, a)))
     q = s.output(at(a, f"hywmill politics request-for {Q_UUID} escort 2"), 1.5)
     check("G5-5 negative: a stranger's escort request is refused", any("STANDING_TOO_LOW" in l for l in q), " | ".join(q))
     m5(s, f"mill rep {ca} {V_UUID} adjust 9000")
@@ -3846,6 +3856,7 @@ def scenario_G5_5(ctx):
     standin_at(s, Y2_UUID, a[0] - 3, a[2] - 3)
     time.sleep(14)
     px, pz = a[0] + 24, a[2] - 24
+    make_calm(s, a)
     d = s.output(at(a, f"hywmill politics request-for {Y2_UUID} detachment 2 {px} {a[1]} {pz} 1"), 2)
     drows = [x for x in roster_rows(s, a) if x[4] == "DETACHED"]
     dids = {x[3] for x in drows if x[3]}
