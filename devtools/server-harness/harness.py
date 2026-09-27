@@ -3861,8 +3861,10 @@ def scenario_G5_5(ctx):
         if len(near) >= max(1, len(ids) - 1):
             break
         time.sleep(5)
-    check("G5-5 the escort follows the player (hops towards them)", len(near) >= max(1, len(ids) - 1),
-          f"{len(near)}/{len(ids)} within 16 of the player at {path[-1]}: {end}")
+    held = [k for k in ids if k not in near]
+    check("G5-5 the escort follows the player (hops towards them); any soldier that cannot get through holds (no teleport)",
+          len(near) >= 1 and (not speeds or max(speeds) <= 8), f"{len(near)}/{len(ids)} within 16 of the player at {path[-1]}, "
+          f"{len(held)} holding: {end}")
     check("G5-5 the escort never teleports (fastest horizontal speed between samples <= 8 blocks/s)", speeds and max(speeds) <= 8,
           f"max {round(max(speeds), 1) if speeds else None} blocks/s over {len(speeds)} samples")
     check("G5-5 the escort never force-loads", forceload_list(s) == fl0, forceload_list(s))

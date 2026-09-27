@@ -65,7 +65,15 @@ public final class ErrandService {
         }
         // the raid rule with everything above the home share offered (the village's own minHome, kept pairs and reserve)
         RaidRule r2 = new RaidRule(true, Math.max(0, 1 - raid.minHome()), 1, 64, raid.minHome(), raid.keepSentryPairs(), raid.keepReserve(), 1);
-        return RaidPlanner.select(r2, cands);
+        List<UUID> chosen = new ArrayList<>(RaidPlanner.select(r2, cands));
+        // prefer soldiers standing in the open: one inside a building may not get out (HYW units do not open doors, and a
+        // lent soldier never teleports), so it is lent last
+        chosen.sort(java.util.Comparator.comparing(id -> {
+            RosterEntry e = r.entry(id);
+            Entity ent = e == null ? null : GarrisonService.find(overworld.getServer(), e.entityUuid);
+            return ent == null || !overworld.canSeeSky(ent.blockPosition().above()) ? 1 : 0;
+        }));
+        return chosen;
     }
 
     public record Grant(Requests.Offer offer, List<RosterEntry> units) {}
