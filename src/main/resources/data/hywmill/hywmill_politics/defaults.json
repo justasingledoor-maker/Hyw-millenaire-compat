@@ -3,7 +3,7 @@
   "defaults": {
     "standing": { "boycott": -1024, "trusted": 4096, "patron": 8192, "sworn": 32768, "patronFavor": 20, "swornFavorEarned": 60, "keepFactor": 0.9 },
     "grievance": {
-      "weights": { "KILL_RESIDENT": 100, "KILL_GARRISON": 80, "ASSAULT_RESIDENT": 10, "ASSAULT_GARRISON": 6, "ERRAND_ABUSE": 30, "PLOT_EXPOSED": 60 },
+      "weights": { "KILL_RESIDENT": 100, "KILL_GARRISON": 80, "ASSAULT_RESIDENT": 10, "ASSAULT_GARRISON": 6, "ERRAND_ABUSE": 30, "PLOT_EXPOSED": 60, "JOINED_ENEMY": 30 },
       "insideFactor": 1.5, "selfDefenseFactor": 0.25, "halfLifeDays": 21, "warning": 20, "outlaw": 80, "pardon": 20, "max": 400
     },
     "favor": {

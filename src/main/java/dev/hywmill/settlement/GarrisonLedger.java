@@ -40,6 +40,24 @@ public final class GarrisonLedger extends SavedData {
         return reports;
     }
 
+    /** M5-5b: village pair states (key a>b, a < b), campaigns, and the relation projector's "previous relation" records. */
+    private final java.util.Map<String, dev.hywmill.politics.war.WarRecord> wars = new java.util.LinkedHashMap<>();
+    private final java.util.List<dev.hywmill.politics.war.Campaign> campaigns = new java.util.ArrayList<>();
+    /** "from>to" → the relation HywMill replaced when it projected this edge (restored when the cause ends). */
+    private final java.util.Map<String, String> projections = new java.util.LinkedHashMap<>();
+
+    public java.util.Map<String, dev.hywmill.politics.war.WarRecord> wars() {
+        return wars;
+    }
+
+    public java.util.List<dev.hywmill.politics.war.Campaign> campaigns() {
+        return campaigns;
+    }
+
+    public java.util.Map<String, String> projections() {
+        return projections;
+    }
+
     public static GarrisonLedger get(ServerLevel overworld) {
         return overworld.getDataStorage().computeIfAbsent(
                 new SavedData.Factory<>(GarrisonLedger::new, GarrisonLedger::load, null), DATA_NAME);
@@ -113,6 +131,9 @@ public final class GarrisonLedger extends SavedData {
         if (format >= 5 && root.contains("envoys", Tag.TAG_LIST)) {
             ledger.envoys.addAll(PoliticsNbt.loadEnvoys(root.getList("envoys", Tag.TAG_COMPOUND)));
         }
+        if (format >= 5) {
+            PoliticsNbt.loadWar(root, ledger.wars, ledger.campaigns, ledger.projections);
+        }
         if (format >= 5 && root.contains("envoyReports", Tag.TAG_LIST)) {
             ledger.reports.addAll(PoliticsNbt.loadReports(root.getList("envoyReports", Tag.TAG_COMPOUND)));
         }
@@ -139,6 +160,7 @@ public final class GarrisonLedger extends SavedData {
         if (!reports.isEmpty()) {
             root.put("envoyReports", PoliticsNbt.saveReports(reports));
         }
+        PoliticsNbt.saveWar(root, wars, campaigns, projections);
         return root;
     }
 }

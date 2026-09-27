@@ -95,6 +95,7 @@ public final class HywMillCommands {
         GarrisonCommands.register(dispatcher);
         PoliticsCommands.register(dispatcher);
         DiplomacyCommands.register(dispatcher);
+        WarCommands.register(dispatcher);
         dispatcher.register(Commands.literal("ourmod").redirect(root));
     }
 

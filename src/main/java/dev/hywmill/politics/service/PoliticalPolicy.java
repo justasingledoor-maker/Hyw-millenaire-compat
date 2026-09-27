@@ -16,8 +16,8 @@ import java.util.UUID;
  * wants it; everything else is reverted by the escalation guard exactly as before.
  *
  * <p>Permitted (M5-3): the village's <b>faction</b> identity and a player that village has
- * outlawed. Never a resident identity (the guard refuses those before asking), never
- * faction ↔ faction (M5-5b adds wars and campaigns here). The political record is authoritative;
+ * outlawed; (M5-5b) the two factions of villages at war; a campaigning player and the enemy's
+ * faction. Never a resident identity. The political record is authoritative;
  * the HYW relation is only its projection.
  */
 public final class PoliticalPolicy implements DiplomacyPolicy {
@@ -29,7 +29,11 @@ public final class PoliticalPolicy implements DiplomacyPolicy {
 
     @Override
     public boolean permitsPermanentHostility(UUID villageFaction, UUID other) {
-        return outlawedBy(villageFaction, other) || outlawedBy(other, villageFaction);
+        if (rt.factions().isResidentIdentity(villageFaction) || rt.factions().isResidentIdentity(other)) {
+            return false;
+        }
+        // M5-5b: a war between two factions, or a campaign against a faction, as planned by the relation projector
+        return outlawedBy(villageFaction, other) || outlawedBy(other, villageFaction) || rt.relations().wantsHostile(villageFaction, other);
     }
 
     private boolean outlawedBy(UUID faction, UUID player) {

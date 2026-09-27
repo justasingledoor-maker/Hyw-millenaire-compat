@@ -57,6 +57,7 @@ public final class CoreEvents {
         guarded("relation reconciliation", () -> EscalationGuard.reconcile(rt, tick));
         guarded("politics", () -> rt.politics().tick(overworld, rt, tick));
         guarded("diplomacy", () -> rt.envoys().tick(overworld, rt, tick));
+        guarded("relations", () -> rt.relations().tick(overworld, rt, tick));
         guarded("threat scan", () -> {
             rt.threats().scan(overworld);
             if (tick % HywMillConfig.THREAT_SCAN_INTERVAL.get() == 0) {

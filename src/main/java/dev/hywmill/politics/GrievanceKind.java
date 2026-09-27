@@ -9,7 +9,9 @@ public enum GrievanceKind {
     /** Abuse of an escort or detachment (M5-5). */
     ERRAND_ABUSE(false),
     /** A sow-discord plot exposed by its target (M5-4). */
-    PLOT_EXPOSED(false);
+    PLOT_EXPOSED(false),
+    /** Joined a war against the village as a co-belligerent of its enemy (M5-5b). */
+    JOINED_ENEMY(false);
 
     private final boolean killing;
 

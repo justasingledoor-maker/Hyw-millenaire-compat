@@ -42,6 +42,8 @@ public final class HywMillConfig {
     public static final ModConfigSpec.IntValue DUTY_INTERVAL;
     public static final ModConfigSpec.IntValue DUTY_LAYOUT_RECHECK;
     public static final ModConfigSpec.BooleanValue RAIDS_ENABLED;
+    public static final ModConfigSpec.BooleanValue AUTO_WAR;
+    public static final ModConfigSpec.IntValue WAR_MIN_CONFLICT_TICKS;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -138,6 +140,15 @@ public final class HywMillConfig {
         b.push("raids");
         RAIDS_ENABLED = b.comment("M4: HYW garrison contingents join their village's own Millénaire raids (sizes: hywmill_duties 'raid').")
                 .define("enabled", true);
+        b.pop();
+
+        b.push("politics");
+        AUTO_WAR = b.comment("M5: two villages whose Millénaire relation stays at open conflict (<= -90) for warMinConflictTicks, or that raid each",
+                        "other, are at war: HywMill projects HOSTILE between their faction identities (garrisons fight on sight). A truce or",
+                        "peace ends it. false: no village war projection at all (Millénaire's relation stays the diplomatic fact either way).")
+                .define("autoWar", true);
+        WAR_MIN_CONFLICT_TICKS = b.comment("M5: how long a relation must stay at open conflict before it becomes a war (no flapping on nightly drift).")
+                .defineInRange("warMinConflictTicks", 24000, 0, 24000 * 30);
         b.pop();
 
         SPEC = b.build();

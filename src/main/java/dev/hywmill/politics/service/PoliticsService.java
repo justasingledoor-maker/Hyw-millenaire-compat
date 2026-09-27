@@ -253,7 +253,8 @@ public final class PoliticsService {
         }
         PoliticsRecord r = rec.politics.get(player);
         boolean inside = village.equals(rt.threats().villageContaining(victim.blockPosition()));
-        boolean peacetime = r.status != Standing.OUTLAW; // M5-5b adds wars and campaigns
+        // peacetime: no war or campaign puts the player against this village, and the player was not already its outlaw
+        boolean peacetime = r.status != Standing.OUTLAW && !RelationProjector.enemyCombatant(ledger, village, player, now);
         UUID first = rt.incidents().firstStriker(attacker.getUUID(), victim.getUUID(), now);
         boolean selfDefense = victim.getUUID().equals(first);
         GrievanceEvent e = new GrievanceEvent(kind, now, inside, peacetime, selfDefense,
@@ -352,6 +353,16 @@ public final class PoliticsService {
         }
     }
 
+    /** M2 player threat reason (M5-3 outlaw first, then M5-5b enemy combatant), or null. */
+    @Nullable
+    public static dev.hywmill.military.ThreatTracker.Reason playerThreat(ServerLevel overworld, UUID village, UUID player) {
+        if (isOutlaw(overworld, village, player)) {
+            return dev.hywmill.military.ThreatTracker.Reason.OUTLAWED_PLAYER;
+        }
+        return RelationProjector.enemyCombatant(GarrisonLedger.get(overworld), village, player, overworld.getGameTime())
+                ? dev.hywmill.military.ThreatTracker.Reason.ENEMY_COMBATANT : null;
+    }
+
     /** Whether the village has outlawed the player (its own record; word travels never outlaws). O(1). */
     public static boolean isOutlaw(ServerLevel overworld, UUID village, UUID player) {
         VillageRecord rec = GarrisonLedger.get(overworld).get(village);
@@ -440,6 +451,7 @@ public final class PoliticsService {
             case ASSAULT_GARRISON -> "attacked the garrison";
             case ERRAND_ABUSE -> "abused an escort";
             case PLOT_EXPOSED -> "was exposed plotting against the village";
+            case JOINED_ENEMY -> "joined a war against the village";
         };
         return what + (e.insideVillage() ? " inside the village" : "") + (e.immediateOutlaw() ? " in peacetime" : "")
                 + (e.selfDefense() ? ", in self-defence" : "");

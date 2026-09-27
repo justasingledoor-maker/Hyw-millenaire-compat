@@ -39,6 +39,7 @@ public final class HywMillRuntime {
     private final FactionRegistry factions = new FactionRegistry();
     private final dev.hywmill.politics.service.PoliticsService politics = new dev.hywmill.politics.service.PoliticsService();
     private final dev.hywmill.politics.service.EnvoyService envoys = new dev.hywmill.politics.service.EnvoyService();
+    private final dev.hywmill.politics.service.RelationProjector relations = new dev.hywmill.politics.service.RelationProjector();
     /** M5-3: political hostility (outlaws; wars later). Replaces M1.1's ALWAYS_REVERT. */
     private final DiplomacyPolicy political = new dev.hywmill.politics.service.PoliticalPolicy(this);
     /** Dev-only overlay installed by an M5-0 spike command (this server run only); null when unused. */
@@ -56,7 +57,7 @@ public final class HywMillRuntime {
         incidents.bind(threats);
         defense.bind(threats);
         defense.setListener(garrison::afterScan);
-        threats.setOutlawLookup(dev.hywmill.politics.service.PoliticsService::isOutlaw);
+        threats.setPlayerThreats(dev.hywmill.politics.service.PoliticsService::playerThreat);
     }
 
     static void start(MinecraftServer server) {
@@ -127,6 +128,10 @@ public final class HywMillRuntime {
 
     public dev.hywmill.politics.service.PoliticsService politics() {
         return politics;
+    }
+
+    public dev.hywmill.politics.service.RelationProjector relations() {
+        return relations;
     }
 
     public dev.hywmill.politics.service.EnvoyService envoys() {

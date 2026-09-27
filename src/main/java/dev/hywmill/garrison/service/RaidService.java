@@ -40,7 +40,7 @@ import java.util.UUID;
  *   <li>When Millénaire materializes its own raiders (the contingent lands {@link #MATERIALIZE} ticks after the start)
  *       and the target is entity-ticking, the contingent is moved to Millénaire's own landing
  *       point (as Millénaire moves its raiders), then advances on the target by HYW home hops and
- *       engages the target's residents with temporary hostility only.</li>
+ *       engages the target's combatant villagers (never civilians) with temporary hostility only.</li>
  *   <li>Raid over (target cleared, raid history grew, village gone) or the home village alerted:
  *       loaded survivors are brought home and resume their duties through the M2 return path.
  *       Deaths are the M3 death path (DEAD, no respawn). Nothing is ever spawned here.</li>
@@ -186,14 +186,23 @@ public final class RaidService {
         return true;
     }
 
-    /** Advances on the target by hops and engages the nearest target residents (temporary hostility only). */
+    /** Advances on the target by hops and engages the nearest combatant villagers of the target (temporary hostility only). */
     private void advance(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, GarrisonRoster r, GarrisonRoster.RaidRecord raid,
                          UnitProvider units, SettlementSource source) {
         VillageRecord target = ledger.get(raid.target);
         if (target == null) {
             return;
         }
-        List<SettlementSource.RosterEntry> defenders = source.defenseRoster(overworld, raid.target);
+        // M5-5b (approved M4 change): engage combatant villagers only (SOLDIER, LEADER; MILITIA unless the target's
+        // doctrine never uses it). Civilians are never raid targets, however close. Temporary hostility only.
+        dev.hywmill.military.doctrine.MilitiaPolicy policy = dev.hywmill.settlement.GarrisonUpdater.resolveDoctrine(target).doctrine().militiaPolicy();
+        dev.hywmill.military.classify.RoleTable roles = dev.hywmill.military.classify.RoleTables.current();
+        List<SettlementSource.RosterEntry> defenders = new ArrayList<>();
+        for (SettlementSource.RosterEntry d : source.defenseRoster(overworld, raid.target)) {
+            if (dev.hywmill.politics.war.RoeState.combatant(dev.hywmill.military.classify.RoleClassifier.villager(d.facts(), roles), policy)) {
+                defenders.add(d);
+            }
+        }
         for (RosterEntry e : r.entries()) {
             if (e.duty != Duty.RAID || e.entityUuid == null) {
                 continue;

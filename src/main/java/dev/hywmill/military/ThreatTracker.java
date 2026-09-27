@@ -53,15 +53,18 @@ public final class ThreatTracker {
         /** The unit is attacking a player inside the village who qualifies for assistance. */
         ATTACKING_ALLY_PLAYER,
         /** M5-3: a player this village has outlawed, inside the defense radius (actionable even with proactive=false). */
-        OUTLAWED_PLAYER
+        OUTLAWED_PLAYER,
+        /** M5-5b: a player on campaign against this village (a co-belligerent of its enemy), inside the defense radius. */
+        ENEMY_COMBATANT
     }
 
-    /** Whether village {@code village} has outlawed {@code player} (supplied by the politics service; O(1)). */
+    /** Why a player is a legitimate target of the village (outlaw, enemy combatant), or null. Supplied by the politics service. */
     @FunctionalInterface
-    public interface OutlawLookup {
-        boolean isOutlaw(ServerLevel overworld, UUID village, UUID player);
+    public interface PlayerThreats {
+        @Nullable
+        Reason reason(ServerLevel overworld, UUID village, UUID player);
 
-        OutlawLookup NONE = (level, village, player) -> false;
+        PlayerThreats NONE = (level, village, player) -> null;
     }
 
     public record Threat(LivingEntity entity, Set<Reason> reasons) {}
@@ -90,7 +93,7 @@ public final class ThreatTracker {
     private final VillageScheduler scheduler;
     private final DefenseService defense;
     private final PerfCounters perf;
-    private volatile OutlawLookup outlaws = OutlawLookup.NONE;
+    private volatile PlayerThreats playerThreats = PlayerThreats.NONE;
 
     public ThreatTracker(IncidentLedger incidents, VillageScheduler scheduler, DefenseService defense, PerfCounters perf) {
         this.incidents = incidents;
@@ -111,8 +114,8 @@ public final class ThreatTracker {
         st.controller = controller;
     }
 
-    public void setOutlawLookup(OutlawLookup lookup) {
-        this.outlaws = lookup != null ? lookup : OutlawLookup.NONE;
+    public void setPlayerThreats(PlayerThreats lookup) {
+        this.playerThreats = lookup != null ? lookup : PlayerThreats.NONE;
     }
 
     /** Scan this village on the next tick regardless of its staggered slot (a resident was just attacked). */
@@ -163,15 +166,17 @@ public final class ThreatTracker {
                     found.add(new Threat(unit, reasons));
                 }
             }
-            // M5-3: outlawed players in the defense radius (online players only, not an entity scan)
+            // M5-3/5b: outlawed players and enemy combatants in the defense radius (online players only, not an entity scan)
             for (Player p : level.players()) {
                 if (p.isSpectator() || p.isCreative() || !p.isAlive() || p.getUUID().equals(st.controller)
                         || p.getY() < box.minY || p.getY() > box.maxY
-                        || !DefenseArea.inside(st.center.getX() + 0.5, st.center.getZ() + 0.5, r, p.getX(), p.getZ())
-                        || !outlaws.isOutlaw(level, st.village, p.getUUID())) {
+                        || !DefenseArea.inside(st.center.getX() + 0.5, st.center.getZ() + 0.5, r, p.getX(), p.getZ())) {
                     continue;
                 }
-                found.add(new Threat(p, EnumSet.of(Reason.OUTLAWED_PLAYER)));
+                Reason why = playerThreats.reason(level, st.village, p.getUUID());
+                if (why != null) {
+                    found.add(new Threat(p, EnumSet.of(why)));
+                }
             }
             boolean had = !st.threats.isEmpty();
             st.threats = List.copyOf(found);

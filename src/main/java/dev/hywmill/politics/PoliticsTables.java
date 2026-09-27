@@ -176,6 +176,7 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
         m.put(GrievanceKind.ASSAULT_GARRISON, 6.0);
         m.put(GrievanceKind.ERRAND_ABUSE, 30.0);
         m.put(GrievanceKind.PLOT_EXPOSED, 60.0);
+        m.put(GrievanceKind.JOINED_ENEMY, 30.0);
         return m;
     }
 

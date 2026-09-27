@@ -39,7 +39,7 @@ public final class DefenseCoordinator {
     private DefenseCoordinator() {}
 
     public static final Set<Reason> REACTIVE = EnumSet.of(Reason.ATTACKING_RESIDENT, Reason.RECENT_ATTACKER, Reason.ATTACKING_ALLY_PLAYER,
-            Reason.OUTLAWED_PLAYER);
+            Reason.OUTLAWED_PLAYER, Reason.ENEMY_COMBATANT);
 
     public record Pos(double x, double y, double z) {
         double distSq(Pos o) {

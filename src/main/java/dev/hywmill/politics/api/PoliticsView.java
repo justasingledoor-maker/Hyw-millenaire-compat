@@ -76,6 +76,15 @@ public final class PoliticsView {
     public static Standing effective(ServerLevel overworld, GarrisonLedger ledger, SettlementSource source, VillageRecord rec,
                                      UUID player, Standing own, @Nullable List<String> notes) {
         Standing eff = own;
+        dev.hywmill.politics.war.Campaign c = dev.hywmill.politics.service.RelationProjector.campaignOf(ledger, player);
+        if (c != null && c.enemy().equals(rec.villageId) && c.active(overworld.getGameTime())) {
+            // M5-5b: an enemy combatant for the campaign's duration (ends with it, no pardon needed)
+            if (eff.ordinal() > Standing.UNWELCOME.ordinal()) {
+                eff = Standing.UNWELCOME;
+            }
+            VillageRecord ally = ledger.get(c.ally());
+            note(notes, "enemy combatant (on campaign for " + (ally == null ? "?" : ally.name) + ")");
+        }
         for (VillageRecord other : ledger.all()) {
             if (other == rec || !other.culture.equals(rec.culture)) {
                 continue;
@@ -241,5 +250,31 @@ public final class PoliticsView {
             }
         }
         return out;
+    }
+
+    /** M5-5b: wars among villages the player knows, and the player's campaign. */
+    public record Wars(List<String> wars, @Nullable String campaign) {}
+
+    public static Wars wars(ServerLevel overworld, UUID player) {
+        GarrisonLedger ledger = GarrisonLedger.get(overworld);
+        SettlementSource source = Services.settlements();
+        long now = overworld.getGameTime();
+        List<String> out = new ArrayList<>();
+        for (dev.hywmill.politics.war.WarRecord w : ledger.wars().values()) {
+            VillageRecord a = ledger.get(w.a), b = ledger.get(w.b);
+            if (a == null || b == null || source == null
+                    || !(source.discovered(overworld, player, w.a) || source.discovered(overworld, player, w.b))) {
+                continue;
+            }
+            out.add(a.name + " vs " + b.name + ": " + (w.atWar() ? "at war since tick " + w.warSince
+                    : "open conflict for " + (now - w.conflictSince) / 20 + " s (not yet war)"));
+        }
+        dev.hywmill.politics.war.Campaign c = dev.hywmill.politics.service.RelationProjector.campaignOf(ledger, player);
+        String camp = null;
+        if (c != null) {
+            VillageRecord a = ledger.get(c.ally()), b = ledger.get(c.enemy());
+            camp = "for " + (a == null ? "?" : a.name) + " against " + (b == null ? "?" : b.name) + ", " + Math.max(0, c.until() - now) / 20 + " s left";
+        }
+        return new Wars(out, camp);
     }
 }

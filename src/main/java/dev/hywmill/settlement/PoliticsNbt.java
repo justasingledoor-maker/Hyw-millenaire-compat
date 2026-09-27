@@ -198,6 +198,72 @@ public final class PoliticsNbt {
         return out;
     }
 
+    /** M5-5b ledger keys "wars", "campaigns", "projections" (written only when non-empty). */
+    public static void saveWar(CompoundTag root, Map<String, dev.hywmill.politics.war.WarRecord> wars,
+                               List<dev.hywmill.politics.war.Campaign> campaigns, Map<String, String> projections) {
+        ListTag w = new ListTag();
+        for (dev.hywmill.politics.war.WarRecord r : wars.values()) {
+            if (r.idle()) {
+                continue;
+            }
+            CompoundTag x = new CompoundTag();
+            x.putUUID("a", r.a);
+            x.putUUID("b", r.b);
+            x.putLong("conflictSince", r.conflictSince);
+            x.putLong("calmSince", r.calmSince);
+            x.putLong("warSince", r.warSince);
+            w.add(x);
+        }
+        if (!w.isEmpty()) {
+            root.put("wars", w);
+        }
+        ListTag c = new ListTag();
+        for (dev.hywmill.politics.war.Campaign k : campaigns) {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("player", k.player());
+            x.putUUID("ally", k.ally());
+            x.putUUID("enemy", k.enemy());
+            x.putLong("since", k.since());
+            x.putLong("until", k.until());
+            c.add(x);
+        }
+        if (!c.isEmpty()) {
+            root.put("campaigns", c);
+        }
+        if (!projections.isEmpty()) {
+            CompoundTag p = new CompoundTag();
+            projections.forEach(p::putString);
+            root.put("projections", p);
+        }
+    }
+
+    public static void loadWar(CompoundTag root, Map<String, dev.hywmill.politics.war.WarRecord> wars,
+                               List<dev.hywmill.politics.war.Campaign> campaigns, Map<String, String> projections) {
+        ListTag w = root.getList("wars", Tag.TAG_COMPOUND);
+        for (int i = 0; i < w.size(); i++) {
+            CompoundTag x = w.getCompound(i);
+            if (x.hasUUID("a") && x.hasUUID("b")) {
+                dev.hywmill.politics.war.WarRecord r = new dev.hywmill.politics.war.WarRecord(x.getUUID("a"), x.getUUID("b"));
+                r.conflictSince = x.getLong("conflictSince");
+                r.calmSince = x.getLong("calmSince");
+                r.warSince = x.getLong("warSince");
+                wars.put(r.key(), r);
+            }
+        }
+        ListTag c = root.getList("campaigns", Tag.TAG_COMPOUND);
+        for (int i = 0; i < c.size(); i++) {
+            CompoundTag x = c.getCompound(i);
+            if (x.hasUUID("player") && x.hasUUID("ally") && x.hasUUID("enemy")) {
+                campaigns.add(new dev.hywmill.politics.war.Campaign(x.getUUID("player"), x.getUUID("ally"), x.getUUID("enemy"),
+                        x.getLong("since"), x.getLong("until")));
+            }
+        }
+        CompoundTag p = root.getCompound("projections");
+        for (String k : p.getAllKeys()) {
+            projections.put(k, p.getString(k));
+        }
+    }
+
     public static ListTag saveEnvoys(List<EnvoyMission> missions) {
         ListTag l = new ListTag();
         for (EnvoyMission m : missions) {

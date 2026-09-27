@@ -86,6 +86,27 @@ public final class PoliticsActions {
         return new ActionResult(n > 0, n > 0 ? "OK" : "NONE", n + " soldier(s) sent home");
     }
 
+    /** M5-5b: {@code /hywmill war join <ally> against <enemy>}. */
+    public static ActionResult joinWar(ServerLevel overworld, UUID player, UUID ally, UUID enemy) {
+        HywMillRuntime rt = HywMillRuntime.require();
+        var r = rt.relations().join(overworld, rt, player, ally, enemy);
+        String msg = switch (r) {
+            case OK -> "You are on campaign for 7 days: FRIENDLY with your ally's soldiers, HOSTILE with the enemy's; the enemy holds a grievance";
+            case NO_WAR -> "These villages are not at war";
+            case STANDING_TOO_LOW -> "You need to be trusted by the village you fight for";
+            case ALREADY_IN_CAMPAIGN -> "You are already on another campaign; leave it first";
+            case SAME_VILLAGE -> "A village cannot fight itself";
+            case UNKNOWN_VILLAGE -> "Unknown village";
+        };
+        return new ActionResult(r == dev.hywmill.politics.service.RelationProjector.JoinResult.OK, r.name(), msg);
+    }
+
+    public static ActionResult leaveWar(ServerLevel overworld, UUID player) {
+        HywMillRuntime rt = HywMillRuntime.require();
+        boolean ok = rt.relations().leave(overworld, rt, player);
+        return new ActionResult(ok, ok ? "OK" : "NONE", ok ? "You left the campaign; the projections are restored" : "You are not on campaign");
+    }
+
     static String refusal(DiplomacyOdds.Refusal r) {
         return switch (r) {
             case OK -> "ok";

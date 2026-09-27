@@ -3728,6 +3728,7 @@ def scenario_G5_4(ctx):
     m5(s, f"mill mrel {ab} set -100")
     time.sleep(14)
     check("G5-4 after the truce ends the floor is no longer held", mrel_of(s, ab) == (-100, -100), str(mrel_of(s, ab)))
+    dip(s, a, f"admin truce {ca} {cb} 0.02")  # ends any war the -100 above may have started (short warMinConflictTicks runs)
     # sow discord: sworn only, favor cost, one pending plot, per-player cooldown
     m5(s, f"mill mrel {ab} set 20")
     m5(s, f"mill dpoints {ca} {W_UUID} regen", 0.5)
@@ -3879,6 +3880,90 @@ def scenario_G5_5(ctx):
     note("G5-5 perf", " | ".join(l for l in perf if "duty" in l or "garrison" in l))
     for u in (V_UUID, Y2_UUID):
         m5(s, f"standin remove {u}", 0.3)
+
+
+U_UUID = "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff"      # M5-5b: the campaigning player (a stand-in)
+
+
+def war_lines(s, c, sub, wait=1.5):
+    return [l for l in s.output(at(c, f"hywmill war {sub}"), wait) if l.startswith("war")]
+
+
+def scenario_G5_5b(ctx):
+    """M5-5b (run with [politics] warMinConflictTicks = 200): automatic war from sustained open conflict, projected on
+    the faction identities only and kept by the guard; a campaign (FRIENDLY with the ally, HOSTILE with the enemy, enemy
+    combatant threat, grievance); leave and truce restore the previous relations; persistence."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    ab = f"{ca} {cb}"
+    va, vb = info(s, a), info(s, b)
+    fa, fb, ra, rb = va.get("faction"), vb.get("faction"), va.get("residents"), vb.get("residents")
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    for u in (U_UUID,):
+        m5(s, f"mill discover {ca} {u}", 0.5)
+        m5(s, f"mill discover {cb} {u}", 0.5)
+    j0 = war_lines(s, a, f"for {U_UUID} join {ca} against {cb}")
+    check("G5-5b negative: no war, no campaign", any("NO_WAR" in l for l in j0), " | ".join(j0))
+    r0 = rel(s, fa, fb)
+    m5(s, f"mill mrel {ab} set -100")
+    time.sleep(8)
+    st0 = war_lines(s, a, f"for {U_UUID} status")
+    check("G5-5b open conflict is not yet a war (minimum duration)", not any("at war" in l for l in st0) and rel(s, fa, fb) == r0,
+          " | ".join(st0))
+    time.sleep(25)
+    st1 = war_lines(s, a, f"for {U_UUID} status")
+    r1 = rel(s, fa, fb)
+    check("G5-5b sustained open conflict becomes a war: faction <-> faction HOSTILE", any("at war" in l for l in st1) and r1 == ("HOSTILE", "HOSTILE"),
+          f"{' | '.join(st1)} {r1}")
+    check("G5-5b the resident identities stay out of the war", "HOSTILE" not in rel(s, ra, fb) and "HOSTILE" not in rel(s, rb, fa)
+          and "HOSTILE" not in rel(s, ra, rb), f"{rel(s, ra, fb)} {rel(s, rb, fa)} {rel(s, ra, rb)}")
+    time.sleep(15)
+    check("G5-5b the escalation guard keeps the war's HOSTILE (political policy)", rel(s, fa, fb) == ("HOSTILE", "HOSTILE"), str(rel(s, fa, fb)))
+    j1 = war_lines(s, a, f"for {U_UUID} join {ca} against {cb}")
+    check("G5-5b negative: a stranger cannot join the war", any("STANDING_TOO_LOW" in l for l in j1), " | ".join(j1))
+    standin_at(s, U_UUID, a[0] + 3, a[2] + 3)
+    m5(s, f"mill rep {ca} {U_UUID} adjust 5000")
+    time.sleep(14)
+    u0 = rel(s, U_UUID, fa), rel(s, U_UUID, fb)
+    j2 = war_lines(s, a, f"for {U_UUID} join {ca} against {cb}")
+    u1 = rel(s, U_UUID, fa), rel(s, U_UUID, fb)
+    ub = pshow(s, b, U_UUID)
+    check("G5-5b a trusted player joins: FRIENDLY with the ally's faction, HOSTILE with the enemy's; the enemy holds a grievance",
+          any("join OK" in l for l in j2) and u1 == (("FRIENDLY", "FRIENDLY"), ("HOSTILE", "HOSTILE")) and ub.get("kind") == "JOINED_ENEMY",
+          f"{' | '.join(j2)} before {u0} after {u1} {ub}")
+    stb = pstatus(s, b, U_UUID)
+    check("G5-5b the enemy treats the player as an enemy combatant (not an outlaw)", any("enemy combatant" in l for l in stb) and ub.get("status") != "OUTLAW",
+          " | ".join(stb))
+    m5(s, f"standin remove {U_UUID}", 0.3)
+    standin_at(s, U_UUID, b[0] + 5, b[2] + 5)
+    m5(s, f"standin mode {U_UUID} survival", 0.5)
+    seen = []
+    for _ in range(6):
+        time.sleep(2.5)
+        seen += [l for l in threat_lines(s, b) if U_UUID[:8] in l]
+    check("G5-5b in the enemy village the campaigning player is an ENEMY_COMBATANT threat", any("ENEMY_COMBATANT" in l for l in seen), " | ".join(seen[:3]))
+    # persistence of war, campaign and projection
+    restart(ctx)
+    time.sleep(25)
+    st2 = war_lines(s, a, f"for {U_UUID} status")
+    check("G5-5b after a restart: still at war, campaign kept, projections intact",
+          any("at war" in l for l in st2) and any("campaign: for" in l for l in st2) and rel(s, fa, fb) == ("HOSTILE", "HOSTILE")
+          and rel(s, U_UUID, fb) == ("HOSTILE", "HOSTILE"), " | ".join(st2))
+    l1 = war_lines(s, a, f"for {U_UUID} leave")
+    u2 = rel(s, U_UUID, fa), rel(s, U_UUID, fb)
+    check("G5-5b leaving restores the player's previous relations", any("leave OK" in l for l in l1) and u2 == u0, f"{u2} vs {u0}")
+    dip(s, a, f"admin truce {ca} {cb} 1")
+    time.sleep(22)
+    r2 = rel(s, fa, fb)
+    st3 = war_lines(s, a, f"for {U_UUID} status")
+    check("G5-5b a truce ends the war and restores faction <-> faction", r2 == r0 and not any("at war" in l for l in st3), f"{r2} vs {r0}; {' | '.join(st3)}")
+    hist = pstatus(s, a, U_UUID)
+    check("G5-5b war start and end are in the chronicle", any("at war" in l for l in hist) or any("war" in l.lower() for l in hist), " | ".join(hist[-3:]))
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill mrel {ab} set 0")
+    perf = s.output("hywmill perf", 2)
+    note("G5-5b perf", " | ".join(l for l in perf if "relations" in l))
+    m5(s, f"standin remove {U_UUID}", 0.3)
 
 
 SG_C3 = dict(perSlot={"WATCH": 2.0, "GUARD_POST": 2.25, "GARRISON": 2.5, "STRONGHOLD": 3.0},
@@ -4212,7 +4297,7 @@ def scenario_SG_6(ctx):
 
 
 ORDER_SG = ["status", "SG_0", "SG_1", "SG_2", "SG_3", "SG_4", "SG_5"]
-ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3", "G5_4", "G5_5"]
+ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3", "G5_4", "G5_5", "G5_5b"]
 
 
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
@@ -4224,7 +4309,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
-             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_4": scenario_G5_4, "G5_5": scenario_G5_5, "G5_G": scenario_G5_G,
+             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_4": scenario_G5_4, "G5_5": scenario_G5_5, "G5_5b": scenario_G5_5b, "G5_G": scenario_G5_G,
              "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
              "SG_5": scenario_SG_5, "SG_6": scenario_SG_6}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
