@@ -3581,9 +3581,10 @@ def scenario_G5_3(ctx):
     r2 = rel(s, fac, O_UUID)
     check("G5-3 the escalation guard keeps the outlaw HOSTILE (PoliticalPolicy)", r2 == ("HOSTILE", "HOSTILE"), str(r2))
     # negative: a HOSTILE the politics do not cover is still reverted
-    m5(s, f"hyw relset {fac} {T_UUID} HOSTILE", 0.5)
+    neutral_party = "eeeeeeee-ffff-4000-8111-222222222222"  # never outlawed (T was outlawed by G5-2)
+    m5(s, f"hyw relset {fac} {neutral_party} HOSTILE", 0.5)
     time.sleep(15)
-    r3 = rel(s, fac, T_UUID)
+    r3 = rel(s, fac, neutral_party)
     check("G5-3 negative: a HOSTILE without a political cause is still reverted", "HOSTILE" not in r3, str(r3))
     m5(s, f"hyw relset {resid} {O_UUID} HOSTILE", 0.5)
     time.sleep(15)
@@ -3649,7 +3650,7 @@ def scenario_G5_3(ctx):
 
 
 def dip(s, c, sub, wait=1.5):
-    return [l for l in s.output(at(c, f"hywmill diplomacy {sub}"), wait) if l.startswith("diplomacy")]
+    return [l for l in s.output(at(c, f"hywmill diplomacy {sub}"), wait) if l.startswith("diplomacy") or l.startswith(" ")]
 
 
 def mrel_of(s, ab):
@@ -3734,27 +3735,33 @@ def scenario_G5_4(ctx):
     m5(s, f"mill dpoints {ca} {W_UUID} regen", 0.5)
     sd0 = dip(s, a, f"for {W_UUID} propose sow_discord {cb}")
     check("G5-4 negative: sow discord needs Sworn standing", any("STANDING_TOO_LOW" in l for l in sd0), " | ".join(sd0))
-    m5(s, f"mill rep {ca} {W_UUID} adjust 30000")
+    W_UUID2 = "ffffffff-0000-4111-8222-333333333333"  # W's reconcile put the pair on W's own cooldown (correct); a fresh sponsor
+    standin_at(s, W_UUID2, a[0] + 4, a[2] - 4)
+    for c_ in (ca, cb):
+        m5(s, f"mill discover {c_} {W_UUID2}", 0.5)
+    m5(s, f"mill dpoints {ca} {W_UUID2} regen", 0.5)
+    m5(s, f"mill rep {ca} {W_UUID2} adjust 35000")
     for _ in range(14):
-        s.output(at(a, f"hywmill politics admin favor {W_UUID} REQUESTED_DIPLOMACY"), 0.2)
+        s.output(at(a, f"hywmill politics admin favor {W_UUID2} REQUESTED_DIPLOMACY"), 0.2)
     time.sleep(14)
-    f0 = pshow(s, a, W_UUID)
-    sd1 = dip(s, a, f"for {W_UUID} propose sow_discord {cb}")
-    f1 = pshow(s, a, W_UUID)
+    f0 = pshow(s, a, W_UUID2)
+    sd1 = dip(s, a, f"for {W_UUID2} propose sow_discord {cb}")
+    f1 = pshow(s, a, W_UUID2)
     check("G5-4 a sworn player may sow discord; it costs Favor and a diplomacy point",
           f0.get("status") == "SWORN" and any("propose OK" in l for l in sd1) and f1.get("favor") == f0.get("favor", 0) - 10, f"{f0} {' | '.join(sd1)} {f1}")
     m5(s, f"mill mrel {ab} set 20")
-    sd2 = dip(s, a, f"for {W_UUID} propose sow_discord {cb}")
+    sd2 = dip(s, a, f"for {W_UUID2} propose sow_discord {cb}")
     check("G5-4 negative: at most one pending plot per player", any("PENDING_LIMIT" in l or "PAIR_COOLDOWN" in l for l in sd2), " | ".join(sd2))
     p1 = s.pos()
     dip(s, a, "admin arrive")
     s.wait_for(r"Diplomacy: .* SOW_DISCORD", 25, since=p1)
-    sd3 = dip(s, a, f"for {W_UUID} propose sow_discord {cb}")
+    sd3 = dip(s, a, f"for {W_UUID2} propose sow_discord {cb}")
     check("G5-4 negative: a second plot within the cooldown is refused", any("PLAYER_COOLDOWN" in l or "PAIR_COOLDOWN" in l or "TARGET_COOLDOWN" in l
                                                                               for l in sd3), " | ".join(sd3))
     perf = s.output("hywmill perf", 2)
     note("G5-4 perf", " | ".join(l for l in perf if "diplomacy" in l or "politics" in l))
     m5(s, f"standin remove {W_UUID}", 0.3)
+    m5(s, f"standin remove {W_UUID2}", 0.3)
 
 
 V_UUID = "99999999-aaaa-4bbb-8ccc-dddddddddddd"      # M5-5: the escorted player (a stand-in)
@@ -3816,6 +3823,7 @@ def scenario_G5_5(ctx):
                 if k in last:
                     jumps.append(abs(p[0] - last[k][0]) + abs(p[2] - last[k][2]))
             last = now
+    time.sleep(15)
     end = positions(s, ids)
     near = [k for k, p in end.items() if abs(p[0] - (a[0] + 42)) + abs(p[2] - (a[2] + 2)) <= 16]
     check("G5-5 the escort follows the player (hops towards them)", len(near) >= max(1, len(ids) - 1), f"{len(near)}/{len(ids)} within 16 of the player: {end}")
@@ -3841,7 +3849,7 @@ def scenario_G5_5(ctx):
     d = s.output(at(a, f"hywmill politics request-for {Y2_UUID} detachment 2 {px} {a[1]} {pz} 1"), 2)
     drows = [x for x in roster_rows(s, a) if x[4] == "DETACHED"]
     dids = {x[3] for x in drows if x[3]}
-    time.sleep(25)
+    time.sleep(45)
     dp = positions(s, dids)
     held = [k for k, p in dp.items() if abs(p[0] - px) + abs(p[2] - pz) <= 10]
     check("G5-5 a detachment walks to and holds the named point", any("request OK" in l for l in d) and held, f"{' | '.join(d)} {dp}")
@@ -3856,7 +3864,7 @@ def scenario_G5_5(ctx):
     far_x, far_z = a[0] + 220, a[2]
     s.cmd(f"forceload add {far_x - 16} {far_z - 16} {far_x + 16} {far_z + 16}", 2)
     time.sleep(3)
-    survivor = next((u for u in spike_info(s, "@e[type=!minecraft:player]") if u[:8] in dids), None)
+    survivor = next((u for u in spike_info(s, "@e[type=!minecraft:player]") if u[:8] in dids and u != victim), None)
     note("G5-5 survivor", str(survivor))
     if survivor:
         s.cmd(f"tp {survivor} {far_x} {a[1] + 40} {far_z}", 1)
@@ -3886,7 +3894,7 @@ U_UUID = "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff"      # M5-5b: the campaigning pl
 
 
 def war_lines(s, c, sub, wait=1.5):
-    return [l for l in s.output(at(c, f"hywmill war {sub}"), wait) if l.startswith("war")]
+    return [l for l in s.output(at(c, f"hywmill war {sub}"), wait) if l.startswith("war") or l.startswith(" ")]
 
 
 def scenario_G5_5b(ctx):

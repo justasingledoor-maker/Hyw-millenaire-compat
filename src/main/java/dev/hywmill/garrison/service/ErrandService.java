@@ -38,7 +38,7 @@ import java.util.UUID;
  * defense like a raid contingent. They move only with M4's hop resolution: a home at most one hop
  * ahead, on standable ground in an entity-ticking chunk. They never teleport, never use HYW's own follow
  * order (which teleports) and never force-load; when the way ahead is not loaded they hold.
- * The errand ends on time, on dismissal or when the village is threatened; the units then walk home
+ * The errand ends on time or on dismissal (a home alert does not recall it); the units then walk home
  * through the normal RETURNING path. Pure bookkeeping lives in {@link Requests}.
  */
 public final class ErrandService {
@@ -138,9 +138,10 @@ public final class ErrandService {
                 continue;
             }
             UUID player = e.errandPlayer;
-            boolean threatened = alert == AlertState.ALERT || alert == AlertState.ENGAGED;
-            if (player == null || tick >= e.errandUntil || threatened) {
-                changed |= end(overworld, rec, e, units, tick, player == null ? "no player" : tick >= e.errandUntil ? "time is up" : "the village is threatened");
+            // A home alert does not recall lent soldiers (an ordinary night would otherwise end every escort);
+            // the village only refuses new requests while it is not calm.
+            if (player == null || tick >= e.errandUntil) {
+                changed |= end(overworld, rec, e, units, tick, player == null ? "no player" : "time is up");
                 continue;
             }
             Entity ent = GarrisonService.find(overworld.getServer(), e.entityUuid);
@@ -167,12 +168,14 @@ public final class ErrandService {
             if (DutyMotion.horizontal(ent.getX(), ent.getZ(), goal) <= table.move().arriveRadius()) {
                 continue;
             }
+            BlockPos home = units.home(ent);
+            if (home != null && DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().maxHop() / 2.0
+                    && DutyMotion.horizontal(home.getX() + 0.5, home.getZ() + 0.5, goal) < DutyMotion.horizontal(ent.getX(), ent.getZ(), goal)) {
+                continue; // still travelling to a hop that leads towards the goal: do not restart HYW's path (as M4 duties)
+            }
             BlockPos hop = DutyService.hopTarget(overworld, ent, goal, table.move().maxHop());
-            if (hop != null) {
-                BlockPos home = units.home(ent);
-                if (home == null || !home.equals(hop)) {
-                    units.setHome(ent, hop);
-                }
+            if (hop != null && (home == null || home.distSqr(hop) > 2)) {
+                units.setHome(ent, hop);
             }
         }
         return changed;
