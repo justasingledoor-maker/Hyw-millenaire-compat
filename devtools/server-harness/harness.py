@@ -2313,7 +2313,8 @@ def scenario_G4_4(ctx):
         ring = hdist(posts[0], c) if posts else 0
         best[k] = (0.0, ring, set())
     end = time.time() + 600
-    per_scout = {}
+    t_start = time.time()
+    per_scout, timeline = {}, {}
     while time.time() < end:
         for k in list(best):
             c = g4_villages(ctx)[k]
@@ -2325,6 +2326,10 @@ def scenario_G4_4(ctx):
                     ps = per_scout.setdefault((k, r["slot"]), [r["unit"], 0.0, set(), r.get("index")])
                     ps[1] = max(ps[1], dd)
                     ps[2].add(r["progress"])
+                    tl = timeline.setdefault((k, r["slot"]), [])
+                    step = (round(time.time() - t_start), r["progress"], round(dd), r.get("home"))
+                    if not tl or tl[-1][1:3] != step[1:3]:
+                        tl.append(step)
         if all(b[0] >= b[1] - 40 and "back" in b[2] | {"rest"} for b in best.values()) and all(len(b[2]) >= 3 for b in best.values()):
             break
         time.sleep(15)
@@ -2335,6 +2340,12 @@ def scenario_G4_4(ctx):
         c = g4_villages(ctx)[k]
         posts = duties(s, c).get("scoutposts", [])
         note(f"G4-4 diag {k} scout posts", str([(p, round(hdist(p, c)), ticking(s, p[0], p[2])) for p in posts]))
+        d_ = duties(s, c)
+        note(f"G4-4 diag {k} scouts assigned", str([(r["slot"], r["unit"], r["index"], r["state"], r["duty"], r["progress"]) for r in d_["rows"]
+                                                  if r["assigned"] == "SCOUT"]) + f" quota {d_.get('quota')}")
+    for (k, slot), tl in sorted(timeline.items()):
+        note(f"G4-4 diag {k} scout {slot} timeline (s, phase, dist, home)", str(tl[:40]))
+    note("G4-4 diag window", f"{round(time.time() - t_start)} s")
     check("G4-4a scouts: mounted riders are chosen as scouts where the village has them", mounted_ok, detail)
     check("G4-4b scouts ride outside the village radius (ring - scout distance) and cycle out/watch/back",
           all(b[0] >= b[1] - 40 and len(b[2]) >= 2 for b in best.values()),
