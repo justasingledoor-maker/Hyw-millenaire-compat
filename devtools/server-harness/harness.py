@@ -2242,11 +2242,10 @@ def scenario_G4_1(ctx):
           f"stronghold {m[1] if m else None} vs smallest ({small[0]} units) {small[1]}")
 
 
-def scenario_G4_2(ctx):
-    """Sentries stand in pairs at posts taken from Millénaire's buildings (walls, gates, towers...)."""
-    s = ctx.s
-    ok, detail = True, {}
-    for k, c in g4_villages(ctx).items():
+def g4_sentry_state(s, vs):
+    """Per village: (want, pairs {index: [rows]}, posts, full, at_post, distinct, failing rows [(row, post, dist)])."""
+    out = {}
+    for k, c in vs.items():
         d = duties(s, c)
         pairs = {}
         for r in d["rows"]:
@@ -2255,20 +2254,69 @@ def scenario_G4_2(ctx):
         want = d["quota"].get("pairs", 0)
         posts = d.get("posts", [])
         full = all(len(pairs.get(i, [])) == 2 for i in range(want))
-        at_post = all(r["pos"] and posts and hdist(r["pos"], posts[r["index"] % len(posts)]) <= 10 for v in pairs.values() for r in v)
-        distinct = len({tuple(posts[i % len(posts)]) for i in pairs}) == len(pairs) if posts else not pairs
-        ok &= full and at_post and distinct
-        detail[k] = (want, {i: [x["pos"] for x in v] for i, v in sorted(pairs.items())}, full, at_post, distinct)
-        # diagnostics only (the check above is unchanged): every sentry farther than 10 blocks from its post
-        for i, v in sorted(pairs.items()):
+        failing = []
+        for v in pairs.values():
             for r in v:
                 post = posts[r["index"] % len(posts)] if posts else None
                 dist = hdist(r["pos"], post) if r["pos"] and post else None
                 if dist is None or dist > 10:
-                    t, top, water = ticking(s, post[0], post[2]) if post else (None, None, None)
-                    note(f"G4-2 diag {k} pair {i}", f"unit {r['slot']} {r['unit']} at {r['pos']} post {post} dist {dist and round(dist, 1)} "
-                                                    f"home {r.get('home')} progress {r.get('progress')} post ticking={t} top={top} water={water}")
-    check("G4-2 every sentry pair has two units, standing at (within 10 blocks of) its own post (from building data)", ok, detail)
+                    failing.append((r, post, dist))
+        at_post = bool(posts) and not failing if pairs else True
+        distinct = len({tuple(posts[i % len(posts)]) for i in pairs}) == len(pairs) if posts else not pairs
+        out[k] = (want, pairs, posts, full, at_post, distinct, failing, d)
+    return out
+
+
+def scenario_G4_2(ctx):
+    """Sentries stand in pairs at posts taken from Millénaire's buildings (walls, gates, towers...).
+
+    Approved measurement (M5): eventual placement, not a single snapshot. First a bounded settle precondition (<= 10 min):
+    no RECRUITED slot is left and every village's quota of sentry pairs is assigned with two living units each (the
+    stronghold at its full population and duty allocation). Then a fixed 6-minute window, polled every 15 s: PASS as soon as
+    every sentry of every pair is within 10 blocks of its own post (pairs complete, posts distinct); FAIL at timeout.
+    The 10-block requirement is unchanged."""
+    s = ctx.s
+    vs = g4_villages(ctx)
+    t0 = time.time()
+    settled = False
+    while time.time() - t0 < 600:
+        st = g4_sentry_state(s, vs)
+        pend = sum(garrison(s, c).get("recruited", 0) for c in vs.values())
+        if pend == 0 and all(v[3] for v in st.values()):
+            settled = True
+            break
+        time.sleep(15)
+    note("G4-2 settle precondition", f"{'reached' if settled else 'NOT reached (window started anyway)'} after {round(time.time() - t0)} s; "
+                                     + str({k: (v[0], {i: len(x) for i, x in sorted(v[1].items())}) for k, v in g4_sentry_state(s, vs).items()}))
+    w0 = time.time()
+    first_ok = {}
+    st = {}
+    ok = False
+    while True:
+        st = g4_sentry_state(s, vs)
+        el = round(time.time() - w0)
+        for k, (want, pairs, posts, full, at_post, distinct, failing, d) in st.items():
+            bad = {r["index"] for r, _, _ in failing}
+            for i, v in pairs.items():
+                if len(v) == 2 and i not in bad and (k, i) not in first_ok:
+                    first_ok[(k, i)] = el
+                    log(f"G4-2 pair {k}#{i} first within 10 blocks of its post at {el} s")
+        ok = all(v[3] and v[4] and v[5] for v in st.values())
+        if ok or time.time() - w0 >= 360:
+            break
+        time.sleep(15)
+    if not ok:
+        for k, (want, pairs, posts, full, at_post, distinct, failing, d) in st.items():
+            for r, post, dist in failing:
+                note(f"G4-2 timeout {k}", f"sentry {r['slot']} ({r['unit']}) pair #{r['index']} {r['state']} {r['duty']}/{r['assigned']} at {r['pos']} "
+                                          f"post {post} dist {dist and round(dist, 1)} home {r.get('home')}")
+            if not full:
+                note(f"G4-2 timeout {k}", f"incomplete pairs: want {want}, have {{i: len(x) for i, x in sorted(pairs.items())}}")
+            if not distinct:
+                note(f"G4-2 timeout {k}", "two pairs share a post")
+    detail = {k: (v[0], {i: [x["pos"] for x in p] for i, p in sorted(v[1].items())}, v[3], v[4], v[5]) for k, v in st.items()}
+    check("G4-2 every sentry pair has two units, standing at (within 10 blocks of) its own post (from building data; settled, 6-min window)",
+          ok, f"window {round(time.time() - w0)} s; settle {'ok' if settled else 'not reached'}; {detail}")
 
 
 def scenario_G4_3(ctx):
