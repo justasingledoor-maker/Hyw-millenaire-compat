@@ -37,6 +37,7 @@ public final class HywMillRuntime {
     private final dev.hywmill.garrison.service.DutyService duties = new dev.hywmill.garrison.service.DutyService(perf);
     private final ThreatTracker threats = new ThreatTracker(incidents, scheduler, defense, perf);
     private final FactionRegistry factions = new FactionRegistry();
+    private final dev.hywmill.politics.service.PoliticsService politics = new dev.hywmill.politics.service.PoliticsService();
     /** ALWAYS_REVERT unless an M5-0 spike command installs a test policy (dev only, this server run only). */
     private volatile DiplomacyPolicy diplomacy = DiplomacyPolicy.ALWAYS_REVERT;
     private final Map<String, AtomicLong> counters = new ConcurrentHashMap<>();
@@ -114,6 +115,10 @@ public final class HywMillRuntime {
 
     public FactionRegistry factions() {
         return factions;
+    }
+
+    public dev.hywmill.politics.service.PoliticsService politics() {
+        return politics;
     }
 
     public DiplomacyPolicy diplomacy() {

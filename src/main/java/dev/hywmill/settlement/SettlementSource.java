@@ -109,4 +109,23 @@ public interface SettlementSource {
     default Optional<Layout> layout(ServerLevel level, UUID settlementId) {
         return Optional.empty();
     }
+
+    // ---- M5 politics ----
+
+    /** Relation of village {@code a} towards {@code b} (Millénaire −100..100), empty if unknown. */
+    default java.util.OptionalInt villageRelation(ServerLevel level, UUID a, UUID b) {
+        return java.util.OptionalInt.empty();
+    }
+
+    /** Whether the player has discovered the village (Millénaire's travel-book discovery). */
+    default boolean discovered(ServerLevel level, UUID playerId, UUID settlementId) {
+        return false;
+    }
+
+    /**
+     * Appends a line to the village's history (Millénaire's chronicle). Millénaire keeps it for the
+     * current server session only (M5-0); HywMill's own chronicle is the persisted record.
+     */
+    default void recordHistory(ServerLevel level, UUID settlementId, String text) {
+    }
 }

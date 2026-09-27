@@ -79,6 +79,16 @@ public final class PoliticsNbt {
             truces.add(x);
         });
         t.put("truces", truces);
+        ListTag chron = new ListTag();
+        for (VillagePolitics.ChronicleEntry e : p.chronicle()) {
+            CompoundTag x = new CompoundTag();
+            x.putLong("t", e.tick());
+            x.putString("text", e.text());
+            chron.add(x);
+        }
+        if (!chron.isEmpty()) {
+            t.put("chronicle", chron);
+        }
         return t;
     }
 
@@ -123,6 +133,10 @@ public final class PoliticsNbt {
             if (x.hasUUID("village")) {
                 p.setTruce(x.getUUID("village"), x.getLong("until"));
             }
+        }
+        ListTag chron = t.getList("chronicle", Tag.TAG_COMPOUND);
+        for (int i = 0; i < chron.size(); i++) {
+            p.chronicle(chron.getCompound(i).getLong("t"), chron.getCompound(i).getString("text"));
         }
         return p;
     }

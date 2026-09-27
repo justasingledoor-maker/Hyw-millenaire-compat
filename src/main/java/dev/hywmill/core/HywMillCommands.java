@@ -93,6 +93,7 @@ public final class HywMillCommands {
         // Placeholder alias requested for M1 acceptance tests.
         MilitaryCommands.register(dispatcher);
         GarrisonCommands.register(dispatcher);
+        PoliticsCommands.register(dispatcher);
         dispatcher.register(Commands.literal("ourmod").redirect(root));
     }
 
@@ -260,7 +261,7 @@ public final class HywMillCommands {
         }
         HmLog.info("Identity clearance {}: removed the faction identity from {} loaded resident(s) in {} village(s)",
                 all ? "for all villages" : "for village " + villages.get(0), removed, villages.size());
-        send(src, "Removed the village faction identity from " + removed + " loaded resident(s) in " + villages.size()
+        send(src, "Removed the village identity marker from " + removed + " loaded resident(s) in " + villages.size()
                 + " village(s). Unloaded residents are cleared when they load. Markers stay off until /hywmill admin restore-identities"
                 + (all ? " all." : "."));
         return removed;

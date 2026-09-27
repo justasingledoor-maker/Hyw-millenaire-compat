@@ -396,6 +396,28 @@ final class MillenaireSettlementSource implements SettlementSource {
         return lines;
     }
 
+    @Override
+    public java.util.OptionalInt villageRelation(ServerLevel level, UUID a, UUID b) {
+        Village va = manager(level).getVillage(new VillageId(a));
+        if (va == null || a.equals(b)) {
+            return java.util.OptionalInt.empty();
+        }
+        return java.util.OptionalInt.of(va.getRelation(new VillageId(b)));
+    }
+
+    @Override
+    public boolean discovered(ServerLevel level, UUID playerId, UUID settlementId) {
+        return org.millenaire.village.PlayerCultureReputation.get(level).hasDiscoveredVillage(playerId, new VillageId(settlementId));
+    }
+
+    @Override
+    public void recordHistory(ServerLevel level, UUID settlementId, String text) {
+        Village v = manager(level).getVillage(new VillageId(settlementId));
+        if (v != null) {
+            v.recordEvent(level, text);
+        }
+    }
+
     /** Millénaire's own deletion path (negation wand) ends in {@code VillageManager.removeVillage}; no event is fired. */
     @Override
     public boolean devRemove(ServerLevel level, UUID settlementId) {

@@ -1,0 +1,85 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624)]
+[harness] --- scenario S5_0
+[harness] PASS S5-0 both garrisons alive, factions known A 43c5b64b-0cdc-3f42-b7df-b6787efb11fb 3 units; B b27c499a-e53f-3dbd-be89-ed13d0f6ab9c 1 units
+[harness] --- scenario S5_B
+[harness] NOTE S5-B garrison unit used as the meeting point (outdoors): 479267c8-d321-33a2-b253-63749df7215f (643, 84, 638)
+[harness] NOTE S5-B stand-in player: m5 standin added 11111111-2222-4333-8444-555555555555 at 655, 80, 638 health=20.0 creative=false players=1
+[harness] NOTE S5-B unit strategy as summoned: m5 strategy 40069a08 FREE_FIGHT
+[harness] NOTE S5-B unit strategy as summoned: m5 strategy ac06606f FREE_FIGHT
+[harness] NOTE S5-B unit strategy as summoned: m5 strategy d49991db FREE_FIGHT
+[harness] NOTE S5-B unit strategy as summoned: m5 strategy e4513eb0 FREE_FIGHT
+[harness] NOTE S5-B garrison unit strategies (M3 sets DEFAULT): ['m5 strategy b917ccf3 DEFAULT', 'm5 strategy 479267c8 DEFAULT', 'm5 strategy 56e084e0 DEFAULT']
+[harness] PASS S5-B all units in the test use the DEFAULT strategy ['m5 strategy b917ccf3 DEFAULT', 'm5 strategy 479267c8 DEFAULT', 'm5 strategy 56e084e0 DEFAULT']
+[harness] PASS S5-B baseline (NEUTRAL): player units and garrison do not target each other [None, None, None, None, None, None]
+[harness] NOTE S5-B target counts over 40 s (samples of every unit's current HYW target): {'pu->garr': 3, 'garr->pu': 1, 'garr->player': 0, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] NOTE S5-B stand-in player health over time: [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+[harness] NOTE S5-B trace 0: {'player units': [('hundred_years_war:spear_man[479267c8]', ''), ('hundred_years_war:spear_man[479267c8]', ''), ('hundred_years_war:spear_man[479267c8]', '')], 'villagers with a target': [('616766f0', 'DEFENDER', 'spear_man'), ('3bb64d45', 'DEFENDER', 'spear_man'), ('4328712d', 'DEFENDER', 'spear_man'), ('176e9a43', 'DEFENDER', 'spear_man'), ('2ac74824', 'DEFENDER', 'spear_man'), ('844d96c4', 'DEFENDER', 'spear_man'), ('8d83c707', 'DEFENDER', 'spear_man'), ('6698c0c0', 'DEFENDER', 'spear_man'), ('6f87ab91', 'DEFENDER', 'spear_man')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 1: {'player units': [('none', '')], 'villagers with a target': [('3bb64d45', 'DEFENDER', 'spear_man'), ('176e9a43', 'DEFENDER', 'spear_man'), ('2ac74824', 'DEFENDER', 'spear_man')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 2: {'player units': [('none', '')], 'villagers with a target': [], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 3: {'player units': [], 'villagers with a target': [], 'alert': 'RECOVERY'}
+[harness] NOTE S5-B trace 4: {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+[harness] NOTE S5-B trace 5: {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+[harness] NOTE S5-B trace 6: {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+[harness] NOTE S5-B trace 7: {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+[harness] NOTE S5-B trace 8: {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+[harness] NOTE S5-B trace 9: {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+[harness] PASS S5-B player's units attack the enemy garrison (DEFAULT) {'pu->garr': 3, 'garr->pu': 1, 'garr->player': 0, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] PASS S5-B enemy garrison attacks the player's units {'pu->garr': 3, 'garr->pu': 1, 'garr->player': 0, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] FAIL S5-B enemy garrison attacks the player (stand-in: targeted or damaged) 0 target samples; hp [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+[harness] PASS S5-B civilian villagers are never selected as targets by the player's units {'pu->garr': 3, 'garr->pu': 1, 'garr->player': 0, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] NOTE S5-B villager (any role) targeted by the player's units, samples: 0
+[harness] PASS S5-B unrelated third party is neither targeted nor targeting {'pu->garr': 3, 'garr->pu': 1, 'garr->player': 0, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] PASS S5-B isValidTarget(player unit -> civilian villager) is false while HOSTILE m5 valid 9883a802->fdd3b21a valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null
+[harness] --- scenario G
+[harness] PASS G0 a marked resident (resident identity) fdd3b21a-5e0f-4a19-b0dd-610db38fe1db residents=9e9c4f1d-adeb-37ef-b68c-99db0df30583
+[harness] PASS G1 clear-identities removes loaded markers Removed the village faction identity from 42 loaded resident(s) in 1 village(s). Unloaded residents are cleared when they load. Markers stay off until /hywmill admin restore-identities.
+[harness] server stopped
+[harness] server started
+[harness] PASS G2 still unmarked after restart (clearance persisted, not re-marked on load) 
+[harness] PASS G3 restore-identities re-marks 
+[harness] server stopped
+[harness] server started
+[harness] PASS G4 markVillagers=false removes markers on load 
+[harness] server stopped
+[harness] server started
+[harness] PASS G5 markVillagers=true marks again 
+[harness] server stopped
+[harness] RESULT 15/16 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624)]
+  PASS  S5-0 both garrisons alive, factions known  A 43c5b64b-0cdc-3f42-b7df-b6787efb11fb 3 units; B b27c499a-e53f-3dbd-be89-ed13d0f6ab9c 1 units
+  PASS  S5-B all units in the test use the DEFAULT strategy  ['m5 strategy b917ccf3 DEFAULT', 'm5 strategy 479267c8 DEFAULT', 'm5 strategy 56e084e0 DEFAULT']
+  PASS  S5-B baseline (NEUTRAL): player units and garrison do not target each other  [None, None, None, None, None, None]
+  PASS  S5-B player's units attack the enemy garrison (DEFAULT)  {'pu->garr': 3, 'garr->pu': 1, 'garr->player': 0, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+  PASS  S5-B enemy garrison attacks the player's units  {'pu->garr': 3, 'garr->pu': 1, 'garr->player': 0, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+  FAIL  S5-B enemy garrison attacks the player (stand-in: targeted or damaged)  0 target samples; hp [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+  PASS  S5-B civilian villagers are never selected as targets by the player's units  {'pu->garr': 3, 'garr->pu': 1, 'garr->player': 0, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+  PASS  S5-B unrelated third party is neither targeted nor targeting  {'pu->garr': 3, 'garr->pu': 1, 'garr->player': 0, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+  PASS  S5-B isValidTarget(player unit -> civilian villager) is false while HOSTILE  m5 valid 9883a802->fdd3b21a valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=FREE_FIGHT target=null
+  PASS  G0 a marked resident (resident identity)  fdd3b21a-5e0f-4a19-b0dd-610db38fe1db residents=9e9c4f1d-adeb-37ef-b68c-99db0df30583
+  PASS  G1 clear-identities removes loaded markers  Removed the village faction identity from 42 loaded resident(s) in 1 village(s). Unloaded residents are cleared when they load. Markers stay off until /hywmill admin restore-identities.
+  PASS  G2 still unmarked after restart (clearance persisted, not re-marked on load)  
+  PASS  G3 restore-identities re-marks  
+  PASS  G4 markVillagers=false removes markers on load  
+  PASS  G5 markVillagers=true marks again  
+  NOTE  S5-B garrison unit used as the meeting point (outdoors)  479267c8-d321-33a2-b253-63749df7215f (643, 84, 638)
+  NOTE  S5-B stand-in player  m5 standin added 11111111-2222-4333-8444-555555555555 at 655, 80, 638 health=20.0 creative=false players=1
+  NOTE  S5-B unit strategy as summoned  m5 strategy 40069a08 FREE_FIGHT
+  NOTE  S5-B unit strategy as summoned  m5 strategy ac06606f FREE_FIGHT
+  NOTE  S5-B unit strategy as summoned  m5 strategy d49991db FREE_FIGHT
+  NOTE  S5-B unit strategy as summoned  m5 strategy e4513eb0 FREE_FIGHT
+  NOTE  S5-B garrison unit strategies (M3 sets DEFAULT)  ['m5 strategy b917ccf3 DEFAULT', 'm5 strategy 479267c8 DEFAULT', 'm5 strategy 56e084e0 DEFAULT']
+  NOTE  S5-B target counts over 40 s (samples of every unit's current HYW target)  {'pu->garr': 3, 'garr->pu': 1, 'garr->player': 0, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+  NOTE  S5-B stand-in player health over time  [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0]
+  NOTE  S5-B trace 0  {'player units': [('hundred_years_war:spear_man[479267c8]', ''), ('hundred_years_war:spear_man[479267c8]', ''), ('hundred_years_war:spear_man[479267c8]', '')], 'villagers with a target': [('616766f0', 'DEFENDER', 'spear_man'), ('3bb64d45', 'DEFENDER', 'spear_man'), ('4328712d', 'DEFENDER', 'spear_man'), ('176e9a43', 'DEFENDER', 'spear_man'), ('2ac74824', 'DEFENDER', 'spear_man'), ('844d96c4', 'DEFENDER', 'spear_man'), ('8d83c707', 'DEFENDER', 'spear_man'), ('6698c0c0', 'DEFENDER', 'spear_man'), ('6f87ab91', 'DEFENDER', 'spear_man')], 'alert': 'ENGAGED'}
+  NOTE  S5-B trace 1  {'player units': [('none', '')], 'villagers with a target': [('3bb64d45', 'DEFENDER', 'spear_man'), ('176e9a43', 'DEFENDER', 'spear_man'), ('2ac74824', 'DEFENDER', 'spear_man')], 'alert': 'ENGAGED'}
+  NOTE  S5-B trace 2  {'player units': [('none', '')], 'villagers with a target': [], 'alert': 'ENGAGED'}
+  NOTE  S5-B trace 3  {'player units': [], 'villagers with a target': [], 'alert': 'RECOVERY'}
+  NOTE  S5-B trace 4  {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+  NOTE  S5-B trace 5  {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+  NOTE  S5-B trace 6  {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+  NOTE  S5-B trace 7  {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+  NOTE  S5-B trace 8  {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+  NOTE  S5-B trace 9  {'player units': [], 'villagers with a target': [], 'alert': 'CALM'}
+  NOTE  S5-B villager (any role) targeted by the player's units, samples  0
+EXIT 1

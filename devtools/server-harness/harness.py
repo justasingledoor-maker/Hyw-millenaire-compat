@@ -3455,6 +3455,90 @@ def scenario_S5_P(ctx):
     note("S5-P identity counters", (re.search(r"identities: .*", stat) or [""])[0][:300])
 
 
+def pshow(s, c, player):
+    l = next((x for x in s.output(at(c, f"hywmill politics admin show {player}"), 1) if x.startswith("politics record")), "")
+    m = re.search(r"status=(\w+).* grievance=([\d.]+) peacetimeKill=(\w+) lastKind=(\w+) inside=(\w+) favor=(\d+)", l)
+    return (dict(status=m[1], grievance=float(m[2]), pk=m[3] == "true", kind=m[4], inside=m[5] == "true", favor=int(m[6])) if m else {"raw": l})
+
+
+def pstatus(s, c, player):
+    return s.output(at(c, f"hywmill politics status for {player}"), 1.5)
+
+
+def scenario_G5_2(ctx):
+    """M5-2: grievances from real events, outlaw rule, word travels, intel, chronicle, persistence."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    s.cmd("hywmill dev duties off", 1)
+    res = residents(s, a)
+    civs = [r for r in res if r[2] == "CIVILIAN"]
+    note("G5-2 stand-in (online player P)", standin_at(s, P_UUID, a[0] + 3, a[2] + 3))
+    time.sleep(12)
+    check("G5-2 a newcomer is a stranger (no record written)", "status" not in pshow(s, a, P_UUID) or pshow(s, a, P_UUID).get("status") == "STRANGER",
+          str(pshow(s, a, P_UUID)))
+    # real events: a player-owned unit (owner Q) assaults, then kills, a villager inside the village
+    civ = civs[0][0]
+    summon_unit(s, a[0] + 2, a[2] + 2, "spear_man", uuid_nbt(Q_UUID), "hwG52", "NoAI:1b")
+    s.cmd(f"tp {civ} {a[0] + 3} {a[1] + 1} {a[2] + 2}", 0.5)
+    m5(s, f"hyw hit @e[tag=hwG52,limit=1] {civ} 1 melee", 1)
+    q1 = pshow(s, a, Q_UUID)
+    check("G5-2 a player's unit assaulting a villager inside the village is the owner's grievance",
+          q1.get("kind") == "ASSAULT_RESIDENT" and q1.get("inside") is True and 14 < q1.get("grievance", 0) < 16, str(q1))
+    m5(s, f"hyw hit @e[tag=hwG52,limit=1] {civ} 100 melee", 2)
+    q2 = pshow(s, a, Q_UUID)
+    check("G5-2 killing a villager inside the village in peacetime: immediate outlaw regardless of reputation",
+          q2.get("status") == "OUTLAW" and q2.get("pk") is True and q2.get("kind") == "KILL_RESIDENT", str(q2))
+    s.cmd("kill @e[tag=hwG52]", 0.5)
+    # the normal rule: serious grievance away from the village + reputation <= -1024
+    c = f"{a[0]} {a[1]} {a[2]}"
+    out = s.output(at(a, f"hywmill politics admin grievance {T_UUID} KILL_GARRISON false true false"), 1)
+    t1 = pshow(s, a, T_UUID)
+    check("G5-2 a serious grievance away from the village with neutral reputation is not outlawry (unwelcome)", t1.get("status") == "UNWELCOME", f"{out} {t1}")
+    m5(s, f"mill rep {c} {T_UUID} adjust -2000")
+    s.output(at(a, f"hywmill politics admin grievance {T_UUID} ASSAULT_GARRISON false true false"), 1)
+    t2 = pshow(s, a, T_UUID)
+    check("G5-2 serious grievance + reputation <= -1024: outlaw", t2.get("status") == "OUTLAW", str(t2))
+    # chronicle: HywMill persisted + Millénaire mirror
+    st = pstatus(s, a, Q_UUID)
+    hist = m5_1(s, f"mill history {c}")
+    check("G5-2 status change written to the chronicle and mirrored to Millénaire's history",
+          any("chronicle" in l and "outlaw" in l for l in st) and "[HywMill]" in hist, " | ".join(st[-2:]) + " || " + hist[-160:])
+    # word travels: B (same culture) on good terms with A treats Q as unwelcome
+    ab = f"{a[0]} {a[1]} {a[2]} {b[0]} {b[1]} {b[2]}"
+    m5(s, f"mill mrel {ab} set 60")
+    sb = pstatus(s, b, Q_UUID)
+    check("G5-2 word travels: outlawed by a friendly same-culture village -> treated as unwelcome here",
+          any("treated as UNWELCOME" in l for l in sb) and any("Word travels: outlawed by" in l for l in sb), " | ".join(sb))
+    m5(s, f"mill mrel {ab} set -40")
+    sb2 = pstatus(s, b, Q_UUID)
+    check("G5-2 outlawed by an enemy village: only a mild recommendation, not unwelcome",
+          not any("treated as" in l for l in sb2) and any("mild recommendation" in l for l in sb2), " | ".join(sb2))
+    # intel gating by standing (P online: refreshed on the village's slot)
+    i0 = s.output(at(a, f"hywmill politics intel for {P_UUID}"), 1.5)
+    check("G5-2 intel refused to a stranger", any("shares nothing" in l for l in i0), " | ".join(i0))
+    m5(s, f"mill rep {c} {P_UUID} adjust 9000")
+    for _ in range(20):
+        s.output(at(a, f"hywmill politics admin favor {P_UUID} REQUESTED_DIPLOMACY"), 0.2)
+    time.sleep(14)
+    p1 = pshow(s, a, P_UUID)
+    i1 = s.output(at(a, f"hywmill politics intel for {P_UUID}"), 1.5)
+    check("G5-2 reputation >= 8192 and favor >= 20: patron, exact intelligence", p1.get("status") == "PATRON" and any("Garrison:" in l and "duties" in l for l in i1),
+          f"{p1} | " + " | ".join(i1[:4]))
+    lst = s.output(f"hywmill politics list for {Q_UUID}", 1.5)
+    note("G5-2 list for Q", " | ".join(lst))
+    ctx.g52 = {"Q": q2, "T": t2, "P": p1}
+    # persistence
+    restart(ctx)
+    time.sleep(20)
+    after = {k: pshow(s, a, u) for k, u in (("Q", Q_UUID), ("T", T_UUID), ("P", P_UUID))}
+    loaded5 = s.wait_for(r"Garrison ledger loaded: \d+ village record\(s\), format 5", 5, since=s.start_pos)
+    check("G5-2 politics persist across a restart (ledger format 5)", loaded5 is not None and after["Q"].get("status") == "OUTLAW"
+          and after["Q"].get("pk") is True and after["T"].get("status") == "OUTLAW" and after["P"].get("favor") == ctx.g52["P"].get("favor"),
+          f"{loaded5} {after}")
+    st2 = pstatus(s, a, Q_UUID)
+    check("G5-2 HywMill's chronicle survives the restart (Millénaire's own history does not)", any("chronicle" in l and "outlaw" in l for l in st2), " | ".join(st2[-2:]))
+    s.cmd("hywmill dev duties on", 1)
+
+
 def write_m5_content(d: Path):
     """Spike I content: a Millénaire sub-mod under <server>/millenaire-custom/ (no code, no jar)."""
     base = d / "millenaire-custom" / "hywmill_armoury" / "cultures" / "norman"
@@ -3752,7 +3836,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
-             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P,
+             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2,
              "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
              "SG_5": scenario_SG_5, "SG_6": scenario_SG_6}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
@@ -3862,6 +3946,62 @@ def run_migrate3(d: Path, m2_jar: Path):
         time.sleep(40)
         grants2 = [l for l in s.read_since(s.start_pos) if "Starting garrison granted" in l]
         check("G3-16 after another restart: format 4 on disk, no further grant", loaded4 is not None and not grants2, f"{loaded4}; {len(grants2)} grants")
+    finally:
+        s.stop()
+
+
+def run_migrate4(d: Path, m4_jar: Path):
+    """M5: a world written by the frozen M4 build (ledger format 4, residents marked with the faction
+    identity) is loaded by M5: format 4 -> 5, residents migrate to the resident identity, the
+    resident/faction alliance is written, the garrison is intact (no duplicate, no lost slot), and a
+    second restart does not migrate again."""
+    write_configs(d)
+    install_mods(d, [MILLENAIRE_JAR, HYW_JAR, m4_jar])
+    if (d / "world").exists():
+        shutil.rmtree(d / "world")
+    s = Server(d)
+    ctx = Ctx(s)
+    try:
+        s.start()
+        setup(ctx)
+        wait_garrison(s, ctx.a, lambda g: g.get("alive", 0) >= 2 and g.get("recruited", 1) == 0, 240)
+        before = {k: (info(s, c), garrison(s, c), census(s, c)) for k, c in (("A", ctx.a), ("B", ctx.b)) if c}
+        res = wait_residents(s, ctx.a)
+        civ = next((r[0] for r in res if r[2] == "CIVILIAN"), None)
+        m4_marker = marker_of(s, civ) if civ else None
+        check("MIG4 M4 world: residents carry the faction identity", m4_marker == before["A"][0].get("faction"), f"{m4_marker} vs {before['A'][0].get('faction')}")
+        s.cmd("save-all flush", 5)
+    finally:
+        s.stop()
+    install_mods(d, [MILLENAIRE_JAR, HYW_JAR, built_jar()])
+    try:
+        s.start()
+        loaded = s.wait_for(r"Garrison ledger loaded: \d+ village record\(s\), format 4", 30, since=s.start_pos)
+        mig = s.wait_for(r"migrated \d+ record\(s\) from format 4 to 5", 30, since=s.start_pos)
+        check("MIG4 format-4 ledger loaded and migrated to format 5", loaded is not None and mig is not None, f"{loaded} | {mig}")
+        s.cmd("millenaire chunkload", 10)
+        time.sleep(60)
+        after = {k: (info(s, c), garrison(s, c), census(s, c)) for k, c in (("A", ctx.a), ("B", ctx.b)) if c}
+        rid = after["A"][0].get("residents")
+        mk = marker_of(s, civ, rid) if civ else None
+        check("MIG4 residents migrated to the resident identity", mk == rid and rid is not None, f"{mk} vs {rid}")
+        r = rel(s, rid, after["A"][0].get("faction")) if rid else None
+        check("MIG4 resident<->faction alliance written", r == ("FRIENDLY", "FRIENDLY"), str(r))
+        same = all(before[k][0].get("faction") == after[k][0].get("faction") and before[k][0].get("villageId") == after[k][0].get("villageId")
+                   for k in before)
+        check("MIG4 village and faction identities unchanged", same, str({k: (before[k][0].get("faction"), after[k][0].get("faction")) for k in before}))
+        ok = all(after[k][2].get("dupSlots") == 0 and after[k][1].get("live") == before[k][1].get("live")
+                 and after[k][1].get("t_recruited") == before[k][1].get("t_recruited") for k in before)
+        check("MIG4 garrison intact: same live slots, no duplicate, no new grant", ok,
+              str({k: (before[k][1].get("live"), after[k][1].get("live"), after[k][2]) for k in before}))
+        stat = " ".join(s.output("hywmill status", 2))
+        note("MIG4 identity counters", (re.search(r"identities: .*", stat) or [""])[0][:300])
+        s.cmd("save-all flush", 5)
+        s.stop()
+        s.start()
+        loaded5 = s.wait_for(r"Garrison ledger loaded: \d+ village record\(s\), format 5", 30, since=s.start_pos)
+        again = s.wait_for(r"migrated \d+ record\(s\) from format", 10, since=s.start_pos)
+        check("MIG4 second restart: format 5 on disk, no further migration", loaded5 is not None and again is None, f"{loaded5}; {again}")
     finally:
         s.stop()
 
@@ -4075,6 +4215,15 @@ def main():
         log(f"RESULT {passed}/{len(RESULTS)} checks passed")
         for name, ok, detail in RESULTS:
             print(f"  {'PASS' if ok else 'FAIL'}  {name}  {detail}")
+        return 0 if all(r[1] for r in RESULTS) else 1
+    if a.scenarios[0] == "migrate4":
+        run_migrate4(a.dir, Path(a.scenarios[1]))
+        passed = sum(1 for r in RESULTS if r[1])
+        log(f"RESULT {passed}/{len(RESULTS)} checks passed")
+        for name, ok, detail in RESULTS:
+            print(f"  {'PASS' if ok else 'FAIL'}  {name}  {detail}")
+        for name, text in NOTES:
+            print(f"  NOTE  {name}  {text}")
         return 0 if all(r[1] for r in RESULTS) else 1
     if a.scenarios[0] == "migrate3":
         run_migrate3(a.dir, Path(a.scenarios[1]))

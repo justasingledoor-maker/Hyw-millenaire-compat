@@ -13,6 +13,22 @@ public final class VillagePolitics {
     private final Map<UUID, PoliticsRecord> players = new LinkedHashMap<>();
     /** Other village → truce end tick (game time). */
     private final Map<UUID, Long> truces = new LinkedHashMap<>();
+    /** HywMill's persisted chronicle (Millénaire's own history is session-only); newest last, bounded. */
+    private final java.util.ArrayDeque<ChronicleEntry> chronicle = new java.util.ArrayDeque<>();
+    public static final int CHRONICLE_SIZE = 64;
+
+    public record ChronicleEntry(long tick, String text) {}
+
+    public void chronicle(long tick, String text) {
+        chronicle.addLast(new ChronicleEntry(tick, text));
+        while (chronicle.size() > CHRONICLE_SIZE) {
+            chronicle.removeFirst();
+        }
+    }
+
+    public java.util.List<ChronicleEntry> chronicle() {
+        return java.util.List.copyOf(chronicle);
+    }
 
     public PoliticsRecord get(UUID player) {
         return players.computeIfAbsent(player, p -> new PoliticsRecord());
@@ -59,6 +75,6 @@ public final class VillagePolitics {
 
     /** Nothing worth persisting: no non-default player record and no truce. */
     public boolean isEmpty() {
-        return truces.isEmpty() && players.values().stream().allMatch(PoliticsRecord::isDefault);
+        return truces.isEmpty() && chronicle.isEmpty() && players.values().stream().allMatch(PoliticsRecord::isDefault);
     }
 }

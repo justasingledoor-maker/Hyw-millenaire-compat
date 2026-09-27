@@ -55,6 +55,7 @@ public final class CoreEvents {
         long t0 = rt.perf().start();
         guarded("ledger update", () -> GarrisonUpdater.tick(overworld, rt));
         guarded("relation reconciliation", () -> EscalationGuard.reconcile(rt, tick));
+        guarded("politics", () -> rt.politics().tick(overworld, rt, tick));
         guarded("threat scan", () -> {
             rt.threats().scan(overworld);
             if (tick % HywMillConfig.THREAT_SCAN_INTERVAL.get() == 0) {
@@ -105,6 +106,9 @@ public final class CoreEvents {
                     if (attacker != null) {
                         EscalationGuard.afterDamage(attacker, event.getEntity());
                         engageSignals(rt, inc, attacker, event.getEntity());
+                        if (event.getEntity().level() instanceof ServerLevel sl) {
+                            guarded("politics grievance", () -> rt.politics().onDamage(sl, event.getEntity(), attacker));
+                        }
                     }
                 }));
     }
@@ -137,6 +141,7 @@ public final class CoreEvents {
             return;
         }
         guarded("defense statistics", () -> DefenseStatsRecorder.onDeath(level, event.getEntity(), event.getSource().getEntity()));
+        guarded("politics grievance", () -> HywMillRuntime.require().politics().onDeath(level, event.getEntity(), event.getSource().getEntity()));
         if (GarrisonAttachments.get(event.getEntity()) != null) {
             guarded("garrison death", () -> HywMillRuntime.require().garrison().onDeath(event.getEntity(), level));
         }
@@ -149,6 +154,7 @@ public final class CoreEvents {
         event.addListener(new GarrisonTableLoader());
         event.addListener(new dev.hywmill.garrison.duty.DutyTableLoader());
         event.addListener(new dev.hywmill.garrison.equip.EquipmentProfileLoader());
+        event.addListener(new dev.hywmill.politics.service.PoliticsTableLoader());
     }
 
     @SubscribeEvent

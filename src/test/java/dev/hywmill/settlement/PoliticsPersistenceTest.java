@@ -72,4 +72,16 @@ class PoliticsPersistenceTest {
                 EnvoyKind.TRUCE, 10, 2410, 42L);
         assertEquals(List.of(m), PoliticsNbt.loadEnvoys(PoliticsNbt.saveEnvoys(List.of(m))));
     }
+
+    @Test
+    void chronicleIsBoundedAndPersisted() {
+        VillageRecord r = new VillageRecord(VILLAGE, FactionIds.forVillage(VILLAGE));
+        for (int i = 0; i < 70; i++) {
+            r.politics.chronicle(i, "entry " + i);
+        }
+        assertEquals(dev.hywmill.politics.VillagePolitics.CHRONICLE_SIZE, r.politics.chronicle().size());
+        assertEquals("entry 6", r.politics.chronicle().get(0).text(), "oldest dropped first");
+        VillageRecord back = VillageRecord.load(r.save(), VillageRecord.FORMAT);
+        assertEquals(r.politics.chronicle(), back.politics.chronicle());
+    }
 }
