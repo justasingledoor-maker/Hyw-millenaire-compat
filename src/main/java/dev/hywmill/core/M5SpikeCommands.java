@@ -225,8 +225,10 @@ final class M5SpikeCommands {
         if (villagePos != null && Services.settlements() != null) {
             target = Services.settlements().nearest(level, villagePos, 256).map(r -> r.id()).orElse(null);
         }
-        if (action != null && home != null) {
-            dev.hywmill.net.PoliticsPayloads.ActionResult r = dev.hywmill.net.PoliticsNet.submit(sp, action, home, target != null ? target : home, 0);
+        // a client may send any home: with none nearby, submit for the named village and let the server's own checks answer
+        UUID submitHome = home != null ? home : target;
+        if (action != null && submitHome != null) {
+            dev.hywmill.net.PoliticsPayloads.ActionResult r = dev.hywmill.net.PoliticsNet.submit(sp, action, submitHome, target != null ? target : submitHome, 0);
             HywMillCommands.send(ctx.getSource(), "m5 ui result ok=" + r.ok() + " code=" + r.code() + " " + r.message());
         }
         dev.hywmill.net.PoliticsSnapshot s = dev.hywmill.net.PoliticsNet.snapshot(sp, home, target);
