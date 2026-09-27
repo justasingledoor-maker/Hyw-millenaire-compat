@@ -189,9 +189,10 @@ public final class ErrandService {
                     last[1] = tick; // progress
                     last[3] = pos;
                 } else if (tick - last[1] >= STUCK_TICKS) {
-                    // stuck short of its hop (a wall, a hedge): rotated hops, alternating sides, then give the leg up and hold
+                    // stuck short of its hop (a village wall, a hedge): look for a way round along the obstacle with points
+                    // off the direct line (±35°, ±70°, ±105°, up to 24 blocks), then give the leg up and hold. Hops only, never a teleport.
                     int attempt = (int) last[2] + 1;
-                    BlockPos alt = attempt <= 4 ? DutyService.hopTarget(overworld, ent, goal, table.move().maxHop(), attempt) : null;
+                    BlockPos alt = attempt <= DETOURS ? sideStep(overworld, ent, goal, attempt) : null;
                     if (alt != null) {
                         units.setHome(ent, alt);
                         moves.put(e.rosterId, new long[]{alt.asLong(), tick, attempt, pos});
@@ -212,6 +213,23 @@ public final class ErrandService {
             }
         }
         return changed;
+    }
+
+    static final int DETOURS = 6;
+
+    /** A reachable-looking spot off the direct line to {@code goal}: rotated by 35° × ⌈attempt/2⌉, alternating sides. */
+    @Nullable
+    static BlockPos sideStep(ServerLevel level, Entity ent, BlockPos goal, int attempt) {
+        double dx = goal.getX() + 0.5 - ent.getX(), dz = goal.getZ() + 0.5 - ent.getZ();
+        double d = Math.sqrt(dx * dx + dz * dz);
+        if (d < 1e-3) {
+            return null;
+        }
+        double a = Math.toRadians(35 * ((attempt + 1) / 2)) * (attempt % 2 == 1 ? 1 : -1);
+        double len = Math.min(24, Math.max(8, d));
+        double ux = dx / d, uz = dz / d;
+        double rx = ux * Math.cos(a) - uz * Math.sin(a), rz = ux * Math.sin(a) + uz * Math.cos(a);
+        return DutyService.surface(level, BlockPos.containing(ent.getX() + rx * len, ent.getY(), ent.getZ() + rz * len));
     }
 
     /** A Trusted player's escort stays within the village's lands (its defense radius); Patrons and Sworn may leave them. */
