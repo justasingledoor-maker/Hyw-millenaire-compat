@@ -1768,11 +1768,15 @@ def scenario_G3_17(ctx):
     for c in villages:
         g = garrison(s, c)
         head = g.get("cap", 0) - g.get("live", 0)
-        if head > 0:
+        while head > 0:  # the grant command takes at most 64; M5-G caps go to 128
             out = s.output(at(c, f"hywmill admin grant archer {min(head, 64)}"), 2)
             granted.append((c, g.get("cap"), " ".join(out)[:90]))
+            h2 = garrison(s, c).get("cap", 0) - garrison(s, c).get("live", 0)
+            if h2 >= head:
+                break
+            head = h2
     log(f"G3-17 grants: {granted}")
-    end = time.time() + 900
+    end = time.time() + 1800
     while time.time() < end:
         pend = sum(garrison(s, c).get("recruited", 0) for c in villages)
         if pend == 0:
@@ -2102,17 +2106,25 @@ def duties(s, c):
 
 
 def fill_garrison(s, c, units=("spear_man", "archer", "light_lancer_rider", "archer_rider", "militia", "crossbowman", "shieldman", "warrior")):
-    """Admin-grants units (only those the village's tier allows) until the garrison is at its tier cap."""
+    """Admin-grants units (only those the village's tier allows) until the garrison is at its tier cap.
+    Several passes, at most 64 per grant (the command's limit), so the M5-G caps (up to 128) fill too."""
     g = garrison(s, c)
     head = g.get("cap", 0) - g.get("live", 0)
     granted = []
-    for u in units:
+    refused = set()
+    for _ in range(6):
         if head <= 0:
             break
-        n = max(1, head // 3) if u != units[-1] else head
-        out = " ".join(s.output(at(c, f"hywmill admin grant {u} {min(n, head)}"), 1))
-        if "may not" not in out and "Unknown" not in out:
-            granted.append((u, min(n, head)))
+        allowed = [u for u in units if u not in refused]
+        for i, u in enumerate(allowed):
+            if head <= 0:
+                break
+            n = min(64, head if i == len(allowed) - 1 else max(1, head // 3))
+            out = " ".join(s.output(at(c, f"hywmill admin grant {u} {n}"), 1))
+            if "may not" in out or "Unknown" in out:
+                refused.add(u)
+                continue
+            granted.append((u, n))
             head = garrison(s, c).get("cap", 0) - garrison(s, c).get("live", 0)
     return granted
 
@@ -3539,6 +3551,148 @@ def scenario_G5_2(ctx):
     s.cmd("hywmill dev duties on", 1)
 
 
+O_UUID = "77777777-8888-4999-8aaa-bbbbbbbbbbbb"      # M5-3: the outlaw (a stand-in)
+
+
+def threat_lines(s, c):
+    return s.output(at(c, "hywmill threats"), 1.5)
+
+
+def scenario_G5_3(ctx):
+    """M5-3: outlaw -> OUTLAWED_PLAYER threat and faction<->player HYW HOSTILE kept by PoliticalPolicy; residents untouched;
+    non-outlaws still reverted; formal pardon (weregild) and projection cleared; persistence."""
+    s, a = ctx.s, ctx.a
+    s.cmd("hywmill dev duties off", 1)
+    v = info(s, a)
+    fac, resid = v.get("faction"), v.get("residents")
+    c = f"{a[0]} {a[1]} {a[2]}"
+    # the outlaw stands 60+ blocks away first (outside the defense radius), the bystander P inside
+    note("G5-3 stand-ins", standin_at(s, O_UUID, a[0] + 90, a[2] + 90) + " | " + standin_at(s, P_UUID, a[0] + 4, a[2] + 4))
+    m5(s, f"standin mode {O_UUID} survival", 0.5)
+    m5(s, f"standin mode {P_UUID} survival", 0.5)
+    s.output(at(a, f"hywmill politics admin grievance {O_UUID} KILL_RESIDENT true true false"), 1.5)
+    o = pshow(s, a, O_UUID)
+    check("G5-3 a peacetime killing inside the village: outlaw", o.get("status") == "OUTLAW", str(o))
+    r1 = rel(s, fac, O_UUID)
+    check("G5-3 outlawry projected: village faction <-> outlaw HYW HOSTILE (both directions)", r1 == ("HOSTILE", "HOSTILE"), str(r1))
+    rr = rel(s, resid, O_UUID)
+    check("G5-3 the resident identity is never made hostile (Option 1)", "HOSTILE" not in rr, str(rr))
+    time.sleep(15)  # > one reconcile interval (200 ticks)
+    r2 = rel(s, fac, O_UUID)
+    check("G5-3 the escalation guard keeps the outlaw HOSTILE (PoliticalPolicy)", r2 == ("HOSTILE", "HOSTILE"), str(r2))
+    # negative: a HOSTILE the politics do not cover is still reverted
+    m5(s, f"hyw relset {fac} {T_UUID} HOSTILE", 0.5)
+    time.sleep(15)
+    r3 = rel(s, fac, T_UUID)
+    check("G5-3 negative: a HOSTILE without a political cause is still reverted", "HOSTILE" not in r3, str(r3))
+    m5(s, f"hyw relset {resid} {O_UUID} HOSTILE", 0.5)
+    time.sleep(15)
+    r3b = rel(s, resid, O_UUID)
+    check("G5-3 negative: resident identity <-> outlaw HOSTILE is reverted even for an outlaw", "HOSTILE" not in r3b, str(r3b))
+    t0 = threat_lines(s, a)
+    check("G5-3 an outlaw outside the defense radius is not a threat", not any(O_UUID[:8] in l for l in t0), " | ".join(t0))
+    # the outlaw walks in
+    m5(s, f"standin remove {O_UUID}", 0.5)
+    standin_at(s, O_UUID, a[0] + 6, a[2] + 6)
+    m5(s, f"standin mode {O_UUID} survival", 0.5)
+    hp0 = hp_of(s, O_UUID)
+    seen, hit = [], False
+    for _ in range(12):
+        time.sleep(2.5)
+        tl = threat_lines(s, a)
+        seen.append(next((l for l in tl if O_UUID[:8] in l), ""))
+        h = hp_of(s, O_UUID)
+        if h is not None and hp0 is not None and h < hp0:
+            hit = True
+        m5(s, f"standin heal {O_UUID}", 0.2)
+    check("G5-3 the outlaw inside the defense radius is an M2 threat (OUTLAWED_PLAYER)", any("OUTLAWED_PLAYER" in l for l in seen), " | ".join(x for x in seen if x)[:300])
+    check("G5-3 the village responds with proactive=false (garrison or defenders damage the outlaw)", hit, f"hp0={hp0}")
+    tp = threat_lines(s, a)
+    check("G5-3 negative: a player who is not an outlaw is not a threat", not any(P_UUID[:8] in l for l in tp), " | ".join(tp))
+    res = residents(s, a)
+    civ_att = [r for r in res if r[2] == "CIVILIAN" and O_UUID[:8] in r[4]]
+    check("G5-3 civilians never attack the outlaw", not civ_att, str(civ_att))
+    # persistence of the projection: a second outlaw, then a restart
+    s.output(at(a, f"hywmill politics admin grievance {Z_UUID} KILL_GARRISON true true false"), 1.5)
+    # formal pardon: refused while poor, then paid after donations restored reputation
+    q0 = s.output(at(a, f"hywmill politics pardon for {O_UUID}"), 1.5)
+    check("G5-3 pardon refused while the weregild would sink reputation to the boycott line", any("refused" in l for l in q0), " | ".join(q0))
+    m5(s, f"mill rep {c} {O_UUID} adjust 6000")
+    q1 = s.output(at(a, f"hywmill politics pardon for {O_UUID}"), 1.5)
+    price = next((int(m[1]) for l in q1 for m in [re.search(r"quote: (\d+) reputation", l)] if m), None)
+    p1 = s.output(at(a, f"hywmill politics pardon for {O_UUID} pay"), 2)
+    o2 = pshow(s, a, O_UUID)
+    r4 = rel(s, fac, O_UUID)
+    check("G5-3 formal pardon: weregild paid, no longer an outlaw, HYW HOSTILE cleared",
+          price is not None and any("paid" in l for l in p1) and o2.get("status") not in (None, "OUTLAW") and "HOSTILE" not in r4,
+          f"price={price} {' | '.join(p1)} {o2} {r4}")
+    time.sleep(8)
+    tl = threat_lines(s, a)
+    check("G5-3 a pardoned player is no longer a threat", not any(O_UUID[:8] in l and "OUTLAWED" in l for l in tl), " | ".join(tl))
+    st = pstatus(s, a, O_UUID)
+    check("G5-3 the pardon is in the chronicle", any("pardoned" in l for l in st), " | ".join(st[-3:]))
+    restart(ctx)
+    time.sleep(25)
+    z = pshow(s, a, Z_UUID)
+    r5 = rel(s, fac, Z_UUID)
+    o3 = pshow(s, a, O_UUID)
+    check("G5-3 after a restart: the outlaw stays an outlaw and the projection stands; the pardoned stays pardoned",
+          z.get("status") == "OUTLAW" and r5 == ("HOSTILE", "HOSTILE") and o3.get("status") != "OUTLAW", f"{z} {r5} {o3}")
+    perf = s.output("hywmill perf", 2)
+    note("G5-3 perf", " | ".join(l for l in perf if "politics" in l or "scan.village" in l))
+    s.output(at(a, f"hywmill politics admin clear {Z_UUID}"), 1)
+    r6 = rel(s, fac, Z_UUID)
+    check("G5-3 clearing an outlaw's record removes the projection", "HOSTILE" not in r6, str(r6))
+    for u in (O_UUID, P_UUID):
+        m5(s, f"standin remove {u}", 0.3)
+    s.cmd("hywmill dev duties on", 1)
+
+
+SG_C3 = dict(perSlot={"WATCH": 2.0, "GUARD_POST": 2.25, "GARRISON": 2.5, "STRONGHOLD": 3.0},
+             levyShare={"WATCH": 0.15, "GUARD_POST": 0.20, "GARRISON": 0.25, "STRONGHOLD": 0.30},
+             infra={"BARRACKS": 8, "FORT_TOWNHALL": 8, "ARMOURY": 4, "TRAINING": 4, "GUARDHOUSE": 3, "WATCHTOWER": 3, "TOWER": 2, "GATE": 1},
+             minTarget={"WATCH": 1, "GUARD_POST": 2, "GARRISON": 3, "STRONGHOLD": 4})
+
+
+def c3_target(d):
+    t = d.get("tier")
+    if t not in SG_CAPS:
+        return 0
+    raw = d.get("capacity", 0) * SG_C3["perSlot"][t]
+    raw += sum(SG_C3["infra"].get(k, 0) * int(n) for k, n in re.findall(r"(\w+)=(\d+)", d.get("buildingRoles", "")))
+    raw += min(d.get("fortification", 0) / 3, 30) + SG_C3["levyShare"][t] * d.get("adults", 0)
+    return min(SG_CAPS[t], max(SG_C3["minTarget"][t], int(raw + 0.5)))
+
+
+def scenario_G5_G(ctx):
+    """M5-G on the shipped data: locked caps, C3 targets from each village's real inputs, and the load-state gate after a restart."""
+    s = ctx.s
+    ds = [village_inputs(s, c) for c in village_centers(s)]
+    ds = [d for d in ds if d.get("tier") in SG_CAPS]
+    check("G5-G shipped caps are the locked caps", ds and all(d.get("cap_now") == SG_CAPS[d["tier"]] for d in ds),
+          str([(d.get("name"), d.get("tier"), d.get("cap_now")) for d in ds]))
+    rows = [(d.get("name"), d.get("tier"), d.get("target_now"), c3_target(d)) for d in ds]
+    check("G5-G every village's target is the C3 formula on its own inputs", rows and all(r[2] == r[3] for r in rows), str(rows))
+    for d in ds:
+        log("G5-G input " + json_dumps({k: d.get(k) for k in ("name", "tier", "capacity", "adults", "fortification", "buildingRoles", "target_now", "live")}))
+    p0 = s.pos()
+    restart(ctx)
+    early = []
+    for _ in range(6):
+        for c in village_centers(s)[:4]:
+            g = garrison(s, c)
+            early.append((round(time.time()), g.get("live"), g.get("target"), any("waits for the village" in l for l in g.get("lines", []))))
+        time.sleep(3)
+    rec_before_auth = s.wait_for(r"Village '.*' recruits", 1, since=p0)
+    note("G5-G after restart (time, live, target, gated)", str(early[:12]))
+    check("G5-G after a restart no target exceeds the live garrison while the gate is closed",
+          all(t is None or l is None or not gated or t <= l for _, l, t, gated in early), str([e for e in early if e[3]][:8]))
+    time.sleep(40)
+    ds2 = {d.get("name"): d for d in (village_inputs(s, c) for c in village_centers(s))}
+    rows2 = [(n, d.get("tier"), d.get("target_now"), c3_target(d)) for n, d in ds2.items() if d.get("tier") in SG_CAPS]
+    check("G5-G once the village has settled the target is the C3 target again", rows2 and all(r[2] == r[3] for r in rows2), str(rows2))
+
+
 def write_m5_content(d: Path):
     """Spike I content: a Millénaire sub-mod under <server>/millenaire-custom/ (no code, no jar)."""
     base = d / "millenaire-custom" / "hywmill_armoury" / "cultures" / "norman"
@@ -3825,6 +3979,7 @@ def scenario_SG_6(ctx):
 
 
 ORDER_SG = ["status", "SG_0", "SG_1", "SG_2", "SG_3", "SG_4", "SG_5"]
+ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3"]
 
 
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
@@ -3836,7 +3991,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
-             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2,
+             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_G": scenario_G5_G,
              "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
              "SG_5": scenario_SG_5, "SG_6": scenario_SG_6}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
@@ -3862,7 +4017,7 @@ def run(d: Path, names, fresh=True):
             setup(ctx)
         else:
             reuse(ctx)
-        order = {"all": ORDER, "garrison": ORDER_G3, "duties": ORDER_G4, "duties-ek": ORDER_G4_EK, "m5spike": ORDER_M5, "sgscale": ORDER_SG, "m5opt1": ORDER_M5_OPT1}
+        order = {"all": ORDER, "garrison": ORDER_G3, "duties": ORDER_G4, "duties-ek": ORDER_G4_EK, "m5spike": ORDER_M5, "sgscale": ORDER_SG, "m5opt1": ORDER_M5_OPT1, "m5": ORDER_M5_PHASES}
         for n in (order[names[0]] if len(names) == 1 and names[0] in order else names):
             if ctx.a is None:
                 break

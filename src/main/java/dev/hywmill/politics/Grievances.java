@@ -62,6 +62,13 @@ public final class Grievances {
         peacetimeKillTick = -1;
     }
 
+    /** A formal pardon: the grievance is settled at {@code now} and lowered to at most {@code target}; the peacetime-killing flag is cleared. */
+    public void reduceTo(long now, double target, PoliticsTables.GrievanceRule rule) {
+        settle(now, rule);
+        value = Math.max(0, Math.min(value, target));
+        peacetimeKillTick = -1;
+    }
+
     /** Folds the decay into the stored value at {@code now} (keeps numbers small in saves). */
     public void settle(long now, PoliticsTables.GrievanceRule rule) {
         value = decayed(now, rule);

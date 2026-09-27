@@ -26,7 +26,7 @@ import java.util.UUID;
  *   <li><b>Reserve:</b> {@code reserve} defenders, only when at least {@code commitPerThreat + 2}
  *       are eligible. Previous reserve members stay if still eligible; the rest are chosen by
  *       professionals first, then distance to the defending position, then UUID.</li>
- *   <li><b>Actionable threats:</b> ATTACKING_RESIDENT, RECENT_ATTACKER or ATTACKING_ALLY_PLAYER;
+ *   <li><b>Actionable threats:</b> ATTACKING_RESIDENT, RECENT_ATTACKER, ATTACKING_ALLY_PLAYER or (M5-3) OUTLAWED_PLAYER;
  *       HYW_ENEMY alone only when {@code proactive=true}. Ordered by distance to the defending
  *       position, then UUID.</li>
  *   <li><b>Commit:</b> previous assignments are kept while still valid (no thrashing), then each
@@ -38,7 +38,8 @@ import java.util.UUID;
 public final class DefenseCoordinator {
     private DefenseCoordinator() {}
 
-    public static final Set<Reason> REACTIVE = EnumSet.of(Reason.ATTACKING_RESIDENT, Reason.RECENT_ATTACKER, Reason.ATTACKING_ALLY_PLAYER);
+    public static final Set<Reason> REACTIVE = EnumSet.of(Reason.ATTACKING_RESIDENT, Reason.RECENT_ATTACKER, Reason.ATTACKING_ALLY_PLAYER,
+            Reason.OUTLAWED_PLAYER);
 
     public record Pos(double x, double y, double z) {
         double distSq(Pos o) {

@@ -7,7 +7,11 @@ import java.util.Map;
  * Data for the politics model ({@code data/<ns>/hywmill_politics/*.json}, loaded in M5-2). Pure
  * records; {@link #DEFAULTS} are the shipped values, used when no data is loaded.
  */
-public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor) {
+public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon) {
+
+    public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor) {
+        this(standing, grievance, favor, PardonRule.DEFAULT);
+    }
 
     /**
      * Status thresholds on Millénaire's combined reputation (village + culture), reusing its own
@@ -35,6 +39,16 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
         public int amount(FavorSource s) {
             return amounts.getOrDefault(s, 0);
         }
+    }
+
+    /**
+     * The formal (paid) pardon (M5-3): weregild paid in reputation the player has earned back through
+     * Millénaire donations. The price is {@code perGrievance} reputation per grievance point above the
+     * pardon line, plus {@code killFee} while a peacetime killing is pending. It is refused unless
+     * reputation stays above the boycott line after paying.
+     */
+    public record PardonRule(boolean enabled, double perGrievance, int killFee) {
+        public static final PardonRule DEFAULT = new PardonRule(true, 32, 1024);
     }
 
     public static final long DAY = 24000L;

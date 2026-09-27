@@ -91,6 +91,14 @@ class DefenseCoordinatorTest {
         assertEquals(3, proactive.assignments().size());
     }
 
+    /** M5-3: an outlawed player is the village's own declared enemy: actionable even with proactive=false. */
+    @Test
+    void outlawedPlayerIsActionableWithoutProactive() {
+        assertTrue(DefenseCoordinator.isActionable(java.util.Set.of(Reason.OUTLAWED_PLAYER), false));
+        DefenseCoordinator.Result passive = run(baseline(), AlertState.ALERT, fiveSoldiers(), List.of(threat(1, 5, 0, Reason.OUTLAWED_PLAYER)));
+        assertEquals(3, passive.assignments().size());
+    }
+
     @Test
     void calmAssignsNothing() {
         assertEquals(DefenseCoordinator.Result.EMPTY, run(baseline(), AlertState.CALM, fiveSoldiers(),

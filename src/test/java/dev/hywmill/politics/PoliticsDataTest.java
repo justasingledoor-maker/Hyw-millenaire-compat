@@ -37,4 +37,17 @@ class PoliticsDataTest {
         assertEquals(4, problems.size(), problems.toString());
         assertEquals(PoliticsTables.DEFAULTS, d.defaults());
     }
+
+    @Test
+    void pardonRuleParsesAndRejectsNegativePrices() {
+        List<String> problems = new ArrayList<>();
+        JsonObject f = JsonParser.parseString("""
+                {"defaults": {"pardon": {"perGrievance": 48}},
+                 "cultures": {"millenaire:inuits": {"pardon": {"enabled": false}}, "millenaire:mayan": {"pardon": {"killFee": -5}}}}""").getAsJsonObject();
+        PoliticsData d = PoliticsData.fromJson(List.of(f), problems);
+        assertEquals(new PoliticsTables.PardonRule(true, 48, 1024), d.defaults().pardon());
+        assertEquals(new PoliticsTables.PardonRule(false, 48, 1024), d.forCulture("millenaire:inuits").pardon());
+        assertEquals(d.defaults().pardon(), d.forCulture("millenaire:mayan").pardon());
+        assertEquals(1, problems.size(), problems.toString());
+    }
 }

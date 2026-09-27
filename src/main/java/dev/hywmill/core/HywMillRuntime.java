@@ -38,8 +38,14 @@ public final class HywMillRuntime {
     private final ThreatTracker threats = new ThreatTracker(incidents, scheduler, defense, perf);
     private final FactionRegistry factions = new FactionRegistry();
     private final dev.hywmill.politics.service.PoliticsService politics = new dev.hywmill.politics.service.PoliticsService();
-    /** ALWAYS_REVERT unless an M5-0 spike command installs a test policy (dev only, this server run only). */
-    private volatile DiplomacyPolicy diplomacy = DiplomacyPolicy.ALWAYS_REVERT;
+    /** M5-3: political hostility (outlaws; wars later). Replaces M1.1's ALWAYS_REVERT. */
+    private final DiplomacyPolicy political = new dev.hywmill.politics.service.PoliticalPolicy(this);
+    /** Dev-only overlay installed by an M5-0 spike command (this server run only); null when unused. */
+    @Nullable private volatile DiplomacyPolicy spikeOverlay;
+    private final DiplomacyPolicy diplomacy = (faction, other) -> {
+        DiplomacyPolicy overlay = spikeOverlay;
+        return political.permitsPermanentHostility(faction, other) || (overlay != null && overlay.permitsPermanentHostility(faction, other));
+    };
     private final Map<String, AtomicLong> counters = new ConcurrentHashMap<>();
     /** Village list cache, refreshed once per ledger interval by GarrisonUpdater. Server thread only. */
     @Nullable public List<SettlementSource.SettlementRef> cachedVillages;
@@ -49,6 +55,7 @@ public final class HywMillRuntime {
         incidents.bind(threats);
         defense.bind(threats);
         defense.setListener(garrison::afterScan);
+        threats.setOutlawLookup(dev.hywmill.politics.service.PoliticsService::isOutlaw);
     }
 
     static void start(MinecraftServer server) {
@@ -125,9 +132,14 @@ public final class HywMillRuntime {
         return diplomacy;
     }
 
-    /** M5-0 spike only ({@code /hywmill dev m5 policy}); null restores ALWAYS_REVERT. Not persisted. */
+    /** M5-0 spike only ({@code /hywmill dev m5 policy}): an extra dev overlay on the political policy; null removes it. Not persisted. */
     public void setDiplomacyForSpike(@Nullable DiplomacyPolicy policy) {
-        diplomacy = policy != null ? policy : DiplomacyPolicy.ALWAYS_REVERT;
+        spikeOverlay = policy;
+    }
+
+    @Nullable
+    public DiplomacyPolicy spikeDiplomacy() {
+        return spikeOverlay;
     }
 
     public long increment(String counter) {

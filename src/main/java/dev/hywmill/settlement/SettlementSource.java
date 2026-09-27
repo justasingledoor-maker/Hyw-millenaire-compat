@@ -128,4 +128,13 @@ public interface SettlementSource {
      */
     default void recordHistory(ServerLevel level, UUID settlementId, String text) {
     }
+
+    /**
+     * Takes {@code amount} of the player's combined reputation with the village (M5-3 weregild). The
+     * adapter knows how the combined value is made up. Returns the combined reputation afterwards, or
+     * empty if the village is unknown (then nothing was taken).
+     */
+    default java.util.OptionalInt takeReputation(ServerLevel level, UUID settlementId, UUID playerId, int amount) {
+        return java.util.OptionalInt.empty();
+    }
 }

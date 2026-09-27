@@ -46,6 +46,11 @@ final class PoliticsCommands {
                 .then(Commands.literal("intel").executes(ctx -> intel(ctx, null))
                         .then(Commands.literal("for").requires(s -> s.hasPermission(2))
                                 .then(Commands.argument("player", UuidArgument.uuid()).executes(ctx -> intel(ctx, UuidArgument.getUuid(ctx, "player"))))))
+                .then(Commands.literal("pardon").executes(ctx -> pardon(ctx, null, false))
+                        .then(Commands.literal("pay").executes(ctx -> pardon(ctx, null, true)))
+                        .then(Commands.literal("for").requires(s -> s.hasPermission(2))
+                                .then(Commands.argument("player", UuidArgument.uuid()).executes(ctx -> pardon(ctx, UuidArgument.getUuid(ctx, "player"), false))
+                                        .then(Commands.literal("pay").executes(ctx -> pardon(ctx, UuidArgument.getUuid(ctx, "player"), true))))))
                 .then(Commands.literal("admin").requires(s -> s.hasPermission(3))
                         .then(Commands.literal("grievance").then(Commands.argument("player", UuidArgument.uuid())
                                 .then(Commands.argument("kind", StringArgumentType.word())
@@ -153,6 +158,30 @@ final class PoliticsCommands {
         return 1;
     }
 
+    /** M5-3 formal pardon: without {@code pay} only the price is quoted. */
+    private static int pardon(CommandContext<CommandSourceStack> ctx, @Nullable UUID explicit, boolean pay) {
+        UUID player = who(ctx, explicit);
+        VillageRecord rec = player == null ? null : nearest(ctx);
+        if (rec == null) {
+            return 0;
+        }
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        PoliticsService.PardonResult res = HywMillRuntime.require().politics().pardon(ow, rec, player, pay);
+        dev.hywmill.politics.Pardon.Quote q = res.quote();
+        String place = rec.name.isEmpty() ? "this village" : rec.name;
+        switch (q.outcome()) {
+            case NOT_OUTLAW -> send(ctx.getSource(), "politics pardon: you are not an outlaw in " + place + " (" + res.status() + ")");
+            case DISABLED -> send(ctx.getSource(), "politics pardon: " + place + " grants no formal pardons; wait for the grievance to fade");
+            case TOO_POOR -> send(ctx.getSource(), "politics pardon refused: the weregild is " + q.price() + " reputation and you have "
+                    + (q.repAfter() + q.price()) + "; donate goods to " + place + " until your reputation stays above the boycott line after paying");
+            case OK -> send(ctx.getSource(), res.paid()
+                    ? "politics pardon paid: " + q.price() + " reputation; now " + res.status() + " in " + place + ", reputation " + res.reputationAfter()
+                    : "politics pardon quote: " + q.price() + " reputation (grievance " + String.format("%.1f", q.grievance())
+                    + "); run '/hywmill politics pardon pay' to pay");
+        }
+        return q.ok() ? 1 : 0;
+    }
+
     private static int adminGrievance(CommandContext<CommandSourceStack> ctx) {
         VillageRecord rec = nearest(ctx);
         if (rec == null) {
@@ -212,7 +241,8 @@ final class PoliticsCommands {
         send(ctx.getSource(), "politics record status=" + r.status + " since=" + r.statusSince + " grievance="
                 + String.format("%.2f", r.grievances.decayed(ow.getGameTime(), PoliticsService.tables(rec).grievance()))
                 + " peacetimeKill=" + r.grievances.peacetimeKillPending() + " lastKind=" + r.grievances.lastKind()
-                + " inside=" + r.grievances.lastInside() + " favor=" + r.favor.points() + " earned=" + r.favor.earnedTotal());
+                + " inside=" + r.grievances.lastInside() + " favor=" + r.favor.points() + " earned=" + r.favor.earnedTotal()
+                + " outlawProjection=" + HywMillRuntime.require().counter(PoliticsService.C_PROJECTED) + "/" + HywMillRuntime.require().counter(PoliticsService.C_CLEARED));
         return 1;
     }
 
@@ -222,7 +252,11 @@ final class PoliticsCommands {
             return 0;
         }
         UUID player = UuidArgument.getUuid(ctx, "player");
-        boolean removed = rec.politics.players().remove(player) != null;
+        PoliticsRecord old = rec.politics.players().remove(player);
+        boolean removed = old != null;
+        if (old != null && old.status == dev.hywmill.politics.Standing.OUTLAW) {
+            PoliticsService.project(HywMillRuntime.require(), rec, player, false);
+        }
         GarrisonLedger.get(ctx.getSource().getServer().overworld()).setDirty();
         send(ctx.getSource(), "politics record cleared=" + removed);
         return removed ? 1 : 0;

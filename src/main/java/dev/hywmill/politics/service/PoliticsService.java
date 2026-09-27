@@ -86,6 +86,11 @@ public final class PoliticsService {
                     dirty = true;
                 }
             }
+            for (Map.Entry<UUID, PoliticsRecord> e : rec.politics.players().entrySet()) {
+                if (e.getValue().status == Standing.OUTLAW) {
+                    project(rt, rec, e.getKey(), true); // re-assert the projection (HYW or a command may have changed it)
+                }
+            }
             if (rec.politics.prune(tick) > 0 || dirty) {
                 ledger.setDirty();
             }
@@ -189,13 +194,86 @@ public final class PoliticsService {
         return !p.isSpectator() && (!(p instanceof ServerPlayer sp) || !sp.isFakePlayer() || HywMillConfig.DEV_COMMANDS.get());
     }
 
+    // ------------------------------------------------------------------ outlaw projection (M5-3)
+
+    public static final String C_PROJECTED = "politics.outlawHostileWritten";
+    public static final String C_CLEARED = "politics.outlawHostileCleared";
+
+    /**
+     * Projects outlawry onto HYW: village <b>faction</b> identity ↔ player HOSTILE while outlawed,
+     * cleared on pardon. Never the resident identity (Option 1). The political record is authoritative;
+     * {@link PoliticalPolicy} lets the escalation guard keep exactly these pairs.
+     */
+    public static void project(HywMillRuntime rt, VillageRecord rec, UUID player, boolean outlaw) {
+        CombatFactionService f = Services.factions();
+        if (f == null || rec.factionId == null || player.equals(rec.factionId) || rt.factions().isVillageIdentity(player)) {
+            return;
+        }
+        if (outlaw) {
+            if (!"HOSTILE".equals(f.relation(rec.factionId, player)) || !"HOSTILE".equals(f.relation(player, rec.factionId))) {
+                f.setRelation(rec.factionId, player, "HOSTILE"); // HYW writes HOSTILE in both directions
+                rt.increment(C_PROJECTED);
+                HmLog.info("Politics: village '{}' faction {} -> outlaw {}: HYW HOSTILE", rec.name, rec.factionId, player);
+            }
+        } else if (f.isHostileEitherWay(rec.factionId, player)) {
+            f.resetHostileToNeutral(rec.factionId, player);
+            rt.increment(C_CLEARED);
+            HmLog.info("Politics: village '{}' faction {} -> {}: HYW HOSTILE cleared (no longer an outlaw)", rec.name, rec.factionId, player);
+        }
+    }
+
+    /** Whether the village has outlawed the player (its own record; word travels never outlaws). O(1). */
+    public static boolean isOutlaw(ServerLevel overworld, UUID village, UUID player) {
+        VillageRecord rec = GarrisonLedger.get(overworld).get(village);
+        PoliticsRecord r = rec == null ? null : rec.politics.peek(player);
+        return r != null && r.status == Standing.OUTLAW;
+    }
+
+    // ------------------------------------------------------------------ pardon (M5-3)
+
+    /** Result of a formal pardon request; {@code status} is the standing afterwards. */
+    public record PardonResult(dev.hywmill.politics.Pardon.Quote quote, boolean paid, Standing status, int reputationAfter) {}
+
+    /**
+     * The formal pardon: quote, and when {@code pay} and the quote is OK, take the weregild from
+     * Millénaire's reputation, lower the grievance and re-evaluate (the announce clears the HYW HOSTILE).
+     */
+    public PardonResult pardon(ServerLevel overworld, VillageRecord rec, UUID player, boolean pay) {
+        SettlementSource source = Services.settlements();
+        PoliticsTables t = tables(rec);
+        long now = overworld.getGameTime();
+        PoliticsRecord r = rec.politics.get(player);
+        int rep = source != null ? source.playerReputation(overworld, rec.villageId, player) : 0;
+        dev.hywmill.politics.Pardon.Quote q = dev.hywmill.politics.Pardon.quote(r, now, rep, t);
+        if (!pay || !q.ok() || source == null) {
+            return new PardonResult(q, false, r.status, rep);
+        }
+        java.util.OptionalInt after = source.takeReputation(overworld, rec.villageId, player, q.price());
+        if (after.isEmpty()) {
+            return new PardonResult(q, false, r.status, rep);
+        }
+        Standing before = r.status;
+        dev.hywmill.politics.Pardon.apply(r, now, after.getAsInt(), t);
+        if (r.status != before) {
+            announce(overworld, source, rec, player, before, r.status, now, "weregild of " + q.price() + " reputation paid");
+        }
+        GarrisonLedger.get(overworld).setDirty();
+        return new PardonResult(q, true, r.status, after.getAsInt());
+    }
+
     // ------------------------------------------------------------------ chronicle
 
     private void announce(ServerLevel overworld, @Nullable SettlementSource source, VillageRecord rec, UUID player,
                           Standing before, Standing after, long tick, String why) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt != null && (before == Standing.OUTLAW) != (after == Standing.OUTLAW)) {
+            project(rt, rec, player, after == Standing.OUTLAW);
+        }
         String name = playerName(overworld, player);
-        String text = name + " is now " + label(after) + " in " + (rec.name.isEmpty() ? "this village" : rec.name)
-                + (why.isEmpty() ? "" : " (" + why + ")");
+        String place = rec.name.isEmpty() ? "this village" : rec.name;
+        String text = before == Standing.OUTLAW && after != Standing.OUTLAW
+                ? name + " was pardoned by " + place + " and is now " + label(after) + (why.isEmpty() ? "" : " (" + why + ")")
+                : name + " is now " + label(after) + " in " + place + (why.isEmpty() ? "" : " (" + why + ")");
         chronicle(overworld, source, rec, tick, text);
         ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(player);
         if (p != null) {

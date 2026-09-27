@@ -112,7 +112,17 @@ public final class PoliticsData {
             }
             f = new PoliticsTables.FavorRule(a, i(j, "cap", f.cap()));
         }
-        return new PoliticsTables(s, g, f);
+        PoliticsTables.PardonRule pr = base.pardon();
+        if (o.has("pardon") && o.get("pardon").isJsonObject()) {
+            JsonObject j = o.getAsJsonObject("pardon");
+            pr = new PoliticsTables.PardonRule(j.has("enabled") ? j.get("enabled").getAsBoolean() : pr.enabled(),
+                    d(j, "perGrievance", pr.perGrievance()), i(j, "killFee", pr.killFee()));
+            if (pr.perGrievance() < 0 || pr.killFee() < 0) {
+                problems.add(where + ": pardon prices must be >= 0; using " + base.pardon());
+                pr = base.pardon();
+            }
+        }
+        return new PoliticsTables(s, g, f, pr);
     }
 
     private static int i(JsonObject j, String k, int def) {

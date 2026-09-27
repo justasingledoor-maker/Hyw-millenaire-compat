@@ -418,6 +418,23 @@ final class MillenaireSettlementSource implements SettlementSource {
         }
     }
 
+    /**
+     * Millénaire's {@code Village.adjustReputation} changes the village value by delta and the culture
+     * value by a tenth of it (M5-0 S5-J), so the combined value moves by 1.1 × delta. The village delta is
+     * rounded up so at least {@code amount} is taken.
+     */
+    @Override
+    public java.util.OptionalInt takeReputation(ServerLevel level, UUID settlementId, UUID playerId, int amount) {
+        Village v = manager(level).getVillage(new VillageId(settlementId));
+        if (v == null) {
+            return java.util.OptionalInt.empty();
+        }
+        if (amount > 0) {
+            v.adjustReputation(level, playerId, -(int) Math.ceil(amount * 10.0 / 11.0));
+        }
+        return java.util.OptionalInt.of(v.getCombinedReputation(level, playerId));
+    }
+
     /** Millénaire's own deletion path (negation wand) ends in {@code VillageManager.removeVillage}; no event is fired. */
     @Override
     public boolean devRemove(ServerLevel level, UUID settlementId) {

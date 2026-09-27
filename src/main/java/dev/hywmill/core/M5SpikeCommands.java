@@ -212,7 +212,7 @@ final class M5SpikeCommands {
         HywMillRuntime rt = HywMillRuntime.require();
         UUID f = UuidArgument.getUuid(ctx, "faction");
         UUID o = UuidArgument.getUuid(ctx, "other");
-        SpikePolicy p = rt.diplomacy() instanceof SpikePolicy sp ? sp : new SpikePolicy(ConcurrentHashMap.newKeySet());
+        SpikePolicy p = rt.spikeDiplomacy() instanceof SpikePolicy sp ? sp : new SpikePolicy(ConcurrentHashMap.newKeySet());
         p.pairs().add(f + ">" + o);
         rt.setDiplomacyForSpike(p);
         HywMillCommands.send(ctx.getSource(), "m5 policy allows " + p.pairs());
@@ -221,13 +221,14 @@ final class M5SpikeCommands {
 
     private static int policyClear(CommandContext<CommandSourceStack> ctx) {
         HywMillRuntime.require().setDiplomacyForSpike(null);
-        HywMillCommands.send(ctx.getSource(), "m5 policy cleared (ALWAYS_REVERT)");
+        HywMillCommands.send(ctx.getSource(), "m5 policy cleared (ALWAYS_REVERT; the political policy still applies)");
         return 1;
     }
 
     private static int policyShow(CommandContext<CommandSourceStack> ctx) {
-        DiplomacyPolicy p = HywMillRuntime.require().diplomacy();
-        HywMillCommands.send(ctx.getSource(), "m5 policy " + (p instanceof SpikePolicy sp ? "allows " + sp.pairs() : "ALWAYS_REVERT"));
+        DiplomacyPolicy p = HywMillRuntime.require().spikeDiplomacy();
+        HywMillCommands.send(ctx.getSource(), "m5 policy " + (p instanceof SpikePolicy sp ? "allows " + sp.pairs() : "ALWAYS_REVERT")
+                + " (plus the political policy)");
         return 1;
     }
 
