@@ -1,0 +1,30 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] PASS MIG4 M4 world: residents carry the faction identity dfa904f6-8df5-3606-8564-40daa35c5be7 vs dfa904f6-8df5-3606-8564-40daa35c5be7
+[harness] server stopped
+[harness] server started
+[harness] PASS MIG4 format-4 ledger loaded and migrated to format 5 [05:31:18] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 4, faction-id mismatches corrected: 0 | [05:31:18] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger migrated 2 record(s) from format 4 to 5: political memory starts empty.
+[harness] PASS MIG4 residents migrated to the resident identity 99cc3463-9db0-3ab0-bfcd-d2d6922f6bef vs 99cc3463-9db0-3ab0-bfcd-d2d6922f6bef
+[harness] PASS MIG4 resident<->faction alliance written ('FRIENDLY', 'FRIENDLY')
+[harness] PASS MIG4 village and faction identities unchanged {'A': ('dfa904f6-8df5-3606-8564-40daa35c5be7', 'dfa904f6-8df5-3606-8564-40daa35c5be7'), 'B': ('7b8a6a1e-6c77-3733-8ad6-e8c80d5925dd', '7b8a6a1e-6c77-3733-8ad6-e8c80d5925dd')}
+[harness] PASS MIG4 garrison intact: same live slots, no duplicate, no new grant {'A': (8, 8, {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}), 'B': (3, 3, {'tagged': 3, 'slots': 3, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 3, 'live': 3, 'bound': 3})}
+[harness] NOTE MIG4 identity counters: identities: markedOnJoin=53 migratedToResidents=51 allianceWrites=4 fixedBySweep=0 raidersSkipped=0 escalation guard: detected=0 reverted=0 identity clearance: markVillagers=true clearedAll=false clearedVillages=0 markersRemoved=0
+[harness] server stopped
+[harness] server started
+[harness] PASS MIG4 second restart: format 5 on disk, no further migration [05:33:18] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 5, faction-id mismatches corrected: 0; None
+[harness] server stopped
+[harness] RESULT 10/10 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  MIG4 M4 world: residents carry the faction identity  dfa904f6-8df5-3606-8564-40daa35c5be7 vs dfa904f6-8df5-3606-8564-40daa35c5be7
+  PASS  MIG4 format-4 ledger loaded and migrated to format 5  [05:31:18] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 4, faction-id mismatches corrected: 0 | [05:31:18] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger migrated 2 record(s) from format 4 to 5: political memory starts empty.
+  PASS  MIG4 residents migrated to the resident identity  99cc3463-9db0-3ab0-bfcd-d2d6922f6bef vs 99cc3463-9db0-3ab0-bfcd-d2d6922f6bef
+  PASS  MIG4 resident<->faction alliance written  ('FRIENDLY', 'FRIENDLY')
+  PASS  MIG4 village and faction identities unchanged  {'A': ('dfa904f6-8df5-3606-8564-40daa35c5be7', 'dfa904f6-8df5-3606-8564-40daa35c5be7'), 'B': ('7b8a6a1e-6c77-3733-8ad6-e8c80d5925dd', '7b8a6a1e-6c77-3733-8ad6-e8c80d5925dd')}
+  PASS  MIG4 garrison intact: same live slots, no duplicate, no new grant  {'A': (8, 8, {'tagged': 8, 'slots': 8, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 8, 'live': 8, 'bound': 8}), 'B': (3, 3, {'tagged': 3, 'slots': 3, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 3, 'live': 3, 'bound': 3})}
+  PASS  MIG4 second restart: format 5 on disk, no further migration  [05:33:18] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Garrison ledger loaded: 2 village record(s), format 5, faction-id mismatches corrected: 0; None
+  NOTE  MIG4 identity counters  identities: markedOnJoin=53 migratedToResidents=51 allianceWrites=4 fixedBySweep=0 raidersSkipped=0 escalation guard: detected=0 reverted=0 identity clearance: markVillagers=true clearedAll=false clearedVillages=0 markersRemoved=0
+EXIT 0
