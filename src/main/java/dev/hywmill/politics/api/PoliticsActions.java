@@ -107,6 +107,43 @@ public final class PoliticsActions {
         return new ActionResult(ok, ok ? "OK" : "NONE", ok ? "You left the campaign; the projections are restored" : "You are not on campaign");
     }
 
+    /**
+     * The Politics screen's single intent entry point: {@code action} is one offered by {@link PoliticsView#actions};
+     * every rule is re-validated by the action it maps to.
+     */
+    public static ActionResult submit(ServerLevel overworld, UUID player, String action, UUID home, UUID target, int amount) {
+        switch (action) {
+            case "RECONCILE", "TRUCE", "ENCOURAGE", "SOW_DISCORD" -> {
+                return propose(overworld, player, home, target, EnvoyKind.valueOf(action));
+            }
+            case "PARDON" -> {
+                return pardon(overworld, player, home, false);
+            }
+            case "PARDON_PAY" -> {
+                return pardon(overworld, player, home, true);
+            }
+            case "ESCORT" -> {
+                return request(overworld, player, home, dev.hywmill.politics.Requests.Kind.ESCORT,
+                        amount > 0 ? Math.min(amount, 16) : PoliticsView.SCREEN_ESCORT, 0, null);
+            }
+            case "DISMISS" -> {
+                return dismiss(overworld, player);
+            }
+            case "CANCEL_ENVOYS" -> {
+                return cancelEnvoys(overworld, player);
+            }
+            case "WAR_JOIN" -> {
+                return joinWar(overworld, player, home, target);
+            }
+            case "WAR_LEAVE" -> {
+                return leaveWar(overworld, player);
+            }
+            default -> {
+                return new ActionResult(false, "UNKNOWN_ACTION", "Unknown action");
+            }
+        }
+    }
+
     static String refusal(DiplomacyOdds.Refusal r) {
         return switch (r) {
             case OK -> "ok";

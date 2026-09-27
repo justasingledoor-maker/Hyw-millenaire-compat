@@ -69,6 +69,17 @@ final class M5SpikeCommands {
                     HywMillCommands.send(ctx.getSource(), "m5 ticking " + p.getX() + " " + p.getZ() + " " + l.isPositionEntityTicking(p) + " top=" + top + " water=" + water);
                     return 1;
                 })));
+        // M5-UI headless: the Politics screen's server handlers, driven for a stand-in (printed instead of sent)
+        m5.then(Commands.literal("ui")
+                .then(Commands.literal("open").then(Commands.argument("id", UuidArgument.uuid()).executes(ctx -> ui(ctx, null, null))))
+                .then(Commands.literal("select").then(Commands.argument("id", UuidArgument.uuid())
+                        .then(Commands.argument("village", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
+                                .executes(ctx -> ui(ctx, net.minecraft.commands.arguments.coordinates.BlockPosArgument.getBlockPos(ctx, "village"), null)))))
+                .then(Commands.literal("submit").then(Commands.argument("id", UuidArgument.uuid())
+                        .then(Commands.argument("village", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
+                                .then(Commands.argument("action", com.mojang.brigadier.arguments.StringArgumentType.word())
+                                        .executes(ctx -> ui(ctx, net.minecraft.commands.arguments.coordinates.BlockPosArgument.getBlockPos(ctx, "village"),
+                                                com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "action"))))))));
         m5.then(Commands.literal("resident")
                 .then(Commands.literal("id").then(Commands.argument("village", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
                         .executes(ctx -> {
@@ -197,6 +208,46 @@ final class M5SpikeCommands {
                 java.util.EnumSet.of(dev.hywmill.military.ThreatTracker.Reason.HYW_ENEMY))), level.getGameTime());
         HywMillCommands.send(src, "m5 threat " + e.getUUID().toString().substring(0, 8) + " village=" + ref.get().name()
                 + " alert=" + rt.defense().state(ref.get().id()));
+        return 1;
+    }
+
+    private static int ui(CommandContext<CommandSourceStack> ctx, @javax.annotation.Nullable net.minecraft.core.BlockPos villagePos,
+                          @javax.annotation.Nullable String action) {
+        ServerLevel level = ctx.getSource().getServer().overworld();
+        UUID id = UuidArgument.getUuid(ctx, "id");
+        if (!(level.getPlayerByUUID(id) instanceof net.minecraft.server.level.ServerPlayer sp)) {
+            HywMillCommands.send(ctx.getSource(), "m5 ui no such stand-in");
+            return 0;
+        }
+        dev.hywmill.net.PoliticsSnapshot first = dev.hywmill.net.PoliticsNet.snapshot(sp, null, null);
+        UUID home = first == null ? null : first.home();
+        UUID target = null;
+        if (villagePos != null && Services.settlements() != null) {
+            target = Services.settlements().nearest(level, villagePos, 256).map(r -> r.id()).orElse(null);
+        }
+        if (action != null && home != null) {
+            dev.hywmill.net.PoliticsPayloads.ActionResult r = dev.hywmill.net.PoliticsNet.submit(sp, action, home, target != null ? target : home, 0);
+            HywMillCommands.send(ctx.getSource(), "m5 ui result ok=" + r.ok() + " code=" + r.code() + " " + r.message());
+        }
+        dev.hywmill.net.PoliticsSnapshot s = dev.hywmill.net.PoliticsNet.snapshot(sp, home, target);
+        if (s == null) {
+            HywMillCommands.send(ctx.getSource(), "m5 ui inactive");
+            return 0;
+        }
+        HywMillCommands.send(ctx.getSource(), "m5 ui home=" + s.homeName() + " standing=" + s.standing() + " effective=" + s.effective()
+                + " rep=" + s.reputation() + " favor=" + s.favor() + " points=" + s.diplomacyPoints() + " villages=" + s.villages().size()
+                + " selected=" + (s.selected() == null ? "none" : s.selected().toString().substring(0, 8)));
+        for (dev.hywmill.net.PoliticsSnapshot.ActionRow a : s.actions()) {
+            HywMillCommands.send(ctx.getSource(), "m5 ui action " + a.action() + " available=" + a.available() + " outcome=" + a.outcome()
+                    + " | " + a.requirement());
+        }
+        // the wire format round-trips (what a client would receive)
+        net.minecraft.network.RegistryFriendlyByteBuf buf = new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(),
+                level.registryAccess());
+        dev.hywmill.net.PoliticsSnapshot.CODEC.encode(buf, s);
+        int bytes = buf.readableBytes();
+        dev.hywmill.net.PoliticsSnapshot back = dev.hywmill.net.PoliticsSnapshot.CODEC.decode(buf);
+        HywMillCommands.send(ctx.getSource(), "m5 ui wire bytes=" + bytes + " roundtrip=" + back.equals(s));
         return 1;
     }
 

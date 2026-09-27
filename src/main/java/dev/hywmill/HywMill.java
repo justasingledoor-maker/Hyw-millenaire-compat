@@ -22,6 +22,7 @@ public final class HywMill {
     public HywMill(IEventBus modBus, ModContainer container) {
         container.registerConfig(ModConfig.Type.COMMON, HywMillConfig.SPEC);
         GarrisonAttachments.register(modBus);
+        modBus.addListener(dev.hywmill.net.PoliticsNet::register);
         NeoForge.EVENT_BUS.register(CoreEvents.class);
         Integrations.loadAll(modBus);
         HmLog.info("Initialized. Integrations: {}", Integrations.describe());

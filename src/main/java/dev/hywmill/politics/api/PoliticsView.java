@@ -290,4 +290,65 @@ public final class PoliticsView {
         }
         return out;
     }
+
+    /** An action the Politics screen may offer: the server's verdict (available / why not), what it needs and costs, and a coarse outcome band. */
+    public record ActionOption(String action, String label, boolean available, String requirement, String outcome) {}
+
+    /** Default escort size asked for from the screen (the village offers what it can). */
+    public static final int SCREEN_ESCORT = 6;
+
+    /**
+     * Options for the player dealing with {@code home}, with {@code target} selected. Everything is evaluated by
+     * the same services the actions use, in dry-run: nothing is spent.
+     */
+    public static List<ActionOption> actions(ServerLevel overworld, UUID player, UUID home, UUID target) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        GarrisonLedger ledger = GarrisonLedger.get(overworld);
+        VillageRecord h = ledger.get(home);
+        VillageRecord t = ledger.get(target);
+        SettlementSource source = Services.settlements();
+        List<ActionOption> out = new ArrayList<>();
+        if (rt == null || h == null || t == null || source == null) {
+            return out;
+        }
+        if (home.equals(target)) {
+            PoliticsRecord r = h.politics.peek(player);
+            PoliticsTables tb = PoliticsService.tables(h);
+            if (r != null && r.status == Standing.OUTLAW) {
+                dev.hywmill.politics.Pardon.Quote q = dev.hywmill.politics.Pardon.quote(r, overworld.getGameTime(),
+                        source.playerReputation(overworld, home, player), tb);
+                out.add(new ActionOption("PARDON_PAY", "Pay the weregild", q.ok(), "costs " + q.price() + " reputation",
+                        q.ok() ? "pardon at once" : q.outcome().name().toLowerCase()));
+            }
+            Standing own = r == null ? Standing.STRANGER : r.status;
+            Standing eff = effective(overworld, ledger, source, h, player, own, null);
+            var g = dev.hywmill.garrison.service.ErrandService.request(overworld, h, player, eff, dev.hywmill.politics.Requests.Kind.ESCORT,
+                    SCREEN_ESCORT, 0, null, rt.defense().state(home), tb, true);
+            out.add(new ActionOption("ESCORT", "Ask for an escort", g.offer().ok(),
+                    g.offer().ok() ? g.offer().units() + " soldier(s) for " + g.offer().favorCost() + " Favor" : g.offer().reason(),
+                    g.offer().ok() ? "granted" : g.offer().refusal().name().toLowerCase()));
+            boolean lent = !dev.hywmill.garrison.service.ErrandService.lentTo(h, player).isEmpty();
+            out.add(new ActionOption("DISMISS", "Send lent soldiers home", lent, lent ? "" : "no soldiers lent to you", ""));
+            boolean envoys = !envoys(overworld, player).isEmpty();
+            out.add(new ActionOption("CANCEL_ENVOYS", "Recall your envoys", envoys, envoys ? "points and Favor are not refunded" : "no envoy under way", ""));
+            boolean onCampaign = dev.hywmill.politics.service.RelationProjector.campaignOf(ledger, player) != null;
+            out.add(new ActionOption("WAR_LEAVE", "Leave your campaign", onCampaign, onCampaign ? "" : "you are not on campaign", ""));
+            return out;
+        }
+        for (dev.hywmill.politics.EnvoyKind k : dev.hywmill.politics.EnvoyKind.values()) {
+            var p = rt.envoys().propose(overworld, player, home, target, k, true);
+            String band = "";
+            if (p.ok()) {
+                double c = dev.hywmill.politics.service.EnvoyService.context(overworld, player, home, target, k, 0)
+                        .map(ctx -> dev.hywmill.politics.DiplomacyOdds.chance(ctx, PoliticsService.tables(h).diplomacy())).orElse(0.0);
+                band = c >= 0.66 ? "likely" : c >= 0.33 ? "uncertain" : "unlikely";
+            }
+            out.add(new ActionOption(k.name(), "Envoy: " + dev.hywmill.politics.service.EnvoyService.label(k), p.ok(),
+                    "needs " + dev.hywmill.politics.DiplomacyOdds.required(k).name().toLowerCase() + " with " + h.name + "; " + p.detail(), band));
+        }
+        boolean war = dev.hywmill.politics.service.RelationProjector.atWar(ledger, home, target);
+        out.add(new ActionOption("WAR_JOIN", "Join " + h.name + "'s war against " + t.name, war,
+                war ? "needs trusted with " + h.name + "; " + t.name + " will hold a grievance" : "these villages are not at war", war ? "7-day campaign" : ""));
+        return out;
+    }
 }

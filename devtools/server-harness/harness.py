@@ -4006,6 +4006,49 @@ def scenario_G5_6(ctx):
     m5(s, f"standin remove {hp}", 0.3)
 
 
+def scenario_G5_UI(ctx):
+    """M5-UI (server side, headless): the Politics screen's handlers build snapshots only from the politics API, offer
+    the server's verdict per action, re-validate and perform intents, and the wire format round-trips. The dedicated
+    server never loads client classes."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    uid = "dddddddd-eeee-4fff-8000-111111111111"
+    standin_at(s, uid, a[0] + 2, a[2] + 3)
+    for c in (ca, cb):
+        m5(s, f"mill discover {c} {uid}", 0.5)
+    o = m5(s, f"ui open {uid}", 2)
+    check("G5-UI open: the snapshot has the nearest village as home and lists the known villages",
+          any("m5 ui home=" in l and "villages=" in l and "villages=0" not in l for l in o) and any("roundtrip=True" in l or "roundtrip=true" in l for l in o),
+          " | ".join(o[:3]))
+    sel = m5(s, f"ui select {uid} {cb}", 2)
+    acts = {m[1]: m[2] == "true" for l in sel for m in [re.search(r"action (\w+) available=(\w+)", l)] if m}
+    check("G5-UI selecting another village offers the four envoy kinds and war, all refused for a stranger (server verdict)",
+          all(k in acts for k in ("RECONCILE", "TRUCE", "ENCOURAGE", "SOW_DISCORD", "WAR_JOIN")) and not any(acts.values()), str(acts))
+    m5(s, f"mill rep {ca} {uid} adjust 5000")
+    m5(s, f"mill dpoints {ca} {uid} regen", 0.5)
+    m5(s, f"mill mrel {ca} {cb} set -40")
+    time.sleep(14)
+    sel2 = m5(s, f"ui select {uid} {cb}", 2)
+    rec = next((l for l in sel2 if "action RECONCILE" in l), "")
+    check("G5-UI once trusted, reconciliation is offered with an outcome band", "available=true" in rec and re.search(r"outcome=(likely|uncertain|unlikely)", rec),
+          rec)
+    sub = m5(s, f"ui submit {uid} {cb} RECONCILE", 2)
+    check("G5-UI submitting the intent goes through the same API as the command (envoy sent)", any("ok=true" in l and "code=OK" in l for l in sub), " | ".join(sub[:2]))
+    sub2 = m5(s, f"ui submit {uid} {cb} RECONCILE", 2)
+    check("G5-UI negative: the server re-validates (same pair again -> cooldown)", any("ok=false" in l and "PAIR_COOLDOWN" in l for l in sub2), " | ".join(sub2[:1]))
+    bogus = m5(s, f"ui submit {uid} {cb} GRANT_ME_EVERYTHING", 2)
+    check("G5-UI negative: an unknown intent is refused", any("UNKNOWN_ACTION" in l for l in bogus), " | ".join(bogus[:1]))
+    m5(s, f"standin remove {uid}", 0.3)
+    m5(s, f"standin add {uid} {b[0] + 400} {b[1] + 10} {b[2] + 400}", 1)
+    far = m5(s, f"ui submit {uid} {ca} ESCORT", 2)
+    check("G5-UI negative: a local request (escort) from far away is refused", any("TOO_FAR" in l or "ok=false" in l for l in far), " | ".join(far[:1]))
+    log_lines = s.read_since(s.start_pos)
+    bad = [l for l in log_lines if re.search(r"(NoClassDefFoundError|ClassNotFoundException|RuntimeException: Attempted to load class).*(client|Screen|Minecraft)", l)]
+    check("G5-UI the dedicated server never loads client classes", not bad, bad[0][:200] if bad else "")
+    m5(s, f"standin remove {uid}", 0.3)
+    m5(s, f"mill mrel {ca} {cb} set 0")
+
+
 SG_C3 = dict(perSlot={"WATCH": 2.0, "GUARD_POST": 2.25, "GARRISON": 2.5, "STRONGHOLD": 3.0},
              levyShare={"WATCH": 0.15, "GUARD_POST": 0.20, "GARRISON": 0.25, "STRONGHOLD": 0.30},
              infra={"BARRACKS": 8, "FORT_TOWNHALL": 8, "ARMOURY": 4, "TRAINING": 4, "GUARDHOUSE": 3, "WATCHTOWER": 3, "TOWER": 2, "GATE": 1},
@@ -4337,7 +4380,7 @@ def scenario_SG_6(ctx):
 
 
 ORDER_SG = ["status", "SG_0", "SG_1", "SG_2", "SG_3", "SG_4", "SG_5"]
-ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3", "G5_4", "G5_5", "G5_5b", "G5_6"]
+ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3", "G5_4", "G5_5", "G5_5b", "G5_6", "G5_UI"]
 
 
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
@@ -4349,7 +4392,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
-             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_4": scenario_G5_4, "G5_5": scenario_G5_5, "G5_5b": scenario_G5_5b, "G5_6": scenario_G5_6, "G5_G": scenario_G5_G,
+             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_4": scenario_G5_4, "G5_5": scenario_G5_5, "G5_5b": scenario_G5_5b, "G5_6": scenario_G5_6, "G5_UI": scenario_G5_UI, "G5_G": scenario_G5_G,
              "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
              "SG_5": scenario_SG_5, "SG_6": scenario_SG_6}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",

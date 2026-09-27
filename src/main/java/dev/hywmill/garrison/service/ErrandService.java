@@ -75,18 +75,24 @@ public final class ErrandService {
      */
     public static Grant request(ServerLevel overworld, VillageRecord rec, UUID player, Standing standing, Requests.Kind kind, int asked,
                                 int days, @Nullable BlockPos point, AlertState alert, PoliticsTables t) {
+        return request(overworld, rec, player, standing, kind, asked, days, point, alert, t, false);
+    }
+
+    /** With {@code dryRun} the village evaluates and nothing is lent or paid (the Politics screen's verdict). */
+    public static Grant request(ServerLevel overworld, VillageRecord rec, UUID player, Standing standing, Requests.Kind kind, int asked,
+                                int days, @Nullable BlockPos point, AlertState alert, PoliticsTables t, boolean dryRun) {
         GarrisonRoster r = rec.hywRoster;
         SettlementSource source = Services.settlements();
         UnitProvider units = Services.units();
         long now = overworld.getGameTime();
-        PoliticsRecord pr = rec.politics.get(player);
+        PoliticsRecord pr = dryRun ? java.util.Objects.requireNonNullElseGet(rec.politics.peek(player), PoliticsRecord::new) : rec.politics.get(player);
         boolean raidPreparing = (r != null && r.raid != null)
                 || (source != null && source.raidInfo(overworld, rec.villageId).map(i -> i.target() != null).orElse(false));
         List<UUID> spare = r == null || units == null ? List.of() : spare(overworld, r, DutyTableRaid.of(rec));
         double dist = point == null ? 0 : Math.sqrt(point.distSqr(rec.center));
         Requests.Offer offer = Requests.evaluate(kind, standing, asked, days, dist, alert == AlertState.CALM, raidPreparing, spare.size(),
                 recentCasualties(pr, now, t), pr.favor.points(), now, pr.lastRequestTick, t.requests());
-        if (!offer.ok() || r == null || units == null) {
+        if (!offer.ok() || r == null || units == null || dryRun) {
             return new Grant(offer, List.of());
         }
         pr.favor.spend(offer.favorCost());

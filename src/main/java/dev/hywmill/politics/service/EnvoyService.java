@@ -51,6 +51,11 @@ public final class EnvoyService {
     }
 
     public Proposal propose(ServerLevel overworld, UUID player, UUID from, UUID to, EnvoyKind kind) {
+        return propose(overworld, player, from, to, kind, false);
+    }
+
+    /** With {@code dryRun} every check runs and nothing is spent or sent (the Politics screen's verdict). */
+    public Proposal propose(ServerLevel overworld, UUID player, UUID from, UUID to, EnvoyKind kind, boolean dryRun) {
         SettlementSource source = Services.settlements();
         GarrisonLedger ledger = GarrisonLedger.get(overworld);
         VillageRecord a = ledger.get(from);
@@ -80,7 +85,7 @@ public final class EnvoyService {
             return new Proposal(refusal, null, "standing with " + a.name + " " + withA + ", with " + b.name + " " + withB
                     + ", relation " + relation.getAsInt() + (conflict ? ", raid under way" : ""));
         }
-        PoliticsRecord rec = a.politics.get(player);
+        PoliticsRecord rec = dryRun ? java.util.Objects.requireNonNullElseGet(a.politics.peek(player), PoliticsRecord::new) : a.politics.get(player);
         Long last = rec.lastProposal.get(to);
         if (last != null && now - last < r.pairCooldown()) {
             return new Proposal(DiplomacyOdds.Refusal.PAIR_COOLDOWN, null, "wait " + (r.pairCooldown() - (now - last)) + " ticks");
@@ -106,6 +111,13 @@ public final class EnvoyService {
             if (rec.favor.points() < favorCost) {
                 return new Proposal(DiplomacyOdds.Refusal.NO_FAVOR, null, "needs " + favorCost + " Favor with " + a.name + ", you have " + rec.favor.points());
             }
+        }
+        if (dryRun) {
+            OptionalInt points = source.diplomacyPoints(overworld, from, player);
+            if (points.isPresent() && points.getAsInt() <= 0) {
+                return new Proposal(DiplomacyOdds.Refusal.NO_DIPLOMACY_POINT, null, "no Millénaire diplomacy point left with " + a.name);
+            }
+            return new Proposal(DiplomacyOdds.Refusal.OK, null, favorCost > 0 ? "costs 1 diplomacy point and " + favorCost + " Favor" : "costs 1 diplomacy point");
         }
         if (!source.consumeDiplomacyPoint(overworld, from, player)) {
             return new Proposal(DiplomacyOdds.Refusal.NO_DIPLOMACY_POINT, null, "no Millénaire diplomacy point left with " + a.name);
