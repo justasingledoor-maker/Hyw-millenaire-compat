@@ -2400,6 +2400,64 @@ def scenario_G4_4(ctx):
           {k: (round(b[0]), round(b[1]), sorted(b[2])) for k, b in best.items()})
 
 
+# ---- M4 reliability recovery (stuck-unit fallback) events, from the server log (diagnostics) ----
+RX_STUCK = re.compile(r"\[(\d\d:\d\d:\d\d)\].*Duty unit ([0-9a-f]{8}) of village '([^']+)' \((\w+)\) made no progress towards "
+                      r"(-?\d+), (-?\d+), (-?\d+) for \d+ ticks at (-?\d+), (-?\d+), (-?\d+): stuck, falling back to (-?\d+), (-?\d+), (-?\d+)")
+RX_RECOVERED = re.compile(r"\[(\d\d:\d\d:\d\d)\].*Duty unit ([0-9a-f]{8}) of village '([^']+)' recovered at (-?\d+), (-?\d+), (-?\d+) \((walked back|last resort)")
+RX_ALLOC = re.compile(r"\[(\d\d:\d\d:\d\d)\].*Duties of village '([^']+)' \((\d+) available: .*? reserve\): \[(.*)\]\s*$")
+
+
+def fallback_events(lines):
+    """Parses stuck-unit fallback and allocation lines, in order. Returns (events, cycles):
+    events: dicts kind=stuck|recovered|alloc; cycles: per recovery, the unit's assignment before it went stuck, the
+    goal it failed to reach, how it was recovered, and its next assignment by the allocator (if any in these lines)."""
+    events, assign, pending, cycles = [], {}, {}, []
+    for l in lines:
+        m = RX_STUCK.search(l)
+        if m:
+            slot = m[2]
+            prev = assign.get((m[3], slot), (m[4], None))
+            pending[(m[3], slot)] = {"slot": slot, "village": m[3], "t_stuck": m[1], "duty": m[4], "prev": prev,
+                                     "goal": (int(m[5]), int(m[6]), int(m[7])), "at": (int(m[8]), int(m[9]), int(m[10]))}
+            events.append(dict(kind="stuck", t=m[1], slot=slot, village=m[3], duty=m[4]))
+            continue
+        m = RX_RECOVERED.search(l)
+        if m:
+            key = (m[3], m[2])
+            c = pending.pop(key, {"slot": m[2], "village": m[3], "t_stuck": None, "duty": "?", "prev": assign.get(key), "goal": None, "at": None})
+            c.update(t_recovered=m[1], how="teleport" if m[7].startswith("last") else "walked", next=None, t_next=None)
+            cycles.append(c)
+            assign[key] = ("GARRISON", -1)
+            events.append(dict(kind="recovered", t=m[1], slot=m[2], village=m[3], how=c["how"]))
+            continue
+        m = RX_ALLOC.search(l)
+        if m:
+            changes = []
+            for part in m[4].split(", "):
+                mm = re.match(r"([0-9a-f]{8}) (\w+)->(\w+)(?:#(-?\d+))?$", part.strip())
+                if mm:
+                    to = (mm[3], int(mm[4]) if mm[4] is not None else -1)
+                    changes.append((mm[1], mm[2], to))
+                    assign[(m[2], mm[1])] = to
+                    for c in cycles:
+                        if c["village"] == m[2] and c["slot"] == mm[1] and c["next"] is None:
+                            c["next"], c["t_next"] = to, m[1]
+            events.append(dict(kind="alloc", t=m[1], village=m[2], changes=changes))
+    for c in cycles:
+        p = c.get("prev")
+        c["same_post"] = bool(p and c.get("next") and p[1] is not None and c["next"] == (p[0], p[1]))
+    return events, cycles
+
+
+def moving_units(s, vs, radius=5):
+    """Units whose position is more than `radius` blocks from their HYW home (walking somewhere), per village."""
+    out = {}
+    for k, c in vs.items():
+        rows = duties(s, c)["rows"]
+        out[k] = sum(1 for r in rows if r["pos"] and r["home"] and hdist(r["pos"], r["home"]) > radius)
+    return out
+
+
 def g45_plan_diag(ctx, k, c, before, after, vinfo, bmil, amil, t_restart):
     """G4-5b diagnostics (harness only; nothing here affects the check): everything known about a village whose duty
     plan differs across the restart. Post roles and the layout key are not exposed by any command (they would need a
@@ -2439,13 +2497,33 @@ def scenario_G4_5(ctx):
     """Duties survive a restart: same assignments, same posts and routes, no duplicates."""
     s = ctx.s
     vs = g4_villages(ctx)
+    p_reads = s.pos()
     before = {k: duties(s, c) for k, c in vs.items()}
     bmil = {k: military(s, c) for k, c in vs.items()}
     t_restart = time.strftime("%H:%M:%S")
     restart(ctx)
     time.sleep(60)
     after = {k: duties(s, c) for k, c in vs.items()}
-    same = {k: assignments(before[k]) == {sl: v for sl, v in assignments(after[k]).items() if sl in assignments(before[k])} for k in vs}
+    # approved (G4-5a): units the stuck-unit fallback actually recovered between the two reads are left out of the
+    # comparison (a legitimate change of duty); every other unit is compared exactly as before
+    _, cycles = fallback_events(s.read_since(p_reads))
+    names = {k: next((l.split("== Duties of ", 1)[1].split(" (")[0] for l in before[k]["lines"] if l.startswith("== Duties of ")), "?") for k in vs}
+    excluded = {k: {c["slot"]: c for c in cycles if c["village"] == names[k]} for k in vs}
+    same = {}
+    for k in vs:
+        b, a = assignments(before[k]), assignments(after[k])
+        ex = excluded[k]
+        for sl, c in ex.items():
+            note(f"G4-5a excluded {k}", f"unit {sl} (short id; the roster shows 8 characters) was {b.get(sl)} at the first read; "
+                                        f"stuck at {c.get('t_stuck')} going to {c.get('goal')}, recovered by the stuck-unit fallback at "
+                                        f"{c['t_recovered']} ({c['how']}); after the restart {a.get(sl)}. Reason: recovered between the reads")
+        same[k] = {sl: v for sl, v in b.items() if sl not in ex} == {sl: v for sl, v in a.items() if sl in b and sl not in ex}
+        if not same[k]:
+            vacated = {b.get(sl) for sl in ex}
+            for sl, v in b.items():
+                if sl not in ex and a.get(sl, v) != v:
+                    note(f"G4-5a mismatch {k}", f"unit {sl}: {v} -> {a.get(sl)}" + (" (took a post vacated by an excluded unit)"
+                                                                                  if a.get(sl) in vacated else ""))
     plans = {k: (before[k].get("posts"), before[k].get("patrol"), before[k].get("scoutposts")) ==
                 (after[k].get("posts"), after[k].get("patrol"), after[k].get("scoutposts")) for k in vs}
     check("G4-5a duty assignments are identical after a restart", all(same.values()), same)
@@ -2606,17 +2684,78 @@ def scenario_G4_10(ctx):
           {k: rows.get(k) for k in ("duty.tick", "duty.layout", "raid.tick", "tick.total")})
 
 
+def g4p_diag(ctx, vs, win):
+    """G4-P diagnostics (approved; nothing here affects the check): stuck-unit fallback and reallocation activity in
+    the timed duties-on window, and over the whole run the cycle unreachable post -> stuck -> fallback -> GARRISON ->
+    allocator -> same post."""
+    s = ctx.s
+    run = s.read_since(getattr(ctx, "run_log_pos", 0))
+    events, cycles = fallback_events(run)
+    wl = s.read_since(win["p0"])
+    wl = wl[:max(0, len(wl) - len(s.read_since(win["p1"])))]
+    wev, _ = fallback_events(wl)
+    stuck = [e for e in wev if e["kind"] == "stuck"]
+    rec = [e for e in wev if e["kind"] == "recovered"]
+    allocs = [e for e in wev if e["kind"] == "alloc"]
+    changes = [(e["village"], c) for e in allocs for c in e["changes"]]
+    # units in recovery at the window's start and end (entered before, not yet recovered)
+    def in_recovery(upto):
+        n = {}
+        for e in events:
+            if e["t"] > upto:
+                break
+            if e["kind"] == "stuck":
+                n[(e["village"], e["slot"])] = 1
+            elif e["kind"] == "recovered":
+                n.pop((e["village"], e["slot"]), None)
+        return sorted(sl for _, sl in n)
+    note("G4-P diag window", f"duties-on window {win['t0']}-{win['t1']}: entering recovery {len(stuck)} {[(e['slot'], e['duty']) for e in stuck]}; "
+                             f"recovered {len(rec)} (teleports {sum(1 for e in rec if e['how'] == 'teleport')}, walked "
+                             f"{sum(1 for e in rec if e['how'] == 'walked')}); allocation passes {len(allocs)}, duty reassignments "
+                             f"{len(changes)}; in recovery at start {in_recovery(win['t0'])}, at end {in_recovery(win['t1'])}")
+    note("G4-P diag moving units", f"more than 5 blocks from their HYW home, just before the window {win.get('moving_start')}, "
+                                   f"just after {win.get('moving_end')}")
+    if changes:
+        note("G4-P diag window reassignments", "; ".join(f"{v}: {sl} {fr}->{to[0]}#{to[1]}" for v, (sl, fr, to) in changes[:60]))
+    # whole run: the cycle hypothesis
+    same = [c for c in cycles if c["same_post"]]
+    reassigned = [c for c in cycles if c.get("next")]
+    note("G4-P diag cycles (whole run)", f"{len(cycles)} recoveries ({sum(1 for c in cycles if c['how'] == 'teleport')} teleports); "
+                                         f"{len(reassigned)} reassigned afterwards; {len(same)} back to the same post")
+    posts = {}
+    for k, c in vs.items():
+        d = duties(s, c)
+        name = next((l.split("== Duties of ", 1)[1].split(" (")[0] for l in d["lines"] if l.startswith("== Duties of ")), "?")
+        posts[name] = d.get("posts") or []
+    for c in cycles:
+        p, n = c.get("prev"), c.get("next")
+        newpost = posts.get(c["village"], [])[n[1]] if n and n[0] == "SENTRY" and 0 <= n[1] < len(posts.get(c["village"], [])) else None
+        note("G4-P diag cycle", f"{c['village']} unit {c['slot']}: {p[0] if p else '?'}#{p[1] if p else '?'} stuck {c['t_stuck']} at {c['at']} "
+                                f"towards {c['goal']}; recovered {c['t_recovered']} ({c['how']}); next {n} at {c.get('t_next')}"
+                                + (f" (post {newpost})" if newpost else "") + ("; SAME POST" if c["same_post"] else ""))
+
+
 def scenario_G4_perf(ctx):
     """Like-for-like cost: 120 s CALM with M4 duties off, then 120 s with them on, same world and units."""
     s = ctx.s
     res = {}
+    vs = g4_villages(ctx)
+    win = {}
     for state in ("off", "on"):
         s.output(f"hywmill dev duties {state}", 1)
         time.sleep(20)
+        if state == "on":
+            win["moving_start"] = moving_units(s, vs)  # sampled outside the timed window
+        p0 = s.pos()
+        t0 = time.strftime("%H:%M:%S")
         s.cmd("hywmill perf reset", 1)
         time.sleep(120)
         res[state] = perf_rows(s.output("hywmill perf", 2))
+        if state == "on":
+            win.update(p0=p0, p1=s.pos(), t0=t0, t1=time.strftime("%H:%M:%S"))
+            win["moving_end"] = moving_units(s, vs)
         log(f"G4 perf duties {state}:\n  " + "\n  ".join(f"{k}: {v}" for k, v in res[state].items()))
+    g4p_diag(ctx, vs, win)
     t_off, t_on = res["off"].get("tick.total", {}), res["on"].get("tick.total", {})
     check("G4-P calm tick cost with duties on stays comparable to duties off (mean within +50 us)",
           t_off and t_on and t_on["mean"] <= t_off["mean"] + 50,

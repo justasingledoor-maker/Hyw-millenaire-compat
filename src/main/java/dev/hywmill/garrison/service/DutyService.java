@@ -200,6 +200,7 @@ public final class DutyService {
                     HmLog.diag("Duty unit {} of village '{}' was trapped; moved onto its {} spot {}", e.shortId(), rec.name, e.assignedDuty, alt.toShortString());
                 } else if (alt == null && DutyMotion.horizontal(ent.getX(), ent.getZ(), goal) <= 24) {
                     alt = stand(level, ent.blockPosition());
+                    holdDiag(level, rec, e, ent, goal, home, last, attempt, alt);
                 }
                 if (alt != null) {
                     units.setHome(ent, alt);
@@ -466,6 +467,56 @@ public final class DutyService {
             }
         }
         return null;
+    }
+
+    /** G4-2 diagnostic: holds farther than this from the spot are logged (the G4-2 acceptance radius). */
+    static final double HOLD_DIAG_MIN = 10;
+
+    /**
+     * G4-2 diagnostic only (approved; no behaviour change): a static-duty unit that did not reach its spot is being
+     * left holding where it is, 10-24 blocks from the spot (inside M4's 24-block hold radius). Logs why the M4 steps
+     * before the hold did not put it on the spot. Re-evaluates the same pure checks; moves nothing.
+     */
+    private static void holdDiag(ServerLevel level, VillageRecord rec, RosterEntry e, Entity ent, BlockPos goal, BlockPos home, long[] last,
+                                 int attempt, @Nullable BlockPos hold) {
+        double d = DutyMotion.horizontal(ent.getX(), ent.getZ(), goal);
+        if (d <= HOLD_DIAG_MIN) {
+            return;
+        }
+        boolean trapped = trapped(ent, last);
+        String around = attempt <= 3 ? "no standable ground around the spot at radius " + (2 + 2 * attempt) + " (attempt " + attempt + ")"
+                : "ground around the spot already tried (attempts 1-3), attempt " + attempt;
+        BlockPos candidate = null;
+        String recovery;
+        if (trapped || attempt == 4) {
+            candidate = recoverySpot(ent.getX(), ent.getY(), ent.getZ(), stand(level, goal), goal, q -> stand(level, q));
+            recovery = "move onto the spot refused: " + unstickRefusal(level, ent, candidate);
+        } else {
+            recovery = "move onto the spot not attempted (only on attempt 4 or when trapped; the unit moved more than 2 blocks since its last order)";
+        }
+        HmLog.info("M4 hold diag: unit {} (entity {}) of village '{}' on {}#{} at {} is {} blocks from its spot {} (inside the 24-block hold "
+                        + "radius: true); did not reach its home {} ({} blocks away) within the hop timeout (reachability: HYW path not completed; "
+                        + "M4 does not query the path); {}; {}; recovery candidate: {}; holding at {}",
+                e.rosterId, ent.getUUID(), rec.name, e.assignedDuty, e.dutyIndex, ent.blockPosition().toShortString(), String.format("%.1f", d),
+                goal.toShortString(), home.toShortString(), String.format("%.1f", DutyMotion.horizontal(ent.getX(), ent.getZ(), home)), around,
+                recovery, candidate == null ? "none" : candidate.toShortString(), hold == null ? "(no standable ground here)" : hold.toShortString());
+    }
+
+    /** Why {@link #unstick} refuses {@code spot} (diagnostics; the same checks, in the same order). */
+    static String unstickRefusal(ServerLevel level, Entity ent, @Nullable BlockPos spot) {
+        if (spot == null) {
+            return "no standable, loaded ground at or near the spot";
+        }
+        if (DutyMotion.horizontal(ent.getX(), ent.getZ(), spot) > UNSTICK_MAX) {
+            return "candidate more than 40 blocks away";
+        }
+        if (!level.isPositionEntityTicking(spot)) {
+            return "candidate not in an entity-ticking chunk";
+        }
+        if (!standable(level, spot)) {
+            return "candidate not standable";
+        }
+        return "none: the candidate was valid (the move was not refused by unstick)";
     }
 
     /** Standable, loaded, safe ground at or near {@code p} for {@code ent} (M4 reliability recovery fallback spots); else null. */
