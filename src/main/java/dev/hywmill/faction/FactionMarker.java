@@ -15,8 +15,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Gives settlement residents their village's synthetic HYW relation identity through HYW's own
- * per-entity identity marker. The villager's real entity UUID is never changed.
+ * Gives settlement residents their village's synthetic HYW <b>resident</b> identity
+ * ({@link FactionIds#residentsOf}) through HYW's own per-entity identity marker. The villager's real
+ * entity UUID is never changed.
+ *
+ * <p>M5 (Option 1): residents no longer carry the faction identity the garrison owns. HywMill keeps
+ * resident and faction identities permanently FRIENDLY (see {@link ResidentAlliance}), which gives the
+ * same mutual protection the shared identity gave, while wars and outlawry projected on the faction
+ * never make residents HYW relation targets. Markers written by earlier versions (the faction UUID)
+ * are migrated by the normal join/sweep path.
  *
  * <p>Raid clones are deliberately left UNMARKED: a Millénaire raid clone is registered to the
  * TARGET village, and marking it with the target's faction would make HYW cancel damage between
@@ -27,6 +34,8 @@ public final class FactionMarker {
     public static final String C_FIXED_BY_SWEEP = "identity.fixedBySweep";
     public static final String C_RAIDERS_SKIPPED = "identity.raidersSkipped";
     public static final String C_CLEARED = "identity.cleared";
+    /** M5: residents re-marked from the pre-M5 faction identity to the resident identity. */
+    public static final String C_MIGRATED = "identity.migratedToResidents";
 
     private FactionMarker() {}
 
@@ -59,13 +68,11 @@ public final class FactionMarker {
             return Outcome.RAIDER_UNMARKED;
         }
         UUID faction = rt.factions().register(r.settlementId());
-        java.util.function.Function<UUID, UUID> spike = rt.residentIdentityForSpike();
-        if (spike != null) {
-            faction = spike.apply(r.settlementId()); // M5-0 spike only; null by default
-        }
+        UUID residents = FactionIds.residentsOf(r.settlementId());
         UUID current = factions.markedIdentity(entity);
         if (!HywMillConfig.MARK_VILLAGERS.get() || isCleared(entity, r.settlementId())) {
-            if (current != null && (current.equals(faction) || rt.factions().isVillageFaction(current))) {
+            // either of our identities (the resident identity, or a pre-M5 faction marker)
+            if (current != null && (current.equals(residents) || current.equals(faction) || rt.factions().isVillageIdentity(current))) {
                 factions.clearIdentity(entity);
                 rt.increment(C_CLEARED);
                 HmLog.diag("Villager faction identity removed: {} ({}) of village {} (marker was {})",
@@ -74,12 +81,15 @@ public final class FactionMarker {
             }
             return Outcome.DISABLED;
         }
-        if (faction.equals(current)) {
+        if (residents.equals(current)) {
             return Outcome.ALREADY_MARKED;
         }
-        factions.markIdentity(entity, faction);
-        HmLog.diag("Villager faction identity assigned: {} ({}) -> faction {} of village {} (previous marker: {})",
-                entity.getUUID(), r.typeId(), faction, r.settlementId(), current);
+        factions.markIdentity(entity, residents);
+        if (faction.equals(current)) {
+            rt.increment(C_MIGRATED);
+        }
+        HmLog.diag("Villager resident identity assigned: {} ({}) -> residents {} of village {} (previous marker: {})",
+                entity.getUUID(), r.typeId(), residents, r.settlementId(), current);
         return Outcome.MARKED;
     }
 

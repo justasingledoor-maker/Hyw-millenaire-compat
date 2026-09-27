@@ -30,13 +30,14 @@ import java.util.UUID;
  * One village's entry in our own ledger. Never written into Millénaire's files.
  *
  * <p>Format history: 1 = M1 (patrol-tag/keyword classification); 2 = M1.1 (role tables);
- * 3 = M2 (military profile, controller, doctrine override, defense statistics). Records loaded
+ * 3 = M2 (military profile, controller, doctrine override, defense statistics); 4 = M3 (garrison
+ * roster); 5 = M5 (politics: per-player records and truces, optional). Records loaded
  * from an older format keep their identity, history and (from format 2) their role counts, and
  * are flagged {@link #needsRecompute}, so their derived values are recomputed at the next update
  * even if the village is inactive. New fields start empty; nothing is discarded.
  */
 public final class VillageRecord {
-    public static final int FORMAT = 4;
+    public static final int FORMAT = 5;
 
     public final UUID villageId;
     public UUID factionId;
@@ -81,6 +82,9 @@ public final class VillageRecord {
      * lastAccrualTick = that tick) is created. {@link #garrison} stays the Millénaire soldier count.
      */
     @Nullable public GarrisonRoster hywRoster;
+    // ---- format 5 (M5) ----
+    /** Political memory of this village (players, truces). Written only when non-empty; absent in format 4. */
+    public dev.hywmill.politics.VillagePolitics politics = new dev.hywmill.politics.VillagePolitics();
 
     public boolean needsRecompute;
     /** Not persisted: resolved-doctrine cache (see GarrisonUpdater.resolveDoctrine). */
@@ -204,6 +208,9 @@ public final class VillageRecord {
         if (hywRoster != null) {
             t.put("hywRoster", hywRoster.save());
         }
+        if (!politics.isEmpty()) {
+            t.put("politics", PoliticsNbt.save(politics));
+        }
         return t;
     }
 
@@ -296,6 +303,9 @@ public final class VillageRecord {
         }
         if (format >= 4 && t.contains("hywRoster", Tag.TAG_COMPOUND)) {
             r.hywRoster = GarrisonRoster.load(t.getCompound("hywRoster"), r.lastUpdateTick);
+        }
+        if (format >= 5 && t.contains("politics", Tag.TAG_COMPOUND)) {
+            r.politics = PoliticsNbt.load(t.getCompound("politics"));
         }
         return r;
     }

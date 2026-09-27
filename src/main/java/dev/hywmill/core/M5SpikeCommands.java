@@ -70,16 +70,6 @@ final class M5SpikeCommands {
                     return 1;
                 })));
         m5.then(Commands.literal("resident")
-                .then(Commands.literal("on").executes(ctx -> {
-                    HywMillRuntime.require().setResidentIdentityForSpike(M5SpikeCommands::residentsOf);
-                    HywMillCommands.send(ctx.getSource(), "m5 resident identity ON (spike, not persisted)");
-                    return 1;
-                }))
-                .then(Commands.literal("off").executes(ctx -> {
-                    HywMillRuntime.require().setResidentIdentityForSpike(null);
-                    HywMillCommands.send(ctx.getSource(), "m5 resident identity OFF (M1.1 faction identity)");
-                    return 1;
-                }))
                 .then(Commands.literal("id").then(Commands.argument("village", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
                         .executes(ctx -> {
                             dev.hywmill.settlement.SettlementSource src = Services.settlements();
@@ -89,8 +79,8 @@ final class M5SpikeCommands {
                             if (ref.isEmpty()) {
                                 return 0;
                             }
-                            HywMillCommands.send(ctx.getSource(), "m5 resident id " + residentsOf(ref.get().id()) + " faction "
-                                    + dev.hywmill.faction.FactionIds.forVillage(ref.get().id()));
+                            HywMillCommands.send(ctx.getSource(), "m5 resident id " + dev.hywmill.faction.FactionIds.residentsOf(ref.get().id())
+                                    + " faction " + dev.hywmill.faction.FactionIds.forVillage(ref.get().id()));
                             return 1;
                         }))));
         for (Supplier<LiteralArgumentBuilder<CommandSourceStack>> sub : Services.spikeCommands()) {
@@ -208,11 +198,6 @@ final class M5SpikeCommands {
         HywMillCommands.send(src, "m5 threat " + e.getUUID().toString().substring(0, 8) + " village=" + ref.get().name()
                 + " alert=" + rt.defense().state(ref.get().id()));
         return 1;
-    }
-
-    /** Option 1 candidate: a deterministic per-village resident identity (spike namespace). */
-    static UUID residentsOf(UUID village) {
-        return UUID.nameUUIDFromBytes(("hywmill:m5spike_residents:" + village).getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     /** Test policy: permits permanent HOSTILE only for the listed (faction, other) pairs, either order. */

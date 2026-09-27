@@ -1,0 +1,105 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario S5_0
+[harness] PASS S5-0 both garrisons alive, factions known A 43c5b64b-0cdc-3f42-b7df-b6787efb11fb 8 units; B b27c499a-e53f-3dbd-be89-ed13d0f6ab9c 3 units
+[harness] --- scenario S5_P
+[harness] PASS S5-P village info reports the resident identity 9e9c4f1d-adeb-37ef-b68c-99db0df30583
+[harness] PASS S5-P residents carry the resident identity m5 ident fdd3b21a-5e0f-4a19-b0dd-610db38fe1db rel=9e9c4f1d-adeb-37ef-b68c-99db0df30583 owner=null team=null describe=9e9c4f1d-adeb-37ef-b68c-99db0df30583
+[harness] PASS S5-P the mod keeps resident<->faction FRIENDLY in both directions ('FRIENDLY', 'FRIENDLY')
+[harness] PASS S5-P a broken alliance is repaired by reconciliation after reset -> ('FRIENDLY', 'FRIENDLY')
+[harness] PASS S5-P with a political cause: faction HOSTILE kept, resident-identity HOSTILE reverted faction ('HOSTILE', 'HOSTILE'); residents ('NEUTRAL', 'NEUTRAL')
+[harness] PASS S5-P a resident identity can never stand HOSTILE, even if a policy would permit it ('NEUTRAL', 'NEUTRAL')
+[harness] PASS S5-P an unmarked (or pre-M5) resident is re-marked with the resident identity by the sweep m5 ident fdd3b21a-5e0f-4a19-b0dd-610db38fe1db rel=null owner=null team=null describe=unknown -> m5 ident fdd3b21a-5e0f-4a19-b0dd-610db38fe1db rel=9e9c4f1d-adeb-37ef-b68c-99db0df30583 owner=null team=null describe=9e9c4f1d-adeb-37ef-b68c-99db0df30583
+[harness] NOTE S5-P identity counters: identities: markedOnJoin=55 migratedToResidents=0 allianceWrites=6 fixedBySweep=1 raidersSkipped=0 escalation guard: detected=7 reverted=2 identity clearance: markVillagers=true clearedAll=false clearedVillages=0 markersRemoved=0
+[harness] --- scenario S5_V
+[harness] NOTE S5-V civilian identity: m5 ident fdd3b21a-5e0f-4a19-b0dd-610db38fe1db rel=9e9c4f1d-adeb-37ef-b68c-99db0df30583 owner=null team=null describe=9e9c4f1d-adeb-37ef-b68c-99db0df30583
+[harness] NOTE S5-V defender identity: m5 ident 9acc431b-4ac6-469a-a8f4-40313d6fd33b rel=9e9c4f1d-adeb-37ef-b68c-99db0df30583 owner=null team=null describe=9e9c4f1d-adeb-37ef-b68c-99db0df30583
+[harness] NOTE S5-V NEUTRAL: player unit -> civilian, defender: m5 valid d115b63f->fdd3b21a valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null || m5 valid d115b63f->9acc431b valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] NOTE S5-V HOSTILE: player unit -> civilian, defender: m5 valid d115b63f->fdd3b21a valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null || m5 valid d115b63f->9acc431b valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] PASS S5-V (Option 1) under player<->faction HOSTILE a marked CIVILIAN is NOT a valid target (resident identity) m5 valid d115b63f->fdd3b21a valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] PASS S5-V (Option 1) under player<->faction HOSTILE a marked DEFENDER is NOT a relation target m5 valid d115b63f->9acc431b valid=false enemy=false protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] PASS S5-V (Option 1) under player<->faction HOSTILE the garrison IS a valid target m5 valid d115b63f->83d623a4 valid=true enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] NOTE S5-V unmarked civilian: m5 unmark e6b358ec-7fc0-4bbf-93a1-7a9f894aeb80 rel=null participant=false || m5 valid d115b63f->e6b358ec valid=false enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] PASS S5-V an UNMARKED civilian is not a relation participant and not a valid target under HOSTILE m5 unmark e6b358ec-7fc0-4bbf-93a1-7a9f894aeb80 rel=null participant=false || m5 valid d115b63f->e6b358ec valid=false enemy=true protected=false cancelDamage=false ignoreCollision=false temp=false strategy=DEFAULT target=null
+[harness] NOTE S5-V unmarked civilian 25 s later (M1.1 marker lifecycle): m5 ident e6b358ec-7fc0-4bbf-93a1-7a9f894aeb80 rel=9e9c4f1d-adeb-37ef-b68c-99db0df30583 owner=null team=null describe=9e9c4f1d-adeb-37ef-b68c-99db0df30583
+[harness] PASS S5-V the marker lifecycle re-marks with the resident identity m5 ident e6b358ec-7fc0-4bbf-93a1-7a9f894aeb80 rel=9e9c4f1d-adeb-37ef-b68c-99db0df30583 owner=null team=null describe=9e9c4f1d-adeb-37ef-b68c-99db0df30583 residents 9e9c4f1d-adeb-37ef-b68c-99db0df30583
+[harness] NOTE S5-V garrison unit -> unmarked civilian (friendly-fire protection without a marker): m5 valid 83d623a4->e6b358ec valid=false enemy=false protected=true cancelDamage=true ignoreCollision=true temp=false strategy=DEFAULT target=null
+[harness] NOTE S5-V garrison unit -> marked civilian: m5 valid 83d623a4->fdd3b21a valid=false enemy=false protected=true cancelDamage=true ignoreCollision=true temp=false strategy=DEFAULT target=null
+[harness] --- scenario S5_B
+[harness] NOTE S5-B garrison unit used as the meeting point (outdoors): 83d623a4-7679-30d7-b651-986531236e81 (650, 82, 639)
+[harness] NOTE S5-B stand-in player: m5 standin added 11111111-2222-4333-8444-555555555555 at 662, 80, 639 health=20.0 creative=false players=1
+[harness] NOTE S5-B unit strategy as summoned: m5 strategy 00973364 FREE_FIGHT
+[harness] NOTE S5-B unit strategy as summoned: m5 strategy 47a56085 FREE_FIGHT
+[harness] NOTE S5-B unit strategy as summoned: m5 strategy a10de475 FREE_FIGHT
+[harness] NOTE S5-B unit strategy as summoned: m5 strategy 1a80bb1c FREE_FIGHT
+[harness] NOTE S5-B garrison unit strategies (M3 sets DEFAULT): ['m5 strategy 83d623a4 DEFAULT', 'm5 strategy bc633c08 DEFAULT', 'm5 strategy 909a2958 DEFAULT']
+[harness] PASS S5-B all units in the test use the DEFAULT strategy ['m5 strategy 83d623a4 DEFAULT', 'm5 strategy bc633c08 DEFAULT', 'm5 strategy 909a2958 DEFAULT']
+[harness] PASS S5-B baseline (NEUTRAL): player units and garrison do not target each other [None, None, None, None, None, None, None, None, None, None, None]
+[harness] NOTE S5-B target counts over 40 s (samples of every unit's current HYW target): {'pu->garr': 4, 'garr->pu': 4, 'garr->player': 8, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] NOTE S5-B stand-in player health over time: [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 4.0, 4.0, 4.0, 4.0]
+[harness] NOTE S5-B trace 0: {'player units': [('hundred_years_war:spear_man[83d623a4]', ''), ('hundred_years_war:spear_man[83d623a4]', ''), ('hundred_years_war:spear_man[83d623a4]', '')], 'villagers with a target': [('4e6b506e', 'DEFENDER', 'spear_man'), ('616766f0', 'DEFENDER', 'spear_man'), ('03ccea55', 'DEFENDER', 'spear_man'), ('4328712d', 'DEFENDER', 'spear_man'), ('176e9a43', 'DEFENDER', 'spear_man'), ('3ba5936e', 'DEFENDER', 'spear_man'), ('8d83c707', 'DEFENDER', 'spear_man'), ('6f87ab91', 'DEFENDER', 'spear_man'), ('c969ea7e', 'DEFENDER', 'spear_man')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 1: {'player units': [('hundred_years_war:spear_man[83d623a4]', '')], 'villagers with a target': [('4e6b506e', 'DEFENDER', 'spear_man'), ('4328712d', 'DEFENDER', 'spear_man'), ('3ba5936e', 'DEFENDER', 'spear_man')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 2: {'player units': [], 'villagers with a target': [('3bb64d45', 'DEFENDER', 'archer'), ('176e9a43', 'DEFENDER', 'archer'), ('a8707344', 'DEFENDER', 'archer')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 3: {'player units': [], 'villagers with a target': [('3bb64d45', 'DEFENDER', 'archer'), ('176e9a43', 'DEFENDER', 'archer'), ('a8707344', 'DEFENDER', 'archer')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 4: {'player units': [], 'villagers with a target': [('3bb64d45', 'DEFENDER', 'archer'), ('176e9a43', 'DEFENDER', 'archer'), ('a8707344', 'DEFENDER', 'archer')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 5: {'player units': [], 'villagers with a target': [('3bb64d45', 'DEFENDER', 'archer'), ('176e9a43', 'DEFENDER', 'archer'), ('a8707344', 'DEFENDER', 'archer')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 6: {'player units': [], 'villagers with a target': [('3bb64d45', 'DEFENDER', 'archer'), ('176e9a43', 'DEFENDER', 'archer'), ('a8707344', 'DEFENDER', 'archer')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 7: {'player units': [], 'villagers with a target': [('3bb64d45', 'DEFENDER', 'archer'), ('176e9a43', 'DEFENDER', 'archer'), ('a8707344', 'DEFENDER', 'archer')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 8: {'player units': [], 'villagers with a target': [('3bb64d45', 'DEFENDER', 'archer'), ('176e9a43', 'DEFENDER', 'archer'), ('a8707344', 'DEFENDER', 'archer')], 'alert': 'ENGAGED'}
+[harness] NOTE S5-B trace 9: {'player units': [], 'villagers with a target': [('3bb64d45', 'DEFENDER', 'archer'), ('176e9a43', 'DEFENDER', 'archer'), ('a8707344', 'DEFENDER', 'archer')], 'alert': 'ENGAGED'}
+[harness] PASS S5-B player's units attack the enemy garrison (DEFAULT) {'pu->garr': 4, 'garr->pu': 4, 'garr->player': 8, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] PASS S5-B enemy garrison attacks the player's units {'pu->garr': 4, 'garr->pu': 4, 'garr->player': 8, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] PASS S5-B enemy garrison attacks the player (stand-in: targeted or damaged) 8 target samples; hp [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 4.0, 4.0, 4.0, 4.0]
+[harness] PASS S5-B civilian villagers are never selected as targets by the player's units {'pu->garr': 4, 'garr->pu': 4, 'garr->player': 8, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] NOTE S5-B villager (any role) targeted by the player's units, samples: 0
+[harness] PASS S5-B unrelated third party is neither targeted nor targeting {'pu->garr': 4, 'garr->pu': 4, 'garr->player': 8, 'pu->villager': 0, 'pu->civilian': 0, 'any->third': 0, 'third->any': 0, 'samples': 10}
+[harness] FAIL S5-B isValidTarget(player unit -> civilian villager) is false while HOSTILE 
+[harness] --- scenario S5_N
+[harness] NOTE S5-N trace 0: {'A units': [('hundred_years_war:militia[6f0acd8b]', ''), ('hundred_years_war:militia[6f0acd8b]', '')], 'B villagers with a target': [('9bc25b9c', 'DEFENDER', 'archer'), ('31f85db7', 'DEFENDER', 'spear_man'), ('a8eebbcb', 'DEFENDER', 'archer'), ('f907ca57', 'DEFENDER', 'archer'), ('462f6865', 'DEFENDER', 'spear_man'), ('bf13ce79', 'DEFENDER', 'archer'), ('eb37219f', 'DEFENDER', 'archer')]}
+[harness] NOTE S5-N trace 1: {'A units': [('hundred_years_war:militia[6f0acd8b]', '')], 'B villagers with a target': [('9bc25b9c', 'DEFENDER', 'archer'), ('a8eebbcb', 'DEFENDER', 'archer'), ('f907ca57', 'DEFENDER', 'archer'), ('eb37219f', 'DEFENDER', 'archer')]}
+[harness] NOTE S5-N trace 2: {'A units': [], 'B villagers with a target': []}
+[harness] NOTE S5-N trace 3: {'A units': [], 'B villagers with a target': []}
+[harness] NOTE S5-N trace 4: {'A units': [], 'B villagers with a target': []}
+[harness] NOTE S5-N trace 5: {'A units': [], 'B villagers with a target': []}
+[harness] NOTE S5-N trace 6: {'A units': [], 'B villagers with a target': []}
+[harness] NOTE S5-N trace 7: {'A units': [], 'B villagers with a target': []}
+[harness] NOTE S5-N counts: {'a->b': 3, 'b->a': 3, 'a->villager': 0, 'a->civilian': 0}
+[harness] NOTE S5-N village B alert samples: ['ENGAGED', 'ENGAGED', 'RECOVERY', 'RECOVERY', 'RECOVERY', 'CALM', 'CALM', 'CALM']
+[harness] PASS S5-N faction<->faction HOSTILE stored both ways ('HOSTILE', 'HOSTILE')
+[harness] PASS S5-N the two garrisons fight each other {'a->b': 3, 'b->a': 3, 'a->villager': 0, 'a->civilian': 0}
+[harness] PASS S5-N A's units never target B's civilians {'a->b': 3, 'b->a': 3, 'a->villager': 0, 'a->civilian': 0}
+[harness] NOTE S5-N B villagers (any role) targeted by A's units, samples: 0
+[harness] PASS S5-N B's M2 sees A's units as threats (HYW_ENEMY) ['ENGAGED', 'ENGAGED', 'RECOVERY', 'RECOVERY', 'RECOVERY', 'CALM', 'CALM', 'CALM']
+[harness] --- scenario S5_W
+[harness] NOTE S5-W field: (630, 442) ticking=True top=71 water=False; A centre (630, 82, 612), distance 170
+[harness] NOTE S5-W player units vs garrison: (player units targeting garrison, garrison targeting player units, player units alive): baseline [(0, 0, 3), (0, 0, 3), (0, 0, 3)] | HOSTILE [(3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3)] | after NEUTRAL (4 s steps) [(0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3)]
+[harness] PASS S5-W field: under HOSTILE the player's units and the garrison target each other (DEFAULT) [(3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3), (3, 3, 3)]
+[harness] PASS S5-W field: baseline NEUTRAL, no mutual targeting [(0, 0, 3), (0, 0, 3), (0, 0, 3)]
+[harness] PASS S5-W field: 16 s after both directions are NEUTRAL there is no residual targeting (units alive) [(0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3), (0, 0, 3)]
+[harness] NOTE S5-W faction vs faction: (A targeting B, B targeting A): baseline 0 | HOSTILE [(3, 3), (3, 3), (3, 3), (3, 3), (3, 2), (3, 2), (3, 2), (3, 2)]
+[harness] PASS S5-W field: two village garrisons at war (faction HOSTILE) fight each other [(3, 3), (3, 3), (3, 3), (3, 3), (3, 2), (3, 2), (3, 2), (3, 2)]
+[harness] --- scenario D
+[harness] PASS D3-4 HYW temporary retaliation after player hits [True, True, True]
+[harness] PASS D5 village <-> player stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS D5 village <-> unit owner stays NEUTRAL ('NEUTRAL', 'NEUTRAL')
+[harness] PASS D5-b a civilian to hit 
+[harness] PASS D5-b HYW escalated to HOSTILE on same-tick hits fake player hit fdd3b21a-5e0f-4a19-b0dd-610db38fe1db hurt=true tempHostile(unit->fakePlayer)=false unitTarget=none relation(target->fakePlayer)=HOSTILE
+[harness] PASS D5-b reconciliation reset it to NEUTRAL within 200 ticks (faction and resident identity) faction ('NEUTRAL', 'NEUTRAL'); residents ('NEUTRAL', 'NEUTRAL'); [01:09:59] [Server thread/WARN] [de.hy.co.HmLog/]: [hywmill] Permanent HYW HOSTILE between village faction 9e9c4f1d-adeb-37ef-b68c-99db0df30583 and 5f1c7d5e-0000-4000-8000-00000000beef (found by reconciliation (resident identity)); reset to NEUTRAL (preventPermanentEscalation=true). HYW temporary retaliation is unaffected.
+[harness] --- scenario D5b
+[harness] server stopped
+Traceback (most recent call last):
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 4094, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 4090, in main
+    return 0 if run(a.dir, a.scenarios, fresh=not a.keep_world) else 1
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 3783, in run
+    SCENARIOS[n](ctx)
+    ~~~~~~~~~^^^
+KeyError: 'D5b'
+EXIT 1

@@ -86,8 +86,10 @@ public final class IncidentLedger {
         UUID residentOf = victimRes.filter(r -> !r.raider()).map(ResidentInfo::settlementId).orElse(null);
         UUID inside = threats != null ? threats.villageContaining(victim.blockPosition()) : null;
         GarrisonTag garrisonTag = GarrisonAttachments.get(victim);
-        UUID garrisonOf = garrisonTag == null || (attackerFaction != null && attackerFaction.equals(victimFaction))
-                ? null : garrisonTag.villageId();
+        // not an attack on the garrison when the attacker is of the unit's own village (its faction or, since M5, its residents)
+        boolean ownVillage = attackerFaction != null && (attackerFaction.equals(victimFaction)
+                || (garrisonTag != null && dev.hywmill.faction.FactionIds.residentsOf(garrisonTag.villageId()).equals(attackerFaction)));
+        UUID garrisonOf = garrisonTag == null || ownVillage ? null : garrisonTag.villageId();
 
         Incident inc = new Incident(tick,
                 attacker.getUUID(), typeOf(attacker), attackerFaction,

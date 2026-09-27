@@ -5,7 +5,9 @@ import dev.hywmill.core.HmLog;
 import dev.hywmill.core.Services;
 import dev.hywmill.faction.CombatFactionService;
 import dev.hywmill.core.HywMillRuntime;
+import dev.hywmill.faction.FactionIds;
 import dev.hywmill.faction.FactionRegistry;
+import dev.hywmill.faction.ResidentAlliance;
 import net.minecraft.world.entity.Entity;
 
 import java.util.UUID;
@@ -41,29 +43,11 @@ public final class EscalationGuard {
         if (a == null || v == null || a.equals(v)) {
             return;
         }
-        UUID village = registry.isVillageFaction(a) ? a : registry.isVillageFaction(v) ? v : null;
-        if (village == null) {
-            village = spikeResidentIdentity(rt, a) ? a : spikeResidentIdentity(rt, v) ? v : null;
-        }
+        UUID village = registry.isVillageIdentity(a) ? a : registry.isVillageIdentity(v) ? v : null;
         if (village == null || !factions.isHostileEitherWay(a, v)) {
             return;
         }
         handle(rt, factions, village, village.equals(a) ? v : a, "after repeated damage");
-    }
-
-    /** M5-0 follow-up spike only: a resident identity produced by the dev override counts as a village identity. */
-    private static boolean spikeResidentIdentity(HywMillRuntime rt, UUID id) {
-        java.util.function.Function<UUID, UUID> f = rt.residentIdentityForSpike();
-        if (f == null) {
-            return false;
-        }
-        for (UUID faction : rt.factions().factions()) {
-            UUID village = rt.factions().villageOf(faction);
-            if (village != null && id.equals(f.apply(village))) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -88,21 +72,25 @@ public final class EscalationGuard {
                     handle(rt, factions, faction, other, "found by reconciliation");
                 }
             }
-            java.util.function.Function<UUID, UUID> spike = rt.residentIdentityForSpike(); // M5-0 spike only; null by default
-            if (spike != null) {
-                UUID residents = spike.apply(village);
-                for (UUID other : factions.permanentHostilesOf(residents)) {
-                    if (!other.equals(residents)) {
-                        handle(rt, factions, residents, other, "found by reconciliation (resident identity)");
-                    }
+            UUID residents = FactionIds.residentsOf(village);
+            for (UUID other : factions.permanentHostilesOf(residents)) {
+                if (!other.equals(residents)) {
+                    handle(rt, factions, residents, other, "found by reconciliation (resident identity)");
                 }
+            }
+            int written = ResidentAlliance.ensure(factions, village);
+            if (written > 0) {
+                rt.add(ResidentAlliance.C_REPAIRED, written);
             }
         }
     }
 
     private static void handle(HywMillRuntime rt, CombatFactionService factions, UUID villageFaction, UUID other, String how) {
         rt.increment(C_DETECTED);
-        if (rt.diplomacy().permitsPermanentHostility(villageFaction, other)) {
+        // M5 (Option 1): a resident identity may never stand HOSTILE, whatever the political state;
+        // wars and outlawry are projected on the faction identity only.
+        if (!rt.factions().isResidentIdentity(villageFaction) && !rt.factions().isResidentIdentity(other)
+                && rt.diplomacy().permitsPermanentHostility(villageFaction, other)) {
             return;
         }
         if (HywMillConfig.PREVENT_PERMANENT_ESCALATION.get()) {

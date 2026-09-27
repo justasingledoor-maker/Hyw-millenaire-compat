@@ -1,0 +1,19 @@
+{
+  "_comment": "HywMill M5 politics. Standing uses Millénaire's combined reputation (village + culture): boycott -1024, hire 4096, friend of the village 8192, one of us 32768. Outlaw: grievance >= outlaw AND reputation <= boycott, or a killing inside the village in peacetime (immediate). Pardon: grievance < pardon AND reputation > boycott. A status earned by reputation is kept down to threshold x keepFactor. Grievance: weight x insideFactor (inside the village) x selfDefenseFactor (the victim struck first), halving every halfLifeDays. Favor is earned only by service (no trade source) and capped. Cultures patch fields.",
+  "defaults": {
+    "standing": { "boycott": -1024, "trusted": 4096, "patron": 8192, "sworn": 32768, "patronFavor": 20, "swornFavorEarned": 60, "keepFactor": 0.9 },
+    "grievance": {
+      "weights": { "KILL_RESIDENT": 100, "KILL_GARRISON": 80, "ASSAULT_RESIDENT": 10, "ASSAULT_GARRISON": 6, "ERRAND_ABUSE": 30, "PLOT_EXPOSED": 60 },
+      "insideFactor": 1.5, "selfDefenseFactor": 0.25, "halfLifeDays": 21, "warning": 20, "outlaw": 80, "pardon": 20, "max": 400
+    },
+    "favor": {
+      "sources": { "DEFENSE": 3, "PRESENT_AT_DEFENSE": 1, "REQUESTED_DIPLOMACY": 5, "ERRAND_SUCCESS": 2, "LONG_STANDING": 1 },
+      "cap": 100
+    }
+  },
+  "cultures": {
+    "millenaire:seljuk":   { "grievance": { "halfLifeDays": 28 } },
+    "millenaire:japanese": { "grievance": { "weights": { "KILL_RESIDENT": 120, "ERRAND_ABUSE": 40 } } },
+    "millenaire:inuits":   { "grievance": { "halfLifeDays": 14 } }
+  }
+}

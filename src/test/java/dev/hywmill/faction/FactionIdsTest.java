@@ -23,4 +23,13 @@ class FactionIdsTest {
         assertEquals(a, FactionIds.forVillage(village));
         assertNotEquals(village, a);
     }
+
+    @Test
+    void residentIdentityDerivationIsFrozenAndDistinct() {
+        UUID village = UUID.fromString("f7edd961-3e4b-4b15-8583-ecbdac270e4a");
+        assertEquals(UUID.fromString("1c99d3c8-5f9d-3394-b562-0ff7aa35ebc5"), FactionIds.residentsOf(village));
+        assertNotEquals(FactionIds.forVillage(village), FactionIds.residentsOf(village));
+        assertNotEquals(village, FactionIds.residentsOf(village));
+        assertEquals(FactionIds.residentsOf(village), FactionIds.residentsOf(village));
+    }
 }

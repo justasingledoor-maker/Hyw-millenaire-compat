@@ -59,6 +59,12 @@ public interface CombatFactionService {
     void resetHostileToNeutral(UUID a, UUID b);
 
     /**
+     * Sets the directed relation {@code a -> b} (HOSTILE, NEUTRAL, FRIENDLY). M5: used only for
+     * HywMill's own synthetic identities (the resident/faction alliance, later the relation projector).
+     */
+    void setRelation(UUID a, UUID b, String type);
+
+    /**
      * Every identity with a permanent HOSTILE relation to or from {@code identity} in the mod's
      * relation store (not temporary retaliation). Read-only.
      */

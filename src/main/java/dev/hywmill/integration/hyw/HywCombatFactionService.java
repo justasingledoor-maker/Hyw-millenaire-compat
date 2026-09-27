@@ -26,7 +26,7 @@ import java.util.UUID;
  *   <li>{@code RelationOwnerMarkedEntity.hyw$markRelationOwnerUUID / hyw$getMarkedRelationOwnerUUID /
  *       hyw$hasRelationIdentityMarker / hyw$clearRelationIdentityMarker} (mixed into Entity)</li>
  *   <li>{@code ServerRelationHelper.getRelationUUID(Entity)}, {@code isEnemyRelationByUUID(UUID, UUID)}</li>
- *   <li>{@code RelationSystem.getRelation(UUID, UUID)}, {@code setRelation(UUID, UUID, RelationType)} (escalation guard only)</li>
+ *   <li>{@code RelationSystem.getRelation(UUID, UUID)}, {@code setRelation(UUID, UUID, RelationType)} (escalation guard; M5 resident alliance)</li>
  *   <li>{@code BaseCombatEntity.getOwnerUUID()}, {@code getHywTarget()}</li>
  *   <li>{@code TemporaryHostileTargetManager.isHostile(BaseCombatEntity, LivingEntity)}</li>
  * </ul>
@@ -137,6 +137,11 @@ final class HywCombatFactionService implements CombatFactionService {
         if (RelationSystem.getRelation(b, a) == RelationSystem.RelationType.HOSTILE) {
             RelationSystem.setRelation(b, a, RelationSystem.RelationType.NEUTRAL);
         }
+    }
+
+    @Override
+    public void setRelation(UUID a, UUID b, String type) {
+        RelationSystem.setRelation(a, b, RelationSystem.RelationType.valueOf(type));
     }
 
     @Override

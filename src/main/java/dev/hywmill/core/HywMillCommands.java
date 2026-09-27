@@ -110,6 +110,8 @@ public final class HywMillCommands {
         }
         HywMillRuntime rt = HywMillRuntime.require();
         send(src, "identities: markedOnJoin=" + rt.counter(FactionMarker.C_MARKED_ON_JOIN)
+                + " migratedToResidents=" + rt.counter(FactionMarker.C_MIGRATED)
+                + " allianceWrites=" + rt.counter(dev.hywmill.faction.ResidentAlliance.C_REPAIRED)
                 + " fixedBySweep=" + rt.counter(FactionMarker.C_FIXED_BY_SWEEP)
                 + " raidersSkipped=" + rt.counter(FactionMarker.C_RAIDERS_SKIPPED));
         send(src, "escalation guard: detected=" + rt.counter(EscalationGuard.C_DETECTED) + " reverted=" + rt.counter(EscalationGuard.C_REVERTED));
@@ -158,6 +160,7 @@ public final class HywMillCommands {
                 + ", " + (int) dist + " blocks away, active=" + ref.get().active());
         send(src, "VillageId: " + r.villageId);
         send(src, "Faction UUID (synthetic): " + r.factionId);
+        send(src, "Resident identity (synthetic): " + dev.hywmill.faction.FactionIds.residentsOf(r.villageId));
         send(src, "Tier: " + r.tier + " | garrison: " + r.garrison + " | population: " + r.population + " (adults " + r.adults + ")");
         send(src, "Defending strength (Millénaire): " + r.defendingStrength + " | fortification: " + r.fortification);
         send(src, "Villager roles: " + r.villagerRoles + (r.ambiguousTypes.isEmpty() ? "" : " | unlisted (fallback MILITIA): " + r.ambiguousTypes));

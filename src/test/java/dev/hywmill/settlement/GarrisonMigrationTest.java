@@ -76,7 +76,7 @@ class GarrisonMigrationTest {
         RosterEntry d = g.recruit(VILLAGE, "archer", "hundred_years_war:archer", 2, 120, true);
         d.transition(UnitState.LOST, 130, LossReason.REMOVED);
         r.hywRoster = g;
-        assertEquals(4, VillageRecord.FORMAT);
+        assertTrue(VillageRecord.FORMAT >= 4); // format 5 (M5) keeps the format-4 roster layout
         VillageRecord back = VillageRecord.load(r.save(), 4);
         assertNotNull(back.hywRoster);
         assertEquals(g.save(), back.hywRoster.save());

@@ -524,8 +524,10 @@ public final class GarrisonService {
         List<DefenseCoordinator.ThreatView> valid = new ArrayList<>();
         for (DefenseCoordinator.ThreatView t : threats) {
             LivingEntity te = threatEntities.get(t.id());
-            // hard filter: never a target sharing the village's relation identity (own residents, own units)
-            if (te != null && te.isAlive() && (factions == null || !rec.factionId.equals(factions.relationIdentity(te)))) {
+            // hard filter: never a target carrying one of the village's own identities (own units: faction; own residents: M5 resident identity)
+            UUID teId = te != null && factions != null ? factions.relationIdentity(te) : null;
+            if (te != null && te.isAlive() && (factions == null
+                    || !(rec.factionId.equals(teId) || dev.hywmill.faction.FactionIds.residentsOf(rec.villageId).equals(teId)))) {
                 valid.add(t);
             }
         }
