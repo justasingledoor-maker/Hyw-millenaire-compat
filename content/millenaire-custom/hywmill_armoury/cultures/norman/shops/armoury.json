@@ -1,0 +1,18 @@
+{
+  "sells": [
+    "norman_helmet",
+    "norman_chestplate",
+    "norman_leggings",
+    "norman_boots",
+    "norman_sword",
+    "bow",
+    "hywmill_scroll_militia",
+    "hywmill_scroll_spear_man",
+    "hywmill_scroll_shieldman",
+    "hywmill_scroll_crossbowman",
+    "hywmill_scroll_archer"
+  ],
+  "buys": [],
+  "buys_optional": [],
+  "deliver_to": []
+}

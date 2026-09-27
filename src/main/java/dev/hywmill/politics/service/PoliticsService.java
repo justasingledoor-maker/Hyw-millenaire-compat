@@ -412,8 +412,11 @@ public final class PoliticsService {
         }
         String name = playerName(overworld, player);
         String place = rec.name.isEmpty() ? "this village" : rec.name;
+        String honour = honour(after);
         String text = before == Standing.OUTLAW && after != Standing.OUTLAW
                 ? name + " was pardoned by " + place + " and is now " + label(after) + (why.isEmpty() ? "" : " (" + why + ")")
+                : honour != null && after.ordinal() > before.ordinal()
+                ? name + " is honoured as " + honour + " of " + place // M5-6 honours
                 : name + " is now " + label(after) + " in " + place + (why.isEmpty() ? "" : " (" + why + ")");
         chronicle(overworld, source, rec, tick, text);
         ServerPlayer p = onlinePlayer(overworld, player);
@@ -430,6 +433,17 @@ public final class PoliticsService {
         if (source != null) {
             source.recordHistory(overworld, rec.villageId, "[HywMill] " + text);
         }
+    }
+
+    /** M5-6: the honour a standing carries ("trusted friend", "patron", "one of us"), or null. */
+    @Nullable
+    public static String honour(Standing s) {
+        return switch (s) {
+            case TRUSTED -> "a trusted friend";
+            case PATRON -> "a patron";
+            case SWORN -> "one of us";
+            default -> null;
+        };
     }
 
     static String label(Standing s) {

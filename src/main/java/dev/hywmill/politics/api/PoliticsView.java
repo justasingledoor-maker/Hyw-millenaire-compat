@@ -277,4 +277,17 @@ public final class PoliticsView {
         }
         return new Wars(out, camp);
     }
+
+    /** M5-6: the player's honours: every village where their own standing is Trusted, Patron or Sworn. */
+    public static List<String> honours(ServerLevel overworld, UUID player) {
+        List<String> out = new ArrayList<>();
+        for (VillageRecord rec : GarrisonLedger.get(overworld).all()) {
+            PoliticsRecord r = rec.politics.peek(player);
+            String h = r == null ? null : PoliticsService.honour(r.status);
+            if (h != null) {
+                out.add((r.status == Standing.SWORN ? h + " (" + rec.name + ")" : h + " of " + rec.name) + ", since tick " + r.statusSince);
+            }
+        }
+        return out;
+    }
 }

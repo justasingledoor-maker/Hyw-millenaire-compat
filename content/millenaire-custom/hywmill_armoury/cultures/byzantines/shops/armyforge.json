@@ -1,0 +1,24 @@
+{
+  "sells": [
+    "byzantine_mace",
+    "byzantine_boots",
+    "byzantine_leggings",
+    "byzantine_chestplate",
+    "byzantine_helmet",
+    "bow",
+    "iron_axe",
+    "iron_pickaxe",
+    "iron_shovel",
+    "iron_hoe",
+    "hywmill_scroll_militia",
+    "hywmill_scroll_spear_man",
+    "hywmill_scroll_shieldman",
+    "hywmill_scroll_archer"
+  ],
+  "buys": [
+    "iron_ingot",
+    "leather"
+  ],
+  "buys_optional": [],
+  "deliver_to": []
+}

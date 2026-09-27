@@ -3966,6 +3966,46 @@ def scenario_G5_5b(ctx):
     m5(s, f"standin remove {U_UUID}", 0.3)
 
 
+ARMOURY_PACK = REPO / "content" / "millenaire-custom" / "hywmill_armoury"
+
+
+def install_armoury_pack(d: Path):
+    """M5-6: the shipped armoury content pack, installed as a server owner would (copy into millenaire-custom/)."""
+    dst = d / "millenaire-custom" / "hywmill_armoury"
+    if dst.exists():
+        shutil.rmtree(dst)
+    shutil.copytree(ARMOURY_PACK, dst)
+
+
+def scenario_G5_6(ctx):
+    """M5-6: the armoury pack loads in every culture (recruit scrolls, Patron-gated by Millénaire's min_reputation, the
+    shop's original goods kept); honours are written to the chronicle and listed."""
+    s, a = ctx.s, ctx.a
+    import json as _json
+    for cdir in sorted(ARMOURY_PACK.glob("cultures/*")):
+        culture = "millenaire:" + cdir.name
+        goods = _json.loads((cdir / "traded_goods.json").read_text())["goods"]
+        shop_file = next((cdir / "shops").glob("*.json"))
+        shop = _json.loads(shop_file.read_text())
+        gl = [m5_1(s, f'mill goods "{culture}" {g["id"]}') for g in goods]
+        sh = m5_1(s, f'mill shop "{culture}" {shop_file.stem}')
+        originals = [x for x in shop["sells"] if not x.startswith("hywmill_")]
+        check(f"G5-6 armoury {cdir.name}: scrolls load as HYW items at min_reputation 8192",
+              all(g["item"] in l and "minRep=8192" in l and "resolved=minecraft:air" not in l for g, l in zip(goods, gl)), " || ".join(gl)[:300])
+        check(f"G5-6 armoury {cdir.name}: the {shop_file.stem} shop sells the scrolls and keeps its original goods",
+              all(g["id"] in sh for g in goods) and all(o in sh for o in originals), sh[:300])
+    # honours: a promotion to trusted is chronicled as an honour and listed
+    hp = "cccccccc-dddd-4eee-8fff-000000000000"
+    standin_at(s, hp, a[0] + 2, a[2] - 2)
+    m5(s, f"mill rep {a[0]} {a[1]} {a[2]} {hp} adjust 5000")
+    time.sleep(14)
+    st = pstatus(s, a, hp)
+    hon = s.output(f"hywmill politics honours for {hp}", 1.5)
+    check("G5-6 an honour is written to the chronicle ('honoured as a trusted friend')", any("honoured as a trusted friend" in l for l in st), " | ".join(st[-2:]))
+    check("G5-6 honours are listed", any("trusted friend of" in l for l in hon), " | ".join(hon))
+    m5(s, f"standin remove {hp}", 0.3)
+
+
 SG_C3 = dict(perSlot={"WATCH": 2.0, "GUARD_POST": 2.25, "GARRISON": 2.5, "STRONGHOLD": 3.0},
              levyShare={"WATCH": 0.15, "GUARD_POST": 0.20, "GARRISON": 0.25, "STRONGHOLD": 0.30},
              infra={"BARRACKS": 8, "FORT_TOWNHALL": 8, "ARMOURY": 4, "TRAINING": 4, "GUARDHOUSE": 3, "WATCHTOWER": 3, "TOWER": 2, "GATE": 1},
@@ -4297,7 +4337,7 @@ def scenario_SG_6(ctx):
 
 
 ORDER_SG = ["status", "SG_0", "SG_1", "SG_2", "SG_3", "SG_4", "SG_5"]
-ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3", "G5_4", "G5_5", "G5_5b"]
+ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3", "G5_4", "G5_5", "G5_5b", "G5_6"]
 
 
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
@@ -4309,7 +4349,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
-             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_4": scenario_G5_4, "G5_5": scenario_G5_5, "G5_5b": scenario_G5_5b, "G5_G": scenario_G5_G,
+             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_4": scenario_G5_4, "G5_5": scenario_G5_5, "G5_5b": scenario_G5_5b, "G5_6": scenario_G5_6, "G5_G": scenario_G5_G,
              "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
              "SG_5": scenario_SG_5, "SG_6": scenario_SG_6}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
@@ -4325,6 +4365,8 @@ def run(d: Path, names, fresh=True):
     install_mods(d, [MILLENAIRE_JAR, HYW_JAR, built_jar()] + extra_mods)
     if names == ["m5spike"] or "S5_I" in names:
         write_m5_content(d)
+    if names == ["m5"] or "G5_6" in names:
+        install_armoury_pack(d)
     if fresh and (d / "world").exists():
         shutil.rmtree(d / "world")
     s = Server(d)

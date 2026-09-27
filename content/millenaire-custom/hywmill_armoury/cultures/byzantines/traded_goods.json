@@ -1,0 +1,32 @@
+{
+  "goods": [
+    {
+      "id": "hywmill_scroll_militia",
+      "item": "hundred_years_war:scroll_militia",
+      "selling_price": 32,
+      "min_reputation": 8192,
+      "category": "military"
+    },
+    {
+      "id": "hywmill_scroll_spear_man",
+      "item": "hundred_years_war:scroll_spear_man",
+      "selling_price": 48,
+      "min_reputation": 8192,
+      "category": "military"
+    },
+    {
+      "id": "hywmill_scroll_shieldman",
+      "item": "hundred_years_war:scroll_shieldman",
+      "selling_price": 64,
+      "min_reputation": 8192,
+      "category": "military"
+    },
+    {
+      "id": "hywmill_scroll_archer",
+      "item": "hundred_years_war:scroll_archer",
+      "selling_price": 64,
+      "min_reputation": 8192,
+      "category": "military"
+    }
+  ]
+}

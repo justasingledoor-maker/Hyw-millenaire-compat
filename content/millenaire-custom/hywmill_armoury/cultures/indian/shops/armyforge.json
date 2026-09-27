@@ -1,0 +1,17 @@
+{
+  "sells": [
+    "iron_helmet",
+    "iron_chestplate",
+    "iron_leggings",
+    "iron_boots",
+    "iron_sword",
+    "bow",
+    "hywmill_scroll_militia",
+    "hywmill_scroll_spear_man",
+    "hywmill_scroll_warrior",
+    "hywmill_scroll_archer"
+  ],
+  "buys": [],
+  "buys_optional": [],
+  "deliver_to": []
+}

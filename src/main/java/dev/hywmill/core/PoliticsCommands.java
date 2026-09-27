@@ -44,6 +44,9 @@ final class PoliticsCommands {
                 .then(Commands.literal("list").executes(ctx -> list(ctx, null))
                         .then(Commands.literal("for").requires(s -> s.hasPermission(2))
                                 .then(Commands.argument("player", UuidArgument.uuid()).executes(ctx -> list(ctx, UuidArgument.getUuid(ctx, "player"))))))
+                .then(Commands.literal("honours").executes(ctx -> honours(ctx, null))
+                        .then(Commands.literal("for").requires(s -> s.hasPermission(2))
+                                .then(Commands.argument("player", UuidArgument.uuid()).executes(ctx -> honours(ctx, UuidArgument.getUuid(ctx, "player"))))))
                 .then(Commands.literal("intel").executes(ctx -> intel(ctx, null))
                         .then(Commands.literal("for").requires(s -> s.hasPermission(2))
                                 .then(Commands.argument("player", UuidArgument.uuid()).executes(ctx -> intel(ctx, UuidArgument.getUuid(ctx, "player"))))))
@@ -149,6 +152,17 @@ final class PoliticsCommands {
                     + (s.effective() != s.status() ? " -> " + s.effective() : "") + ", reputation " + s.reputation());
         }
         return rows.size();
+    }
+
+    private static int honours(CommandContext<CommandSourceStack> ctx, @Nullable UUID explicit) {
+        UUID player = who(ctx, explicit);
+        if (player == null) {
+            return 0;
+        }
+        List<String> h = PoliticsView.honours(ctx.getSource().getServer().overworld(), player);
+        send(ctx.getSource(), "Honours: " + h.size());
+        h.forEach(l -> send(ctx.getSource(), " " + l));
+        return h.size();
     }
 
     private static int intel(CommandContext<CommandSourceStack> ctx, @Nullable UUID explicit) {
