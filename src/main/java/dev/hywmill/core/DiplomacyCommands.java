@@ -38,6 +38,12 @@ final class DiplomacyCommands {
         subtree(dip, ctx -> self(ctx));
         dip.then(Commands.literal("for").requires(s -> s.hasPermission(2))
                 .then(subtree(Commands.argument("player", UuidArgument.uuid()), ctx -> UuidArgument.getUuid(ctx, "player"))));
+        dip.then(Commands.literal("admin").requires(s -> s.hasPermission(3))
+                .then(Commands.literal("truce").then(Commands.argument("a", BlockPosArgument.blockPos())
+                        .then(Commands.argument("b", BlockPosArgument.blockPos())
+                                .then(Commands.argument("days", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0, 365))
+                                        .executes(DiplomacyCommands::adminTruce)))))
+                .then(Commands.literal("arrive").executes(DiplomacyCommands::adminArrive)));
         d.register(Commands.literal("hywmill").then(dip));
     }
 
@@ -135,6 +141,44 @@ final class DiplomacyCommands {
         PoliticsActions.ActionResult r = PoliticsActions.cancelEnvoys(ctx.getSource().getServer().overworld(), player);
         send(ctx.getSource(), "diplomacy cancel " + r.code() + ": " + r.message());
         return r.ok() ? 1 : 0;
+    }
+
+    /** Admin: sets (or with 0 days ends) a truce between two villages, as a successful truce envoy would. */
+    private static int adminTruce(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSourceStack src = ctx.getSource();
+        VillageRecord a = villageAt(src, BlockPosArgument.getBlockPos(ctx, "a"));
+        VillageRecord b = villageAt(src, BlockPosArgument.getBlockPos(ctx, "b"));
+        if (a == null || b == null || a == b) {
+            return 0;
+        }
+        ServerLevel ow = src.getServer().overworld();
+        long now = ow.getGameTime();
+        long until = now + Math.round(com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "days") * dev.hywmill.politics.PoliticsTables.DAY);
+        if (until <= now) {
+            a.politics.truces().remove(b.villageId);
+            b.politics.truces().remove(a.villageId);
+        } else {
+            a.politics.setTruce(b.villageId, until);
+            b.politics.setTruce(a.villageId, until);
+        }
+        GarrisonLedger.get(ow).setDirty();
+        send(src, "diplomacy truce " + a.name + " <-> " + b.name + (until <= now ? " ended" : " until tick " + until));
+        return 1;
+    }
+
+    /** Admin/testing: every pending envoy arrives now (resolved on its sponsor's next slot, with its own seed). */
+    private static int adminArrive(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(ow);
+        long now = ow.getGameTime();
+        var list = ledger.envoys();
+        for (int i = 0; i < list.size(); i++) {
+            var m = list.get(i);
+            list.set(i, new dev.hywmill.politics.EnvoyMission(m.id(), m.player(), m.from(), m.to(), m.kind(), m.departTick(), now, m.seed(), m.attempts()));
+        }
+        ledger.setDirty();
+        send(ctx.getSource(), "diplomacy arrive " + list.size());
+        return list.size();
     }
 
     private static int propose(CommandContext<CommandSourceStack> ctx, @Nullable UUID player, EnvoyKind kind, @Nullable BlockPos fromPos)

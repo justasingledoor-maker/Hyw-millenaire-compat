@@ -375,7 +375,7 @@ def scenario_A(ctx):
     s.stop()
     s.start()
     time.sleep(15)
-    loaded = s.wait_for(r"Garrison ledger loaded: \d+ village.*format [34]", 30, since=s.start_pos)
+    loaded = s.wait_for(r"Garrison ledger loaded: \d+ village.*format [3-9]", 30, since=s.start_pos)
     after = info(s, ctx.a)
     check("A4 ledger reloaded from disk", loaded is not None, loaded or "")
     check("A5-6 same VillageId and faction after restart",
@@ -3648,6 +3648,114 @@ def scenario_G5_3(ctx):
     s.cmd("hywmill dev duties on", 1)
 
 
+def dip(s, c, sub, wait=1.5):
+    return [l for l in s.output(at(c, f"hywmill diplomacy {sub}"), wait) if l.startswith("diplomacy")]
+
+
+def mrel_of(s, ab):
+    m = re.search(r"now=(-?\d+)/(-?\d+)", m5_1(s, f"mill mrel {ab}"))
+    return (int(m[1]), int(m[2])) if m else None
+
+
+def dpoints_of(s, c, player):
+    m = re.search(r"now=(\d+)", m5_1(s, f"mill dpoints {c} {player}"))
+    return int(m[1]) if m else None
+
+
+W_UUID = "88888888-9999-4aaa-8bbb-cccccccccccc"      # M5-4: a fresh sponsor (a stand-in)
+
+
+def scenario_G5_4(ctx):
+    """M5-4: envoys (requirements, diplomacy point, travel, seeded outcome through Millénaire's relation), truce floor,
+    sow-discord limits, persistence of pending envoys."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    ab = f"{ca} {cb}"
+    note("G5-4 stand-in", standin_at(s, W_UUID, a[0] + 3, a[2] + 3))
+    for u in (W_UUID, Q_UUID):
+        m5(s, f"mill discover {ca} {u}", 0.5)
+        m5(s, f"mill discover {cb} {u}", 0.5)
+    m5(s, f"mill dpoints {ca} {W_UUID} regen", 0.5)
+    m5(s, f"mill mrel {ab} set -40")
+    # negatives first
+    r0 = dip(s, a, f"for {X_UUID} propose reconcile {cb}")
+    check("G5-4 negative: villages not discovered -> refused", any("NOT_DISCOVERED" in l for l in r0), " | ".join(r0))
+    r1 = dip(s, a, f"for {Q_UUID} propose reconcile {cb}")
+    check("G5-4 negative: a stranger cannot sponsor a reconciliation", any("STANDING_TOO_LOW" in l for l in r1), " | ".join(r1))
+    # P becomes trusted with A (online: refreshed on A's slot)
+    m5(s, f"mill rep {ca} {W_UUID} adjust 5000")
+    time.sleep(14)
+    check("G5-4 W is trusted with A", pshow(s, a, W_UUID).get("status") == "TRUSTED", str(pshow(s, a, W_UUID)))
+    t0 = dip(s, a, f"for {W_UUID} propose truce {cb}")
+    check("G5-4 negative: a truce needs Patron standing", any("STANDING_TOO_LOW" in l for l in t0), " | ".join(t0))
+    dp0 = dpoints_of(s, ca, W_UUID)
+    rel0 = mrel_of(s, ab)
+    r2 = dip(s, a, f"for {W_UUID} propose reconcile {cb}")
+    dp1 = dpoints_of(s, ca, W_UUID)
+    check("G5-4 a trusted player sends a reconciliation envoy; it spends one Millénaire diplomacy point",
+          any("propose OK" in l for l in r2) and dp0 is not None and dp1 == dp0 - 1, f"{' | '.join(r2)} points {dp0}->{dp1}")
+    st = dip(s, a, f"for {W_UUID} status")
+    check("G5-4 the envoy is under way (not instant)", any("reconcile" in l and "arrives in" in l for l in st) and mrel_of(s, ab) == rel0,
+          " | ".join(st))
+    r3 = dip(s, a, f"for {W_UUID} propose reconcile {cb}")
+    check("G5-4 negative: the same pair again at once -> cooldown", any("PAIR_COOLDOWN" in l for l in r3), " | ".join(r3))
+    # persistence of a pending envoy across a restart, then it resolves
+    restart(ctx)
+    time.sleep(15)
+    st2 = dip(s, a, f"for {W_UUID} status")
+    check("G5-4 the pending envoy survives a restart", any("reconcile" in l for l in st2), " | ".join(st2))
+    standin_at(s, W_UUID, a[0] + 3, a[2] + 3)
+    p0 = s.pos()
+    dip(s, a, "admin arrive")
+    res = s.wait_for(r"Diplomacy: .* RECONCILE .* -> (SUCCESS|FAILURE|BACKFIRE)", 25, since=p0)
+    rel1 = mrel_of(s, ab)
+    outcome = re.search(r"-> (SUCCESS|FAILURE|BACKFIRE)", res or "")
+    o = outcome[1] if outcome else None
+    consistent = (o == "SUCCESS" and rel1 and rel1[0] > rel0[0]) or (o == "BACKFIRE" and rel1 and rel1[0] < rel0[0]) or (o == "FAILURE" and rel1 == rel0)
+    check("G5-4 the envoy resolves on the sponsor's slot; the effect goes through Millénaire's relation and matches the outcome",
+          res is not None and consistent, f"{o} relation {rel0} -> {rel1}")
+    hist_a, hist_b = pstatus(s, a, W_UUID), m5_1(s, f"mill history {cb}")
+    check("G5-4 the result is written to both villages' chronicles", "[HywMill]" in hist_b and any("envoy" in l for l in hist_a),
+          hist_b[-160:])
+    check("G5-4 no pending envoy left", not any("arrives in" in l for l in dip(s, a, f"for {W_UUID} status")), "")
+    # truce: the floor is held above Millénaire's raid line while it lasts
+    m5(s, f"mill mrel {ab} set -100")
+    dip(s, a, f"admin truce {ca} {cb} 1")
+    time.sleep(14)
+    rel2 = mrel_of(s, ab)
+    check("G5-4 a truce holds the relation at the floor (-85, above the -90 raid line)", rel2 == (-85, -85), str(rel2))
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill mrel {ab} set -100")
+    time.sleep(14)
+    check("G5-4 after the truce ends the floor is no longer held", mrel_of(s, ab) == (-100, -100), str(mrel_of(s, ab)))
+    # sow discord: sworn only, favor cost, one pending plot, per-player cooldown
+    m5(s, f"mill mrel {ab} set 20")
+    m5(s, f"mill dpoints {ca} {W_UUID} regen", 0.5)
+    sd0 = dip(s, a, f"for {W_UUID} propose sow_discord {cb}")
+    check("G5-4 negative: sow discord needs Sworn standing", any("STANDING_TOO_LOW" in l for l in sd0), " | ".join(sd0))
+    m5(s, f"mill rep {ca} {W_UUID} adjust 30000")
+    for _ in range(14):
+        s.output(at(a, f"hywmill politics admin favor {W_UUID} REQUESTED_DIPLOMACY"), 0.2)
+    time.sleep(14)
+    f0 = pshow(s, a, W_UUID)
+    sd1 = dip(s, a, f"for {W_UUID} propose sow_discord {cb}")
+    f1 = pshow(s, a, W_UUID)
+    check("G5-4 a sworn player may sow discord; it costs Favor and a diplomacy point",
+          f0.get("status") == "SWORN" and any("propose OK" in l for l in sd1) and f1.get("favor") == f0.get("favor", 0) - 10, f"{f0} {' | '.join(sd1)} {f1}")
+    m5(s, f"mill mrel {ab} set 20")
+    sd2 = dip(s, a, f"for {W_UUID} propose sow_discord {cb}")
+    check("G5-4 negative: at most one pending plot per player", any("PENDING_LIMIT" in l or "PAIR_COOLDOWN" in l for l in sd2), " | ".join(sd2))
+    p1 = s.pos()
+    dip(s, a, "admin arrive")
+    s.wait_for(r"Diplomacy: .* SOW_DISCORD", 25, since=p1)
+    sd3 = dip(s, a, f"for {W_UUID} propose sow_discord {cb}")
+    check("G5-4 negative: a second plot within the cooldown is refused", any("PLAYER_COOLDOWN" in l or "PAIR_COOLDOWN" in l or "TARGET_COOLDOWN" in l
+                                                                              for l in sd3), " | ".join(sd3))
+    perf = s.output("hywmill perf", 2)
+    note("G5-4 perf", " | ".join(l for l in perf if "diplomacy" in l or "politics" in l))
+    m5(s, f"standin remove {W_UUID}", 0.3)
+
+
 SG_C3 = dict(perSlot={"WATCH": 2.0, "GUARD_POST": 2.25, "GARRISON": 2.5, "STRONGHOLD": 3.0},
              levyShare={"WATCH": 0.15, "GUARD_POST": 0.20, "GARRISON": 0.25, "STRONGHOLD": 0.30},
              infra={"BARRACKS": 8, "FORT_TOWNHALL": 8, "ARMOURY": 4, "TRAINING": 4, "GUARDHOUSE": 3, "WATCHTOWER": 3, "TOWER": 2, "GATE": 1},
@@ -3979,7 +4087,7 @@ def scenario_SG_6(ctx):
 
 
 ORDER_SG = ["status", "SG_0", "SG_1", "SG_2", "SG_3", "SG_4", "SG_5"]
-ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3"]
+ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3", "G5_4"]
 
 
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
@@ -3991,7 +4099,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
-             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_G": scenario_G5_G,
+             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_4": scenario_G5_4, "G5_G": scenario_G5_G,
              "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
              "SG_5": scenario_SG_5, "SG_6": scenario_SG_6}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
@@ -4083,8 +4191,8 @@ def run_migrate3(d: Path, m2_jar: Path):
     try:
         s.start()
         loaded = s.wait_for(r"Garrison ledger loaded: \d+ village record\(s\), format 3", 30, since=s.start_pos)
-        mig = s.wait_for(r"migrated \d+ record\(s\) from format 3 to 4", 30, since=s.start_pos)
-        check("G3-16 format-3 ledger loaded and migrated to format 4", loaded is not None and mig is not None, f"{loaded} | {mig}")
+        mig = s.wait_for(r"migrated \d+ record\(s\) from format 3 to [45]", 30, since=s.start_pos)  # 5 since M5
+        check("G3-16 format-3 ledger loaded and migrated to the current format", loaded is not None and mig is not None, f"{loaded} | {mig}")
         s.cmd("millenaire chunkload", 10)
         time.sleep(60)
         after = {k: info(s, c) for k, c in (("A", ctx.a), ("B", ctx.b)) if c}
@@ -4097,10 +4205,10 @@ def run_migrate3(d: Path, m2_jar: Path):
         s.cmd("save-all flush", 5)
         s.stop()
         s.start()
-        loaded4 = s.wait_for(r"Garrison ledger loaded: \d+ village record\(s\), format 4", 30, since=s.start_pos)
+        loaded4 = s.wait_for(r"Garrison ledger loaded: \d+ village record\(s\), format [45]", 30, since=s.start_pos)
         time.sleep(40)
         grants2 = [l for l in s.read_since(s.start_pos) if "Starting garrison granted" in l]
-        check("G3-16 after another restart: format 4 on disk, no further grant", loaded4 is not None and not grants2, f"{loaded4}; {len(grants2)} grants")
+        check("G3-16 after another restart: current format on disk, no further grant", loaded4 is not None and not grants2, f"{loaded4}; {len(grants2)} grants")
     finally:
         s.stop()
 
