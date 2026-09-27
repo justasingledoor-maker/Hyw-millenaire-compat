@@ -116,8 +116,7 @@ public final class DutyService {
         }
         pairs.values().forEach(l -> l.sort(Comparator.naturalOrder()));
         for (RosterEntry e : r.entries()) {
-            if (!(e.state() == UnitState.GARRISONED || e.state() == UnitState.RECOVERED || e.state() == UnitState.SPAWNED)
-                    || e.duty.away() || e.entityUuid == null) {
+            if (!movedByDuties(e)) {
                 continue;
             }
             if (e.duty != e.assignedDuty) {
@@ -144,7 +143,8 @@ public final class DutyService {
                 int attempt = (int) last[4] + 1;
                 BlockPos alt = attempt <= 3 ? around(level, goal, 2 + 2 * attempt, member * 4 + attempt, home) : null;
                 // after the fallback spots: onto the spot itself (a sentry post on a tower HYW cannot path up to), once
-                if (alt == null && (trapped(ent, last) || attempt == 4) && unstick(level, ent, stand(level, goal))) {
+                if (alt == null && (trapped(ent, last) || attempt == 4)
+                        && unstick(level, ent, recoverySpot(ent.getX(), ent.getY(), ent.getZ(), stand(level, goal), goal, q -> stand(level, q)))) {
                     alt = BlockPos.containing(ent.getX(), ent.getY(), ent.getZ());
                     HmLog.diag("Duty unit {} of village '{}' was trapped; moved onto its {} spot {}", e.shortId(), rec.name, e.assignedDuty, alt.toShortString());
                 } else if (alt == null && DutyMotion.horizontal(ent.getX(), ent.getZ(), goal) <= 24) {
@@ -163,7 +163,8 @@ public final class DutyService {
                 // not reaching an intermediate hop: detour (rotated hops, alternating sides), then give the leg up
                 int attempt = (int) last[4] + 1;
                 BlockPos alt = attempt <= 4 ? hopTarget(level, ent, goal, table.move().maxHop(), attempt) : null;
-                if (alt == null && trapped(ent, last) && unstick(level, ent, home)) {
+                if (alt == null && trapped(ent, last)
+                        && unstick(level, ent, recoverySpot(ent.getX(), ent.getY(), ent.getZ(), home, goal, q -> stand(level, q)))) {
                     HmLog.diag("Duty unit {} of village '{}' was trapped; moved onto its {} hop {}", e.shortId(), rec.name, e.assignedDuty, home.toShortString());
                     rt.moves.remove(e.rosterId);
                 } else if (alt == null) {
@@ -371,6 +372,48 @@ public final class DutyService {
         }
         RaidService.teleport(ent, net.minecraft.world.phys.Vec3.atBottomCenterOf(spot));
         return true;
+    }
+
+    /**
+     * Units this service moves (and may recover when trapped): living home units on a standing duty. Units away on a
+     * raid or lent to a player (DETACHED) are never moved or recovered here; lent soldiers never teleport.
+     */
+    static boolean movedByDuties(RosterEntry e) {
+        return (e.state() == UnitState.GARRISONED || e.state() == UnitState.RECOVERED || e.state() == UnitState.SPAWNED)
+                && !e.duty.away() && e.entityUuid != null;
+    }
+
+    /** The recovery ceiling of {@link #unstick}. */
+    static final double UNSTICK_MAX = 40;
+    /** Waypoint distances tried towards a target beyond the ceiling, nearest to the target first (all below the ceiling). */
+    static final int[] RECOVERY_STEPS = {32, 24, 16, 8};
+
+    /**
+     * Where a trapped home unit may be recovered to (M5 approved M4 fix). Pure: {@code stand} maps a point to standable
+     * ground in a loaded chunk, or null.
+     * <ul>
+     *   <li>Target within {@link #UNSTICK_MAX}: {@code spot}, exactly as before (the unchanged M4 behaviour).</li>
+     *   <li>Target beyond it: the nearest-to-target standable, loaded waypoint on the line towards the unit's duty target,
+     *       at most {@link #RECOVERY_STEPS}[0] blocks from the unit and closer to the target than the unit. Previously such a
+     *       unit was never recovered (the ceiling refused the spot) and stayed trapped.</li>
+     * </ul>
+     * Null when no candidate qualifies (the unit then holds, as before).
+     */
+    @Nullable
+    static BlockPos recoverySpot(double x, double y, double z, @Nullable BlockPos spot, BlockPos target,
+                                 java.util.function.Function<BlockPos, BlockPos> stand) {
+        double toTarget = DutyMotion.horizontal(x, z, target);
+        if (toTarget <= UNSTICK_MAX) {
+            return spot;
+        }
+        for (int h : RECOVERY_STEPS) {
+            BlockPos s = stand.apply(DutyMotion.hop(x, y, z, target, h));
+            if (s != null && DutyMotion.horizontal(x, z, s) <= RECOVERY_STEPS[0] + 3
+                    && DutyMotion.horizontal(s.getX() + 0.5, s.getZ() + 0.5, target) < toTarget) {
+                return s;
+            }
+        }
+        return null;
     }
 
     static boolean staticDuty(Duty d) {

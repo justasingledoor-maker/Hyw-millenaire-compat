@@ -398,3 +398,21 @@ same in §1, §4 and §8:
 * M2 regression 70/72 (only the accepted P3a/P3b). The M3 freeze
 (`docs/m3-freeze.md`) holds, with the single approved addition in §8. Further work is limited to
 documentation and cleanup unless a new reproducible correctness defect is found.
+
+## Addendum (M5): approved M4 fix — recovery of a trapped unit whose target is beyond 40 blocks
+
+Found by the M5 G4 regression (G4-2) and approved explicitly:
+* **Defect.** `DutyService.unstick`, the last resort for a trapped home-duty unit, refuses any spot more than 40 blocks
+  away. A sentry trapped at (643, 79, 613) with its hop 40.8 blocks away (post 41 blocks away) was refused on every
+  attempt and stayed trapped for 25+ minutes with nothing logged. The same trap appears in `m4-test-evidence/g4-run2.txt`;
+  the larger M5-G garrisons put more units on paths through it.
+* **Fix (`DutyService.recoverySpot`).** When the unit's duty target is more than 40 blocks away, recovery uses the
+  nearest-to-target standable, loaded waypoint on the line to the target (32, 24, 16 then 8 blocks from the unit),
+  closer to the target than the unit; `unstick` still enforces its 40-block ceiling, loaded chunks and standability.
+  Within 40 blocks the behaviour is exactly as before. Normal movement, hop limits, patrols, scouts and allocation are
+  unchanged. Lent soldiers (DETACHED) and raid contingents are never moved or recovered by the duty service
+  (`DutyService.movedByDuties`).
+* **Tests.** `DutyRecoveryTest` (6): recovery beyond the ceiling, direction towards the duty target, bounded relocation,
+  unloaded/non-standable candidates rejected, unchanged behaviour within 40 blocks, lent/raid units unaffected.
+
+M4 is frozen again with this change.
