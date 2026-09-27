@@ -71,6 +71,10 @@ public final class DutyService {
         final Map<UUID, long[]> errandMoves = new HashMap<>();
         /** M4 reliability recovery: progress watch of home-duty units (rosterId → watch). */
         final Map<UUID, StuckWatch.Track> stuck = new HashMap<>();
+        /** Post exclusion of recently recovered units (rosterId → what they must not be given again yet). */
+        final Map<UUID, StuckWatch.Avoid> avoid = new HashMap<>();
+        /** Recovered scouts: the ride to resume with when they scout again. */
+        final Map<UUID, Integer> scoutRide = new HashMap<>();
     }
 
     public DutyService(PerfCounters perf) {
@@ -151,13 +155,21 @@ public final class DutyService {
                 StuckWatch.Step step = StuckWatch.fallback(st, DutyMotion.horizontal(ent.getX(), ent.getZ(), goal),
                         StuckWatch.arriveFallback(table.move()), tick, lim);
                 if (step == StuckWatch.Step.RECOVERED || (step == StuckWatch.Step.TELEPORT && lastResort(level, ent, goal))) {
-                    StuckWatch.toGarrison(e, st, tick);
+                    StuckWatch.Avoid av = StuckWatch.toGarrison(e, st, tick);
+                    if (av != null) {
+                        rt.avoid.put(e.rosterId, av); // not the failed post again for 10 minutes
+                        if (av.nextRide() >= 0) {
+                            rt.scoutRide.put(e.rosterId, av.nextRide());
+                        }
+                    }
                     units.setHome(ent, goal);
                     rt.moves.remove(e.rosterId);
                     rt.allocationSig = 0; // the next allocation pass redistributes it
                     changed = true;
-                    HmLog.info("Duty unit {} of village '{}' recovered at {} ({}); on GARRISON duty until the next allocation", e.shortId(), rec.name,
-                            goal.toShortString(), step == StuckWatch.Step.RECOVERED ? "walked back" : "last resort: moved onto the fallback spot");
+                    HmLog.info("Duty unit {} of village '{}' recovered at {} ({}); on GARRISON duty until the next allocation; {}", e.shortId(), rec.name,
+                            goal.toShortString(), step == StuckWatch.Step.RECOVERED ? "walked back" : "last resort: moved onto the fallback spot",
+                            av == null ? "no post exclusion" : "avoids " + av.duty() + (av.duty() == Duty.SCOUT ? " (any)" : "#" + av.index())
+                                    + " until tick " + av.until() + (av.nextRide() >= 0 ? ", resumes at ride " + av.nextRide() : ""));
                     continue;
                 }
                 if (step == StuckWatch.Step.TELEPORT) {
@@ -174,7 +186,7 @@ public final class DutyService {
                         HmLog.diag("Duty unit {} of village '{}' made no progress towards {} but no fallback spot is loaded and safe", e.shortId(),
                                 rec.name, goal.toShortString());
                     } else {
-                        StuckWatch.fallBack(st, spot, DutyMotion.horizontal(ent.getX(), ent.getZ(), spot), tick);
+                        StuckWatch.fallBack(st, e, spot, DutyMotion.horizontal(ent.getX(), ent.getZ(), spot), tick);
                         rt.moves.remove(e.rosterId);
                         HmLog.info("Duty unit {} of village '{}' ({}) made no progress towards {} for {} ticks at {}: stuck, falling back to {}",
                                 e.shortId(), rec.name, e.assignedDuty, goal.toShortString(), lim.stuckTicks(), ent.blockPosition().toShortString(),
@@ -314,11 +326,17 @@ public final class DutyService {
         List<DutyAllocator.Candidate> cands = new ArrayList<>();
         long sig = plan.key() * 31 + rec.tier.ordinal();
         Map<String, UnitSpec> specs = GarrisonTables.current().units();
+        rt.avoid.values().removeIf(a -> !a.active(tick)); // exclusions expire (the signature changes, so the pass reruns)
         for (RosterEntry e : r.entries()) {
             if (available(e)) {
                 UnitSpec spec = specs.get(e.unitKey);
-                cands.add(new DutyAllocator.Candidate(e.rosterId, spec != null ? spec.unitClass() : UnitClass.LINE, e.assignedDuty, e.dutyIndex));
+                StuckWatch.Avoid av = rt.avoid.get(e.rosterId);
+                cands.add(new DutyAllocator.Candidate(e.rosterId, spec != null ? spec.unitClass() : UnitClass.LINE, e.assignedDuty, e.dutyIndex,
+                        av == null ? null : av.slot()));
                 sig = sig * 1_000_003L + e.rosterId.hashCode();
+                if (av != null) {
+                    sig = sig * 31 + av.duty().ordinal() * 1009L + av.index() + 2;
+                }
             }
         }
         sig = sig * 31 + cands.size();
@@ -329,6 +347,7 @@ public final class DutyService {
         java.util.Set<UUID> ids = new java.util.HashSet<>();
         cands.forEach(c -> ids.add(c.rosterId()));
         rt.moves.keySet().retainAll(ids);
+        rt.scoutRide.keySet().retainAll(ids);
         DutyQuota q = DutyQuota.of(table.tier(rec.tier), cands.size(), plan.sentryPosts().size());
         rt.quota = q;
         Map<UUID, DutyAllocator.Assignment> out = DutyAllocator.allocate(cands, q);
@@ -343,6 +362,10 @@ public final class DutyService {
             e.assignedDuty = a.duty();
             e.dutyIndex = a.index();
             DutyMotion.start(e, plan, new DutyMotion.Ctx(table.move(), table.scout(), rec.center, true, 0, q.patrol()), tick);
+            Integer ride = a.duty() == Duty.SCOUT ? rt.scoutRide.remove(e.rosterId) : null;
+            if (ride != null) {
+                StuckWatch.resumeScout(e, ride); // a recovered scout does not restart its failed sequence from ride 0
+            }
             if (e.duty.standing()) {
                 e.duty = a.duty();
             }

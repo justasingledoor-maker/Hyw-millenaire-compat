@@ -74,6 +74,10 @@ public final class StuckWatch {
         @Nullable BlockPos spot;
         double spotBest;
         long spotProgress;
+        /** The duty, index and scout ride the unit was on when it fell back (what failed). */
+        @Nullable Duty failedDuty;
+        int failedIndex = -1;
+        int failedRide = -1;
 
         /** The fallback spot while the unit is falling back, else null. */
         @Nullable
@@ -117,6 +121,49 @@ public final class StuckWatch {
         t.spotProgress = tick;
     }
 
+    /** As above, remembering what the unit failed at (its duty, index and scout ride), for the post exclusion. */
+    public static void fallBack(Track t, RosterEntry e, BlockPos spot, double dist, long tick) {
+        fallBack(t, spot, dist, tick);
+        t.failedDuty = e.assignedDuty;
+        t.failedIndex = e.dutyIndex;
+        t.failedRide = e.assignedDuty == Duty.SCOUT ? DutyMotion.ride(e) : -1;
+    }
+
+    /** How long a recovered unit is kept off the slot it failed at (10 minutes). */
+    public static final long AVOID_TICKS = 12000;
+
+    /**
+     * Post exclusion after a recovery (runtime only): the unit must not be given {@code duty}/{@code index} again until
+     * {@code until} (SCOUT: no scouting at all, index -1). {@code nextRide}: for a scout, the ride to resume with when it
+     * scouts again (the one after the failed ride), else -1.
+     */
+    public record Avoid(Duty duty, int index, long until, int nextRide) {
+        public boolean active(long tick) {
+            return tick < until;
+        }
+
+        public DutyAllocator.Assignment slot() {
+            return new DutyAllocator.Assignment(duty, index);
+        }
+    }
+
+    /** The exclusion for what the unit failed at: SENTRY pair, PATROL slot, or scouting as a whole; null otherwise. */
+    @Nullable
+    static Avoid avoidance(@Nullable Duty failed, int index, int ride, long tick) {
+        if (failed == Duty.SENTRY || failed == Duty.PATROL) {
+            return new Avoid(failed, index, tick + AVOID_TICKS, -1);
+        }
+        if (failed == Duty.SCOUT) {
+            return new Avoid(Duty.SCOUT, -1, tick + AVOID_TICKS, ride < 0 ? -1 : (ride + 1) % 64);
+        }
+        return null;
+    }
+
+    /** A recovered scout scouts again: it resumes at {@code ride} (riding out), not at ride 0. The M4 phases are unchanged. */
+    public static void resumeScout(RosterEntry e, int ride) {
+        e.dutyStep = 4 * ride + DutyMotion.OUT;
+    }
+
     /** No fallback spot now: try again after another full window (never every tick). */
     public static void retryLater(Track t, long tick) {
         t.lastProgress = tick;
@@ -147,9 +194,15 @@ public final class StuckWatch {
 
     /**
      * Recovered: ordinary GARRISON duty, the failed target and progress cleared; the watch starts again from now (so no
-     * second recovery can follow before another full window without progress).
+     * second recovery can follow before another full window without progress). Returns the post exclusion for what the
+     * unit failed at ({@link #avoidance}), or null.
      */
-    public static void toGarrison(RosterEntry e, Track t, long tick) {
+    @Nullable
+    public static Avoid toGarrison(RosterEntry e, Track t, long tick) {
+        Avoid avoid = avoidance(t.failedDuty, t.failedIndex, t.failedRide, tick);
+        t.failedDuty = null;
+        t.failedIndex = -1;
+        t.failedRide = -1;
         e.assignedDuty = Duty.GARRISON;
         e.duty = Duty.GARRISON;
         e.dutyIndex = -1;
@@ -160,6 +213,7 @@ public final class StuckWatch {
         t.best = Double.MAX_VALUE;
         t.lastProgress = tick;
         t.lastSeen = tick;
+        return avoid;
     }
 
     private static final int[][] DIRS = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};

@@ -467,3 +467,36 @@ existing "trapped" recovery (≤ 2 blocks moved since the last order) never appl
   * a unit unseen for a while starts a fresh watch.
 
 M4 is frozen again with this change.
+
+## Addendum (M5): approved post exclusion after a stuck-unit recovery
+
+Diagnostics (`docs/m5-test-evidence/g4-diag4*.txt`) confirmed a cycle:
+
+> unreachable post → stuck → fallback → GARRISON → allocator → same post → stuck again
+
+In that run, 10 of 13 recovered and reassigned units got the same post back within 2–3 s. One scout went round the cycle
+4 times, because recovery also reset its ride count.
+
+* **Exclusion (runtime only, 12000 ticks = 10 min).** When the fallback recovers a unit, `DutyService` remembers what it
+  failed at (`StuckWatch.Avoid`, from the duty and index recorded when the fallback started):
+  * SENTRY: that pair;
+  * PATROL: that patrol slot;
+  * SCOUT: scouting as a whole, because a scout's rides rotate through all posts.
+
+  The state is not persisted, expires on its own and is gone after a restart. Its expiry changes the allocation
+  signature, so the next pass runs.
+* **Allocator.** `DutyAllocator.Candidate` has one optional `avoid` assignment (null for everyone else). The fill steps
+  skip a candidate for a slot equal to its `avoid`; SCOUT means any scout index. Ordering, quotas, priorities, the
+  keep-existing step and determinism are unchanged, and with no exclusion the result is identical.
+* **Scout progression.** A recovered scout remembers the ride after the one it failed. When it is next given SCOUT duty,
+  it resumes at that ride (`StuckWatch.resumeScout`, riding out) instead of ride 0. The M4 phase machine is unchanged.
+* **Unchanged.** Stuck detection (6000), fallback walking (3000), the last-resort move and its repeat limit, fallback spot
+  selection, hop/detour movement, the 24-block hold, and M2, raid and detachment behaviour. Exclusions arise only from an
+  actual recovery of a home-duty unit.
+* **Tests.** `PostExclusionTest` (7) covers:
+  * sentry pair, patrol slot and scouting excluded during the cooldown;
+  * eligible again after 12000 ticks;
+  * other units unaffected;
+  * nothing persisted;
+  * allocation identical and order-independent without exclusions;
+  * scout ride resumed.

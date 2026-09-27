@@ -19,8 +19,21 @@ import java.util.UUID;
 public final class DutyAllocator {
     private DutyAllocator() {}
 
-    /** A living, available unit. {@code current} is its present standing duty, {@code index} its post/route index. */
-    public record Candidate(UUID rosterId, UnitClass unitClass, Duty current, int index) {}
+    /**
+     * A living, available unit. {@code current} is its present standing duty, {@code index} its post/route index.
+     * {@code avoid} (M4 reliability recovery, runtime only, usually null): a slot the unit must not be given while filling
+     * free places, because it was just recovered from it: SENTRY/PATROL with that index, or SCOUT (any index).
+     */
+    public record Candidate(UUID rosterId, UnitClass unitClass, Duty current, int index, @javax.annotation.Nullable Assignment avoid) {
+        public Candidate(UUID rosterId, UnitClass unitClass, Duty current, int index) {
+            this(rosterId, unitClass, current, index, null);
+        }
+    }
+
+    /** The candidate must not be given {@code duty}/{@code index} (SCOUT: any index). */
+    static boolean avoids(Candidate c, Duty duty, int index) {
+        return c.avoid() != null && c.avoid().duty() == duty && (duty == Duty.SCOUT || c.avoid().index() == index);
+    }
 
     public record Assignment(Duty duty, int index) {}
 
@@ -30,6 +43,7 @@ public final class DutyAllocator {
         Map<UUID, Assignment> out = new HashMap<>();
         // 0. scouts: best by preference; a current scout wins ties and keeps its post index
         List<Candidate> byScout = new ArrayList<>(sorted);
+        byScout.removeIf(c -> avoids(c, Duty.SCOUT, -1));
         byScout.sort(Comparator.comparingInt(DutyAllocator::scoutRank)
                 .thenComparingInt(c -> c.current() == Duty.SCOUT ? 0 : 1).thenComparing(Candidate::rosterId));
         List<Candidate> scoutsChosen = byScout.subList(0, Math.min(q.scouts(), byScout.size()));
@@ -91,7 +105,8 @@ public final class DutyAllocator {
         }
         for (int p = 0; p < q.sentryPairs(); p++) {
             while (pairFill[p] < 2) {
-                Candidate c = take(free, Comparator.comparingInt(DutyAllocator::sentryRank));
+                int pair = p;
+                Candidate c = take(free, Comparator.comparingInt(DutyAllocator::sentryRank), x -> !avoids(x, Duty.SENTRY, pair));
                 if (c == null) {
                     break;
                 }
@@ -103,7 +118,8 @@ public final class DutyAllocator {
             if (patrolIdx[i]) {
                 continue;
             }
-            Candidate c = take(free, Comparator.comparingInt(DutyAllocator::patrolRank));
+            int slot = i;
+            Candidate c = take(free, Comparator.comparingInt(DutyAllocator::patrolRank), x -> !avoids(x, Duty.PATROL, slot));
             if (c == null) {
                 break;
             }
@@ -111,7 +127,7 @@ public final class DutyAllocator {
             out.put(c.rosterId(), new Assignment(Duty.PATROL, i));
         }
         while (reserve < q.reserve()) {
-            Candidate c = take(free, Comparator.comparingInt(DutyAllocator::reserveRank));
+            Candidate c = take(free, Comparator.comparingInt(DutyAllocator::reserveRank), x -> true);
             if (c == null) {
                 break;
             }
@@ -124,11 +140,11 @@ public final class DutyAllocator {
         return out;
     }
 
-    /** Removes and returns the best candidate by rank, ties by rosterId (free is kept sorted). */
-    private static Candidate take(List<Candidate> free, Comparator<Candidate> rank) {
+    /** Removes and returns the best allowed candidate by rank, ties by rosterId (free is kept sorted). */
+    private static Candidate take(List<Candidate> free, Comparator<Candidate> rank, java.util.function.Predicate<Candidate> allowed) {
         Candidate best = null;
         for (Candidate c : free) {
-            if (best == null || rank.compare(c, best) < 0) {
+            if (allowed.test(c) && (best == null || rank.compare(c, best) < 0)) {
                 best = c;
             }
         }
