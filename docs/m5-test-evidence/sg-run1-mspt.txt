@@ -1,0 +1,6 @@
+23:49:32-23:50:35: n=10 MSPT mean 38.6 ms (min 32.2, max 44.1); P95 mean 80.3; P99 mean 144.6 ms, max 528.2 ms
+23:50:51-00:04:52: no tick samples
+00:06:08-00:08:13: n=20 MSPT mean 55.1 ms (min 48.7, max 64.5); P95 mean 97.2; P99 mean 130.4 ms, max 307.0 ms
+00:08:33-00:10:15: n=9 MSPT mean 61.0 ms (min 52.7, max 81.0); P95 mean 114.8; P99 mean 176.5 ms, max 377.0 ms
+00:10:52-00:13:02: n=14 MSPT mean 54.2 ms (min 44.5, max 71.7); P95 mean 90.0; P99 mean 164.5 ms, max 694.9 ms
+00:15:47-(open): n=10 MSPT mean 36.6 ms (min 33.5, max 40.3); P95 mean 47.0; P99 mean 57.9 ms, max 79.2 ms

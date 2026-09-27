@@ -3573,7 +3573,7 @@ def village_inputs(s, c):
 
 
 def tick_query(s):
-    out = " ".join(s.output("tick query", 1.2))
+    out = " ".join(s.cmd("tick query", 1.2))  # the average is printed on a continuation line without the logger prefix
     avg = re.search(r"Average time per tick: ([\d.]+)ms", out)
     pct = re.search(r"P50: ([\d.]+)ms P95: ([\d.]+)ms P99: ([\d.]+)ms", out)
     if not avg:
@@ -3783,6 +3783,29 @@ def scenario_SG_5(ctx):
     ctx.sg_after, _ = sample_phase(s, "CALM after restart", 60)
 
 
+def scenario_SG_6(ctx):
+    """Attribution at full size (kept world): settled CALM, then the same garrison units with AI frozen
+    (NoAI), then AI back. The difference is HYW's per-unit AI cost; HywMill's own cost comes from perf."""
+    s = ctx.s
+    s.cmd('datapack enable "file/hywmill_sg"', 5)
+    time.sleep(240)  # settle: units at their posts
+    n = hyw_unit_count(s)
+    s.cmd("hywmill perf reset", 1)
+    calm, _ = sample_phase(s, "CALM settled", 180)
+    perf = s.output("hywmill perf", 2)
+    s.cmd("execute as @e[type=#hywmill:sg_units] run data merge entity @s {NoAI:1b}", 3)
+    time.sleep(20)
+    frozen, _ = sample_phase(s, "CALM, garrison AI frozen (NoAI)", 120)
+    s.cmd("execute as @e[type=#hywmill:sg_units] run data merge entity @s {NoAI:0b}", 3)
+    time.sleep(30)
+    again, _ = sample_phase(s, "CALM, AI back", 120)
+    rows = perf_rows(perf)
+    note("SG-6 garrison-type units loaded", str(n))
+    note("SG-6 HywMill per-tick cost at full size (tick.total, duty.tick)", " | ".join(f"{k} mean {v['mean']}us p99 {v['p99']}us" for k, v in rows.items()))
+    note("SG-6 phases", f"{calm} || {frozen} || {again}")
+    check("SG-6 attribution measured", calm.get("n", 0) > 20 and frozen.get("n", 0) > 10, f"AI cost ≈ {round((calm['mspt_mean'] or 0) - (frozen['mspt_mean'] or 0), 1)} ms/tick")
+
+
 ORDER_SG = ["status", "SG_0", "SG_1", "SG_2", "SG_3", "SG_4", "SG_5"]
 
 
@@ -3797,7 +3820,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
              "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_O": scenario_S5_O,
              "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
-             "SG_5": scenario_SG_5}
+             "SG_5": scenario_SG_5, "SG_6": scenario_SG_6}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",
             "G3_15", "G3_18", "G3_14", "G3_perf"]
 ORDER_G4 = ["status", "G4_0", "G4_1", "G4_2", "G4_3", "G4_4", "G4_5", "G4_6", "G4_7", "G4_8", "G4_10", "G4_perf", "G4_9"]

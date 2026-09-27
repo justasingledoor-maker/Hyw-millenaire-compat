@@ -1,0 +1,18 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652), (396, 69, 616)]
+[harness] --- scenario SG_6
+[harness] SG phase {'phase': 'CALM settled', 'n': 30, 'mspt_mean': 58.79, 'mspt_max_avg': 97.0, 'p99_mean': 190.66, 'p99_max': 1169.6}
+[harness] SG phase {'phase': 'CALM, garrison AI frozen (NoAI)', 'n': 20, 'mspt_mean': 43.72, 'mspt_max_avg': 51.0, 'p99_mean': 109.99, 'p99_max': 145.6}
+[harness] SG phase {'phase': 'CALM, AI back', 'n': 20, 'mspt_mean': 55.3, 'mspt_max_avg': 62.3, 'p99_mean': 123.76, 'p99_max': 154.0}
+[harness] NOTE SG-6 garrison-type units loaded: 386
+[harness] NOTE SG-6 HywMill per-tick cost at full size (tick.total, duty.tick): defense.update mean 2.2us p99 7.9us | duty.layout mean 244.2us p99 442.4us | duty.tick mean 155.1us p99 580.3us | garrison.slot mean 219.2us p99 419.9us | profile.apply mean 127.0us p99 354.1us | profile.doctrine mean 43.4us p99 103.9us | profile.log mean 79.7us p99 300.7us | profile.refresh mean 709.1us p99 1380.7us | profile.snapshot mean 447.9us p99 1010.2us | profile.sweep mean 115.9us p99 369.3us | raid.tick mean 11.1us p99 55.7us | scan.village mean 68.0us p99 180.6us | snap.buildings mean 130.2us p99 334.8us | snap.gear mean 113.8us p99 267.2us | snap.residents mean 58.0us p99 211.5us | snap.slots mean 57.7us p99 199.3us | snap.village mean 57.3us p99 321.6us | tick.total mean 89.8us p99 874.6us
+[harness] NOTE SG-6 phases: {'phase': 'CALM settled', 'n': 30, 'mspt_mean': 58.79, 'mspt_max_avg': 97.0, 'p99_mean': 190.66, 'p99_max': 1169.6} || {'phase': 'CALM, garrison AI frozen (NoAI)', 'n': 20, 'mspt_mean': 43.72, 'mspt_max_avg': 51.0, 'p99_mean': 109.99, 'p99_max': 145.6} || {'phase': 'CALM, AI back', 'n': 20, 'mspt_mean': 55.3, 'mspt_max_avg': 62.3, 'p99_mean': 123.76, 'p99_max': 154.0}
+[harness] PASS SG-6 attribution measured AI cost ≈ 15.1 ms/tick
+[harness] server stopped
+[harness] RESULT 2/2 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652), (396, 69, 616)]
+  PASS  SG-6 attribution measured  AI cost ≈ 15.1 ms/tick
+  NOTE  SG-6 garrison-type units loaded  386
+  NOTE  SG-6 HywMill per-tick cost at full size (tick.total, duty.tick)  defense.update mean 2.2us p99 7.9us | duty.layout mean 244.2us p99 442.4us | duty.tick mean 155.1us p99 580.3us | garrison.slot mean 219.2us p99 419.9us | profile.apply mean 127.0us p99 354.1us | profile.doctrine mean 43.4us p99 103.9us | profile.log mean 79.7us p99 300.7us | profile.refresh mean 709.1us p99 1380.7us | profile.snapshot mean 447.9us p99 1010.2us | profile.sweep mean 115.9us p99 369.3us | raid.tick mean 11.1us p99 55.7us | scan.village mean 68.0us p99 180.6us | snap.buildings mean 130.2us p99 334.8us | snap.gear mean 113.8us p99 267.2us | snap.residents mean 58.0us p99 211.5us | snap.slots mean 57.7us p99 199.3us | snap.village mean 57.3us p99 321.6us | tick.total mean 89.8us p99 874.6us
+  NOTE  SG-6 phases  {'phase': 'CALM settled', 'n': 30, 'mspt_mean': 58.79, 'mspt_max_avg': 97.0, 'p99_mean': 190.66, 'p99_max': 1169.6} || {'phase': 'CALM, garrison AI frozen (NoAI)', 'n': 20, 'mspt_mean': 43.72, 'mspt_max_avg': 51.0, 'p99_mean': 109.99, 'p99_max': 145.6} || {'phase': 'CALM, AI back', 'n': 20, 'mspt_mean': 55.3, 'mspt_max_avg': 62.3, 'p99_mean': 123.76, 'p99_max': 154.0}
+EXIT 0

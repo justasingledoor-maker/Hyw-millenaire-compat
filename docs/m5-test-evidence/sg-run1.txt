@@ -1,0 +1,170 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario SG_0
+[harness] SG villages: {'militaire': (640, 72, 960), 'byzantine': (400, 71, 450), 'artisans': (1060, 87, 640), 'militaire2': (380, 72, 600)}
+[harness] SG input {"adults": 36, "buildingRoles": "{BORDER_MARKER=16, GUARDHOUSE=1}", "cap_now": 16, "capacity": 16, "center": [647, 80, 624], "culture": "millenaire:norman", "faction": "f816f880-3a85-3908-9ccd-5dfc091a1c30", "fortification": 3, "live": 8, "mill_soldiers": 17, "name": "Sainte-Marguerite les-p\u00e2tures", "population": 36, "target_now": 16, "tier": "GUARD_POST", "type": "millenaire:norman/agricole", "villagerRoles": "{SOLDIER=1, LEADER=1, MILITIA=15, CIVILIAN=19}"}
+[harness] SG input {"adults": 15, "buildingRoles": "{BORDER_MARKER=13}", "cap_now": 8, "capacity": 6, "center": [847, 87, 624], "culture": "millenaire:norman", "faction": "6b42898a-21b9-368b-9c22-2ade27263ee7", "fortification": 0, "live": 3, "mill_soldiers": 7, "name": "Isigny les-p\u00e2tures", "population": 15, "target_now": 6, "tier": "WATCH", "type": "millenaire:norman/agricole", "villagerRoles": "{LEADER=1, MILITIA=6, CIVILIAN=8}"}
+[harness] SG input {"adults": 22, "buildingRoles": "{WALL=26, TOWER=4, BORDER_MARKER=7, GUARDHOUSE=2, WATCHTOWER=2, ARMOURY=1, FORT_TOWNHALL=1}", "cap_now": 64, "capacity": 11, "center": [656, 69, 976], "culture": "millenaire:norman", "faction": "6a51c64d-4ca1-3801-8a3c-0b1be2ba2d84", "fortification": 55, "live": 6, "mill_soldiers": 12, "name": "Cr\u00e8vecoeur le-volcan", "population": 22, "target_now": 11, "tier": "STRONGHOLD", "type": "millenaire:norman/militaire", "villagerRoles": "{SOLDIER=4, LEADER=1, MILITIA=7, CIVILIAN=10}"}
+[harness] SG input {"adults": 32, "buildingRoles": "{BORDER_MARKER=9, BARRACKS=1, ARMOURY=1, FORT_TOWNHALL=1}", "cap_now": 16, "capacity": 14, "center": [420, 70, 470], "culture": "millenaire:byzantines", "faction": "1dece76d-9b20-3e40-9f5c-420831fa5efb", "fortification": 9, "live": 8, "mill_soldiers": 15, "name": "Phaistos", "population": 32, "target_now": 14, "tier": "GUARD_POST", "type": "millenaire:byzantines/militaryvillage", "villagerRoles": "{SOLDIER=1, LEADER=1, MILITIA=13, CIVILIAN=17}"}
+[harness] SG input {"adults": 16, "buildingRoles": "{WALL=29, TOWER=5, BORDER_MARKER=3}", "cap_now": 8, "capacity": 8, "center": [1074, 84, 652], "culture": "millenaire:norman", "faction": "ce9e9d1e-22ba-3426-ab35-c4b932160639", "fortification": 44, "live": 4, "mill_soldiers": 8, "name": "Grainville les-mines", "population": 16, "target_now": 8, "tier": "WATCH", "type": "millenaire:norman/artisans", "villagerRoles": "{MILITIA=8, CIVILIAN=8}"}
+[harness] SG input {"adults": 22, "buildingRoles": "{WALL=49, TOWER=8, BORDER_MARKER=14, GUARDHOUSE=2, WATCHTOWER=2, ARMOURY=1, FORT_TOWNHALL=1}", "cap_now": 64, "capacity": 11, "center": [396, 69, 616], "culture": "millenaire:norman", "faction": "61472e93-1a94-36e5-9a77-50919f1b30dc", "fortification": 90, "live": 6, "mill_soldiers": 12, "name": "Barbery la-f\u00f4ret", "population": 22, "target_now": 11, "tier": "STRONGHOLD", "type": "millenaire:norman/militaire", "villagerRoles": "{SOLDIER=4, LEADER=1, MILITIA=7, CIVILIAN=10}"}
+[harness] PASS SG-0 village inputs collected ['GUARD_POST', 'GUARD_POST', 'STRONGHOLD', 'STRONGHOLD', 'WATCH', 'WATCH']
+[harness] --- scenario SG_1
+[harness] SG phase {'phase': 'baseline (starting garrisons)', 'n': 0, 'mspt_mean': None, 'mspt_max_avg': None, 'p99_mean': None, 'p99_max': None}
+[harness] PASS SG-1 test datapack sets the locked caps (data only) {'Sainte-Marguerite les-pâtures': ('GUARD_POST', 48), 'Isigny les-pâtures': ('WATCH', 24), 'Crèvecoeur le-volcan': ('STRONGHOLD', 128), 'Phaistos': ('GUARD_POST', 48), 'Grainville les-mines': ('WATCH', 24), 'Barbery la-fôret': ('STRONGHOLD', 128)}
+[harness] SG fill Sainte-Marguerite les-pâtures GUARD_POST: [('spear_man', 13), ('archer', 9), ('militia', 6), ('crossbowman', 4), ('warrior', 8)]
+[harness] SG fill Isigny les-pâtures WATCH: [('archer', 7), ('militia', 4), ('crossbowman', 3)]
+[harness] SG fill Crèvecoeur le-volcan STRONGHOLD: [('spear_man', 40), ('archer', 27), ('light_lancer_rider', 18), ('archer_rider', 12), ('militia', 8), ('crossbowman', 5), ('shieldman', 3), ('warrior', 8)]
+[harness] SG fill Phaistos GUARD_POST: [('spear_man', 13), ('archer', 9), ('militia', 6), ('crossbowman', 4), ('warrior', 8)]
+[harness] SG fill Grainville les-mines WATCH: [('archer', 6), ('militia', 4), ('crossbowman', 3)]
+[harness] SG fill Barbery la-fôret STRONGHOLD: [('spear_man', 40), ('archer', 27), ('light_lancer_rider', 18), ('archer_rider', 12), ('militia', 8), ('crossbowman', 5), ('shieldman', 4), ('warrior', 8)]
+[harness] SG fill perf:
+  hywmill perf (per server since start or last reset):
+   defense.update: n=4589 mean=1.3us max=31.5us p99=0.8us total=6.0ms
+   duty.layout: n=78 mean=188.7us max=344.2us p99=344.2us total=14.7ms
+   duty.tick: n=2295 mean=128.1us max=5130.5us p99=696.6us total=294.0ms
+   garrison.event: n=350 mean=22.2us max=144.9us p99=84.6us total=7.8ms
+   garrison.slot: n=460 mean=178.2us max=508.0us p99=429.3us total=82.0ms
+   garrison.spawn: n=350 mean=446.1us max=1899.9us p99=1091.6us total=156.1ms
+   profile.apply: n=460 mean=66.1us max=216.0us p99=180.4us total=30.4ms
+   profile.doctrine: n=460 mean=26.6us max=89.0us p99=74.8us total=12.2ms
+   profile.log: n=460 mean=74.1us max=368.3us p99=151.2us total=34.1ms
+   profile.refresh: n=460 mean=553.2us max=20548.7us p99=1144.8us total=254.5ms
+   profile.snapshot: n=460 mean=381.9us max=20364.5us p99=769.3us total=175.7ms
+   profile.sweep: n=458 mean=63.6us max=208.0us p99=146.6us total=29.1ms
+   raid.tick: n=2295 mean=7.9us max=106.0us p99=12.5us total=18.1ms
+   scan.village: n=4589 mean=52.1us max=968.6us p99=165.6us total=239.0ms
+   snap.buildings: n=460 mean=142.3us max=20076.7us p99=193.3us total=65.5ms
+   snap.gear: n=460 mean=82.0us max=172.1us p99=145.2us total=37.7ms
+   snap.residents: n=460 mean=52.9us max=219.8us p99=107.6us total=24.3ms
+   snap.slots: n=460 mean=43.5us max=1124.9us p99=184.1us total=20.0ms
+   snap.village: n=460 mean=41.4us max=1281.5us p99=103.5us total=19.0ms
+   tick.total: n=15297 mean=84.7us max=20644.0us p99=677.5us total=1295.5ms
+   villages known: 6, with defense state: 6
+   garrison: 6 roster(s), 386 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+  Can't keep up! Is the server overloaded? Running 2056ms or 41 ticks behind
+[harness] FAIL SG-1 every garrison filled to its locked cap 840s; {'Sainte-Marguerite les-pâtures': (48, 48, 48), 'Isigny les-pâtures': (17, 24, 17), 'Crèvecoeur le-volcan': (128, 128, 128), 'Phaistos': (48, 48, 48), 'Grainville les-mines': (17, 24, 17), 'Barbery la-fôret': (128, 128, 128)}
+[harness] NOTE SG-1 HYW garrison-type entities loaded (baseline -> filled): 35 -> 386
+[harness] --- scenario SG_2
+[harness] SG phase {'phase': 'CALM (filled)', 'n': 0, 'mspt_mean': None, 'mspt_max_avg': None, 'p99_mean': None, 'p99_max': None}
+[harness] SG CALM perf:
+  hywmill perf (per server since start or last reset):
+   defense.update: n=657 mean=0.3us max=4.3us p99=0.7us total=0.2ms
+   duty.layout: n=12 mean=109.0us max=183.6us p99=183.6us total=1.3ms
+   duty.tick: n=328 mean=104.2us max=330.7us p99=282.0us total=34.2ms
+   garrison.slot: n=66 mean=112.4us max=264.6us p99=264.6us total=7.4ms
+   profile.apply: n=66 mean=52.2us max=103.4us p99=103.4us total=3.4ms
+   profile.doctrine: n=66 mean=16.9us max=23.4us p99=23.4us total=1.1ms
+   profile.log: n=66 mean=63.9us max=119.9us p99=119.9us total=4.2ms
+   profile.refresh: n=66 mean=416.4us max=683.9us p99=683.9us total=27.5ms
+   profile.snapshot: n=66 mean=278.4us max=555.1us p99=555.1us total=18.4ms
+   profile.sweep: n=66 mean=51.6us max=95.9us p99=95.9us total=3.4ms
+   raid.tick: n=328 mean=6.3us max=46.4us p99=11.3us total=2.1ms
+   scan.village: n=657 mean=52.3us max=193.1us p99=132.8us total=34.4ms
+   snap.buildings: n=66 mean=68.0us max=187.7us p99=187.7us total=4.5ms
+   snap.gear: n=66 mean=67.8us max=125.9us p99=125.9us total=4.5ms
+   snap.residents: n=66 mean=39.7us max=104.2us p99=104.2us total=2.6ms
+   snap.slots: n=66 mean=53.8us max=177.6us p99=177.6us total=3.6ms
+   snap.village: n=66 mean=31.1us max=65.1us p99=65.1us total=2.1ms
+   tick.total: n=2194 mean=59.5us max=761.6us p99=509.8us total=130.5ms
+   villages known: 6, with defense state: 6
+   garrison: 6 roster(s), 386 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] NOTE SG-2 duties Sainte-Marguerite les-pâtures GUARD_POST (48 units): quota {'pairs': 1, 'patrol': 3, 'scouts': 1, 'reserve': 4} assigned {'RESERVE': 4, 'SENTRY': 2, 'PATROL': 3, 'GARRISON': 38, 'SCOUT': 1}
+[harness] NOTE SG-2 duties Isigny les-pâtures WATCH (17 units): quota {'pairs': 1, 'patrol': 2, 'scouts': 0, 'reserve': 1} assigned {'PATROL': 2, 'RESERVE': 1, 'SENTRY': 2, 'GARRISON': 12}
+[harness] NOTE SG-2 duties Crèvecoeur le-volcan STRONGHOLD (128 units): quota {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 19} assigned {'RESERVE': 19, 'GARRISON': 81, 'SENTRY': 16, 'SCOUT': 4, 'PATROL': 8}
+[harness] NOTE SG-2 duties Phaistos GUARD_POST (48 units): quota {'pairs': 2, 'patrol': 3, 'scouts': 1, 'reserve': 4} assigned {'SCOUT': 1, 'RESERVE': 4, 'PATROL': 3, 'SENTRY': 4, 'GARRISON': 36}
+[harness] NOTE SG-2 duties Grainville les-mines WATCH (17 units): quota {'pairs': 1, 'patrol': 2, 'scouts': 0, 'reserve': 1} assigned {'PATROL': 2, 'RESERVE': 1, 'SENTRY': 2, 'GARRISON': 12}
+[harness] NOTE SG-2 duties Barbery la-fôret STRONGHOLD (128 units): quota {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 19} assigned {'RESERVE': 19, 'GARRISON': 81, 'PATROL': 8, 'SENTRY': 16, 'SCOUT': 4}
+[harness] NOTE SG-2 HywMill share of the tick (tick.total mean / MSPT): 59.5 us of None ms
+[harness] FAIL SG-2 CALM at full size: MSPT measured baseline {'phase': 'baseline (starting garrisons)', 'n': 0, 'mspt_mean': None, 'mspt_max_avg': None, 'p99_mean': None, 'p99_max': None} | filled {'phase': 'CALM (filled)', 'n': 0, 'mspt_mean': None, 'mspt_max_avg': None, 'p99_mean': None, 'p99_max': None}
+[harness] --- scenario SG_3
+[harness] SG phase {'phase': 'ALERT (bandits at strongholds)', 'n': 0, 'mspt_mean': None, 'mspt_max_avg': None, 'p99_mean': None, 'p99_max': None}
+[harness] SG ALERT perf:
+  hywmill perf (per server since start or last reset):
+   defense.update: n=543 mean=46.5us max=452.8us p99=322.0us total=25.2ms
+   duty.layout: n=12 mean=108.9us max=134.6us p99=134.6us total=1.3ms
+   duty.tick: n=255 mean=147.4us max=612.7us p99=441.9us total=37.6ms
+   garrison.deploy: n=150 mean=308.1us max=899.6us p99=845.5us total=46.2ms
+   garrison.slot: n=50 mean=161.2us max=357.9us p99=357.9us total=8.1ms
+   profile.apply: n=50 mean=56.2us max=185.0us p99=185.0us total=2.8ms
+   profile.doctrine: n=50 mean=16.7us max=24.9us p99=24.9us total=0.8ms
+   profile.log: n=50 mean=66.2us max=110.8us p99=110.8us total=3.3ms
+   profile.refresh: n=50 mean=413.7us max=557.2us p99=557.2us total=20.7ms
+   profile.snapshot: n=50 mean=270.2us max=387.7us p99=387.7us total=13.5ms
+   profile.sweep: n=52 mean=50.9us max=97.8us p99=97.8us total=2.6ms
+   raid.tick: n=255 mean=6.6us max=25.3us p99=16.6us total=1.7ms
+   scan.village: n=543 mean=84.0us max=521.4us p99=293.9us total=45.6ms
+   snap.buildings: n=50 mean=61.1us max=87.8us p99=87.8us total=3.1ms
+   snap.gear: n=50 mean=83.1us max=152.4us p99=152.4us total=4.2ms
+   snap.residents: n=50 mean=26.9us max=57.8us p99=57.8us total=1.3ms
+   snap.slots: n=50 mean=54.2us max=86.2us p99=86.2us total=2.7ms
+   snap.village: n=50 mean=30.0us max=69.5us p99=69.5us total=1.5ms
+   tick.total: n=1700 mean=125.2us max=3145.5us p99=620.7us total=212.9ms
+   villages known: 6, with defense state: 6
+   garrison: 6 roster(s), 386 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] NOTE SG-3 deployed over time: {'Crèvecoeur le-volcan': [4, 2, 2, 0, 0, 0, 0, 0, 0], 'Barbery la-fôret': [4, 4, 0, 0, 0, 0, 0, 0, 0]}
+[harness] NOTE SG-3 seconds to first deployment: {'Crèvecoeur le-volcan': 3, 'Barbery la-fôret': 5}
+[harness] PASS SG-3 large rosters deploy against the threat {'Crèvecoeur le-volcan': [4, 2, 2, 0, 0, 0, 0, 0, 0], 'Barbery la-fôret': [4, 4, 0, 0, 0, 0, 0, 0, 0]}
+[harness] --- scenario SG_4
+[harness] SG phase {'phase': 'raid (stronghold raids A)', 'n': 0, 'mspt_mean': None, 'mspt_max_avg': None, 'p99_mean': None, 'p99_max': None}
+[harness] SG raid perf:
+  hywmill perf (per server since start or last reset):
+   defense.update: n=714 mean=16.7us max=294.1us p99=195.8us total=11.9ms
+   duty.layout: n=13 mean=107.6us max=148.2us p99=148.2us total=1.4ms
+   duty.tick: n=354 mean=162.7us max=2102.9us p99=829.2us total=57.6ms
+   garrison.deploy: n=144 mean=136.0us max=516.8us p99=385.3us total=19.6ms
+   garrison.slot: n=70 mean=145.8us max=282.3us p99=282.3us total=10.2ms
+   profile.apply: n=71 mean=59.4us max=202.4us p99=202.4us total=4.2ms
+   profile.doctrine: n=71 mean=18.9us max=98.7us p99=98.7us total=1.3ms
+   profile.log: n=71 mean=74.4us max=172.6us p99=172.6us total=5.3ms
+   profile.refresh: n=71 mean=494.4us max=1144.0us p99=1144.0us total=35.1ms
+   profile.snapshot: n=71 mean=336.0us max=1002.0us p99=1002.0us total=23.9ms
+   profile.sweep: n=70 mean=110.9us max=590.3us p99=590.3us total=7.8ms
+   raid.tick: n=354 mean=20.9us max=753.6us p99=334.2us total=7.4ms
+   scan.village: n=714 mean=61.1us max=391.7us p99=165.3us total=43.6ms
+   snap.buildings: n=71 mean=80.7us max=273.9us p99=273.9us total=5.7ms
+   snap.gear: n=71 mean=95.5us max=234.0us p99=234.0us total=6.8ms
+   snap.residents: n=71 mean=52.8us max=234.2us p99=234.2us total=3.7ms
+   snap.slots: n=71 mean=51.7us max=255.2us p99=255.2us total=3.7ms
+   snap.village: n=71 mean=33.0us max=115.8us p99=115.8us total=2.3ms
+   tick.total: n=2358 mean=91.1us max=2154.2us p99=647.1us total=214.8ms
+   villages known: 6, with defense state: 6
+   garrison: 6 roster(s), 386 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] NOTE SG-4 raid trigger: Raid triggered: Crèvecoeur le-volcan -> Sainte-Marguerite les-pâtures (6 raiders dispatched)
+[harness] NOTE SG-4 RAID-assigned units at the attacker over time: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[harness] FAIL SG-4 raid at full size measured (contingent capped by current maxCommit) max contingent 0
+[harness] --- scenario SG_5
+[harness] server stopped
+[harness] server started
+[harness] FAIL SG-5 restart at full size: no duplicate slots, every garrison still at its cap {'Isigny les-pâtures': ({'tagged': 17, 'slots': 17, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 17, 'live': 17, 'bound': 17}, 17, 24), 'Crèvecoeur le-volcan': ({'tagged': 128, 'slots': 128, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 128, 'live': 128, 'bound': 128}, 128, 48), 'Grainville les-mines': ({'tagged': 17, 'slots': 17, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 17, 'live': 17, 'bound': 17}, 17, 24)}
+[harness] SG phase {'phase': 'CALM after restart', 'n': 0, 'mspt_mean': None, 'mspt_max_avg': None, 'p99_mean': None, 'p99_max': None}
+[harness] server stopped
+[harness] RESULT 7/11 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  SG-0 village inputs collected  ['GUARD_POST', 'GUARD_POST', 'STRONGHOLD', 'STRONGHOLD', 'WATCH', 'WATCH']
+  PASS  SG-1 test datapack sets the locked caps (data only)  {'Sainte-Marguerite les-pâtures': ('GUARD_POST', 48), 'Isigny les-pâtures': ('WATCH', 24), 'Crèvecoeur le-volcan': ('STRONGHOLD', 128), 'Phaistos': ('GUARD_POST', 48), 'Grainville les-mines': ('WATCH', 24), 'Barbery la-fôret': ('STRONGHOLD', 128)}
+  FAIL  SG-1 every garrison filled to its locked cap  840s; {'Sainte-Marguerite les-pâtures': (48, 48, 48), 'Isigny les-pâtures': (17, 24, 17), 'Crèvecoeur le-volcan': (128, 128, 128), 'Phaistos': (48, 48, 48), 'Grainville les-mines': (17, 24, 17), 'Barbery la-fôret': (128, 128, 128)}
+  FAIL  SG-2 CALM at full size: MSPT measured  baseline {'phase': 'baseline (starting garrisons)', 'n': 0, 'mspt_mean': None, 'mspt_max_avg': None, 'p99_mean': None, 'p99_max': None} | filled {'phase': 'CALM (filled)', 'n': 0, 'mspt_mean': None, 'mspt_max_avg': None, 'p99_mean': None, 'p99_max': None}
+  PASS  SG-3 large rosters deploy against the threat  {'Crèvecoeur le-volcan': [4, 2, 2, 0, 0, 0, 0, 0, 0], 'Barbery la-fôret': [4, 4, 0, 0, 0, 0, 0, 0, 0]}
+  FAIL  SG-4 raid at full size measured (contingent capped by current maxCommit)  max contingent 0
+  FAIL  SG-5 restart at full size: no duplicate slots, every garrison still at its cap  {'Isigny les-pâtures': ({'tagged': 17, 'slots': 17, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 17, 'live': 17, 'bound': 17}, 17, 24), 'Crèvecoeur le-volcan': ({'tagged': 128, 'slots': 128, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 128, 'live': 128, 'bound': 128}, 128, 48), 'Grainville les-mines': ({'tagged': 17, 'slots': 17, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 17, 'live': 17, 'bound': 17}, 17, 24)}
+  NOTE  SG-1 HYW garrison-type entities loaded (baseline -> filled)  35 -> 386
+  NOTE  SG-2 duties Sainte-Marguerite les-pâtures GUARD_POST (48 units)  quota {'pairs': 1, 'patrol': 3, 'scouts': 1, 'reserve': 4} assigned {'RESERVE': 4, 'SENTRY': 2, 'PATROL': 3, 'GARRISON': 38, 'SCOUT': 1}
+  NOTE  SG-2 duties Isigny les-pâtures WATCH (17 units)  quota {'pairs': 1, 'patrol': 2, 'scouts': 0, 'reserve': 1} assigned {'PATROL': 2, 'RESERVE': 1, 'SENTRY': 2, 'GARRISON': 12}
+  NOTE  SG-2 duties Crèvecoeur le-volcan STRONGHOLD (128 units)  quota {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 19} assigned {'RESERVE': 19, 'GARRISON': 81, 'SENTRY': 16, 'SCOUT': 4, 'PATROL': 8}
+  NOTE  SG-2 duties Phaistos GUARD_POST (48 units)  quota {'pairs': 2, 'patrol': 3, 'scouts': 1, 'reserve': 4} assigned {'SCOUT': 1, 'RESERVE': 4, 'PATROL': 3, 'SENTRY': 4, 'GARRISON': 36}
+  NOTE  SG-2 duties Grainville les-mines WATCH (17 units)  quota {'pairs': 1, 'patrol': 2, 'scouts': 0, 'reserve': 1} assigned {'PATROL': 2, 'RESERVE': 1, 'SENTRY': 2, 'GARRISON': 12}
+  NOTE  SG-2 duties Barbery la-fôret STRONGHOLD (128 units)  quota {'pairs': 8, 'patrol': 8, 'scouts': 4, 'reserve': 19} assigned {'RESERVE': 19, 'GARRISON': 81, 'PATROL': 8, 'SENTRY': 16, 'SCOUT': 4}
+  NOTE  SG-2 HywMill share of the tick (tick.total mean / MSPT)  59.5 us of None ms
+  NOTE  SG-3 deployed over time  {'Crèvecoeur le-volcan': [4, 2, 2, 0, 0, 0, 0, 0, 0], 'Barbery la-fôret': [4, 4, 0, 0, 0, 0, 0, 0, 0]}
+  NOTE  SG-3 seconds to first deployment  {'Crèvecoeur le-volcan': 3, 'Barbery la-fôret': 5}
+  NOTE  SG-4 raid trigger  Raid triggered: Crèvecoeur le-volcan -> Sainte-Marguerite les-pâtures (6 raiders dispatched)
+  NOTE  SG-4 RAID-assigned units at the attacker over time  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+EXIT 1

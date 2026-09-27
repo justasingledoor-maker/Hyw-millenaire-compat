@@ -1,0 +1,55 @@
+6 villages
+- Sainte-Marguerite les-pâtures (millenaire:norman/agricole): tier GUARD_POST, capacity 16, population 36, adults 36, fortification 3, buildings {BORDER_MARKER=16, GUARDHOUSE=1}
+- Isigny les-pâtures (millenaire:norman/agricole): tier WATCH, capacity 6, population 15, adults 15, fortification 0, buildings {BORDER_MARKER=13}
+- Crèvecoeur le-volcan (millenaire:norman/militaire): tier STRONGHOLD, capacity 11, population 22, adults 22, fortification 55, buildings {WALL=26, TOWER=4, BORDER_MARKER=7, GUARDHOUSE=2, WATCHTOWER=2, ARMOURY=1, FORT_TOWNHALL=1}
+- Phaistos (millenaire:byzantines/militaryvillage): tier GUARD_POST, capacity 14, population 32, adults 32, fortification 9, buildings {BORDER_MARKER=9, BARRACKS=1, ARMOURY=1, FORT_TOWNHALL=1}
+- Grainville les-mines (millenaire:norman/artisans): tier WATCH, capacity 8, population 16, adults 16, fortification 44, buildings {WALL=29, TOWER=5, BORDER_MARKER=3}
+- Barbery la-fôret (millenaire:norman/militaire): tier STRONGHOLD, capacity 11, population 22, adults 22, fortification 90, buildings {WALL=49, TOWER=8, BORDER_MARKER=14, GUARDHOUSE=2, WATCHTOWER=2, ARMOURY=1, FORT_TOWNHALL=1}
+
+## C1 design investigation values
+| village | tier | current target | candidate | x current | locked cap | cap reached |
+|---|---|---|---|---|---|---|
+| Sainte-Marguerite les-pâtures | GUARD_POST | 16 | 28 | 1.75 | 48 | no |
+| Isigny les-pâtures | WATCH | 6 | 8 | 1.33 | 24 | no |
+| Crèvecoeur le-volcan | STRONGHOLD | 11 | 65 | 5.91 | 128 | no |
+| Phaistos | GUARD_POST | 14 | 45 | 3.21 | 48 | no |
+| Grainville les-mines | WATCH | 8 | 24 | 3.00 | 24 | yes |
+| Barbery la-fôret | STRONGHOLD | 11 | 72 | 6.55 | 128 | no |
+
+Slots needed to reach the cap with 40 adults, fortification 40, barracks+armoury+training+fort townhall (GARRISON+), or a guardhouse+watchtower (lower tiers):
+  WATCH: 16 soldier/militia slots
+  GUARD_POST: 30 soldier/militia slots
+  GARRISON: 20 soldier/militia slots
+  STRONGHOLD: 42 soldier/militia slots
+
+## C2 tuned (2-3x per slot)
+| village | tier | current target | candidate | x current | locked cap | cap reached |
+|---|---|---|---|---|---|---|
+| Sainte-Marguerite les-pâtures | GUARD_POST | 16 | 47 | 2.94 | 48 | no |
+| Isigny les-pâtures | WATCH | 6 | 14 | 2.33 | 24 | no |
+| Crèvecoeur le-volcan | STRONGHOLD | 11 | 81 | 7.36 | 128 | no |
+| Phaistos | GUARD_POST | 14 | 48 | 3.43 | 48 | yes |
+| Grainville les-mines | WATCH | 8 | 24 | 3.00 | 24 | yes |
+| Barbery la-fôret | STRONGHOLD | 11 | 88 | 8.00 | 128 | no |
+
+Slots needed to reach the cap with 40 adults, fortification 40, barracks+armoury+training+fort townhall (GARRISON+), or a guardhouse+watchtower (lower tiers):
+  WATCH: 6 soldier/militia slots
+  GUARD_POST: 15 soldier/militia slots
+  GARRISON: 11 soldier/militia slots
+  STRONGHOLD: 28 soldier/militia slots
+
+## C3 tuned + fortifications
+| village | tier | current target | candidate | x current | locked cap | cap reached |
+|---|---|---|---|---|---|---|
+| Sainte-Marguerite les-pâtures | GUARD_POST | 16 | 47 | 2.94 | 48 | no |
+| Isigny les-pâtures | WATCH | 6 | 14 | 2.33 | 24 | no |
+| Crèvecoeur le-volcan | STRONGHOLD | 11 | 90 | 8.18 | 128 | no |
+| Phaistos | GUARD_POST | 14 | 48 | 3.43 | 48 | yes |
+| Grainville les-mines | WATCH | 8 | 24 | 3.00 | 24 | yes |
+| Barbery la-fôret | STRONGHOLD | 11 | 110 | 10.00 | 128 | no |
+
+Slots needed to reach the cap with 40 adults, fortification 40, barracks+armoury+training+fort townhall (GARRISON+), or a guardhouse+watchtower (lower tiers):
+  WATCH: 6 soldier/militia slots
+  GUARD_POST: 15 soldier/militia slots
+  GARRISON: 10 soldier/militia slots
+  STRONGHOLD: 27 soldier/militia slots

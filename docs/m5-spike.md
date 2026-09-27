@@ -1,6 +1,8 @@
 # HywMill M5-0 Spike Report
 
-**Status: STOPPED at the M5-0 boundary. M5-1 has not been started.**
+**Status: STOPPED at the M5-0 boundary. M5-1 has not been started.** A follow-up spike (§4a) validated
+the recommended fix, Option 1. It needs your explicit approval because it changes frozen M1.1
+identity semantics.
 
 One spike failed in a way the stop rule covers: **Spike B (player ↔ village HOSTILE)**. HYW's
 public relation API does drive soldier-versus-soldier combat under DEFAULT exactly as designed.
@@ -265,25 +267,116 @@ This only verifies that the goods load. Buying in the trade screen needs a real 
 **persisted by HywMill** (ledger format 5). Millénaire's history can only be a display mirror,
 re-emitted after a restart if that is wanted.
 
-### Spike S-G (garrison scale): prepared, not run
+### Spike S-G (garrison scale): RUN (follow-up)
 
-S-G belongs to M5-G, which is not part of M5-0. What is ready:
+S-G changes nothing in M3/M4. The locked caps were applied **only in the test world**, by a
+datapack (`hywmill_garrison` data: `maxUnits`/`maxTarget` 24/48/72/128). Evidence:
+* `sg-run1.txt` (real inputs, fill, CALM/ALERT/raid, restart) and `sg-run1-mspt.txt`;
+* `sg-run2-attribution.txt` (settled CALM vs frozen AI);
+* `sg-model-real-inputs.txt`;
+* `sg-offline-probe-current-data.txt`.
 
-* the offline probe of the current M3/M4 functions at the locked sizes
-  (`sg-offline-probe-current-data.txt`);
-* the formula model (`devtools/sg_model.py`);
-* the harness scale run (`run sgscale`: real village inputs, a test-world datapack with the locked
-  caps, 2 strongholds, CALM/ALERT/raid with `/tick query`);
-* a scouted second stronghold site (380, 72, 600).
+**Real harness villages.** Six villages, including two real strongholds (`norman/militaire`,
+scouted); no harness village reaches GARRISON tier.
 
-What the current data gives:
+| Village | Type | Tier | Soldier/militia slots (= target today) | Population | Fortification | Military buildings |
+|---|---|---|---|---|---|---|
+| Barbery la-fôret | norman/militaire | STRONGHOLD | 11 | 22 | 90 | 49 walls, 8 towers, 2 guardhouses, 2 watchtowers, armoury, fort townhall |
+| Crèvecoeur le-volcan | norman/militaire | STRONGHOLD | 11 | 22 | 55 | 26 walls, 4 towers, 2 guardhouses, 2 watchtowers, armoury, fort townhall |
+| Phaistos | byzantines/militaryvillage | GUARD_POST | 14 | 32 | 9 | barracks, armoury, fort townhall |
+| Sainte-Marguerite | norman/agricole | GUARD_POST | 16 | 36 | 3 | guardhouse |
+| Grainville | norman/artisans | WATCH | 8 | 16 | 44 | 29 walls, 5 towers |
+| Isigny | norman/agricole | WATCH | 6 | 15 | 0 | — |
 
-* **Duty staffing.** At 128 units a STRONGHOLD staffs only **47** active roles (8 sentry pairs,
-  8 patrol, 4 scouts, 19 reserve); 81 stay on GARRISON duty. At 72, 38 are active. At WATCH, 5 are
-  active at any size.
-* **Raids** are capped at **12** (Seljuk 16) at every size.
+**Key finding.** Real Millénaire strongholds declare only **11** soldier slots, so today their
+target is 11, far below the old 64 cap. Their military weight is in **walls, towers and
+fortification**. A formula driven by slots alone cannot make the 128 cap matter.
 
-This confirms the need for the approved M5-G data retune.
+**Candidate formulas on the real inputs** (`devtools/sg_model.py`):
+
+| | WATCH (Isigny / Grainville) | GUARD_POST (Sainte-Marguerite / Phaistos) | STRONGHOLD (Crèvecoeur / Barbery) |
+|---|---|---|---|
+| Today | 6 / 8 | 16 / 14 | 11 / 11 |
+| C1 design investigation values | 8 / 24 | 28 / 45 | 65 / 72 |
+| C2 perSlot 2 / 2.25 / 2.5 / 3, higher levy share | 14 / 24 | 47 / 48 | 81 / 88 |
+| **C3 = C2 + towers ×2, fortification ÷3 up to +30** | **14 / 24** | **47 / 48** | **90 / 110** |
+
+With C3:
+* GUARD_POST villages sit at their cap, about 3× today.
+* WATCH villages are 14–24, about 2.3–3×.
+* The real strongholds are at 90 and 110 of 128. A stronghold with about 27 soldier slots and full
+  military infrastructure reaches 128.
+
+C3 is the recommended starting point for M5-G. The locked caps are unchanged, population is not
+a ceiling, and it is deterministic and data-only. With its new terms at neutral values it
+reproduces today's target.
+
+**Scale test.** Two strongholds at **128**, two GUARD_POST at **48**, two WATCH at 17 (the fill
+helper stopped short of 24: a harness limit). That is **386 garrison units**, plus the villages. It
+matches the requested 2 × 128 + 2 × 72 = 400 in total load.
+
+| Phase (dedicated server, 4 shared cores) | MSPT mean | P99 mean (max) |
+|---|---|---|
+| Baseline, starting garrisons (35 units), 6 villages loaded | 38.6 ms | 145 ms (528) |
+| Fill: 351 units spawned by the existing throttle | 840 s for everything; both strongholds 128/128 | — |
+| CALM just after the fill | 55.1 ms | 130 ms (307) |
+| ALERT (6 bandits at each stronghold) | 61.0 ms | 177 ms (377) |
+| Raid (stronghold → village) | 54.2 ms | 165 ms (695) |
+| After a restart, 386 units | 36.6 ms | 58 ms (79) |
+| **Settled CALM (run 2)** | **58.8 ms** | 191 ms (1170) |
+| **Same units, AI frozen (`NoAI`)** | **43.7 ms** | 110 ms (146) |
+| AI restored | 55.3 ms | 124 ms (154) |
+
+**Where the cost is.**
+* **HYW unit AI:** about **12–15 ms per tick for 386 units**, roughly 35–40 µs per unit. This is
+  the bottleneck: target selection and pathfinding of HYW units.
+* **Units' physical presence:** about 5 ms (NoAI run versus baseline).
+* **HywMill's own work** at full size, per slot, staggered:
+  * duty tick 155 µs;
+  * garrison slot 219 µs;
+  * layout 244 µs;
+  * profile refresh 709 µs, once per ledger interval per village;
+  * threat scan 68 µs;
+  * raid poll 11 µs.
+
+  Averaged per server tick, HywMill stays well under 1 ms. It is not the bottleneck.
+
+The container's baseline is already 77 % of the 50 ms budget, so absolute MSPT here overstates a
+real server. The relative cost (≈ 40–50 µs per loaded unit, AI plus physics) is what transfers.
+In normal play only the villages around players are loaded; one 128-unit stronghold costs about
+5–6 ms of AI on this hardware.
+
+**Other results at full size.**
+
+* **Duties (current M4 data).**
+  * STRONGHOLD at 128: 8 sentry pairs, 8 patrol, 4 scouts, 19 reserve are active; **81 stay on
+    GARRISON** duty.
+  * GUARD_POST at 48: 36–38 idle.
+  * WATCH: 12 idle.
+  * This confirms the approved M5-G duty-data retune.
+* **Raid.** The stronghold sent **12 of 128** (`maxCommit`) to Millénaire's landing point. It came
+  home early because the home village was still ENGAGED from the alert phase.
+* **M2 deployment.** Both strongholds deployed against the bandits within 3–5 s; M2's defense
+  update costs 2.2 µs.
+* **Restart.**
+  * All 386 units reloaded with **no duplicate slots, none lost or unbound**.
+  * One stronghold was briefly re-assessed as GUARD_POST (cap 48) while its residents were still
+    loading. The garrison stayed at 128 (over cap, not trimmed), which is existing M3 behaviour.
+    This is noted for M5-G: the tier assessment should wait for residents before a larger cap is
+    applied.
+* **Client FPS:** not measurable headless.
+
+**If the AI cost must come down, targeted options** (none reduces the caps; none implemented):
+1. **Dormant idle units.** GARRISON-duty units far from any player get HYW `CEASE_FIRE` plus no
+   home moves. This saves pathfinding; target scans remain. It needs measuring.
+2. **A per-server loaded-unit budget.** When exceeded, idle units beyond it are "stood down"
+   (`NoAI` while no player is within N blocks) and woken on an alert. Frozen AI saved
+   12–15 ms here. This touches M4 behaviour, so it needs approval.
+3. Keep caps as locked and document the per-unit cost for server operators; `garrisonScale` stays
+   available.
+
+My recommendation: implement M5-G with C3 and the duty/raid data retune. Measure again on the real
+target hardware before adopting option 1 or 2.
 
 ## 3. Summary
 
@@ -301,7 +394,7 @@ This confirms the need for the approved M5-G data retune.
 | J donations | PASS (calibration) |
 | §13.1 relations / truce | PASS; history is session-only (design consequence) |
 | §16.7-7 faction war | Soldier-vs-soldier PASS; residents: see B |
-| S-G | Prepared; runs with M5-G |
+| S-G | Run: 386 units; HYW AI ≈ 12–15 ms/tick for 386 units is the bottleneck, HywMill < 1 ms; formula C3 recommended |
 
 Nothing required a mixin or a change to Millénaire or HYW. The failure in B is an interaction
 between HYW's public targeting rule and HywMill's own M1.1 identity markers.
@@ -349,6 +442,54 @@ Four options, all using public HYW API only.
 If you approve Option 1, the next step is a **short follow-up spike** before any M5-1 code. It
 would repeat S5-B, S5-N and S5-V with residents on the resident identity, and re-run the M1.1
 identity scenarios (G, D5) and the M2/M3/M4 regressions. Only then would M5-1 start.
+
+## 4a. Follow-up spike: Option 1 validated (runs 6–8, S5-O)
+
+Option 1 was tested without any production change:
+
+* A dev-only, off-by-default runtime override (never persisted) makes the M1.1 marker lifecycle
+  mark residents with a per-village **resident identity** instead of the faction UUID.
+* While the override is on, the escalation guard treats that identity as a village identity.
+* The harness projects resident ↔ faction FRIENDLY in both directions.
+
+Final run (run 8): **15/15**.
+
+| Check | Observed |
+|---|---|
+| Residents re-marked (civilians and defenders) | Within one sweep window: `rel = resident identity` |
+| Garrison → civilian, resident identity **without** FRIENDLY | `valid=false` but `protected=false`, `cancelDamage=false`: the protection is lost |
+| Garrison → civilian **with** resident ↔ faction FRIENDLY | `valid=false protected=true cancelDamage=true ignoreCollision=true`; a garrison melee hit is cancelled (20 → 20) |
+| player ↔ faction HOSTILE: player unit → civilian | `valid=false` |
+| player ↔ faction HOSTILE: player unit → Millénaire defender | `valid=false` (not a relation target; temporary hostility only) |
+| player ↔ faction HOSTILE: player unit → garrison unit | `valid=true` |
+| Live in-village fight (40 s) | Player units → garrison 6 samples, → defenders 0, → civilians **0** |
+| Village ↔ village war, A's garrison inside B | A → B's garrison 3; → B's civilians **0**; → B's defenders 0 |
+| Defender retaliation | A defender that attacked a player unit 7 times was then fought back (retaliation), as intended (run 6) |
+| Override off | Residents return to the M1.1 faction identity within one sweep window |
+
+**Why the guard coverage is part of Option 1 (run 7).**
+1. In run 6, repeated hits between a defender and a player unit made HYW's damage-count
+   escalation set **player ↔ resident identity HOSTILE**.
+2. The guard then covered only faction UUIDs, so the HOSTILE stayed, and HYW persisted it.
+3. In run 7, civilians were valid targets again.
+4. With the guard covering resident identities (run 8), that stale HOSTILE was reverted within one
+   reconciliation window, and no HOSTILE was left after the new in-village fight.
+
+**Option 1, as validated, consists of:**
+1. A deterministic per-village resident identity (a new name-based UUID namespace), marked on
+   residents by the M1.1 lifecycle instead of the faction UUID. Migration happens by the existing
+   sweep.
+2. A permanent FRIENDLY in both directions between resident identity and faction identity,
+   written and reconciled by the relation projector.
+3. `FactionRegistry` and the escalation guard treat resident identities as village identities.
+   `PoliticalPolicy` never permits HOSTILE on a resident identity.
+4. Wars, campaigns and outlawry project only on the faction identity. Combatant villagers are
+   engaged only through temporary hostility (Spike F; the approved M4 raid change).
+5. M1.1 `clear-identities` / `restore-identities` apply to the resident marker.
+
+This touches frozen M1.1 code (marker target, guard and registry). It still needs **your explicit
+approval** before any production implementation. M3 ownership, garrison identities, rosters and
+M4 are untouched.
 
 ## 5. Other design consequences recorded for M5
 

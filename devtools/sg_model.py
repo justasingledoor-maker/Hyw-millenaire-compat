@@ -39,6 +39,12 @@ CANDIDATES = {
         levyShare={"WATCH": 0.15, "GUARD_POST": 0.20, "GARRISON": 0.25, "STRONGHOLD": 0.30},
         infra={"BARRACKS": 8, "FORT_TOWNHALL": 8, "ARMOURY": 4, "TRAINING": 4, "GUARDHOUSE": 3, "WATCHTOWER": 3, "TOWER": 1, "GATE": 1},
         fortDiv=4, fortCap=16),
+    # C2 plus defensive works: towers count, fortification up to +30 (walls and towers make a stronghold)
+    "C3 tuned + fortifications": dict(
+        perSlot={"WATCH": 2.0, "GUARD_POST": 2.25, "GARRISON": 2.5, "STRONGHOLD": 3.0},
+        levyShare={"WATCH": 0.15, "GUARD_POST": 0.20, "GARRISON": 0.25, "STRONGHOLD": 0.30},
+        infra={"BARRACKS": 8, "FORT_TOWNHALL": 8, "ARMOURY": 4, "TRAINING": 4, "GUARDHOUSE": 3, "WATCHTOWER": 3, "TOWER": 2, "GATE": 1},
+        fortDiv=3, fortCap=30),
 }
 TYPE_FACTOR = {}  # culture/type patches; none measured yet (1.0)
 
