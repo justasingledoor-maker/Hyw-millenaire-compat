@@ -63,6 +63,8 @@ public final class DutyService {
         DutyQuota quota = new DutyQuota(0, 0, 0, 0);
         /** rosterId → {goal, home set for it}: a unit still travelling to a valid hop needs no new ground search. */
         final Map<UUID, long[]> moves = new HashMap<>();
+        /** M5-5 errand units: rosterId → {home, sinceTick, detourAttempt, lastPos} for the stuck/detour check. */
+        final Map<UUID, long[]> errandMoves = new HashMap<>();
     }
 
     public DutyService(PerfCounters perf) {
@@ -94,7 +96,7 @@ public final class DutyService {
         AlertState alert = alertState(rec.villageId);
         // raids first: a contingent leaving or coming back changes who is available for duties
         boolean changed = raids.tick(overworld, ledger, rec, r, table.raid(), duties ? rt.plan : null, alert, tick);
-        changed |= ErrandService.tick(overworld, rec, r, table, alert, tick); // M5-5 escorts and detachments
+        changed |= ErrandService.tick(overworld, rec, r, table, alert, tick, rt.errandMoves); // M5-5 escorts and detachments
         if (!duties) {
             if (changed) {
                 ledger.setDirty();

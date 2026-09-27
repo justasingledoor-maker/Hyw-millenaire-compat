@@ -126,7 +126,11 @@ public final class ErrandService {
     /**
      * Moves and ends errands of one village; called on its duty tick. Returns true if any roster state changed.
      */
-    public static boolean tick(ServerLevel overworld, VillageRecord rec, GarrisonRoster r, DutyTable table, AlertState alert, long tick) {
+    /** An errand unit that has not moved for this long towards its hop tries a detour (as M4 duties do). */
+    static final long STUCK_TICKS = 200;
+
+    public static boolean tick(ServerLevel overworld, VillageRecord rec, GarrisonRoster r, DutyTable table, AlertState alert, long tick,
+                               java.util.Map<UUID, long[]> moves) {
         UnitProvider units = Services.units();
         if (units == null) {
             return false;
@@ -135,6 +139,7 @@ public final class ErrandService {
         int idx = 0;
         for (RosterEntry e : r.entries()) {
             if (!e.duty.errand() || e.state() != UnitState.DEPLOYED) {
+                moves.remove(e.rosterId);
                 continue;
             }
             UUID player = e.errandPlayer;
@@ -169,6 +174,25 @@ public final class ErrandService {
                 continue;
             }
             BlockPos home = units.home(ent);
+            long pos = ent.blockPosition().asLong();
+            long[] last = moves.get(e.rosterId);
+            if (last != null && home != null && last[0] == home.asLong()) {
+                if (BlockPos.of(last[3]).distSqr(ent.blockPosition()) > 4) {
+                    last[1] = tick; // progress
+                    last[3] = pos;
+                } else if (tick - last[1] >= STUCK_TICKS) {
+                    // stuck short of its hop (a wall, a hedge): rotated hops, alternating sides, then give the leg up and hold
+                    int attempt = (int) last[2] + 1;
+                    BlockPos alt = attempt <= 4 ? DutyService.hopTarget(overworld, ent, goal, table.move().maxHop(), attempt) : null;
+                    if (alt != null) {
+                        units.setHome(ent, alt);
+                        moves.put(e.rosterId, new long[]{alt.asLong(), tick, attempt, pos});
+                    } else {
+                        moves.remove(e.rosterId);
+                    }
+                    continue;
+                }
+            }
             if (home != null && DutyMotion.horizontal(ent.getX(), ent.getZ(), home) > table.move().maxHop() / 2.0
                     && DutyMotion.horizontal(home.getX() + 0.5, home.getZ() + 0.5, goal) < DutyMotion.horizontal(ent.getX(), ent.getZ(), goal)) {
                 continue; // still travelling to a hop that leads towards the goal: do not restart HYW's path (as M4 duties)
@@ -176,6 +200,7 @@ public final class ErrandService {
             BlockPos hop = DutyService.hopTarget(overworld, ent, goal, table.move().maxHop());
             if (hop != null && (home == null || home.distSqr(hop) > 2)) {
                 units.setHome(ent, hop);
+                moves.put(e.rosterId, new long[]{hop.asLong(), tick, last != null && last[0] == (home == null ? 0 : home.asLong()) ? last[2] : 0, pos});
             }
         }
         return changed;
