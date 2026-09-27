@@ -1,0 +1,60 @@
+[27Sep2026 16:17:36.486]lan for village 'Lappa' (millenaire:byzantines GUARD_POST): 3 sentry post(s), patrol of 8 waypoint(s), 4 scout post(s), 6 muster point(s), reserve at 413, 70, 461
+[27Sep2026 16:18:44.273]nit c4eab1d9 of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1080, 82, 629
+[27Sep2026 16:19:15.277]nit 8388cf88 of village 'Ondefontaine le-fort' was trapped; moved onto its PATROL hop 638, 75, 974
+[27Sep2026 16:19:45.497]nit fc13f830 of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON spot 644, 75, 883
+[27Sep2026 16:19:46.443]nit 79512b1d of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1072, 82, 630
+[27Sep2026 16:20:16.253]nit e6212882 of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON hop 608, 65, 934
+[27Sep2026 16:20:26.353]nit 2f12006f of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1080, 82, 629
+[27Sep2026 16:20:45.858]lan for village 'Lappa' (millenaire:byzantines GUARD_POST): 3 sentry post(s), patrol of 8 waypoint(s), 4 scout post(s), 6 muster point(s), reserve at 413, 70, 461
+[27Sep2026 16:21:08.158]nit 68984596 of village 'Ondefontaine le-fort' was trapped; moved onto its PATROL hop 638, 84, 972
+[27Sep2026 16:22:24.653]nit 8b8f7083 of village 'Epinay les-pâtures' was trapped; moved onto its SCOUT hop 875, 85, 611
+[27Sep2026 16:22:57.218]nit 314d8f50 of village 'Ondefontaine le-fort' (GARRISON) made no progress towards 625, 82, 883 for 6000 ticks at 645, 69, 915: stuck, falling back to 668, 78, 935
+[27Sep2026 16:22:57.219]nit 68984596 of village 'Ondefontaine le-fort' (GARRISON) made no progress towards 712, 69, 883 for 6000 ticks at 652, 79, 957: stuck, falling back to 668, 78, 935
+[27Sep2026 16:22:57.219]nit 9fd924e0 of village 'Ondefontaine le-fort' (SCOUT) made no progress towards 668, 78, 935 for 6000 ticks at 721, 58, 895: stuck, falling back to 668, 78, 935
+[27Sep2026 16:22:57.219]nit aaeee05b of village 'Ondefontaine le-fort' (SCOUT) made no progress towards 668, 78, 935 for 6000 ticks at 653, 57, 908: stuck, falling back to 668, 78, 935
+[27Sep2026 16:23:00.346]nit c2fae782 of village 'Campigny les-pâtures' (PATROL) made no progress towards 708, 79, 646 for 6000 ticks at 611, 75, 599: stuck, falling back to 646, 84, 636
+[27Sep2026 16:23:34.205]nit 1fda175d of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON hop 674, 72, 953
+[27Sep2026 16:23:43.636]nit c4eab1d9 of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1080, 82, 629
+[27Sep2026 16:23:44.831]nit 15eaa33c of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON spot 613, 78, 894
+[27Sep2026 16:24:02.678]nit be715553 of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON hop 689, 70, 903
+[27Sep2026 16:24:03.407]nit 79512b1d of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1080, 82, 629
+[27Sep2026 16:24:19.799]nit 062a03cb of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1080, 82, 629
+[27Sep2026 16:24:20.981]nit 15ff493f of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON hop 650, 71, 928
+[27Sep2026 16:24:22.753]nit 758edc8b of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON hop 631, 79, 883
+[27Sep2026 16:24:58.635]nit 314d8f50 of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON spot 668, 78, 935
+[27Sep2026 16:24:58.635]nit 68984596 of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON spot 668, 78, 935
+[27Sep2026 16:25:00.645]nit 314d8f50 of village 'Ondefontaine le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation
+[27Sep2026 16:25:00.646]nit 68984596 of village 'Ondefontaine le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation
+[27Sep2026 16:25:02.640]nit 010cb786 of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON spot 612, 82, 882
+[27Sep2026 16:25:11.124]nit 5a4b409c of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON spot 644, 75, 883
+[27Sep2026 16:25:23.463]nit 2f12006f of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1080, 82, 629
+[27Sep2026 16:25:28.744]nit 9fd924e0 of village 'Ondefontaine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[27Sep2026 16:25:28.744]nit aaeee05b of village 'Ondefontaine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[27Sep2026 16:25:31.405]nit c2fae782 of village 'Campigny les-pâtures' recovered at 646, 84, 636 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[27Sep2026 16:25:58.953]lan for village 'Lappa' (millenaire:byzantines GUARD_POST): 3 sentry post(s), patrol of 8 waypoint(s), 4 scout post(s), 6 muster point(s), reserve at 413, 70, 461
+[27Sep2026 16:29:58.640]nit 314d8f50 of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON spot 625, 82, 883
+[27Sep2026 16:30:27.386]nit 062a03cb of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1080, 82, 629
+[27Sep2026 16:30:28.634]nit 1fda175d of village 'Ondefontaine le-fort' was trapped; moved onto its RESERVE spot 694, 70, 902
+[27Sep2026 16:30:29.388]nit 79512b1d of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1082, 82, 631
+[27Sep2026 16:30:42.632]nit 54f10fcd of village 'Ondefontaine le-fort' was trapped; moved onto its SENTRY spot 614, 65, 926
+[27Sep2026 16:30:50.635]nit a9fad16e of village 'Ondefontaine le-fort' was trapped; moved onto its SENTRY spot 616, 72, 906
+[27Sep2026 16:30:57.339]nit 99918114 of village 'Campigny les-pâtures' was trapped; moved onto its SCOUT hop 614, 81, 599
+[27Sep2026 16:30:57.340]nit a5c08225 of village 'Campigny les-pâtures' was trapped; moved onto its SCOUT hop 614, 81, 599
+[27Sep2026 16:30:58.636]nit 1477d01c of village 'Ondefontaine le-fort' was trapped; moved onto its RESERVE hop 655, 72, 917
+[27Sep2026 16:30:58.637]nit 04e71c9b of village 'Ondefontaine le-fort' was trapped; moved onto its PATROL hop 685, 70, 913
+[27Sep2026 16:31:16.632]nit d667368b of village 'Ondefontaine le-fort' was trapped; moved onto its SENTRY hop 702, 67, 861
+[27Sep2026 16:31:20.635]nit b1b14f1e of village 'Ondefontaine le-fort' was trapped; moved onto its SENTRY hop 656, 74, 959
+[27Sep2026 16:31:59.297]nit 2f12006f of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1080, 82, 629
+[27Sep2026 16:32:47.955]nit d37058e9 of village 'Ondefontaine le-fort' was trapped; moved onto its PATROL hop 638, 84, 972
+[27Sep2026 16:32:47.955]nit 6670698f of village 'Ondefontaine le-fort' (GARRISON) made no progress towards 640, 75, 965 for 6000 ticks at 718, 64, 956: stuck, falling back to 668, 78, 935
+[27Sep2026 16:32:47.955]nit 243d9454 of village 'Ondefontaine le-fort' (GARRISON) made no progress towards 619, 82, 883 for 6000 ticks at 617, 62, 943: stuck, falling back to 668, 78, 935
+[27Sep2026 16:32:49.175]nit b20e0ea5 of village 'Ondefontaine le-fort' was trapped; moved onto its SENTRY spot 612, 67, 963
+[27Sep2026 16:33:33.415]nit c4eab1d9 of village 'Saint-Martin les-mines' was trapped; moved onto its PATROL hop 1080, 82, 629
+[27Sep2026 16:33:35.446]nit 9ce3fb8d of village 'Ondefontaine le-fort' (SCOUT) made no progress towards 756, 72, 1029 for 6000 ticks at 720, 58, 896: stuck, falling back to 668, 78, 935
+[27Sep2026 16:33:45.378]nit d37058e9 of village 'Ondefontaine le-fort' (PATROL) made no progress towards 625, 82, 883 for 6000 ticks at 650, 79, 957: stuck, falling back to 668, 78, 935
+[27Sep2026 16:34:16.487]nit be715553 of village 'Ondefontaine le-fort' was trapped; moved onto its SCOUT hop 641, 71, 1017
+[27Sep2026 16:34:23.241]nit 6670698f of village 'Ondefontaine le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation
+[27Sep2026 16:34:23.703]nit abb8debc of village 'Campigny les-pâtures' was trapped; moved onto its SCOUT hop 614, 81, 599
+[27Sep2026 16:34:24.525]nit 243d9454 of village 'Ondefontaine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[27Sep2026 16:34:52.531]nit 43e4ee27 of village 'Ondefontaine le-fort' was trapped; moved onto its GARRISON spot 667, 69, 988
+[27Sep2026 16:34:55.898]nit dd6a1b3f of village 'Ondefontaine le-fort' (SCOUT) made no progress towards 759, 72, 845 for 6000 ticks at 619, 63, 944: stuck, falling back to 668, 78, 935
