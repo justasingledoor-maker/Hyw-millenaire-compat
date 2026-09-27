@@ -1,0 +1,135 @@
+===== harnes
+[17:04:47] [] Duties of village 'Saint-Charles le-fort' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 2 reserve): [aec97543 GARRISON->RESERVE, 18616328 GARRISON->RESERVE]
+[17:04:57] [] Duties of village 'Saint-Charles le-fort' (4 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 3 reserve): [4e82ab8c GARRISON->RESERVE]
+[17:05:12] [] Duties of village 'Saint-Charles le-fort' (6 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 3 reserve): [343b831d GARRISON->SENTRY#0, 5a6ec1e7 GARRISON->SENTRY#0, 5af99b84 GARRISON->PATROL#0]
+[17:05:22] [] Duties of village 'Saint-Charles le-fort' (8 available: 1 sentry pair(s), 2 patrol, 0 scout(s), 3 reserve): [ef79cea2 GARRISON->PATROL#1]
+[17:05:42] [] Duties of village 'Saint-Charles le-fort' (12 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 3 reserve): [b5f51b63 GARRISON->SCOUT#0, fadb0b50 GARRISON->PATROL#2]
+[17:05:55] [] Duties of village 'Saint-Charles le-fort' (14 available: 2 sentry pair(s), 3 patrol, 1 scout(s), 3 reserve): [0976ad30 GARRISON->SENTRY#1, f0b94f15 GARRISON->SENTRY#1]
+[17:06:05] [] Duties of village 'Saint-Charles le-fort' (16 available: 2 sentry pair(s), 4 patrol, 1 scout(s), 3 reserve): [3e29b86d GARRISON->PATROL#3]
+[17:06:25] [] Duties of village 'Saint-Charles le-fort' (20 available: 3 sentry pair(s), 5 patrol, 1 scout(s), 4 reserve): [a69302a6 GARRISON->SENTRY#2, c0879fd9 GARRISON->PATROL#4, 4f6f53f6 GARRISON->SENTRY#2, 0b3ba07b GARRISON->RESERVE]
+[17:06:45] [] Duties of village 'Saint-Charles le-fort' (24 available: 3 sentry pair(s), 6 patrol, 1 scout(s), 4 reserve): [b16def9c GARRISON->PATROL#5]
+[17:06:55] [] Duties of village 'Saint-Charles le-fort' (26 available: 3 sentry pair(s), 6 patrol, 2 scout(s), 5 reserve): [4469856d GARRISON->SCOUT#1, 8265ffa8 GARRISON->RESERVE]
+[17:07:06] [] Duties of village 'Saint-Charles le-fort' (28 available: 4 sentry pair(s), 7 patrol, 2 scout(s), 5 reserve): [659a3bbc GARRISON->SENTRY#3, dd16077a GARRISON->SENTRY#3, 889b6122 GARRISON->PATROL#6]
+[17:07:15] [] Duties of village 'Saint-Charles le-fort' (30 available: 4 sentry pair(s), 7 patrol, 2 scout(s), 6 reserve): [0c3721e0 GARRISON->RESERVE]
+[17:07:25] [] Duties of village 'Saint-Charles le-fort' (32 available: 4 sentry pair(s), 8 patrol, 2 scout(s), 6 reserve): [cd1f39ea GARRISON->PATROL#7]
+[17:07:37] [] Duties of village 'Saint-Charles le-fort' (34 available: 5 sentry pair(s), 8 patrol, 2 scout(s), 6 reserve): [e7c908f9 GARRISON->SENTRY#4, 20092427 GARRISON->SENTRY#4]
+[17:07:49] [] Duties of village 'Saint-Charles le-fort' (36 available: 5 sentry pair(s), 9 patrol, 2 scout(s), 7 reserve): [e3ea864b GARRISON->RESERVE, bd789354 GARRISON->PATROL#8]
+[17:07:59] [] Duties of village 'Saint-Charles le-fort' (38 available: 5 sentry pair(s), 9 patrol, 3 scout(s), 7 reserve): [8a92356d GARRISON->SCOUT#2]
+[17:08:10] [] Duties of village 'Saint-Charles le-fort' (40 available: 6 sentry pair(s), 10 patrol, 3 scout(s), 8 reserve): [2ed4ea06 GARRISON->SENTRY#5, 3f7da4e4 GARRISON->SENTRY#5, 1a76e94c GARRISON->PATROL#9, 21e7c420 GARRISON->RESERVE]
+[17:08:32] [] Duties of village 'Saint-Charles le-fort' (44 available: 6 sentry pair(s), 11 patrol, 3 scout(s), 8 reserve): [badf3c7f GARRISON->PATROL#10]
+[17:08:42] [] Duties of village 'Saint-Charles le-fort' (46 available: 6 sentry pair(s), 11 patrol, 3 scout(s), 9 reserve): [c04d8970 GARRISON->RESERVE]
+[17:08:51] [] Duties of village 'Saint-Charles le-fort' (48 available: 7 sentry pair(s), 12 patrol, 3 scout(s), 9 reserve): [55742c5d GARRISON->SENTRY#6, d3dc81ef GARRISON->PATROL#11, 6129c022 GARRISON->SENTRY#6]
+[17:09:34] [] Duties of village 'Saint-Charles le-fort' (50 available: 7 sentry pair(s), 12 patrol, 4 scout(s), 10 reserve): [62e77a47 GARRISON->SCOUT#3, 9db90514 GARRISON->RESERVE]
+[17:09:45] [] Duties of village 'Saint-Charles le-fort' (52 available: 7 sentry pair(s), 13 patrol, 4 scout(s), 10 reserve): [925ba7bf GARRISON->PATROL#12]
+[17:09:58] [] Duties of village 'Saint-Charles le-fort' (54 available: 8 sentry pair(s), 13 patrol, 4 scout(s), 10 reserve): [6d6f2358 GARRISON->SENTRY#7, ae021b3d GARRISON->SENTRY#7]
+[17:10:09] [] Duties of village 'Saint-Charles le-fort' (56 available: 8 sentry pair(s), 14 patrol, 4 scout(s), 11 reserve): [d89ee3dd GARRISON->PATROL#13, dbabe44a GARRISON->RESERVE]
+[17:10:30] [] Duties of village 'Saint-Charles le-fort' (60 available: 9 sentry pair(s), 15 patrol, 4 scout(s), 12 reserve): [1c20d841 GARRISON->PATROL#14, 99588eb0 GARRISON->SENTRY#8, a71df7bb GARRISON->SENTRY#8, 1d39fdec GARRISON->RESERVE]
+[17:10:51] [] Duties of village 'Saint-Charles le-fort' (64 available: 9 sentry pair(s), 16 patrol, 5 scout(s), 12 reserve): [6fa9e5b7 GARRISON->SCOUT#4, bc085adc GARRISON->PATROL#15]
+[17:11:03] [] Duties of village 'Saint-Charles le-fort' (66 available: 9 sentry pair(s), 16 patrol, 5 scout(s), 13 reserve): [e1a3daa2 GARRISON->RESERVE]
+[17:11:14] [] Duties of village 'Saint-Charles le-fort' (68 available: 10 sentry pair(s), 17 patrol, 5 scout(s), 13 reserve): [1af20171 GARRISON->PATROL#16, d3b35ad1 GARRISON->SENTRY#9, 18564fd0 GARRISON->SENTRY#9]
+[17:11:24] [] Duties of village 'Saint-Charles le-fort' (70 available: 10 sentry pair(s), 17 patrol, 5 scout(s), 14 reserve): [8029c20b GARRISON->RESERVE]
+[17:11:34] [] Duties of village 'Saint-Charles le-fort' (72 available: 10 sentry pair(s), 18 patrol, 5 scout(s), 14 reserve): [d6bdf8f9 GARRISON->PATROL#17]
+[17:11:43] [] Duties of village 'Saint-Charles le-fort' (74 available: 11 sentry pair(s), 18 patrol, 5 scout(s), 14 reserve): [c8727eba GARRISON->SENTRY#10, d653e7f0 GARRISON->SENTRY#10]
+[17:11:53] [] Duties of village 'Saint-Charles le-fort' (76 available: 11 sentry pair(s), 19 patrol, 6 scout(s), 15 reserve): [a69302a6 SENTRY->SCOUT#5, 1cc6048f GARRISON->RESERVE, f58c6f3e GARRISON->PATROL#18, f695a8f4 GARRISON->SENTRY#2]
+[17:11:57] [] Duty unit b1a4fe1e of village 'Villers les-pâtures' (PATROL) made no progress towards 699, 77, 612 for 6000 ticks at 605, 86, 639: stuck, falling back to 647, 82, 638
+[17:12:17] [] Duties of village 'Saint-Charles le-fort' (80 available: 12 sentry pair(s), 20 patrol, 6 scout(s), 16 reserve): [26a4768d GARRISON->RESERVE, 20c05f03 GARRISON->PATROL#19, 8c43d155 GARRISON->SENTRY#11, b70449a4 GARRISON->SENTRY#11]
+[17:12:43] [] Duties of village 'Saint-Charles le-fort' (84 available: 12 sentry pair(s), 21 patrol, 6 scout(s), 16 reserve): [2b306543 GARRISON->PATROL#20]
+[17:12:56] [] Duties of village 'Saint-Charles le-fort' (86 available: 12 sentry pair(s), 21 patrol, 6 scout(s), 17 reserve): [353ae1e7 GARRISON->RESERVE]
+[17:12:59] [] Village record updated: 'Saint-Charles le-fort' [population 20 -> 21, villagerRoles {SOLDIER=4, LEADER=1, MILITIA=6, CIVILIAN=9} -> {SOLDIER=4, LEADER=1, MILITIA=6, CIVILIAN=10}]
+[17:13:07] [] Duties of village 'Saint-Charles le-fort' (88 available: 13 sentry pair(s), 22 patrol, 7 scout(s), 17 reserve): [42c3db76 GARRISON->PATROL#21, 8c43d155 SENTRY->SCOUT#6, 8da34e48 GARRISON->SENTRY#11, af6e6a7f GARRISON->SENTRY#12, da314a4e GARRISON->SENTRY#12]
+[17:13:18] [] Duties of village 'Saint-Charles le-fort' (90 available: 13 sentry pair(s), 22 patrol, 7 scout(s), 18 reserve): [4cc4be86 GARRISON->RESERVE]
+[17:13:27] [] Duties of village 'Saint-Charles le-fort' (92 available: 13 sentry pair(s), 23 patrol, 7 scout(s), 18 reserve): [556283a0 GARRISON->PATROL#22]
+[17:13:37] [] Duties of village 'Saint-Charles le-fort' (94 available: 14 sentry pair(s), 23 patrol, 7 scout(s), 18 reserve): [a69302a6 SCOUT->GARRISON, 8c43d155 SCOUT->SENTRY#13, 995ac1c8 GARRISON->SENTRY#13, ca25b6db GARRISON->SCOUT#5, 600ea638 GARRISON->SCOUT#6]
+[17:13:42] [] Duty unit 8a92356d of village 'Saint-Charles le-fort' (SCOUT) made no progress towards 668, 78, 935 for 6000 ticks at 721, 58, 895: stuck, falling back to 668, 78, 935
+[17:13:46] [] Duties of village 'Saint-Charles le-fort' (96 available: 14 sentry pair(s), 24 patrol, 7 scout(s), 19 reserve): [68f3d127 GARRISON->RESERVE, 61ea4d5e GARRISON->PATROL#23]
+[17:13:57] [] Duty unit b16def9c of village 'Saint-Charles le-fort' (PATROL) made no progress towards 625, 82, 883 for 6000 ticks at 650, 78, 956: stuck, falling back to 668, 78, 935
+[17:13:58] [] Duty unit b21fdac8 of village 'Villers les-pâtures' (PATROL) made no progress towards 699, 77, 612 for 6000 ticks at 605, 86, 640: stuck, falling back to 647, 82, 638
+[17:14:05] [] Duty unit 5af99b84 of village 'Saint-Charles le-fort' (PATROL) made no progress towards 613, 71, 977 for 6000 ticks at 688, 71, 889: stuck, falling back to 668, 78, 935
+[17:14:07] [] Duties of village 'Saint-Charles le-fort' (100 available: 15 sentry pair(s), 24 patrol, 8 scout(s), 20 reserve): [a69302a6 GARRISON->SENTRY#14, 69ea036c GARRISON->RESERVE, 9a168ac4 GARRISON->SENTRY#14, ad820e5e GARRISON->SCOUT#7]
+[17:14:34] [] Duty unit bd789354 of village 'Saint-Charles le-fort' (PATROL) made no progress towards 625, 82, 883 for 6000 ticks at 650, 78, 957: stuck, falling back to 668, 78, 935
+[17:14:37] [] Duties of village 'Saint-Charles le-fort' (106 available: 15 sentry pair(s), 24 patrol, 8 scout(s), 21 reserve): [6a4e314e GARRISON->RESERVE]
+[17:14:40] [] Duty unit b1a4fe1e of village 'Villers les-pâtures' recovered at 647, 82, 638 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:14:46] [] Duties of village 'Saint-Charles le-fort' (108 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 21 reserve): [e5a29ae3 GARRISON->SENTRY#15, b0e1da47 GARRISON->SENTRY#15]
+[17:14:48] [] Duty unit 89db1d08 of village 'Villers les-pâtures' (PATROL) made no progress towards 699, 77, 612 for 6000 ticks at 605, 86, 639: stuck, falling back to 647, 82, 638
+[17:14:57] [] Duties of village 'Saint-Charles le-fort' (110 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 22 reserve): [6f560c04 GARRISON->RESERVE]
+[17:15:27] [] Duties of village 'Saint-Charles le-fort' (116 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 23 reserve): [71d005b4 GARRISON->RESERVE]
+[17:15:31] [] Duty unit 5af99b84 of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation
+[17:15:32] [] Duties of village 'Saint-Charles le-fort' (116 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 23 reserve): [ce44703a GARRISON->PATROL#0]
+[17:15:46] [] Duties of village 'Saint-Charles le-fort' (120 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 24 reserve): [5af99b84 GARRISON->RESERVE]
+[17:16:12] [] Duty unit 8a92356d of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:16:15] [] Duties of village 'Saint-Charles le-fort' (124 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 24 reserve): [8a92356d GARRISON->SCOUT#2]
+[17:16:16] [] Duty unit 945e3acb of village 'Villers les-pâtures' (PATROL) made no progress towards 699, 77, 612 for 6000 ticks at 605, 86, 639: stuck, falling back to 647, 82, 638
+[17:16:17] [] Duties of village 'Saint-Charles le-fort' (126 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [98328a70 GARRISON->RESERVE]
+[17:16:27] [] Duty unit b16def9c of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:16:28] [] Duty unit b21fdac8 of village 'Villers les-pâtures' recovered at 647, 82, 638 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:16:29] [] Duties of village 'Saint-Charles le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [98234fc9 GARRISON->PATROL#5]
+[17:16:37] [] Duty unit 4469856d of village 'Saint-Charles le-fort' (SCOUT) made no progress towards 668, 78, 935 for 6000 ticks at 645, 42, 921: stuck, falling back to 668, 78, 935
+[17:17:04] [] Duty unit bd789354 of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:17:07] [] Duties of village 'Saint-Charles le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [a1e2b5fe GARRISON->PATROL#8]
+[17:17:18] [] Duty unit 89db1d08 of village 'Villers les-pâtures' recovered at 647, 82, 638 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:18:09] [] Duty unit 95788286 of village 'Ondefontaine la-forge' (SCOUT) made no progress towards 1079, 85, 660 for 6000 ticks at 1145, 63, 614: stuck, falling back to 1079, 85, 660
+[17:18:46] [] Duty unit 945e3acb of village 'Villers les-pâtures' recovered at 647, 82, 638 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:19:06] [] Duty unit 4469856d of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:19:08] [] Duties of village 'Saint-Charles le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [8fe08e3c GARRISON->SCOUT#1]
+[17:20:10] [] Duty unit 61ea4d5e of village 'Saint-Charles le-fort' (PATROL) made no progress towards 625, 82, 883 for 6000 ticks at 650, 79, 957: stuck, falling back to 668, 78, 935
+[17:20:39] [] Duty unit 95788286 of village 'Ondefontaine la-forge' recovered at 1079, 85, 660 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:23:06] [] Duty unit 61ea4d5e of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:23:08] [] Duties of village 'Saint-Charles le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [add2b35c GARRISON->PATROL#23]
+[17:23:11] [] Duty unit 1004f84d of village 'Saint-Charles le-fort' (GARRISON) made no progress towards 613, 71, 919 for 6000 ticks at 634, 65, 902: stuck, falling back to 668, 78, 935
+[17:26:05] [] Duty unit 1004f84d of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:26:20] [] Duty unit ca25b6db of village 'Saint-Charles le-fort' (SCOUT) made no progress towards 732, 72, 1047 for 6000 ticks at 721, 58, 895: stuck, falling back to 668, 78, 935
+[17:26:37] [] Duty unit 945e3acb of village 'Villers les-pâtures' (PATROL) made no progress towards 699, 77, 612 for 6000 ticks at 605, 86, 639: stuck, falling back to 647, 82, 638
+[17:27:53] [] Duty unit 6fa9e5b7 of village 'Saint-Charles le-fort' (SCOUT) made no progress towards 732, 72, 1047 for 6000 ticks at 723, 57, 896: stuck, falling back to 668, 78, 935
+[17:27:57] [] Duty unit 3e29b86d of village 'Saint-Charles le-fort' (PATROL) made no progress towards 625, 82, 883 for 6000 ticks at 650, 79, 957: stuck, falling back to 668, 78, 935
+[17:28:17] [] Duty unit 89db1d08 of village 'Villers les-pâtures' (PATROL) made no progress towards 699, 77, 612 for 6000 ticks at 605, 86, 639: stuck, falling back to 647, 82, 638
+[17:29:05] [] Duty unit ca25b6db of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+===== harnes
+[17:29:52] [] Duties of village 'Saint-Charles le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [b139de7c GARRISON->SCOUT#5]
+[17:32:46] [] Duties of village 'Saint-Charles le-fort' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [ee5eb427 GARRISON->SENTRY#0]
+[17:33:47] [] Duties of village 'Saint-Charles le-fort' (84 available: 12 sentry pair(s), 21 patrol, 6 scout(s), 16 reserve): [62e77a47 SCOUT->GARRISON, a69302a6 SENTRY->GARRISON, 6f560c04 RESERVE->GARRISON, 556283a0 PATROL->GARRISON, 42c3db76 PATROL->GARRISON, 6fa9e5b7 SCOUT->GARRISON, 69ea036c RESERVE->GARRISON, 6a4e314e RESERVE->GARRISON, 71d005b4 
+[17:34:33] [] Duties of village 'Saint-Charles le-fort' (126 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [a69302a6 GARRISON->SENTRY#13, b16def9c GARRISON->PATROL#23, 556283a0 GARRISON->RESERVE, 42c3db76 GARRISON->RESERVE, e5a29ae3 GARRISON->SENTRY#15, 8c43d155 GARRISON->SENTRY#12, af6e6a7f GARRISON->SENTRY#14, da314a4e GARRISON->
+[17:35:17] [] Village record updated: 'Saint-Charles le-fort' [tier STRONGHOLD -> GUARD_POST, garrison 11 -> 5, population 21 -> 15, defendingStrength 324 -> 124, villagerRoles {SOLDIER=4, LEADER=1, MILITIA=6, CIVILIAN=10} -> {LEADER=1, MILITIA=4, CIVILIAN=10}]
+[17:35:19] [] Duties of village 'Saint-Charles le-fort' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [4e82ab8c RESERVE->GARRISON, 5af99b84 RESERVE->GARRISON, b5f51b63 SCOUT->GARRISON, 68f3d127 RESERVE->GARRISON, a69302a6 SENTRY->GARRISON, 1c20d841 PATROL->GARRISON, b16def9c PATROL->GARRISON, e7c908f9 SENTRY->GARRISON, 353ae1e7 
+[17:35:36] [] Duty unit 3e29b86d of village 'Saint-Charles le-fort' (PATROL) made no progress towards 624, 73, 988 for 6000 ticks at 652, 79, 959: stuck, falling back to 668, 78, 935
+[17:35:36] [] Duty unit c0879fd9 of village 'Saint-Charles le-fort' (PATROL) made no progress towards 677, 72, 936 for 6000 ticks at 652, 79, 957: stuck, falling back to 668, 78, 935
+[17:35:36] [] Duty unit 6fa9e5b7 of village 'Saint-Charles le-fort' (GARRISON) made no progress towards 677, 72, 936 for 6000 ticks at 720, 58, 896: stuck, falling back to 668, 78, 935
+[17:35:36] [] Duty unit 8fe08e3c of village 'Saint-Charles le-fort' (SCOUT) made no progress towards 668, 78, 935 for 6000 ticks at 722, 57, 895: stuck, falling back to 668, 78, 935
+[17:35:44] [] Village record updated: 'Saint-Charles le-fort' [tier GUARD_POST -> STRONGHOLD, garrison 5 -> 11, population 15 -> 21, defendingStrength 124 -> 324, villagerRoles {LEADER=1, MILITIA=4, CIVILIAN=10} -> {SOLDIER=4, LEADER=1, MILITIA=6, CIVILIAN=10}]
+[17:35:46] [] Duties of village 'Saint-Charles le-fort' (126 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [b5f51b63 GARRISON->SCOUT#4, a69302a6 GARRISON->SENTRY#6, b16def9c GARRISON->PATROL#15, e7c908f9 GARRISON->SENTRY#9, 20092427 GARRISON->SENTRY#11, bd789354 GARRISON->PATROL#18, 2ed4ea06 GARRISON->SENTRY#12, 3f7da4e4 GARRISON->
+[17:36:11] [: hywmill perf counters reset
+[17:38:07] [] Duty unit 3e29b86d of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:38:07] [] Duty unit c0879fd9 of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:38:07] [] Duty unit 6fa9e5b7 of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:38:07] [] Duty unit 8fe08e3c of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:38:09] [] Duties of village 'Saint-Charles le-fort' (126 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [c0879fd9 GARRISON->PATROL#3, 8fe08e3c GARRISON->SCOUT#1, 0afb47db GARRISON->PATROL#4]
+[17:38:12] [: hywmill perf (per server since start or last reset):
+[17:38:35] [: hywmill perf counters reset
+[17:40:36] [: hywmill perf (per server since start or last reset):
+[17:40:59] [: hywmill perf counters reset
+[17:42:53] [] Duties of village 'Saint-Charles le-fort' (125 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [1c20d841 GARRISON->PATROL#18]
+[17:43:00] [: hywmill perf (per server since start or last reset):
+[17:45:32] [] Duty unit 945e3acb of village 'Villers les-pâtures' (PATROL) made no progress towards 697, 81, 646 for 6000 ticks at 605, 86, 639: stuck, falling back to 647, 82, 638
+[17:45:32] [] Duty unit 06538464 of village 'Saint-Charles le-fort' (SENTRY) made no progress towards 613, 82, 881 for 6000 ticks at 612, 67, 930: stuck, falling back to 668, 78, 935
+[17:45:32] [] Duty unit f1e2e24a of village 'Saint-Charles le-fort' (SENTRY) made no progress towards 611, 82, 883 for 6000 ticks at 612, 67, 930: stuck, falling back to 668, 78, 935
+[17:45:32] [] Duty unit 600ea638 of village 'Saint-Charles le-fort' (GARRISON) made no progress towards 644, 75, 883 for 6000 ticks at 644, 30, 919: stuck, falling back to 668, 78, 935
+[17:45:32] [] Duty unit 16379134 of village 'Saint-Charles le-fort' (GARRISON) made no progress towards 613, 67, 958 for 6000 ticks at 699, 40, 855: stuck, falling back to 668, 78, 935
+[17:45:32] [] Duty unit e704c946 of village 'Saint-Charles le-fort' (SCOUT) made no progress towards 732, 72, 1047 for 6000 ticks at 720, 58, 896: stuck, falling back to 668, 78, 935
+[17:45:32] [] Duty unit ce44703a of village 'Saint-Charles le-fort' (PATROL) made no progress towards 707, 70, 883 for 6000 ticks at 672, 68, 966: stuck, falling back to 668, 78, 935
+[17:45:32] [] Duty unit d17b0377 of village 'Saint-Charles le-fort' (PATROL) made no progress towards 718, 58, 895 for 6000 ticks at 652, 79, 957: stuck, falling back to 668, 78, 935
+[17:46:03] [] Duty unit 06538464 of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation
+[17:46:03] [] Duty unit f1e2e24a of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation
+[17:46:03] [] Duty unit 5ff985ad of village 'Saint-Charles le-fort' (GARRISON) made no progress towards 677, 72, 936 for 6000 ticks at 688, 52, 891: stuck, falling back to 668, 78, 935
+[17:46:05] [] Duties of village 'Saint-Charles le-fort' (125 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [06538464 GARRISON->SENTRY#10, f1e2e24a GARRISON->SENTRY#10]
+[17:46:15] [] Duty unit 8da34e48 of village 'Saint-Charles le-fort' (SENTRY) made no progress towards 638, 78, 882 for 6000 ticks at 612, 67, 930: stuck, falling back to 668, 78, 935
+[17:46:31] [] Duty unit 8a92356d of village 'Saint-Charles le-fort' (SCOUT) made no progress towards 732, 72, 1047 for 6000 ticks at 723, 57, 896: stuck, falling back to 668, 78, 935
+[17:46:34] [] Duty unit 5ff985ad of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation
+[17:46:52] [] Duty unit 8da34e48 of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation
+[17:46:54] [] Duties of village 'Saint-Charles le-fort' (125 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [8da34e48 GARRISON->SENTRY#4]
+[17:47:32] [] Duty unit 600ea638 of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation
+[17:47:59] [] Duty unit 945e3acb of village 'Villers les-pâtures' recovered at 647, 82, 638 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:47:59] [] Duty unit 16379134 of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:47:59] [] Duty unit e704c946 of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:47:59] [] Duty unit ce44703a of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:47:59] [] Duty unit d17b0377 of village 'Saint-Charles le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[17:48:02] [] Duties of village 'Saint-Charles le-fort' (125 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [e704c946 GARRISON->SCOUT#6, ce44703a GARRISON->PATROL#0, d17b0377 GARRISON->PATROL#20]
+[17:48:20] [] Duty unit b16def9c of village 'Saint-Charles le-fort' (PATROL) made no progress towards 625, 82, 883 for 6000 ticks at 650, 78, 957: stuck, falling back to 668, 78, 935
