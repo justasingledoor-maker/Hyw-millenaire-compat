@@ -7,10 +7,14 @@ import java.util.Map;
  * Data for the politics model ({@code data/<ns>/hywmill_politics/*.json}, loaded in M5-2). Pure
  * records; {@link #DEFAULTS} are the shipped values, used when no data is loaded.
  */
-public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon) {
+public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy) {
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor) {
-        this(standing, grievance, favor, PardonRule.DEFAULT);
+        this(standing, grievance, favor, PardonRule.DEFAULT, DiplomacyRule.DEFAULT);
+    }
+
+    public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon) {
+        this(standing, grievance, favor, pardon, DiplomacyRule.DEFAULT);
     }
 
     /**
@@ -49,6 +53,66 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
      */
     public record PardonRule(boolean enabled, double perGrievance, int killFee) {
         public static final PardonRule DEFAULT = new PardonRule(true, 32, 1024);
+    }
+
+    /**
+     * Envoy diplomacy (M5-4). Success chance is logistic in contextual terms (see {@link DiplomacyOdds});
+     * every weight, magnitude, delay and cooldown is data.
+     *
+     * @param bias             logit bias per proposal kind
+     * @param standingWeight   per standing step of the player with the sponsoring village (Stranger = 0)
+     * @param standingBWeight  per standing step with the other village
+     * @param relationWeight   per 100 points of the sponsor's relation to the other village (inverted for sow discord)
+     * @param conflictWeight   a raid between the two is planned or under way
+     * @param cultureWeight    same culture
+     * @param distanceWeight   per 1000 blocks between the villages
+     * @param strengthWeight   the sponsor is the weaker (defending strength) side: keener on peace (inverted for sow discord)
+     * @param attemptWeight    per recent proposal for the same pair (diminishing returns)
+     * @param implausible      a proposal that makes no sense (reconciling friends)
+     * @param delta            relation change on success per kind, Millénaire's own scale; random ±{@code jitter}
+     * @param backfireShare    share of failures that backfire
+     * @param backfireRep      reputation lost with the other village on a backfire
+     * @param travelPer200     envoy travel time (ticks) per 200 blocks; at least {@code minTravel}
+     * @param pairCooldown     the same player, same pair: one proposal per this many ticks
+     * @param truceTicks       length of a truce
+     * @param truceFloor       relation held during a truce (above Millénaire's −90 raid line)
+     * @param minRepWithOther  reputation needed with the other village (reconcile, truce)
+     * @param sowPlayerCooldown one sow-discord attempt per player per this many ticks
+     * @param sowPairCooldown  per (sponsor, target) pair, shared by all players
+     * @param sowFavorCost     Favor with the sponsor, plus {@code sowFavorStep} per recent attempt
+     * @param sowExposure      chance the plot is exposed, plus {@code sowExposureStep} per recent attempt
+     * @param sowRecent        attempts older than this no longer count
+     * @param exposedRep       reputation lost with the sponsor when exposed (the target also holds a PLOT_EXPOSED grievance)
+     */
+    public record DiplomacyRule(Map<EnvoyKind, Double> bias, double standingWeight, double standingBWeight, double relationWeight,
+                                double conflictWeight, double cultureWeight, double distanceWeight, double strengthWeight,
+                                double attemptWeight, double implausible, Map<EnvoyKind, Integer> delta, double jitter,
+                                double backfireShare, int backfireRep, long travelPer200, long minTravel, long pairCooldown,
+                                long truceTicks, int truceFloor, int minRepWithOther, long sowPlayerCooldown, long sowPairCooldown,
+                                int sowFavorCost, int sowFavorStep, double sowExposure, double sowExposureStep, long sowRecent,
+                                int exposedRep) {
+        public static final DiplomacyRule DEFAULT = new DiplomacyRule(
+                enumMap(EnvoyKind.RECONCILE, 0.0, EnvoyKind.TRUCE, -0.5, EnvoyKind.ENCOURAGE, 0.5, EnvoyKind.SOW_DISCORD, -0.3),
+                0.4, 0.2, 1.0, -0.8, 0.5, -0.5, 0.5, -0.5, -2.0,
+                enumMap(EnvoyKind.RECONCILE, 10, EnvoyKind.TRUCE, 10, EnvoyKind.ENCOURAGE, 5, EnvoyKind.SOW_DISCORD, 10), 0.2,
+                0.3, 256, 1000, 1000, 24000, 7 * 24000L, -85, 0, 7 * 24000L, 3 * 24000L, 10, 5, 0.2, 0.15, 28 * 24000L, 512);
+
+        public double bias(EnvoyKind k) {
+            return bias.getOrDefault(k, 0.0);
+        }
+
+        public int delta(EnvoyKind k) {
+            return delta.getOrDefault(k, 0);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <V> Map<EnvoyKind, V> enumMap(Object... kv) {
+        Map<EnvoyKind, V> m = new EnumMap<>(EnvoyKind.class);
+        for (int i = 0; i < kv.length; i += 2) {
+            m.put((EnvoyKind) kv[i], (V) kv[i + 1]);
+        }
+        return java.util.Collections.unmodifiableMap(m);
     }
 
     public static final long DAY = 24000L;

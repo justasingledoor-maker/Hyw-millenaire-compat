@@ -13,6 +13,8 @@ public final class VillagePolitics {
     private final Map<UUID, PoliticsRecord> players = new LinkedHashMap<>();
     /** Other village → truce end tick (game time). */
     private final Map<UUID, Long> truces = new LinkedHashMap<>();
+    /** M5-4: target village → end of the sow-discord cooldown for this (sponsor, target) pair, shared by all players. */
+    private final Map<UUID, Long> discordCooldown = new LinkedHashMap<>();
     /** HywMill's persisted chronicle (Millénaire's own history is session-only); newest last, bounded. */
     private final java.util.ArrayDeque<ChronicleEntry> chronicle = new java.util.ArrayDeque<>();
     public static final int CHRONICLE_SIZE = 64;
@@ -55,6 +57,10 @@ public final class VillagePolitics {
         return until != null && until > now;
     }
 
+    public Map<UUID, Long> discordCooldown() {
+        return discordCooldown;
+    }
+
     /** Drops default player records and expired truces; returns how many entries were removed. */
     public int prune(long now) {
         int n = 0;
@@ -64,10 +70,12 @@ public final class VillagePolitics {
                 n++;
             }
         }
-        for (Iterator<Long> it = truces.values().iterator(); it.hasNext(); ) {
-            if (it.next() <= now) {
-                it.remove();
-                n++;
+        for (Map<UUID, Long> m : java.util.List.of(truces, discordCooldown)) {
+            for (Iterator<Long> it = m.values().iterator(); it.hasNext(); ) {
+                if (it.next() <= now) {
+                    it.remove();
+                    n++;
+                }
             }
         }
         return n;
@@ -75,6 +83,6 @@ public final class VillagePolitics {
 
     /** Nothing worth persisting: no non-default player record and no truce. */
     public boolean isEmpty() {
-        return truces.isEmpty() && chronicle.isEmpty() && players.values().stream().allMatch(PoliticsRecord::isDefault);
+        return truces.isEmpty() && discordCooldown.isEmpty() && chronicle.isEmpty() && players.values().stream().allMatch(PoliticsRecord::isDefault);
     }
 }

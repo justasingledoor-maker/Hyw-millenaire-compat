@@ -84,4 +84,28 @@ class PoliticsPersistenceTest {
         VillageRecord back = VillageRecord.load(r.save(), VillageRecord.FORMAT);
         assertEquals(r.politics.chronicle(), back.politics.chronicle());
     }
+
+    @Test
+    void diplomacyStateRoundTrips() {
+        VillageRecord r = new VillageRecord(VILLAGE, FactionIds.forVillage(VILLAGE));
+        UUID p = UUID.randomUUID();
+        UUID c = UUID.randomUUID();
+        PoliticsRecord pr = r.politics.get(p);
+        pr.lastSowDiscord = 1234;
+        pr.sowAttempts = 2;
+        r.politics.discordCooldown().put(c, 99999L);
+        VillageRecord back = VillageRecord.load(r.save(), VillageRecord.FORMAT);
+        assertEquals(1234, back.politics.peek(p).lastSowDiscord);
+        assertEquals(2, back.politics.peek(p).sowAttempts);
+        assertEquals(99999L, back.politics.discordCooldown().get(c));
+        // expired cooldowns are pruned; a record with only a sow-discord mark is not default
+        assertFalse(back.politics.peek(p).isDefault());
+        back.politics.prune(100000);
+        assertTrue(back.politics.discordCooldown().isEmpty());
+        // envoy attempts and reports
+        EnvoyMission m = new EnvoyMission(UUID.randomUUID(), p, VILLAGE, c, EnvoyKind.SOW_DISCORD, 1, 2, 3, 1);
+        assertEquals(List.of(m), PoliticsNbt.loadEnvoys(PoliticsNbt.saveEnvoys(List.of(m))));
+        PoliticsNbt.EnvoyReport rep = new PoliticsNbt.EnvoyReport(p, 55, "result");
+        assertEquals(List.of(rep), PoliticsNbt.loadReports(PoliticsNbt.saveReports(List.of(rep))));
+    }
 }

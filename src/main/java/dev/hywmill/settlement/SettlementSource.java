@@ -137,4 +137,27 @@ public interface SettlementSource {
     default java.util.OptionalInt takeReputation(ServerLevel level, UUID settlementId, UUID playerId, int amount) {
         return java.util.OptionalInt.empty();
     }
+
+    /** Millénaire diplomacy points the player has with the village (M5-4), empty if unsupported. */
+    default java.util.OptionalInt diplomacyPoints(ServerLevel level, UUID settlementId, UUID playerId) {
+        return java.util.OptionalInt.empty();
+    }
+
+    /** Spends one Millénaire diplomacy point of the player with the village; false if none (M5-4). */
+    default boolean consumeDiplomacyPoint(ServerLevel level, UUID settlementId, UUID playerId) {
+        return false;
+    }
+
+    /** Changes the relation between two villages by {@code delta} in both directions, through Millénaire (M5-4). */
+    default void adjustVillageRelation(ServerLevel level, UUID a, UUID b, int delta) {
+    }
+
+    /** Sets the relation between two villages in both directions, through Millénaire (M5-4 truce floor). */
+    default void setVillageRelation(ServerLevel level, UUID a, UUID b, int value) {
+    }
+
+    /** Gives the player reputation with the village (negative takes it; M5-4 backfire/exposure). Returns the new combined value. */
+    default java.util.OptionalInt adjustReputation(ServerLevel level, UUID settlementId, UUID playerId, int delta) {
+        return java.util.OptionalInt.empty();
+    }
 }

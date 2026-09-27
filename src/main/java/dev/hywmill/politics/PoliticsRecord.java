@@ -16,11 +16,19 @@ public final class PoliticsRecord {
     public int casualtiesOnErrands;
     /** Last envoy proposal per target village (cooldowns, M5-4). */
     public final Map<UUID, Long> lastProposal = new HashMap<>();
+    /** M5-4: last sow-discord attempt sponsored through this village (-1 never) and the recent attempt count. */
+    public long lastSowDiscord = -1;
+    public int sowAttempts;
+
+    /** Sow-discord attempts that still count at {@code now} (older than {@code window}: none). */
+    public int recentSowAttempts(long now, long window) {
+        return lastSowDiscord < 0 || now - lastSowDiscord > window ? 0 : sowAttempts;
+    }
 
     /** A default record carries no information and is pruned. */
     public boolean isDefault() {
         return status == Standing.STRANGER && grievances.isEmpty() && favor.isEmpty() && lastRequestTick < 0
-                && casualtiesOnErrands == 0 && lastProposal.isEmpty();
+                && casualtiesOnErrands == 0 && lastProposal.isEmpty() && lastSowDiscord < 0;
     }
 
     /**

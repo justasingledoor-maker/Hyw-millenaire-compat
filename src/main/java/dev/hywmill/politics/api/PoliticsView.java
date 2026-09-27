@@ -192,4 +192,42 @@ public final class PoliticsView {
     static String band(int r) {
         return r >= 90 ? "excellent" : r >= 50 ? "good" : r >= 10 ? "fair" : r > -30 ? "neutral" : r > -90 ? "bad" : "open conflict";
     }
+
+    /** A pending envoy as the player sees it (the arrival tick is approximate by design; sow discord is shown too, to its sponsor only). */
+    public record Envoy(UUID id, String from, String to, dev.hywmill.politics.EnvoyKind kind, long arrivesIn) {}
+
+    public static List<Envoy> envoys(ServerLevel overworld, UUID player) {
+        GarrisonLedger ledger = GarrisonLedger.get(overworld);
+        long now = overworld.getGameTime();
+        List<Envoy> out = new ArrayList<>();
+        for (dev.hywmill.politics.EnvoyMission m : ledger.envoys()) {
+            if (m.player().equals(player)) {
+                VillageRecord a = ledger.get(m.from());
+                VillageRecord b = ledger.get(m.to());
+                out.add(new Envoy(m.id(), a == null ? "?" : a.name, b == null ? "?" : b.name, m.kind(), Math.max(0, m.arriveTick() - now)));
+            }
+        }
+        return out;
+    }
+
+    /** Diplomacy view of one village: its relations with every other known village, truces, and the player's diplomacy points there. */
+    public record Relations(String name, OptionalInt diplomacyPoints, List<String> relations, Map<UUID, Long> truces) {}
+
+    public static Optional<Relations> relations(ServerLevel overworld, UUID player, UUID village) {
+        GarrisonLedger ledger = GarrisonLedger.get(overworld);
+        VillageRecord rec = ledger.get(village);
+        SettlementSource source = Services.settlements();
+        if (rec == null || source == null) {
+            return Optional.empty();
+        }
+        List<String> lines = new ArrayList<>();
+        for (VillageRecord other : ledger.all()) {
+            if (other != rec && source.discovered(overworld, player, other.villageId)) {
+                source.villageRelation(overworld, village, other.villageId).ifPresent(r ->
+                        lines.add(other.name + " (" + other.center.getX() + ", " + other.center.getZ() + "): " + r + " " + band(r)
+                                + (rec.politics.truceWith(other.villageId, overworld.getGameTime()) ? " [truce]" : "")));
+            }
+        }
+        return Optional.of(new Relations(rec.name, source.diplomacyPoints(overworld, village, player), lines, Map.copyOf(rec.politics.truces())));
+    }
 }

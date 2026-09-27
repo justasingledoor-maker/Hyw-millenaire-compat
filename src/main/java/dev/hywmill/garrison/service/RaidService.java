@@ -84,6 +84,12 @@ public final class RaidService {
         GarrisonRoster.RaidRecord raid = r.raid;
         if (raid == null) {
             if (info.isPresent() && info.get().target() != null && info.get().raidStart() > 0 && info.get().raidStart() != r.lastRaidStart
+                    && truce(ledger, rec, info.get().target(), tick)) {
+                // M5-4 (additive): no HywMill contingent joins a raid between villages under a truce
+                r.lastRaidStart = info.get().raidStart();
+                changed = true;
+                HmLog.info("Village '{}' raids {} during a truce: no garrison unit joins", rec.name, info.get().target());
+            } else if (info.isPresent() && info.get().target() != null && info.get().raidStart() > 0 && info.get().raidStart() != r.lastRaidStart
                     && enabled() && alert == AlertState.CALM) {
                 changed |= start(overworld, rec, r, rule, info.get(), units, plan, tick);
             } else {
@@ -107,6 +113,11 @@ public final class RaidService {
         }
         perf.stop("raid.tick", t0);
         return changed;
+    }
+
+    private static boolean truce(GarrisonLedger ledger, VillageRecord rec, UUID target, long tick) {
+        VillageRecord t = ledger.get(target);
+        return rec.politics.truceWith(target, tick) || (t != null && t.politics.truceWith(rec.villageId, tick));
     }
 
     private boolean start(ServerLevel overworld, VillageRecord rec, GarrisonRoster r, RaidRule rule, SettlementSource.RaidInfo info,

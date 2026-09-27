@@ -56,6 +56,7 @@ public final class CoreEvents {
         guarded("ledger update", () -> GarrisonUpdater.tick(overworld, rt));
         guarded("relation reconciliation", () -> EscalationGuard.reconcile(rt, tick));
         guarded("politics", () -> rt.politics().tick(overworld, rt, tick));
+        guarded("diplomacy", () -> rt.envoys().tick(overworld, rt, tick));
         guarded("threat scan", () -> {
             rt.threats().scan(overworld);
             if (tick % HywMillConfig.THREAT_SCAN_INTERVAL.get() == 0) {
@@ -63,6 +64,14 @@ public final class CoreEvents {
             }
         });
         rt.perf().stop("tick.total", t0);
+    }
+
+    @SubscribeEvent
+    public static void onLogin(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt != null && event.getEntity() instanceof net.minecraft.server.level.ServerPlayer sp) {
+            guarded("diplomacy reports", () -> rt.envoys().onLogin(sp));
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)

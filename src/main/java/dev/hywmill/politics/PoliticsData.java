@@ -122,7 +122,52 @@ public final class PoliticsData {
                 pr = base.pardon();
             }
         }
-        return new PoliticsTables(s, g, f, pr);
+        PoliticsTables.DiplomacyRule dr = base.diplomacy();
+        if (o.has("diplomacy") && o.get("diplomacy").isJsonObject()) {
+            dr = diplomacy(dr, o.getAsJsonObject("diplomacy"), problems, where);
+        }
+        return new PoliticsTables(s, g, f, pr, dr);
+    }
+
+    private static PoliticsTables.DiplomacyRule diplomacy(PoliticsTables.DiplomacyRule b, JsonObject j, List<String> problems, String where) {
+        Map<EnvoyKind, Double> bias = new EnumMap<>(EnvoyKind.class);
+        bias.putAll(b.bias());
+        Map<EnvoyKind, Integer> delta = new EnumMap<>(EnvoyKind.class);
+        delta.putAll(b.delta());
+        for (String key : List.of("bias", "delta")) {
+            if (j.has(key) && j.get(key).isJsonObject()) {
+                for (Map.Entry<String, JsonElement> e : j.getAsJsonObject(key).entrySet()) {
+                    try {
+                        EnvoyKind k = EnvoyKind.valueOf(e.getKey());
+                        if (key.equals("bias")) {
+                            bias.put(k, e.getValue().getAsDouble());
+                        } else {
+                            delta.put(k, Math.max(0, e.getValue().getAsInt()));
+                        }
+                    } catch (RuntimeException ex) {
+                        problems.add(where + ": diplomacy." + key + " names unknown kind '" + e.getKey() + "'");
+                    }
+                }
+            }
+        }
+        PoliticsTables.DiplomacyRule r = new PoliticsTables.DiplomacyRule(java.util.Collections.unmodifiableMap(bias),
+                d(j, "standingWeight", b.standingWeight()), d(j, "standingBWeight", b.standingBWeight()),
+                d(j, "relationWeight", b.relationWeight()), d(j, "conflictWeight", b.conflictWeight()), d(j, "cultureWeight", b.cultureWeight()),
+                d(j, "distanceWeight", b.distanceWeight()), d(j, "strengthWeight", b.strengthWeight()), d(j, "attemptWeight", b.attemptWeight()),
+                d(j, "implausible", b.implausible()), java.util.Collections.unmodifiableMap(delta), d(j, "jitter", b.jitter()),
+                d(j, "backfireShare", b.backfireShare()), i(j, "backfireRep", b.backfireRep()),
+                l(j, "travelPer200", b.travelPer200()), l(j, "minTravel", b.minTravel()), l(j, "pairCooldown", b.pairCooldown()),
+                j.has("truceDays") ? Math.round(d(j, "truceDays", 0) * PoliticsTables.DAY) : b.truceTicks(), i(j, "truceFloor", b.truceFloor()),
+                i(j, "minRepWithOther", b.minRepWithOther()), l(j, "sowPlayerCooldown", b.sowPlayerCooldown()),
+                l(j, "sowPairCooldown", b.sowPairCooldown()), i(j, "sowFavorCost", b.sowFavorCost()), i(j, "sowFavorStep", b.sowFavorStep()),
+                d(j, "sowExposure", b.sowExposure()), d(j, "sowExposureStep", b.sowExposureStep()), l(j, "sowRecent", b.sowRecent()),
+                i(j, "exposedRep", b.exposedRep()));
+        if (r.jitter() < 0 || r.jitter() > 1 || r.backfireShare() < 0 || r.backfireShare() > 1 || r.truceTicks() <= 0
+                || r.truceFloor() <= -90 || r.truceFloor() > 100 || r.minTravel() < 0 || r.travelPer200() < 0) {
+            problems.add(where + ": diplomacy values out of range (jitter/backfireShare in [0,1], truceDays > 0, truceFloor in (-90, 100]); using " + where + " base");
+            return b;
+        }
+        return r;
     }
 
     private static int i(JsonObject j, String k, int def) {

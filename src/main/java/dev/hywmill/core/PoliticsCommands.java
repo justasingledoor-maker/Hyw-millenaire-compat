@@ -158,28 +158,18 @@ final class PoliticsCommands {
         return 1;
     }
 
-    /** M5-3 formal pardon: without {@code pay} only the price is quoted. */
+    /** M5-3 formal pardon: without {@code pay} only the price is quoted (through the shared PoliticsActions API). */
     private static int pardon(CommandContext<CommandSourceStack> ctx, @Nullable UUID explicit, boolean pay) {
         UUID player = who(ctx, explicit);
         VillageRecord rec = player == null ? null : nearest(ctx);
         if (rec == null) {
             return 0;
         }
-        ServerLevel ow = ctx.getSource().getServer().overworld();
-        PoliticsService.PardonResult res = HywMillRuntime.require().politics().pardon(ow, rec, player, pay);
-        dev.hywmill.politics.Pardon.Quote q = res.quote();
-        String place = rec.name.isEmpty() ? "this village" : rec.name;
-        switch (q.outcome()) {
-            case NOT_OUTLAW -> send(ctx.getSource(), "politics pardon: you are not an outlaw in " + place + " (" + res.status() + ")");
-            case DISABLED -> send(ctx.getSource(), "politics pardon: " + place + " grants no formal pardons; wait for the grievance to fade");
-            case TOO_POOR -> send(ctx.getSource(), "politics pardon refused: the weregild is " + q.price() + " reputation and you have "
-                    + (q.repAfter() + q.price()) + "; donate goods to " + place + " until your reputation stays above the boycott line after paying");
-            case OK -> send(ctx.getSource(), res.paid()
-                    ? "politics pardon paid: " + q.price() + " reputation; now " + res.status() + " in " + place + ", reputation " + res.reputationAfter()
-                    : "politics pardon quote: " + q.price() + " reputation (grievance " + String.format("%.1f", q.grievance())
-                    + "); run '/hywmill politics pardon pay' to pay");
-        }
-        return q.ok() ? 1 : 0;
+        dev.hywmill.politics.api.PoliticsActions.ActionResult r = dev.hywmill.politics.api.PoliticsActions.pardon(
+                ctx.getSource().getServer().overworld(), player, rec.villageId, pay);
+        send(ctx.getSource(), "politics pardon " + r.code() + ": " + r.message()
+                + (r.ok() && !pay ? "; run '/hywmill politics pardon pay' to pay" : ""));
+        return r.ok() ? 1 : 0;
     }
 
     private static int adminGrievance(CommandContext<CommandSourceStack> ctx) {

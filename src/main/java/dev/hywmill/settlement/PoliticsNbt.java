@@ -68,6 +68,10 @@ public final class PoliticsNbt {
                 });
                 c.put("lastProposal", lp);
             }
+            if (r.lastSowDiscord >= 0) {
+                c.putLong("lastSow", r.lastSowDiscord);
+                c.putInt("sowAttempts", r.sowAttempts);
+            }
             players.add(c);
         }
         t.put("players", players);
@@ -79,6 +83,16 @@ public final class PoliticsNbt {
             truces.add(x);
         });
         t.put("truces", truces);
+        if (!p.discordCooldown().isEmpty()) {
+            ListTag dc = new ListTag();
+            p.discordCooldown().forEach((other, until) -> {
+                CompoundTag x = new CompoundTag();
+                x.putUUID("village", other);
+                x.putLong("until", until);
+                dc.add(x);
+            });
+            t.put("discordCooldown", dc);
+        }
         ListTag chron = new ListTag();
         for (VillagePolitics.ChronicleEntry e : p.chronicle()) {
             CompoundTag x = new CompoundTag();
@@ -126,6 +140,8 @@ public final class PoliticsNbt {
                     r.lastProposal.put(x.getUUID("target"), x.getLong("tick"));
                 }
             }
+            r.lastSowDiscord = c.contains("lastSow") ? c.getLong("lastSow") : -1;
+            r.sowAttempts = c.getInt("sowAttempts");
         }
         ListTag truces = t.getList("truces", Tag.TAG_COMPOUND);
         for (int i = 0; i < truces.size(); i++) {
@@ -134,11 +150,44 @@ public final class PoliticsNbt {
                 p.setTruce(x.getUUID("village"), x.getLong("until"));
             }
         }
+        ListTag dc = t.getList("discordCooldown", Tag.TAG_COMPOUND);
+        for (int i = 0; i < dc.size(); i++) {
+            CompoundTag x = dc.getCompound(i);
+            if (x.hasUUID("village")) {
+                p.discordCooldown().put(x.getUUID("village"), x.getLong("until"));
+            }
+        }
         ListTag chron = t.getList("chronicle", Tag.TAG_COMPOUND);
         for (int i = 0; i < chron.size(); i++) {
             p.chronicle(chron.getCompound(i).getLong("t"), chron.getCompound(i).getString("text"));
         }
         return p;
+    }
+
+    /** M5-4: an envoy result waiting for its player to log in. */
+    public record EnvoyReport(UUID player, long tick, String text) {}
+
+    public static ListTag saveReports(List<EnvoyReport> reports) {
+        ListTag l = new ListTag();
+        for (EnvoyReport r : reports) {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("player", r.player());
+            x.putLong("t", r.tick());
+            x.putString("text", r.text());
+            l.add(x);
+        }
+        return l;
+    }
+
+    public static List<EnvoyReport> loadReports(ListTag l) {
+        List<EnvoyReport> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            CompoundTag x = l.getCompound(i);
+            if (x.hasUUID("player")) {
+                out.add(new EnvoyReport(x.getUUID("player"), x.getLong("t"), x.getString("text")));
+            }
+        }
+        return out;
     }
 
     public static ListTag saveEnvoys(List<EnvoyMission> missions) {
@@ -153,6 +202,9 @@ public final class PoliticsNbt {
             x.putLong("depart", m.departTick());
             x.putLong("arrive", m.arriveTick());
             x.putLong("seed", m.seed());
+            if (m.attempts() > 0) {
+                x.putInt("attempts", m.attempts());
+            }
             l.add(x);
         }
         return l;
@@ -164,7 +216,7 @@ public final class PoliticsNbt {
             CompoundTag x = l.getCompound(i);
             try {
                 out.add(new EnvoyMission(x.getUUID("id"), x.getUUID("player"), x.getUUID("from"), x.getUUID("to"),
-                        EnvoyKind.valueOf(x.getString("kind")), x.getLong("depart"), x.getLong("arrive"), x.getLong("seed")));
+                        EnvoyKind.valueOf(x.getString("kind")), x.getLong("depart"), x.getLong("arrive"), x.getLong("seed"), x.getInt("attempts")));
             } catch (IllegalArgumentException | NullPointerException ignored) {
                 // malformed or unknown kind: dropped (missions are transient; the player can propose again)
             }

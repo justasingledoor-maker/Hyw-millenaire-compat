@@ -1,5 +1,5 @@
 {
-  "_comment": "HywMill M5 politics. Standing uses Millénaire's combined reputation (village + culture): boycott -1024, hire 4096, friend of the village 8192, one of us 32768. Outlaw: grievance >= outlaw AND reputation <= boycott, or a killing inside the village in peacetime (immediate). Pardon: grievance < pardon AND reputation > boycott. A status earned by reputation is kept down to threshold x keepFactor. Grievance: weight x insideFactor (inside the village) x selfDefenseFactor (the victim struck first), halving every halfLifeDays. Favor is earned only by service (no trade source) and capped. Formal pardon (weregild): perGrievance reputation per grievance point above the pardon line, plus killFee while a peacetime killing is pending; refused unless reputation stays above the boycott line after paying. Cultures patch fields.",
+  "_comment": "HywMill M5 politics. Standing uses Millénaire's combined reputation (village + culture): boycott -1024, hire 4096, friend of the village 8192, one of us 32768. Outlaw: grievance >= outlaw AND reputation <= boycott, or a killing inside the village in peacetime (immediate). Pardon: grievance < pardon AND reputation > boycott. A status earned by reputation is kept down to threshold x keepFactor. Grievance: weight x insideFactor (inside the village) x selfDefenseFactor (the victim struck first), halving every halfLifeDays. Favor is earned only by service (no trade source) and capped. Formal pardon (weregild): perGrievance reputation per grievance point above the pardon line, plus killFee while a peacetime killing is pending; refused unless reputation stays above the boycott line after paying. Diplomacy (envoys): a logistic success chance from bias[kind] + standing, relation, conflict, culture, distance, strength and repeated-attempt terms; delta is the relation change on success (Millenaire scale, +-jitter); envoys travel travelPer200 ticks per 200 blocks (at least minTravel); a truce holds the relation at truceFloor for truceDays; sow discord is Sworn-only with player and pair cooldowns, a rising Favor cost and exposure chance. Cultures patch fields.",
   "defaults": {
     "standing": { "boycott": -1024, "trusted": 4096, "patron": 8192, "sworn": 32768, "patronFavor": 20, "swornFavorEarned": 60, "keepFactor": 0.9 },
     "grievance": {
@@ -10,7 +10,17 @@
       "sources": { "DEFENSE": 3, "PRESENT_AT_DEFENSE": 1, "REQUESTED_DIPLOMACY": 5, "ERRAND_SUCCESS": 2, "LONG_STANDING": 1 },
       "cap": 100
     },
-    "pardon": { "enabled": true, "perGrievance": 32, "killFee": 1024 }
+    "pardon": { "enabled": true, "perGrievance": 32, "killFee": 1024 },
+    "diplomacy": {
+      "bias": { "RECONCILE": 0.0, "TRUCE": -0.5, "ENCOURAGE": 0.5, "SOW_DISCORD": -0.3 },
+      "standingWeight": 0.4, "standingBWeight": 0.2, "relationWeight": 1.0, "conflictWeight": -0.8, "cultureWeight": 0.5,
+      "distanceWeight": -0.5, "strengthWeight": 0.5, "attemptWeight": -0.5, "implausible": -2.0,
+      "delta": { "RECONCILE": 10, "TRUCE": 10, "ENCOURAGE": 5, "SOW_DISCORD": 10 }, "jitter": 0.2,
+      "backfireShare": 0.3, "backfireRep": 256, "travelPer200": 1000, "minTravel": 1000, "pairCooldown": 24000,
+      "truceDays": 7, "truceFloor": -85, "minRepWithOther": 0,
+      "sowPlayerCooldown": 168000, "sowPairCooldown": 72000, "sowFavorCost": 10, "sowFavorStep": 5,
+      "sowExposure": 0.2, "sowExposureStep": 0.15, "sowRecent": 672000, "exposedRep": 512
+    }
   },
   "cultures": {
     "millenaire:seljuk":   { "grievance": { "halfLifeDays": 28 } },

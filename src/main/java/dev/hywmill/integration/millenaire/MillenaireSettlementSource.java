@@ -435,6 +435,44 @@ final class MillenaireSettlementSource implements SettlementSource {
         return java.util.OptionalInt.of(v.getCombinedReputation(level, playerId));
     }
 
+    @Override
+    public java.util.OptionalInt diplomacyPoints(ServerLevel level, UUID settlementId, UUID playerId) {
+        return java.util.OptionalInt.of(org.millenaire.village.PlayerCultureReputation.get(level).getDiplomacyPoints(playerId, new VillageId(settlementId)));
+    }
+
+    @Override
+    public boolean consumeDiplomacyPoint(ServerLevel level, UUID settlementId, UUID playerId) {
+        return org.millenaire.village.PlayerCultureReputation.get(level).consumeDiplomacyPoint(playerId, new VillageId(settlementId));
+    }
+
+    @Override
+    public void adjustVillageRelation(ServerLevel level, UUID a, UUID b, int delta) {
+        Village va = manager(level).getVillage(new VillageId(a));
+        if (va != null && !a.equals(b)) {
+            va.adjustRelationSymmetric(level, new VillageId(b), delta, false);
+        }
+    }
+
+    @Override
+    public void setVillageRelation(ServerLevel level, UUID a, UUID b, int value) {
+        Village va = manager(level).getVillage(new VillageId(a));
+        Village vb = manager(level).getVillage(new VillageId(b));
+        if (va != null && vb != null && !a.equals(b)) {
+            va.setRelation(vb.getId(), value);
+            vb.setRelation(va.getId(), value);
+        }
+    }
+
+    @Override
+    public java.util.OptionalInt adjustReputation(ServerLevel level, UUID settlementId, UUID playerId, int delta) {
+        Village v = manager(level).getVillage(new VillageId(settlementId));
+        if (v == null) {
+            return java.util.OptionalInt.empty();
+        }
+        v.adjustReputation(level, playerId, delta);
+        return java.util.OptionalInt.of(v.getCombinedReputation(level, playerId));
+    }
+
     /** Millénaire's own deletion path (negation wand) ends in {@code VillageManager.removeVillage}; no event is fired. */
     @Override
     public boolean devRemove(ServerLevel level, UUID settlementId) {

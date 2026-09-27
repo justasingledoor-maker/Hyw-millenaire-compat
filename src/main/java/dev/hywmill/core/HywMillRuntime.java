@@ -38,6 +38,7 @@ public final class HywMillRuntime {
     private final ThreatTracker threats = new ThreatTracker(incidents, scheduler, defense, perf);
     private final FactionRegistry factions = new FactionRegistry();
     private final dev.hywmill.politics.service.PoliticsService politics = new dev.hywmill.politics.service.PoliticsService();
+    private final dev.hywmill.politics.service.EnvoyService envoys = new dev.hywmill.politics.service.EnvoyService();
     /** M5-3: political hostility (outlaws; wars later). Replaces M1.1's ALWAYS_REVERT. */
     private final DiplomacyPolicy political = new dev.hywmill.politics.service.PoliticalPolicy(this);
     /** Dev-only overlay installed by an M5-0 spike command (this server run only); null when unused. */
@@ -126,6 +127,10 @@ public final class HywMillRuntime {
 
     public dev.hywmill.politics.service.PoliticsService politics() {
         return politics;
+    }
+
+    public dev.hywmill.politics.service.EnvoyService envoys() {
+        return envoys;
     }
 
     public DiplomacyPolicy diplomacy() {

@@ -28,8 +28,16 @@ public final class GarrisonLedger extends SavedData {
     /** M5: pending envoy missions (ledger level, bounded per player by EnvoyMission.MAX_PER_PLAYER). */
     private final java.util.List<dev.hywmill.politics.EnvoyMission> envoys = new java.util.ArrayList<>();
 
+    /** M5-4: envoy results waiting for their (offline) player; bounded. */
+    private final java.util.List<PoliticsNbt.EnvoyReport> reports = new java.util.ArrayList<>();
+    public static final int MAX_REPORTS = 256;
+
     public java.util.List<dev.hywmill.politics.EnvoyMission> envoys() {
         return envoys;
+    }
+
+    public java.util.List<PoliticsNbt.EnvoyReport> reports() {
+        return reports;
     }
 
     public static GarrisonLedger get(ServerLevel overworld) {
@@ -105,6 +113,9 @@ public final class GarrisonLedger extends SavedData {
         if (format >= 5 && root.contains("envoys", Tag.TAG_LIST)) {
             ledger.envoys.addAll(PoliticsNbt.loadEnvoys(root.getList("envoys", Tag.TAG_COMPOUND)));
         }
+        if (format >= 5 && root.contains("envoyReports", Tag.TAG_LIST)) {
+            ledger.reports.addAll(PoliticsNbt.loadReports(root.getList("envoyReports", Tag.TAG_COMPOUND)));
+        }
         if (migrated > 0) {
             // Saved as the current format on the next save; values recomputed at each village's next update.
             ledger.setDirty();
@@ -124,6 +135,9 @@ public final class GarrisonLedger extends SavedData {
         root.put("villages", list);
         if (!envoys.isEmpty()) {
             root.put("envoys", PoliticsNbt.saveEnvoys(envoys));
+        }
+        if (!reports.isEmpty()) {
+            root.put("envoyReports", PoliticsNbt.saveReports(reports));
         }
         return root;
     }
