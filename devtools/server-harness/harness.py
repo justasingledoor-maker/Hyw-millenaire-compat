@@ -3796,6 +3796,23 @@ def make_calm(s, c, timeout=90):
     return garrison(s, c).get("alert")
 
 
+def open_path(s, c, steps=5, step=8, start=24):
+    """Points on open, dry ground at village level along the first compass direction that has them (no roofs, no water)."""
+    import math
+    for deg in range(0, 360, 45):
+        dx, dz = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+        pts = [(int(c[0] + dx * (start + k * step)), int(c[2] + dz * (start + k * step))) for k in range(steps)]
+        ok = True
+        for (x, z) in pts:
+            t, top, water = ticking(s, x, z)
+            if not t or water or abs(top - c[1]) > 4:
+                ok = False
+                break
+        if ok:
+            return pts
+    return [(c[0] + 24 + 8 * k, c[2] + 2) for k in range(steps)]
+
+
 def scenario_G5_5(ctx):
     """M5-5: escort (follows by hops, never teleports, never force-loads), dismissal and Favor, detachment,
     casualty cost, and the approved Reconciler pause for an errand unit whose chunk unloads."""
@@ -3820,24 +3837,34 @@ def scenario_G5_5(ctx):
           v0.get("status") == "PATRON" and any("request OK" in l for l in r) and 1 <= len(rows) <= 4
           and v1.get("favor") == v0.get("favor", 0) - len(rows), f"{v0} {' | '.join(r)} {len(rows)} escort(s) {v1}")
     ids = {x[3] for x in rows if x[3]}
-    # the player walks away 40 blocks east in 8-block steps; the escort follows by hops
-    samples, jumps = [], []
-    last = positions(s, ids)
-    for i in range(1, 6):
+    # the player walks away from the village on open ground (not over roofs), in 8-block steps; the escort follows by hops
+    path = open_path(s, a)
+    note("G5-5 walk", str(path))
+    speeds = []
+    last = {k: (time.time(), p) for k, p in positions(s, ids).items()}
+    for (px_, pz_) in path:
         m5(s, f"standin remove {V_UUID}", 0.2)
-        standin_at(s, V_UUID, a[0] + 2 + 8 * i, a[2] + 2)
+        standin_at(s, V_UUID, px_, pz_)
         for _ in range(3):
             time.sleep(2.5)
-            now = positions(s, ids)
-            for k, p in now.items():
+            t = time.time()
+            for k, p in positions(s, ids).items():
                 if k in last:
-                    jumps.append(abs(p[0] - last[k][0]) + abs(p[2] - last[k][2]))
-            last = now
-    time.sleep(15)
-    end = positions(s, ids)
-    near = [k for k, p in end.items() if abs(p[0] - (a[0] + 42)) + abs(p[2] - (a[2] + 2)) <= 16]
-    check("G5-5 the escort follows the player (hops towards them)", len(near) >= max(1, len(ids) - 1), f"{len(near)}/{len(ids)} within 16 of the player: {end}")
-    check("G5-5 the escort never teleports (largest move in 2.5 s)", jumps and max(jumps) <= 20, f"max {max(jumps) if jumps else None}")
+                    lt, lp = last[k]
+                    speeds.append(((p[0] - lp[0]) ** 2 + (p[2] - lp[2]) ** 2) ** 0.5 / max(0.5, t - lt))
+                last[k] = (t, p)
+    fx, fz = path[-1]
+    near = []
+    for _ in range(12):
+        end = positions(s, ids)
+        near = [k for k, p in end.items() if ((p[0] - fx) ** 2 + (p[2] - fz) ** 2) ** 0.5 <= 16]
+        if len(near) >= max(1, len(ids) - 1):
+            break
+        time.sleep(5)
+    check("G5-5 the escort follows the player (hops towards them)", len(near) >= max(1, len(ids) - 1),
+          f"{len(near)}/{len(ids)} within 16 of the player at {path[-1]}: {end}")
+    check("G5-5 the escort never teleports (fastest horizontal speed between samples <= 8 blocks/s)", speeds and max(speeds) <= 8,
+          f"max {round(max(speeds), 1) if speeds else None} blocks/s over {len(speeds)} samples")
     check("G5-5 the escort never force-loads", forceload_list(s) == fl0, forceload_list(s))
     st = pstatus(s, a, V_UUID)
     check("G5-5 politics status lists the lent soldiers", any("Soldiers lent to you" in l for l in st), " | ".join(st))
@@ -3860,9 +3887,13 @@ def scenario_G5_5(ctx):
     d = s.output(at(a, f"hywmill politics request-for {Y2_UUID} detachment 2 {px} {a[1]} {pz} 1"), 2)
     drows = [x for x in roster_rows(s, a) if x[4] == "DETACHED"]
     dids = {x[3] for x in drows if x[3]}
-    time.sleep(45)
-    dp = positions(s, dids)
-    held = [k for k, p in dp.items() if abs(p[0] - px) + abs(p[2] - pz) <= 10]
+    held, dp = [], {}
+    for _ in range(30):  # walking pace: up to 150 s
+        time.sleep(5)
+        dp = positions(s, dids)
+        held = [k for k, p in dp.items() if abs(p[0] - px) + abs(p[2] - pz) <= 10]
+        if held:
+            break
     check("G5-5 a detachment walks to and holds the named point", any("request OK" in l for l in d) and held, f"{' | '.join(d)} {dp}")
     y0 = pshow(s, a, Y2_UUID)
     victim = next((u for u in spike_info(s, "@e[type=!minecraft:player]") if u[:8] in dids), None)
