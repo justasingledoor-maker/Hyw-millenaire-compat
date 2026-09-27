@@ -3756,6 +3756,131 @@ def scenario_G5_4(ctx):
     m5(s, f"standin remove {W_UUID}", 0.3)
 
 
+V_UUID = "99999999-aaaa-4bbb-8ccc-dddddddddddd"      # M5-5: the escorted player (a stand-in)
+Y2_UUID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee"     # M5-5: the detachment sponsor
+
+
+def roster_rows(s, c):
+    """[(rosterId8, unitKey, state, entity8, duty)] from /hywmill village garrison units."""
+    out = []
+    for l in s.output(at(c, "hywmill village garrison units"), 2):
+        m = re.search(r"^\s*([0-9a-f]{8}) (\S+) lvl\d+ (\w+)\S* gen\d+(?: entity=([0-9a-f]{8}))? duty=(\w+)", l)
+        if m:
+            out.append(m.groups())
+    return out
+
+
+def positions(s, ids8):
+    rows = spike_info(s, "@e[type=!minecraft:player]")
+    return {u[:8]: r["pos"] for u, r in rows.items() if u[:8] in ids8}
+
+
+def forceload_list(s):
+    return " ".join(s.output("forceload query", 1))
+
+
+def scenario_G5_5(ctx):
+    """M5-5: escort (follows by hops, never teleports, never force-loads), dismissal and Favor, detachment,
+    casualty cost, and the approved Reconciler pause for an errand unit whose chunk unloads."""
+    s, a = ctx.s, ctx.a
+    ca = f"{a[0]} {a[1]} {a[2]}"
+    wait_garrison(s, a, lambda g: g.get("alive", 0) >= 8 and g.get("recruited", 1) == 0, 600)
+    note("G5-5 garrison", str({k: v for k, v in garrison(s, a).items() if k != "lines"}))
+    note("G5-5 stand-in", standin_at(s, V_UUID, a[0] + 2, a[2] + 2))
+    q = s.output(at(a, f"hywmill politics request-for {Q_UUID} escort 2"), 1.5)
+    check("G5-5 negative: a stranger's escort request is refused", any("STANDING_TOO_LOW" in l for l in q), " | ".join(q))
+    m5(s, f"mill rep {ca} {V_UUID} adjust 9000")
+    for _ in range(6):
+        s.output(at(a, f"hywmill politics admin favor {V_UUID} REQUESTED_DIPLOMACY"), 0.2)
+    time.sleep(14)
+    v0 = pshow(s, a, V_UUID)
+    fl0 = forceload_list(s)
+    r = s.output(at(a, f"hywmill politics request-for {V_UUID} escort 4"), 2)
+    rows = [x for x in roster_rows(s, a) if x[4] == "ESCORT"]
+    v1 = pshow(s, a, V_UUID)
+    check("G5-5 a patron's escort is granted from what the village can spare; Favor paid on acceptance",
+          v0.get("status") == "PATRON" and any("request OK" in l for l in r) and 1 <= len(rows) <= 4
+          and v1.get("favor") == v0.get("favor", 0) - len(rows), f"{v0} {' | '.join(r)} {len(rows)} escort(s) {v1}")
+    ids = {x[3] for x in rows if x[3]}
+    # the player walks away 40 blocks east in 8-block steps; the escort follows by hops
+    samples, jumps = [], []
+    last = positions(s, ids)
+    for i in range(1, 6):
+        m5(s, f"standin remove {V_UUID}", 0.2)
+        standin_at(s, V_UUID, a[0] + 2 + 8 * i, a[2] + 2)
+        for _ in range(3):
+            time.sleep(2.5)
+            now = positions(s, ids)
+            for k, p in now.items():
+                if k in last:
+                    jumps.append(abs(p[0] - last[k][0]) + abs(p[2] - last[k][2]))
+            last = now
+    end = positions(s, ids)
+    near = [k for k, p in end.items() if abs(p[0] - (a[0] + 42)) + abs(p[2] - (a[2] + 2)) <= 16]
+    check("G5-5 the escort follows the player (hops towards them)", len(near) >= max(1, len(ids) - 1), f"{len(near)}/{len(ids)} within 16 of the player: {end}")
+    check("G5-5 the escort never teleports (largest move in 2.5 s)", jumps and max(jumps) <= 20, f"max {max(jumps) if jumps else None}")
+    check("G5-5 the escort never force-loads", forceload_list(s) == fl0, forceload_list(s))
+    st = pstatus(s, a, V_UUID)
+    check("G5-5 politics status lists the lent soldiers", any("Soldiers lent to you" in l for l in st), " | ".join(st))
+    # home defense excludes them: the village's alert-free duty allocation does not count them
+    dm = s.output(at(a, f"hywmill politics request-for {V_UUID} dismiss"), 1.5)
+    time.sleep(8)
+    back = [x for x in roster_rows(s, a) if x[3] in ids]
+    v2 = pshow(s, a, V_UUID)
+    check("G5-5 dismissed: the soldiers walk home (RETURNING/GARRISONED) and a clean errand earns Favor",
+          any("dismiss OK" in l for l in dm) and all(x[4] != "ESCORT" for x in back) and v2.get("favor", 0) > v1.get("favor", 0),
+          f"{' | '.join(dm)} {[(x[2], x[4]) for x in back]} favor {v1.get('favor')}->{v2.get('favor')}")
+    # a detachment holds a point; a soldier killed on the errand costs Favor
+    m5(s, f"mill rep {ca} {Y2_UUID} adjust 9000")
+    for _ in range(12):
+        s.output(at(a, f"hywmill politics admin favor {Y2_UUID} REQUESTED_DIPLOMACY"), 0.2)
+    standin_at(s, Y2_UUID, a[0] - 3, a[2] - 3)
+    time.sleep(14)
+    px, pz = a[0] + 24, a[2] - 24
+    d = s.output(at(a, f"hywmill politics request-for {Y2_UUID} detachment 2 {px} {a[1]} {pz} 1"), 2)
+    drows = [x for x in roster_rows(s, a) if x[4] == "DETACHED"]
+    dids = {x[3] for x in drows if x[3]}
+    time.sleep(25)
+    dp = positions(s, dids)
+    held = [k for k, p in dp.items() if abs(p[0] - px) + abs(p[2] - pz) <= 10]
+    check("G5-5 a detachment walks to and holds the named point", any("request OK" in l for l in d) and held, f"{' | '.join(d)} {dp}")
+    y0 = pshow(s, a, Y2_UUID)
+    victim = next((u for u in spike_info(s, "@e[type=!minecraft:player]") if u[:8] in dids), None)
+    if victim:
+        s.cmd(f"kill {victim}", 2)
+    time.sleep(3)
+    y1 = pshow(s, a, Y2_UUID)
+    check("G5-5 a soldier killed on the player's errand costs Favor", victim and y1.get("favor", 0) < y0.get("favor", 0), f"{y0} -> {y1}")
+    # the approved Reconciler change: the detachment's chunk unloads (test forceload only), the unit is away, not missing
+    far_x, far_z = a[0] + 220, a[2]
+    s.cmd(f"forceload add {far_x - 16} {far_z - 16} {far_x + 16} {far_z + 16}", 2)
+    time.sleep(3)
+    survivor = next((u for u in spike_info(s, "@e[type=!minecraft:player]") if u[:8] in dids), None)
+    note("G5-5 survivor", str(survivor))
+    if survivor:
+        s.cmd(f"tp {survivor} {far_x} {a[1] + 40} {far_z}", 1)
+        s.cmd(f"execute as {survivor} at @s run tp @s ~ ~ ~", 1)
+        s.cmd(f"spreadplayers {far_x} {far_z} 0 4 false {survivor}", 2)
+        time.sleep(15)  # at least one garrison slot records it there
+        s.cmd(f"forceload remove {far_x - 16} {far_z - 16} {far_x + 16} {far_z + 16}", 2)
+        time.sleep(75)  # > missingGrace (1200 ticks) of active village time
+        st2 = [x for x in roster_rows(s, a) if x[3] == survivor[:8]]
+        check("G5-5 an errand unit whose chunk is unloaded is not marked MISSING (missing clock paused)",
+              st2 and st2[0][2] == "DEPLOYED", str(st2))
+        s.cmd(f"forceload add {far_x - 16} {far_z - 16} {far_x + 16} {far_z + 16}", 2)
+        time.sleep(15)
+        st3 = [x for x in roster_rows(s, a) if x[3] == survivor[:8]]
+        check("G5-5 when its chunk loads again the unit is found and still on its errand", st3 and st3[0][2] == "DEPLOYED", str(st3))
+        s.cmd(f"forceload remove {far_x - 16} {far_z - 16} {far_x + 16} {far_z + 16}", 1)
+    cen = census(s, a)
+    check("G5-5 no duplicate slots after the errands", cen.get("dupSlots", 1) == 0, str(cen))
+    s.output(at(a, f"hywmill politics request-for {Y2_UUID} dismiss"), 1)
+    perf = s.output("hywmill perf", 2)
+    note("G5-5 perf", " | ".join(l for l in perf if "duty" in l or "garrison" in l))
+    for u in (V_UUID, Y2_UUID):
+        m5(s, f"standin remove {u}", 0.3)
+
+
 SG_C3 = dict(perSlot={"WATCH": 2.0, "GUARD_POST": 2.25, "GARRISON": 2.5, "STRONGHOLD": 3.0},
              levyShare={"WATCH": 0.15, "GUARD_POST": 0.20, "GARRISON": 0.25, "STRONGHOLD": 0.30},
              infra={"BARRACKS": 8, "FORT_TOWNHALL": 8, "ARMOURY": 4, "TRAINING": 4, "GUARDHOUSE": 3, "WATCHTOWER": 3, "TOWER": 2, "GATE": 1},
@@ -4087,7 +4212,7 @@ def scenario_SG_6(ctx):
 
 
 ORDER_SG = ["status", "SG_0", "SG_1", "SG_2", "SG_3", "SG_4", "SG_5"]
-ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3", "G5_4"]
+ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3", "G5_4", "G5_5"]
 
 
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
@@ -4099,7 +4224,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
-             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_4": scenario_G5_4, "G5_G": scenario_G5_G,
+             "S5_R": scenario_S5_R, "S5_V": scenario_S5_V, "S5_W": scenario_S5_W, "S5_P": scenario_S5_P, "G5_2": scenario_G5_2, "G5_3": scenario_G5_3, "G5_4": scenario_G5_4, "G5_5": scenario_G5_5, "G5_G": scenario_G5_G,
              "SG_0": scenario_SG_0, "SG_1": scenario_SG_1, "SG_2": scenario_SG_2, "SG_3": scenario_SG_3, "SG_4": scenario_SG_4,
              "SG_5": scenario_SG_5, "SG_6": scenario_SG_6}
 ORDER_G3 = ["status", "G3_1", "G3_2", "G3_3", "G3_4", "G3_5", "G3_6", "G3_7", "G3_8", "G3_9", "G3_10", "G3_11", "G3_12", "G3_13",

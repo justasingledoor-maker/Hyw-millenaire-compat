@@ -146,4 +146,71 @@ class ReconcilerTest {
         assertTrue(Reconciler.villageGone(roster, false, 1000 + S.villageGoneGrace() + 5, S).isEmpty());
         assertEquals(UnitState.SPAWNED, e.state());
     }
+
+    // ---- M5-5 (approved M3 change): errand units away in unloaded terrain are not missing ----
+
+    List<Reconciler.Event> runPaused(long tick, java.util.function.Predicate<RosterEntry> paused, long step) {
+        return Reconciler.reconcile(roster, FACTION, world::get, tick, true, S, paused, step);
+    }
+
+    @Test
+    void awayErrandUnitInUnloadedTerrainIsNeverMarkedMissing() {
+        RosterEntry e = spawned(0);
+        e.transition(UnitState.GARRISONED, 0);
+        e.transition(UnitState.DEPLOYED, 0);
+        e.duty = dev.hywmill.garrison.duty.Duty.ESCORT;
+        java.util.function.Predicate<RosterEntry> away = x -> x.duty.errand();
+        for (long t = 200; t <= S.missingGrace() * 5; t += 200) {
+            runPaused(t, away, 200);
+        }
+        assertEquals(UnitState.DEPLOYED, e.state(), "held in unloaded terrain for five grace periods: still deployed");
+        // its chunk loads and the unit is still not there: the clock resumes where it stopped (not from zero, not jumping)
+        long t0 = S.missingGrace() * 5;
+        runPaused(t0 + S.missingGrace() - 200, x -> false, 200);
+        assertEquals(UnitState.DEPLOYED, e.state());
+        runPaused(t0 + S.missingGrace() + 200, x -> false, 200);
+        assertEquals(UnitState.MISSING, e.state());
+    }
+
+    @Test
+    void homeUnitsAndRaidsAreUnchangedByThePause() {
+        RosterEntry home = spawned(0);
+        RosterEntry raid = spawned(0);
+        raid.duty = dev.hywmill.garrison.duty.Duty.RAID;
+        java.util.function.Predicate<RosterEntry> away = x -> x.duty.errand();
+        runPaused(S.missingGrace(), away, 200);
+        assertEquals(UnitState.MISSING, home.state());
+        assertEquals(UnitState.MISSING, raid.state());
+    }
+
+    @Test
+    void pausedMissingUnitIsNotLost() {
+        RosterEntry e = spawned(0);
+        e.duty = dev.hywmill.garrison.duty.Duty.DETACHED;
+        run(S.missingGrace(), true);
+        assertEquals(UnitState.MISSING, e.state());
+        for (long t = S.missingGrace() + 200; t <= S.missingGrace() + S.lostTimeout() * 2; t += 200) {
+            runPaused(t, x -> x.duty.errand(), 200);
+        }
+        assertEquals(UnitState.MISSING, e.state(), "the lost clock does not run while its chunk is unloaded");
+    }
+
+    @Test
+    void errandFieldsPersist() {
+        RosterEntry e = spawned(0);
+        e.transition(UnitState.GARRISONED, 0);
+        e.transition(UnitState.DEPLOYED, 5);
+        e.duty = dev.hywmill.garrison.duty.Duty.DETACHED;
+        UUID player = UUID.randomUUID();
+        e.errandPlayer = player;
+        e.errandUntil = 99000;
+        e.errandPoint = 123456789L;
+        RosterEntry b = GarrisonRoster.load(roster.save(), 10).entry(e.rosterId);
+        assertEquals(dev.hywmill.garrison.duty.Duty.DETACHED, b.duty);
+        assertEquals(player, b.errandPlayer);
+        assertEquals(99000, b.errandUntil);
+        assertEquals(123456789L, b.errandPoint);
+        assertTrue(b.duty.away() && b.duty.errand() && !b.duty.standing());
+        assertTrue(dev.hywmill.garrison.duty.Duty.RAID.away() && !dev.hywmill.garrison.duty.Duty.RAID.errand());
+    }
 }

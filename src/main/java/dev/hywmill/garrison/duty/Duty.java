@@ -8,7 +8,21 @@ package dev.hywmill.garrison.duty;
  * temporary and always return to the unit's standing duty.
  */
 public enum Duty {
-    GARRISON, SENTRY, PATROL, SCOUT, RESERVE, DEFENSE, RAID, RETURNING;
+    GARRISON, SENTRY, PATROL, SCOUT, RESERVE, DEFENSE, RAID, RETURNING,
+    /** M5-5: following a player on an escort request (DEPLOYED, away from home defense like RAID). */
+    ESCORT,
+    /** M5-5: holding a point a player named (DEPLOYED, away from home defense like RAID). */
+    DETACHED;
+
+    /** Away from the village on a temporary errand (RAID, ESCORT, DETACHED): excluded from home defense and standing duties. */
+    public boolean away() {
+        return this == RAID || this == ESCORT || this == DETACHED;
+    }
+
+    /** M5-5 errands lent to a player. */
+    public boolean errand() {
+        return this == ESCORT || this == DETACHED;
+    }
 
     public boolean standing() {
         return this == GARRISON || this == SENTRY || this == PATROL || this == SCOUT || this == RESERVE;

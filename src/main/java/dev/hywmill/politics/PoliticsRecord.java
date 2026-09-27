@@ -19,6 +19,10 @@ public final class PoliticsRecord {
     /** M5-4: last sow-discord attempt sponsored through this village (-1 never) and the recent attempt count. */
     public long lastSowDiscord = -1;
     public int sowAttempts;
+    /** M5-5: tick a soldier of this village last died on the player's errand (-1 never); an errand ending after it without losses earns Favor. */
+    public long lastErrandLoss = -1;
+    /** M5-5: last monthly long-standing Favor trickle (-1: not yet started). */
+    public long lastTrickle = -1;
 
     /** Sow-discord attempts that still count at {@code now} (older than {@code window}: none). */
     public int recentSowAttempts(long now, long window) {
@@ -28,7 +32,7 @@ public final class PoliticsRecord {
     /** A default record carries no information and is pruned. */
     public boolean isDefault() {
         return status == Standing.STRANGER && grievances.isEmpty() && favor.isEmpty() && lastRequestTick < 0
-                && casualtiesOnErrands == 0 && lastProposal.isEmpty() && lastSowDiscord < 0;
+                && casualtiesOnErrands == 0 && lastProposal.isEmpty() && lastSowDiscord < 0 && lastErrandLoss < 0 && lastTrickle < 0;
     }
 
     /**

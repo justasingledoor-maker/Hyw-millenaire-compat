@@ -126,7 +126,37 @@ public final class PoliticsData {
         if (o.has("diplomacy") && o.get("diplomacy").isJsonObject()) {
             dr = diplomacy(dr, o.getAsJsonObject("diplomacy"), problems, where);
         }
-        return new PoliticsTables(s, g, f, pr, dr);
+        PoliticsTables.RequestRule rq = base.requests();
+        if (o.has("requests") && o.get("requests").isJsonObject()) {
+            JsonObject j = o.getAsJsonObject("requests");
+            Map<Standing, Integer> esc = standingInts(j, "escortMax", rq.escortMax(), problems, where);
+            Map<Standing, Integer> det = standingInts(j, "detachMax", rq.detachMax(), problems, where);
+            rq = new PoliticsTables.RequestRule(esc, det, l(j, "escortTicks", rq.escortTicks()), i(j, "detachMaxDays", rq.detachMaxDays()),
+                    i(j, "detachRadius", rq.detachRadius()), i(j, "escortFavor", rq.escortFavor()), i(j, "detachFavorDay", rq.detachFavorDay()),
+                    i(j, "casualtyFavor", rq.casualtyFavor()), d(j, "casualtyWillingness", rq.casualtyWillingness()),
+                    i(j, "favorWillingness", rq.favorWillingness()), l(j, "cooldown", rq.cooldown()));
+            if (rq.escortTicks() <= 0 || rq.detachMaxDays() < 0 || rq.favorWillingness() <= 0 || rq.escortFavor() < 0 || rq.detachFavorDay() < 0) {
+                problems.add(where + ": requests values out of range; using " + where + " base");
+                rq = base.requests();
+            }
+        }
+        return new PoliticsTables(s, g, f, pr, dr, rq);
+    }
+
+    private static Map<Standing, Integer> standingInts(JsonObject j, String key, Map<Standing, Integer> base, List<String> problems, String where) {
+        if (!j.has(key) || !j.get(key).isJsonObject()) {
+            return base;
+        }
+        Map<Standing, Integer> m = new EnumMap<>(Standing.class);
+        m.putAll(base);
+        for (Map.Entry<String, JsonElement> e : j.getAsJsonObject(key).entrySet()) {
+            try {
+                m.put(Standing.valueOf(e.getKey()), Math.max(0, e.getValue().getAsInt()));
+            } catch (RuntimeException ex) {
+                problems.add(where + ": requests." + key + " names unknown standing '" + e.getKey() + "'");
+            }
+        }
+        return java.util.Collections.unmodifiableMap(m);
     }
 
     private static PoliticsTables.DiplomacyRule diplomacy(PoliticsTables.DiplomacyRule b, JsonObject j, List<String> problems, String where) {

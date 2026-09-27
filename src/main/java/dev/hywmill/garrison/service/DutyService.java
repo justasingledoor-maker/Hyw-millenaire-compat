@@ -94,6 +94,7 @@ public final class DutyService {
         AlertState alert = alertState(rec.villageId);
         // raids first: a contingent leaving or coming back changes who is available for duties
         boolean changed = raids.tick(overworld, ledger, rec, r, table.raid(), duties ? rt.plan : null, alert, tick);
+        changed |= ErrandService.tick(overworld, rec, r, table, alert, tick); // M5-5 escorts and detachments
         if (!duties) {
             if (changed) {
                 ledger.setDirty();
@@ -114,7 +115,7 @@ public final class DutyService {
         pairs.values().forEach(l -> l.sort(Comparator.naturalOrder()));
         for (RosterEntry e : r.entries()) {
             if (!(e.state() == UnitState.GARRISONED || e.state() == UnitState.RECOVERED || e.state() == UnitState.SPAWNED)
-                    || e.duty == Duty.RAID || e.entityUuid == null) {
+                    || e.duty.away() || e.entityUuid == null) {
                 continue;
             }
             if (e.duty != e.assignedDuty) {
@@ -249,7 +250,7 @@ public final class DutyService {
     static boolean available(RosterEntry e) {
         UnitState s = e.state();
         return (s == UnitState.SPAWNED || s == UnitState.GARRISONED || s == UnitState.RECOVERED || s == UnitState.DEPLOYED
-                || s == UnitState.RETURNING) && e.duty != Duty.RAID;
+                || s == UnitState.RETURNING) && !e.duty.away();
     }
 
     /** Re-runs the allocation when the available units or the plan changed. Returns true if any duty changed. */

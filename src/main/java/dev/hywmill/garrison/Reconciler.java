@@ -52,6 +52,18 @@ public final class Reconciler {
      */
     public static List<Event> reconcile(GarrisonRoster roster, UUID faction, Function<UUID, Observation> lookup, long tick,
                                         boolean settled, GarrisonSettings s) {
+        return reconcile(roster, faction, lookup, tick, settled, s, e -> false, 0);
+    }
+
+    /**
+     * As above. M5-5 (approved M3 change): a unit away on an errand (ESCORT / DETACHED) whose last known
+     * chunk is not loaded ({@code clockPaused}) is not missing, it is simply elsewhere: its missing and
+     * lost clocks do not run for this slot ({@code step} ticks, the active time since the previous slot).
+     * They resume once that chunk is loaded and the unit is still not found. Home units and raids are
+     * unchanged ({@code clockPaused} is false for them).
+     */
+    public static List<Event> reconcile(GarrisonRoster roster, UUID faction, Function<UUID, Observation> lookup, long tick,
+                                        boolean settled, GarrisonSettings s, java.util.function.Predicate<RosterEntry> clockPaused, long step) {
         List<Event> out = new ArrayList<>();
         for (RosterEntry e : roster.entries()) {
             UnitState st = e.state();
@@ -102,6 +114,13 @@ public final class Reconciler {
                 continue;
             }
             if (!settled) {
+                continue;
+            }
+            if (step > 0 && clockPaused.test(e)) {
+                e.stateSinceTick += step;
+                if (e.lastSeenTick >= 0) {
+                    e.lastSeenTick += step;
+                }
                 continue;
             }
             if (st == UnitState.MISSING) {

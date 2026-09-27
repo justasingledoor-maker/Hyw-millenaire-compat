@@ -277,6 +277,23 @@ public final class ThreatTracker {
         return null;
     }
 
+    /** Villages that currently list this entity as a threat (M5-5 Favor for defenders). O(villages). */
+    public List<UUID> villagesThreatenedBy(UUID entity) {
+        List<UUID> out = new ArrayList<>();
+        for (VillageState st : states.values()) {
+            if (st.threatIds.contains(entity)) {
+                out.add(st.village);
+            }
+        }
+        return out;
+    }
+
+    @Nullable
+    public BlockPos center(UUID village) {
+        VillageState st = states.get(village);
+        return st == null ? null : st.center;
+    }
+
     public int defenseRadius(UUID village) {
         VillageState st = states.get(village);
         return st == null ? 0 : st.defenseRadius;

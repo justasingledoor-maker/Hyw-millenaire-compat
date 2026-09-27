@@ -7,14 +7,60 @@ import java.util.Map;
  * Data for the politics model ({@code data/<ns>/hywmill_politics/*.json}, loaded in M5-2). Pure
  * records; {@link #DEFAULTS} are the shipped values, used when no data is loaded.
  */
-public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy) {
+public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
+                             RequestRule requests) {
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor) {
-        this(standing, grievance, favor, PardonRule.DEFAULT, DiplomacyRule.DEFAULT);
+        this(standing, grievance, favor, PardonRule.DEFAULT, DiplomacyRule.DEFAULT, RequestRule.DEFAULT);
     }
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon) {
-        this(standing, grievance, favor, pardon, DiplomacyRule.DEFAULT);
+        this(standing, grievance, favor, pardon, DiplomacyRule.DEFAULT, RequestRule.DEFAULT);
+    }
+
+    public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy) {
+        this(standing, grievance, favor, pardon, diplomacy, RequestRule.DEFAULT);
+    }
+
+    /**
+     * Military requests (M5-5): escorts and detachments. Units are lent, never created.
+     *
+     * @param escortMax        most escort units per standing (Trusted, Patron, Sworn)
+     * @param detachMax        most detachment units per standing (Patron, Sworn; Trusted none)
+     * @param escortTicks      how long an escort lasts
+     * @param detachMaxDays    longest detachment
+     * @param detachRadius     a detachment's point must be within this distance of the village
+     * @param escortFavor      Favor per escort unit, paid on acceptance
+     * @param detachFavorDay   Favor per detachment unit per day, paid on acceptance
+     * @param casualtyFavor    Favor lost per soldier killed on the player's errand
+     * @param casualtyWillingness willingness lost per casualty on the player's errands (recent memory)
+     * @param favorWillingness Favor points per extra unit of willingness
+     * @param cooldown         ticks between two granted requests of the same player at the same village
+     */
+    public record RequestRule(Map<Standing, Integer> escortMax, Map<Standing, Integer> detachMax, long escortTicks, int detachMaxDays,
+                              int detachRadius, int escortFavor, int detachFavorDay, int casualtyFavor, double casualtyWillingness,
+                              int favorWillingness, long cooldown) {
+        public static final RequestRule DEFAULT = new RequestRule(
+                standingMap(Standing.TRUSTED, 2, Standing.PATRON, 4, Standing.SWORN, 6),
+                standingMap(Standing.PATRON, 4, Standing.SWORN, 8),
+                24000, 3, 256, 1, 2, 5, 0.5, 40, 6000);
+
+        public int escortMax(Standing s) {
+            return escortMax.getOrDefault(s, 0);
+        }
+
+        public int detachMax(Standing s) {
+            return detachMax.getOrDefault(s, 0);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<Standing, Integer> standingMap(Object... kv) {
+        Map<Standing, Integer> m = new EnumMap<>(Standing.class);
+        for (int i = 0; i < kv.length; i += 2) {
+            m.put((Standing) kv[i], (Integer) kv[i + 1]);
+        }
+        return java.util.Collections.unmodifiableMap(m);
     }
 
     /**

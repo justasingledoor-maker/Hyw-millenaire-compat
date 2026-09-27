@@ -38,6 +38,20 @@ public final class RosterEntry {
     public long dutySince;
     /** Duty role the unit's equipment was last applied for ("" = class role only, as at spawn). */
     public String equipRole = "";
+    // ---- M5-5 errands (ESCORT / DETACHED; optional keys in the duty compound) ----
+    /** The player the unit is lent to, while on an errand. */
+    @Nullable public UUID errandPlayer;
+    /** Game tick the errand ends (the unit then returns home); -1 none. */
+    public long errandUntil = -1;
+    /** Packed block position a detachment holds ({@code BlockPos.asLong}); {@link Long#MIN_VALUE} none. */
+    public long errandPoint = Long.MIN_VALUE;
+
+    /** Ends the errand bookkeeping (the caller moves the unit and its state). */
+    public void clearErrand() {
+        errandPlayer = null;
+        errandUntil = -1;
+        errandPoint = Long.MIN_VALUE;
+    }
 
     public RosterEntry(UUID rosterId, String unitKey, String entityType, int equipmentLevel, long recruitedTick, boolean paid) {
         this(rosterId, unitKey, entityType, equipmentLevel, UnitState.RECRUITED, null, 0, recruitedTick, -1, recruitedTick, null, paid);

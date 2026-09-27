@@ -24,6 +24,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -51,6 +52,9 @@ final class PoliticsCommands {
                         .then(Commands.literal("for").requires(s -> s.hasPermission(2))
                                 .then(Commands.argument("player", UuidArgument.uuid()).executes(ctx -> pardon(ctx, UuidArgument.getUuid(ctx, "player"), false))
                                         .then(Commands.literal("pay").executes(ctx -> pardon(ctx, UuidArgument.getUuid(ctx, "player"), true))))))
+                .then(request(Commands.literal("request"), null))
+                .then(Commands.literal("request-for").requires(s -> s.hasPermission(2))
+                        .then(request(Commands.argument("player", UuidArgument.uuid()), "player")))
                 .then(Commands.literal("admin").requires(s -> s.hasPermission(3))
                         .then(Commands.literal("grievance").then(Commands.argument("player", UuidArgument.uuid())
                                 .then(Commands.argument("kind", StringArgumentType.word())
@@ -122,6 +126,10 @@ final class PoliticsCommands {
         if (!v.truces().isEmpty()) {
             send(src, "Truces: " + v.truces());
         }
+        List<String> lent = PoliticsView.lent(ow, player, rec.villageId);
+        if (!lent.isEmpty()) {
+            send(src, "Soldiers lent to you: " + lent.size() + " " + lent);
+        }
         for (VillagePolitics.ChronicleEntry e : v.recent()) {
             send(src, " chronicle t=" + e.tick() + " " + e.text());
         }
@@ -156,6 +164,42 @@ final class PoliticsCommands {
         send(ctx.getSource(), "== Intelligence on " + rec.name + " (as " + i.get().level() + ")");
         i.get().lines().forEach(l -> send(ctx.getSource(), " " + l));
         return 1;
+    }
+
+    /** M5-5 requests: {@code escort <n>}, {@code detachment <n> <pos> <days>}, {@code dismiss}. */
+    private static <T extends com.mojang.brigadier.builder.ArgumentBuilder<CommandSourceStack, T>> T request(T node, @Nullable String playerArg) {
+        node.then(Commands.literal("escort").then(Commands.argument("n", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 16))
+                .executes(ctx -> doRequest(ctx, playerArg, dev.hywmill.politics.Requests.Kind.ESCORT))));
+        node.then(Commands.literal("detachment").then(Commands.argument("n", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 16))
+                .then(Commands.argument("pos", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
+                        .then(Commands.argument("days", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 30))
+                                .executes(ctx -> doRequest(ctx, playerArg, dev.hywmill.politics.Requests.Kind.DETACHMENT))))));
+        node.then(Commands.literal("dismiss").executes(ctx -> {
+            UUID player = who(ctx, playerArg == null ? null : UuidArgument.getUuid(ctx, playerArg));
+            if (player == null) {
+                return 0;
+            }
+            var r = dev.hywmill.politics.api.PoliticsActions.dismiss(ctx.getSource().getServer().overworld(), player);
+            send(ctx.getSource(), "politics dismiss " + r.code() + ": " + r.message());
+            return r.ok() ? 1 : 0;
+        }));
+        return node;
+    }
+
+    private static int doRequest(CommandContext<CommandSourceStack> ctx, @Nullable String playerArg, dev.hywmill.politics.Requests.Kind kind)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        UUID player = who(ctx, playerArg == null ? null : UuidArgument.getUuid(ctx, playerArg));
+        VillageRecord rec = player == null ? null : nearest(ctx);
+        if (rec == null) {
+            return 0;
+        }
+        int n = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "n");
+        BlockPos point = kind == dev.hywmill.politics.Requests.Kind.DETACHMENT
+                ? net.minecraft.commands.arguments.coordinates.BlockPosArgument.getBlockPos(ctx, "pos") : null;
+        int days = kind == dev.hywmill.politics.Requests.Kind.DETACHMENT ? com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "days") : 0;
+        var r = dev.hywmill.politics.api.PoliticsActions.request(ctx.getSource().getServer().overworld(), player, rec.villageId, kind, n, days, point);
+        send(ctx.getSource(), "politics request " + r.code() + ": " + r.message());
+        return r.ok() ? 1 : 0;
     }
 
     /** M5-3 formal pardon: without {@code pay} only the price is quoted (through the shared PoliticsActions API). */

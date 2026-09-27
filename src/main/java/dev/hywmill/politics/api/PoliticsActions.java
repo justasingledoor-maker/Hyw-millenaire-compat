@@ -55,6 +55,37 @@ public final class PoliticsActions {
         return new ActionResult(q.ok(), q.outcome().name() + (res.paid() ? "_PAID" : ""), msg);
     }
 
+    /** M5-5: asks the village for an escort (point null) or a detachment holding {@code point} for {@code days}. */
+    public static ActionResult request(ServerLevel overworld, UUID player, UUID village, dev.hywmill.politics.Requests.Kind kind, int asked,
+                                       int days, @javax.annotation.Nullable net.minecraft.core.BlockPos point) {
+        HywMillRuntime rt = HywMillRuntime.require();
+        GarrisonLedger ledger = GarrisonLedger.get(overworld);
+        VillageRecord rec = ledger.get(village);
+        dev.hywmill.settlement.SettlementSource source = dev.hywmill.core.Services.settlements();
+        if (rec == null || source == null) {
+            return new ActionResult(false, "UNKNOWN_VILLAGE", "Unknown village");
+        }
+        dev.hywmill.politics.PoliticsRecord pr = rec.politics.peek(player);
+        dev.hywmill.politics.Standing own = pr == null ? dev.hywmill.politics.Standing.STRANGER : pr.status;
+        dev.hywmill.politics.Standing eff = PoliticsView.effective(overworld, ledger, source, rec, player, own, null);
+        var g = dev.hywmill.garrison.service.ErrandService.request(overworld, rec, player, eff, kind, asked, days, point,
+                rt.defense().state(village), PoliticsService.tables(rec));
+        var o = g.offer();
+        String what = kind == dev.hywmill.politics.Requests.Kind.ESCORT ? "escort" : "detachment";
+        if (!o.ok()) {
+            return new ActionResult(false, o.refusal().name(), rec.name + " refuses the " + what + ": " + o.reason());
+        }
+        return new ActionResult(true, "OK", rec.name + " lends " + o.units() + " soldier(s) as your " + what
+                + (o.favorCost() > 0 ? " for " + o.favorCost() + " Favor" : "") + (o.reason().isEmpty() ? "" : " (" + o.reason() + ")")
+                + ": " + g.units().stream().map(e -> e.unitKey).toList());
+    }
+
+    /** M5-5: sends every soldier lent to the player home. */
+    public static ActionResult dismiss(ServerLevel overworld, UUID player) {
+        int n = dev.hywmill.garrison.service.ErrandService.dismiss(overworld, player);
+        return new ActionResult(n > 0, n > 0 ? "OK" : "NONE", n + " soldier(s) sent home");
+    }
+
     static String refusal(DiplomacyOdds.Refusal r) {
         return switch (r) {
             case OK -> "ok";

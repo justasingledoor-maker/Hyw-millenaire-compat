@@ -115,6 +115,7 @@ public final class GarrisonService {
         GarrisonSettings s = HywMillConfig.garrison();
         GarrisonRoster r = roster(rec, tick);
         VillageRt v = villages.computeIfAbsent(rec.villageId, k -> new VillageRt());
+        long prevSlot = v.lastSlotTick;
         if (v.lastSlotTick == Long.MIN_VALUE || tick - v.lastSlotTick > s.maxActiveStep()) {
             v.activeSince = tick;
         }
@@ -143,7 +144,10 @@ public final class GarrisonService {
             }
         }
         MinecraftServer server = overworld.getServer();
-        for (Reconciler.Event ev : Reconciler.reconcile(r, rec.factionId, id -> observe(server, units, id), tick, settled, s)) {
+        long step = prevSlot == Long.MIN_VALUE ? 0 : Math.min(Math.max(0, tick - prevSlot), s.maxActiveStep());
+        java.util.function.Predicate<RosterEntry> awayUnloaded = e -> e.duty.errand()
+                && !overworld.isPositionEntityTicking(new BlockPos((int) e.lastSeenX, (int) e.lastSeenY, (int) e.lastSeenZ));
+        for (Reconciler.Event ev : Reconciler.reconcile(r, rec.factionId, id -> observe(server, units, id), tick, settled, s, awayUnloaded, step)) {
             switch (ev.kind()) {
                 case CAPTURED -> {
                     Entity ent = find(server, ev.entityUuid());
@@ -464,6 +468,7 @@ public final class GarrisonService {
         long tick = overworld.getGameTime();
         GarrisonSettings s = HywMillConfig.garrison();
         e.transition(UnitState.DEAD, tick, LossReason.KILLED);
+        ErrandService.onDeath(rec, e, tick); // M5-5: a soldier lost on a player's errand
         r.totals.killed++;
         Recruitment.cooldown(r, tick, s.deathCooldown(), s.recruitInterval());
         VillageRt v = villages.computeIfAbsent(rec.villageId, k -> new VillageRt());
@@ -544,7 +549,7 @@ public final class GarrisonService {
         List<Deployment.UnitView> views = new ArrayList<>();
         Map<UUID, Entity> entities = new HashMap<>();
         for (RosterEntry e : r.entries()) {
-            if (e.entityUuid == null || !e.state().deployable() || e.duty == dev.hywmill.garrison.duty.Duty.RAID) {
+            if (e.entityUuid == null || !e.state().deployable() || e.duty.away()) {
                 continue; // M4: a raid contingent is away with its village's raid, not part of the home defense
             }
             Entity ent = find(server, e.entityUuid);
@@ -620,7 +625,7 @@ public final class GarrisonService {
         long tick = server.overworld().getGameTime();
         int n = 0;
         for (RosterEntry e : r.entries()) {
-            if (e.state() == UnitState.DEPLOYED && e.duty != dev.hywmill.garrison.duty.Duty.RAID) {
+            if (e.state() == UnitState.DEPLOYED && !e.duty.away()) {
                 e.transition(UnitState.RETURNING, tick);
                 e.duty = dev.hywmill.garrison.duty.Duty.RETURNING;
                 Entity ent = find(server, e.entityUuid);

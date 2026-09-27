@@ -54,6 +54,14 @@ public final class PoliticsService {
 
     /** (player, village) -> tick of the last assault grievance (transient throttle). */
     private final Map<String, Long> lastAssault = new ConcurrentHashMap<>();
+    /** M5-5: (player, village) -> defense kills rewarded in the current alert (transient; reset when the village is calm). */
+    private final Map<String, Integer> defenseKills = new ConcurrentHashMap<>();
+    /** M5-5: villages seen ENGAGED since their last calm (transient); present players earn Favor when the attack is repelled. */
+    private final java.util.Set<UUID> engaged = ConcurrentHashMap.newKeySet();
+    /** Defense kills that earn Favor per player, village and alert. */
+    public static final int DEFENSE_KILLS_PER_ALERT = 3;
+    /** Long good standing: one Favor trickle per this many ticks. */
+    public static final long TRICKLE_PERIOD = 30 * PoliticsTables.DAY;
 
     public static PoliticsTables tables(@Nullable VillageRecord rec) {
         return PoliticsTableLoader.current().forCulture(rec == null ? "" : rec.culture);
@@ -68,13 +76,14 @@ public final class PoliticsService {
         }
         GarrisonLedger ledger = GarrisonLedger.get(overworld);
         for (VillageRecord rec : ledger.all()) {
+            watchDefense(overworld, rt, rec, tick);
             if (!rt.scheduler().isDue(rec.villageId, tick + 97, REFRESH_INTERVAL)) {
                 continue;
             }
             long t0 = rt.perf().start();
             boolean dirty = false;
             PoliticsTables tables = tables(rec);
-            for (ServerPlayer p : overworld.getServer().getPlayerList().getPlayers()) {
+            for (ServerPlayer p : onlinePlayers(overworld)) {
                 if (!countsAsPlayer(p)) {
                     continue;
                 }
@@ -85,6 +94,7 @@ public final class PoliticsService {
                     announce(overworld, source, rec, p.getUUID(), before, r.status, tick, reason(r, rep));
                     dirty = true;
                 }
+                dirty |= trickle(r, tick, tables);
             }
             for (Map.Entry<UUID, PoliticsRecord> e : rec.politics.players().entrySet()) {
                 if (e.getValue().status == Standing.OUTLAW) {
@@ -98,6 +108,96 @@ public final class PoliticsService {
         }
     }
 
+    // ------------------------------------------------------------------ Favor from service (M5-5)
+
+    /** Long good standing: +LONG_STANDING once a month at Trusted or better with no grievance. Online players only. */
+    static boolean trickle(PoliticsRecord r, long now, PoliticsTables t) {
+        boolean eligible = r.status.ordinal() >= Standing.TRUSTED.ordinal() && r.grievances.decayed(now, t.grievance()) < 1;
+        if (!eligible) {
+            boolean had = r.lastTrickle >= 0;
+            r.lastTrickle = -1;
+            return had;
+        }
+        if (r.lastTrickle < 0) {
+            r.lastTrickle = now;
+            return true;
+        }
+        if (now - r.lastTrickle >= TRICKLE_PERIOD) {
+            r.favor.earn(dev.hywmill.politics.FavorSource.LONG_STANDING, t.favor());
+            r.lastTrickle = now;
+            return true;
+        }
+        return false;
+    }
+
+    /** Per tick, map lookups only: a village leaving ENGAGED rewards the players who stood by it. */
+    private void watchDefense(ServerLevel overworld, HywMillRuntime rt, VillageRecord rec, long tick) {
+        dev.hywmill.military.defense.AlertState st = rt.defense().state(rec.villageId);
+        if (st == dev.hywmill.military.defense.AlertState.ENGAGED) {
+            engaged.add(rec.villageId);
+            return;
+        }
+        if (st == dev.hywmill.military.defense.AlertState.CALM) {
+            String suffix = ">" + rec.villageId;
+            defenseKills.keySet().removeIf(k -> k.endsWith(suffix));
+        }
+        if (!engaged.remove(rec.villageId)) {
+            return;
+        }
+        int radius = rt.threats().defenseRadius(rec.villageId);
+        PoliticsTables t = tables(rec);
+        for (ServerPlayer p : onlinePlayers(overworld)) {
+            if (!countsAsPlayer(p) || p.level() != overworld || player(p).equals(rec.controllerPlayerId)
+                    || !dev.hywmill.military.defense.DefenseArea.inside(rec.center.getX() + 0.5, rec.center.getZ() + 0.5, radius, p.getX(), p.getZ())) {
+                continue;
+            }
+            PoliticsRecord r = rec.politics.get(p.getUUID());
+            if (r.status == Standing.OUTLAW) {
+                continue;
+            }
+            int n = r.favor.earn(dev.hywmill.politics.FavorSource.PRESENT_AT_DEFENSE, t.favor());
+            HmLog.info("Politics: {} stood by village '{}' while it was attacked: Favor +{}", p.getGameProfile().getName(), rec.name, n);
+            GarrisonLedger.get(overworld).setDirty();
+        }
+    }
+
+    private static UUID player(ServerPlayer p) {
+        return p.getUUID();
+    }
+
+    /** Damaging or killing a current threat of a village during its alert: Favor for the kill, capped per alert. */
+    private void defenseDeed(ServerLevel level, HywMillRuntime rt, LivingEntity victim, Entity attacker, boolean killed) {
+        if (!killed) {
+            return;
+        }
+        UUID player = responsiblePlayer(rt, attacker);
+        if (player == null) {
+            return;
+        }
+        ServerLevel overworld = level.getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(overworld);
+        for (UUID village : rt.threats().villagesThreatenedBy(victim.getUUID())) {
+            VillageRecord rec = ledger.get(village);
+            if (rec == null || victim.getUUID().equals(player)) {
+                continue;
+            }
+            String key = player + ">" + village;
+            int done = defenseKills.getOrDefault(key, 0);
+            if (done >= DEFENSE_KILLS_PER_ALERT) {
+                continue;
+            }
+            PoliticsRecord r = rec.politics.get(player);
+            if (r.status == Standing.OUTLAW) {
+                continue;
+            }
+            defenseKills.put(key, done + 1);
+            int n = r.favor.earn(dev.hywmill.politics.FavorSource.DEFENSE, tables(rec).favor());
+            HmLog.info("Politics: {} killed a threat of village '{}': Favor +{} ({} of {} this alert)", player, rec.name, n, done + 1,
+                    DEFENSE_KILLS_PER_ALERT);
+            ledger.setDirty();
+        }
+    }
+
     // ------------------------------------------------------------------ events
 
     /** A damage event already recorded by the incident ledger. */
@@ -107,6 +207,10 @@ public final class PoliticsService {
 
     public void onDeath(ServerLevel level, LivingEntity victim, @Nullable Entity killer) {
         record(level, victim, killer, true);
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt != null && killer != null) {
+            defenseDeed(level, rt, victim, killer, true);
+        }
     }
 
     private void record(ServerLevel level, LivingEntity victim, @Nullable Entity attacker, boolean killed) {
@@ -187,6 +291,32 @@ public final class PoliticsService {
         }
         UUID owner = factions.ownerOf(attacker);
         return owner == null || rt.factions().isVillageIdentity(owner) ? null : owner;
+    }
+
+    /**
+     * Online players: the server's player list, plus (dev/test servers only) fake players standing in the
+     * overworld (the M5 harness stand-in, which is not in the player list).
+     */
+    public static java.util.List<ServerPlayer> onlinePlayers(ServerLevel overworld) {
+        java.util.List<ServerPlayer> out = new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers());
+        if (HywMillConfig.DEV_COMMANDS.get()) {
+            for (ServerPlayer p : overworld.players()) {
+                if (p.isFakePlayer() && !out.contains(p)) {
+                    out.add(p);
+                }
+            }
+        }
+        return out;
+    }
+
+    /** The online player (or dev stand-in) with this UUID, or null. */
+    @Nullable
+    public static ServerPlayer onlinePlayer(ServerLevel overworld, UUID id) {
+        ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(id);
+        if (p == null && HywMillConfig.DEV_COMMANDS.get() && overworld.getPlayerByUUID(id) instanceof ServerPlayer sp && sp.isFakePlayer()) {
+            return sp;
+        }
+        return p;
     }
 
     /** Real players; fake players only on dev/test servers (the M5 harness stand-in). */
@@ -275,7 +405,7 @@ public final class PoliticsService {
                 ? name + " was pardoned by " + place + " and is now " + label(after) + (why.isEmpty() ? "" : " (" + why + ")")
                 : name + " is now " + label(after) + " in " + place + (why.isEmpty() ? "" : " (" + why + ")");
         chronicle(overworld, source, rec, tick, text);
-        ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(player);
+        ServerPlayer p = onlinePlayer(overworld, player);
         if (p != null) {
             p.sendSystemMessage(Component.literal("[" + (rec.name.isEmpty() ? "Village" : rec.name) + "] You are now "
                     + label(after) + (before == Standing.OUTLAW && after != Standing.OUTLAW ? " (pardoned)" : "")

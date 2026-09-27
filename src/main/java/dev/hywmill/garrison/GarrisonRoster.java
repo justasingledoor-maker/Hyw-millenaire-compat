@@ -235,7 +235,7 @@ public final class GarrisonRoster {
             }
             c.putBoolean("paid", e.paid);
             if (e.assignedDuty != dev.hywmill.garrison.duty.Duty.GARRISON || e.duty != dev.hywmill.garrison.duty.Duty.GARRISON || e.dutyIndex >= 0
-                    || !e.equipRole.isEmpty()) {
+                    || !e.equipRole.isEmpty() || e.errandPlayer != null) {
                 CompoundTag d = new CompoundTag();
                 d.putString("assigned", e.assignedDuty.name());
                 d.putString("current", e.duty.name());
@@ -244,6 +244,13 @@ public final class GarrisonRoster {
                 d.putLong("since", e.dutySince);
                 if (!e.equipRole.isEmpty()) {
                     d.putString("equipRole", e.equipRole);
+                }
+                if (e.errandPlayer != null) {
+                    d.putUUID("errandPlayer", e.errandPlayer);
+                    d.putLong("errandUntil", e.errandUntil);
+                    if (e.errandPoint != Long.MIN_VALUE) {
+                        d.putLong("errandPoint", e.errandPoint);
+                    }
                 }
                 c.put("duty", d);
             }
@@ -311,6 +318,11 @@ public final class GarrisonRoster {
                 e.dutyStep = d.getInt("step");
                 e.dutySince = d.getLong("since");
                 e.equipRole = d.getString("equipRole");
+                if (d.hasUUID("errandPlayer")) {
+                    e.errandPlayer = d.getUUID("errandPlayer");
+                    e.errandUntil = d.getLong("errandUntil");
+                    e.errandPoint = d.contains("errandPoint") ? d.getLong("errandPoint") : Long.MIN_VALUE;
+                }
             }
             if (pos.length == 3) {
                 e.lastSeenX = pos[0];

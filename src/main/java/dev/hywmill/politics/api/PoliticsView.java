@@ -230,4 +230,16 @@ public final class PoliticsView {
         }
         return Optional.of(new Relations(rec.name, source.diplomacyPoints(overworld, village, player), lines, Map.copyOf(rec.politics.truces())));
     }
+
+    /** Soldiers of the village currently lent to the player (M5-5), as "key (duty)". */
+    public static List<String> lent(ServerLevel overworld, UUID player, UUID village) {
+        VillageRecord rec = GarrisonLedger.get(overworld).get(village);
+        List<String> out = new ArrayList<>();
+        if (rec != null) {
+            for (dev.hywmill.garrison.RosterEntry e : dev.hywmill.garrison.service.ErrandService.lentTo(rec, player)) {
+                out.add(e.unitKey + " (" + e.duty.name().toLowerCase() + ", " + Math.max(0, e.errandUntil - overworld.getGameTime()) / 20 + " s left)");
+            }
+        }
+        return out;
+    }
 }
