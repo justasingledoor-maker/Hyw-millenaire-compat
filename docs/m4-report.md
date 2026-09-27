@@ -444,6 +444,17 @@ existing "trapped" recovery (≤ 2 blocks moved since the last order) never appl
   that is stuck again cannot be moved more than once per window plus fallback period (9000 ticks with shipped data).
 * **Unchanged.** Hop selection, hop limits, the existing detours and `unstick` recovery, allocation rules, patrol and
   scout logic, M2 defense movement, raid movement and detachments.
+* **Exceptional, not normal movement (accepted).** The fallback, and above all its last-resort move, is an exceptional
+  recovery for units that are genuinely trapped. It is not how units normally move. On the server it triggered only
+  after sustained lack of progress: 5–10 units per 12-minute G4 run, almost all on ravine floors 15–45 blocks below the
+  stronghold. In two runs 8 of 12 finished recoveries needed the last-resort move, because those units could not climb
+  out by normal bounded movement either. This was accepted as the fallback doing its job. The movement and pathfinding
+  system is deliberately not extended to avoid it. The safeguards stay as listed above:
+  * last resort only after the normal path fails;
+  * loaded, standable, re-validated spot;
+  * bounded and deterministic;
+  * no repeated moves;
+  * never M2 defense, raid, returning or lent units.
 * **Tests.** `StuckWatchTest` (11) covers:
   * normal movement never triggers the fallback: a slow walker, a hold near an unreachable post, a patrol, and a blocked
     scout ride;

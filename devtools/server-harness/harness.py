@@ -2400,11 +2400,48 @@ def scenario_G4_4(ctx):
           {k: (round(b[0]), round(b[1]), sorted(b[2])) for k, b in best.items()})
 
 
+def g45_plan_diag(ctx, k, c, before, after, vinfo, bmil, amil, t_restart):
+    """G4-5b diagnostics (harness only; nothing here affects the check): everything known about a village whose duty
+    plan differs across the restart. Post roles and the layout key are not exposed by any command (they would need a
+    production change); the plan (re)computation times and the settlement changes HywMill observed come from the log."""
+    s = ctx.s
+    name = next((l.split("== Duties of ", 1)[1].split(" (")[0] for l in before["lines"] if l.startswith("== Duties of ")), "?")
+    note(f"G4-5b diag {k} village", f"'{name}' id {vinfo.get('villageId')} at {c}; restart at {t_restart}; "
+                                    "sentry post roles and the layout key: not exposed by any command (n/a)")
+    for tag, d in (("before", before), ("after", after)):
+        note(f"G4-5b diag {k} plan {tag}", d.get("plan", "(no plan line)"))
+    for field in ("posts", "patrol", "scoutposts"):
+        b, a = before.get(field) or [], after.get(field) or []
+        if b == a:
+            note(f"G4-5b diag {k} {field}", f"identical ({len(b)})")
+            continue
+        rows = []
+        for i in range(max(len(b), len(a))):
+            x = b[i] if i < len(b) else None
+            y = a[i] if i < len(a) else None
+            rows.append(f"#{i} {x} -> {y}" + ("" if x == y else " *"))
+        note(f"G4-5b diag {k} {field}", f"before {len(b)}, after {len(a)}; only before {sorted(set(b) - set(a))}; "
+                                        f"only after {sorted(set(a) - set(b))}; " + " | ".join(rows))
+    note(f"G4-5b diag {k} building roles", f"before {bmil.get('buildingRoles')} after {amil.get('buildingRoles')}; "
+                                           f"tier before {bmil.get('tier')} after {amil.get('tier')}")
+    lines = s.read_since(getattr(ctx, "run_log_pos", 0))
+    pat = re.compile(r"Duty plan for village '" + re.escape(name) + r"'|Village record (updated|initialized): '" + re.escape(name)
+                     + r"'|Chests LOCKED for village " + re.escape(name) + r" |===== harness start")
+    hist = []
+    for l in lines:
+        if pat.search(l):
+            m = re.match(r"\[(\d\d:\d\d:\d\d)\]", l)
+            hist.append((m[1] + " " if m else "") + (l.split("]: ", 1)[-1] if "]: " in l else l.strip())[:400])
+    note(f"G4-5b diag {k} plan computations and village changes ({len(hist)})", " || ".join(hist))
+
+
 def scenario_G4_5(ctx):
     """Duties survive a restart: same assignments, same posts and routes, no duplicates."""
     s = ctx.s
     vs = g4_villages(ctx)
     before = {k: duties(s, c) for k, c in vs.items()}
+    bmil = {k: military(s, c) for k, c in vs.items()}
+    t_restart = time.strftime("%H:%M:%S")
     restart(ctx)
     time.sleep(60)
     after = {k: duties(s, c) for k, c in vs.items()}
@@ -2413,6 +2450,9 @@ def scenario_G4_5(ctx):
                 (after[k].get("posts"), after[k].get("patrol"), after[k].get("scoutposts")) for k in vs}
     check("G4-5a duty assignments are identical after a restart", all(same.values()), same)
     check("G4-5b sentry posts, patrol route and scout posts are identical after a restart", all(plans.values()), plans)
+    for k, ok in plans.items():
+        if not ok:
+            g45_plan_diag(ctx, k, vs[k], before[k], after[k], info(s, vs[k]), bmil[k], military(s, vs[k]), t_restart)
     cs = {k: census(s, c) for k, c in vs.items()}
     check("G4-5c no duplicate or unbound units after the restart", all(x.get("dupSlots") == 0 and x.get("unbound") == 0 and x.get("badOwner") == 0
                                                                      for x in cs.values()), cs)
@@ -4543,6 +4583,7 @@ def run(d: Path, names, fresh=True):
         shutil.rmtree(d / "world")
     s = Server(d)
     ctx = Ctx(s)
+    ctx.run_log_pos = s.pos() if s.log.exists() else 0  # this run's part of harness-server.log (diagnostics)
     try:
         s.start()
         if fresh:
