@@ -10,7 +10,8 @@ package dev.hywmill.politics;
 public final class Requests {
     private Requests() {}
 
-    public enum Kind { ESCORT, DETACHMENT }
+    /** Detachments only: player-following escorts are deferred to a later phase (lent soldiers never teleport). */
+    public enum Kind { DETACHMENT }
 
     public enum Refusal { OK, STANDING_TOO_LOW, NOT_CALM, RAID_PREPARING, NOTHING_TO_SPARE, UNWILLING, NO_FAVOR, COOLDOWN, OUT_OF_RANGE, BAD_REQUEST }
 
@@ -28,19 +29,19 @@ public final class Requests {
     /**
      * @param standing   the player's effective standing with the village
      * @param spare      units the village's raid-style planner can spare now
-     * @param days       detachment length (ignored for escorts)
-     * @param distance   detachment point distance from the village centre (ignored for escorts)
+     * @param days       detachment length
+     * @param distance   detachment point distance from the village centre
      */
     public static Offer evaluate(Kind kind, Standing standing, int asked, int days, double distance, boolean calm, boolean raidPreparing,
                                  int spare, int casualties, int favor, long now, long lastRequest, PoliticsTables.RequestRule r) {
-        int limit = kind == Kind.ESCORT ? r.escortMax(standing) : r.detachMax(standing);
-        if (asked <= 0 || (kind == Kind.DETACHMENT && (days <= 0 || days > r.detachMaxDays()))) {
-            return new Offer(Refusal.BAD_REQUEST, 0, 0, kind == Kind.DETACHMENT ? "a detachment holds for 1 to " + r.detachMaxDays() + " day(s)" : "ask for at least one");
+        int limit = r.detachMax(standing);
+        if (asked <= 0 || days <= 0 || days > r.detachMaxDays()) {
+            return new Offer(Refusal.BAD_REQUEST, 0, 0, asked <= 0 ? "ask for at least one" : "a detachment holds for 1 to " + r.detachMaxDays() + " day(s)");
         }
         if (limit <= 0) {
             return new Offer(Refusal.STANDING_TOO_LOW, 0, 0, "your standing (" + standing + ") does not allow it");
         }
-        if (kind == Kind.DETACHMENT && distance > r.detachRadius()) {
+        if (distance > r.detachRadius()) {
             return new Offer(Refusal.OUT_OF_RANGE, 0, 0, "the point is " + (int) distance + " blocks away; at most " + r.detachRadius());
         }
         if (!calm) {
@@ -61,7 +62,7 @@ public final class Requests {
         if (n <= 0) {
             return new Offer(Refusal.NOTHING_TO_SPARE, 0, 0, "we cannot spare anyone without leaving the village bare");
         }
-        int perUnit = kind == Kind.ESCORT ? r.escortFavor() : r.detachFavorDay() * days;
+        int perUnit = r.detachFavorDay() * days;
         if (perUnit > 0) {
             int affordable = favor / perUnit;
             if (affordable <= 0) {

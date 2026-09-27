@@ -96,7 +96,7 @@ public final class DutyService {
         AlertState alert = alertState(rec.villageId);
         // raids first: a contingent leaving or coming back changes who is available for duties
         boolean changed = raids.tick(overworld, ledger, rec, r, table.raid(), duties ? rt.plan : null, alert, tick);
-        changed |= ErrandService.tick(overworld, rec, r, table, alert, tick, rt.errandMoves); // M5-5 escorts and detachments
+        changed |= ErrandService.tick(overworld, rec, r, table, alert, tick, rt.errandMoves); // M5-5 detachments
         if (!duties) {
             if (changed) {
                 ledger.setDirty();

@@ -311,12 +311,19 @@ def wait_residents(s, c, timeout=120):
 # --------------------------------------------------------------------------- scenarios
 
 RESULTS = []
+DEFERRED = []
 
 
 def check(name, ok, detail=""):
     RESULTS.append((name, ok, detail))
     log(f"{'PASS' if ok else 'FAIL'} {name} {detail}")
     return ok
+
+
+def deferred(name, reason):
+    """A requirement taken out of the current sign-off scope by decision: listed, never counted as PASS or FAIL."""
+    DEFERRED.append((name, reason))
+    log(f"DEFERRED {name} ({reason})")
 
 
 def setup(ctx):
@@ -3834,89 +3841,78 @@ def open_path(s, c, steps=5, step=8, start=24):
 
 
 def scenario_G5_5(ctx):
-    """M5-5: escort (follows by hops, never teleports, never force-loads), dismissal and Favor, detachment,
-    casualty cost, and the approved Reconciler pause for an errand unit whose chunk unloads."""
+    """M5-5: detachments (granted from spare units, Favor paid on acceptance; walk to and hold a point by hops, never
+    teleport, never force-load; dismissal and clean-errand Favor; casualty cost) and the approved Reconciler pause for
+    a detached unit whose chunk is unloaded. Player-following escorts are DEFERRED (not in the M5 sign-off scope)."""
     s, a = ctx.s, ctx.a
     ca = f"{a[0]} {a[1]} {a[2]}"
+    ESC = "decision: player-following escorts deferred to a future phase; lent soldiers never teleport"
+    for name in ("an escort follows the player (hops towards them)", "escort sizes per standing (Trusted 2 / Patron 4 / Sworn 6)",
+                 "an escort defends its player", "a Trusted player's escort stays within the village's lands"):
+        deferred(f"G5-5 {name}", ESC)
     wait_garrison(s, a, lambda g: g.get("alive", 0) >= 8 and g.get("recruited", 1) == 0, 600)
     note("G5-5 garrison", str({k: v for k, v in garrison(s, a).items() if k != "lines"}))
-    note("G5-5 stand-in", standin_at(s, V_UUID, a[0] + 2, a[2] + 2))
     note("G5-5 alert before requests", str(make_calm(s, a)))
-    q = s.output(at(a, f"hywmill politics request-for {Q_UUID} escort 2"), 1.5)
-    check("G5-5 negative: a stranger's escort request is refused", any("STANDING_TOO_LOW" in l for l in q), " | ".join(q))
+    esc = s.output(at(a, f"hywmill politics request-for {V_UUID} escort 2"), 1.5)
+    check("G5-5 escort requests are not offered (deferred): the command does not exist", not any("request OK" in l for l in esc)
+          and any(("Unknown" in l or "Incorrect" in l or "<--[HERE]" in l) for l in esc), " | ".join(esc)[:200])
+    standin_at(s, V_UUID, a[0] + 2, a[2] + 2)
+    q = s.output(at(a, f"hywmill politics request-for {Q_UUID} detachment 2 {a[0] + 20} {a[1]} {a[2]} 1"), 1.5)
+    check("G5-5 negative: a stranger's detachment request is refused", any("STANDING_TOO_LOW" in l for l in q), " | ".join(q))
     m5(s, f"mill rep {ca} {V_UUID} adjust 9000")
-    for _ in range(6):
+    for _ in range(12):
         s.output(at(a, f"hywmill politics admin favor {V_UUID} REQUESTED_DIPLOMACY"), 0.2)
     time.sleep(14)
     v0 = pshow(s, a, V_UUID)
     fl0 = forceload_list(s)
-    r = s.output(at(a, f"hywmill politics request-for {V_UUID} escort 4"), 2)
-    rows = [x for x in roster_rows(s, a) if x[4] == "ESCORT"]
-    v1 = pshow(s, a, V_UUID)
-    check("G5-5 a patron's escort is granted from what the village can spare; Favor paid on acceptance",
-          v0.get("status") == "PATRON" and any("request OK" in l for l in r) and 1 <= len(rows) <= 4
-          and v1.get("favor") == v0.get("favor", 0) - len(rows), f"{v0} {' | '.join(r)} {len(rows)} escort(s) {v1}")
-    ids = {x[3] for x in rows if x[3]}
-    # the player walks away from the village on open ground (not over roofs), in 8-block steps; the escort follows by hops
     path = open_path(s, a)
-    note("G5-5 walk", str(path))
-    speeds = []
+    px, pz = path[-1]
+    note("G5-5 detachment point (open ground)", str((px, pz)))
+    make_calm(s, a)
+    r = s.output(at(a, f"hywmill politics request-for {V_UUID} detachment 2 {px} {a[1]} {pz} 1"), 2)
+    rows = [x for x in roster_rows(s, a) if x[4] == "DETACHED"]
+    v1 = pshow(s, a, V_UUID)
+    check("G5-5 a patron's detachment is granted from what the village can spare; Favor paid on acceptance",
+          v0.get("status") == "PATRON" and any("request OK" in l for l in r) and 1 <= len(rows) <= 4
+          and v1.get("favor") == v0.get("favor", 0) - 2 * len(rows), f"{v0} {' | '.join(r)} {len(rows)} detached {v1}")
+    ids = {x[3] for x in rows if x[3]}
+    speeds, held, dp = [], [], {}
     last = {k: (time.time(), p) for k, p in positions(s, ids).items()}
-    for (px_, pz_) in path:
-        m5(s, f"standin remove {V_UUID}", 0.2)
-        standin_at(s, V_UUID, px_, pz_)
-        for _ in range(3):
-            time.sleep(2.5)
-            t = time.time()
-            for k, p in positions(s, ids).items():
-                if k in last:
-                    lt, lp = last[k]
-                    speeds.append(((p[0] - lp[0]) ** 2 + (p[2] - lp[2]) ** 2) ** 0.5 / max(0.5, t - lt))
-                last[k] = (t, p)
-    fx, fz = path[-1]
-    near = []
-    for _ in range(12):
-        end = positions(s, ids)
-        near = [k for k, p in end.items() if ((p[0] - fx) ** 2 + (p[2] - fz) ** 2) ** 0.5 <= 16]
-        if len(near) >= max(1, len(ids) - 1):
-            break
+    for _ in range(30):  # walking pace: up to 150 s
         time.sleep(5)
-    held = [k for k in ids if k not in near]
-    check("G5-5 the escort follows the player (hops towards them); any soldier that cannot get through holds (no teleport)",
-          len(near) >= 1 and (not speeds or max(speeds) <= 8), f"{len(near)}/{len(ids)} within 16 of the player at {path[-1]}, "
-          f"{len(held)} holding: {end}")
-    check("G5-5 the escort never teleports (fastest horizontal speed between samples <= 8 blocks/s)", speeds and max(speeds) <= 8,
+        t = time.time()
+        dp = positions(s, ids)
+        for k, p in dp.items():
+            if k in last:
+                lt, lp = last[k]
+                speeds.append(((p[0] - lp[0]) ** 2 + (p[2] - lp[2]) ** 2) ** 0.5 / max(0.5, t - lt))
+            last[k] = (t, p)
+        held = [k for k, p in dp.items() if abs(p[0] - px) + abs(p[2] - pz) <= 10]
+        if held:
+            break
+    check("G5-5 a detachment walks to and holds the named point", bool(held), f"{len(held)}/{len(ids)} within 10 of {(px, pz)}: {dp}")
+    check("G5-5 lent soldiers never teleport (fastest horizontal speed between samples <= 8 blocks/s)", speeds and max(speeds) <= 8,
           f"max {round(max(speeds), 1) if speeds else None} blocks/s over {len(speeds)} samples")
-    check("G5-5 the escort never force-loads", forceload_list(s) == fl0, forceload_list(s))
+    check("G5-5 lent soldiers never force-load", forceload_list(s) == fl0, forceload_list(s)[:120])
     st = pstatus(s, a, V_UUID)
-    check("G5-5 politics status lists the lent soldiers", any("Soldiers lent to you" in l for l in st), " | ".join(st))
-    # home defense excludes them: the village's alert-free duty allocation does not count them
+    check("G5-5 politics status lists the lent soldiers", any("Soldiers lent to you" in l for l in st), " | ".join(st)[:300])
     dm = s.output(at(a, f"hywmill politics request-for {V_UUID} dismiss"), 1.5)
     time.sleep(8)
     back = [x for x in roster_rows(s, a) if x[3] in ids]
     v2 = pshow(s, a, V_UUID)
     check("G5-5 dismissed: the soldiers walk home (RETURNING/GARRISONED) and a clean errand earns Favor",
-          any("dismiss OK" in l for l in dm) and all(x[4] != "ESCORT" for x in back) and v2.get("favor", 0) > v1.get("favor", 0),
+          any("dismiss OK" in l for l in dm) and all(x[4] != "DETACHED" for x in back) and v2.get("favor", 0) > v1.get("favor", 0),
           f"{' | '.join(dm)} {[(x[2], x[4]) for x in back]} favor {v1.get('favor')}->{v2.get('favor')}")
-    # a detachment holds a point; a soldier killed on the errand costs Favor
+    # a second detachment: a soldier killed on the errand costs Favor; the approved Reconciler pause for an unloaded chunk
     m5(s, f"mill rep {ca} {Y2_UUID} adjust 9000")
     for _ in range(12):
         s.output(at(a, f"hywmill politics admin favor {Y2_UUID} REQUESTED_DIPLOMACY"), 0.2)
     standin_at(s, Y2_UUID, a[0] - 3, a[2] - 3)
     time.sleep(14)
-    px, pz = a[0] + 24, a[2] - 24
     make_calm(s, a)
     d = s.output(at(a, f"hywmill politics request-for {Y2_UUID} detachment 2 {px} {a[1]} {pz} 1"), 2)
-    drows = [x for x in roster_rows(s, a) if x[4] == "DETACHED"]
-    dids = {x[3] for x in drows if x[3]}
-    held, dp = [], {}
-    for _ in range(30):  # walking pace: up to 150 s
-        time.sleep(5)
-        dp = positions(s, dids)
-        held = [k for k, p in dp.items() if abs(p[0] - px) + abs(p[2] - pz) <= 10]
-        if held:
-            break
-    check("G5-5 a detachment walks to and holds the named point", any("request OK" in l for l in d) and held, f"{' | '.join(d)} {dp}")
+    dids = {x[3] for x in roster_rows(s, a) if x[4] == "DETACHED" and x[3]}
+    check("G5-5 a second detachment is granted", any("request OK" in l for l in d) and dids, " | ".join(d)[:200])
     y0 = pshow(s, a, Y2_UUID)
     victim = next((u for u in spike_info(s, "@e[type=!minecraft:player]") if u[:8] in dids), None)
     if victim:
@@ -3924,7 +3920,6 @@ def scenario_G5_5(ctx):
     time.sleep(3)
     y1 = pshow(s, a, Y2_UUID)
     check("G5-5 a soldier killed on the player's errand costs Favor", victim and y1.get("favor", 0) < y0.get("favor", 0), f"{y0} -> {y1}")
-    # the approved Reconciler change: the detachment's chunk unloads (test forceload only), the unit is away, not missing
     far_x, far_z = a[0] + 220, a[2]
     s.cmd(f"forceload add {far_x - 16} {far_z - 16} {far_x + 16} {far_z + 16}", 2)
     time.sleep(3)
@@ -3932,19 +3927,19 @@ def scenario_G5_5(ctx):
     note("G5-5 survivor", str(survivor))
     if survivor:
         s.cmd(f"tp {survivor} {far_x} {a[1] + 40} {far_z}", 1)
-        s.cmd(f"execute as {survivor} at @s run tp @s ~ ~ ~", 1)
         s.cmd(f"spreadplayers {far_x} {far_z} 0 4 false {survivor}", 2)
         time.sleep(15)  # at least one garrison slot records it there
         s.cmd(f"forceload remove {far_x - 16} {far_z - 16} {far_x + 16} {far_z + 16}", 2)
         time.sleep(75)  # > missingGrace (1200 ticks) of active village time
         st2 = [x for x in roster_rows(s, a) if x[3] == survivor[:8]]
-        check("G5-5 an errand unit whose chunk is unloaded is not marked MISSING (missing clock paused)",
-              st2 and st2[0][2] == "DEPLOYED", str(st2))
+        check("G5-5 an errand unit whose chunk is unloaded is not marked MISSING (missing clock paused)", st2 and st2[0][2] == "DEPLOYED", str(st2))
         s.cmd(f"forceload add {far_x - 16} {far_z - 16} {far_x + 16} {far_z + 16}", 2)
         time.sleep(15)
         st3 = [x for x in roster_rows(s, a) if x[3] == survivor[:8]]
         check("G5-5 when its chunk loads again the unit is found and still on its errand", st3 and st3[0][2] == "DEPLOYED", str(st3))
         s.cmd(f"forceload remove {far_x - 16} {far_z - 16} {far_x + 16} {far_z + 16}", 1)
+    else:
+        check("G5-5 an errand unit whose chunk is unloaded is not marked MISSING (missing clock paused)", False, "no surviving detached unit")
     cen = census(s, a)
     check("G5-5 no duplicate slots after the errands", cen.get("dupSlots", 1) == 0, str(cen))
     s.output(at(a, f"hywmill politics request-for {Y2_UUID} dismiss"), 1)
@@ -3952,6 +3947,7 @@ def scenario_G5_5(ctx):
     note("G5-5 perf", " | ".join(l for l in perf if "duty" in l or "garrison" in l))
     for u in (V_UUID, Y2_UUID):
         m5(s, f"standin remove {u}", 0.3)
+
 
 
 U_UUID = "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff"      # M5-5b: the campaigning player (a stand-in)
@@ -4094,6 +4090,8 @@ def scenario_G5_UI(ctx):
           " | ".join(o[:3]))
     sel = m5(s, f"ui select {uid} {cb}", 2)
     acts = {m[1]: m[2] == "true" for l in sel for m in [re.search(r"action (\w+) available=(\w+)", l)] if m}
+    home_acts = {m[1] for l in o for m in [re.search(r"action (\w+) available", l)] if m}
+    check("G5-UI the escort action is not offered (deferred)", "ESCORT" not in home_acts and home_acts, str(sorted(home_acts)))
     check("G5-UI selecting another village offers the four envoy kinds and war, all refused for a stranger (server verdict)",
           all(k in acts for k in ("RECONCILE", "TRUCE", "ENCOURAGE", "SOW_DISCORD", "WAR_JOIN")) and not any(acts.values()), str(acts))
     m5(s, f"mill rep {ca} {uid} adjust 5000")
@@ -4112,8 +4110,8 @@ def scenario_G5_UI(ctx):
     check("G5-UI negative: an unknown intent is refused", any("UNKNOWN_ACTION" in l for l in bogus), " | ".join(bogus[:1]))
     m5(s, f"standin remove {uid}", 0.3)
     m5(s, f"standin add {uid} {b[0] + 400} {b[1] + 10} {b[2] + 400}", 1)
-    far = m5(s, f"ui submit {uid} {ca} ESCORT", 2)
-    check("G5-UI negative: a local request (escort) from far away is refused", any("TOO_FAR" in l or "ok=false" in l for l in far), " | ".join(far[:1]))
+    far = m5(s, f"ui submit {uid} {ca} PARDON_PAY", 2)
+    check("G5-UI negative: a local request (pardon) from far away is refused", any("TOO_FAR" in l for l in far), " | ".join(far[:1]))
     log_lines = s.read_since(s.start_pos)
     bad = [l for l in log_lines if re.search(r"(NoClassDefFoundError|ClassNotFoundException|RuntimeException: Attempted to load class).*(client|Screen|Minecraft)", l)]
     check("G5-UI the dedicated server never loads client classes", not bad, bad[0][:200] if bad else "")
@@ -4501,9 +4499,11 @@ def run(d: Path, names, fresh=True):
     finally:
         s.stop()
     passed = sum(1 for r in RESULTS if r[1])
-    log(f"RESULT {passed}/{len(RESULTS)} checks passed")
+    log(f"RESULT {passed}/{len(RESULTS)} checks passed" + (f"; {len(DEFERRED)} deferred (not counted)" if DEFERRED else ""))
     for name, ok, detail in RESULTS:
         print(f"  {'PASS' if ok else 'FAIL'}  {name}  {detail}")
+    for name, reason in DEFERRED:
+        print(f"  DEFERRED  {name}  ({reason})")
     for name, text in NOTES:
         print(f"  NOTE  {name}  {text}")
     return all(r[1] for r in RESULTS)

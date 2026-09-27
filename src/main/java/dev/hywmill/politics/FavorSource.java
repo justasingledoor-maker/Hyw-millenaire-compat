@@ -11,7 +11,7 @@ public enum FavorSource {
     PRESENT_AT_DEFENSE,
     /** Successful diplomacy the village asked for (M5-4). */
     REQUESTED_DIPLOMACY,
-    /** Escort or detachment returned with no losses caused by the player (M5-5). */
+    /** Detachment returned with no losses caused by the player (M5-5). */
     ERRAND_SUCCESS,
     /** Long good standing (monthly, trusted or better, no grievance). */
     LONG_STANDING

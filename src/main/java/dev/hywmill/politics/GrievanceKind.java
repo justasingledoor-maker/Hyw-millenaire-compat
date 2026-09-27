@@ -6,7 +6,7 @@ public enum GrievanceKind {
     KILL_GARRISON(true),
     ASSAULT_RESIDENT(false),
     ASSAULT_GARRISON(false),
-    /** Abuse of an escort or detachment (M5-5). */
+    /** Abuse of a detachment (M5-5). */
     ERRAND_ABUSE(false),
     /** A sow-discord plot exposed by its target (M5-4). */
     PLOT_EXPOSED(false),

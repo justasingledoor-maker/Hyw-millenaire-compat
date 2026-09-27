@@ -10,7 +10,7 @@ public final class PoliticsRecord {
     public long statusSince;
     public Grievances grievances = new Grievances();
     public Favor favor = new Favor();
-    /** Last request (escort, detachment, intelligence) granted; -1 never. */
+    /** Last request (detachment) granted; -1 never. */
     public long lastRequestTick = -1;
     /** Soldiers of this village lost on this player's errands (Favor cost, M5-5). */
     public int casualtiesOnErrands;

@@ -158,7 +158,7 @@ class ReconcilerTest {
         RosterEntry e = spawned(0);
         e.transition(UnitState.GARRISONED, 0);
         e.transition(UnitState.DEPLOYED, 0);
-        e.duty = dev.hywmill.garrison.duty.Duty.ESCORT;
+        e.duty = dev.hywmill.garrison.duty.Duty.DETACHED;
         java.util.function.Predicate<RosterEntry> away = x -> x.duty.errand();
         for (long t = 200; t <= S.missingGrace() * 5; t += 200) {
             runPaused(t, away, 200);
@@ -212,5 +212,23 @@ class ReconcilerTest {
         assertEquals(123456789L, b.errandPoint);
         assertTrue(b.duty.away() && b.duty.errand() && !b.duty.standing());
         assertTrue(dev.hywmill.garrison.duty.Duty.RAID.away() && !dev.hywmill.garrison.duty.Duty.RAID.errand());
+    }
+
+    /** Escorts are deferred: an ESCORT entry saved by a development build loads as its standing duty, without errand data. */
+    @Test
+    void deferredEscortEntryLoadsWithoutErrand() {
+        RosterEntry e = spawned(0);
+        e.transition(UnitState.GARRISONED, 0);
+        e.transition(UnitState.DEPLOYED, 5);
+        e.duty = dev.hywmill.garrison.duty.Duty.DETACHED;
+        e.errandPlayer = UUID.randomUUID();
+        e.errandUntil = 1000;
+        net.minecraft.nbt.CompoundTag t = roster.save();
+        net.minecraft.nbt.CompoundTag entry = t.getList("entries", 10).getCompound(0);
+        entry.getCompound("duty").putString("current", "ESCORT");
+        RosterEntry b = GarrisonRoster.load(t, 10).entry(e.rosterId);
+        assertEquals(dev.hywmill.garrison.duty.Duty.GARRISON, b.duty);
+        assertNull(b.errandPlayer);
+        assertFalse(b.duty.errand());
     }
 }

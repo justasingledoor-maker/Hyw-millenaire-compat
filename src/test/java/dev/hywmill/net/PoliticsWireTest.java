@@ -28,7 +28,7 @@ class PoliticsWireTest {
         }
         return new PoliticsSnapshot(UUID.randomUUID(), "Home", "millenaire:norman", "TRUSTED", "UNWELCOME", 5000, 12.5, 7, 3, ls, ls, vs,
                 null, List.of(new PoliticsSnapshot.ActionRow("RECONCILE", "Envoy: reconciliation", true, "needs trusted", "likely")),
-                List.of(), List.of("spear_man (escort, 100 s left)"), List.of("a trusted friend of Home"));
+                List.of(), List.of("spear_man (detached, 100 s left)"), List.of("a trusted friend of Home"));
     }
 
     @Test

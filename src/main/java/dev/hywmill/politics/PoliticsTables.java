@@ -23,31 +23,21 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
     }
 
     /**
-     * Military requests (M5-5): escorts and detachments. Units are lent, never created.
+     * Military requests (M5-5): detachments. Units are lent, never created. (Player-following escorts are
+     * deferred to a later phase; their data keys are reported and ignored.)
      *
-     * @param escortMax        most escort units per standing (Trusted, Patron, Sworn)
      * @param detachMax        most detachment units per standing (Patron, Sworn; Trusted none)
-     * @param escortTicks      how long an escort lasts
      * @param detachMaxDays    longest detachment
      * @param detachRadius     a detachment's point must be within this distance of the village
-     * @param escortFavor      Favor per escort unit, paid on acceptance
      * @param detachFavorDay   Favor per detachment unit per day, paid on acceptance
      * @param casualtyFavor    Favor lost per soldier killed on the player's errand
      * @param casualtyWillingness willingness lost per casualty on the player's errands (recent memory)
      * @param favorWillingness Favor points per extra unit of willingness
      * @param cooldown         ticks between two granted requests of the same player at the same village
      */
-    public record RequestRule(Map<Standing, Integer> escortMax, Map<Standing, Integer> detachMax, long escortTicks, int detachMaxDays,
-                              int detachRadius, int escortFavor, int detachFavorDay, int casualtyFavor, double casualtyWillingness,
-                              int favorWillingness, long cooldown) {
-        public static final RequestRule DEFAULT = new RequestRule(
-                standingMap(Standing.TRUSTED, 2, Standing.PATRON, 4, Standing.SWORN, 6),
-                standingMap(Standing.PATRON, 4, Standing.SWORN, 8),
-                24000, 3, 256, 1, 2, 5, 0.5, 40, 6000);
-
-        public int escortMax(Standing s) {
-            return escortMax.getOrDefault(s, 0);
-        }
+    public record RequestRule(Map<Standing, Integer> detachMax, int detachMaxDays, int detachRadius, int detachFavorDay, int casualtyFavor,
+                              double casualtyWillingness, int favorWillingness, long cooldown) {
+        public static final RequestRule DEFAULT = new RequestRule(standingMap(Standing.PATRON, 4, Standing.SWORN, 8), 3, 256, 2, 5, 0.5, 40, 6000);
 
         public int detachMax(Standing s) {
             return detachMax.getOrDefault(s, 0);

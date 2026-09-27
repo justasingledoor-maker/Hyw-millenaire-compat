@@ -463,7 +463,7 @@ public final class PoliticsService {
             case KILL_GARRISON -> "killed a soldier of the garrison";
             case ASSAULT_RESIDENT -> "attacked a villager";
             case ASSAULT_GARRISON -> "attacked the garrison";
-            case ERRAND_ABUSE -> "abused an escort";
+            case ERRAND_ABUSE -> "abused a detachment";
             case PLOT_EXPOSED -> "was exposed plotting against the village";
             case JOINED_ENEMY -> "joined a war against the village";
         };

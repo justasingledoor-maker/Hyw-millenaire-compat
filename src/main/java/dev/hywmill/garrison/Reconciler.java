@@ -56,7 +56,7 @@ public final class Reconciler {
     }
 
     /**
-     * As above. M5-5 (approved M3 change): a unit away on an errand (ESCORT / DETACHED) whose last known
+     * As above. M5-5 (approved M3 change): a unit away on an errand (DETACHED) whose last known
      * chunk is not loaded ({@code clockPaused}) is not missing, it is simply elsewhere: its missing and
      * lost clocks do not run for this slot ({@code step} ticks, the active time since the previous slot).
      * They resume once that chunk is loaded and the unit is still not found. Home units and raids are

@@ -17,6 +17,14 @@ M5-0, before any M5 code is written.
 
 ---
 
+> **Scope change (2026-09-27, decision): player-following escorts are DEFERRED to a future phase and
+> are not an M5 acceptance requirement.** Lent soldiers never teleport (Q4 stands); following a
+> player out of a village can leave a soldier trapped with no teleport-free way out, and no recovery
+> exception is added for lent soldiers. **Detachments stay in M5** (and with them the request
+> evaluator, Favor costs, casualty cost, clean-errand Favor and the approved Reconciler pause for
+> away units in unloaded chunks). Every mention of escorts below describes the deferred design, not
+> M5 behaviour.
+
 ## 1. What Millénaire 9.0.2 already provides
 
 ### 1.1 Player reputation (per village and per culture)
@@ -257,7 +265,7 @@ The magnitude Δ follows Millénaire's own scale (about 10 × a reputation facto
 | Benefit | Trusted | Patron | Sworn | Built on |
 |---|---|---|---|---|
 | **Intelligence** (`/hywmill village intel`, remote for discovered villages) | Coarse: alert state ("at peace", "troubled", "at war"), garrison size in words, relations with neighbours as bands | Exact: garrison by class, duties, known threats, raids planned or suffered | + the village's military intentions (its current raid target) | M2 alert, M3 roster, M4 duties, Millénaire relations and raid state (all read-only) |
-| **Escort** (units follow the player for up to a day) | ≤ 2 units, within the village's lands | ≤ 4 units, may leave the lands | ≤ 6 units | M3 units, M4 temporary duty (see §10) |
+| **Escort** (units follow the player for up to a day) — **DEFERRED, not in M5** | ≤ 2 units, within the village's lands | ≤ 4 units, may leave the lands | ≤ 6 units | M3 units, M4 temporary duty (see §10) |
 | **Detachment** (units hold a point the player names for N days) | — | ≤ 4 units, within a data radius | ≤ 8 units | M4 duty machinery, fixed-spot movement |
 | **Volunteer defense** (the village helps when the player is attacked in its lands) | Existing M2 `assistPlayers` | same | Also in nearby lands | M2 doctrine (unchanged) |
 | **Armoury** (buy culture equipment; M4 profile items or HYW recruit scrolls) **(spike)** | — | ✔ | ✔ | Millénaire trade goods data, if extensible by datapack |
@@ -440,7 +448,7 @@ Millénaire or HYW.
 | M5-2 | Status service, chronicle entries, word travels, `/hywmill politics` status and intel commands |
 | M5-3 | Outlaw: `OUTLAWED_PLAYER` threat, `PoliticalPolicy` with HYW HOSTILE, pardon |
 | M5-4 | Envoy missions and truces (Millénaire relation API, delayed resolution, backfire) |
-| M5-5 | Requests: escort and detachment (M4 temporary duties), evaluator, favor costs, casualties |
+| M5-5 | Requests: detachment (M4 temporary duty), evaluator, favor costs, casualties. **Escort deferred** (scope change above) |
 | M5-5b | Rules of engagement (§16): wars, campaigns, relation projector and reconciliation, `ENEMY_COMBATANT`, combatant-only engagement |
 | M5-G | Garrison population scaling (§17, locked by §18.2): spike S-G first (targets from real harness villages, reachability of the locked caps, duties, raids, M2 deployment, spawning, server scale test); then the target and levy formulas through the existing data-driven tier machinery, with a neutral-values regression, and the M4 duty and raid **data** retuned to the new sizes (approved, Q10). Independent of the politics steps |
 | M5-6 | Armoury (if spike 7 allows) and honours |
@@ -1021,7 +1029,8 @@ and future deeds explicitly defined as service.
 as in §7.2; can fail; exposure gives a grievance with the target village and can hurt the player's
 standing elsewhere. It must not be a spammable relation lever.
 
-**Q4. Escorts and unloaded terrain.** No force-loading for escorts, ever.
+**Q4. Escorts and unloaded terrain.** (Escorts are **deferred**; the rules stand for their future phase and apply
+to detachments now.) No force-loading for escorts, ever.
 * Escort units move normally through loaded, ticking terrain.
 * They cross unloaded terrain only when the player travels with them and loads it naturally.
 * If the player gets too far ahead and the terrain ahead is not loaded, the escort **holds** where

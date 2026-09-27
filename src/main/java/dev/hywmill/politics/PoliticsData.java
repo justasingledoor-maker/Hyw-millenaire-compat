@@ -129,13 +129,17 @@ public final class PoliticsData {
         PoliticsTables.RequestRule rq = base.requests();
         if (o.has("requests") && o.get("requests").isJsonObject()) {
             JsonObject j = o.getAsJsonObject("requests");
-            Map<Standing, Integer> esc = standingInts(j, "escortMax", rq.escortMax(), problems, where);
+            for (String deferred : List.of("escortMax", "escortTicks", "escortFavor")) {
+                if (j.has(deferred)) {
+                    problems.add(where + ": requests." + deferred + ": escorts are deferred (not in M5); ignored");
+                }
+            }
             Map<Standing, Integer> det = standingInts(j, "detachMax", rq.detachMax(), problems, where);
-            rq = new PoliticsTables.RequestRule(esc, det, l(j, "escortTicks", rq.escortTicks()), i(j, "detachMaxDays", rq.detachMaxDays()),
-                    i(j, "detachRadius", rq.detachRadius()), i(j, "escortFavor", rq.escortFavor()), i(j, "detachFavorDay", rq.detachFavorDay()),
+            rq = new PoliticsTables.RequestRule(det, i(j, "detachMaxDays", rq.detachMaxDays()),
+                    i(j, "detachRadius", rq.detachRadius()), i(j, "detachFavorDay", rq.detachFavorDay()),
                     i(j, "casualtyFavor", rq.casualtyFavor()), d(j, "casualtyWillingness", rq.casualtyWillingness()),
                     i(j, "favorWillingness", rq.favorWillingness()), l(j, "cooldown", rq.cooldown()));
-            if (rq.escortTicks() <= 0 || rq.detachMaxDays() < 0 || rq.favorWillingness() <= 0 || rq.escortFavor() < 0 || rq.detachFavorDay() < 0) {
+            if (rq.detachMaxDays() < 0 || rq.favorWillingness() <= 0 || rq.detachFavorDay() < 0) {
                 problems.add(where + ": requests values out of range; using " + where + " base");
                 rq = base.requests();
             }

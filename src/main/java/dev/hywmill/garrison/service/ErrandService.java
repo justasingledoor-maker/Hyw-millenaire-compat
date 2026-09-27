@@ -33,21 +33,18 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * M5-5: garrison units lent to a player: ESCORT (follow the player) and DETACHED (hold a named point).
- * They stay the village's units (roster first, same UUIDs, deaths permanent) and are away from home
- * defense like a raid contingent. They move only with M4's hop resolution: a home at most one hop
- * ahead, on standable ground in an entity-ticking chunk. They never teleport, never use HYW's own follow
- * order (which teleports) and never force-load; when the way ahead is not loaded they hold.
- * The errand ends on time or on dismissal (a home alert does not recall it); the units then walk home
- * through the normal RETURNING path. Pure bookkeeping lives in {@link Requests}.
+ * M5-5: garrison units lent to a player as a DETACHMENT (hold a named point). They stay the village's units
+ * (roster first, same UUIDs, deaths permanent) and are away from home defense like a raid contingent. They
+ * move only with M4's hop resolution: a home at most one hop ahead, on standable ground in an entity-ticking
+ * chunk; when stuck they try side-steps along the obstacle, then hold. They never teleport and never force-load.
+ * The errand ends on time or on dismissal (a home alert does not recall it); the units then walk home through
+ * the normal RETURNING path. Pure bookkeeping lives in {@link Requests}.
+ *
+ * <p>Player-following escorts are deferred to a later phase (M5 sign-off scope): following a player out of a
+ * village can leave a lent soldier trapped, and lent soldiers never teleport.
  */
 public final class ErrandService {
     public static final String C_GRANTED = "errands.granted";
-    /** Escort ring radius around the player. */
-    static final double RING = 3.0;
-    /** An escort engages whoever hurt its player within this distance and this many ticks. */
-    static final double DEFEND_RADIUS = 16.0;
-    static final long DEFEND_WINDOW = 100;
 
     private ErrandService() {}
 
@@ -79,7 +76,7 @@ public final class ErrandService {
     public record Grant(Requests.Offer offer, List<RosterEntry> units) {}
 
     /**
-     * Evaluates and, when accepted, lends the units. {@code point} is the detachment's point (null for escorts).
+     * Evaluates and, when accepted, lends the units to hold {@code point}.
      */
     public static Grant request(ServerLevel overworld, VillageRecord rec, UUID player, Standing standing, Requests.Kind kind, int asked,
                                 int days, @Nullable BlockPos point, AlertState alert, PoliticsTables t) {
@@ -105,12 +102,15 @@ public final class ErrandService {
         }
         pr.favor.spend(offer.favorCost());
         pr.lastRequestTick = now;
-        long until = now + (kind == Requests.Kind.ESCORT ? t.requests().escortTicks() : (long) days * PoliticsTables.DAY);
+        if (point == null) {
+            return new Grant(new Requests.Offer(Requests.Refusal.BAD_REQUEST, 0, 0, "a detachment needs a point to hold"), List.of());
+        }
+        long until = now + (long) days * PoliticsTables.DAY;
         List<RosterEntry> lent = new ArrayList<>();
         for (UUID id : spare.subList(0, offer.units())) {
             RosterEntry e = r.entry(id);
             e.transition(UnitState.DEPLOYED, now);
-            e.duty = kind == Requests.Kind.ESCORT ? Duty.ESCORT : Duty.DETACHED;
+            e.duty = Duty.DETACHED;
             e.dutySince = now;
             e.errandPlayer = player;
             e.errandUntil = until;
@@ -144,40 +144,23 @@ public final class ErrandService {
             return false;
         }
         boolean changed = false;
-        int idx = 0;
         for (RosterEntry e : r.entries()) {
             if (!e.duty.errand() || e.state() != UnitState.DEPLOYED) {
                 moves.remove(e.rosterId);
                 continue;
             }
             UUID player = e.errandPlayer;
-            // A home alert does not recall lent soldiers (an ordinary night would otherwise end every escort);
+            // A home alert does not recall lent soldiers (an ordinary night would otherwise end every errand);
             // the village only refuses new requests while it is not calm.
             if (player == null || tick >= e.errandUntil) {
                 changed |= end(overworld, rec, e, units, tick, player == null ? "no player" : "time is up");
                 continue;
             }
             Entity ent = GarrisonService.find(overworld.getServer(), e.entityUuid);
-            if (ent == null || !ent.isAlive() || !(ent.level() instanceof ServerLevel level) || level != overworld) {
+            if (ent == null || !ent.isAlive() || ent.level() != overworld || e.errandPoint == Long.MIN_VALUE) {
                 continue; // not loaded: it holds wherever it is (the reconciler's missing clock is paused for it)
             }
-            BlockPos goal;
-            if (e.duty == Duty.ESCORT) {
-                ServerPlayer p = dev.hywmill.politics.service.PoliticsService.onlinePlayer(overworld, player);
-                if (p == null || p.level() != overworld) {
-                    continue; // the player is away: hold
-                }
-                double a = (idx++ * 2 * Math.PI / 6) + (e.rosterId.getLeastSignificantBits() & 7) * 0.1;
-                goal = BlockPos.containing(p.getX() + RING * Math.cos(a), p.getY(), p.getZ() + RING * Math.sin(a));
-                goal = confine(rec, player, goal);
-                LivingEntity attacker = p.getLastHurtByMob();
-                if (attacker != null && attacker.isAlive() && tick - p.getLastHurtByMobTimestamp() < DEFEND_WINDOW
-                        && attacker.distanceToSqr(ent) < DEFEND_RADIUS * DEFEND_RADIUS && units.target(ent) != attacker) {
-                    units.engage(ent, attacker);
-                }
-            } else {
-                goal = BlockPos.of(e.errandPoint);
-            }
+            BlockPos goal = BlockPos.of(e.errandPoint);
             if (DutyMotion.horizontal(ent.getX(), ent.getZ(), goal) <= table.move().arriveRadius()) {
                 continue;
             }
@@ -230,21 +213,6 @@ public final class ErrandService {
         double ux = dx / d, uz = dz / d;
         double rx = ux * Math.cos(a) - uz * Math.sin(a), rz = ux * Math.sin(a) + uz * Math.cos(a);
         return DutyService.surface(level, BlockPos.containing(ent.getX() + rx * len, ent.getY(), ent.getZ() + rz * len));
-    }
-
-    /** A Trusted player's escort stays within the village's lands (its defense radius); Patrons and Sworn may leave them. */
-    private static BlockPos confine(VillageRecord rec, UUID player, BlockPos goal) {
-        PoliticsRecord pr = rec.politics.peek(player);
-        if (pr != null && pr.status.ordinal() >= Standing.PATRON.ordinal()) {
-            return goal;
-        }
-        int radius = Math.max(16, rec.villageRadius);
-        double dx = goal.getX() - rec.center.getX(), dz = goal.getZ() - rec.center.getZ();
-        double d = Math.sqrt(dx * dx + dz * dz);
-        if (d <= radius) {
-            return goal;
-        }
-        return new BlockPos((int) Math.round(rec.center.getX() + dx / d * radius), goal.getY(), (int) Math.round(rec.center.getZ() + dz / d * radius));
     }
 
     /** Ends one unit's errand: it walks home through the normal RETURNING path (no teleport). */

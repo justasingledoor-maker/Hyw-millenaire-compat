@@ -70,3 +70,14 @@ The only change to M3 behaviour after the freeze, approved explicitly:
   equipment and the M2 doctrine are unchanged.
 
 Details and results are in `docs/m4-report.md` §8. M3 is frozen again.
+
+## Addendum (M5): approved M3 change (Reconciler pause for away units)
+
+Approved with the M5 plan (design §18.3 Q4) and verified on the server (`docs/m5-test-evidence/`):
+* A unit away on an M5 errand (duty DETACHED) whose last known chunk is not loaded does not run its
+  MISSING/LOST clocks for that slot; they resume when the chunk is loaded and the unit is still not
+  found. Additive (`Reconciler.reconcile` overload with a predicate); home units and raid
+  contingents are unchanged.
+* Player-following escorts, the other intended user of this pause, are deferred to a future phase.
+
+M3 is frozen again.

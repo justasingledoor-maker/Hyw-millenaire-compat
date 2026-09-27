@@ -180,10 +180,8 @@ final class PoliticsCommands {
         return 1;
     }
 
-    /** M5-5 requests: {@code escort <n>}, {@code detachment <n> <pos> <days>}, {@code dismiss}. */
+    /** M5-5 requests: {@code detachment <n> <pos> <days>}, {@code dismiss} (player-following escorts are deferred). */
     private static <T extends com.mojang.brigadier.builder.ArgumentBuilder<CommandSourceStack, T>> T request(T node, @Nullable String playerArg) {
-        node.then(Commands.literal("escort").then(Commands.argument("n", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 16))
-                .executes(ctx -> doRequest(ctx, playerArg, dev.hywmill.politics.Requests.Kind.ESCORT))));
         node.then(Commands.literal("detachment").then(Commands.argument("n", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 16))
                 .then(Commands.argument("pos", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
                         .then(Commands.argument("days", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 30))

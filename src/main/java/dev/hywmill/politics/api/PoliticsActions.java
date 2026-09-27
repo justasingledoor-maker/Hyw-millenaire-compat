@@ -55,7 +55,7 @@ public final class PoliticsActions {
         return new ActionResult(q.ok(), q.outcome().name() + (res.paid() ? "_PAID" : ""), msg);
     }
 
-    /** M5-5: asks the village for an escort (point null) or a detachment holding {@code point} for {@code days}. */
+    /** M5-5: asks the village for a detachment holding {@code point} for {@code days} (escorts are deferred). */
     public static ActionResult request(ServerLevel overworld, UUID player, UUID village, dev.hywmill.politics.Requests.Kind kind, int asked,
                                        int days, @javax.annotation.Nullable net.minecraft.core.BlockPos point) {
         HywMillRuntime rt = HywMillRuntime.require();
@@ -71,7 +71,7 @@ public final class PoliticsActions {
         var g = dev.hywmill.garrison.service.ErrandService.request(overworld, rec, player, eff, kind, asked, days, point,
                 rt.defense().state(village), PoliticsService.tables(rec));
         var o = g.offer();
-        String what = kind == dev.hywmill.politics.Requests.Kind.ESCORT ? "escort" : "detachment";
+        String what = "detachment";
         if (!o.ok()) {
             return new ActionResult(false, o.refusal().name(), rec.name + " refuses the " + what + ": " + o.reason());
         }
@@ -121,10 +121,6 @@ public final class PoliticsActions {
             }
             case "PARDON_PAY" -> {
                 return pardon(overworld, player, home, true);
-            }
-            case "ESCORT" -> {
-                return request(overworld, player, home, dev.hywmill.politics.Requests.Kind.ESCORT,
-                        amount > 0 ? Math.min(amount, 16) : PoliticsView.SCREEN_ESCORT, 0, null);
             }
             case "DISMISS" -> {
                 return dismiss(overworld, player);

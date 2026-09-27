@@ -50,4 +50,15 @@ class PoliticsDataTest {
         assertEquals(d.defaults().pardon(), d.forCulture("millenaire:mayan").pardon());
         assertEquals(1, problems.size(), problems.toString());
     }
+
+    @Test
+    void deferredEscortKeysAreReportedAndIgnored() {
+        List<String> problems = new ArrayList<>();
+        JsonObject f = JsonParser.parseString("""
+                {"defaults": {"requests": {"escortMax": {"TRUSTED": 2}, "escortTicks": 24000, "detachRadius": 128}}}""").getAsJsonObject();
+        PoliticsData d = PoliticsData.fromJson(List.of(f), problems);
+        assertEquals(2, problems.size(), problems.toString());
+        assertTrue(problems.stream().allMatch(p -> p.contains("deferred")));
+        assertEquals(128, d.defaults().requests().detachRadius());
+    }
 }

@@ -38,7 +38,7 @@ public final class RosterEntry {
     public long dutySince;
     /** Duty role the unit's equipment was last applied for ("" = class role only, as at spawn). */
     public String equipRole = "";
-    // ---- M5-5 errands (ESCORT / DETACHED; optional keys in the duty compound) ----
+    // ---- M5-5 errands (DETACHED; optional keys in the duty compound) ----
     /** The player the unit is lent to, while on an errand. */
     @Nullable public UUID errandPlayer;
     /** Game tick the errand ends (the unit then returns home); -1 none. */

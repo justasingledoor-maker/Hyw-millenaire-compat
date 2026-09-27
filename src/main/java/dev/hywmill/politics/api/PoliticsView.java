@@ -294,9 +294,6 @@ public final class PoliticsView {
     /** An action the Politics screen may offer: the server's verdict (available / why not), what it needs and costs, and a coarse outcome band. */
     public record ActionOption(String action, String label, boolean available, String requirement, String outcome) {}
 
-    /** Default escort size asked for from the screen (the village offers what it can). */
-    public static final int SCREEN_ESCORT = 6;
-
     /**
      * Options for the player dealing with {@code home}, with {@code target} selected. Everything is evaluated by
      * the same services the actions use, in dry-run: nothing is spent.
@@ -320,13 +317,6 @@ public final class PoliticsView {
                 out.add(new ActionOption("PARDON_PAY", "Pay the weregild", q.ok(), "costs " + q.price() + " reputation",
                         q.ok() ? "pardon at once" : q.outcome().name().toLowerCase()));
             }
-            Standing own = r == null ? Standing.STRANGER : r.status;
-            Standing eff = effective(overworld, ledger, source, h, player, own, null);
-            var g = dev.hywmill.garrison.service.ErrandService.request(overworld, h, player, eff, dev.hywmill.politics.Requests.Kind.ESCORT,
-                    SCREEN_ESCORT, 0, null, rt.defense().state(home), tb, true);
-            out.add(new ActionOption("ESCORT", "Ask for an escort", g.offer().ok(),
-                    g.offer().ok() ? g.offer().units() + " soldier(s) for " + g.offer().favorCost() + " Favor" : g.offer().reason(),
-                    g.offer().ok() ? "granted" : g.offer().refusal().name().toLowerCase()));
             boolean lent = !dev.hywmill.garrison.service.ErrandService.lentTo(h, player).isEmpty();
             out.add(new ActionOption("DISMISS", "Send lent soldiers home", lent, lent ? "" : "no soldiers lent to you", ""));
             boolean envoys = !envoys(overworld, player).isEmpty();

@@ -318,11 +318,13 @@ public final class GarrisonRoster {
                 e.dutyStep = d.getInt("step");
                 e.dutySince = d.getLong("since");
                 e.equipRole = d.getString("equipRole");
-                if (d.hasUUID("errandPlayer")) {
+                if (d.hasUUID("errandPlayer") && e.duty.errand()) {
                     e.errandPlayer = d.getUUID("errandPlayer");
                     e.errandUntil = d.getLong("errandUntil");
                     e.errandPoint = d.contains("errandPoint") ? d.getLong("errandPoint") : Long.MIN_VALUE;
                 }
+                // an errand duty this version does not know (e.g. a deferred escort saved by a development build) loads as
+                // its standing duty; a DEPLOYED entry then takes the normal M2 return path home
             }
             if (pos.length == 3) {
                 e.lastSeenX = pos[0];
