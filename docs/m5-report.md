@@ -5,8 +5,8 @@ changes to Millénaire or HYW, compileOnly against the pinned jars, foreign impo
 `integration.*`. Branch: `claude/millenaire-hyw-audit-5n4u8s`. Design: `docs/m5-design.md` (§18 is
 authoritative). Spikes: `docs/m5-spike.md`.
 
-**Status of this report:** the implementation of every phase is complete. Server evidence is being
-collected; see §4. Sections marked *pending* are filled when the runs finish.
+**Status of this report:** every phase is implemented and tested. Two items are open and need a
+decision or more work before M5 is signed off; see §4.3.
 
 ## 1. What was built, by phase
 
@@ -68,11 +68,66 @@ no trimming, no starting grant.
 
 ## 3. JUnit
 
-*Pending final count;* 248/248 at commit `6dc03c4` (was 201 before M5-G).
+**248/248** (201 before M5-G; 47 new: C3 formula and neutral equivalence, scaling gate, duty data,
+pardon, diplomacy odds, requests, Reconciler pause, war/plan/RoE, wire format, persistence).
 
-## 4. Server evidence
+## 4. Server evidence (`docs/m5-test-evidence/`)
 
-*Pending.*
+### 4.1 Results
+
+| Suite | Jar | Result | File |
+|---|---|---|---|
+| Option 1 follow-up (S5-P/V/B/N/W, D, G) | Option 1 + M5-1 | pass | `opt1-run1.txt` |
+| M2 regression (garrison off) | Option 1 + M5-1 | 71/72 (A4 was the harness format-3/4 regex; fixed) | `opt1-regress-m2.txt` |
+| G3 (M3) | Option 1 + M5-1 | 51/51 | `opt1-regress-g3.txt` |
+| G4 (M4) | Option 1 + M5-1 | 31/31 | `opt1-regress-g4.txt` |
+| M4 world → M5 migration | M5-UI | **10/10** | `migrate4-run1.txt` |
+| M5 phases (G5_G, G5_2 … G5_5b, G5_6, G5_UI), full | `3765f830…` | **101/103** (both failures: §4.3 A) | `final-m5-1.txt` |
+| G3 (M3) with M5-G | `3765f830…` | **51/51** | `final-g3-1.txt` |
+| G4 (M4) with M5-G data | `3765f830…` | 30/31 (G4-2) | `final-g4-1.txt` |
+| G5_5 alone | `884d4414…` | 15/16 (§4.3 A) | `g55-run6.txt` |
+| G4 (M4) with M5-G data | `884d4414…` | 29/31 (G4-2, G4-4b; §4.3 B) | `final-g4-2.txt` |
+
+Earlier M5 runs and their fixes: `m5-run1.txt` (67/79), `m5-run2.txt` (93/101), `m5-run3.txt`
+(100/103), `g55-run4.txt`, `g55-run5.txt`; the commit messages record each root cause.
+
+### 4.2 Verified on the server
+
+* **M5-G:** shipped caps are the locked caps; every village's target equals C3 on its own inputs;
+  after a restart the gate holds the target at the live count until the village has settled.
+* **M5-2/M5-3:** real-event grievances; immediate peacetime-killing outlawry; word travels; intel;
+  chronicle mirrored and persisted; outlaw HOSTILE on the faction identity only, kept by the guard,
+  never on residents; the outlaw is an M2 threat and is engaged with `proactive=false`; civilians
+  do not attack; formal pardon; persistence.
+* **M5-4:** requirements, diplomacy point spent, travel, seeded outcome applied through Millénaire's
+  relation, both chronicles, cooldowns, truce floor −85, sow-discord limits, pending envoys persist.
+* **M5-5:** escort granted from spare units with Favor paid on acceptance; no teleport (max 3.9
+  blocks/s), no force-load; dismissal and clean-errand Favor; detachment reaches and holds its
+  point; casualty costs Favor; **the approved Reconciler change: an errand unit in an unloaded
+  chunk stays DEPLOYED and is found again when the chunk loads**; no duplicate slots.
+* **M5-5b:** war only after sustained open conflict; HOSTILE between faction identities only, kept
+  by the guard; campaign FRIENDLY/HOSTILE projection, grievance, enemy-combatant status and
+  `ENEMY_COMBATANT` threat; persistence; leave and truce restore the previous relations.
+* **M5-6:** the armoury pack loads in all 7 cultures (Patron-gated, originals kept); honours.
+* **M5-UI (server side):** snapshots from the shared API, server verdicts per action, intents
+  re-validated (cooldown, unknown action, range), wire round-trip, no client classes loaded on the
+  dedicated server.
+
+### 4.3 Open items
+
+**A. Escort leaving a village through a trap spot (decision needed).** In test village A the escort
+walks into a spot at (652, 79, 613) and cannot get out. The same spot trapped M4 sentries in
+`docs/m4-test-evidence/g4-run2.txt`; M4 solved it with its "trapped → unstick" step, which moves the
+unit onto nearby ground (a short teleport). Lent soldiers never teleport (approved Q4), so they hold
+there. Detours and side-steps do not free them. Options: (1) allow the M4 unstick for errand units
+only when trapped (a few blocks, never to catch up); (2) keep "never teleport" and accept that a
+trapped lent soldier holds until the errand ends. The detachment case passes.
+
+**B. G4 at the larger duty sizes.** G4-2 (every sentry pair within 10 blocks of its post) failed in
+both final runs, each time for one of the 16 stronghold pairs; G4-4b (scouts reach their ring) failed
+in one of two runs. Both are M4 acceptance checks run against the approved M5-G duty retune (16
+sentry pairs, 8 scouts). Not yet root-caused; to be investigated before sign-off rather than
+treated as flakes.
 
 ## 5. Known limitations
 
