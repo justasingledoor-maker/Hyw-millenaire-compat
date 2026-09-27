@@ -1,0 +1,34 @@
+[27Sep2026 14:20:29.672]nit 24c0ab8a of village 'Fierville les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[27Sep2026 14:20:57.226]nit 96fd12d5 of village 'Tierceville le-fort' was trapped; moved onto its SCOUT hop 595, 70, 959
+[27Sep2026 14:20:57.226]nit 8ffa7772 of village 'Tierceville le-fort' was trapped; moved onto its SCOUT hop 595, 70, 959
+[27Sep2026 14:21:22.866]nit c737a0ec of village 'Tierceville le-fort' was trapped; moved onto its SCOUT hop 632, 32, 942
+[27Sep2026 14:24:28.875]nit bffbcf6d of village 'Fierville les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[27Sep2026 14:25:00.587]nit 199e451c of village 'Tierceville le-fort' (GARRISON) made no progress towards 667, 72, 976 for 6000 ticks at 632, 48, 918: stuck, falling back to 658, 78, 975
+[27Sep2026 14:25:37.418]nit 841a60d1 of village 'Potigny les-pâtures' was trapped; moved onto its SCOUT hop 849, 74, 581
+[27Sep2026 14:25:51.002]nit 24c0ab8a of village 'Fierville les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[27Sep2026 14:26:27.851]nit 96fd12d5 of village 'Tierceville le-fort' was trapped; moved onto its GARRISON spot 603, 67, 1006
+[27Sep2026 14:26:27.851]nit 748119c3 of village 'Tierceville le-fort' was trapped; moved onto its GARRISON spot 634, 62, 923
+[27Sep2026 14:26:34.532]nit 8ffa7772 of village 'Tierceville le-fort' (SCOUT) made no progress towards 658, 78, 975 for 6000 ticks at 602, 74, 977: stuck, falling back to 658, 78, 975
+[27Sep2026 14:26:37.123]nit e9fb737c of village 'Tierceville le-fort' was trapped; moved onto its GARRISON hop 632, 78, 990
+[27Sep2026 14:26:39.578]nit 2ff743ce of village 'Tierceville le-fort' was trapped; moved onto its GARRISON hop 678, 73, 953
+[27Sep2026 14:26:48.108]nit a6b929f0 of village 'Tierceville le-fort' was trapped; moved onto its GARRISON spot 640, 65, 923
+[27Sep2026 14:27:00.199]nit c737a0ec of village 'Tierceville le-fort' (GARRISON) made no progress towards 603, 70, 960 for 6000 ticks at 644, 32, 941: stuck, falling back to 658, 78, 975
+[27Sep2026 14:27:00.199]nit c8980fd8 of village 'Tierceville le-fort' was trapped; moved onto its GARRISON hop 602, 72, 1002
+[27Sep2026 14:27:28.252]nit db61a32d of village 'Tierceville le-fort' (GARRISON) made no progress towards 658, 73, 954 for 6000 ticks at 717, 62, 972: stuck, falling back to 658, 78, 975
+[27Sep2026 14:27:34.489]nit 199e451c of village 'Tierceville le-fort' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[27Sep2026 14:31:00.299]nit 482e2731 of village 'Fierville les-mines' was trapped; moved onto its PATROL hop 1074, 80, 630
+[27Sep2026 14:31:30.941]nit 8ffa7772 of village 'Tierceville le-fort' was trapped; moved onto its SCOUT hop 612, 63, 947
+[27Sep2026 14:31:31.031]nit e253798d of village 'Fierville les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[27Sep2026 14:31:36.309]nit bffbcf6d of village 'Fierville les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[27Sep2026 14:31:47.643]nit 8ffa7772 of village 'Tierceville le-fort' recovered at 658, 78, 975 (walked back); on GARRISON duty until the next allocation
+[27Sep2026 14:32:30.197]nit c737a0ec of village 'Tierceville le-fort' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[27Sep2026 14:32:30.198]nit db61a32d of village 'Tierceville le-fort' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[27Sep2026 14:33:02.322]nit 24c0ab8a of village 'Fierville les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[27Sep2026 14:33:29.536]nit 8284a00d of village 'Tierceville le-fort' was trapped; moved onto its SENTRY spot 606, 68, 946
+[27Sep2026 14:33:29.537]nit 191d80f0 of village 'Tierceville le-fort' was trapped; moved onto its RESERVE spot 658, 73, 956
+[27Sep2026 14:34:31.763]nit 8635829f of village 'Tierceville le-fort' (SCOUT) made no progress towards 658, 78, 975 for 6000 ticks at 648, 52, 908: stuck, falling back to 658, 78, 975
+[27Sep2026 14:34:36.394]nit 482e2731 of village 'Fierville les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[27Sep2026 14:35:29.285]nit bffbcf6d of village 'Fierville les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[27Sep2026 14:35:33.119]nit fa577231 of village 'Arkades' (PATROL) made no progress towards 474, 67, 505 for 6000 ticks at 373, 74, 440: stuck, falling back to 423, 70, 471
+[27Sep2026 14:36:25.192]nit 8635829f of village 'Tierceville le-fort' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation
+[27Sep2026 14:36:44.436]nit 98e2c75a of village 'Fierville les-mines' was trapped; moved onto its SCOUT hop 1122, 77, 675
