@@ -14,6 +14,7 @@ import dev.hywmill.garrison.duty.DutyPlan;
 import dev.hywmill.garrison.duty.DutyQuota;
 import dev.hywmill.garrison.duty.DutyTable;
 import dev.hywmill.garrison.duty.DutyTables;
+import dev.hywmill.garrison.duty.StuckWatch;
 import dev.hywmill.garrison.spi.UnitProvider;
 import dev.hywmill.garrison.tables.GarrisonTables;
 import dev.hywmill.garrison.tables.UnitClass;
@@ -27,6 +28,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 import javax.annotation.Nullable;
@@ -65,6 +69,8 @@ public final class DutyService {
         final Map<UUID, long[]> moves = new HashMap<>();
         /** M5-5 errand units: rosterId → {home, sinceTick, detourAttempt, lastPos} for the stuck/detour check. */
         final Map<UUID, long[]> errandMoves = new HashMap<>();
+        /** M4 reliability recovery: progress watch of home-duty units (rosterId → watch). */
+        final Map<UUID, StuckWatch.Track> stuck = new HashMap<>();
     }
 
     public DutyService(PerfCounters perf) {
@@ -115,6 +121,8 @@ public final class DutyService {
             }
         }
         pairs.values().forEach(l -> l.sort(Comparator.naturalOrder()));
+        StuckWatch.Limits lim = StuckWatch.Limits.of(table.move(), table.scout());
+        java.util.Set<UUID> watchedNow = new java.util.HashSet<>();
         for (RosterEntry e : r.entries()) {
             if (!movedByDuties(e)) {
                 continue;
@@ -131,7 +139,50 @@ public final class DutyService {
             int member = e.assignedDuty == Duty.SENTRY ? Math.max(0, pairs.getOrDefault(e.dutyIndex, List.of()).indexOf(e.rosterId)) : 0;
             DutyMotion.Ctx ctx = new DutyMotion.Ctx(table.move(), table.scout(), rec.center, calm, member, rt.quota.patrol());
             int stepBefore = e.dutyStep;
-            BlockPos goal = DutyMotion.goal(e, ent.getX(), ent.getZ(), plan, ctx, tick);
+            // M4 reliability recovery (StuckWatch): home duties only, same dimension, unit in a loaded chunk
+            StuckWatch.Track st = level == overworld && StuckWatch.watched(e.assignedDuty) && level.isPositionEntityTicking(ent.blockPosition())
+                    ? rt.stuck.computeIfAbsent(e.rosterId, k -> new StuckWatch.Track()) : null;
+            BlockPos goal;
+            if (st != null) {
+                watchedNow.add(e.rosterId);
+            }
+            if (st != null && st.spot() != null) {
+                goal = st.spot(); // falling back to the village by normal movement
+                StuckWatch.Step step = StuckWatch.fallback(st, DutyMotion.horizontal(ent.getX(), ent.getZ(), goal),
+                        StuckWatch.arriveFallback(table.move()), tick, lim);
+                if (step == StuckWatch.Step.RECOVERED || (step == StuckWatch.Step.TELEPORT && lastResort(level, ent, goal))) {
+                    StuckWatch.toGarrison(e, st, tick);
+                    units.setHome(ent, goal);
+                    rt.moves.remove(e.rosterId);
+                    rt.allocationSig = 0; // the next allocation pass redistributes it
+                    changed = true;
+                    HmLog.info("Duty unit {} of village '{}' recovered at {} ({}); on GARRISON duty until the next allocation", e.shortId(), rec.name,
+                            goal.toShortString(), step == StuckWatch.Step.RECOVERED ? "walked back" : "last resort: moved onto the fallback spot");
+                    continue;
+                }
+                if (step == StuckWatch.Step.TELEPORT) {
+                    StuckWatch.abandonFallback(st, tick); // the spot is no longer valid: back to its duty, another window before retrying
+                    goal = DutyMotion.goal(e, ent.getX(), ent.getZ(), plan, ctx, tick);
+                }
+            } else {
+                goal = DutyMotion.goal(e, ent.getX(), ent.getZ(), plan, ctx, tick);
+                double dist = DutyMotion.horizontal(ent.getX(), ent.getZ(), goal);
+                if (st != null && StuckWatch.observe(st, goal, dist, StuckWatch.arrive(e.assignedDuty, table.move()), tick, lim)) {
+                    BlockPos spot = StuckWatch.fallbackSpot(e.rosterId, List.of(plan.scoutBase(), rec.center), q -> safeStand(level, ent, q));
+                    if (spot == null) {
+                        StuckWatch.retryLater(st, tick);
+                        HmLog.diag("Duty unit {} of village '{}' made no progress towards {} but no fallback spot is loaded and safe", e.shortId(),
+                                rec.name, goal.toShortString());
+                    } else {
+                        StuckWatch.fallBack(st, spot, DutyMotion.horizontal(ent.getX(), ent.getZ(), spot), tick);
+                        rt.moves.remove(e.rosterId);
+                        HmLog.info("Duty unit {} of village '{}' ({}) made no progress towards {} for {} ticks at {}: stuck, falling back to {}",
+                                e.shortId(), rec.name, e.assignedDuty, goal.toShortString(), lim.stuckTicks(), ent.blockPosition().toShortString(),
+                                spot.toShortString());
+                        goal = spot;
+                    }
+                }
+            }
             changed |= e.dutyStep != stepBefore;
             BlockPos home = units.home(ent);
             long[] last = rt.moves.get(e.rosterId);
@@ -193,6 +244,7 @@ public final class DutyService {
                 rt.moves.put(e.rosterId, new long[]{goal.asLong(), home.asLong(), fin ? 1 : 0, tick, 0, ent.blockPosition().asLong()});
             }
         }
+        rt.stuck.keySet().retainAll(watchedNow); // units deployed, away, unloaded or off these duties start a fresh watch
         if (changed) {
             ledger.setDirty();
         }
@@ -414,6 +466,30 @@ public final class DutyService {
             }
         }
         return null;
+    }
+
+    /** Standable, loaded, safe ground at or near {@code p} for {@code ent} (M4 reliability recovery fallback spots); else null. */
+    @Nullable
+    static BlockPos safeStand(ServerLevel level, Entity ent, BlockPos p) {
+        BlockPos s = stand(level, p);
+        return s != null && safe(level, ent, s) ? s : null;
+    }
+
+    static boolean safe(ServerLevel level, Entity ent, BlockPos s) {
+        return level.isPositionEntityTicking(s) && standable(level, s)
+                && (!(ent instanceof Mob m) || WalkNodeEvaluator.getPathTypeStatic(m, s) == PathType.WALKABLE);
+    }
+
+    /**
+     * M4 reliability recovery, last resort: moves a unit that could not walk to its fallback spot onto it (with its mount),
+     * after re-validating the spot (same level, loaded, standable, safe). Never forces a chunk. True if moved.
+     */
+    static boolean lastResort(ServerLevel level, Entity ent, BlockPos spot) {
+        if (ent.level() != level || !safe(level, ent, spot)) {
+            return false;
+        }
+        RaidService.teleport(ent, net.minecraft.world.phys.Vec3.atBottomCenterOf(spot));
+        return true;
     }
 
     static boolean staticDuty(Duty d) {

@@ -416,3 +416,43 @@ Found by the M5 G4 regression (G4-2) and approved explicitly:
   unloaded/non-standable candidates rejected, unchanged behaviour within 40 blocks, lent/raid units unaffected.
 
 M4 is frozen again with this change.
+
+## Addendum (M5): approved M4 reliability recovery — stuck home-duty units fall back to the village
+
+Approved explicitly as a small safety net, not a new movement system. Motivation: in the M5 G4 runs a stronghold sentry
+(pair 5) wandered in a ravine for 10+ minutes between hops on the rim and hops on the floor. It kept moving, so the
+existing "trapped" recovery (≤ 2 blocks moved since the last order) never applied.
+
+* **Scope.** Home-duty units the duty movement drives: GARRISON, SENTRY, PATROL, SCOUT, in the same dimension, in a
+  loaded chunk. Never M2 DEPLOYED/DEFENSE units, RAID contingents, RETURNING units or lent (DETACHED) soldiers: the watch
+  runs only inside the existing `DutyService.movedByDuties` loop and only for those four duties.
+* **Stuck = sustained lack of progress (`StuckWatch.observe`).** Progress is arriving at (or holding within M4's 24-block
+  hold radius of) the goal, 8 blocks for a patrol waypoint, or getting 4 blocks closer to it. Changing waypoints or phases
+  does not reset the clock. The window is `max(6000, scout phaseTimeout + dwell + 2 × hopTimeout)` ticks, 6000 with the
+  shipped data (5 min). This is longer than any legitimate wait of the duty movement, such as a scout that watches where
+  its ride was blocked. A unit not seen for longer than one hop timeout (unloaded, deployed) starts a fresh watch.
+* **Fallback.** The unit abandons its goal. It then walks, by the normal hop movement with its existing detours and bounded
+  recovery, to a fallback spot (`StuckWatch.fallbackSpot`). The spot is the defending position, else the village centre,
+  or a point on rings of 4/8/11 blocks around it (per-unit start direction). The spot must be loaded, standable, free of
+  fluid and a `WALKABLE` path type for the unit (not fire, lava or other danger), and within 16 blocks of its anchor.
+  The choice is deterministic and never forces a chunk.
+* **Last resort.** If the unit makes no progress towards the fallback spot for 5 hop timeouts (3000 ticks, one full
+  detour cycle), it is moved onto the re-validated spot once (`DutyService.lastResort`). If the spot is no longer valid,
+  the fallback is dropped and a new full window is needed.
+* **After recovery.** The unit goes onto ordinary GARRISON duty, with its duty index, step and failed movement state
+  cleared. Its HYW home is set to the spot, and the next allocation pass redistributes it. The watch restarts, so a unit
+  that is stuck again cannot be moved more than once per window plus fallback period (9000 ticks with shipped data).
+* **Unchanged.** Hop selection, hop limits, the existing detours and `unstick` recovery, allocation rules, patrol and
+  scout logic, M2 defense movement, raid movement and detachments.
+* **Tests.** `StuckWatchTest` (11) covers:
+  * normal movement never triggers the fallback: a slow walker, a hold near an unreachable post, a patrol, and a blocked
+    scout ride;
+  * a stuck sentry, patrol or scout eventually recovers;
+  * the fallback spot is loaded, standable, deterministic and bounded;
+  * the teleport is only the last resort;
+  * defense, raid, lent and returning units are never touched;
+  * a recovered unit becomes GARRISON and is reallocated;
+  * there are no repeated teleports;
+  * a unit unseen for a while starts a fresh watch.
+
+M4 is frozen again with this change.
