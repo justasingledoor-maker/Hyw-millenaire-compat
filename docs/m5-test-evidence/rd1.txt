@@ -1,0 +1,33 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario G4_0
+[harness] G4 fill A (630, 82, 612): [('spear_man', 7), ('archer', 5), ('militia', 3), ('crossbowman', 2), ('warrior', 6)]
+[harness] G4 fill B (830, 80, 612): [('archer', 5), ('militia', 3), ('crossbowman', 2), ('archer', 1), ('militia', 1), ('crossbowman', 3)]
+[harness] G4 fill M (640, 72, 960): [('spear_man', 27), ('archer', 18), ('light_lancer_rider', 12), ('archer_rider', 8), ('militia', 5), ('crossbowman', 4), ('shieldman', 2), ('warrior', 6)]
+[harness] G4 fill Z (400, 71, 450): [('spear_man', 7), ('archer', 5), ('militia', 3), ('crossbowman', 2), ('warrior', 6)]
+[harness] G4 A Plan: 1 sentry post(s) [658,80,606] | patrol [699,79,639 665,86,654 616,84,677 604,84,660 606,80,586 626,81,580 658,80,606 709,73,599] | scout posts [674,80,496 774,80,651 619,80,751 519,80,596] | res | quota {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7} | 48 units
+[harness] G4 B Plan: 1 sentry post(s) [847,87,636] | patrol [879,90,655 865,87,644 808,85,665 805,84,613 829,82,601 859,82,606 898,84,587] | scout posts [897,87,504 966,87,674 796,87,743 727,87,573] | reserve 847, 8 | quota {'pairs': 1, 'patrol': 6, 'scouts': 1, 'reserve': 2} | 24 units
+[harness] G4 M Plan: 18 sentry post(s) [634,73,973 648,71,997 667,72,976 684,70,923 627,61,923 627,67,1028 603,68,947 603,68,997 602,70,922 647,69,1028 646,68,923 603,70,965 666,71,923 697,68,923 603,70,934 614,68,9 | quota {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25} | 128 units
+[harness] G4 Z Plan: 3 sentry post(s) [413,70,461 422,70,473 400,70,470] | patrol [470,67,482 460,70,524 409,73,524 372,76,474 376,71,431 399,70,424 424,71,410 458,66,468] | scout posts [544,70,506 383,70,594 295,70 | quota {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7} | 48 units
+[harness] PASS G4-0 garrisons filled and duty plans exist (A, B and the stronghold at least) {'A': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}), 'B': (24, {'pairs': 1, 'patrol': 6, 'scouts': 1, 'reserve': 2}), 'M': (128, {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25}), 'Z': (48, {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7})}
+[harness] --- scenario RD
+[harness] PASS RD-0 Millénaire raid B -> A triggered Raid triggered: Englesqueville les-pâtures -> Potigny les-pâtures (2 raiders dispatched)
+[harness] NOTE RD timeline: {'threat': 29, 'deployed': 31}; raid end: [03:14:41] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Englesqueville les-pâtures repulsed at Potigny les-pâtures.
+[harness] PASS RD-1 the raiders are threats of the raided village (SETTLEMENT_RAIDER)  - villager[3f0742c6] [SETTLEMENT_RAIDER]
+[harness] PASS RD-2 the raided village's HYW garrison deploys against them max units on DEFENSE/DEPLOYED: 4
+[harness] server stopped
+[harness] RESULT 8/8 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  G4-0 garrisons filled and duty plans exist (A, B and the stronghold at least)  {'A': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}), 'B': (24, {'pairs': 1, 'patrol': 6, 'scouts': 1, 'reserve': 2}), 'M': (128, {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25}), 'Z': (48, {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7})}
+  PASS  RD-0 Millénaire raid B -> A triggered  Raid triggered: Englesqueville les-pâtures -> Potigny les-pâtures (2 raiders dispatched)
+  PASS  RD-1 the raiders are threats of the raided village (SETTLEMENT_RAIDER)   - villager[3f0742c6] [SETTLEMENT_RAIDER]
+  PASS  RD-2 the raided village's HYW garrison deploys against them  max units on DEFENSE/DEPLOYED: 4
+  NOTE  RD timeline  {'threat': 29, 'deployed': 31}; raid end: [03:14:41] [Server thread/INFO] [or.mi.co.ra.RaidManager/]: [Millenaire] Raid FAILURE: Englesqueville les-pâtures repulsed at Potigny les-pâtures.
+EXIT 0

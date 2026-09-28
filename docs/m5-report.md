@@ -220,3 +220,19 @@ building reputation never set it.
 * **Tests.** JUnit 275/275. Not run on the server: the check needs Millénaire at runtime and the harness marks villages
   discovered directly.
 * **SHA-256.** `64bfc8b46f781d333c6a64058e21fea095373959ceee1d0e6c598255bc55712a`
+
+### 6.3 Fix after the freeze: garrisons ignored Millénaire raids (`dist/hywmill-m5-fix3.jar`)
+
+Bandits from a Japanese hideout raided a village. Its HYW garrison stood by while every Millénaire defender died. The M2
+threat scan looked only at HYW combat units. Millénaire raid clones carry no HYW identity (by design, M1), so a raid was
+never a threat.
+
+* **Fix.** `ThreatTracker` also takes the settlement mod's raiders sent against the village
+  (`SettlementSource.raidersAgainst`; for Millénaire, raid clones registered to the target village) as `SETTLEMENT_RAIDER`
+  threats. They are actionable like an attack even with `proactive=false`. The existing alert, shelter and deployment
+  then engage them.
+* **Tests.**
+  * JUnit 276/276, including `DefenseCoordinatorTest.settlementRaiderIsActionableWithoutProactive`.
+  * Server harness scenario `RD` (`rd1.txt`), 8/8: a Millénaire raid B → A. Both raiders were listed as
+    `SETTLEMENT_RAIDER` threats of A 29 s after the trigger, 4 garrison units deployed at 31 s, and the raid was repulsed.
+* **Scope.** Includes the §6.1 and §6.2 fixes.
