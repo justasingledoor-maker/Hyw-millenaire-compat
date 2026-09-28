@@ -405,9 +405,20 @@ final class MillenaireSettlementSource implements SettlementSource {
         return java.util.OptionalInt.of(va.getRelation(new VillageId(b)));
     }
 
+    /**
+     * Known to the player: Millénaire's own discovery, or a reputation record with this village. Millénaire 9.0.2 marks a
+     * village discovered only when a filled map the player is holding reveals it (VillageMapMarkerService); a village the
+     * player has visited, traded with or built up reputation in is otherwise "undiscovered". The reputation record is the
+     * village's own (not the culture's), so only villages the player has actually dealt with count.
+     */
     @Override
     public boolean discovered(ServerLevel level, UUID playerId, UUID settlementId) {
-        return org.millenaire.village.PlayerCultureReputation.get(level).hasDiscoveredVillage(playerId, new VillageId(settlementId));
+        VillageId id = new VillageId(settlementId);
+        if (org.millenaire.village.PlayerCultureReputation.get(level).hasDiscoveredVillage(playerId, id)) {
+            return true;
+        }
+        Village v = manager(level).getVillage(id);
+        return v != null && v.getReputation().getAll().containsKey(playerId);
     }
 
     @Override

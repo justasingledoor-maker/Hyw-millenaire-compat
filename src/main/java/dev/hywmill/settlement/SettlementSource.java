@@ -117,7 +117,7 @@ public interface SettlementSource {
         return java.util.OptionalInt.empty();
     }
 
-    /** Whether the player has discovered the village (Millénaire's travel-book discovery). */
+    /** Whether the player knows the village: the settlement mod's discovery, or the player has a reputation record with it. */
     default boolean discovered(ServerLevel level, UUID playerId, UUID settlementId) {
         return false;
     }

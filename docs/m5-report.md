@@ -203,3 +203,20 @@ arrows and chronicle bullets also showed literal `▲`/`▼`/`•`, because of a
   gameplay behaviour are the validated `b08886a8…`.
 * **Tests.** JUnit 275/275. G4 was not re-run, because no server code changed.
 * **SHA-256.** `0b6b174628bc6262cfb242a0d4fc0238fff7dfa7f3edbfe2b92f3f72bdc293fc`
+
+### 6.2 Fix after the freeze: diplomacy "not discovered" (`dist/hywmill-m5-fix2.jar`)
+
+A player with 337,360 reputation at a village could not send envoys from it: "you have not discovered both villages". The
+envoy check used Millénaire's `PlayerCultureReputation.hasDiscoveredVillage` alone. In Millénaire 9.0.2 that flag is set
+only by `VillageMapMarkerService`, when a filled map the player is **holding** reveals the village. Visiting, trading or
+building reputation never set it.
+
+* **Fix (`MillenaireSettlementSource.discovered`).** A village counts as known if it is map-discovered, **or** the player
+  has a reputation record with that village. The record is `Village.getReputation().getAll()`, per village, not per
+  culture.
+* **Effect.** This is the same "known" test used by envoys, the Relations list and the Wars list. The M5-UI village list
+  already included villages the player has a HywMill record with.
+* **Scope.** The jar differs from `hywmill-m5-ui1.jar` only in `MillenaireSettlementSource.class`. Includes the §6.1 UI fix.
+* **Tests.** JUnit 275/275. Not run on the server: the check needs Millénaire at runtime and the harness marks villages
+  discovered directly.
+* **SHA-256.** `64bfc8b46f781d333c6a64058e21fea095373959ceee1d0e6c598255bc55712a`
