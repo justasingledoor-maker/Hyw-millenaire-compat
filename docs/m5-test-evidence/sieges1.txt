@@ -1,0 +1,53 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario G4_0
+[harness] G4 fill A (630, 82, 612): [('spear_man', 7), ('archer', 5), ('militia', 3), ('crossbowman', 2), ('warrior', 5)]
+[harness] G4 fill B (830, 80, 612): [('archer', 5), ('militia', 3), ('crossbowman', 2), ('archer', 1), ('militia', 1), ('crossbowman', 3)]
+[harness] G4 fill M (640, 72, 960): [('spear_man', 27), ('archer', 18), ('light_lancer_rider', 12), ('archer_rider', 8), ('militia', 5), ('crossbowman', 3), ('shieldman', 2), ('warrior', 6)]
+[harness] G4 fill Z (400, 71, 450): [('spear_man', 7), ('archer', 5), ('militia', 3), ('crossbowman', 2), ('warrior', 6)]
+[harness] G4 A Plan: 1 sentry post(s) [638,81,592] | patrol [701,82,656 650,86,665 638,84,676 624,82,636 600,80,580 623,80,582 687,74,581 704,73,593] | scout posts [753,80,549 721,80,730 540,80,698 572,80,517] | res | quota {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7} | 48 units
+[harness] G4 B Plan: 1 sentry post(s) [847,87,636] | patrol [870,87,625 880,89,678 809,85,671 818,88,645 815,84,614 829,82,601 870,83,605] | scout posts [774,87,732 738,87,551 919,87,515 955,87,696] | reserve 847, 8 | quota {'pairs': 1, 'patrol': 6, 'scouts': 1, 'reserve': 2} | 24 units
+[harness] G4 M Plan: 18 sentry post(s) [643,72,954 630,70,955 667,72,976 627,67,1028 684,70,923 627,61,923 603,68,947 603,70,991 602,70,922 647,69,1028 646,68,923 603,70,965 666,71,923 603,67,1006 697,68,923 603,70, | quota {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25} | 128 units
+[harness] G4 Z Plan: 3 sentry post(s) [413,70,461 421,70,476 400,70,470] | patrol [474,68,502 453,70,524 410,73,524 372,76,474 376,71,431 393,70,421 434,71,413 446,70,444] | scout posts [529,70,540 349,70,579 310,70 | quota {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7} | 48 units
+[harness] PASS G4-0 garrisons filled and duty plans exist (A, B and the stronghold at least) {'A': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}), 'B': (24, {'pairs': 1, 'patrol': 6, 'scouts': 1, 'reserve': 2}), 'M': (128, {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25}), 'Z': (48, {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7})}
+[harness] --- scenario SG
+[harness] PASS SG-1 at war and on campaign, a Trusted player cannot counsel a siege war join OK: You are on campaign for 7 days: FRIENDLY with your ally's soldiers, HOSTILE with the enemy's; the enemy holds a grievance || war siege STANDING_TOO_LOW: You cannot suggest a siege: Grainville les-pâtures only marches on the counsel of a patron or a sworn friend (you are trusted)
+[harness] PASS SG-2 a Patron campaigner sees 'Suggest a siege' in the Politics screen with its cost and odds m5 ui action SUGGEST_SIEGE available=true outcome=uncertain | costs 2 diplomacy points with Grainville les-pâtures; uncertain; host of 24
+[harness] PASS SG-3 the counsel is heeded: A musters a host (on SIEGE duty) against B war siege AGREED: Grainville les-pâtures heeds your counsel: Grainville les-pâtures musters 24 soldiers to besiege Fontenay les-pâtures on bbbbbbbb's counsel; they march in about 1 min || ['Grainville les-pâtures -> Fontenay les-pâtures MUSTER 24/24 next in 58 s id 76afa1d0'] || SIEGE rows 24
+[harness] PASS SG-4 marching, the host leaves the world: its units are gone, its slots kept (none missing) ['Grainville les-pâtures -> Fontenay les-pâtures MARCH 24/24 next in 116 s id 76afa1d0'] entities 48 -> 24 (host 24); live 48 -> 48; missing 0
+[harness] PASS SG-5 the host arrives and stands before B ['Grainville les-pâtures -> Fontenay les-pâtures BATTLE 24/24 next in 295 s id 76afa1d0']; A units near B: 24
+[harness] PASS SG-6 the battle is decided and tribute is paid (chronicle and log) [22:11:57] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 76afa1d0 ended WON: Fontenay les-pâtures fell to the host of Grainville les-pâtures (11 of 32 defenders still standing); Fontenay les-pâtures pays 32 argent in tribute to Grainville les-pâtures
+[harness] NOTE SG outcome: WON; helper favor with A now 27; ['Grainville les-pâtures -> Fontenay les-pâtures RETURN 23/24 next in 118 s WON id 76afa1d0']
+[harness] PASS SG-6b the helper who stood with the winner is rewarded (SIEGE_VICTORY Favor) {'status': 'PATRON', 'grievance': 0.0, 'pk': False, 'kind': 'null', 'inside': False, 'favor': 27}
+[harness] PASS SG-7 the survivors come home (no one left on SIEGE duty), no duplicate units home after 119s; live 47 killed 1; duplicates 0
+[harness] --- scenario OS
+[harness] PASS OS-1 an admin siege of Z by A is launched war siege OK: Grainville les-pâtures musters 23 soldiers to besiege Phalasarna; they march in about 1 min id 73a67458 host 23 (unwatched)
+[harness] server stopped
+[harness] server started
+[harness] PASS OS-2 the marching siege survives a restart ['Grainville les-pâtures -> Phalasarna MARCH 23/23 next in 158 s id 73a67458'] -> ['Grainville les-pâtures -> Phalasarna MARCH 23/23 next in 142 s id 73a67458']
+[harness] PASS OS-3 decided off-screen by strength: HYW losses on both sides match the garrisons' killed totals [22:20:01] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 73a67458 decided off-screen: host 23 (strength 65.00) vs Phalasarna (defense 260.29): P(win) 0.11 -> LOST; host lost 12, defenders lost 4 || A killed 1 -> 13, Z killed 0 -> 4
+[harness] PASS OS-4 the survivors march home and resume their duties; no duplicates home after 158s; duplicate refusals 0 (old entities of stowed slots are expected to be refused if they load)
+[harness] server stopped
+[harness] RESULT 17/17 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  G4-0 garrisons filled and duty plans exist (A, B and the stronghold at least)  {'A': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}), 'B': (24, {'pairs': 1, 'patrol': 6, 'scouts': 1, 'reserve': 2}), 'M': (128, {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25}), 'Z': (48, {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7})}
+  PASS  SG-1 at war and on campaign, a Trusted player cannot counsel a siege  war join OK: You are on campaign for 7 days: FRIENDLY with your ally's soldiers, HOSTILE with the enemy's; the enemy holds a grievance || war siege STANDING_TOO_LOW: You cannot suggest a siege: Grainville les-pâtures only marches on the counsel of a patron or a sworn friend (you are trusted)
+  PASS  SG-2 a Patron campaigner sees 'Suggest a siege' in the Politics screen with its cost and odds  m5 ui action SUGGEST_SIEGE available=true outcome=uncertain | costs 2 diplomacy points with Grainville les-pâtures; uncertain; host of 24
+  PASS  SG-3 the counsel is heeded: A musters a host (on SIEGE duty) against B  war siege AGREED: Grainville les-pâtures heeds your counsel: Grainville les-pâtures musters 24 soldiers to besiege Fontenay les-pâtures on bbbbbbbb's counsel; they march in about 1 min || ['Grainville les-pâtures -> Fontenay les-pâtures MUSTER 24/24 next in 58 s id 76afa1d0'] || SIEGE rows 24
+  PASS  SG-4 marching, the host leaves the world: its units are gone, its slots kept (none missing)  ['Grainville les-pâtures -> Fontenay les-pâtures MARCH 24/24 next in 116 s id 76afa1d0'] entities 48 -> 24 (host 24); live 48 -> 48; missing 0
+  PASS  SG-5 the host arrives and stands before B  ['Grainville les-pâtures -> Fontenay les-pâtures BATTLE 24/24 next in 295 s id 76afa1d0']; A units near B: 24
+  PASS  SG-6 the battle is decided and tribute is paid (chronicle and log)  [22:11:57] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 76afa1d0 ended WON: Fontenay les-pâtures fell to the host of Grainville les-pâtures (11 of 32 defenders still standing); Fontenay les-pâtures pays 32 argent in tribute to Grainville les-pâtures
+  PASS  SG-6b the helper who stood with the winner is rewarded (SIEGE_VICTORY Favor)  {'status': 'PATRON', 'grievance': 0.0, 'pk': False, 'kind': 'null', 'inside': False, 'favor': 27}
+  PASS  SG-7 the survivors come home (no one left on SIEGE duty), no duplicate units  home after 119s; live 47 killed 1; duplicates 0
+  PASS  OS-1 an admin siege of Z by A is launched  war siege OK: Grainville les-pâtures musters 23 soldiers to besiege Phalasarna; they march in about 1 min id 73a67458 host 23 (unwatched)
+  PASS  OS-2 the marching siege survives a restart  ['Grainville les-pâtures -> Phalasarna MARCH 23/23 next in 158 s id 73a67458'] -> ['Grainville les-pâtures -> Phalasarna MARCH 23/23 next in 142 s id 73a67458']
+  PASS  OS-3 decided off-screen by strength: HYW losses on both sides match the garrisons' killed totals  [22:20:01] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 73a67458 decided off-screen: host 23 (strength 65.00) vs Phalasarna (defense 260.29): P(win) 0.11 -> LOST; host lost 12, defenders lost 4 || A killed 1 -> 13, Z killed 0 -> 4
+  PASS  OS-4 the survivors march home and resume their duties; no duplicates  home after 158s; duplicate refusals 0 (old entities of stowed slots are expected to be refused if they load)
+  NOTE  SG outcome  WON; helper favor with A now 27; ['Grainville les-pâtures -> Fontenay les-pâtures RETURN 23/24 next in 118 s WON id 76afa1d0']

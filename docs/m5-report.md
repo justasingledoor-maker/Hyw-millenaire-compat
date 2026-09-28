@@ -376,3 +376,51 @@ village agrees, and only while the two are at war and the player is on campaign 
     * a day later, the raid setting out with 2 Millénaire raiders and 8 garrison soldiers on RAID duty.
   * An earlier run on the reused world passed 7/7 (`raid-counsel1.txt`).
 * SHA-256 of the jar: `bc9db4d256e74012afe23f8f32baf25e3cd4babddf7cfb76603dd5ef1c4397ec`.
+
+### 6.9 Sieges; the garrison leaves Millénaire raids (`dist/hywmill-m5-fix9.jar`)
+
+**Bug report and request.** A player waited at the target of an allied raid with HYW troops, and no garrison soldiers
+came. Millénaire raiders are records that materialize at the target, while garrison soldiers are entities that exist only
+while their (unloaded) home is loaded. On top of that, a raid ended as soon as Millénaire's few raiders died. The player
+asked to separate small raids from larger sieges and made four decisions:
+* raids stay Millénaire-only;
+* tribute and standing for victory;
+* unwatched sieges are resolved off-screen;
+* both players and villages start sieges.
+
+The full design is in `docs/siege-design.md`.
+
+* **Raids.** `hywmill_duties` `raid.enabled` is now false: the garrison no longer joins Millénaire raids (the code is
+  kept; one flag restores it). Raid counsel (§6.8) therefore now sends Millénaire's raiders only.
+* **Sieges** (`SiegeService`; `Siege` records in the ledger):
+  * **Muster.** Half the garrison musters, keeping 40% at home.
+  * **March.** The host marches stowed: slots without entities, ignored by the Reconciler, with any old entity refused
+    as a duplicate by `JoinAdjudicator`. It materializes before the target (Millénaire's landing point) when that is
+    loaded.
+  * **Watched battle.** Won when the defenders fall to 20%, lost when the host falls to 30%, with a 5-minute deadline.
+  * **Off-screen.** After a 1-minute wait, the siege is decided by strength: P = H^1.5/(H^1.5+D^1.5); Millénaire
+    defenders count 0.3×, fortification up to +50%; HYW losses on both sides.
+  * **Outcome.** The loser pays tribute by its tier. Levy points move to the winner, and 40% of the tribute is paid to
+    the winner's helpers (campaigners near the battle; offline helpers at login). Helpers also gain 512 reputation and
+    5 SIEGE_VICTORY Favor.
+  * **Return.** Survivors march home and take the normal return path.
+* **Triggers.**
+  * "Suggest a siege of <enemy>" in the Politics screen, or `/hywmill war siege`: Patron or Sworn on campaign, 2
+    diplomacy points, a 50%/75% chance cut to ×0.4 against a much stronger target, 2-day cooldown.
+  * Villages at war: 25% a day when host/defense ≥ 0.9, then a 3-day cooldown.
+  * `/hywmill war admin siege <attacker> <target>`. `/hywmill war sieges` lists the sieges under way.
+  * All numbers are `hywmill_politics` `siege` data, patchable per culture.
+* **Tests.**
+  * JUnit 311/311, including `SiegeMathTest` (11); `DutyTest` is updated for raids off.
+  * Harness on a fresh world after `G4_0` (`sieges1.txt`), 17/17 overall:
+    * **SG, watched siege:**
+      * a Trusted campaigner is refused; a Patron sees the option with cost and odds;
+      * the counsel is heeded, and A musters 24 of 48 on SIEGE duty;
+      * marching, the host's 24 entities leave the world while the roster stays at 48 live, none missing;
+      * all 24 stand before B;
+      * **WON**, with 11 of 32 defenders left, and B pays tribute; the helper gained Favor (27);
+      * the survivors are home, with 1 killed and 0 duplicates.
+    * **OS, unwatched siege** (dev switch): 23 muster against Z, and the siege survives a restart mid-march. It was
+      decided off-screen, host strength 65 against defense 260, P = 0.11 → **LOST**. The host lost 12 and the
+      defenders 4, exactly the garrisons' killed totals. The survivors came home with 0 duplicates.
+* SHA-256 of the jar: `66129aa8b645922b224e2f387a2d57ce213e3314c311cd310988438e683f91e7`.
