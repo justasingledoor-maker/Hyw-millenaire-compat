@@ -81,6 +81,9 @@ public final class PoliticsNbt {
             if (r.lastRaidCounsel >= 0) {
                 c.putLong("lastRaidCounsel", r.lastRaidCounsel);
             }
+            if (r.lastSiegeCounsel >= 0) {
+                c.putLong("lastSiegeCounsel", r.lastSiegeCounsel);
+            }
             players.add(c);
         }
         t.put("players", players);
@@ -154,6 +157,7 @@ public final class PoliticsNbt {
             r.lastErrandLoss = c.contains("lastErrandLoss") ? c.getLong("lastErrandLoss") : -1;
             r.lastTrickle = c.contains("lastTrickle") ? c.getLong("lastTrickle") : -1;
             r.lastRaidCounsel = c.contains("lastRaidCounsel") ? c.getLong("lastRaidCounsel") : -1;
+            r.lastSiegeCounsel = c.contains("lastSiegeCounsel") ? c.getLong("lastSiegeCounsel") : -1;
         }
         ListTag truces = t.getList("truces", Tag.TAG_COMPOUND);
         for (int i = 0; i < truces.size(); i++) {
@@ -298,6 +302,101 @@ public final class PoliticsNbt {
             } catch (IllegalArgumentException | NullPointerException ignored) {
                 // malformed or unknown kind: dropped (missions are transient; the player can propose again)
             }
+        }
+        return out;
+    }
+
+    // ------------------------------------------------------------------ post-M5 sieges
+
+    /** Siege tribute owed to a player who was offline when the siege ended (paid at login). */
+    public record PendingPay(UUID player, int deniers, String text) {}
+
+    public static ListTag saveSieges(List<dev.hywmill.politics.war.Siege> sieges) {
+        ListTag l = new ListTag();
+        for (dev.hywmill.politics.war.Siege g : sieges) {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("id", g.id);
+            x.putUUID("attacker", g.attacker);
+            x.putUUID("target", g.target);
+            if (g.counsel != null) {
+                x.putUUID("counsel", g.counsel);
+            }
+            x.putLong("launched", g.launched);
+            x.putString("phase", g.phase.name());
+            x.putLong("phaseSince", g.phaseSince);
+            x.putLong("phaseEnd", g.phaseEnd);
+            x.putString("outcome", g.outcome.name());
+            x.put("host", uuids(g.host));
+            x.putInt("hostStart", g.hostStart);
+            x.putInt("defendersStart", g.defendersStart);
+            x.put("attackerHelpers", uuids(g.attackerHelpers));
+            x.put("defenderHelpers", uuids(g.defenderHelpers));
+            x.putString("summary", g.summary);
+            l.add(x);
+        }
+        return l;
+    }
+
+    public static List<dev.hywmill.politics.war.Siege> loadSieges(ListTag l) {
+        List<dev.hywmill.politics.war.Siege> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            CompoundTag x = l.getCompound(i);
+            try {
+                dev.hywmill.politics.war.Siege g = new dev.hywmill.politics.war.Siege(x.getUUID("id"), x.getUUID("attacker"), x.getUUID("target"),
+                        x.hasUUID("counsel") ? x.getUUID("counsel") : null, x.getLong("launched"));
+                g.phase = dev.hywmill.politics.war.Siege.Phase.valueOf(x.getString("phase"));
+                g.phaseSince = x.getLong("phaseSince");
+                g.phaseEnd = x.getLong("phaseEnd");
+                g.outcome = dev.hywmill.politics.war.Siege.Outcome.valueOf(x.getString("outcome"));
+                g.host.addAll(readUuids(x.getList("host", Tag.TAG_INT_ARRAY)));
+                g.hostStart = x.getInt("hostStart");
+                g.defendersStart = x.getInt("defendersStart");
+                g.attackerHelpers.addAll(readUuids(x.getList("attackerHelpers", Tag.TAG_INT_ARRAY)));
+                g.defenderHelpers.addAll(readUuids(x.getList("defenderHelpers", Tag.TAG_INT_ARRAY)));
+                g.summary = x.getString("summary");
+                out.add(g);
+            } catch (IllegalArgumentException | NullPointerException ignored) {
+                // malformed: dropped; its host slots are brought home by the siege service's orphan sweep
+            }
+        }
+        return out;
+    }
+
+    public static ListTag savePending(List<PendingPay> pay) {
+        ListTag l = new ListTag();
+        for (PendingPay p : pay) {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("player", p.player());
+            x.putInt("deniers", p.deniers());
+            x.putString("text", p.text());
+            l.add(x);
+        }
+        return l;
+    }
+
+    public static List<PendingPay> loadPending(ListTag l) {
+        List<PendingPay> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            CompoundTag x = l.getCompound(i);
+            if (x.hasUUID("player")) {
+                out.add(new PendingPay(x.getUUID("player"), x.getInt("deniers"), x.getString("text")));
+            }
+        }
+        return out;
+    }
+
+    private static ListTag uuids(java.util.Collection<UUID> ids) {
+        ListTag l = new ListTag();
+        for (UUID id : ids) {
+            l.add(net.minecraft.nbt.NbtUtils.createUUID(id));
+        }
+        return l;
+    }
+
+    private static List<UUID> readUuids(ListTag l) {
+        List<UUID> out = new ArrayList<>();
+        for (Tag t : l) {
+            out.add(net.minecraft.nbt.NbtUtils.loadUUID(t));
         }
         return out;
     }

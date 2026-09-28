@@ -58,6 +58,18 @@ public final class GarrisonLedger extends SavedData {
         return projections;
     }
 
+    /** Post-M5: sieges under way (and just ended, until their host is home), and tribute owed to offline players. */
+    private final java.util.List<dev.hywmill.politics.war.Siege> sieges = new java.util.ArrayList<>();
+    private final java.util.List<PoliticsNbt.PendingPay> pendingPay = new java.util.ArrayList<>();
+
+    public java.util.List<dev.hywmill.politics.war.Siege> sieges() {
+        return sieges;
+    }
+
+    public java.util.List<PoliticsNbt.PendingPay> pendingPay() {
+        return pendingPay;
+    }
+
     public static GarrisonLedger get(ServerLevel overworld) {
         return overworld.getDataStorage().computeIfAbsent(
                 new SavedData.Factory<>(GarrisonLedger::new, GarrisonLedger::load, null), DATA_NAME);
@@ -134,6 +146,12 @@ public final class GarrisonLedger extends SavedData {
         if (format >= 5) {
             PoliticsNbt.loadWar(root, ledger.wars, ledger.campaigns, ledger.projections);
         }
+        if (root.contains("sieges", Tag.TAG_LIST)) {
+            ledger.sieges.addAll(PoliticsNbt.loadSieges(root.getList("sieges", Tag.TAG_COMPOUND)));
+        }
+        if (root.contains("pendingPay", Tag.TAG_LIST)) {
+            ledger.pendingPay.addAll(PoliticsNbt.loadPending(root.getList("pendingPay", Tag.TAG_COMPOUND)));
+        }
         if (format >= 5 && root.contains("envoyReports", Tag.TAG_LIST)) {
             ledger.reports.addAll(PoliticsNbt.loadReports(root.getList("envoyReports", Tag.TAG_COMPOUND)));
         }
@@ -161,6 +179,12 @@ public final class GarrisonLedger extends SavedData {
             root.put("envoyReports", PoliticsNbt.saveReports(reports));
         }
         PoliticsNbt.saveWar(root, wars, campaigns, projections);
+        if (!sieges.isEmpty()) {
+            root.put("sieges", PoliticsNbt.saveSieges(sieges));
+        }
+        if (!pendingPay.isEmpty()) {
+            root.put("pendingPay", PoliticsNbt.savePending(pendingPay));
+        }
         return root;
     }
 }

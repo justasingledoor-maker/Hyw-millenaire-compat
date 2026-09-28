@@ -1,5 +1,5 @@
 {
-  "_comment": "HywMill duty allocation (M4; maxima retuned for the M5-G garrison sizes, data only). Quotas are shares of the village's living, available garrison (floored) with hard maxima and a minimum garrison size below which a duty is not staffed; the sum never exceeds the garrison (scouts are cut first, then patrol, then sentry pairs, then reserve). Sentries stand in pairs, never more pairs than sentry posts. Units not given a duty stay on GARRISON duty. Culture entries patch the defaults per field. 'raid' is how much of the garrison joins the village's own Millénaire raids; it is independent of the M2 doctrine.",
+  "_comment": "HywMill duty allocation (M4; maxima retuned for the M5-G garrison sizes, data only). Quotas are shares of the village's living, available garrison (floored) with hard maxima and a minimum garrison size below which a duty is not staffed; the sum never exceeds the garrison (scouts are cut first, then patrol, then sentry pairs, then reserve). Sentries stand in pairs, never more pairs than sentry posts. Units not given a duty stay on GARRISON duty. Culture entries patch the defaults per field. 'raid' is how much of the garrison joins the village's own Millénaire raids; it is independent of the M2 doctrine. Post-M5 it is off by default: Millénaire raids are Millénaire-only and the garrison fights in sieges (hywmill_politics 'siege'); set enabled true to restore the old behaviour.",
   "defaults": {
     "tiers": {
       "WATCH":      { "sentryShare": 0.4, "maxSentryPairs": 2, "minUnitsForSentries": 4,
@@ -21,7 +21,7 @@
     },
     "movement": { "maxHop": 32, "arriveRadius": 4, "hopTimeout": 600, "patrolRadius": 0.75, "patrolPoints": 8, "patrolPause": 100, "sentrySpacing": 3 },
     "scouting": { "distance": 40, "posts": 4, "dwell": 1200, "rest": 2400, "phaseTimeout": 2400 },
-    "raid": { "enabled": true, "commitFraction": 0.35, "minCommit": 2, "maxCommit": 48, "minHome": 0.5, "keepSentryPairs": 1, "keepReserve": 1, "minGarrison": 6 }
+    "raid": { "enabled": false, "commitFraction": 0.35, "minCommit": 2, "maxCommit": 48, "minHome": 0.5, "keepSentryPairs": 1, "keepReserve": 1, "minGarrison": 6 }
   },
   "cultures": {
     "millenaire:norman":     { "raid": { "commitFraction": 0.35 } },

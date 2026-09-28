@@ -90,6 +90,11 @@ public final class RaidService {
                 changed = true;
                 HmLog.info("Village '{}' raids {} during a truce: no garrison unit joins", rec.name, info.get().target());
             } else if (info.isPresent() && info.get().target() != null && info.get().raidStart() > 0 && info.get().raidStart() != r.lastRaidStart
+                    && !rule.enabled()) {
+                // post-M5: Millénaire raids are Millénaire-only (data: hywmill_duties raid.enabled); the garrison fights in sieges
+                r.lastRaidStart = info.get().raidStart();
+                changed = true;
+            } else if (info.isPresent() && info.get().target() != null && info.get().raidStart() > 0 && info.get().raidStart() != r.lastRaidStart
                     && enabled() && alert == AlertState.CALM) {
                 changed |= start(overworld, rec, r, rule, info.get(), units, plan, tick);
             } else {

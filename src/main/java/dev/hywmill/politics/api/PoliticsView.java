@@ -351,6 +351,9 @@ public final class PoliticsView {
         var rc = dev.hywmill.politics.service.RaidCounselService.suggest(overworld, player, home, target, true, null);
         out.add(new ActionOption("SUGGEST_RAID", "Suggest a raid on " + t.name, rc.ok(), rc.detail(),
                 rc.ok() ? dev.hywmill.politics.RaidCounsel.band(rc.chance()) : ""));
+        var sc = rt.sieges().suggest(overworld, player, home, target, true, null);
+        out.add(new ActionOption("SUGGEST_SIEGE", "Suggest a siege of " + t.name, sc.ok(), sc.detail(),
+                sc.ok() ? dev.hywmill.politics.RaidCounsel.band(sc.chance()) : ""));
         return out;
     }
 }

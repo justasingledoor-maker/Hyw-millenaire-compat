@@ -13,6 +13,8 @@ public enum FavorSource {
     REQUESTED_DIPLOMACY,
     /** Detachment returned with no losses caused by the player (M5-5). */
     ERRAND_SUCCESS,
+    /** Fought with the winning side of a siege (post-M5). */
+    SIEGE_VICTORY,
     /** Long good standing (monthly, trusted or better, no grievance). */
     LONG_STANDING
 }

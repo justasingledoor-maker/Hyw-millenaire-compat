@@ -8,11 +8,16 @@ import java.util.Map;
  * records; {@link #DEFAULTS} are the shipped values, used when no data is loaded.
  */
 public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
-                             RequestRule requests, RaidCounselRule raidCounsel) {
+                             RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege) {
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
                           RequestRule requests) {
-        this(standing, grievance, favor, pardon, diplomacy, requests, RaidCounselRule.DEFAULT);
+        this(standing, grievance, favor, pardon, diplomacy, requests, RaidCounselRule.DEFAULT, SiegeRule.DEFAULT);
+    }
+
+    public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
+                          RequestRule requests, RaidCounselRule raidCounsel) {
+        this(standing, grievance, favor, pardon, diplomacy, requests, raidCounsel, SiegeRule.DEFAULT);
     }
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor) {
@@ -70,6 +75,64 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
         public double chance(Standing s) {
             return chance.getOrDefault(s, 0.0);
         }
+    }
+
+    /**
+     * Sieges (post-M5; docs/siege-design.md): HYW-only expeditions of a garrison against a village it is at war with.
+     *
+     * <p>Host: {@code commitFraction} of the living available garrison, between {@code minCommit} and {@code maxCommit},
+     * keeping {@code minHome} of it, {@code keepSentryPairs} sentry pairs and {@code keepReserve} reserve at home; no siege
+     * from a garrison below {@code minGarrison}.
+     *
+     * <p>Timing (ticks): muster, march ({@code marchPer100} per 100 blocks, within {@code minMarch}..{@code maxMarch}),
+     * {@code waitTicks} at an unwatched target before the off-screen resolution, {@code battleTicks} at most for a watched
+     * battle.
+     *
+     * <p>Battle: attackers win when the defenders fall to {@code breakFraction} of their start, lose when the host falls to
+     * {@code routFraction}. Off-screen: P(win) = H^e/(H^e+D^e) with {@code exponent}; Millénaire's defending strength counts
+     * {@code millenaireWeight}; the loser loses {@code loserLoss} of its HYW units, the winner {@code winnerLossBase} ×
+     * loser/winner strength, at most {@code winnerLossMax}.
+     *
+     * <p>Counsel: chance by standing, × {@code tooStrongFactor} when the defense exceeds 1.5 × the host; costs
+     * {@code counselPoints} diplomacy points; {@code counselCooldown} per player and attacker. Villages: every
+     * {@code aiInterval}, with {@code aiDailyChance} per day when host/defense ≥ {@code aiMinRatio}; {@code aiCooldown}
+     * after a village's siege.
+     *
+     * <p>Outcome: tribute (deniers) by the loser's tier; {@code levyShare} levy points per 4096 deniers move from the loser
+     * to the winner; {@code playerShare} of the tribute is paid to the winner's helpers; helpers gain {@code helperRep}
+     * reputation and SIEGE_VICTORY Favor.
+     */
+    public record SiegeRule(boolean enabled, double commitFraction, int minCommit, int maxCommit, double minHome, int keepSentryPairs,
+                            int keepReserve, int minGarrison, long musterTicks, long marchPer100, long minMarch, long maxMarch, long waitTicks,
+                            long battleTicks, double breakFraction, double routFraction, double millenaireWeight, double exponent,
+                            double loserLoss, double winnerLossBase, double winnerLossMax, Map<Standing, Double> counselChance,
+                            double tooStrongFactor, int counselPoints, long counselCooldown, boolean aiEnabled, long aiInterval,
+                            double aiDailyChance, double aiMinRatio, long aiCooldown, Map<MilitaryTierKey, Integer> tribute,
+                            double levyShare, double playerShare, int helperRep) {
+        public static final SiegeRule DEFAULT = new SiegeRule(true, 0.5, 6, 64, 0.4, 1, 1, 10,
+                1200, 1200, 1200, 12000, 1200, 6000, 0.2, 0.3, 0.3, 1.5, 0.5, 0.35, 0.5,
+                standingDoubles(Standing.PATRON, 0.5, Standing.SWORN, 0.75), 0.4, 2, 48000, true, 1200, 0.25, 0.9, 72000,
+                tributes(), 2.0, 0.4, 512);
+
+        public double counselChance(Standing s) {
+            return counselChance.getOrDefault(s, 0.0);
+        }
+
+        public int tribute(MilitaryTierKey tier) {
+            return tribute.getOrDefault(tier, 2048);
+        }
+    }
+
+    /** A village tier as the siege tribute table names it (mirrors {@code military.MilitaryTier}, kept pure here). */
+    public enum MilitaryTierKey { NONE, WATCH, GUARD_POST, GARRISON, STRONGHOLD }
+
+    private static Map<MilitaryTierKey, Integer> tributes() {
+        Map<MilitaryTierKey, Integer> m = new EnumMap<>(MilitaryTierKey.class);
+        m.put(MilitaryTierKey.WATCH, 2048);
+        m.put(MilitaryTierKey.GUARD_POST, 4096);
+        m.put(MilitaryTierKey.GARRISON, 12288);
+        m.put(MilitaryTierKey.STRONGHOLD, 32768);
+        return java.util.Collections.unmodifiableMap(m);
     }
 
     private static Map<Standing, Double> standingDoubles(Object... kv) {
@@ -221,6 +284,7 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
         m.put(FavorSource.REQUESTED_DIPLOMACY, 5);
         m.put(FavorSource.ERRAND_SUCCESS, 2);
         m.put(FavorSource.LONG_STANDING, 1);
+        m.put(FavorSource.SIEGE_VICTORY, 5);
         return m;
     }
 }

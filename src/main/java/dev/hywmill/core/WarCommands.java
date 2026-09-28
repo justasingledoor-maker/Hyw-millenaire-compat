@@ -40,7 +40,27 @@ final class WarCommands {
         subtree(war, WarCommands::self);
         war.then(Commands.literal("for").requires(s -> s.hasPermission(2))
                 .then(subtree(Commands.argument("player", UuidArgument.uuid()), ctx -> UuidArgument.getUuid(ctx, "player"))));
+        war.then(Commands.literal("sieges").executes(ctx -> {
+            var lines = dev.hywmill.garrison.service.SiegeService.describe(ctx.getSource().getServer().overworld(),
+                    GarrisonLedger.get(ctx.getSource().getServer().overworld()));
+            send(ctx.getSource(), "war sieges: " + lines.size());
+            lines.forEach(l -> send(ctx.getSource(), " " + l));
+            return lines.size();
+        }));
         war.then(Commands.literal("admin").requires(s -> s.hasPermission(3))
+                .then(Commands.literal("siege").then(Commands.argument("attacker", BlockPosArgument.blockPos())
+                        .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> {
+                            VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
+                            VillageRecord t = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "target"));
+                            if (a == null || t == null) {
+                                return 0;
+                            }
+                            ServerLevel ow = ctx.getSource().getServer().overworld();
+                            var l = HywMillRuntime.require().sieges().launch(ow, a.villageId, t.villageId, null, ow.getGameTime(), false);
+                            send(ctx.getSource(), "war siege " + l.refusal() + ": " + l.detail()
+                                    + (l.ok() ? " id " + l.siege().id.toString().substring(0, 8) : ""));
+                            return l.ok() ? 1 : 0;
+                        }))))
                 .then(Commands.literal("clear-projections").executes(ctx -> {
                     HywMillRuntime rt = HywMillRuntime.require();
                     int n = rt.relations().clearAll(ctx.getSource().getServer().overworld(), rt);
@@ -65,6 +85,10 @@ final class WarCommands {
                 .then(Commands.literal("roll").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get() && s.hasPermission(2))
                         .then(Commands.argument("draw", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0, 1))
                                 .executes(ctx -> raid(ctx, who.get(ctx), com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "draw"))))));
+        node.then(Commands.literal("siege").executes(ctx -> siege(ctx, who.get(ctx), null))
+                .then(Commands.literal("roll").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get() && s.hasPermission(2))
+                        .then(Commands.argument("draw", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0, 1))
+                                .executes(ctx -> siege(ctx, who.get(ctx), com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "draw"))))));
         node.then(Commands.literal("join").then(Commands.argument("ally", BlockPosArgument.blockPos())
                 .then(Commands.literal("against").then(Commands.argument("enemy", BlockPosArgument.blockPos())
                         .executes(ctx -> join(ctx, who.get(ctx)))))));
@@ -123,6 +147,22 @@ final class WarCommands {
         }
         var r = PoliticsActions.suggestRaid(ow, player, c.ally(), c.enemy(), draw);
         send(ctx.getSource(), "war raid " + r.code() + ": " + r.message());
+        return r.ok() ? 1 : 0;
+    }
+
+    /** Post-M5: suggest a siege to the village of the player's campaign against its enemy ({@code roll}: dev, forced draw). */
+    private static int siege(CommandContext<CommandSourceStack> ctx, @Nullable UUID player, @Nullable Double draw) {
+        if (player == null) {
+            return 0;
+        }
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        dev.hywmill.politics.war.Campaign c = dev.hywmill.politics.service.RelationProjector.campaignOf(GarrisonLedger.get(ow), player);
+        if (c == null) {
+            send(ctx.getSource(), "war siege NOT_ON_CAMPAIGN: You are not on campaign; join a war first ('/hywmill war join <ally> against <enemy>')");
+            return 0;
+        }
+        var r = PoliticsActions.suggestSiege(ow, player, c.ally(), c.enemy(), draw);
+        send(ctx.getSource(), "war siege " + r.code() + ": " + r.message());
         return r.ok() ? 1 : 0;
     }
 

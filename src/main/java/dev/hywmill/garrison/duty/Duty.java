@@ -10,11 +10,13 @@ package dev.hywmill.garrison.duty;
 public enum Duty {
     GARRISON, SENTRY, PATROL, SCOUT, RESERVE, DEFENSE, RAID, RETURNING,
     /** M5-5: holding a point a player named (DEPLOYED, away from home defense like RAID). Escorts are deferred (not in M5). */
-    DETACHED;
+    DETACHED,
+    /** Post-M5: in a siege host (mustering, marching stowed, fighting at the target, marching home). Away like RAID. */
+    SIEGE;
 
     /** Away from the village on a temporary errand (RAID, DETACHED): excluded from home defense and standing duties. */
     public boolean away() {
-        return this == RAID || this == DETACHED;
+        return this == RAID || this == DETACHED || this == SIEGE;
     }
 
     /** M5-5 errands lent to a player (detachments). */

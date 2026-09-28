@@ -505,7 +505,7 @@ public final class PoliticsService {
         return "reputation " + rep;
     }
 
-    static String playerName(ServerLevel level, UUID player) {
+    public static String playerName(ServerLevel level, UUID player) {
         ServerPlayer p = level.getServer().getPlayerList().getPlayer(player);
         if (p != null) {
             return p.getGameProfile().getName();

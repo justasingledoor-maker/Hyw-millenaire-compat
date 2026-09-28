@@ -297,6 +297,69 @@ public final class GarrisonService {
         return n;
     }
 
+    // ------------------------------------------------------------------ post-M5 sieges: stow and materialize
+
+    /**
+     * Takes a slot's unit out of the world for a siege march: the slot drops its entity first (so the discard is not a
+     * loss and the Reconciler ignores the slot), then a loaded entity and its mount are discarded. An unloaded entity
+     * stays in its chunk; if it ever loads, {@link JoinAdjudicator} refuses it as a duplicate. The slot keeps its state.
+     */
+    public static void stow(ServerLevel overworld, RosterEntry e) {
+        UUID id = e.entityUuid;
+        e.entityUuid = null;
+        Entity ent = id != null ? find(overworld.getServer(), id) : null;
+        if (ent != null) {
+            Entity root = ent.getRootVehicle();
+            if (root != ent) {
+                root.discard();
+            }
+            ent.discard();
+        }
+    }
+
+    /**
+     * Brings a stowed slot back into the world at {@code pos} as its next generation (deterministic UUID), equipped as the
+     * village's garrison. The slot's state is unchanged. Returns false (and leaves the slot stowed) if the spawn failed.
+     */
+    public static boolean materialize(ServerLevel overworld, VillageRecord rec, RosterEntry e, Vec3 pos, BlockPos home, long tick) {
+        UnitProvider units = Services.units();
+        if (units == null || e.entityUuid != null || e.state().terminal() || !units.isValidUnitType(e.entityType)) {
+            return false;
+        }
+        GarrisonTables tables = GarrisonTables.current();
+        GarrisonTable table = tables.forCulture(rec.culture);
+        EquipmentProvider eq = Services.equipment(table.equipmentProvider());
+        if (eq == null) {
+            eq = Services.equipment("hyw");
+        }
+        if (eq == null) {
+            return false;
+        }
+        UnitSpec spec = tables.units().getOrDefault(e.unitKey, new UnitSpec(e.unitKey, e.entityType, UnitClass.LINE, 1, MilitaryTier.WATCH, true));
+        e.generation++;
+        e.entityUuid = GarrisonTag.entityUuid(e.rosterId, e.generation);
+        GarrisonTag tag = new GarrisonTag(rec.villageId, e.rosterId, e.generation);
+        e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp("");
+        SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, rec.factionId, e.entityUuid, pos, home, e.equipmentLevel,
+                HywMillConfig.garrison().equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture, rec.tier, "",
+                dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId)));
+        if (!res.ok()) {
+            e.generation = Math.max(0, e.generation - 1);
+            e.entityUuid = null;
+            HmLog.warn("Siege: could not bring slot {} of village '{}' back into the world: {}", e.shortId(), rec.name, res.failure());
+            return false;
+        }
+        e.equipmentLevel = res.appliedLevel();
+        e.seen(tick, BlockPos.containing(pos).getX(), BlockPos.containing(pos).getY(), BlockPos.containing(pos).getZ());
+        return true;
+    }
+
+    /** A safe spot near {@code anchor} for a slot (loaded chunks only), or null. */
+    @Nullable
+    public static Vec3 spotNear(ServerLevel level, BlockPos anchor, UUID rosterId) {
+        return findSpot(level, anchor, rosterId);
+    }
+
     /** Spawn anchor: Millénaire's defending position (as resolved at the last profile refresh), else the village centre. */
     BlockPos anchor(VillageRecord rec) {
         return anchorOf(rec);

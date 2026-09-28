@@ -36,6 +36,8 @@ public final class GarrisonRoster {
     @Nullable public RaidRecord raid;
     /** Start tick of the last Millénaire raid a contingent was chosen for (never join the same raid twice). */
     public long lastRaidStart;
+    /** Post-M5: tick the village last launched a siege (its own decisions wait {@code aiCooldown} after it); -1 never. */
+    public long lastSiegeTick = -1;
 
     /**
      * M4 raid in progress. {@code performedBase}: the attacker's raid-history length when the raid
@@ -204,6 +206,9 @@ public final class GarrisonRoster {
         if (lastRaidStart != 0) {
             t.putLong("lastRaidStart", lastRaidStart);
         }
+        if (lastSiegeTick >= 0) {
+            t.putLong("lastSiegeTick", lastSiegeTick);
+        }
         if (raid != null) {
             CompoundTag rd = new CompoundTag();
             rd.putUUID("target", raid.target);
@@ -279,6 +284,7 @@ public final class GarrisonRoster {
         r.totals.recovered = tot.getInt("recovered");
         r.totals.duplicatesDiscarded = tot.getInt("duplicatesDiscarded");
         r.lastRaidStart = t.getLong("lastRaidStart");
+        r.lastSiegeTick = t.contains("lastSiegeTick") ? t.getLong("lastSiegeTick") : -1;
         if (t.contains("raid", Tag.TAG_COMPOUND)) {
             CompoundTag rd = t.getCompound("raid");
             if (rd.hasUUID("target")) {

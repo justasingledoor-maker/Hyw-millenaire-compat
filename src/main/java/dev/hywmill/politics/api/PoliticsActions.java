@@ -137,6 +137,16 @@ public final class PoliticsActions {
         return new ActionResult(r.agreed(), code, r.ok() ? r.detail() : "You cannot suggest a raid: " + r.detail());
     }
 
+    /**
+     * Post-M5: the player, on campaign with {@code attacker} against {@code target}, suggests a siege (Patron or better).
+     * {@code forcedDraw} replaces the random draw (dev commands only; null in play).
+     */
+    public static ActionResult suggestSiege(ServerLevel overworld, UUID player, UUID attacker, UUID target, @javax.annotation.Nullable Double forcedDraw) {
+        var r = HywMillRuntime.require().sieges().suggest(overworld, player, attacker, target, false, forcedDraw);
+        String code = !r.ok() ? r.refusal().name() : r.agreed() ? "AGREED" : "REFUSED";
+        return new ActionResult(r.agreed(), code, r.ok() ? r.detail() : "You cannot suggest a siege: " + r.detail());
+    }
+
     public static ActionResult leaveWar(ServerLevel overworld, UUID player) {
         HywMillRuntime rt = HywMillRuntime.require();
         boolean ok = rt.relations().leave(overworld, rt, player);
@@ -172,6 +182,9 @@ public final class PoliticsActions {
             }
             case "WAR_JOIN" -> {
                 return joinWar(overworld, player, home, target);
+            }
+            case "SUGGEST_SIEGE" -> {
+                return suggestSiege(overworld, player, home, target, null);
             }
             case "SUGGEST_RAID" -> {
                 return suggestRaid(overworld, player, home, target, null);

@@ -168,7 +168,59 @@ public final class PoliticsData {
                 rc = base.raidCounsel();
             }
         }
-        return new PoliticsTables(s, g, f, pr, dr, rq, rc);
+        PoliticsTables.SiegeRule sg = base.siege();
+        if (o.has("siege") && o.get("siege").isJsonObject()) {
+            sg = siege(sg, o.getAsJsonObject("siege"), problems, where);
+        }
+        return new PoliticsTables(s, g, f, pr, dr, rq, rc, sg);
+    }
+
+    private static PoliticsTables.SiegeRule siege(PoliticsTables.SiegeRule b, JsonObject j, List<String> problems, String where) {
+        Map<Standing, Double> ch = new EnumMap<>(Standing.class);
+        ch.putAll(b.counselChance());
+        if (j.has("counselChance") && j.get("counselChance").isJsonObject()) {
+            for (Map.Entry<String, JsonElement> e : j.getAsJsonObject("counselChance").entrySet()) {
+                try {
+                    ch.put(Standing.valueOf(e.getKey()), Math.max(0, Math.min(1, e.getValue().getAsDouble())));
+                } catch (RuntimeException ex) {
+                    problems.add(where + ": siege.counselChance names unknown standing '" + e.getKey() + "'");
+                }
+            }
+        }
+        Map<PoliticsTables.MilitaryTierKey, Integer> tr = new EnumMap<>(PoliticsTables.MilitaryTierKey.class);
+        tr.putAll(b.tribute());
+        if (j.has("tribute") && j.get("tribute").isJsonObject()) {
+            for (Map.Entry<String, JsonElement> e : j.getAsJsonObject("tribute").entrySet()) {
+                try {
+                    tr.put(PoliticsTables.MilitaryTierKey.valueOf(e.getKey()), Math.max(0, e.getValue().getAsInt()));
+                } catch (RuntimeException ex) {
+                    problems.add(where + ": siege.tribute names unknown tier '" + e.getKey() + "'");
+                }
+            }
+        }
+        PoliticsTables.SiegeRule r = new PoliticsTables.SiegeRule(j.has("enabled") ? j.get("enabled").getAsBoolean() : b.enabled(),
+                d(j, "commitFraction", b.commitFraction()), i(j, "minCommit", b.minCommit()), i(j, "maxCommit", b.maxCommit()),
+                d(j, "minHome", b.minHome()), i(j, "keepSentryPairs", b.keepSentryPairs()), i(j, "keepReserve", b.keepReserve()),
+                i(j, "minGarrison", b.minGarrison()), l(j, "musterTicks", b.musterTicks()), l(j, "marchPer100", b.marchPer100()),
+                l(j, "minMarch", b.minMarch()), l(j, "maxMarch", b.maxMarch()), l(j, "waitTicks", b.waitTicks()),
+                l(j, "battleTicks", b.battleTicks()), d(j, "breakFraction", b.breakFraction()), d(j, "routFraction", b.routFraction()),
+                d(j, "millenaireWeight", b.millenaireWeight()), d(j, "exponent", b.exponent()), d(j, "loserLoss", b.loserLoss()),
+                d(j, "winnerLossBase", b.winnerLossBase()), d(j, "winnerLossMax", b.winnerLossMax()),
+                java.util.Collections.unmodifiableMap(ch), d(j, "tooStrongFactor", b.tooStrongFactor()), i(j, "counselPoints", b.counselPoints()),
+                l(j, "counselCooldown", b.counselCooldown()), j.has("aiEnabled") ? j.get("aiEnabled").getAsBoolean() : b.aiEnabled(),
+                l(j, "aiInterval", b.aiInterval()), d(j, "aiDailyChance", b.aiDailyChance()), d(j, "aiMinRatio", b.aiMinRatio()),
+                l(j, "aiCooldown", b.aiCooldown()), java.util.Collections.unmodifiableMap(tr), d(j, "levyShare", b.levyShare()),
+                d(j, "playerShare", b.playerShare()), i(j, "helperRep", b.helperRep()));
+        boolean bad = r.commitFraction() < 0 || r.commitFraction() > 1 || r.minHome() < 0 || r.minHome() > 1 || r.minCommit() < 1
+                || r.maxCommit() < r.minCommit() || r.minMarch() < 0 || r.maxMarch() < r.minMarch() || r.aiInterval() <= 0
+                || r.breakFraction() < 0 || r.breakFraction() >= 1 || r.routFraction() < 0 || r.routFraction() >= 1 || r.exponent() <= 0
+                || r.loserLoss() < 0 || r.loserLoss() > 1 || r.winnerLossMax() < 0 || r.winnerLossMax() > 1 || r.playerShare() < 0
+                || r.playerShare() > 1 || r.aiDailyChance() < 0 || r.aiDailyChance() > 1 || r.counselPoints() < 0 || r.battleTicks() <= 0;
+        if (bad) {
+            problems.add(where + ": siege values out of range; using " + where + " base");
+            return b;
+        }
+        return r;
     }
 
     private static Map<Standing, Integer> standingInts(JsonObject j, String key, Map<Standing, Integer> base, List<String> problems, String where) {

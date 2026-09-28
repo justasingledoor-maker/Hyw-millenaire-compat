@@ -65,7 +65,7 @@ class DutyTest {
         assertEquals(List.of(), problems);
         assertEquals(7, t.cultures().size());
         assertEquals(DutyRule.NONE, t.defaults().tier(MilitaryTier.NONE));
-        assertTrue(t.defaults().raid().enabled());
+        assertFalse(t.defaults().raid().enabled()); // post-M5: Millénaire raids are Millénaire-only; the garrison fights in sieges
         // culture patches merge per field and inherit the rest
         DutyTable seljuk = t.forCulture("millenaire:seljuk");
         assertEquals(56, seljuk.scout().distance());
@@ -100,10 +100,11 @@ class DutyTest {
         assertTrue(DutyQuota.of(t.defaults().tier(MilitaryTier.GUARD_POST), 48, 6).total() >= 25);
         assertTrue(DutyQuota.of(t.defaults().tier(MilitaryTier.WATCH), 24, 4).total() >= 12);
         // raids: the commit fraction decides, maxCommit no longer pins every stronghold at 12; minHome still holds
-        assertEquals(44, RaidPlanner.size(t.defaults().raid(), 128));
-        assertEquals(16, RaidPlanner.size(t.defaults().raid(), 48));
-        assertEquals(56, RaidPlanner.size(t.forCulture("millenaire:seljuk").raid(), 128));
-        assertEquals(10, RaidPlanner.size(t.forCulture("millenaire:seljuk").raid(), 24)); // 45 % of a small garrison
+        // (shipped off post-M5; the retuned numbers still apply when a server turns raids back on)
+        assertEquals(44, RaidPlanner.size(on(t.defaults().raid()), 128));
+        assertEquals(16, RaidPlanner.size(on(t.defaults().raid()), 48));
+        assertEquals(56, RaidPlanner.size(on(t.forCulture("millenaire:seljuk").raid()), 128));
+        assertEquals(10, RaidPlanner.size(on(t.forCulture("millenaire:seljuk").raid()), 24)); // 45 % of a small garrison
         assertEquals(64, RaidPlanner.size(new dev.hywmill.garrison.duty.RaidRule(true, 0.9, 1, 64, 0.5, 0, 0, 1), 128)); // minHome 0.5 still holds
     }
 
@@ -494,5 +495,10 @@ class DutyTest {
         Deployment.apply(atPost, Map.of(), anchor, 30, 1200);
         assertEquals(UnitState.GARRISONED, e.state());
         assertEquals(Duty.SENTRY, e.duty);
+    }
+
+    private static dev.hywmill.garrison.duty.RaidRule on(dev.hywmill.garrison.duty.RaidRule r) {
+        return new dev.hywmill.garrison.duty.RaidRule(true, r.commitFraction(), r.minCommit(), r.maxCommit(), r.minHome(), r.keepSentryPairs(),
+                r.keepReserve(), r.minGarrison());
     }
 }

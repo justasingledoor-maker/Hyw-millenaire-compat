@@ -25,6 +25,8 @@ public final class PoliticsRecord {
     public long lastTrickle = -1;
     /** Tick of the player's last raid counsel to this village (-1: never; post-M5). */
     public long lastRaidCounsel = -1;
+    /** Tick of the player's last siege counsel to this village (-1: never; post-M5). */
+    public long lastSiegeCounsel = -1;
 
     /** Sow-discord attempts that still count at {@code now} (older than {@code window}: none). */
     public int recentSowAttempts(long now, long window) {
@@ -35,7 +37,7 @@ public final class PoliticsRecord {
     public boolean isDefault() {
         return status == Standing.STRANGER && grievances.isEmpty() && favor.isEmpty() && lastRequestTick < 0
                 && casualtiesOnErrands == 0 && lastProposal.isEmpty() && lastSowDiscord < 0 && lastErrandLoss < 0 && lastTrickle < 0
-                && lastRaidCounsel < 0;
+                && lastRaidCounsel < 0 && lastSiegeCounsel < 0;
     }
 
     /**
