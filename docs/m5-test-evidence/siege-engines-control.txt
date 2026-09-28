@@ -1,0 +1,10 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario ENGC
+[harness] NOTE ENGC control (no engines): B's core after 2 min: ['Test failed', 'Test failed']
+[harness] PASS ENGC-1 control recorded ['Test failed', 'Test failed']
+[harness] server stopped
+[harness] RESULT 2/2 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  ENGC-1 control recorded  ['Test failed', 'Test failed']
+  NOTE  ENGC control (no engines): B's core after 2 min  ['Test failed', 'Test failed']

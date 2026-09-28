@@ -2312,6 +2312,83 @@ def scenario_OS(ctx):
           f"home after {t_h}s; duplicate refusals {len(dups)} (old entities of stowed slots are expected to be refused if they load)")
 
 
+def scenario_ENG(ctx):
+    """Exploration (siege engines): A (at war with B) gets a trebuchet, a mangonel and two siege engineers (roster-backed,
+    A's faction) placed within range of B. Do the engineers mount, do the engines pick targets and fire, what do they hit,
+    and does any block of B change?"""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    m5(s, f"mill mrel {ca} {cb} set -100")
+    time.sleep(10)
+    st = war_lines(s, a, f"for {U_UUID} status")
+    note("ENG war", " | ".join(st)[:300])
+    ids = {}
+    for kind in ("trebuchets", "mangonels", "siege_engineer", "siege_engineer"):
+        out = s.output(ground(a[0] + 4, a[2] + 4, f"hywmill dev spike-spawn {kind} 1"), 2)
+        m = next((re.search(r"spike spawned ([0-9a-f-]{36})", l) for l in out if "spike spawned" in l), None)
+        if m:
+            ids.setdefault(kind, []).append(m[1])
+    note("ENG spawned", str(ids))
+    x0, z0 = b[0] - 60, b[2]
+    y0 = surface_y(s, x0, z0) or b[1]
+    for i, u in enumerate(sum(ids.values(), [])):
+        s.cmd(f"tp {u} {x0} {y0 + 1} {z0 + i * 4 - 6}", 0.5)
+    # block snapshot of B's core (40x16x40) to compare afterwards
+    bx, by, bz = b[0] - 20, b[1] - 4, b[2] - 20
+    s.cmd(f"forceload add {bx} 2980 {bx + 40} 3020", 3)
+    s.cmd(f"clone {bx} {by} {bz} {bx + 39} {by + 15} {bz + 39} {bx} {by} 2980", 3)
+    p0 = s.pos()
+    fired, mounted, targets = 0, set(), {}
+    t0 = time.time()
+    while time.time() - t0 < 120:
+        for kind in ("trebuchets", "mangonels"):
+            for u in ids.get(kind, []):
+                pas = " ".join(s.output(f"data get entity {u} Passengers[0].id", 0.4))
+                if "siege_engineer" in pas:
+                    mounted.add(kind)
+                info_ = spike_info(s, u)
+                for k, r in info_.items():
+                    if r["target"] != "none":
+                        targets.setdefault(kind, set()).add(r["target"].split("[")[0])
+        for et in ("trebuchets_bullet", "mangonels_bullet"):
+            for l in s.output(f"execute if entity @e[type=hundred_years_war:{et}]", 0.3):
+                m = re.search(r"Test passed, count: (\d+)", l)
+                if m:
+                    fired += int(m[1])
+        time.sleep(4)
+    lines = s.read_since(p0)
+    deaths = [l for l in lines if "died" in l.lower() or "was slain" in l or "killed" in l.lower()]
+    cmp = " ".join(s.output(f"execute if blocks {bx} {by} {bz} {bx + 39} {by + 15} {bz + 39} {bx} {by} 2980 all", 3))
+    note("ENG projectiles seen in flight (sampled)", str(fired))
+    note("ENG mounted", str(sorted(mounted)))
+    note("ENG targets", str({k: sorted(v) for k, v in targets.items()}))
+    note("ENG deaths/incidents", str(len(deaths)) + " | " + " || ".join(d[-150:] for d in deaths[:6]))
+    note("ENG blocks of B unchanged", cmp[-200:])
+    for u in sum(ids.values(), []):
+        info_ = spike_info(s, u)
+        for k, r in info_.items():
+            note(f"ENG unit {u[:8]}", f"{r['pos']} {r['desc'][:80]} target={r['target']} health={r.get('health')}")
+    check("ENG-1 the engineers mount the engines", "trebuchets" in mounted or "mangonels" in mounted, str(mounted))
+    check("ENG-2 the engines take targets in B", bool(targets), str(targets))
+    check("ENG-3 no block of B's core changed", "passed" in cmp.lower(), cmp[-160:])
+
+
+def scenario_ENGC(ctx):
+    """Control for ENG: the same block snapshot of B's core and the same wait, with no siege engine anywhere near B."""
+    s, b = ctx.s, ctx.b
+    for kind in ("trebuchets", "mangonels", "siege_engineer"):
+        s.cmd(f"kill @e[type=hundred_years_war:{kind}]", 0.5)
+    bx, by, bz = b[0] - 20, b[1] - 4, b[2] - 20
+    s.cmd(f"forceload add {bx} 2980 {bx + 40} 3020", 3)
+    results = []
+    for _ in range(2):
+        s.cmd(f"clone {bx} {by} {bz} {bx + 39} {by + 15} {bz + 39} {bx} {by} 2980", 3)
+        time.sleep(120)
+        results.append(" ".join(s.output(f"execute if blocks {bx} {by} {bz} {bx + 39} {by + 15} {bz + 39} {bx} {by} 2980 all", 3))[-80:])
+    note("ENGC control (no engines): B's core after 2 min", str(results))
+    check("ENGC-1 control recorded", True, str(results))
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -5175,7 +5252,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

@@ -1,0 +1,34 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario ENG
+[harness] NOTE ENG war: war known conflicts: 1 |  Grainville les-pâtures vs Fontenay les-pâtures: at war since tick 20563 | war campaign: none
+[harness] NOTE ENG spawned: {'trebuchets': ['6fd980d5-7f56-3468-9891-23dba1e633bf'], 'mangonels': ['bbe60e29-df79-3c11-b664-54cf2c0d82c1'], 'siege_engineer': ['e633ecab-c11b-3955-8453-5ed7cd6c3540', '8b276dc2-d292-3f39-908c-a9ed28edd261']}
+[harness] NOTE ENG projectiles seen in flight (sampled): 3
+[harness] NOTE ENG mounted: ['mangonels', 'trebuchets']
+[harness] NOTE ENG targets: {'trebuchets': ['hundred_years_war:militia'], 'mangonels': ['hundred_years_war:crossbowman', 'hundred_years_war:militia']}
+[harness] NOTE ENG deaths/incidents: 1 | ge 'Fontenay les-pâtures' killed: f13cec1d crossbowman lvl0 DEAD(KILLED) gen1 entity=eeb2e3ab duty=PATROL#2 (no respawn; replacement is a new recruit)
+[harness] NOTE ENG blocks of B unchanged: Test failed
+[harness] NOTE ENG unit 6fd980d5: (751, 67, 626) hundred_years_war:trebuchets owner=5228e2f0-8059-302b-ac5d-e568bdff8427 equipmen target=hundred_years_war:militia[9b380fae] health=50.0
+[harness] NOTE ENG unit bbe60e29: (735, 72, 635) hundred_years_war:mangonels owner=5228e2f0-8059-302b-ac5d-e568bdff8427 equipment target=hundred_years_war:militia[9b380fae] health=9.839998
+[harness] NOTE ENG unit e633ecab: (750, 67, 623) hundred_years_war:siege_engineer owner=5228e2f0-8059-302b-ac5d-e568bdff8427 equi target=none health=20.0
+[harness] NOTE ENG unit 8b276dc2: (739, 73, 634) hundred_years_war:siege_engineer owner=5228e2f0-8059-302b-ac5d-e568bdff8427 equi target=none health=20.0
+[harness] PASS ENG-1 the engineers mount the engines {'trebuchets', 'mangonels'}
+[harness] PASS ENG-2 the engines take targets in B {'trebuchets': {'hundred_years_war:militia'}, 'mangonels': {'hundred_years_war:crossbowman', 'hundred_years_war:militia'}}
+[harness] FAIL ENG-3 no block of B's core changed Test failed
+[harness] server stopped
+[harness] RESULT 3/4 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  ENG-1 the engineers mount the engines  {'trebuchets', 'mangonels'}
+  PASS  ENG-2 the engines take targets in B  {'trebuchets': {'hundred_years_war:militia'}, 'mangonels': {'hundred_years_war:crossbowman', 'hundred_years_war:militia'}}
+  FAIL  ENG-3 no block of B's core changed  Test failed
+  NOTE  ENG war  war known conflicts: 1 |  Grainville les-pâtures vs Fontenay les-pâtures: at war since tick 20563 | war campaign: none
+  NOTE  ENG spawned  {'trebuchets': ['6fd980d5-7f56-3468-9891-23dba1e633bf'], 'mangonels': ['bbe60e29-df79-3c11-b664-54cf2c0d82c1'], 'siege_engineer': ['e633ecab-c11b-3955-8453-5ed7cd6c3540', '8b276dc2-d292-3f39-908c-a9ed28edd261']}
+  NOTE  ENG projectiles seen in flight (sampled)  3
+  NOTE  ENG mounted  ['mangonels', 'trebuchets']
+  NOTE  ENG targets  {'trebuchets': ['hundred_years_war:militia'], 'mangonels': ['hundred_years_war:crossbowman', 'hundred_years_war:militia']}
+  NOTE  ENG deaths/incidents  1 | ge 'Fontenay les-pâtures' killed: f13cec1d crossbowman lvl0 DEAD(KILLED) gen1 entity=eeb2e3ab duty=PATROL#2 (no respawn; replacement is a new recruit)
+  NOTE  ENG blocks of B unchanged  Test failed
+  NOTE  ENG unit 6fd980d5  (751, 67, 626) hundred_years_war:trebuchets owner=5228e2f0-8059-302b-ac5d-e568bdff8427 equipmen target=hundred_years_war:militia[9b380fae] health=50.0
+  NOTE  ENG unit bbe60e29  (735, 72, 635) hundred_years_war:mangonels owner=5228e2f0-8059-302b-ac5d-e568bdff8427 equipment target=hundred_years_war:militia[9b380fae] health=9.839998
+  NOTE  ENG unit e633ecab  (750, 67, 623) hundred_years_war:siege_engineer owner=5228e2f0-8059-302b-ac5d-e568bdff8427 equi target=none health=20.0
+  NOTE  ENG unit 8b276dc2  (739, 73, 634) hundred_years_war:siege_engineer owner=5228e2f0-8059-302b-ac5d-e568bdff8427 equi target=none health=20.0
