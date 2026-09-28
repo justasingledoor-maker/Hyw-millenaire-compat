@@ -2826,13 +2826,18 @@ def scenario_G4_EK(ctx):
     heads_z = items(lambda key, v: key[0] == "Z" and v[1] not in ("SENTRY",), "head")
     check("G4-EK2 culture: Norman heads are norman_helmet, Byzantine heads differ", any("norman_helmet" in h for h in heads_a)
           and heads_z and not any("norman_helmet" in h for h in heads_z), f"A {sorted(heads_a)} Z {sorted(heads_z)}")
-    sentry_heads = items(lambda key, v: key[0] in ("A", "M") and v[1] == "SENTRY", "head")
-    check("G4-EK3 role: sentries wear the sentry helmet (bascinet / greathelm)", sentry_heads and all(("bascinet" in h or "greathelm" in h) for h in sentry_heads),
-          sorted(sentry_heads))
+    # post-M5 (bug report: a knight's helmet over plain clothes): armour is one whole kit, never mixed across lists
+    plate = ("greathelm", "grand_bascinet", "armet", "bascinet", "sallet")
+    mixed = [(key, v[0], v[2].get("head"), v[2].get("chest")) for key, v in gear.items()
+             if any(p_ in (v[2].get("head") or "") for p_ in plate) and "gambeson" in (v[2].get("chest") or "")]
+    worn = [v[2] for v in gear.values()]
+    check("G4-EK3 armour is a whole kit: no plate helmet over cloth; units wear Epic Knights armour",
+          not mixed and worn and sum(1 for w in worn if "magistuarmory" in (w.get("chest") or "")) >= len(worn) * 0.8,
+          f"mixed {mixed[:4]}; {sum(1 for w in worn if 'magistuarmory' in (w.get('chest') or ''))}/{len(worn)} with EK chest")
     chest_a = items(lambda key, v: key[0] == "A" and v[1] == "GARRISON" and v[0] in ("spear_man", "warrior"), "chest")
     chest_m = items(lambda key, v: key[0] == "M" and v[1] == "GARRISON" and v[0] in ("spear_man", "warrior"), "chest")
     check("G4-EK4 tier: stronghold line units wear heavier armour than the smaller village's", chest_m and chest_a and chest_m != chest_a
-          and any("platemail" in x or "brigandine" in x for x in chest_m), f"A {sorted(chest_a)} M {sorted(chest_m)}")
+          and any(h in x for x in chest_m for h in ("platemail", "brigandine", "crusader", "lamellar")), f"A {sorted(chest_a)} M {sorted(chest_m)}")
     spear_off = items(lambda key, v: v[0] == "spear_man", "offhand")
     shield_off = items(lambda key, v: v[0] == "shieldman" and key[0] in ("A", "M"), "offhand")
     archer_main = items(lambda key, v: v[0] == "archer", "mainhand")
@@ -2840,6 +2845,27 @@ def scenario_G4_EK(ctx):
           not any("kiteshield" in x for x in spear_off) and all(("longbow" in x or "bow" in x) for x in archer_main)
           and (not shield_off or any("kiteshield" in x or "shield" in x for x in shield_off)),
           f"spear_man offhand {sorted(spear_off)}; shieldman offhand {sorted(shield_off)}; archer mainhand {sorted(archer_main)}")
+    # post-M5: livery. Dyeable pieces carry the unit's colours; shields carry painted arms (vanilla item components)
+    colours, dyed, dyeable, arms, shields = set(), 0, 0, set(), 0
+    for k, c in vs.items():
+        for uuid in list(unit_entities(s, c))[:15]:
+            armor = " ".join(s.output(f"data get entity {uuid} ArmorItems", 1))
+            hands = " ".join(s.output(f"data get entity {uuid} HandItems", 1))
+            for piece in re.findall(r'id: "magistuarmory:(coif|gambeson_chestplate|pantyhose|gambeson_boots|brigandine_chestplate|crusader_chestplate|crusader_boots|norman_helmet|greathelm)"', armor):
+                dyeable += 1
+            found = re.findall(r'dyed_color": \{rgb: (-?\d+)', armor)
+            dyed += len(found)
+            colours.update(found)
+            if "shield" in hands:
+                shields += 1
+                m = re.search(r'banner_patterns": \[(.*?)\]', hands)
+                b = re.search(r'base_color": "(\w+)"', hands)
+                if m and b:
+                    arms.add(b.group(1) + "|" + m.group(1)[:200])
+    check("G4-EK6 livery: dyeable armour is dyed, in varied colours", dyeable > 0 and dyed >= dyeable * 0.9 and len(colours) >= 4,
+          f"{dyed}/{dyeable} dyeable pieces dyed; {len(colours)} distinct colours")
+    check("G4-EK7 heraldry: shields carry painted arms (base colour + patterns), varied", shields == 0 or (len(arms) >= min(3, shields)),
+          f"{shields} shield(s) sampled, {len(arms)} distinct arms: {sorted(arms)[:3]}")
 
 
 # --------------------------------------------------------------------------- M5-0 spikes (S5)

@@ -1,22 +1,8 @@
 {
- "_comment": "HywMill M4 optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded, each slot takes an item from the first matching list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all'. An item is used only if it is registered, fits its armour slot, and (weapons, offhand) belongs to an item family HYW itself gives that unit; otherwise the next list is tried and finally HYW's own item stays. Choices are deterministic per unit. Validate with /hywmill dev equipcheck.",
+ "_comment": "HywMill optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded: ARMOUR comes from one whole kit ('kits': head/chest/legs/feet, 'none' = empty slot), chosen from the first matching kit list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all' - so pieces never mix across lists. WEAPONS and OFFHAND take an item from the first matching slot list in the same order; an item is used only if it is registered and belongs to an item family HYW itself gives that unit, else HYW's own item stays. Dyeable pieces (the minecraft:dyeable tag: gambeson, coif, pantyhose, brigandine, crusader, norman helmet, ...) are dyed in two colours per unit from 'dye.palette'; shields carry random arms (vanilla geometric patterns and Epic Knights emblems, rule of tincture) unless 'heraldry' is false. Choices are deterministic per unit; units re-equip once when this data changes. Validate with /hywmill dev equipcheck.",
  "defaults": {
   "tiers": {
    "WATCH": {
-    "all": {
-     "head": [
-      "magistuarmory:coif"
-     ],
-     "chest": [
-      "magistuarmory:gambeson_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose"
-     ],
-     "feet": [
-      "magistuarmory:gambeson_boots"
-     ]
-    },
     "militia": {
      "mainhand": [
       "magistuarmory:club",
@@ -24,11 +10,19 @@
       "magistuarmory:wood_shortsword",
       "magistuarmory:stone_shortsword"
      ],
-     "chest": [
-      "magistuarmory:gambeson_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose"
+     "kits": [
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     },
     "line": {
@@ -52,8 +46,13 @@
       "magistuarmory:longbow",
       "magistuarmory:heavy_crossbow"
      ],
-     "chest": [
-      "magistuarmory:gambeson_chestplate"
+     "kits": [
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     },
     "sentry": {
@@ -62,67 +61,54 @@
       "magistuarmory:wood_kiteshield",
       "magistuarmory:stone_heatershield",
       "magistuarmory:stone_kiteshield"
-     ],
-     "head": [
-      "magistuarmory:coif"
      ]
     },
-    "patrol": {
-     "head": [
-      "magistuarmory:kettlehat"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose"
+    "all": {
+     "kits": [
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     },
     "scout": {
-     "head": [
-      "magistuarmory:coif"
-     ],
-     "chest": [
-      "magistuarmory:gambeson_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose"
-     ],
-     "feet": [
-      "magistuarmory:gambeson_boots"
-     ]
-    },
-    "reserve": {
-     "chest": [
-      "magistuarmory:chainmail_chestplate"
+     "kits": [
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     }
    },
    "GUARD_POST": {
-    "all": {
-     "head": [
-      "magistuarmory:kettlehat",
-      "magistuarmory:coif"
-     ],
-     "chest": [
-      "magistuarmory:chainmail_chestplate",
-      "magistuarmory:gambeson_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:chainmail_leggings",
-      "magistuarmory:pantyhose"
-     ],
-     "feet": [
-      "magistuarmory:chainmail_boots"
-     ]
-    },
     "militia": {
      "mainhand": [
       "magistuarmory:iron_shortsword",
       "magistuarmory:iron_katzbalger"
      ],
-     "chest": [
-      "magistuarmory:gambeson_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose"
+     "kits": [
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     },
     "line": {
@@ -140,66 +126,55 @@
       "magistuarmory:longbow",
       "magistuarmory:heavy_crossbow"
      ],
-     "chest": [
-      "magistuarmory:gambeson_chestplate"
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     },
     "sentry": {
      "offhand": [
       "magistuarmory:iron_heatershield",
       "magistuarmory:iron_kiteshield"
-     ],
-     "head": [
-      "magistuarmory:bascinet"
      ]
     },
-    "patrol": {
-     "head": [
-      "magistuarmory:kettlehat"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose",
-      "magistuarmory:chainmail_leggings"
+    "all": {
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:chainmail_chestplate",
+       "legs": "magistuarmory:chainmail_leggings",
+       "feet": "magistuarmory:chainmail_boots"
+      },
+      {
+       "head": "magistuarmory:chainmail_helmet",
+       "chest": "magistuarmory:chainmail_chestplate",
+       "legs": "magistuarmory:chainmail_leggings",
+       "feet": "magistuarmory:chainmail_boots"
+      }
      ]
     },
     "scout": {
-     "head": [
-      "magistuarmory:coif"
-     ],
-     "chest": [
-      "magistuarmory:gambeson_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose"
-     ],
-     "feet": [
-      "magistuarmory:gambeson_boots"
-     ]
-    },
-    "reserve": {
-     "chest": [
-      "magistuarmory:brigandine_chestplate"
+     "kits": [
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     }
    },
    "GARRISON": {
-    "all": {
-     "head": [
-      "magistuarmory:kettlehat",
-      "magistuarmory:barbute",
-      "magistuarmory:bascinet"
-     ],
-     "chest": [
-      "magistuarmory:brigandine_chestplate",
-      "magistuarmory:chainmail_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:chainmail_leggings"
-     ],
-     "feet": [
-      "magistuarmory:chainmail_boots"
-     ]
-    },
     "militia": {
      "mainhand": [
       "magistuarmory:steel_shortsword",
@@ -207,11 +182,19 @@
       "magistuarmory:iron_shortsword",
       "magistuarmory:iron_katzbalger"
      ],
-     "chest": [
-      "magistuarmory:chainmail_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose"
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:chainmail_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     },
     "line": {
@@ -235,8 +218,19 @@
       "magistuarmory:longbow",
       "magistuarmory:heavy_crossbow"
      ],
-     "chest": [
-      "magistuarmory:chainmail_chestplate"
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:brigandine_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:chainmail_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     },
     "sentry": {
@@ -245,68 +239,66 @@
       "magistuarmory:steel_kiteshield",
       "magistuarmory:iron_heatershield",
       "magistuarmory:iron_kiteshield"
-     ],
-     "head": [
-      "magistuarmory:bascinet"
      ]
     },
-    "patrol": {
-     "head": [
-      "magistuarmory:kettlehat"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose",
-      "magistuarmory:chainmail_leggings"
+    "all": {
+     "kits": [
+      {
+       "head": "magistuarmory:bascinet",
+       "chest": "magistuarmory:chainmail_chestplate",
+       "legs": "magistuarmory:chainmail_leggings",
+       "feet": "magistuarmory:chainmail_boots"
+      },
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:brigandine_chestplate",
+       "legs": "magistuarmory:chainmail_leggings",
+       "feet": "magistuarmory:chainmail_boots"
+      },
+      {
+       "head": "magistuarmory:barbute",
+       "chest": "magistuarmory:brigandine_chestplate",
+       "legs": "magistuarmory:chainmail_leggings",
+       "feet": "magistuarmory:chainmail_boots"
+      }
      ]
     },
     "scout": {
-     "head": [
-      "magistuarmory:coif"
-     ],
-     "chest": [
-      "magistuarmory:gambeson_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose"
-     ],
-     "feet": [
-      "magistuarmory:gambeson_boots"
-     ]
-    },
-    "reserve": {
-     "chest": [
-      "magistuarmory:platemail_chestplate"
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:chainmail_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     }
    },
    "STRONGHOLD": {
-    "all": {
-     "head": [
-      "magistuarmory:bascinet",
-      "magistuarmory:sallet",
-      "magistuarmory:armet"
-     ],
-     "chest": [
-      "magistuarmory:platemail_chestplate",
-      "magistuarmory:brigandine_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:platemail_leggings"
-     ],
-     "feet": [
-      "magistuarmory:platemail_boots"
-     ]
-    },
     "militia": {
      "mainhand": [
       "magistuarmory:steel_shortsword",
       "magistuarmory:steel_katzbalger"
      ],
-     "chest": [
-      "magistuarmory:brigandine_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose"
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:chainmail_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:brigandine_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     },
     "line": {
@@ -324,49 +316,88 @@
       "magistuarmory:longbow",
       "magistuarmory:heavy_crossbow"
      ],
-     "chest": [
-      "magistuarmory:brigandine_chestplate"
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:brigandine_chestplate",
+       "legs": "magistuarmory:chainmail_leggings",
+       "feet": "magistuarmory:chainmail_boots"
+      },
+      {
+       "head": "magistuarmory:sallet",
+       "chest": "magistuarmory:brigandine_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     },
     "sentry": {
      "offhand": [
       "magistuarmory:steel_heatershield",
       "magistuarmory:steel_kiteshield"
-     ],
-     "head": [
-      "magistuarmory:greathelm",
-      "magistuarmory:grand_bascinet"
      ]
     },
-    "patrol": {
-     "head": [
-      "magistuarmory:kettlehat"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose",
-      "magistuarmory:chainmail_leggings"
+    "all": {
+     "kits": [
+      {
+       "head": "magistuarmory:bascinet",
+       "chest": "magistuarmory:platemail_chestplate",
+       "legs": "magistuarmory:platemail_leggings",
+       "feet": "magistuarmory:platemail_boots"
+      },
+      {
+       "head": "magistuarmory:sallet",
+       "chest": "magistuarmory:platemail_chestplate",
+       "legs": "magistuarmory:platemail_leggings",
+       "feet": "magistuarmory:platemail_boots"
+      },
+      {
+       "head": "magistuarmory:armet",
+       "chest": "magistuarmory:platemail_chestplate",
+       "legs": "magistuarmory:platemail_leggings",
+       "feet": "magistuarmory:platemail_boots"
+      },
+      {
+       "head": "magistuarmory:sallet",
+       "chest": "magistuarmory:brigandine_chestplate",
+       "legs": "magistuarmory:chainmail_leggings",
+       "feet": "magistuarmory:chainmail_boots"
+      }
      ]
     },
     "scout": {
-     "head": [
-      "magistuarmory:coif"
-     ],
-     "chest": [
-      "magistuarmory:gambeson_chestplate"
-     ],
-     "legs": [
-      "magistuarmory:pantyhose"
-     ],
-     "feet": [
-      "magistuarmory:gambeson_boots"
-     ]
-    },
-    "reserve": {
-     "chest": [
-      "magistuarmory:platemail_chestplate"
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:brigandine_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:sallet",
+       "chest": "magistuarmory:brigandine_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
      ]
     }
    }
+  },
+  "dye": {
+   "palette": [
+    "#8E2323",
+    "#A01E2C",
+    "#2E4A7D",
+    "#283B63",
+    "#C9A227",
+    "#D8912A",
+    "#3F6B35",
+    "#7A4A2A",
+    "#222222",
+    "#D8CFB8",
+    "#6E6E6E",
+    "#5B2C6F"
+   ]
   }
  },
  "cultures": {
@@ -374,44 +405,203 @@
    "tiers": {
     "WATCH": {
      "all": {
-      "head": [
-       "magistuarmory:norman_helmet"
-      ],
       "offhand": [
        "magistuarmory:wood_kiteshield",
        "magistuarmory:stone_kiteshield"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:norman_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "GUARD_POST": {
      "all": {
-      "head": [
-       "magistuarmory:norman_helmet"
-      ],
       "offhand": [
        "magistuarmory:iron_kiteshield"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:norman_helmet",
+        "chest": "magistuarmory:chainmail_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:chainmail_boots"
+       },
+       {
+        "head": "magistuarmory:norman_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "GARRISON": {
      "all": {
-      "head": [
-       "magistuarmory:norman_helmet"
-      ],
       "offhand": [
        "magistuarmory:steel_kiteshield",
        "magistuarmory:iron_kiteshield"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:norman_helmet",
+        "chest": "magistuarmory:chainmail_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:chainmail_boots"
+       },
+       {
+        "head": "magistuarmory:norman_helmet",
+        "chest": "magistuarmory:crusader_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:chainmail_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:norman_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "STRONGHOLD": {
      "all": {
-      "head": [
-       "magistuarmory:greathelm",
-       "magistuarmory:norman_helmet"
-      ],
       "offhand": [
        "magistuarmory:steel_kiteshield"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:greathelm",
+        "chest": "magistuarmory:crusader_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:crusader_boots"
+       },
+       {
+        "head": "magistuarmory:norman_helmet",
+        "chest": "magistuarmory:crusader_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:chainmail_boots"
+       },
+       {
+        "head": "magistuarmory:greathelm",
+        "chest": "magistuarmory:crusader_chestplate",
+        "legs": "magistuarmory:crusader_leggings",
+        "feet": "magistuarmory:crusader_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:norman_helmet",
+        "chest": "magistuarmory:chainmail_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:chainmail_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     }
@@ -421,75 +611,185 @@
    "tiers": {
     "WATCH": {
      "all": {
-      "head": [
-       "magistuarmory:chainmail_helmet"
-      ],
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
-      "feet": [
-       "magistuarmory:gambeson_boots"
-      ],
       "offhand": [
        "magistuarmory:wood_kiteshield",
        "magistuarmory:wood_roundshield",
        "magistuarmory:stone_kiteshield",
        "magistuarmory:stone_roundshield"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "GUARD_POST": {
      "all": {
-      "head": [
-       "magistuarmory:chainmail_helmet"
-      ],
-      "chest": [
-       "magistuarmory:lamellar_chestplate"
-      ],
-      "feet": [
-       "magistuarmory:lamellar_boots"
-      ],
       "offhand": [
        "magistuarmory:iron_kiteshield",
        "magistuarmory:iron_roundshield"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:chainmail_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "GARRISON": {
      "all": {
-      "head": [
-       "magistuarmory:sallet",
-       "magistuarmory:chainmail_helmet"
-      ],
-      "chest": [
-       "magistuarmory:lamellar_chestplate"
-      ],
-      "feet": [
-       "magistuarmory:lamellar_boots"
-      ],
       "offhand": [
        "magistuarmory:steel_kiteshield",
        "magistuarmory:steel_roundshield",
        "magistuarmory:iron_kiteshield",
        "magistuarmory:iron_roundshield"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "STRONGHOLD": {
      "all": {
-      "head": [
-       "magistuarmory:sallet",
-       "magistuarmory:chainmail_helmet"
-      ],
-      "chest": [
-       "magistuarmory:lamellar_chestplate"
-      ],
-      "feet": [
-       "magistuarmory:lamellar_boots"
-      ],
       "offhand": [
        "magistuarmory:steel_kiteshield",
        "magistuarmory:steel_roundshield"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:sallet",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     }
@@ -499,17 +799,19 @@
    "tiers": {
     "WATCH": {
      "all": {
-      "head": [
-       "magistuarmory:coif"
-      ],
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
       "offhand": [
        "magistuarmory:wood_roundshield",
        "magistuarmory:wood_buckler",
        "magistuarmory:stone_roundshield",
        "magistuarmory:stone_buckler"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      },
      "line": {
@@ -523,19 +825,47 @@
        "magistuarmory:stone_pike",
        "magistuarmory:stone_heavymace"
       ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "GUARD_POST": {
      "all": {
-      "head": [
-       "magistuarmory:shishak"
-      ],
-      "chest": [
-       "magistuarmory:lamellar_chestplate"
-      ],
       "offhand": [
        "magistuarmory:iron_roundshield",
        "magistuarmory:iron_buckler"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:shishak",
+        "chest": "magistuarmory:chainmail_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      },
      "line": {
@@ -545,21 +875,49 @@
        "magistuarmory:iron_pike",
        "magistuarmory:iron_heavymace"
       ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "GARRISON": {
      "all": {
-      "head": [
-       "magistuarmory:shishak"
-      ],
-      "chest": [
-       "magistuarmory:lamellar_chestplate"
-      ],
       "offhand": [
        "magistuarmory:steel_roundshield",
        "magistuarmory:steel_buckler",
        "magistuarmory:iron_roundshield",
        "magistuarmory:iron_buckler"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:shishak",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "magistuarmory:shishak",
+        "chest": "magistuarmory:chainmail_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:chainmail_boots"
+       }
       ]
      },
      "line": {
@@ -573,19 +931,47 @@
        "magistuarmory:iron_pike",
        "magistuarmory:iron_heavymace"
       ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:shishak",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "STRONGHOLD": {
      "all": {
-      "head": [
-       "magistuarmory:shishak"
-      ],
-      "chest": [
-       "magistuarmory:lamellar_chestplate"
-      ],
       "offhand": [
        "magistuarmory:steel_roundshield",
        "magistuarmory:steel_buckler"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:shishak",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:lamellar_boots"
+       }
       ]
      },
      "line": {
@@ -595,6 +981,32 @@
        "magistuarmory:steel_pike",
        "magistuarmory:steel_heavymace"
       ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:shishak",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     }
    }
@@ -603,61 +1015,161 @@
    "tiers": {
     "WATCH": {
      "all": {
-      "head": [
-       "magistuarmory:coif"
-      ],
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
       "offhand": [
        "magistuarmory:wood_roundshield",
        "magistuarmory:wood_buckler",
        "magistuarmory:stone_roundshield",
        "magistuarmory:stone_buckler"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "GUARD_POST": {
      "all": {
-      "head": [
-       "magistuarmory:chainmail_helmet"
-      ],
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
       "offhand": [
        "magistuarmory:iron_roundshield",
        "magistuarmory:iron_buckler"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "GARRISON": {
      "all": {
-      "head": [
-       "magistuarmory:chainmail_helmet"
-      ],
-      "chest": [
-       "magistuarmory:brigandine_chestplate"
-      ],
       "offhand": [
        "magistuarmory:steel_roundshield",
        "magistuarmory:steel_buckler",
        "magistuarmory:iron_roundshield",
        "magistuarmory:iron_buckler"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:brigandine_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:chainmail_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "STRONGHOLD": {
      "all": {
-      "head": [
-       "magistuarmory:chainmail_helmet"
-      ],
-      "chest": [
-       "magistuarmory:brigandine_chestplate"
-      ],
       "offhand": [
        "magistuarmory:steel_roundshield",
        "magistuarmory:steel_buckler"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:brigandine_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:chainmail_boots"
+       },
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:chainmail_helmet",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     }
@@ -666,17 +1178,6 @@
   "millenaire:japanese": {
    "tiers": {
     "WATCH": {
-     "all": {
-      "head": [
-       "magistuarmory:kettlehat"
-      ],
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
-      "feet": [
-       "magistuarmory:gambeson_boots"
-      ]
-     },
      "line": {
       "mainhand": [
        "magistuarmory:wood_pike",
@@ -686,40 +1187,78 @@
        "magistuarmory:stone_ahlspiess",
        "magistuarmory:stone_katzbalger"
       ]
+     },
+     "all": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "GUARD_POST": {
-     "all": {
-      "head": [
-       "magistuarmory:kettlehat"
-      ],
-      "chest": [
-       "magistuarmory:lamellar_chestplate"
-      ],
-      "feet": [
-       "magistuarmory:lamellar_boots"
-      ]
-     },
      "line": {
       "mainhand": [
        "magistuarmory:iron_pike",
        "magistuarmory:iron_ahlspiess",
        "magistuarmory:iron_katzbalger"
       ]
+     },
+     "all": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "GARRISON": {
-     "all": {
-      "head": [
-       "magistuarmory:kettlehat"
-      ],
-      "chest": [
-       "magistuarmory:lamellar_chestplate"
-      ],
-      "feet": [
-       "magistuarmory:lamellar_boots"
-      ]
-     },
      "line": {
       "mainhand": [
        "magistuarmory:steel_pike",
@@ -729,25 +1268,74 @@
        "magistuarmory:iron_ahlspiess",
        "magistuarmory:iron_katzbalger"
       ]
+     },
+     "all": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "STRONGHOLD": {
-     "all": {
-      "head": [
-       "magistuarmory:kettlehat"
-      ],
-      "chest": [
-       "magistuarmory:lamellar_chestplate"
-      ],
-      "feet": [
-       "magistuarmory:lamellar_boots"
-      ]
-     },
      "line": {
       "mainhand": [
        "magistuarmory:steel_pike",
        "magistuarmory:steel_ahlspiess",
        "magistuarmory:steel_katzbalger"
+      ]
+     },
+     "all": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:lamellar_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:lamellar_boots"
+       }
+      ]
+     },
+     "militia": {
+      "kits": [
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     }
@@ -757,24 +1345,31 @@
    "tiers": {
     "WATCH": {
      "all": {
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
-      "legs": [
-       "magistuarmory:pantyhose"
-      ],
-      "feet": [
-       "magistuarmory:gambeson_boots"
-      ],
       "offhand": [
        "magistuarmory:wood_roundshield",
        "magistuarmory:wood_buckler"
+      ],
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      },
      "militia": {
       "mainhand": [
        "magistuarmory:club",
        "magistuarmory:barbedclub"
+      ],
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      },
      "line": {
@@ -786,28 +1381,45 @@
        "magistuarmory:stone_heavymace",
        "magistuarmory:stone_ahlspiess"
       ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "GUARD_POST": {
      "all": {
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
-      "legs": [
-       "magistuarmory:pantyhose"
-      ],
-      "feet": [
-       "magistuarmory:gambeson_boots"
-      ],
       "offhand": [
        "magistuarmory:wood_roundshield",
        "magistuarmory:wood_buckler"
+      ],
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      },
      "militia": {
       "mainhand": [
        "magistuarmory:club",
        "magistuarmory:barbedclub"
+      ],
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      },
      "line": {
@@ -817,28 +1429,45 @@
        "magistuarmory:iron_heavymace",
        "magistuarmory:iron_ahlspiess"
       ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "GARRISON": {
      "all": {
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
-      "legs": [
-       "magistuarmory:pantyhose"
-      ],
-      "feet": [
-       "magistuarmory:gambeson_boots"
-      ],
       "offhand": [
        "magistuarmory:steel_roundshield",
        "magistuarmory:iron_roundshield"
+      ],
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      },
      "militia": {
       "mainhand": [
        "magistuarmory:club",
        "magistuarmory:barbedclub"
+      ],
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      },
      "line": {
@@ -850,27 +1479,44 @@
        "magistuarmory:iron_heavymace",
        "magistuarmory:iron_ahlspiess"
       ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "STRONGHOLD": {
      "all": {
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
-      "legs": [
-       "magistuarmory:pantyhose"
-      ],
-      "feet": [
-       "magistuarmory:gambeson_boots"
-      ],
       "offhand": [
        "magistuarmory:steel_roundshield"
+      ],
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      },
      "militia": {
       "mainhand": [
        "magistuarmory:club",
        "magistuarmory:barbedclub"
+      ],
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      },
      "line": {
@@ -880,6 +1526,16 @@
        "magistuarmory:steel_heavymace",
        "magistuarmory:steel_ahlspiess"
       ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "none",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     }
    }
@@ -887,90 +1543,147 @@
   "millenaire:inuits": {
    "tiers": {
     "WATCH": {
-     "all": {
-      "head": [
-       "magistuarmory:coif"
-      ],
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
-      "legs": [
-       "magistuarmory:pantyhose"
-      ],
-      "feet": [
-       "magistuarmory:gambeson_boots"
-      ]
-     },
      "militia": {
       "mainhand": [
        "magistuarmory:club"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "all": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "GUARD_POST": {
-     "all": {
-      "head": [
-       "magistuarmory:coif"
-      ],
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
-      "legs": [
-       "magistuarmory:pantyhose"
-      ],
-      "feet": [
-       "magistuarmory:gambeson_boots"
-      ]
-     },
      "militia": {
       "mainhand": [
        "magistuarmory:club"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "all": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "GARRISON": {
-     "all": {
-      "head": [
-       "magistuarmory:coif"
-      ],
-      "chest": [
-       "magistuarmory:gambeson_chestplate"
-      ],
-      "legs": [
-       "magistuarmory:pantyhose"
-      ],
-      "feet": [
-       "magistuarmory:gambeson_boots"
-      ]
-     },
      "militia": {
       "mainhand": [
        "magistuarmory:club"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "all": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     },
     "STRONGHOLD": {
-     "all": {
-      "head": [
-       "magistuarmory:coif"
-      ],
-      "chest": [
-       "magistuarmory:chainmail_chestplate"
-      ],
-      "legs": [
-       "magistuarmory:pantyhose"
-      ],
-      "feet": [
-       "magistuarmory:gambeson_boots"
-      ]
-     },
      "militia": {
       "mainhand": [
        "magistuarmory:club"
+      ],
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "all": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:chainmail_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "ranged": {
+      "kits": [
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
       ]
      }
     }
    }
   }
- }
+ },
+ "heraldry": true
 }

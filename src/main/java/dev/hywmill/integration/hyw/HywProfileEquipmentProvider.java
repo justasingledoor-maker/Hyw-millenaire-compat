@@ -70,12 +70,88 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
 
     private static void overlay(BaseCombatEntity u, UnitSpec unit, Context ctx) {
         EquipmentProfiles p = EquipmentProfiles.current();
+        EquipmentProfiles.Kit kit = chooseKit(p, unit.entityType(), ctx);
         for (String slot : EquipmentProfiles.SLOTS) {
+            if (kit != null && EquipmentProfiles.ARMOUR.contains(slot)) {
+                // one whole armour set: never a piece from another list (no plate helmet over cloth)
+                String id = kit.piece(slot);
+                u.setItemSlot(slotOf(slot), id.equals(EquipmentProfiles.NONE) ? ItemStack.EMPTY
+                        : new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(id))));
+                continue;
+            }
             String item = choose(p, unit.entityType(), slot, ctx);
             if (item != null) {
                 u.setItemSlot(slotOf(slot), new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(item))));
             }
         }
+        decorate(u, p, ctx);
+    }
+
+    /** The unit's armour kit (deterministic by roster id): from the first kit list with a kit whose every piece is usable. */
+    @javax.annotation.Nullable
+    static EquipmentProfiles.Kit chooseKit(EquipmentProfiles p, String entityType, Context ctx) {
+        for (List<EquipmentProfiles.Kit> list : p.kitCandidates(ctx.culture(), ctx.tier(), ctx.dutyRole(), ctx.classRole())) {
+            List<EquipmentProfiles.Kit> valid = new ArrayList<>();
+            for (EquipmentProfiles.Kit k : list) {
+                if (kitUsable(entityType, k)) {
+                    valid.add(k);
+                }
+            }
+            if (!valid.isEmpty()) {
+                long h = ctx.rosterId().getLeastSignificantBits() * 31 + ctx.rosterId().getMostSignificantBits() + 0x4B17L;
+                return valid.get((int) Math.floorMod(h, (long) valid.size()));
+            }
+        }
+        return null;
+    }
+
+    static boolean kitUsable(String entityType, EquipmentProfiles.Kit k) {
+        for (String slot : EquipmentProfiles.ARMOUR) {
+            String id = k.piece(slot);
+            if (!id.equals(EquipmentProfiles.NONE) && check(entityType, slot, id) != Verdict.OK) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Livery: dyeable armour in the unit's two colours; a shield painted with its arms (vanilla banner components). */
+    private static void decorate(BaseCombatEntity u, EquipmentProfiles p, Context ctx) {
+        int[] c = dev.hywmill.garrison.equip.Livery.colours(ctx.rosterId(), p.palette(ctx.culture()));
+        for (String slot : EquipmentProfiles.ARMOUR) {
+            ItemStack st = u.getItemBySlot(slotOf(slot));
+            if (!st.isEmpty() && st.is(net.minecraft.tags.ItemTags.DYEABLE)) {
+                st.set(net.minecraft.core.component.DataComponents.DYED_COLOR,
+                        new net.minecraft.world.item.component.DyedItemColor(slot.equals("legs") ? c[1] : c[0], false));
+            }
+        }
+        ItemStack shield = u.getItemBySlot(EquipmentSlot.OFFHAND);
+        if (p.heraldry() && shield.getItem() instanceof net.minecraft.world.item.ShieldItem) {
+            paint(u, shield, ctx.rosterId());
+        }
+    }
+
+    private static void paint(BaseCombatEntity u, ItemStack shield, java.util.UUID id) {
+        var reg = u.level().registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.BANNER_PATTERN);
+        List<String> ordinaries = new ArrayList<>();
+        reg.getTag(net.minecraft.tags.BannerPatternTags.NO_ITEM_REQUIRED).ifPresent(set -> set.forEach(h -> h.unwrapKey()
+                .map(k -> k.location().toString()).filter(s -> !s.equals("minecraft:base")).ifPresent(ordinaries::add)));
+        List<String> charges = new ArrayList<>();
+        for (ResourceLocation k : reg.keySet()) {
+            if (k.getNamespace().equals(EK)) {
+                charges.add(k.toString());
+            }
+        }
+        java.util.Collections.sort(ordinaries);
+        java.util.Collections.sort(charges);
+        dev.hywmill.garrison.equip.Livery.Arms arms = dev.hywmill.garrison.equip.Livery.arms(id, ordinaries, charges);
+        net.minecraft.world.level.block.entity.BannerPatternLayers.Builder b = new net.minecraft.world.level.block.entity.BannerPatternLayers.Builder();
+        for (dev.hywmill.garrison.equip.Livery.Layer l : arms.layers()) {
+            reg.getHolder(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.BANNER_PATTERN,
+                    ResourceLocation.parse(l.pattern()))).ifPresent(h -> b.add(h, l.color()));
+        }
+        shield.set(net.minecraft.core.component.DataComponents.BASE_COLOR, arms.base());
+        shield.set(net.minecraft.core.component.DataComponents.BANNER_PATTERNS, b.build());
     }
 
     @Override
@@ -115,6 +191,31 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                 }
             }
         }
+        int kitCount = 0;
+        java.util.Set<String> badKits = new java.util.TreeSet<>();
+        for (var c : p.rawKits().entrySet()) {
+            for (var t : c.getValue().entrySet()) {
+                for (var r : t.getValue().entrySet()) {
+                    for (EquipmentProfiles.Kit k : r.getValue()) {
+                        kitCount++;
+                        for (String slot : EquipmentProfiles.ARMOUR) {
+                            String id = k.piece(slot);
+                            if (id.equals(EquipmentProfiles.NONE)) {
+                                continue;
+                            }
+                            Verdict v = check("", slot, id);
+                            if (v == Verdict.UNREGISTERED || v == Verdict.WRONG_SLOT) {
+                                badKits.add((c.getKey().isEmpty() ? "defaults" : c.getKey()) + " " + t.getKey() + " " + r.getKey() + " kit " + id
+                                        + " as " + slot + ": " + v);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        badKits.forEach(x -> out.add("INVALID KIT " + x + " (the kit is skipped)"));
+        out.add("kits: " + kitCount + " armour kit(s), " + badKits.size() + " invalid piece(s); heraldry " + (p.heraldry() ? "on" : "off")
+                + "; profile revision " + p.revision());
         itemVerdict.forEach((k, v) -> out.add("INVALID " + k + ": " + v));
         incompatible.forEach(x -> out.add("INCOMPATIBLE " + x + ": not a family HYW gives this unit (skipped for it)"));
         fallback.forEach(x -> out.add("FALLBACK " + x + ": no usable item in this list (next list, else HYW's own item)"));

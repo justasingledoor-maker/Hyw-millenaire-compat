@@ -270,19 +270,20 @@ public final class DutyService {
      */
     private static void reequip(VillageRecord rec, RosterEntry e, Entity ent, UnitProvider units) {
         String role = dev.hywmill.garrison.equip.EquipmentProfiles.dutyRole(e.assignedDuty);
-        if (role.equals(e.equipRole)) {
+        String stamp = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(role); // role + profile revision: new data re-equips once
+        if (stamp.equals(e.equipRole)) {
             return;
         }
         GarrisonTables gt = GarrisonTables.current();
         dev.hywmill.garrison.spi.EquipmentProvider eq = Services.equipment(gt.forCulture(rec.culture).equipmentProvider());
         UnitSpec spec = gt.units().get(e.unitKey);
         if (eq == null || !eq.reequips() || spec == null) {
-            e.equipRole = role;
+            e.equipRole = stamp;
             return;
         }
         eq.apply(ent, spec, e.equipmentLevel, new dev.hywmill.garrison.spi.EquipmentProvider.Context(rec.culture, rec.tier, role,
                 dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId));
-        e.equipRole = role;
+        e.equipRole = stamp;
     }
 
     /** Reads the layout when due and recomputes posts and routes if it (or the data) changed. False if there is no plan. */

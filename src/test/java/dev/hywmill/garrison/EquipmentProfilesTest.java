@@ -48,22 +48,84 @@ class EquipmentProfilesTest {
     @Test
     void resolutionPrefersDutyRoleThenCultureThenDefaults() throws IOException {
         EquipmentProfiles p = shipped(new ArrayList<>());
-        List<List<String>> head = p.candidates("millenaire:norman", MilitaryTier.GARRISON, "sentry", "line", "head");
-        assertEquals(List.of("magistuarmory:bascinet"), head.get(0), "sentry helmet (defaults' duty role) first");
-        assertEquals(List.of("magistuarmory:norman_helmet"), head.get(1), "then the culture's flavour");
-        List<List<String>> plain = p.candidates("millenaire:norman", MilitaryTier.GARRISON, "", "line", "head");
-        assertEquals(List.of("magistuarmory:norman_helmet"), plain.get(0));
-        assertTrue(p.candidates("millenaire:unknown", MilitaryTier.WATCH, "", "militia", "chest").size() >= 1, "defaults apply to any culture");
-        assertTrue(p.candidates("millenaire:norman", MilitaryTier.NONE, "", "line", "head").isEmpty());
+        List<List<String>> off = p.candidates("millenaire:norman", MilitaryTier.GARRISON, "sentry", "line", "offhand");
+        assertTrue(off.get(0).stream().allMatch(i -> i.contains("shield")), "sentry shields (defaults' duty role) first: " + off.get(0));
+        List<List<EquipmentProfiles.Kit>> scout = p.kitCandidates("millenaire:norman", MilitaryTier.STRONGHOLD, "scout", "line");
+        assertEquals("magistuarmory:gambeson_boots", scout.get(0).get(0).piece("feet"), "scouts ride light, whatever their culture");
+        List<List<EquipmentProfiles.Kit>> line = p.kitCandidates("millenaire:norman", MilitaryTier.GARRISON, "sentry", "line");
+        assertEquals("magistuarmory:norman_helmet", line.get(0).get(0).piece("head"), "no sentry kits: the culture's own kit");
+        assertTrue(p.kitCandidates("millenaire:unknown", MilitaryTier.WATCH, "", "militia").size() >= 1, "defaults apply to any culture");
+        assertTrue(p.kitCandidates("millenaire:norman", MilitaryTier.NONE, "", "line").isEmpty());
     }
 
     @Test
     void equipmentScalesWithTier() throws IOException {
         EquipmentProfiles p = shipped(new ArrayList<>());
-        assertEquals(List.of("magistuarmory:gambeson_chestplate"), p.candidates("", MilitaryTier.WATCH, "", "line", "chest").get(0));
-        assertTrue(p.candidates("", MilitaryTier.STRONGHOLD, "", "line", "chest").get(0).contains("magistuarmory:platemail_chestplate"));
+        assertEquals("magistuarmory:gambeson_chestplate", p.kitCandidates("", MilitaryTier.WATCH, "", "line").get(0).get(0).piece("chest"));
+        assertTrue(p.kitCandidates("", MilitaryTier.STRONGHOLD, "", "line").get(0).stream()
+                .anyMatch(k -> k.piece("chest").equals("magistuarmory:platemail_chestplate")));
         assertTrue(p.candidates("", MilitaryTier.WATCH, "", "line", "mainhand").get(0).stream().noneMatch(i -> i.contains("steel_")));
         assertTrue(p.candidates("", MilitaryTier.STRONGHOLD, "", "line", "mainhand").get(0).stream().allMatch(i -> i.contains("steel_")));
+    }
+
+    /** The bug report: a plate helmet over plain cloth. Armour now comes from whole kits only: no per-slot armour lists remain. */
+    @Test
+    void armourComesFromWholeKitsThatMatch() throws IOException {
+        List<String> problems = new ArrayList<>();
+        EquipmentProfiles p = shipped(problems);
+        assertEquals(List.of(), problems);
+        java.util.Set<String> plate = java.util.Set.of("magistuarmory:greathelm", "magistuarmory:grand_bascinet", "magistuarmory:armet",
+                "magistuarmory:bascinet", "magistuarmory:sallet");
+        java.util.Set<String> cloth = java.util.Set.of("magistuarmory:gambeson_chestplate");
+        int kits = 0;
+        for (var c : p.rawKits().entrySet()) {
+            for (var t : c.getValue().entrySet()) {
+                for (var r : t.getValue().entrySet()) {
+                    for (EquipmentProfiles.Kit k : r.getValue()) {
+                        kits++;
+                        for (String slot : EquipmentProfiles.ARMOUR) {
+                            String id = k.piece(slot);
+                            assertTrue(id.equals(EquipmentProfiles.NONE) || id.startsWith("magistuarmory:"), id);
+                        }
+                        assertFalse(plate.contains(k.piece("head")) && cloth.contains(k.piece("chest")),
+                                "no plate helmet over cloth: " + c.getKey() + " " + t.getKey() + " " + r.getKey() + " " + k);
+                    }
+                }
+            }
+        }
+        assertTrue(kits > 50, "every culture, tier and class has kits: " + kits);
+        for (var c : p.raw().values()) {
+            for (var t : c.values()) {
+                for (var r : t.values()) {
+                    for (String slot : EquipmentProfiles.ARMOUR) {
+                        assertFalse(r.containsKey(slot), "armour comes from kits, not mixed slot lists");
+                    }
+                }
+            }
+        }
+        assertEquals(12, p.palette("millenaire:norman").size(), "the shipped dye palette applies to every culture");
+        assertTrue(p.heraldry());
+    }
+
+    @Test
+    void kitsNeedEveryArmourSlotAndTheRevisionFollowsTheData() {
+        JsonObject f = JsonParser.parseString("""
+                { "defaults": { "tiers": { "WATCH": { "line": { "kits": [
+                    { "head": "a:h", "chest": "a:c", "legs": "a:l", "feet": "none" },
+                    { "head": "a:h", "chest": "a:c" } ] } } } } }
+                """).getAsJsonObject();
+        List<String> problems = new ArrayList<>();
+        EquipmentProfiles p = EquipmentProfiles.fromJson(List.of(f), problems);
+        assertEquals(1, problems.size(), "an incomplete kit is reported and ignored: " + problems);
+        List<List<EquipmentProfiles.Kit>> k = p.kitCandidates("", MilitaryTier.WATCH, "", "line");
+        assertEquals(1, k.get(0).size());
+        assertEquals(EquipmentProfiles.NONE, k.get(0).get(0).piece("feet"));
+        JsonObject g = JsonParser.parseString("""
+                { "defaults": { "tiers": { "WATCH": { "line": { "kits": [
+                    { "head": "a:h2", "chest": "a:c", "legs": "a:l", "feet": "none" } ] } } } } }
+                """).getAsJsonObject();
+        assertNotEquals(p.revision(), EquipmentProfiles.fromJson(List.of(g), new ArrayList<>()).revision(), "new data re-equips units");
+        assertEquals(p.revision(), EquipmentProfiles.fromJson(List.of(f), new ArrayList<>()).revision(), "same data, same revision");
     }
 
     @Test
