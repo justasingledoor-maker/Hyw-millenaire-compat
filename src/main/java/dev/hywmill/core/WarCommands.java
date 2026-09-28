@@ -61,6 +61,10 @@ final class WarCommands {
             send(ctx.getSource(), "war leave " + r.code() + ": " + r.message());
             return r.ok() ? 1 : 0;
         }));
+        node.then(Commands.literal("raid").executes(ctx -> raid(ctx, who.get(ctx), null))
+                .then(Commands.literal("roll").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get() && s.hasPermission(2))
+                        .then(Commands.argument("draw", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0, 1))
+                                .executes(ctx -> raid(ctx, who.get(ctx), com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "draw"))))));
         node.then(Commands.literal("join").then(Commands.argument("ally", BlockPosArgument.blockPos())
                 .then(Commands.literal("against").then(Commands.argument("enemy", BlockPosArgument.blockPos())
                         .executes(ctx -> join(ctx, who.get(ctx)))))));
@@ -104,6 +108,22 @@ final class WarCommands {
         w.wars().forEach(l -> send(ctx.getSource(), " " + l));
         send(ctx.getSource(), "war campaign: " + (w.campaign() == null ? "none" : w.campaign()));
         return w.wars().size();
+    }
+
+    /** Post-M5: suggest a raid to the village of the player's campaign against its enemy ({@code roll}: dev, forced draw). */
+    private static int raid(CommandContext<CommandSourceStack> ctx, @Nullable UUID player, @Nullable Double draw) {
+        if (player == null) {
+            return 0;
+        }
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        dev.hywmill.politics.war.Campaign c = dev.hywmill.politics.service.RelationProjector.campaignOf(GarrisonLedger.get(ow), player);
+        if (c == null) {
+            send(ctx.getSource(), "war raid NOT_ON_CAMPAIGN: You are not on campaign; join a war first ('/hywmill war join <ally> against <enemy>')");
+            return 0;
+        }
+        var r = PoliticsActions.suggestRaid(ow, player, c.ally(), c.enemy(), draw);
+        send(ctx.getSource(), "war raid " + r.code() + ": " + r.message());
+        return r.ok() ? 1 : 0;
     }
 
     private static int join(CommandContext<CommandSourceStack> ctx, @Nullable UUID player) throws CommandSyntaxException {

@@ -127,6 +127,16 @@ public final class PoliticsActions {
         return new ActionResult(r == dev.hywmill.politics.service.RelationProjector.JoinResult.OK, r.name(), msg);
     }
 
+    /**
+     * Post-M5: the player, on campaign with {@code ally} against {@code enemy}, suggests that the ally raid the enemy.
+     * {@code forcedDraw} replaces the random draw (dev commands only; null in play).
+     */
+    public static ActionResult suggestRaid(ServerLevel overworld, UUID player, UUID ally, UUID enemy, @javax.annotation.Nullable Double forcedDraw) {
+        var r = dev.hywmill.politics.service.RaidCounselService.suggest(overworld, player, ally, enemy, false, forcedDraw);
+        String code = !r.ok() ? r.refusal().name() : r.agreed() ? "AGREED" : "REFUSED";
+        return new ActionResult(r.agreed(), code, r.ok() ? r.detail() : "You cannot suggest a raid: " + r.detail());
+    }
+
     public static ActionResult leaveWar(ServerLevel overworld, UUID player) {
         HywMillRuntime rt = HywMillRuntime.require();
         boolean ok = rt.relations().leave(overworld, rt, player);
@@ -162,6 +172,9 @@ public final class PoliticsActions {
             }
             case "WAR_JOIN" -> {
                 return joinWar(overworld, player, home, target);
+            }
+            case "SUGGEST_RAID" -> {
+                return suggestRaid(overworld, player, home, target, null);
             }
             case "WAR_LEAVE" -> {
                 return leaveWar(overworld, player);

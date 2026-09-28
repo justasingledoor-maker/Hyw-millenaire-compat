@@ -348,6 +348,9 @@ public final class PoliticsView {
         boolean war = dev.hywmill.politics.service.RelationProjector.atWar(ledger, home, target);
         out.add(new ActionOption("WAR_JOIN", "Join " + h.name + "'s war against " + t.name, war,
                 war ? "needs trusted with " + h.name + "; " + t.name + " will hold a grievance" : "these villages are not at war", war ? "7-day campaign" : ""));
+        var rc = dev.hywmill.politics.service.RaidCounselService.suggest(overworld, player, home, target, true, null);
+        out.add(new ActionOption("SUGGEST_RAID", "Suggest a raid on " + t.name, rc.ok(), rc.detail(),
+                rc.ok() ? dev.hywmill.politics.RaidCounsel.band(rc.chance()) : ""));
         return out;
     }
 }

@@ -2101,6 +2101,90 @@ def scenario_WL(ctx):
     s.cmd(f"forceload remove {x - 24} {z - 24} {x + 24} {z + 24}", 1)
 
 
+def scenario_RC(ctx):
+    """Raid counsel (post-M5; run with [politics] warMinConflictTicks = 200): a player on campaign with a village at war
+    suggests a raid on the enemy. B (it has raiders) is the ally, A the enemy. Refused without a campaign; a refusal by the
+    roll spends a diplomacy point and starts the cooldown; an agreement plans a Millénaire raid (which then sets out with a
+    garrison share); a village already raiding is refused."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    U, V = U_UUID, "cccccccc-dddd-4eee-8fff-000000000001"
+    ida, idb = info(s, a).get("villageId", ""), info(s, b).get("villageId", "")
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    for i, u in enumerate((U, V)):
+        m5(s, f"mill discover {ca} {u}", 0.5)
+        m5(s, f"mill discover {cb} {u}", 0.5)
+        standin_at(s, u, b[0] + 3 + i, b[2] + 3)
+        m5(s, f"mill rep {cb} {u} adjust 5000", 0.5)
+        m5(s, f"mill dpoints {cb} {u} regen", 0.5)
+    time.sleep(14)  # the standing is re-evaluated on the politics cadence
+
+    def raid(u, draw=None):
+        sub = f"for {u} raid" + (f" roll {draw}" if draw is not None else "")
+        return " | ".join(war_lines(s, b, sub))
+
+    def ui_raid(u):
+        out = m5(s, f"ui select {u} {ca}", 2)
+        return next((l for l in out if "action SUGGEST_RAID" in l), "")
+
+    r0 = raid(U)
+    u0 = ui_raid(U)
+    check("RC-1 without a campaign the suggestion is refused (command; the screen shows it disabled with the reason)",
+          "NOT_ON_CAMPAIGN" in r0 and "available=false" in u0 and ("not at war" in u0 or "on campaign" in u0), f"{r0} || {u0}")
+    m5(s, f"mill mrel {ca} {cb} set -100")
+    t0 = time.time()
+    while time.time() - t0 < 90 and not any("at war" in l for l in war_lines(s, b, f"for {U} status")):
+        time.sleep(5)
+    j = [" | ".join(war_lines(s, b, f"for {u} join {cb} against {ca}")) for u in (U, V)]
+    check("RC-2 B and A go to war; two trusted players join B's campaign", all("join OK" in x for x in j), " || ".join(j))
+    u1 = ui_raid(U)
+    check("RC-2b on campaign the Politics screen offers 'Suggest a raid' with its cost and odds", "available=true" in u1
+          and "diplomacy point" in u1 and re.search(r"outcome=(likely|uncertain|unlikely)", u1), u1)
+    p0 = m5_1(s, f"mill dpoints {cb} {U}")
+    rb0 = m5_1(s, f"mill raid {cb}")
+    r1 = raid(U, 0.999)
+    p1 = m5_1(s, f"mill dpoints {cb} {U}")
+    rb1 = m5_1(s, f"mill raid {cb}")
+    pts = lambda l: int(re.search(r"now=(\d+)", l)[1]) if re.search(r"now=(\d+)", l) else -1
+    check("RC-3 the elders refuse (draw above the chance): a diplomacy point is spent and no raid is planned",
+          "REFUSED" in r1 and pts(p1) == pts(p0) - 1 and "target=none" in rb1, f"{r1} || {p0} -> {p1} || {rb0} -> {rb1}")
+    r2 = raid(U, 0.0)
+    check("RC-4 asking again at once is refused by the cooldown", "COOLDOWN" in r2, r2)
+    p = s.pos()
+    r3 = raid(V, 0.0)
+    rb2 = m5_1(s, f"mill raid {cb}")
+    lines = s.read_since(p)
+    planned = [l for l in lines if "Raid planned" in l]
+    check("RC-5 another campaigner's counsel is heeded: Millénaire plans B's raid on A (its own announcement)",
+          "AGREED" in r3 and ("target=" + ida[:8]) in rb2 and "start=0" in rb2 and planned, f"{r3} || {rb2} || {(planned or ['no Raid planned line'])[0][-140:]}")
+    r4 = raid(V, 0.0)
+    check("RC-6 while B is raiding, a further suggestion is refused", "ALREADY_RAIDING" in r4, r4)
+    u2 = " | ".join(l for l in m5(s, f"ui submit {V} {ca} SUGGEST_RAID", 2) if "ui result" in l)
+    check("RC-6b the screen's submit goes through the same checks (refused while raiding)", "ALREADY_RAIDING" in u2, u2)
+    chron = [l for l in s.output(at(b, f"hywmill politics status for {V}"), 2) if "counselled a raid" in l]
+    note("RC chronicle", (chron or ["(not listed in status)"])[0][-200:])
+    # the raid sets out a (Millénaire) day after planning; the garrison sends its raid share with it
+    p = s.pos()
+    s.cmd("time add 24000", 1)
+    started, raiders = None, 0
+    t0 = time.time()
+    while time.time() - t0 < 120:
+        lines = s.read_since(p)
+        started = started or next((l for l in lines if "Raid started" in l or "Raid aborted" in l), None)
+        rows = duties(s, b)["rows"]
+        raiders = max(raiders, sum(1 for r in rows if r["duty"] == "RAID"))
+        if started and raiders:
+            break
+        time.sleep(5)
+    check("RC-7 a day later the raid sets out, with a share of B's garrison on RAID duty",
+          started is not None and "Raid started" in started and raiders >= 1, f"{(started or 'no start line')[-160:]}; garrison on RAID: {raiders}")
+    for u in (U, V):
+        war_lines(s, b, f"for {u} leave")
+        m5(s, f"standin remove {u}", 0.3)
+    dip(s, a, f"admin truce {ca} {cb} 1")
+    m5(s, f"mill mrel {ca} {cb} set 0")
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -4964,7 +5048,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

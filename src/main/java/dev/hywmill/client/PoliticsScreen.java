@@ -66,7 +66,7 @@ public final class PoliticsScreen extends Screen {
         for (PoliticsSnapshot.ActionRow a : snap.actions()) {
             Button b = Button.builder(Component.literal(a.label()), btn -> submit(a.action()))
                     .bounds(ax, ay + i * 22, 170, 20)
-                    .tooltip(Tooltip.create(Component.literal(a.requirement() + (a.outcome().isEmpty() ? "" : "\\nOutcome: " + a.outcome())))).build();
+                    .tooltip(Tooltip.create(Component.literal(a.requirement() + (a.outcome().isEmpty() ? "" : "\nOutcome: " + a.outcome())))).build();
             b.active = a.available() && snap.home() != null;
             addRenderableWidget(b);
             i++;

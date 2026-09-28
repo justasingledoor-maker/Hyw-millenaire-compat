@@ -23,6 +23,8 @@ public final class PoliticsRecord {
     public long lastErrandLoss = -1;
     /** M5-5: last monthly long-standing Favor trickle (-1: not yet started). */
     public long lastTrickle = -1;
+    /** Tick of the player's last raid counsel to this village (-1: never; post-M5). */
+    public long lastRaidCounsel = -1;
 
     /** Sow-discord attempts that still count at {@code now} (older than {@code window}: none). */
     public int recentSowAttempts(long now, long window) {
@@ -32,7 +34,8 @@ public final class PoliticsRecord {
     /** A default record carries no information and is pruned. */
     public boolean isDefault() {
         return status == Standing.STRANGER && grievances.isEmpty() && favor.isEmpty() && lastRequestTick < 0
-                && casualtiesOnErrands == 0 && lastProposal.isEmpty() && lastSowDiscord < 0 && lastErrandLoss < 0 && lastTrickle < 0;
+                && casualtiesOnErrands == 0 && lastProposal.isEmpty() && lastSowDiscord < 0 && lastErrandLoss < 0 && lastTrickle < 0
+                && lastRaidCounsel < 0;
     }
 
     /**

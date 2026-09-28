@@ -78,6 +78,9 @@ public final class PoliticsNbt {
             if (r.lastTrickle >= 0) {
                 c.putLong("lastTrickle", r.lastTrickle);
             }
+            if (r.lastRaidCounsel >= 0) {
+                c.putLong("lastRaidCounsel", r.lastRaidCounsel);
+            }
             players.add(c);
         }
         t.put("players", players);
@@ -150,6 +153,7 @@ public final class PoliticsNbt {
             r.sowAttempts = c.getInt("sowAttempts");
             r.lastErrandLoss = c.contains("lastErrandLoss") ? c.getLong("lastErrandLoss") : -1;
             r.lastTrickle = c.contains("lastTrickle") ? c.getLong("lastTrickle") : -1;
+            r.lastRaidCounsel = c.contains("lastRaidCounsel") ? c.getLong("lastRaidCounsel") : -1;
         }
         ListTag truces = t.getList("truces", Tag.TAG_COMPOUND);
         for (int i = 0; i < truces.size(); i++) {

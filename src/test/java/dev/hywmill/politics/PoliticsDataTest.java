@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PoliticsDataTest {
@@ -49,6 +50,22 @@ class PoliticsDataTest {
         assertEquals(new PoliticsTables.PardonRule(false, 48, 1024), d.forCulture("millenaire:inuits").pardon());
         assertEquals(d.defaults().pardon(), d.forCulture("millenaire:mayan").pardon());
         assertEquals(1, problems.size(), problems.toString());
+    }
+
+    @Test
+    void raidCounselParsesPerCultureAndRejectsBadRanges() {
+        List<String> problems = new ArrayList<>();
+        JsonObject f = JsonParser.parseString("""
+                {"defaults": {"raidCounsel": {"chance": {"TRUSTED": 0.5, "NOPE": 1}, "pointCost": 2}},
+                 "cultures": {"millenaire:inuits": {"raidCounsel": {"enabled": false}}, "millenaire:mayan": {"raidCounsel": {"minChance": 0.9, "maxChance": 0.5}}}}""")
+                .getAsJsonObject();
+        PoliticsData d = PoliticsData.fromJson(List.of(f), problems);
+        assertEquals(0.5, d.defaults().raidCounsel().chance(Standing.TRUSTED), 1e-9);
+        assertEquals(0.75, d.defaults().raidCounsel().chance(Standing.SWORN), 1e-9);
+        assertEquals(2, d.defaults().raidCounsel().pointCost());
+        assertFalse(d.forCulture("millenaire:inuits").raidCounsel().enabled());
+        assertEquals(d.defaults().raidCounsel(), d.forCulture("millenaire:mayan").raidCounsel());
+        assertEquals(2, problems.size(), problems.toString());
     }
 
     @Test

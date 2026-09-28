@@ -8,7 +8,12 @@ import java.util.Map;
  * records; {@link #DEFAULTS} are the shipped values, used when no data is loaded.
  */
 public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
-                             RequestRule requests) {
+                             RequestRule requests, RaidCounselRule raidCounsel) {
+
+    public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
+                          RequestRule requests) {
+        this(standing, grievance, favor, pardon, diplomacy, requests, RaidCounselRule.DEFAULT);
+    }
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor) {
         this(standing, grievance, favor, PardonRule.DEFAULT, DiplomacyRule.DEFAULT, RequestRule.DEFAULT);
@@ -42,6 +47,37 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
         public int detachMax(Standing s) {
             return detachMax.getOrDefault(s, 0);
         }
+    }
+
+    /**
+     * Raid counsel (post-M5): a player on campaign with a village asks it to raid the enemy. Refused unless the two are at war,
+     * the player's active campaign is with this village against that enemy, the village is not already raiding, the target is
+     * not under attack and the village has raiders.
+     *
+     * @param chance          chance the village agrees, per the player's standing with it (absent: never)
+     * @param tooStrongFactor chance factor when the target's defending strength is at least twice the village's raiding
+     *                        strength (Millénaire's own limit for choosing a raid target)
+     * @param minChance       floor of the final chance (when the standing has a chance at all)
+     * @param maxChance       ceiling of the final chance
+     * @param pointCost       Millénaire diplomacy points with the village, spent whatever the answer
+     * @param cooldown        ticks before the same player may counsel the same village again
+     */
+    public record RaidCounselRule(boolean enabled, Map<Standing, Double> chance, double tooStrongFactor, double minChance, double maxChance,
+                                  int pointCost, long cooldown) {
+        public static final RaidCounselRule DEFAULT = new RaidCounselRule(true,
+                standingDoubles(Standing.TRUSTED, 0.35, Standing.PATRON, 0.55, Standing.SWORN, 0.75), 0.3, 0.05, 0.9, 1, 24000L);
+
+        public double chance(Standing s) {
+            return chance.getOrDefault(s, 0.0);
+        }
+    }
+
+    private static Map<Standing, Double> standingDoubles(Object... kv) {
+        Map<Standing, Double> m = new EnumMap<>(Standing.class);
+        for (int i = 0; i < kv.length; i += 2) {
+            m.put((Standing) kv[i], (Double) kv[i + 1]);
+        }
+        return java.util.Collections.unmodifiableMap(m);
     }
 
     @SuppressWarnings("unchecked")

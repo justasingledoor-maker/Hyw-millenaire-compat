@@ -145,7 +145,30 @@ public final class PoliticsData {
                 rq = base.requests();
             }
         }
-        return new PoliticsTables(s, g, f, pr, dr, rq);
+        PoliticsTables.RaidCounselRule rc = base.raidCounsel();
+        if (o.has("raidCounsel") && o.get("raidCounsel").isJsonObject()) {
+            JsonObject j = o.getAsJsonObject("raidCounsel");
+            Map<Standing, Double> ch = new EnumMap<>(Standing.class);
+            ch.putAll(rc.chance());
+            if (j.has("chance") && j.get("chance").isJsonObject()) {
+                for (Map.Entry<String, JsonElement> e : j.getAsJsonObject("chance").entrySet()) {
+                    try {
+                        ch.put(Standing.valueOf(e.getKey()), Math.max(0, Math.min(1, e.getValue().getAsDouble())));
+                    } catch (RuntimeException ex) {
+                        problems.add(where + ": raidCounsel.chance names unknown standing '" + e.getKey() + "'");
+                    }
+                }
+            }
+            rc = new PoliticsTables.RaidCounselRule(j.has("enabled") ? j.get("enabled").getAsBoolean() : rc.enabled(),
+                    java.util.Collections.unmodifiableMap(ch), d(j, "tooStrongFactor", rc.tooStrongFactor()), d(j, "minChance", rc.minChance()),
+                    d(j, "maxChance", rc.maxChance()), i(j, "pointCost", rc.pointCost()), l(j, "cooldown", rc.cooldown()));
+            if (rc.tooStrongFactor() < 0 || rc.minChance() < 0 || rc.maxChance() > 1 || rc.minChance() > rc.maxChance() || rc.pointCost() < 0
+                    || rc.cooldown() < 0) {
+                problems.add(where + ": raidCounsel values out of range; using " + where + " base");
+                rc = base.raidCounsel();
+            }
+        }
+        return new PoliticsTables(s, g, f, pr, dr, rq, rc);
     }
 
     private static Map<Standing, Integer> standingInts(JsonObject j, String key, Map<Standing, Integer> base, List<String> problems, String where) {

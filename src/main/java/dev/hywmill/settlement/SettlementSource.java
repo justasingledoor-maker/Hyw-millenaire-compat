@@ -69,6 +69,22 @@ public interface SettlementSource {
         return Optional.empty();
     }
 
+    /**
+     * The settlement's raiding and defending strength as its own mod rates them (Millénaire: {@code getVillageRaidingStrength},
+     * {@code getVillageDefendingStrength}); empty if unknown or unsupported. Post-M5 raid counsel.
+     */
+    default Optional<int[]> raidStrength(ServerLevel level, UUID settlementId) {
+        return Optional.empty();
+    }
+
+    /**
+     * Has {@code attackerId} start planning a raid on {@code targetId} through the settlement mod's normal raid flow (its
+     * announcement, its planning delay, its raiders). False if unsupported, unknown, or the attacker already has a raid.
+     */
+    default boolean planRaid(ServerLevel level, UUID attackerId, UUID targetId) {
+        return false;
+    }
+
     /** Where the settlement mod lands raiders attacking {@code targetId} from {@code attackerCenter}; empty if unsupported. */
     default Optional<BlockPos> raidLandingPoint(ServerLevel level, UUID targetId, BlockPos attackerCenter) {
         return Optional.empty();

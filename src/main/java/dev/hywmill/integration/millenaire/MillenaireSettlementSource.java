@@ -534,6 +534,24 @@ final class MillenaireSettlementSource implements SettlementSource {
                 v.getRaidsPerformed().size(), v.getRaidsSuffered().size()));
     }
 
+    @Override
+    public Optional<int[]> raidStrength(ServerLevel level, UUID settlementId) {
+        Village v = manager(level).getVillage(new VillageId(settlementId));
+        return v == null ? Optional.empty() : Optional.of(new int[]{v.getVillageRaidingStrength(), v.getVillageDefendingStrength()});
+    }
+
+    /** Millénaire's own planning ({@code RaidManager.planRaid}, public static): announcement, then the raid a day later. */
+    @Override
+    public boolean planRaid(ServerLevel level, UUID attackerId, UUID targetId) {
+        Village a = manager(level).getVillage(new VillageId(attackerId));
+        Village t = manager(level).getVillage(new VillageId(targetId));
+        if (a == null || t == null || attackerId.equals(targetId) || a.getRaidTarget() != null) {
+            return false;
+        }
+        RaidManager.planRaid(a, t, level);
+        return true;
+    }
+
     /** Millénaire's own raider landing point ({@code RaidSpawnLocator.findSpawnPoint}, public). */
     @Override
     public Optional<BlockPos> raidLandingPoint(ServerLevel level, UUID targetId, BlockPos attackerCenter) {
