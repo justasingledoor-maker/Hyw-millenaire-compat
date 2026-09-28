@@ -1,0 +1,255 @@
+[harness] server started
+[harness] PASS setup: village A spawned (630, 82, 612)
+[harness] PASS setup: village B spawned (830, 80, 612)
+[harness] PASS setup: A has defenders and civilians 36 residents
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario G4_0
+[harness] G4 fill A (630, 82, 612): [('spear_man', 7), ('archer', 5), ('militia', 3), ('crossbowman', 2), ('warrior', 5)]
+[harness] G4 fill B (830, 80, 612): [('spear_man', 11), ('archer', 7), ('militia', 5), ('crossbowman', 3), ('warrior', 7)]
+[harness] G4 fill M (640, 72, 960): [('spear_man', 27), ('archer', 18), ('light_lancer_rider', 12), ('archer_rider', 8), ('militia', 5), ('crossbowman', 4), ('shieldman', 2), ('warrior', 6)]
+[harness] G4 fill Z (400, 71, 450): [('spear_man', 7), ('archer', 5), ('militia', 3), ('crossbowman', 2), ('warrior', 6)]
+[harness] G4 A Plan: 1 sentry post(s) [645,80,592] | patrol [706,83,652 686,86,677 645,86,666 604,84,652 596,78,583 645,80,592 674,79,588 701,73,605] | scout posts [711,80,736 534,80,688 582,80,511 759,80,559] | res | quota {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7} | 48 units
+[harness] G4 B Plan: 1 sentry post(s) [838,83,606] | patrol [879,89,653 886,86,676 814,85,672 819,88,645 803,82,589 829,82,601 850,83,606 906,85,604] | scout posts [719,87,597 873,87,496 974,87,650 820,87,751] | res | quota {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7} | 48 units
+[harness] G4 M Plan: 18 sentry post(s) [643,73,954 630,70,955 667,72,976 627,67,1028 684,70,923 627,61,923 603,68,947 603,70,991 602,70,922 647,69,1028 646,68,923 603,70,965 666,71,923 603,67,1006 697,68,923 603,70, | quota {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25} | 128 units
+[harness] G4 Z Plan: 3 sentry post(s) [413,70,461 422,70,473 400,70,470] | patrol [474,67,505 452,70,510 415,73,531 392,80,495 360,77,452 415,71,407 441,71,409 448,69,443] | scout posts [500,70,571 318,70,550 339,70 | quota {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7} | 48 units
+[harness] PASS G4-0 garrisons filled and duty plans exist (A, B and the stronghold at least) {'A': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}), 'B': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}), 'M': (128, {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25}), 'Z': (48, {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7})}
+[harness] --- scenario G4_1
+[harness] PASS G4-1a duty quotas never exceed the living garrison {'A': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}, {'RESERVE': 7, 'SENTRY': 2, 'GARRISON': 28, 'PATROL': 8, 'SCOUT': 3}, 16), 'B': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}, {'RESERVE': 7, 'SENTRY': 2, 'GARRISON': 28, 'PATROL': 8, 'SCOUT': 3}, 23), 'M': (128, {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25}, {'RESERVE': 25, 'GARRISON': 39, 'SENTRY': 32, 'PATROL': 24, 'SCOUT': 8}, 83), 'Z': (48, {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7}, {'SCOUT': 3, 'RESERVE': 7, 'PATROL': 8, 'GARRISON': 24, 'SENTRY': 6}, 22)}
+[harness] PASS G4-1b standing troops are distributed (many distinct home points per village) {'A': 16, 'B': 23, 'M': 83, 'Z': 22}
+[harness] PASS G4-1c the stronghold fields more sentries/patrols/scouts than the smallest garrison; the smallest is not over-tasked stronghold {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25} vs smallest (48 units) {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}
+[harness] --- scenario G4_2
+[harness] NOTE G4-2 settle precondition: reached after 16 s; {'A': (1, {0: 2}), 'B': (1, {0: 2}), 'M': (16, {0: 2, 1: 2, 2: 2, 3: 2, 4: 2, 5: 2, 6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 2, 14: 2, 15: 2}), 'Z': (3, {0: 2, 1: 2, 2: 2})}
+[harness] G4-2 pair A#0 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair B#0 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#0 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#1 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#2 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#4 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#3 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#5 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#14 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#6 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#7 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#8 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#9 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#10 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#11 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#12 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair M#15 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair Z#0 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair Z#1 first within 10 blocks of its post at 8 s
+[harness] G4-2 pair Z#2 first within 10 blocks of its post at 8 s
+[harness] NOTE G4-2 timeout M: sentry 871a9e60 (archer) pair #13 GARRISONED SENTRY/SENTRY at (634, 24, 942) post (603, 67, 1006) dist 71.1 home (633, 27, 942)
+[harness] FAIL G4-2 every sentry pair has two units, standing at (within 10 blocks of) its own post (from building data; settled, 6-min window) window 376 s; settle ok; {'A': (1, {0: [(644, 80, 594), (645, 80, 594)]}, True, True, True), 'B': (1, {0: [(835, 83, 607), (840, 83, 608)]}, True, True, True), 'M': (16, {0: [(642, 73, 956), (643, 73, 951)], 1: [(628, 70, 957), (635, 71, 954)], 2: [(666, 72, 977), (667, 72, 980)], 3: [(626, 66, 1028), (626, 66, 1027)], 4: [(686, 70, 928), (683, 69, 921)], 5: [(629, 61, 923), (626, 61, 925)], 6: [(606, 68, 945), (603, 79, 947)], 7: [(604, 73, 992), (603, 70, 992)], 8: [(601, 70, 924), (604, 70, 923)], 9: [(647, 77, 1027), (646, 76, 1028)], 10: [(647, 69, 923), (645, 76, 928)], 11: [(603, 73, 966), (605, 70, 963)], 12: [(669, 71, 923), (665, 71, 923)], 13: [(634, 24, 942), (602, 67, 1005)], 14: [(697, 75, 922), (698, 75, 923)], 15: [(604, 70, 934), (604, 69, 936)]}, True, False, True), 'Z': (3, {0: [(413, 69, 454), (413, 70, 461)], 1: [(422, 70, 472), (421, 70, 473)], 2: [(401, 70, 471), (402, 70, 471)]}, True, True, True)}
+[harness] --- scenario G4_3
+[harness] PASS G4-3a patrol route is deterministic (identical on every read) 6 waypoints
+[harness] PASS G4-3b patrol units advance along the route 24/24 moved over 120 s
+[harness] --- scenario G4_4
+[harness] NOTE G4-4 diag A scout 8b002e93: archer best 99 index 1 phases ['back', 'rest', 'watch']
+[harness] NOTE G4-4 diag A scout 9647ff9e: archer best 141 index 0 phases ['out', 'watch']
+[harness] NOTE G4-4 diag A scout cc541abc: crossbowman best 97 index 2 phases ['back', 'rest', 'watch']
+[harness] NOTE G4-4 diag M scout 81388c99: light_lancer_rider best 62 index 7 phases ['out']
+[harness] NOTE G4-4 diag M scout 8962eac5: light_lancer_rider best 3 index 0 phases ['back', 'rest']
+[harness] NOTE G4-4 diag M scout 9582203e: light_lancer_rider best 36 index 3 phases ['back']
+[harness] NOTE G4-4 diag M scout 9c915399: light_lancer_rider best 119 index 6 phases ['back', 'watch']
+[harness] NOTE G4-4 diag M scout aafec2c4: archer_rider best 65 index 2 phases ['back', 'rest', 'watch']
+[harness] NOTE G4-4 diag M scout c5e8b3f6: light_lancer_rider best 84 index 4 phases ['back', 'watch']
+[harness] NOTE G4-4 diag M scout ca7d7824: light_lancer_rider best 74 index 5 phases ['back', 'rest', 'watch']
+[harness] NOTE G4-4 diag M scout e1d05611: light_lancer_rider best 42 index 1 phases ['back', 'watch']
+[harness] NOTE G4-4 diag A scout posts: [((711, 80, 736), 148, (True, 86, False)), ((534, 80, 688), 122, (True, 63, True)), ((582, 80, 511), 112, (True, 72, False)), ((759, 80, 559), 139, (True, 67, False))]
+[harness] NOTE G4-4 diag A scouts assigned: [('9647ff9e', 'archer', 0, 'GARRISONED', 'SCOUT', 'back'), ('8b002e93', 'archer', 1, 'GARRISONED', 'SCOUT', 'rest'), ('cc541abc', 'crossbowman', 2, 'GARRISONED', 'SCOUT', 'rest')] quota {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}
+[harness] NOTE G4-4 diag M scout posts: [((698, 69, 853), 122, (True, 49, False)), ((778, 69, 1018), 150, (True, 63, True)), ((613, 69, 1098), 141, (True, 63, True)), ((533, 69, 933), 110, (True, 63, True))]
+[harness] NOTE G4-4 diag M scouts assigned: [('e1d05611', 'light_lancer_rider', 1, 'GARRISONED', 'SCOUT', 'back'), ('9c915399', 'light_lancer_rider', 6, 'GARRISONED', 'SCOUT', 'back'), ('c5e8b3f6', 'light_lancer_rider', 4, 'GARRISONED', 'SCOUT', 'back'), ('ca7d7824', 'light_lancer_rider', 5, 'GARRISONED', 'SCOUT', 'rest'), ('9582203e', 'light_lancer_rider', 3, 'GARRISONED', 'SCOUT', 'back'), ('81388c99', 'light_lancer_rider', 7, 'GARRISONED', 'SCOUT', 'watch'), ('8962eac5', 'light_lancer_rider', 0, 'GARRISONED', 'SCOUT', 'rest'), ('aafec2c4', 'archer_rider', 2, 'GARRISONED', 'SCOUT', 'rest')] quota {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25}
+[harness] NOTE G4-4 diag A scout 8b002e93 timeline (s, phase, dist, home): [(2, 'watch', 85, (555, 68, 677)), (21, 'watch', 99, (556, 68, 680)), (40, 'back', 58, (616, 84, 650)), (59, 'rest', 26, (646, 84, 636)), (78, 'rest', 13, (646, 84, 636))]
+[harness] NOTE G4-4 diag A scout 9647ff9e timeline (s, phase, dist, home): [(2, 'out', 52, (685, 86, 668)), (40, 'watch', 52, (637, 84, 685)), (59, 'watch', 83, (694, 90, 701)), (78, 'watch', 141, (710, 88, 734))]
+[harness] NOTE G4-4 diag A scout cc541abc timeline (s, phase, dist, home): [(2, 'watch', 97, (556, 69, 678)), (21, 'back', 62, (601, 84, 655)), (40, 'back', 28, (646, 84, 636)), (59, 'rest', 13, (646, 84, 636))]
+[harness] NOTE G4-4 diag M scout 81388c99 timeline (s, phase, dist, home): [(4, 'out', 61, (696, 70, 932)), (42, 'out', 62, (700, 63, 920)), (80, 'out', 59, (669, 73, 945))]
+[harness] NOTE G4-4 diag M scout 8962eac5 timeline (s, phase, dist, home): [(4, 'back', 3, (658, 78, 975)), (23, 'rest', 3, (658, 78, 975))]
+[harness] NOTE G4-4 diag M scout 9582203e timeline (s, phase, dist, home): [(4, 'back', 36, (643, 73, 952)), (42, 'back', 18, (648, 72, 965)), (80, 'back', 17, (636, 73, 982))]
+[harness] NOTE G4-4 diag M scout 9c915399 timeline (s, phase, dist, home): [(4, 'watch', 119, (698, 49, 853)), (42, 'back', 119, (687, 69, 886))]
+[harness] NOTE G4-4 diag M scout aafec2c4 timeline (s, phase, dist, home): [(4, 'watch', 65, (610, 69, 1018)), (23, 'back', 50, (634, 72, 997)), (42, 'rest', 26, (658, 78, 975))]
+[harness] NOTE G4-4 diag M scout c5e8b3f6 timeline (s, phase, dist, home): [(4, 'watch', 70, (676, 63, 1019)), (23, 'back', 60, (664, 71, 991)), (42, 'back', 49, (658, 78, 975)), (61, 'back', 62, (658, 78, 975)), (80, 'back', 84, (658, 78, 975))]
+[harness] NOTE G4-4 diag M scout ca7d7824 timeline (s, phase, dist, home): [(4, 'watch', 74, (679, 71, 931)), (23, 'watch', 62, (659, 82, 923)), (42, 'back', 18, (658, 78, 975)), (61, 'rest', 26, (658, 78, 975))]
+[harness] NOTE G4-4 diag M scout e1d05611 timeline (s, phase, dist, home): [(4, 'watch', 42, (651, 67, 914)), (42, 'watch', 41, (639, 61, 896)), (61, 'back', 41, (637, 66, 924))]
+[harness] NOTE G4-4 diag window: 93 s
+[harness] PASS G4-4a scouts: mounted riders are chosen as scouts where the village has them {'A': [('9647ff9e', 'archer', 'out'), ('8b002e93', 'archer', 'watch'), ('cc541abc', 'crossbowman', 'watch')], 'M': [('e1d05611', 'light_lancer_rider', 'watch'), ('9c915399', 'light_lancer_rider', 'watch'), ('c5e8b3f6', 'light_lancer_rider', 'watch'), ('ca7d7824', 'light_lancer_rider', 'watch'), ('9582203e', 'light_lancer_rider', 'back'), ('81388c99', 'light_lancer_rider', 'out'), ('8962eac5', 'light_lancer_rider', 'back'), ('aafec2c4', 'archer_rider', 'watch')]}
+[harness] PASS G4-4b scouts ride outside the village radius (ring - scout distance) and cycle out/watch/back {'A': (141, 148, ['back', 'out', 'rest', 'watch']), 'M': (119, 122, ['back', 'out', 'rest', 'watch'])}
+[harness] --- scenario G4_5
+[harness] server stopped
+[harness] server started
+[harness] PASS G4-5a duty assignments are identical after a restart {'A': True, 'B': True, 'M': True, 'Z': True}
+[harness] PASS G4-5b sentry posts, patrol route and scout posts are identical after a restart {'A': True, 'B': True, 'M': True, 'Z': True}
+[harness] PASS G4-5c no duplicate or unbound units after the restart {'A': {'tagged': 48, 'slots': 48, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 48, 'live': 48, 'bound': 48}, 'B': {'tagged': 48, 'slots': 48, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 48, 'live': 48, 'bound': 48}, 'M': {'tagged': 128, 'slots': 128, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 128, 'live': 128, 'bound': 128}, 'Z': {'tagged': 48, 'slots': 48, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 48, 'live': 48, 'bound': 48}}
+[harness] --- scenario G4_6
+[harness] PASS G4-6a deployed units are on DEFENSE, keeping their standing duty {'469d9f28': ('DEFENSE', 'GARRISON'), '91678472': ('DEFENSE', 'GARRISON')}
+[harness] PASS G4-6b after the fight every unit is back on its standing duty (same assignment) deployed 0 returning 0; kept True
+[harness] --- scenario G4_7
+[harness] PASS G4-7 a sentry to kill 
+[harness] PASS G4-7a the killed sentry is DEAD, its slot is not respawned {'slot': '88947017', 'unit': 'spear_man', 'lvl': 3, 'state': 'DEAD', 'reason': 'KILLED', 'gen': 1, 'entity': '4dcd7729'}
+[harness] PASS G4-7b its pair is manned again by another living unit [('871a9e60', 'archer'), ('a42548d0', 'spear_man')]
+[harness] --- scenario G4_8
+[harness] PASS G4-8 attacker village present 
+[harness] PASS G4-8a a contingent of the attacker's own living garrison joins (no new units); the home keeps at least half Raid triggered: Courseulles le-volcan -> Saint-Laurent les-pâtures (6 raiders di | 43 of 123 sent; 84 at home; raiders ['light_lancer_rider', 'light_lancer_rider', 'spear_man', 'light_lancer_rider', 'spear_man', 'spear_man', 'spear_man', 'spear_man', 'archer', 'archer', 'archer', 'archer', 'archer', 'archer', 'archer', 'archer', 'light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'archer_rider', 'archer_rider', 'archer_rider', 'archer_rider', 'archer_rider', 'archer_rider', 'archer_rider', 'militia', 'militia', 'militia', 'militia', 'crossbowman', 'crossbowman', 'crossbowman', 'shieldman', 'shieldman', 'warrior', 'warrior', 'warrior', 'warrior', 'warrior']
+[harness] PASS G4-8b the contingent is moved to Millénaire's landing point and fights at the target [hywmill] Raid contingent of village 'Courseulles le-volcan' (43 unit(s)) moved to Millénaire's landing point 645, 83, 715 near 'Saint-Laurent les-pâtures' ; up to 43 raid unit(s) within 120 blocks of the target; 0 hit(s) on its residents
+[harness] PASS G4-8c raid over: survivors are back on their standing duties; no unit spawned for the raid [hywmill] Raid of village 'Courseulles le-volcan' on 15599bca-b803-4e12-936d-ec9bd74023b9 ; dead 1/43; still RAID 0; alive 127->126
+[harness] PASS G4-8d raid deaths are permanent (DEAD, never respawned) 1 raid death(s), incl. the casualty 71832ec4
+[harness] --- scenario G4_10
+[harness] PASS G4-10a M3 invariants: no duplicate, unbound or foreign-owned garrison units {'A': {'tagged': 48, 'slots': 48, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 48, 'live': 48, 'bound': 48}, 'M': {'tagged': 126, 'slots': 126, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 126, 'live': 126, 'bound': 126}, 'Z': {'tagged': 48, 'slots': 48, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 48, 'live': 48, 'bound': 48}}
+[harness] G4 perf (120 s CALM):
+  defense.update: {'n': 605, 'mean': 2.9, 'max': 25.6, 'p99': 7.2, 'total': 1.7}
+  diplomacy.slot: {'n': 61, 'mean': 20.7, 'max': 62.4, 'p99': 62.4, 'total': 1.3}
+  duty.layout: {'n': 10, 'mean': 202.6, 'max': 248.6, 'p99': 248.6, 'total': 2.0}
+  duty.tick: {'n': 301, 'mean': 212.9, 'max': 3996.7, 'p99': 1040.4, 'total': 64.1}
+  garrison.event: {'n': 1, 'mean': 50.6, 'max': 50.6, 'p99': 50.6, 'total': 0.1}
+  garrison.slot: {'n': 60, 'mean': 247.9, 'max': 1431.4, 'p99': 1431.4, 'total': 14.9}
+  garrison.spawn: {'n': 1, 'mean': 2386.9, 'max': 2386.9, 'p99': 2386.9, 'total': 2.4}
+  profile.apply: {'n': 60, 'mean': 126.2, 'max': 324.7, 'p99': 324.7, 'total': 7.6}
+  profile.doctrine: {'n': 60, 'mean': 46.6, 'max': 96.2, 'p99': 96.2, 'total': 2.8}
+  profile.log: {'n': 60, 'mean': 153.7, 'max': 302.9, 'p99': 302.9, 'total': 9.2}
+  profile.refresh: {'n': 60, 'mean': 733.4, 'max': 1345.8, 'p99': 1345.8, 'total': 44.0}
+  profile.snapshot: {'n': 60, 'mean': 396.5, 'max': 623.6, 'p99': 623.6, 'total': 23.8}
+  profile.sweep: {'n': 60, 'mean': 105.0, 'max': 239.1, 'p99': 239.1, 'total': 6.3}
+  raid.tick: {'n': 301, 'mean': 9.1, 'max': 135.5, 'p99': 51.6, 'total': 2.7}
+  relations.reconcile: {'n': 12, 'mean': 244.1, 'max': 319.1, 'p99': 319.1, 'total': 2.9}
+  scan.village: {'n': 605, 'mean': 43.0, 'max': 132.4, 'p99': 87.6, 'total': 26.0}
+  snap.buildings: {'n': 60, 'mean': 124.2, 'max': 223.2, 'p99': 223.2, 'total': 7.5}
+  snap.gear: {'n': 60, 'mean': 82.0, 'max': 172.6, 'p99': 172.6, 'total': 4.9}
+  snap.residents: {'n': 60, 'mean': 50.0, 'max': 110.9, 'p99': 110.9, 'total': 3.0}
+  snap.slots: {'n': 60, 'mean': 59.0, 'max': 154.2, 'p99': 154.2, 'total': 3.5}
+  snap.village: {'n': 60, 'mean': 46.9, 'max': 82.9, 'p99': 82.9, 'total': 2.8}
+  tick.total: {'n': 2420, 'mean': 81.9, 'max': 5690.8, 'p99': 1088.6, 'total': 198.3}
+[harness] PASS G4-10b duty tick cost per village stays small (mean < 0.5 ms) {'duty.tick': {'n': 301, 'mean': 212.9, 'max': 3996.7, 'p99': 1040.4, 'total': 64.1}, 'duty.layout': {'n': 10, 'mean': 202.6, 'max': 248.6, 'p99': 248.6, 'total': 2.0}, 'raid.tick': {'n': 301, 'mean': 9.1, 'max': 135.5, 'p99': 51.6, 'total': 2.7}, 'tick.total': {'n': 2420, 'mean': 81.9, 'max': 5690.8, 'p99': 1088.6, 'total': 198.3}}
+[harness] --- scenario G4_perf
+[harness] G4 perf duties off:
+  defense.update: {'n': 605, 'mean': 2.8, 'max': 29.2, 'p99': 4.9, 'total': 1.7}
+  diplomacy.slot: {'n': 60, 'mean': 8.6, 'max': 77.4, 'p99': 77.4, 'total': 0.5}
+  duty.tick: {'n': 301, 'mean': 15.1, 'max': 66.2, 'p99': 42.9, 'total': 4.5}
+  garrison.slot: {'n': 61, 'mean': 192.1, 'max': 334.6, 'p99': 334.6, 'total': 11.7}
+  profile.apply: {'n': 60, 'mean': 90.8, 'max': 198.5, 'p99': 198.5, 'total': 5.4}
+  profile.doctrine: {'n': 60, 'mean': 28.9, 'max': 79.4, 'p99': 79.4, 'total': 1.7}
+  profile.log: {'n': 60, 'mean': 135.9, 'max': 317.3, 'p99': 317.3, 'total': 8.2}
+  profile.refresh: {'n': 60, 'mean': 605.8, 'max': 1104.9, 'p99': 1104.9, 'total': 36.3}
+  profile.snapshot: {'n': 60, 'mean': 345.6, 'max': 651.7, 'p99': 651.7, 'total': 20.7}
+  profile.sweep: {'n': 60, 'mean': 89.2, 'max': 154.5, 'p99': 154.5, 'total': 5.4}
+  raid.tick: {'n': 301, 'mean': 7.0, 'max': 46.7, 'p99': 32.0, 'total': 2.1}
+  relations.reconcile: {'n': 12, 'mean': 215.1, 'max': 266.8, 'p99': 266.8, 'total': 2.6}
+  scan.village: {'n': 605, 'mean': 40.7, 'max': 797.3, 'p99': 98.4, 'total': 24.6}
+  snap.buildings: {'n': 60, 'mean': 104.0, 'max': 161.4, 'p99': 161.4, 'total': 6.2}
+  snap.gear: {'n': 60, 'mean': 75.4, 'max': 231.4, 'p99': 231.4, 'total': 4.5}
+  snap.residents: {'n': 60, 'mean': 49.0, 'max': 86.4, 'p99': 86.4, 'total': 2.9}
+  snap.slots: {'n': 60, 'mean': 52.5, 'max': 92.0, 'p99': 92.0, 'total': 3.2}
+  snap.village: {'n': 60, 'mean': 41.6, 'max': 111.8, 'p99': 111.8, 'total': 2.5}
+  tick.total: {'n': 2420, 'mean': 47.7, 'max': 1320.6, 'p99': 684.7, 'total': 115.3}
+[harness] G4 perf duties on:
+  defense.update: {'n': 595, 'mean': 2.8, 'max': 34.4, 'p99': 6.9, 'total': 1.6}
+  diplomacy.slot: {'n': 59, 'mean': 4.9, 'max': 32.7, 'p99': 32.7, 'total': 0.3}
+  duty.layout: {'n': 10, 'mean': 157.1, 'max': 189.8, 'p99': 189.8, 'total': 1.6}
+  duty.tick: {'n': 296, 'mean': 166.6, 'max': 1734.6, 'p99': 886.3, 'total': 49.3}
+  garrison.slot: {'n': 59, 'mean': 156.4, 'max': 327.4, 'p99': 327.4, 'total': 9.2}
+  profile.apply: {'n': 60, 'mean': 98.5, 'max': 264.9, 'p99': 264.9, 'total': 5.9}
+  profile.doctrine: {'n': 60, 'mean': 30.8, 'max': 89.6, 'p99': 89.6, 'total': 1.8}
+  profile.log: {'n': 60, 'mean': 125.2, 'max': 277.7, 'p99': 277.7, 'total': 7.5}
+  profile.refresh: {'n': 60, 'mean': 641.3, 'max': 2726.6, 'p99': 2726.6, 'total': 38.5}
+  profile.snapshot: {'n': 60, 'mean': 382.1, 'max': 2508.6, 'p99': 2508.6, 'total': 22.9}
+  profile.sweep: {'n': 60, 'mean': 99.5, 'max': 206.2, 'p99': 206.2, 'total': 6.0}
+  raid.tick: {'n': 296, 'mean': 6.9, 'max': 28.1, 'p99': 22.4, 'total': 2.0}
+  relations.reconcile: {'n': 12, 'mean': 194.9, 'max': 236.9, 'p99': 236.9, 'total': 2.3}
+  scan.village: {'n': 595, 'mean': 41.6, 'max': 178.3, 'p99': 83.4, 'total': 24.7}
+  snap.buildings: {'n': 60, 'mean': 97.3, 'max': 172.6, 'p99': 172.6, 'total': 5.8}
+  snap.gear: {'n': 60, 'mean': 88.9, 'max': 368.2, 'p99': 368.2, 'total': 5.3}
+  snap.residents: {'n': 60, 'mean': 45.1, 'max': 106.8, 'p99': 106.8, 'total': 2.7}
+  snap.slots: {'n': 60, 'mean': 49.2, 'max': 112.3, 'p99': 112.3, 'total': 3.0}
+  snap.village: {'n': 60, 'mean': 76.3, 'max': 2236.0, 'p99': 2236.0, 'total': 4.6}
+  tick.total: {'n': 2378, 'mean': 67.6, 'max': 2791.1, 'p99': 767.4, 'total': 160.8}
+[harness] NOTE G4-P diag window: duties-on window 00:11:32-00:13:35: entering recovery 0 []; recovered 1 (teleports 0, walked 1); allocation passes 1, duty reassignments 1; in recovery at start [], at end []
+[harness] NOTE G4-P diag moving units: more than 5 blocks from their HYW home, just before the window {'A': 6, 'B': 8, 'M': 14, 'Z': 9}, just after {'A': 6, 'B': 8, 'M': 13, 'Z': 8}
+[harness] NOTE G4-P diag window reassignments: Courseulles le-volcan: 88e93c25 GARRISON->PATROL#0
+[harness] NOTE G4-P diag cycles (whole run): 8 recoveries (7 teleports); 1 reassigned afterwards; 0 back to the same post
+[harness] NOTE G4-P diag cycle: Courseulles le-volcan unit 71832ec4: SCOUT#0 stuck 23:43:28 at (698, 49, 856) towards (778, 69, 1018); recovered 23:45:58 (teleport); next None at None
+[harness] NOTE G4-P diag cycle: Courseulles le-volcan unit 0688dcd8: SCOUT#3 stuck 23:52:14 at (698, 49, 856) towards (778, 69, 1018); recovered 23:54:44 (teleport); next None at None
+[harness] NOTE G4-P diag cycle: Courseulles le-volcan unit eb6f3cce: SCOUT#2 stuck 23:54:18 at (597, 58, 917) towards (658, 78, 975); recovered 23:56:48 (teleport); next None at None
+[harness] NOTE G4-P diag cycle: Courseulles le-volcan unit 871a9e60: SENTRY#13 stuck 23:54:44 at (634, 24, 942) towards (604, 67, 1007); recovered 23:57:14 (teleport); next ('SENTRY', 0) at 00:03:11 (post (643, 73, 954))
+[harness] NOTE G4-P diag cycle: Courseulles le-volcan unit 9c915399: SCOUT#5 stuck 00:05:20 at (698, 49, 856) towards (658, 78, 975); recovered 00:07:49 (teleport); next None at None
+[harness] NOTE G4-P diag cycle: Courseulles le-volcan unit 81388c99: SCOUT#1 stuck 00:05:59 at (641, 38, 910) towards (658, 78, 975); recovered 00:08:29 (teleport); next None at None
+[harness] NOTE G4-P diag cycle: Courseulles le-volcan unit 297c61e8: PATROL#0 stuck 00:06:55 at (623, 66, 1027) towards (697, 68, 923); recovered 00:11:57 (walked); next None at None
+[harness] NOTE G4-P diag cycle: Courseulles le-volcan unit 9582203e: SCOUT#2 stuck 00:07:29 at (633, 39, 920) towards (533, 69, 933); recovered 00:13:35 (teleport); next None at None
+[harness] PASS G4-P calm tick cost with duties on stays comparable to duties off (mean within +50 us) tick.total mean off 47.7 us / on 67.6 us; p99 off 684.7 / on 767.4; duty.tick {'n': 296, 'mean': 166.6, 'max': 1734.6, 'p99': 886.3, 'total': 49.3}
+[harness] --- scenario G4_9
+[harness] PASS G4-9a negation wand deletes the village; HywMill notices; no recruitment or spawning into it negate Ussy les-pâtures db1ffb22-5a87-478f-8eae-d413e375fa81: true | 0 recruit/spawn lines
+[harness] PASS G4-9b after the grace period its garrison is LOST(VILLAGE_GONE) [hywmill] Village 'Ussy les-pâtures' db1ffb22-5a87-478f-8eae-d413e375fa81 is gone: 48 garrison slot(s) LOST(VILLAGE_GONE
+[harness] server stopped
+[harness] RESULT 30/31 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  G4-0 garrisons filled and duty plans exist (A, B and the stronghold at least)  {'A': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}), 'B': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}), 'M': (128, {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25}), 'Z': (48, {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7})}
+  PASS  G4-1a duty quotas never exceed the living garrison  {'A': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}, {'RESERVE': 7, 'SENTRY': 2, 'GARRISON': 28, 'PATROL': 8, 'SCOUT': 3}, 16), 'B': (48, {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}, {'RESERVE': 7, 'SENTRY': 2, 'GARRISON': 28, 'PATROL': 8, 'SCOUT': 3}, 23), 'M': (128, {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25}, {'RESERVE': 25, 'GARRISON': 39, 'SENTRY': 32, 'PATROL': 24, 'SCOUT': 8}, 83), 'Z': (48, {'pairs': 3, 'patrol': 8, 'scouts': 3, 'reserve': 7}, {'SCOUT': 3, 'RESERVE': 7, 'PATROL': 8, 'GARRISON': 24, 'SENTRY': 6}, 22)}
+  PASS  G4-1b standing troops are distributed (many distinct home points per village)  {'A': 16, 'B': 23, 'M': 83, 'Z': 22}
+  PASS  G4-1c the stronghold fields more sentries/patrols/scouts than the smallest garrison; the smallest is not over-tasked  stronghold {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25} vs smallest (48 units) {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}
+  FAIL  G4-2 every sentry pair has two units, standing at (within 10 blocks of) its own post (from building data; settled, 6-min window)  window 376 s; settle ok; {'A': (1, {0: [(644, 80, 594), (645, 80, 594)]}, True, True, True), 'B': (1, {0: [(835, 83, 607), (840, 83, 608)]}, True, True, True), 'M': (16, {0: [(642, 73, 956), (643, 73, 951)], 1: [(628, 70, 957), (635, 71, 954)], 2: [(666, 72, 977), (667, 72, 980)], 3: [(626, 66, 1028), (626, 66, 1027)], 4: [(686, 70, 928), (683, 69, 921)], 5: [(629, 61, 923), (626, 61, 925)], 6: [(606, 68, 945), (603, 79, 947)], 7: [(604, 73, 992), (603, 70, 992)], 8: [(601, 70, 924), (604, 70, 923)], 9: [(647, 77, 1027), (646, 76, 1028)], 10: [(647, 69, 923), (645, 76, 928)], 11: [(603, 73, 966), (605, 70, 963)], 12: [(669, 71, 923), (665, 71, 923)], 13: [(634, 24, 942), (602, 67, 1005)], 14: [(697, 75, 922), (698, 75, 923)], 15: [(604, 70, 934), (604, 69, 936)]}, True, False, True), 'Z': (3, {0: [(413, 69, 454), (413, 70, 461)], 1: [(422, 70, 472), (421, 70, 473)], 2: [(401, 70, 471), (402, 70, 471)]}, True, True, True)}
+  PASS  G4-3a patrol route is deterministic (identical on every read)  6 waypoints
+  PASS  G4-3b patrol units advance along the route  24/24 moved over 120 s
+  PASS  G4-4a scouts: mounted riders are chosen as scouts where the village has them  {'A': [('9647ff9e', 'archer', 'out'), ('8b002e93', 'archer', 'watch'), ('cc541abc', 'crossbowman', 'watch')], 'M': [('e1d05611', 'light_lancer_rider', 'watch'), ('9c915399', 'light_lancer_rider', 'watch'), ('c5e8b3f6', 'light_lancer_rider', 'watch'), ('ca7d7824', 'light_lancer_rider', 'watch'), ('9582203e', 'light_lancer_rider', 'back'), ('81388c99', 'light_lancer_rider', 'out'), ('8962eac5', 'light_lancer_rider', 'back'), ('aafec2c4', 'archer_rider', 'watch')]}
+  PASS  G4-4b scouts ride outside the village radius (ring - scout distance) and cycle out/watch/back  {'A': (141, 148, ['back', 'out', 'rest', 'watch']), 'M': (119, 122, ['back', 'out', 'rest', 'watch'])}
+  PASS  G4-5a duty assignments are identical after a restart  {'A': True, 'B': True, 'M': True, 'Z': True}
+  PASS  G4-5b sentry posts, patrol route and scout posts are identical after a restart  {'A': True, 'B': True, 'M': True, 'Z': True}
+  PASS  G4-5c no duplicate or unbound units after the restart  {'A': {'tagged': 48, 'slots': 48, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 48, 'live': 48, 'bound': 48}, 'B': {'tagged': 48, 'slots': 48, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 48, 'live': 48, 'bound': 48}, 'M': {'tagged': 128, 'slots': 128, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 128, 'live': 128, 'bound': 128}, 'Z': {'tagged': 48, 'slots': 48, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 48, 'live': 48, 'bound': 48}}
+  PASS  G4-6a deployed units are on DEFENSE, keeping their standing duty  {'469d9f28': ('DEFENSE', 'GARRISON'), '91678472': ('DEFENSE', 'GARRISON')}
+  PASS  G4-6b after the fight every unit is back on its standing duty (same assignment)  deployed 0 returning 0; kept True
+  PASS  G4-7 a sentry to kill  
+  PASS  G4-7a the killed sentry is DEAD, its slot is not respawned  {'slot': '88947017', 'unit': 'spear_man', 'lvl': 3, 'state': 'DEAD', 'reason': 'KILLED', 'gen': 1, 'entity': '4dcd7729'}
+  PASS  G4-7b its pair is manned again by another living unit  [('871a9e60', 'archer'), ('a42548d0', 'spear_man')]
+  PASS  G4-8 attacker village present  
+  PASS  G4-8a a contingent of the attacker's own living garrison joins (no new units); the home keeps at least half  Raid triggered: Courseulles le-volcan -> Saint-Laurent les-pâtures (6 raiders di | 43 of 123 sent; 84 at home; raiders ['light_lancer_rider', 'light_lancer_rider', 'spear_man', 'light_lancer_rider', 'spear_man', 'spear_man', 'spear_man', 'spear_man', 'archer', 'archer', 'archer', 'archer', 'archer', 'archer', 'archer', 'archer', 'light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'light_lancer_rider', 'archer_rider', 'archer_rider', 'archer_rider', 'archer_rider', 'archer_rider', 'archer_rider', 'archer_rider', 'militia', 'militia', 'militia', 'militia', 'crossbowman', 'crossbowman', 'crossbowman', 'shieldman', 'shieldman', 'warrior', 'warrior', 'warrior', 'warrior', 'warrior']
+  PASS  G4-8b the contingent is moved to Millénaire's landing point and fights at the target  [hywmill] Raid contingent of village 'Courseulles le-volcan' (43 unit(s)) moved to Millénaire's landing point 645, 83, 715 near 'Saint-Laurent les-pâtures' ; up to 43 raid unit(s) within 120 blocks of the target; 0 hit(s) on its residents
+  PASS  G4-8c raid over: survivors are back on their standing duties; no unit spawned for the raid  [hywmill] Raid of village 'Courseulles le-volcan' on 15599bca-b803-4e12-936d-ec9bd74023b9 ; dead 1/43; still RAID 0; alive 127->126
+  PASS  G4-8d raid deaths are permanent (DEAD, never respawned)  1 raid death(s), incl. the casualty 71832ec4
+  PASS  G4-10a M3 invariants: no duplicate, unbound or foreign-owned garrison units  {'A': {'tagged': 48, 'slots': 48, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 48, 'live': 48, 'bound': 48}, 'M': {'tagged': 126, 'slots': 126, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 126, 'live': 126, 'bound': 126}, 'Z': {'tagged': 48, 'slots': 48, 'dupSlots': 0, 'unbound': 0, 'badOwner': 0, 'factionOwned': 48, 'live': 48, 'bound': 48}}
+  PASS  G4-10b duty tick cost per village stays small (mean < 0.5 ms)  {'duty.tick': {'n': 301, 'mean': 212.9, 'max': 3996.7, 'p99': 1040.4, 'total': 64.1}, 'duty.layout': {'n': 10, 'mean': 202.6, 'max': 248.6, 'p99': 248.6, 'total': 2.0}, 'raid.tick': {'n': 301, 'mean': 9.1, 'max': 135.5, 'p99': 51.6, 'total': 2.7}, 'tick.total': {'n': 2420, 'mean': 81.9, 'max': 5690.8, 'p99': 1088.6, 'total': 198.3}}
+  PASS  G4-P calm tick cost with duties on stays comparable to duties off (mean within +50 us)  tick.total mean off 47.7 us / on 67.6 us; p99 off 684.7 / on 767.4; duty.tick {'n': 296, 'mean': 166.6, 'max': 1734.6, 'p99': 886.3, 'total': 49.3}
+  PASS  G4-9a negation wand deletes the village; HywMill notices; no recruitment or spawning into it  negate Ussy les-pâtures db1ffb22-5a87-478f-8eae-d413e375fa81: true | 0 recruit/spawn lines
+  PASS  G4-9b after the grace period its garrison is LOST(VILLAGE_GONE)  [hywmill] Village 'Ussy les-pâtures' db1ffb22-5a87-478f-8eae-d413e375fa81 is gone: 48 garrison slot(s) LOST(VILLAGE_GONE
+  NOTE  G4-2 settle precondition  reached after 16 s; {'A': (1, {0: 2}), 'B': (1, {0: 2}), 'M': (16, {0: 2, 1: 2, 2: 2, 3: 2, 4: 2, 5: 2, 6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 2, 14: 2, 15: 2}), 'Z': (3, {0: 2, 1: 2, 2: 2})}
+  NOTE  G4-2 timeout M  sentry 871a9e60 (archer) pair #13 GARRISONED SENTRY/SENTRY at (634, 24, 942) post (603, 67, 1006) dist 71.1 home (633, 27, 942)
+  NOTE  G4-4 diag A scout 8b002e93  archer best 99 index 1 phases ['back', 'rest', 'watch']
+  NOTE  G4-4 diag A scout 9647ff9e  archer best 141 index 0 phases ['out', 'watch']
+  NOTE  G4-4 diag A scout cc541abc  crossbowman best 97 index 2 phases ['back', 'rest', 'watch']
+  NOTE  G4-4 diag M scout 81388c99  light_lancer_rider best 62 index 7 phases ['out']
+  NOTE  G4-4 diag M scout 8962eac5  light_lancer_rider best 3 index 0 phases ['back', 'rest']
+  NOTE  G4-4 diag M scout 9582203e  light_lancer_rider best 36 index 3 phases ['back']
+  NOTE  G4-4 diag M scout 9c915399  light_lancer_rider best 119 index 6 phases ['back', 'watch']
+  NOTE  G4-4 diag M scout aafec2c4  archer_rider best 65 index 2 phases ['back', 'rest', 'watch']
+  NOTE  G4-4 diag M scout c5e8b3f6  light_lancer_rider best 84 index 4 phases ['back', 'watch']
+  NOTE  G4-4 diag M scout ca7d7824  light_lancer_rider best 74 index 5 phases ['back', 'rest', 'watch']
+  NOTE  G4-4 diag M scout e1d05611  light_lancer_rider best 42 index 1 phases ['back', 'watch']
+  NOTE  G4-4 diag A scout posts  [((711, 80, 736), 148, (True, 86, False)), ((534, 80, 688), 122, (True, 63, True)), ((582, 80, 511), 112, (True, 72, False)), ((759, 80, 559), 139, (True, 67, False))]
+  NOTE  G4-4 diag A scouts assigned  [('9647ff9e', 'archer', 0, 'GARRISONED', 'SCOUT', 'back'), ('8b002e93', 'archer', 1, 'GARRISONED', 'SCOUT', 'rest'), ('cc541abc', 'crossbowman', 2, 'GARRISONED', 'SCOUT', 'rest')] quota {'pairs': 1, 'patrol': 8, 'scouts': 3, 'reserve': 7}
+  NOTE  G4-4 diag M scout posts  [((698, 69, 853), 122, (True, 49, False)), ((778, 69, 1018), 150, (True, 63, True)), ((613, 69, 1098), 141, (True, 63, True)), ((533, 69, 933), 110, (True, 63, True))]
+  NOTE  G4-4 diag M scouts assigned  [('e1d05611', 'light_lancer_rider', 1, 'GARRISONED', 'SCOUT', 'back'), ('9c915399', 'light_lancer_rider', 6, 'GARRISONED', 'SCOUT', 'back'), ('c5e8b3f6', 'light_lancer_rider', 4, 'GARRISONED', 'SCOUT', 'back'), ('ca7d7824', 'light_lancer_rider', 5, 'GARRISONED', 'SCOUT', 'rest'), ('9582203e', 'light_lancer_rider', 3, 'GARRISONED', 'SCOUT', 'back'), ('81388c99', 'light_lancer_rider', 7, 'GARRISONED', 'SCOUT', 'watch'), ('8962eac5', 'light_lancer_rider', 0, 'GARRISONED', 'SCOUT', 'rest'), ('aafec2c4', 'archer_rider', 2, 'GARRISONED', 'SCOUT', 'rest')] quota {'pairs': 16, 'patrol': 24, 'scouts': 8, 'reserve': 25}
+  NOTE  G4-4 diag A scout 8b002e93 timeline (s, phase, dist, home)  [(2, 'watch', 85, (555, 68, 677)), (21, 'watch', 99, (556, 68, 680)), (40, 'back', 58, (616, 84, 650)), (59, 'rest', 26, (646, 84, 636)), (78, 'rest', 13, (646, 84, 636))]
+  NOTE  G4-4 diag A scout 9647ff9e timeline (s, phase, dist, home)  [(2, 'out', 52, (685, 86, 668)), (40, 'watch', 52, (637, 84, 685)), (59, 'watch', 83, (694, 90, 701)), (78, 'watch', 141, (710, 88, 734))]
+  NOTE  G4-4 diag A scout cc541abc timeline (s, phase, dist, home)  [(2, 'watch', 97, (556, 69, 678)), (21, 'back', 62, (601, 84, 655)), (40, 'back', 28, (646, 84, 636)), (59, 'rest', 13, (646, 84, 636))]
+  NOTE  G4-4 diag M scout 81388c99 timeline (s, phase, dist, home)  [(4, 'out', 61, (696, 70, 932)), (42, 'out', 62, (700, 63, 920)), (80, 'out', 59, (669, 73, 945))]
+  NOTE  G4-4 diag M scout 8962eac5 timeline (s, phase, dist, home)  [(4, 'back', 3, (658, 78, 975)), (23, 'rest', 3, (658, 78, 975))]
+  NOTE  G4-4 diag M scout 9582203e timeline (s, phase, dist, home)  [(4, 'back', 36, (643, 73, 952)), (42, 'back', 18, (648, 72, 965)), (80, 'back', 17, (636, 73, 982))]
+  NOTE  G4-4 diag M scout 9c915399 timeline (s, phase, dist, home)  [(4, 'watch', 119, (698, 49, 853)), (42, 'back', 119, (687, 69, 886))]
+  NOTE  G4-4 diag M scout aafec2c4 timeline (s, phase, dist, home)  [(4, 'watch', 65, (610, 69, 1018)), (23, 'back', 50, (634, 72, 997)), (42, 'rest', 26, (658, 78, 975))]
+  NOTE  G4-4 diag M scout c5e8b3f6 timeline (s, phase, dist, home)  [(4, 'watch', 70, (676, 63, 1019)), (23, 'back', 60, (664, 71, 991)), (42, 'back', 49, (658, 78, 975)), (61, 'back', 62, (658, 78, 975)), (80, 'back', 84, (658, 78, 975))]
+  NOTE  G4-4 diag M scout ca7d7824 timeline (s, phase, dist, home)  [(4, 'watch', 74, (679, 71, 931)), (23, 'watch', 62, (659, 82, 923)), (42, 'back', 18, (658, 78, 975)), (61, 'rest', 26, (658, 78, 975))]
+  NOTE  G4-4 diag M scout e1d05611 timeline (s, phase, dist, home)  [(4, 'watch', 42, (651, 67, 914)), (42, 'watch', 41, (639, 61, 896)), (61, 'back', 41, (637, 66, 924))]
+  NOTE  G4-4 diag window  93 s
+  NOTE  G4-P diag window  duties-on window 00:11:32-00:13:35: entering recovery 0 []; recovered 1 (teleports 0, walked 1); allocation passes 1, duty reassignments 1; in recovery at start [], at end []
+  NOTE  G4-P diag moving units  more than 5 blocks from their HYW home, just before the window {'A': 6, 'B': 8, 'M': 14, 'Z': 9}, just after {'A': 6, 'B': 8, 'M': 13, 'Z': 8}
+  NOTE  G4-P diag window reassignments  Courseulles le-volcan: 88e93c25 GARRISON->PATROL#0
+  NOTE  G4-P diag cycles (whole run)  8 recoveries (7 teleports); 1 reassigned afterwards; 0 back to the same post
+  NOTE  G4-P diag cycle  Courseulles le-volcan unit 71832ec4: SCOUT#0 stuck 23:43:28 at (698, 49, 856) towards (778, 69, 1018); recovered 23:45:58 (teleport); next None at None
+  NOTE  G4-P diag cycle  Courseulles le-volcan unit 0688dcd8: SCOUT#3 stuck 23:52:14 at (698, 49, 856) towards (778, 69, 1018); recovered 23:54:44 (teleport); next None at None
+  NOTE  G4-P diag cycle  Courseulles le-volcan unit eb6f3cce: SCOUT#2 stuck 23:54:18 at (597, 58, 917) towards (658, 78, 975); recovered 23:56:48 (teleport); next None at None
+  NOTE  G4-P diag cycle  Courseulles le-volcan unit 871a9e60: SENTRY#13 stuck 23:54:44 at (634, 24, 942) towards (604, 67, 1007); recovered 23:57:14 (teleport); next ('SENTRY', 0) at 00:03:11 (post (643, 73, 954))
+  NOTE  G4-P diag cycle  Courseulles le-volcan unit 9c915399: SCOUT#5 stuck 00:05:20 at (698, 49, 856) towards (658, 78, 975); recovered 00:07:49 (teleport); next None at None
+  NOTE  G4-P diag cycle  Courseulles le-volcan unit 81388c99: SCOUT#1 stuck 00:05:59 at (641, 38, 910) towards (658, 78, 975); recovered 00:08:29 (teleport); next None at None
+  NOTE  G4-P diag cycle  Courseulles le-volcan unit 297c61e8: PATROL#0 stuck 00:06:55 at (623, 66, 1027) towards (697, 68, 923); recovered 00:11:57 (walked); next None at None
+  NOTE  G4-P diag cycle  Courseulles le-volcan unit 9582203e: SCOUT#2 stuck 00:07:29 at (633, 39, 920) towards (533, 69, 933); recovered 00:13:35 (teleport); next None at None
+EXIT 1

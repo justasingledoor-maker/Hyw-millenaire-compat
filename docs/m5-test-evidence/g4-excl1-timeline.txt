@@ -1,0 +1,140 @@
+[23:32:38] [] Duties of village 'Saint-Laurent les-pâtures' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 1 reserve): [2017cc0d GARRISON->RESERVE]
+[23:32:58] [] Duties of village 'Saint-Laurent les-pâtures' (6 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 1 reserve): [6145e55e GARRISON->SENTRY#0, 1206d704 GARRISON->PATROL#0, 9647ff9e GARRISON->SENTRY#0]
+[23:33:08] [] Duties of village 'Saint-Laurent les-pâtures' (8 available: 1 sentry pair(s), 2 patrol, 1 scout(s), 1 reserve): [9647ff9e SENTRY->SCOUT#0, 684589be GARRISON->SENTRY#0, 901baecb GARRISON->PATROL#1]
+[23:33:14] [] Duties of village 'Ussy les-pâtures' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 1 reserve): [8cf0ccc8 GARRISON->RESERVE]
+[23:33:35] [] Duties of village 'Saint-Laurent les-pâtures' (12 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 1 reserve): [b16a2ead GARRISON->PATROL#2]
+[23:33:47] [] Duties of village 'Ussy les-pâtures' (6 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 1 reserve): [269737c3 GARRISON->SENTRY#0, c0b75c84 GARRISON->PATROL#0, 091c8417 GARRISON->SENTRY#0]
+[23:33:48] [] Duties of village 'Saint-Laurent les-pâtures' (14 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 2 reserve): [e8115a09 GARRISON->RESERVE]
+[23:33:58] [] Duties of village 'Ussy les-pâtures' (8 available: 1 sentry pair(s), 2 patrol, 1 scout(s), 1 reserve): [533acdc8 GARRISON->SENTRY#0, 091c8417 SENTRY->SCOUT#0, 225b8049 GARRISON->PATROL#1]
+[23:34:00] [] Duties of village 'Saint-Laurent les-pâtures' (16 available: 1 sentry pair(s), 4 patrol, 1 scout(s), 2 reserve): [ef81c11f GARRISON->PATROL#3]
+[23:34:14] [] Duties of village 'Ussy les-pâtures' (12 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 1 reserve): [ee4b410b GARRISON->PATROL#2]
+[23:34:18] [] Duties of village 'Saint-Laurent les-pâtures' (20 available: 1 sentry pair(s), 5 patrol, 2 scout(s), 3 reserve): [8b002e93 GARRISON->SCOUT#1, 8bc9860f GARRISON->PATROL#4, 2e3086bd GARRISON->RESERVE]
+[23:34:24] [] Duties of village 'Ussy les-pâtures' (14 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 2 reserve): [1a749a35 GARRISON->RESERVE]
+[23:34:38] [] Duties of village 'Saint-Laurent les-pâtures' (24 available: 1 sentry pair(s), 6 patrol, 2 scout(s), 3 reserve): [e8992420 GARRISON->PATROL#5]
+[23:35:46] [] Duties of village 'Courseulles le-volcan' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 2 reserve): [7c8b26d4 GARRISON->RESERVE, 39356609 GARRISON->RESERVE]
+[23:36:00] [] Duties of village 'Courseulles le-volcan' (4 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 3 reserve): [560b1e96 GARRISON->RESERVE]
+[23:36:10] [] Duties of village 'Courseulles le-volcan' (6 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 3 reserve): [71832ec4 GARRISON->PATROL#0, 88947017 GARRISON->SENTRY#0, 871a9e60 GARRISON->SENTRY#0]
+[23:36:21] [] Duties of village 'Courseulles le-volcan' (8 available: 1 sentry pair(s), 2 patrol, 0 scout(s), 3 reserve): [6bf4d15c GARRISON->PATROL#1]
+[23:36:31] [] Duties of village 'Apollania' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 1 reserve): [08e5a558 GARRISON->RESERVE]
+[23:36:40] [] Duties of village 'Courseulles le-volcan' (12 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 3 reserve): [71832ec4 PATROL->SCOUT#0, 297c61e8 GARRISON->PATROL#0, 2b5f4eb6 GARRISON->PATROL#2]
+[23:36:50] [] Duties of village 'Courseulles le-volcan' (14 available: 2 sentry pair(s), 3 patrol, 1 scout(s), 3 reserve): [b904def8 GARRISON->SENTRY#1, efda48e1 GARRISON->SENTRY#1]
+[23:36:51] [] Duties of village 'Apollania' (6 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 1 reserve): [82dd5d1a GARRISON->SENTRY#0, effbe24d GARRISON->PATROL#0, 37fb43bb GARRISON->SENTRY#0]
+[23:37:00] [] Duties of village 'Courseulles le-volcan' (16 available: 2 sentry pair(s), 4 patrol, 1 scout(s), 3 reserve): [5d9eee12 GARRISON->PATROL#3]
+[23:37:01] [] Duties of village 'Apollania' (8 available: 1 sentry pair(s), 2 patrol, 1 scout(s), 1 reserve): [82dd5d1a SENTRY->SCOUT#0, 3b33ea4d GARRISON->PATROL#1, c5b0fcd3 GARRISON->SENTRY#0]
+[23:37:12] [] Duties of village 'Putot les-mines' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 1 reserve): [24bfe872 GARRISON->RESERVE]
+[23:37:21] [] Duties of village 'Courseulles le-volcan' (20 available: 3 sentry pair(s), 5 patrol, 1 scout(s), 4 reserve): [12ab05f7 GARRISON->SENTRY#2, 62cf8f2a GARRISON->SENTRY#2, 04972ca2 GARRISON->RESERVE, c40f62ce GARRISON->PATROL#4]
+[23:37:21] [] Duties of village 'Apollania' (12 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 1 reserve): [983b4d4c GARRISON->PATROL#2]
+[23:37:22] [] Duties of village 'Putot les-mines' (4 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 1 reserve): [bf9bdd3e GARRISON->SENTRY#0, 6bf3e93f GARRISON->PATROL#0, abff0aaa GARRISON->SENTRY#0]
+[23:37:31] [] Duties of village 'Apollania' (14 available: 2 sentry pair(s), 3 patrol, 1 scout(s), 2 reserve): [9cad21b8 GARRISON->SENTRY#1, fe9f3b45 GARRISON->SENTRY#1, c21e9aec GARRISON->RESERVE]
+[23:37:40] [] Duties of village 'Courseulles le-volcan' (24 available: 3 sentry pair(s), 6 patrol, 1 scout(s), 4 reserve): [1816ce9a GARRISON->PATROL#5]
+[23:37:41] [] Duties of village 'Apollania' (16 available: 2 sentry pair(s), 4 patrol, 1 scout(s), 2 reserve): [1ae310ff GARRISON->PATROL#3]
+[23:37:42] [] Duties of village 'Putot les-mines' (8 available: 1 sentry pair(s), 2 patrol, 0 scout(s), 1 reserve): [e31fa3f8 GARRISON->PATROL#1]
+[23:37:50] [] Duties of village 'Courseulles le-volcan' (26 available: 3 sentry pair(s), 6 patrol, 2 scout(s), 5 reserve): [e1d05611 GARRISON->SCOUT#1, 06a43a2a GARRISON->RESERVE]
+[23:37:52] [] Duties of village 'Putot les-mines' (10 available: 2 sentry pair(s), 3 patrol, 0 scout(s), 1 reserve): [8c562dc1 GARRISON->SENTRY#1, bd6146a2 GARRISON->SENTRY#1, 91a4ad92 GARRISON->PATROL#2]
+[23:38:01] [] Duties of village 'Courseulles le-volcan' (28 available: 4 sentry pair(s), 7 patrol, 2 scout(s), 5 reserve): [1d089c7c GARRISON->PATROL#6, a0b875ed GARRISON->SENTRY#3, 9293526e GARRISON->SENTRY#3]
+[23:38:01] [] Duties of village 'Apollania' (20 available: 3 sentry pair(s), 5 patrol, 2 scout(s), 3 reserve): [9cad21b8 SENTRY->SCOUT#1, a70bfb3b GARRISON->SENTRY#1, cb4967a5 GARRISON->SENTRY#2, 01665d7d GARRISON->RESERVE, 8b9f542d GARRISON->PATROL#4, e9ea46ee GARRISON->SENTRY#2]
+[23:38:02] [] Duties of village 'Putot les-mines' (12 available: 2 sentry pair(s), 3 patrol, 1 scout(s), 1 reserve): [8c562dc1 SENTRY->SCOUT#0, b905e1fb GARRISON->SENTRY#1]
+[23:38:10] [] Duties of village 'Courseulles le-volcan' (30 available: 4 sentry pair(s), 7 patrol, 2 scout(s), 6 reserve): [c830f974 GARRISON->RESERVE]
+[23:38:20] [] Duties of village 'Courseulles le-volcan' (32 available: 4 sentry pair(s), 8 patrol, 2 scout(s), 6 reserve): [f3a1fa27 GARRISON->PATROL#7]
+[23:38:21] [] Duties of village 'Apollania' (24 available: 3 sentry pair(s), 6 patrol, 2 scout(s), 3 reserve): [1b8b0e79 GARRISON->PATROL#5]
+[23:38:34] [] Duties of village 'Courseulles le-volcan' (34 available: 5 sentry pair(s), 8 patrol, 2 scout(s), 6 reserve): [ff9f26a8 GARRISON->SENTRY#4, e556fb6c GARRISON->SENTRY#4]
+[23:38:44] [] Duties of village 'Courseulles le-volcan' (36 available: 5 sentry pair(s), 9 patrol, 2 scout(s), 7 reserve): [20f6de80 GARRISON->RESERVE, b5bba936 GARRISON->PATROL#8]
+[23:38:54] [] Duties of village 'Courseulles le-volcan' (38 available: 5 sentry pair(s), 9 patrol, 3 scout(s), 7 reserve): [eb6f3cce GARRISON->SCOUT#2]
+[23:39:04] [] Duties of village 'Courseulles le-volcan' (40 available: 6 sentry pair(s), 10 patrol, 3 scout(s), 8 reserve): [306c87ab GARRISON->RESERVE, 534571db GARRISON->SENTRY#5, f9a961b2 GARRISON->PATROL#9, dfda2d41 GARRISON->SENTRY#5]
+[23:39:13] [] Duties of village 'Saint-Laurent les-pâtures' (28 available: 1 sentry pair(s), 7 patrol, 2 scout(s), 4 reserve): [bc06c562 GARRISON->PATROL#6, cf9bb076 GARRISON->RESERVE]
+[23:39:23] [] Duties of village 'Saint-Laurent les-pâtures' (30 available: 1 sentry pair(s), 7 patrol, 3 scout(s), 4 reserve): [cc541abc GARRISON->SCOUT#2]
+[23:39:24] [] Duties of village 'Courseulles le-volcan' (44 available: 6 sentry pair(s), 11 patrol, 3 scout(s), 8 reserve): [c15c26b5 GARRISON->PATROL#10]
+[23:39:33] [] Duties of village 'Saint-Laurent les-pâtures' (32 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 4 reserve): [94d6d1ed GARRISON->PATROL#7]
+[23:39:34] [] Duties of village 'Courseulles le-volcan' (46 available: 6 sentry pair(s), 11 patrol, 3 scout(s), 9 reserve): [ff680926 GARRISON->RESERVE]
+[23:39:39] [] Duties of village 'Ussy les-pâtures' (17 available: 1 sentry pair(s), 4 patrol, 1 scout(s), 2 reserve): [d5f709fc GARRISON->PATROL#3]
+[23:39:43] [] Duties of village 'Saint-Laurent les-pâtures' (34 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 5 reserve): [ae0eabe9 GARRISON->RESERVE]
+[23:39:59] [] Duties of village 'Ussy les-pâtures' (21 available: 1 sentry pair(s), 5 patrol, 2 scout(s), 3 reserve): [84e34ef9 GARRISON->SCOUT#1, 015d7ff0 GARRISON->RESERVE, ec7ac134 GARRISON->PATROL#4]
+[23:40:13] [] Duties of village 'Saint-Laurent les-pâtures' (40 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 6 reserve): [efd8a56c GARRISON->RESERVE]
+[23:40:14] [] Duties of village 'Courseulles le-volcan' (48 available: 7 sentry pair(s), 12 patrol, 3 scout(s), 9 reserve): [9f0b4bd6 GARRISON->SENTRY#6, 761d6ba4 GARRISON->SENTRY#6, a2466ee5 GARRISON->PATROL#11]
+[23:40:19] [] Duties of village 'Ussy les-pâtures' (25 available: 1 sentry pair(s), 6 patrol, 2 scout(s), 3 reserve): [81742f0c GARRISON->PATROL#5]
+[23:40:24] [] Duties of village 'Courseulles le-volcan' (50 available: 7 sentry pair(s), 12 patrol, 4 scout(s), 10 reserve): [0688dcd8 GARRISON->SCOUT#3, a49a3c81 GARRISON->RESERVE]
+[23:40:29] [] Duties of village 'Ussy les-pâtures' (27 available: 1 sentry pair(s), 6 patrol, 2 scout(s), 4 reserve): [fd2cb4fd GARRISON->RESERVE]
+[23:40:34] [] Duties of village 'Courseulles le-volcan' (52 available: 7 sentry pair(s), 13 patrol, 4 scout(s), 10 reserve): [88e93c25 GARRISON->PATROL#12]
+[23:40:39] [] Duties of village 'Ussy les-pâtures' (29 available: 1 sentry pair(s), 7 patrol, 2 scout(s), 4 reserve): [01305f02 GARRISON->PATROL#6]
+[23:40:44] [] Duties of village 'Courseulles le-volcan' (54 available: 8 sentry pair(s), 13 patrol, 4 scout(s), 10 reserve): [a8ef08bd GARRISON->SENTRY#7, c010f2e2 GARRISON->SENTRY#7]
+[23:40:49] [] Duties of village 'Ussy les-pâtures' (31 available: 1 sentry pair(s), 7 patrol, 3 scout(s), 4 reserve): [8f0df98b GARRISON->SCOUT#2]
+[23:40:53] [] Duties of village 'Saint-Laurent les-pâtures' (48 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 7 reserve): [8f965f49 GARRISON->RESERVE]
+[23:40:54] [] Duties of village 'Courseulles le-volcan' (56 available: 8 sentry pair(s), 14 patrol, 4 scout(s), 11 reserve): [01800899 GARRISON->RESERVE, c661d01d GARRISON->PATROL#13]
+[23:40:54] [] Duties of village 'Apollania' (27 available: 3 sentry pair(s), 6 patrol, 2 scout(s), 4 reserve): [bba89b7b GARRISON->RESERVE]
+[23:40:59] [] Duties of village 'Ussy les-pâtures' (33 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 4 reserve): [0e9527f1 GARRISON->PATROL#7]
+[23:41:04] [] Duties of village 'Apollania' (29 available: 3 sentry pair(s), 7 patrol, 2 scout(s), 4 reserve): [c21a7b87 GARRISON->PATROL#6]
+[23:41:09] [] Duties of village 'Ussy les-pâtures' (35 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 5 reserve): [1cdd3f1c GARRISON->RESERVE]
+[23:41:14] [] Duties of village 'Courseulles le-volcan' (60 available: 9 sentry pair(s), 15 patrol, 4 scout(s), 12 reserve): [d6251f4c GARRISON->PATROL#14, 253ef6eb GARRISON->RESERVE, b6a160d0 GARRISON->SENTRY#8, c982e9d1 GARRISON->SENTRY#8]
+[23:41:14] [] Duties of village 'Apollania' (31 available: 3 sentry pair(s), 7 patrol, 3 scout(s), 4 reserve): [a70bfb3b SENTRY->SCOUT#2, eee6d406 GARRISON->SENTRY#1]
+[23:41:24] [] Duties of village 'Apollania' (33 available: 3 sentry pair(s), 8 patrol, 3 scout(s), 4 reserve): [d4fba94b GARRISON->PATROL#7]
+[23:41:34] [] Duties of village 'Courseulles le-volcan' (64 available: 9 sentry pair(s), 16 patrol, 5 scout(s), 12 reserve): [871a9e60 SENTRY->SCOUT#4, ebda6dda GARRISON->PATROL#15, a42548d0 GARRISON->SENTRY#0]
+[23:41:34] [] Duties of village 'Apollania' (35 available: 3 sentry pair(s), 8 patrol, 3 scout(s), 5 reserve): [f99b7807 GARRISON->RESERVE]
+[23:41:39] [] Duties of village 'Ussy les-pâtures' (41 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 6 reserve): [2491b91f GARRISON->RESERVE]
+[23:41:44] [] Duties of village 'Courseulles le-volcan' (66 available: 9 sentry pair(s), 16 patrol, 5 scout(s), 13 reserve): [929067d3 GARRISON->RESERVE]
+[23:41:55] [] Duties of village 'Courseulles le-volcan' (68 available: 10 sentry pair(s), 17 patrol, 5 scout(s), 13 reserve): [0a066d39 GARRISON->PATROL#16, e021b283 GARRISON->SENTRY#9, e4ccc274 GARRISON->SENTRY#9]
+[23:42:04] [] Duties of village 'Courseulles le-volcan' (70 available: 10 sentry pair(s), 17 patrol, 5 scout(s), 14 reserve): [c636be82 GARRISON->RESERVE]
+[23:42:05] [] Duties of village 'Apollania' (41 available: 3 sentry pair(s), 8 patrol, 3 scout(s), 6 reserve): [0725c16d GARRISON->RESERVE]
+[23:42:09] [] Duties of village 'Ussy les-pâtures' (47 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 7 reserve): [94130331 GARRISON->RESERVE]
+[23:42:14] [] Duties of village 'Courseulles le-volcan' (72 available: 10 sentry pair(s), 18 patrol, 5 scout(s), 14 reserve): [c7036e31 GARRISON->PATROL#17]
+[23:42:24] [] Duties of village 'Courseulles le-volcan' (74 available: 11 sentry pair(s), 18 patrol, 5 scout(s), 14 reserve): [d8f1f4fe GARRISON->SENTRY#10, d1998f57 GARRISON->SENTRY#10]
+[23:42:34] [] Duties of village 'Courseulles le-volcan' (76 available: 11 sentry pair(s), 19 patrol, 6 scout(s), 15 reserve): [9293526e SENTRY->SCOUT#5, 2e63860d GARRISON->RESERVE, 12dbf9de GARRISON->PATROL#18, a9fae983 GARRISON->SENTRY#3]
+[23:42:34] [] Duties of village 'Apollania' (47 available: 3 sentry pair(s), 8 patrol, 3 scout(s), 7 reserve): [84b10c37 GARRISON->RESERVE]
+[23:42:54] [] Duties of village 'Courseulles le-volcan' (80 available: 12 sentry pair(s), 20 patrol, 6 scout(s), 16 reserve): [42e0ad97 GARRISON->RESERVE, 33bc712c GARRISON->PATROL#19, cd02e7e5 GARRISON->SENTRY#11, 2cab8d5f GARRISON->SENTRY#11]
+[23:43:14] [] Duties of village 'Courseulles le-volcan' (84 available: 12 sentry pair(s), 21 patrol, 6 scout(s), 16 reserve): [45ba65d5 GARRISON->PATROL#20]
+[23:43:24] [] Duties of village 'Courseulles le-volcan' (86 available: 12 sentry pair(s), 21 patrol, 6 scout(s), 17 reserve): [4e125449 GARRISON->RESERVE]
+[23:43:28] [] Duty unit 71832ec4 of village 'Courseulles le-volcan' (SCOUT) made no progress towards 778, 69, 1018 for 6000 ticks at 698, 49, 856: stuck, falling back to 658, 78, 975
+[23:43:34] [] Duties of village 'Courseulles le-volcan' (88 available: 13 sentry pair(s), 22 patrol, 7 scout(s), 17 reserve): [470a0a2d GARRISON->PATROL#21, 9f0b4bd6 SENTRY->SCOUT#6, eab858fe GARRISON->SENTRY#12, e1b0bc30 GARRISON->SENTRY#12, dfb8f4b1 GARRISON->SENTRY#6]
+[23:43:44] [] Duties of village 'Courseulles le-volcan' (90 available: 13 sentry pair(s), 22 patrol, 7 scout(s), 18 reserve): [57604b77 GARRISON->RESERVE]
+[23:43:54] [] Duties of village 'Courseulles le-volcan' (92 available: 13 sentry pair(s), 23 patrol, 7 scout(s), 18 reserve): [9f0b4bd6 SCOUT->GARRISON, 578b4495 GARRISON->PATROL#22, 9c915399 GARRISON->SCOUT#6]
+[23:44:04] [] Duties of village 'Courseulles le-volcan' (94 available: 14 sentry pair(s), 23 patrol, 7 scout(s), 18 reserve): [871a9e60 SCOUT->SENTRY#13, 9293526e SCOUT->SENTRY#13, c5e8b3f6 GARRISON->SCOUT#4, ca7d7824 GARRISON->SCOUT#5]
+[23:44:14] [] Duties of village 'Courseulles le-volcan' (96 available: 14 sentry pair(s), 24 patrol, 7 scout(s), 19 reserve): [5a70caa2 GARRISON->PATROL#23, 5fbb4b70 GARRISON->RESERVE]
+[23:44:34] [] Duties of village 'Courseulles le-volcan' (100 available: 15 sentry pair(s), 24 patrol, 8 scout(s), 20 reserve): [65e229a3 GARRISON->RESERVE, 9f0b4bd6 GARRISON->SENTRY#14, ef7d4274 GARRISON->SENTRY#14, 81388c99 GARRISON->SCOUT#7]
+[23:45:04] [] Duties of village 'Courseulles le-volcan' (106 available: 15 sentry pair(s), 24 patrol, 8 scout(s), 21 reserve): [66205ac3 GARRISON->RESERVE]
+[23:45:14] [] Duties of village 'Courseulles le-volcan' (108 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 21 reserve): [27211810 GARRISON->SENTRY#15, 0cecd56f GARRISON->SENTRY#15]
+[23:45:24] [] Duties of village 'Courseulles le-volcan' (110 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 22 reserve): [72337c0e GARRISON->RESERVE]
+[23:45:54] [] Duties of village 'Courseulles le-volcan' (116 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 23 reserve): [765d9c6b GARRISON->RESERVE]
+[23:45:58] [] Duty unit 71832ec4 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 28715, resumes at ride 2
+[23:46:00] [] Duties of village 'Courseulles le-volcan' (116 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 23 reserve): [8962eac5 GARRISON->SCOUT#0]
+[23:46:14] [] Duties of village 'Courseulles le-volcan' (120 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 24 reserve): [ffa45bb0 GARRISON->RESERVE]
+[23:46:44] [] Duties of village 'Courseulles le-volcan' (126 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [8e22d173 GARRISON->RESERVE]
+[23:52:14] [] Duty unit 0688dcd8 of village 'Courseulles le-volcan' (SCOUT) made no progress towards 778, 69, 1018 for 6000 ticks at 698, 49, 856: stuck, falling back to 658, 78, 975
+[23:54:17] [] Duties of village 'Putot les-mines' (14 available: 2 sentry pair(s), 4 patrol, 1 scout(s), 1 reserve): [c60295b9 GARRISON->PATROL#3]
+[23:54:18] [] Duty unit eb6f3cce of village 'Courseulles le-volcan' (SCOUT) made no progress towards 658, 78, 975 for 6000 ticks at 597, 58, 917: stuck, falling back to 658, 78, 975
+[23:54:44] [] Duty unit 871a9e60 of village 'Courseulles le-volcan' (SENTRY) made no progress towards 604, 67, 1007 for 6000 ticks at 634, 24, 942: stuck, falling back to 658, 78, 975
+[23:54:44] [] Duty unit 0688dcd8 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 39195, resumes at ride 3
+[23:54:46] [] Duties of village 'Courseulles le-volcan' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [9582203e GARRISON->SCOUT#3]
+[23:56:48] [] Duty unit eb6f3cce of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 41675, resumes at ride 3
+[23:56:50] [] Duties of village 'Courseulles le-volcan' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [aafec2c4 GARRISON->SCOUT#2]
+[23:57:14] [] Duty unit 871a9e60 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SENTRY#13 until tick 42195
+[23:57:16] [] Duties of village 'Courseulles le-volcan' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [962635d1 GARRISON->SENTRY#13]
+[23:58:28] [] Duty unit 297c61e8 of village 'Courseulles le-volcan' (PATROL) made no progress towards 697, 68, 923 for 6000 ticks at 623, 66, 1027: stuck, falling back to 658, 78, 975
+[00:03:11] [] Duties of village 'Courseulles le-volcan' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [871a9e60 GARRISON->SENTRY#0]
+[00:04:12] [] Duties of village 'Courseulles le-volcan' (84 available: 12 sentry pair(s), 21 patrol, 6 scout(s), 16 reserve): [7c8b26d4 RESERVE->GARRISON, 66205ac3 RESERVE->GARRISON, e1d05611 SCOUT->GARRISON, 765d9c6b RESERVE->GARRISON, 5a70caa2 PATROL->GARRISON, 9293526e SENTRY->GARRISON, 470a0a2d PATROL->GARRISON, 9f0b4bd6 SENTRY->GARRISON, 72337c0e RESERVE->GARRISON, 578b4495 PATROL->GARRISON, ef7d4274 SENTRY->GARRISON, eab858fe SENTRY->GARRISON, e1b0bc30 SENTRY->GARRISON, 27211810 SENTRY->GARRISON, 0cecd56f SENTRY->GARRISON, 9c915399 SCOUT->SCOUT#5, ca7d7824 SCOUT->GARRISON, 81388c99 SCOUT->SCOUT#1, 962635d1 SENTRY->GARRISON]
+[00:04:55] [] Duties of village 'Courseulles le-volcan' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [66205ac3 GARRISON->RESERVE, 5a70caa2 GARRISON->RESERVE, 9293526e GARRISON->SENTRY#12, 9f0b4bd6 GARRISON->SENTRY#13, 578b4495 GARRISON->RESERVE, ef7d4274 GARRISON->SENTRY#15, eab858fe GARRISON->SENTRY#14, e1b0bc30 GARRISON->SENTRY#14, ad0fcf62 GARRISON->SCOUT#6, b54acf06 GARRISON->SCOUT#7, fe43d347 GARRISON->SENTRY#15, 99526e63 GARRISON->SENTRY#13, 962635d1 GARRISON->SENTRY#12, f76e88ae GARRISON->PATROL#23, 9511bead GARRISON->PATROL#21, a3067fda GARRISON->PATROL#22, fd0a7f25 GARRISON->RESERVE]
+[00:05:20] [] Duty unit 9c915399 of village 'Courseulles le-volcan' (SCOUT) made no progress towards 658, 78, 975 for 6000 ticks at 698, 49, 856: stuck, falling back to 658, 78, 975
+[00:05:26] [] Duties of village 'Courseulles le-volcan' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [560b1e96 RESERVE->GARRISON, 66205ac3 RESERVE->GARRISON, 65e229a3 RESERVE->GARRISON, ff9f26a8 SENTRY->GARRISON, 5a70caa2 RESERVE->GARRISON, 9293526e SENTRY->GARRISON, e556fb6c SENTRY->GARRISON, 534571db SENTRY->GARRISON, b5bba936 PATROL->GARRISON, f9a961b2 PATROL->GARRISON, dfda2d41 SENTRY->GARRISON, c15c26b5 PATROL->GARRISON, 9f0b4bd6 SENTRY->GARRISON, 57604b77 RESERVE->GARRISON, d6251f4c PATROL->GARRISON, 761d6ba4 SENTRY->GARRISON, a8ef08bd SENTRY->GARRISON, a2466ee5 PATROL->GARRISON, c010f2e2 SENTRY->GARRISON, 88e93c25 
+[00:05:59] [] Duty unit 81388c99 of village 'Courseulles le-volcan' (SCOUT) made no progress towards 658, 78, 975 for 6000 ticks at 641, 38, 910: stuck, falling back to 658, 78, 975
+[00:06:55] [] Duty unit 297c61e8 of village 'Courseulles le-volcan' (PATROL) made no progress towards 697, 68, 923 for 6000 ticks at 623, 66, 1027: stuck, falling back to 658, 78, 975
+[00:07:29] [] Duty unit 9582203e of village 'Courseulles le-volcan' (SCOUT) made no progress towards 533, 69, 933 for 6000 ticks at 633, 39, 920: stuck, falling back to 658, 78, 975
+[00:07:49] [] Duty unit 9c915399 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 54195, resumes at ride 1
+[00:08:19] [] Duty unit ca7d7824 of village 'Courseulles le-volcan' (GARRISON) made no progress towards 646, 68, 923 for 6000 ticks at 696, 51, 857: stuck, falling back to 658, 78, 975
+[00:08:29] [] Duty unit 81388c99 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 54995, resumes at ride 1
+[00:08:31] [] Duties of village 'Courseulles le-volcan' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [aafec2c4 GARRISON->SCOUT#1]
+[00:11:57] [] Duty unit 297c61e8 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (walked back); on GARRISON duty until the next allocation; avoids PATROL#0 until tick 59115
+[00:11:59] [] Duties of village 'Courseulles le-volcan' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [88e93c25 GARRISON->PATROL#0]
+[00:13:35] [] Duty unit 9582203e of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 61075, resumes at ride 2
+[00:13:37] [] Duties of village 'Courseulles le-volcan' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [ad0fcf62 GARRISON->SCOUT#2]
+[00:15:29] [] Duty unit ca7d7824 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; no post exclusion
+[00:15:44] [] Duty unit 5d9eee12 of village 'Courseulles le-volcan' (PATROL) made no progress towards 667, 72, 976 for 6000 ticks at 622, 65, 1026: stuck, falling back to 658, 78, 975
+[00:15:44] [] Duty unit e1d05611 of village 'Courseulles le-volcan' (GARRISON) made no progress towards 639, 69, 1028 for 6000 ticks at 636, 27, 952: stuck, falling back to 658, 78, 975
+[00:15:44] [] Duty unit 1d089c7c of village 'Courseulles le-volcan' (PATROL) made no progress towards 667, 72, 976 for 6000 ticks at 623, 66, 1027: stuck, falling back to 658, 78, 975
+[00:15:44] [] Duty unit 45ba65d5 of village 'Courseulles le-volcan' (GARRISON) made no progress towards 677, 71, 923 for 6000 ticks at 634, 36, 921: stuck, falling back to 658, 78, 975
+[00:15:44] [] Duty unit c5e8b3f6 of village 'Courseulles le-volcan' (GARRISON) made no progress towards 603, 69, 954 for 6000 ticks at 565, 63, 916: stuck, falling back to 658, 78, 975
+[00:17:11] [] Duty unit e1d05611 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (walked back); on GARRISON duty until the next allocation; no post exclusion
+[00:17:34] [] Duty unit 5d9eee12 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#3 until tick 67075
+[00:17:34] [] Duty unit 1d089c7c of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#6 until tick 67075
+[00:17:34] [] Duty unit 45ba65d5 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; no post exclusion
+[00:17:35] [] Duties of village 'Courseulles le-volcan' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [a2466ee5 GARRISON->PATROL#6, 9511bead GARRISON->PATROL#3]
+[00:17:37] [] Duty unit c5e8b3f6 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; no post exclusion
+[00:17:41] [] Duties of village 'Putot les-mines' (17 available: 2 sentry pair(s), 5 patrol, 1 scout(s), 1 reserve): [43a5b38b GARRISON->PATROL#4]
+[00:18:23] [] Duty unit aafec2c4 of village 'Courseulles le-volcan' (SCOUT) made no progress towards 658, 78, 975 for 6000 ticks at 629, 48, 951: stuck, falling back to 658, 78, 975
