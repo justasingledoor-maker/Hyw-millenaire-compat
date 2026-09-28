@@ -370,7 +370,7 @@ public final class SiegeService {
             case MARCH -> {
                 if (tick >= s.phaseEnd) {
                     BlockPos landing = landing(overworld, a, t);
-                    if (watched(overworld, t, landing)) {
+                    if (!s.forceUnwatched && watched(overworld, t, landing)) {
                         deploy(overworld, ledger, s, a, t, alive, landing, tick, r);
                     } else {
                         s.enter(Siege.Phase.WAIT, tick, tick + r.waitTicks());
@@ -381,7 +381,7 @@ public final class SiegeService {
             }
             case WAIT -> {
                 BlockPos landing = landing(overworld, a, t);
-                if (watched(overworld, t, landing)) {
+                if (!s.forceUnwatched && watched(overworld, t, landing)) {
                     deploy(overworld, ledger, s, a, t, alive, landing, tick, r);
                 } else if (tick >= s.phaseEnd) {
                     offscreen(overworld, ledger, s, a, t, alive, tick, r);

@@ -2185,6 +2185,133 @@ def scenario_RC(ctx):
     m5(s, f"mill mrel {ca} {cb} set 0")
 
 
+def sieges(s):
+    return [l.strip() for l in s.output("hywmill war sieges", 1.5) if " -> " in l]
+
+
+def wait_siege(s, pred, limit, step=5):
+    t0 = time.time()
+    while time.time() - t0 < limit:
+        l = sieges(s)
+        if pred(l):
+            return l, round(time.time() - t0)
+        time.sleep(step)
+    return sieges(s), None
+
+
+def near_count(s, fac, c, r=110):
+    return sum(1 for u, x in spike_info(s, "@e[type=!minecraft:player]").items()
+               if x["tag"] != "none" and ("owner=" + fac) in x["desc"] and dist(x["pos"], c) <= r)
+
+
+def scenario_SG(ctx):
+    """Sieges (post-M5; run after G4_0 with [politics] warMinConflictTicks = 200): a Patron campaigner counsels a siege of
+    B by A (a Trusted one is refused); A's host musters, leaves the world while marching (slots kept, no missing, no
+    duplicates), stands before B, fights, and the outcome pays tribute and rewards the helper; survivors come home."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    U = U_UUID
+    p0 = s.pos()
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill discover {ca} {U}", 0.5)
+    m5(s, f"mill discover {cb} {U}", 0.5)
+    standin_at(s, U, a[0] + 3, a[2] + 3)
+    m5(s, f"mill rep {ca} {U} adjust 5000", 0.5)
+    m5(s, f"mill dpoints {ca} {U} regen", 0.5)
+    m5(s, f"mill mrel {ca} {cb} set -100")
+    time.sleep(14)
+    t0 = time.time()
+    while time.time() - t0 < 90 and not any("at war" in l for l in war_lines(s, a, f"for {U} status")):
+        time.sleep(5)
+    j = " | ".join(war_lines(s, a, f"for {U} join {ca} against {cb}"))
+    r0 = " | ".join(war_lines(s, a, f"for {U} siege"))
+    check("SG-1 at war and on campaign, a Trusted player cannot counsel a siege", "join OK" in j and "STANDING_TOO_LOW" in r0, f"{j} || {r0}")
+    m5(s, f"mill rep {ca} {U} adjust 5000", 0.5)
+    for _ in range(4):
+        s.output(at(a, f"hywmill politics admin favor {U} SIEGE_VICTORY"), 0.5)
+    time.sleep(14)
+    ui = next((l for l in m5(s, f"ui select {U} {cb}", 2) if "action SUGGEST_SIEGE" in l), "")
+    check("SG-2 a Patron campaigner sees 'Suggest a siege' in the Politics screen with its cost and odds",
+          "available=true" in ui and "diplomacy points" in ui and re.search(r"outcome=(likely|uncertain|unlikely)", ui), ui)
+    ga0 = garrison(s, a)
+    ents0 = len(unit_entities(s, a))
+    r1 = " | ".join(war_lines(s, a, f"for {U} siege roll 0.0"))
+    sg = sieges(s)
+    host = int(re.search(r"MUSTER \d+/(\d+)", sg[0])[1]) if sg and re.search(r"MUSTER \d+/(\d+)", sg[0]) else 0
+    siege_rows = [r for r in duties(s, a)["rows"] if r["duty"] == "SIEGE"]
+    check("SG-3 the counsel is heeded: A musters a host (on SIEGE duty) against B", "AGREED" in r1 and host >= 6 and len(siege_rows) == host,
+          f"{r1} || {sg} || SIEGE rows {len(siege_rows)}")
+    sg, t_m = wait_siege(s, lambda l: l and "MARCH" in l[0], 150)
+    time.sleep(3)
+    ga1 = garrison(s, a)
+    ents1 = len(unit_entities(s, a))
+    check("SG-4 marching, the host leaves the world: its units are gone, its slots kept (none missing)",
+          t_m is not None and ents0 - ents1 >= host - 1 and ga1.get("live") == ga0.get("live") and ga1.get("missing", 0) == ga0.get("missing", 0),
+          f"{sg} entities {ents0} -> {ents1} (host {host}); live {ga0.get('live')} -> {ga1.get('live')}; missing {ga1.get('missing')}")
+    fa = ga0.get("faction")
+    sg, t_b = wait_siege(s, lambda l: l and ("BATTLE" in l[0] or "RETURN" in l[0]), 240)
+    before_b = near_count(s, fa, b)
+    standin_at(s, U, b[0] + 6, b[2] + 6)  # the campaigner stands with the host
+    check("SG-5 the host arrives and stands before B", t_b is not None and before_b >= max(1, host // 2), f"{sg}; A units near B: {before_b}")
+    sg, t_e = wait_siege(s, lambda l: not l or "RETURN" in l[0] or "WON" in l[0] or "LOST" in l[0], 420)
+    lines = s.read_since(p0)
+    ended = next((l for l in lines if "Siege " in l and " ended " in l), "")
+    check("SG-6 the battle is decided and tribute is paid (chronicle and log)", bool(ended) and "tribute" in ended, ended[-260:] or str(sg))
+    won = " ended WON" in ended
+    pu = pshow(s, a, U)
+    note("SG outcome", f"{'WON' if won else 'LOST'}; helper favor with A now {pu.get('favor')}; {sg}")
+    if won:
+        check("SG-6b the helper who stood with the winner is rewarded (SIEGE_VICTORY Favor)", pu.get("favor", 0) >= 25, str(pu))
+    sg, t_h = wait_siege(s, lambda l: not l, 300)
+    time.sleep(15)
+    ga2 = garrison(s, a)
+    rows2 = duties(s, a)["rows"]
+    lines = s.read_since(p0)
+    dups = [l for l in lines if "Duplicate garrison unit refused" in l]
+    check("SG-7 the survivors come home (no one left on SIEGE duty), no duplicate units",
+          t_h is not None and not any(r["duty"] == "SIEGE" for r in rows2) and not dups,
+          f"home after {t_h}s; live {ga2.get('live')} killed {ga2.get('t_killed')}; duplicates {len(dups)}")
+    war_lines(s, a, f"for {U} leave")
+    m5(s, f"standin remove {U}", 0.3)
+
+
+def scenario_OS(ctx):
+    """Unwatched siege (post-M5): A besieges Z with the target treated as unloaded (dev switch); the siege survives a restart
+    during the march and is decided off-screen by strength, with HYW losses on both sides and survivors coming home."""
+    s, a = ctx.s, ctx.a
+    z = ctx.extra.get("byzantine")
+    if not z:
+        check("OS-0 the third village exists", False, "no byzantine village")
+        return
+    ca, cz = f"{a[0]} {a[1]} {a[2]}", f"{z[0]} {z[1]} {z[2]}"
+    p0 = s.pos()
+    ga0, gz0 = garrison(s, a), garrison(s, z)
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cz} unwatched", 2) if l.startswith("war siege"))
+    m = re.search(r"host (\d+)", out)
+    host = int(m[1]) if m else 0
+    check("OS-1 an admin siege of Z by A is launched", "OK" in out and host >= 6, out)
+    sg, t_m = wait_siege(s, lambda l: l and "MARCH" in l[0], 150)
+    restart(ctx)
+    time.sleep(10)
+    sg2 = sieges(s)
+    check("OS-2 the marching siege survives a restart", t_m is not None and sg2 and "MARCH" in sg2[0], f"{sg} -> {sg2}")
+    sg, t_e = wait_siege(s, lambda l: not l or "RETURN" in l[0], 600)
+    lines = s.read_since(p0)
+    dec = next((l for l in lines if "decided off-screen" in l), "")
+    ga1, gz1 = garrison(s, a), garrison(s, z)
+    m = re.search(r"host lost (\d+), defenders lost (\d+)", dec)
+    hl, dl = (int(m[1]), int(m[2])) if m else (-1, -1)
+    check("OS-3 decided off-screen by strength: HYW losses on both sides match the garrisons' killed totals",
+          bool(dec) and hl >= 0 and ga1.get("t_killed", 0) - ga0.get("t_killed", 0) == hl and gz1.get("t_killed", 0) - gz0.get("t_killed", 0) == dl,
+          f"{dec[-220:]} || A killed {ga0.get('t_killed')} -> {ga1.get('t_killed')}, Z killed {gz0.get('t_killed')} -> {gz1.get('t_killed')}")
+    sg, t_h = wait_siege(s, lambda l: not l, 420)
+    time.sleep(15)
+    rows = duties(s, a)["rows"]
+    dups = [l for l in s.read_since(p0) if "Duplicate garrison unit refused" in l]
+    check("OS-4 the survivors march home and resume their duties; no duplicates", t_h is not None and not any(r["duty"] == "SIEGE" for r in rows),
+          f"home after {t_h}s; duplicate refusals {len(dups)} (old entities of stowed slots are expected to be refused if they load)")
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -5048,7 +5175,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

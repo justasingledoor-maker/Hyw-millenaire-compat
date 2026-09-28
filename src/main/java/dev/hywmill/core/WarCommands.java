@@ -49,18 +49,9 @@ final class WarCommands {
         }));
         war.then(Commands.literal("admin").requires(s -> s.hasPermission(3))
                 .then(Commands.literal("siege").then(Commands.argument("attacker", BlockPosArgument.blockPos())
-                        .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> {
-                            VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
-                            VillageRecord t = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "target"));
-                            if (a == null || t == null) {
-                                return 0;
-                            }
-                            ServerLevel ow = ctx.getSource().getServer().overworld();
-                            var l = HywMillRuntime.require().sieges().launch(ow, a.villageId, t.villageId, null, ow.getGameTime(), false);
-                            send(ctx.getSource(), "war siege " + l.refusal() + ": " + l.detail()
-                                    + (l.ok() ? " id " + l.siege().id.toString().substring(0, 8) : ""));
-                            return l.ok() ? 1 : 0;
-                        }))))
+                        .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminSiege(ctx, false))
+                                .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
+                                        .executes(ctx -> adminSiege(ctx, true))))))
                 .then(Commands.literal("clear-projections").executes(ctx -> {
                     HywMillRuntime rt = HywMillRuntime.require();
                     int n = rt.relations().clearAll(ctx.getSource().getServer().overworld(), rt);
@@ -148,6 +139,24 @@ final class WarCommands {
         var r = PoliticsActions.suggestRaid(ow, player, c.ally(), c.enemy(), draw);
         send(ctx.getSource(), "war raid " + r.code() + ": " + r.message());
         return r.ok() ? 1 : 0;
+    }
+
+    /** Post-M5: {@code /hywmill war admin siege <attacker> <target> [unwatched]} launches a siege now (no war needed). */
+    private static int adminSiege(CommandContext<CommandSourceStack> ctx, boolean unwatched) {
+        VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
+        VillageRecord t = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "target"));
+        if (a == null || t == null) {
+            return 0;
+        }
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        var l = HywMillRuntime.require().sieges().launch(ow, a.villageId, t.villageId, null, ow.getGameTime(), false);
+        if (l.ok() && unwatched) {
+            l.siege().forceUnwatched = true;
+            GarrisonLedger.get(ow).setDirty();
+        }
+        send(ctx.getSource(), "war siege " + l.refusal() + ": " + l.detail() + (l.ok() ? " id " + l.siege().id.toString().substring(0, 8)
+                + " host " + l.siege().hostStart + (unwatched ? " (unwatched)" : "") : ""));
+        return l.ok() ? 1 : 0;
     }
 
     /** Post-M5: suggest a siege to the village of the player's campaign against its enemy ({@code roll}: dev, forced draw). */

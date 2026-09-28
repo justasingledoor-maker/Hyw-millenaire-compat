@@ -33,6 +33,8 @@ public final class Siege {
     public int defendersStart;
     public final Set<UUID> attackerHelpers = new LinkedHashSet<>();
     public final Set<UUID> defenderHelpers = new LinkedHashSet<>();
+    /** DEV/admin test switch: treat the target as unwatched (unloaded) even when it is loaded. */
+    public boolean forceUnwatched;
     /** One line on how it ended (for the chronicle, status and the report). */
     public String summary = "";
 
