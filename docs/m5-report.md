@@ -189,3 +189,17 @@ validated bytes are therefore kept as `dist/hywmill-m5.jar`.
 M4 → M5 migration were last run on earlier jars (`final-m5-1`, `final-g3-1`, `migrate4-run1`, §4.1). That was before the
 escort deferral and the M4 reliability changes, and they have not been re-run on the release jar.
 
+
+### 6.1 Client UI fix after the freeze: `dist/hywmill-m5-ui1.jar`
+
+The Politics screen, first opened in a real client, showed its centre panel blurred. Vanilla 1.21 `Screen.render` draws
+the blurred background itself, and the screen called it *after* drawing its text, so the blur covered the text. The scroll
+arrows and chronicle bullets also showed literal `▲`/`▼`/`•`, because of a doubled escape.
+
+* **Fix.** The parchment is drawn in `renderBackground` (after the blur), `super.render` runs first, and the text is drawn
+  on top. The three escapes are corrected.
+* **Scope.** One file, `client/PoliticsScreen.java`, which is client-only and never loaded on a dedicated server. The jar
+  differs from the frozen release only in `PoliticsScreen.class`. All other 336 entries are identical, so server and
+  gameplay behaviour are the validated `b08886a8…`.
+* **Tests.** JUnit 275/275. G4 was not re-run, because no server code changed.
+* **SHA-256.** `0b6b174628bc6262cfb242a0d4fc0238fff7dfa7f3edbfe2b92f3f72bdc293fc`

@@ -57,8 +57,8 @@ public final class PoliticsScreen extends Screen {
             addRenderableWidget(b);
         }
         if (vs.size() > ROWS) {
-            addRenderableWidget(Button.builder(Component.literal("\\u25B2"), b -> { scroll--; rebuildWidgets(); }).bounds(left + 152, top, 16, 18).build());
-            addRenderableWidget(Button.builder(Component.literal("\\u25BC"), b -> { scroll++; rebuildWidgets(); })
+            addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { scroll--; rebuildWidgets(); }).bounds(left + 152, top, 16, 18).build());
+            addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { scroll++; rebuildWidgets(); })
                     .bounds(left + 152, top + (ROWS - 1) * 20, 16, 18).build());
         }
         int ax = width - 182, ay = 34;
@@ -87,11 +87,18 @@ public final class PoliticsScreen extends Screen {
         }
     }
 
+    /** The vanilla (1.21) background, blurred and darkened, then the parchment panel on top of it. */
+    @Override
+    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partial) {
+        super.renderBackground(g, mouseX, mouseY, partial);
+        g.fill(190 - 6, 28, width - 190 + 6, height - 32, PARCHMENT);
+    }
+
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
-        renderBackground(g, mouseX, mouseY, partial);
+        // background (blur + parchment) and widgets first; the text goes on top (drawn before, the 1.21 blur covered it)
+        super.render(g, mouseX, mouseY, partial);
         int x0 = 190, x1 = width - 190;
-        g.fill(x0 - 6, 28, x1 + 6, height - 32, PARCHMENT);
         g.drawCenteredString(font, title, width / 2, 10, 0xFFFFFFFF);
         int y = 34;
         if (snap.home() == null) {
@@ -122,7 +129,7 @@ public final class PoliticsScreen extends Screen {
             g.drawString(font, "Chronicle", x0, y, INK, false);
             y += 11;
             for (String c : snap.chronicle()) {
-                y = wrap(g, "\\u2022 " + c, x0, y, x1 - x0, FADED);
+                y = wrap(g, "\u2022 " + c, x0, y, x1 - x0, FADED);
             }
         }
         for (String e : snap.envoys()) {
@@ -134,7 +141,6 @@ public final class PoliticsScreen extends Screen {
         if (!lastResult.isEmpty()) {
             wrap(g, lastResult, x0, height - 58, x1 - x0, lastOk ? 0xFF2E5E1E : 0xFF8A1E1E);
         }
-        super.render(g, mouseX, mouseY, partial);
     }
 
     private int wrap(GuiGraphics g, String text, int x, int y, int w, int color) {
