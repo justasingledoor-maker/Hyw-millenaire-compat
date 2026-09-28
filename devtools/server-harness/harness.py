@@ -1898,6 +1898,73 @@ def scenario_RD(ctx):
     check("RD-2 the raided village's HYW garrison deploys against them", deployed >= 1, f"max units on DEFENSE/DEPLOYED: {deployed}")
 
 
+def scenario_MR(ctx):
+    """Muster Roll (post-M5): a block in village A hires soldiers for Millénaire money through the dev stand-in player
+    (fixed UUID). Mercenaries for any standing but Unwelcome/Outlaw, the village's own soldiers from Trusted, money only is
+    the limit, recruits are owned by the player (no garrison tag) and appear around the block; the garrison is untouched."""
+    s = ctx.s
+    a = ctx.a
+    x, z = a[0] + 6, a[2] + 6
+    y = (surface_y(s, x, z) or a[1])
+    s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+    blk = f"{x} {y} {z}"
+    standin = "33333333-4444-4555-8666-777777777777"
+    g0 = garrison(s, a)
+
+    def offers(st):
+        out = s.output(f"hywmill dev recruit offers {blk} {st}", 2)
+        head = next((l for l in out if "recruit: " in l), "")
+        return head, {m[1]: (m[2], int(m[3])) for m in (re.search(r"recruit offer (\S+) (\S+) (\d+)", l) for l in out) if m}
+
+    def hire(key, n, money, st):
+        out = s.output(f'hywmill dev recruit hire {blk} "{key}" {n} {money} {st}', 3)
+        l = next((l for l in out if "recruit: ok=" in l), "")
+        m = re.search(r"ok=(\w+) hired=(\d+) left=(-?\d+)", l)
+        return (m[1] == "true", int(m[2]), int(m[3]), l) if m else (False, 0, -2, l)
+
+    def owned():
+        return {u: r for u, r in spike_info(s, "@e[type=!minecraft:player]").items() if ("owner=" + standin) in r["desc"]}
+
+    h, stranger = offers("STRANGER")
+    note("MR offers STRANGER", h + " " + str(stranger))
+    check("MR-1 a stranger is offered the mercenaries only (3, in argent)",
+          len(stranger) == 3 and all(k.startswith("merc:") for k in stranger) and stranger.get("merc:militia", (0, 0))[1] == 192, str(stranger))
+    h, unw = offers("UNWELCOME")
+    check("MR-2 Unwelcome: nothing offered", len(unw) == 0, h)
+    h, trusted = offers("TRUSTED")
+    note("MR offers TRUSTED", h + " " + str(trusted))
+    units = {k: v for k, v in trusted.items() if k.startswith("unit:")}
+    check("MR-3 Trusted adds the village's own soldiers, priced in or", len(units) >= 1 and all(v[1] >= 4096 for v in units.values()), str(units))
+    h, patron = offers("PATRON")
+    check("MR-4 Patron gets the 10% discount (militia 192 -> 173)", patron.get("merc:militia", (0, 0))[1] == 173, str(patron.get("merc:militia")))
+
+    before = set(owned())
+    ok, n, left, l = hire("merc:militia", 3, 1000, "STRANGER")
+    check("MR-5 hire 3 militia with 1000 deniers: ok, 3 hired, 424 left", ok and n == 3 and left == 424, l)
+    time.sleep(3)
+    new = {u: r for u, r in owned().items() if u not in before}
+    near = [r for r in new.values() if dist(r["pos"], (x, y, z)) <= 8 + 2]
+    check("MR-6 the recruits exist, owned by the player, untagged, within the radius of the block",
+          len(new) == 3 and all(r["tag"] == "none" for r in new.values()) and len(near) == 3,
+          "; ".join(f"{r['pos']} tag={r['tag']}" for r in new.values()))
+    ok, n, left, l = hire("merc:militia", 1, 100, "STRANGER")
+    check("MR-7 not enough money: refused, money kept", not ok and n == 0 and left == 100, l)
+    ok, n, left, l = hire("merc:militia", 1, 1000, "UNWELCOME")
+    check("MR-8 Unwelcome: refused, money kept", not ok and n == 0 and left == 1000, l)
+    if units:
+        key, (tier, price) = sorted(units.items(), key=lambda kv: kv[1][1])[0]
+        ok, n, left, l = hire(key, 2, 2 * price + 50, "TRUSTED")
+        check(f"MR-9 hire 2 {key} at {price} each: ok, 50 left", ok and n == 2 and left == 50, l)
+    else:
+        check("MR-9 hire cultural soldiers", False, "no unit offers at TRUSTED")
+    ok, n, left, l = hire("merc:militia", 64, 64 * 192, "STRANGER")
+    check("MR-10 more than 32 in one purchase is refused or capped", n <= 32, l)
+    time.sleep(3)
+    g1 = garrison(s, a)
+    check("MR-11 the garrison is untouched (live and target unchanged)", g1.get("live") == g0.get("live") and g1.get("target") == g0.get("target"),
+          f"before {g0.get('live')}/{g0.get('target')} after {g1.get('live')}/{g1.get('target')}")
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -4761,7 +4828,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
