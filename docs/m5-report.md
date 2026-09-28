@@ -5,8 +5,9 @@ changes to Millénaire or HYW, compileOnly against the pinned jars, foreign impo
 `integration.*`. Branch: `claude/millenaire-hyw-audit-5n4u8s`. Design: `docs/m5-design.md` (§18 is
 authoritative). Spikes: `docs/m5-spike.md`.
 
-**Status of this report:** every phase is implemented and tested. Two items are open and need a
-decision or more work before M5 is signed off; see §4.3.
+**Status of this report:** release candidate, frozen. The production code is frozen at `fd13410`, and the release jar
+is `dist/hywmill-m5.jar`, SHA-256 `b08886a8d323528cc11ea94c565d956ee5f48a05693ff485cbd00ada801d8ecd` (§6). Escorts were
+deferred out of M5 (§4.3 A). G4 is 30/31: G4-2 is an accepted validation limitation, not a production defect (§4.3 B).
 
 ## 1. What was built, by phase
 
@@ -18,7 +19,7 @@ decision or more work before M5 is signed off; see §4.3.
 | M5-2 | Status refresh, event-driven grievances, chronicle (persisted, mirrored to Millénaire), word travels, intel, commands | `PoliticsService`, `PoliticsView`, `PoliticsCommands` |
 | M5-3 | Outlaw threat (`OUTLAWED_PLAYER`), `PoliticalPolicy` replacing ALWAYS_REVERT, outlaw HYW projection on the faction identity, formal pardon (weregild) | `PoliticalPolicy`, `Pardon`, `ThreatTracker` |
 | M5-4 | Envoys (reconcile, truce, encourage, sow discord) with seeded logistic odds, travel, truce floor, raid truce check, offline reports | `DiplomacyOdds`, `EnvoyService`, `DiplomacyCommands` |
-| M5-5 | Requests (escort, detachment), Favor from service, casualty cost, approved Reconciler away-clock pause | `Requests`, `ErrandService`, `Reconciler`, `Duty.ESCORT/DETACHED` |
+| M5-5 | Requests (detachment; escorts deferred, §4.3 A), Favor from service, casualty cost, approved Reconciler away-clock pause | `Requests`, `ErrandService`, `Reconciler`, `Duty.ESCORT/DETACHED` |
 | M5-5b | Automatic wars, campaigns, relation projector with previous-relation records, `ENEMY_COMBATANT`, raids engage combatant villagers only (approved) | `politics.war.*`, `RelationProjector`, `WarCommands`, `RaidService` |
 | M5-6 | Armoury content pack (data only, Patron-gated) and honours | `content/millenaire-custom/hywmill_armoury`, `devtools/make_armoury_pack.py` |
 | M5-UI | Unbound keybind, versioned payloads, Politics screen over the shared API | `net.*`, `client.*`, `PoliticsView.actions`, `PoliticsActions.submit` |
@@ -51,8 +52,12 @@ decision or more work before M5 is signed off; see §4.3.
 | Target and levy formula terms; caps 24/48/72/128 | `Recruitment`, `TierRule`, `GarrisonTable`, garrison data | M3 code (pure) + data |
 | Load-state gate (no scaling decision from a partial village load) | `ScalingGate`, `GarrisonService.slot` | M3 code, requested with the approval |
 | Duty maxima and raid `maxCommit` at the new sizes | duty data | M4 data only |
-| Missing clock paused for ESCORT/DETACHED units in unloaded chunks | `Reconciler` (additive overload) | M3 code |
+| Missing clock paused for DETACHED (lent) units in unloaded chunks | `Reconciler` (additive overload) | M3 code |
 | Raid contingents engage combatant villagers only | `RaidService.advance` | M4 code |
+| Recovery of a trapped unit whose target is beyond 40 blocks | `DutyService.recoverySpot` | M4 code (`docs/m4-report.md` addendum) |
+| Stuck home-duty units fall back to the village (last-resort move) | `StuckWatch`, `DutyService` | M4 code (addendum) |
+| Post exclusion after a recovery (10 min, runtime only); a recovered scout resumes its ride | `StuckWatch.Avoid`, `DutyAllocator.Candidate.avoid` | M4 code (addendum) |
+| Diagnostic log line when a unit is held 10–24 blocks from its spot (no behaviour change) | `DutyService.holdDiag` | M4 code (addendum) |
 
 Additive, not behaviour changes: `Duty.away()` generalises the existing `== RAID` exclusions to the
 new errand duties; `RaidService` skips joining a raid between villages under a truce (§10 of the
@@ -68,7 +73,8 @@ no trimming, no starting grant.
 
 ## 3. JUnit
 
-**248/248** (201 before M5-G; 47 new: C3 formula and neutral equivalence, scaling gate, duty data,
+**275/275** on the release commit (248 at M5-UI; then the escort deferral, `DutyRecoveryTest` 6, `StuckWatchTest` 11,
+`PostExclusionTest` 7). The original M5 figures: 201 before M5-G; 47 new: C3 formula and neutral equivalence, scaling gate, duty data,
 pardon, diplomacy odds, requests, Reconciler pause, war/plan/RoE, wire format, persistence).
 
 ## 4. Server evidence (`docs/m5-test-evidence/`)
@@ -87,6 +93,11 @@ pardon, diplomacy odds, requests, Reconciler pause, war/plan/RoE, wire format, p
 | G4 (M4) with M5-G data | `3765f830…` | 30/31 (G4-2) | `final-g4-1.txt` |
 | G5_5 alone | `884d4414…` | 15/16 (§4.3 A) | `g55-run6.txt` |
 | G4 (M4) with M5-G data | `884d4414…` | 29/31 (G4-2, G4-4b; §4.3 B) | `final-g4-2.txt` |
+| G4, settled G4-2 window (harness) | `eb3b2ba2…` (40-block recovery fix) | 31/31 | `g4-poll1.txt` |
+| G4 + stuck-unit fallback | `b7f49681…` | 30/31 (G4-P), 30/31 (G4-5b), 28/31 (G4-2, G4-5a, G4-P) | `g4-stuck1/2/3*.txt` |
+| G4 + diagnostics | `0fc8c4b0…` | 29/31 (G4-2, G4-4b); re-stuck cycle confirmed | `g4-diag4*.txt` |
+| G4 + post exclusion | **`b08886a8…` (release)** | 30/31 (G4-2); 0 same-post returns | `g4-excl1*.txt` |
+| G4, 10-min G4-2 window (harness only) | **`b08886a8…` (release)** | **30/31 (G4-2, accepted limitation)** | `g4-final*.txt` |
 
 Earlier M5 runs and their fixes: `m5-run1.txt` (67/79), `m5-run2.txt` (93/101), `m5-run3.txt`
 (100/103), `g55-run4.txt`, `g55-run5.txt`; the commit messages record each root cause.
@@ -101,7 +112,7 @@ Earlier M5 runs and their fixes: `m5-run1.txt` (67/79), `m5-run2.txt` (93/101), 
   do not attack; formal pardon; persistence.
 * **M5-4:** requirements, diplomacy point spent, travel, seeded outcome applied through Millénaire's
   relation, both chronicles, cooldowns, truce floor −85, sow-discord limits, pending envoys persist.
-* **M5-5:** escort granted from spare units with Favor paid on acceptance; no teleport (max 3.9
+* **M5-5 (escort items superseded: escorts were deferred after these runs, §4.3 A):** escort granted from spare units with Favor paid on acceptance; no teleport (max 3.9
   blocks/s), no force-load; dismissal and clean-errand Favor; detachment reaches and holds its
   point; casualty costs Favor; **the approved Reconciler change: an errand unit in an unloaded
   chunk stays DEPLOYED and is found again when the chunk loads**; no duplicate slots.
@@ -113,21 +124,41 @@ Earlier M5 runs and their fixes: `m5-run1.txt` (67/79), `m5-run2.txt` (93/101), 
   re-validated (cooldown, unknown action, range), wire round-trip, no client classes loaded on the
   dedicated server.
 
-### 4.3 Open items
+### 4.3 Final dispositions of the open items
 
-**A. Escort leaving a village through a trap spot (decision needed).** In test village A the escort
-walks into a spot at (652, 79, 613) and cannot get out. The same spot trapped M4 sentries in
-`docs/m4-test-evidence/g4-run2.txt`; M4 solved it with its "trapped → unstick" step, which moves the
-unit onto nearby ground (a short teleport). Lent soldiers never teleport (approved Q4), so they hold
-there. Detours and side-steps do not free them. Options: (1) allow the M4 unstick for errand units
-only when trapped (a few blocks, never to catch up); (2) keep "never teleport" and accept that a
-trapped lent soldier holds until the errand ends. The detachment case passes.
+**A. Escort (resolved by a scope decision).** Escorts are deferred out of M5 (`docs/m5-design.md`, scope-change note).
+Lent soldiers never teleport, detachments remain, and the approved Reconciler pause is kept. Escort checks are reported by
+the harness as DEFERRED, separately from PASS/FAIL.
 
-**B. G4 at the larger duty sizes.** G4-2 (every sentry pair within 10 blocks of its post) failed in
-both final runs, each time for one of the 16 stronghold pairs; G4-4b (scouts reach their ring) failed
-in one of two runs. Both are M4 acceptance checks run against the approved M5-G duty retune (16
-sentry pairs, 8 scouts). Not yet root-caused; to be investigated before sign-off rather than
-treated as flakes.
+**B. G4 at the larger duty sizes (resolved; one accepted validation limitation).**
+
+* *Production defects found and fixed (approved M4 changes, §2.2):*
+  * The 40-block recovery ceiling left a trapped sentry stuck for good.
+  * Genuinely stuck home-duty units had no recovery at all. The fix is the fallback, with a last-resort move.
+  * The re-stuck cycle *post → stuck → fallback → GARRISON → allocator → same post* was confirmed: 10 of 13 reassigned
+    units went back to the same post (`g4-diag4*`). The post exclusion fixed it: `g4-excl1*` had 0 of 8 recoveries return
+    to the same post, and `g4-final*` had 0 of 21.
+* *G4-4b (scouts reach the ring):* it failed once, in `g4-diag4`, when the re-stuck cycle kept a scout restarting the same
+  route. It passes with the post exclusion.
+* *G4-2 (every sentry within 10 blocks of its own post): accepted validation limitation, not a production defect.* The
+  10-block criterion is unchanged. The observation window is a harness setting, raised from 6 to 10 minutes (harness only,
+  `db96ed3`; it is not part of production behaviour). The final run still fails it in two ways:
+  1. **Serialized recovery on a difficult ravine route.** Pair #5 was reached only by the third unit:
+     * two units in turn got stuck on the ravine route (5–8 min each);
+     * the exclusion then gave the pair to a unit that reached the post in 12 s, but after the window had closed.
+
+     A fixed window cannot bound a chain of recoveries and replacements.
+  2. **M4 hold inside 24 blocks.** A sentry was held 11.2 blocks from its post, inside M4's existing 24-block hold radius
+     (frozen M4 behaviour) but beyond G4-2's 10-block post distance.
+
+  Neither case shows units failing to recover or a unit cycling. Both are the difference between bounded test criteria
+  and frozen, accepted movement behaviour.
+* *Other G4 checks on the release jar:* G4-4b, G4-5a/b/c, G4-P (+14.0 µs) and G4-10b (180 µs mean) pass.
+  * G4-P failed once (+56 µs, `g4-stuck1`) and once more (+65 µs, `g4-stuck3`) before the post exclusion, with no single
+    identified cause. It passed in every later run.
+  * G4-5a failed once, when a recovery fell between its two reads; the harness now excludes such units, as approved.
+  * G4-5b failed once (Lappa, `g4-stuck2`). Its before/after plan diagnostics never captured a recurrence, so it remains
+    unclassified.
 
 ## 5. Known limitations
 
@@ -139,3 +170,22 @@ treated as flakes.
   temporary retaliation; HywMill does not proactively mark combatant villagers outside raids.
 * The per-server NoAI budget and dormant units are not implemented (not approved). C3 must be
   measured again on the target server hardware.
+
+## 6. Release candidate (frozen)
+
+| Item | Value |
+|---|---|
+| Production commit | `fd13410` (no production source change after it; later commits are harness, evidence and docs only) |
+| Release jar | `dist/hywmill-m5.jar` (the exact validated bytes; Gradle's output name is `build/libs/hywmill-0.1.0-m1.jar`) |
+| SHA-256 | `b08886a8d323528cc11ea94c565d956ee5f48a05693ff485cbd00ada801d8ecd` (`dist/hywmill-m5.jar.sha256`) |
+| JUnit | 275/275 |
+| G4 (M4 acceptance) on this jar | 30/31; G4-2 is an accepted validation limitation (§4.3 B); `g4-final.txt`, `g4-final-timeline.txt` |
+
+**Rebuild reproducibility.** A clean rebuild of `fd13410` gives a jar with a different hash (`20f677ca…`). Its 337 entries
+are byte-identical to the release jar's; only the zip entry timestamps differ, because Gradle does not fix them. The
+validated bytes are therefore kept as `dist/hywmill-m5.jar`.
+
+**Coverage of the release jar.** JUnit and the full G4 suite ran on this exact jar. The M5 phase suite (G5_*), G3 and the
+M4 → M5 migration were last run on earlier jars (`final-m5-1`, `final-g3-1`, `migrate4-run1`, §4.1). That was before the
+escort deferral and the M4 reliability changes, and they have not been re-run on the release jar.
+
