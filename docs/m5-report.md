@@ -341,3 +341,38 @@ after striking the garrison.
     Its "empty main hand" flags are a harness artefact (the query returned no output in its 0.3 s wait).
   * JUnit 291/291.
 * SHA-256 of the jar: `a13f2137ec3b294907385a8ee0fe9089dd1ead2fd5e40226f2b10ec5c2a2a85c`.
+
+### 6.8 Raid counsel: suggest a raid to your campaign ally (`dist/hywmill-m5-fix8.jar`)
+
+**Request.** From the Politics screen, a player can suggest that a village raid its enemy. There is only a chance the
+village agrees, and only while the two are at war and the player is on campaign with that village.
+
+* **Where.** "Suggest a raid on <enemy>" appears in the Politics screen with the enemy selected, showing its cost and
+  odds (likely, uncertain or unlikely). There is also `/hywmill war raid`, which uses the player's current campaign.
+* **Rules** (`RaidCounsel`, pure; `hywmill_politics` `raidCounsel`, per culture). A suggestion is refused unless:
+  * the villages are at war;
+  * the player's active campaign is with this village against this target;
+  * the village is not already planning or conducting a raid;
+  * the target is not under attack;
+  * the village has raiders.
+* **Cost.** 1 Millénaire diplomacy point, spent whatever the answer, then a one-day cooldown per player.
+* **Chance.**
+  * By standing: Trusted 35%, Patron 55%, Sworn 75%.
+  * ×0.3 when the target's defending strength is at least twice the village's raiding strength (Millénaire's own limit
+    for choosing a raid target).
+  * Kept between 5% and 90%.
+* **Agreement.** Millénaire plans the raid its usual way (`RaidManager.planRaid`): its announcement, then the raid
+  about a day later. The garrison's M4 raid share goes with it. The chronicle records who counselled it.
+* **Also.** The Politics screen tooltips no longer show a literal "\\n" before "Outcome:".
+* **Tests.**
+  * JUnit 300/300 (`RaidCounselTest`, `PoliticsDataTest`).
+  * Harness `RC` on a fresh world after `G4_0` (`raid-counsel2.txt`), 14/14 in all. It checks:
+    * the refusal without a campaign (the screen shows the option disabled with the reason);
+    * the war and the campaign joins;
+    * the screen offering the option with its cost and odds;
+    * a refused roll spending a point, then the cooldown;
+    * an agreed roll planning Millénaire's raid;
+    * the refusal while raiding, through the command and through the screen's submit handler;
+    * a day later, the raid setting out with 2 Millénaire raiders and 8 garrison soldiers on RAID duty.
+  * An earlier run on the reused world passed 7/7 (`raid-counsel1.txt`).
+* SHA-256 of the jar: `bc9db4d256e74012afe23f8f32baf25e3cd4babddf7cfb76603dd5ef1c4397ec`.
