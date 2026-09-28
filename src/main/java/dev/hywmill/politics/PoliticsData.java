@@ -116,8 +116,9 @@ public final class PoliticsData {
         if (o.has("pardon") && o.get("pardon").isJsonObject()) {
             JsonObject j = o.getAsJsonObject("pardon");
             pr = new PoliticsTables.PardonRule(j.has("enabled") ? j.get("enabled").getAsBoolean() : pr.enabled(),
-                    d(j, "perGrievance", pr.perGrievance()), i(j, "killFee", pr.killFee()));
-            if (pr.perGrievance() < 0 || pr.killFee() < 0) {
+                    d(j, "perGrievance", pr.perGrievance()), i(j, "killFee", pr.killFee()),
+                    d(j, "apologyPerGrievance", pr.apologyPerGrievance()));
+            if (pr.perGrievance() < 0 || pr.killFee() < 0 || pr.apologyPerGrievance() < 0) {
                 problems.add(where + ": pardon prices must be >= 0; using " + base.pardon());
                 pr = base.pardon();
             }

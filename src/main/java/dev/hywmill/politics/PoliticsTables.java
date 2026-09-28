@@ -86,9 +86,17 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
      * Millénaire donations. The price is {@code perGrievance} reputation per grievance point above the
      * pardon line, plus {@code killFee} while a peacetime killing is pending. It is refused unless
      * reputation stays above the boycott line after paying.
+     *
+     * <p>Post-M5: {@code apologyPerGrievance} is the price of an apology (see {@link Apology}) in Millénaire deniers per
+     * grievance point; 0 disables apologies.
      */
-    public record PardonRule(boolean enabled, double perGrievance, int killFee) {
-        public static final PardonRule DEFAULT = new PardonRule(true, 32, 1024);
+    public record PardonRule(boolean enabled, double perGrievance, int killFee, double apologyPerGrievance) {
+        public static final double APOLOGY_DEFAULT = 64;
+        public static final PardonRule DEFAULT = new PardonRule(true, 32, 1024, APOLOGY_DEFAULT);
+
+        public PardonRule(boolean enabled, double perGrievance, int killFee) {
+            this(enabled, perGrievance, killFee, APOLOGY_DEFAULT);
+        }
     }
 
     /**

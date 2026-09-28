@@ -402,6 +402,36 @@ public final class PoliticsService {
         return new PardonResult(q, true, r.status, after.getAsInt());
     }
 
+    // ------------------------------------------------------------------ apology (post-M5)
+
+    /** Result of an apology; {@code status} is the standing afterwards, {@code moneyLeft} the payer's deniers (-1 unknown). */
+    public record ApologyResult(dev.hywmill.politics.Apology.Quote quote, boolean paid, Standing status, int moneyLeft) {}
+
+    /**
+     * The apology: quote against the money the payer carries, and when {@code pay} and the quote is OK, take the price
+     * (Millénaire money) and clear the grievance. Reputation is not touched.
+     */
+    public ApologyResult apology(ServerLevel overworld, VillageRecord rec, net.minecraft.world.entity.player.Player payer, boolean pay) {
+        SettlementSource source = Services.settlements();
+        PoliticsTables t = tables(rec);
+        long now = overworld.getGameTime();
+        UUID player = payer.getUUID();
+        PoliticsRecord r = rec.politics.get(player);
+        int money = source != null ? source.playerMoney(payer) : 0;
+        dev.hywmill.politics.Apology.Quote q = dev.hywmill.politics.Apology.quote(r, now, money, t);
+        if (!pay || !q.ok() || source == null || !source.takeMoney(payer, q.price())) {
+            return new ApologyResult(q, false, r.status, source == null ? -1 : money);
+        }
+        int rep = source.playerReputation(overworld, rec.villageId, player);
+        Standing before = r.status;
+        dev.hywmill.politics.Apology.apply(r, now, rep, t);
+        if (r.status != before) {
+            announce(overworld, source, rec, player, before, r.status, now, "apology of " + dev.hywmill.recruit.RecruitOffers.money(q.price()) + " paid");
+        }
+        GarrisonLedger.get(overworld).setDirty();
+        return new ApologyResult(q, true, r.status, source.playerMoney(payer));
+    }
+
     // ------------------------------------------------------------------ chronicle
 
     private void announce(ServerLevel overworld, @Nullable SettlementSource source, VillageRecord rec, UUID player,

@@ -38,7 +38,12 @@ public final class RecruitCommands {
                         .then(Commands.argument("key", StringArgumentType.string())
                                 .then(Commands.argument("count", IntegerArgumentType.integer(1, 64))
                                         .then(Commands.argument("deniers", IntegerArgumentType.integer(0))
-                                                .then(Commands.argument("standing", StringArgumentType.word()).executes(RecruitCommands::hire)))))));
+                                                .then(Commands.argument("standing", StringArgumentType.word()).executes(RecruitCommands::hire)))))))
+                .then(Commands.literal("apologize").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .then(Commands.argument("hits", IntegerArgumentType.integer(0, 50))
+                                .then(Commands.argument("deniers", IntegerArgumentType.integer(0))
+                                        .then(Commands.argument("pay", com.mojang.brigadier.arguments.BoolArgumentType.bool())
+                                                .executes(RecruitCommands::apologize))))));
     }
 
     private static FakePlayer standin(CommandContext<CommandSourceStack> c, BlockPos pos, int deniers) {
@@ -78,6 +83,33 @@ public final class RecruitCommands {
             c.getSource().sendSuccess(() -> Component.literal("recruit offer " + o.key() + " " + o.gearTier() + " " + o.price()), false);
         }
         return list.size();
+    }
+
+    /**
+     * The apology through the stand-in: {@code hits} garrison assaults inside the village are added to its grievance, then it
+     * asks for (and with {@code pay}, pays) an apology with {@code deniers} in hand.
+     */
+    private static int apologize(CommandContext<CommandSourceStack> c) {
+        BlockPos pos = BlockPosArgument.getBlockPos(c, "pos");
+        ServerLevel overworld = c.getSource().getServer().overworld();
+        VillageRecord rec = RecruitService.villageAt(overworld, pos);
+        dev.hywmill.core.HywMillRuntime rt = dev.hywmill.core.HywMillRuntime.get();
+        if (rec == null || rt == null) {
+            c.getSource().sendSuccess(() -> Component.literal("apology: no village at " + pos.toShortString()), false);
+            return 0;
+        }
+        FakePlayer p = standin(c, pos, IntegerArgumentType.getInteger(c, "deniers"));
+        for (int i = IntegerArgumentType.getInteger(c, "hits"); i > 0; i--) {
+            rt.politics().applyGrievance(overworld, rec, STANDIN, new dev.hywmill.politics.GrievanceEvent(dev.hywmill.politics.GrievanceKind.ASSAULT_GARRISON,
+                    overworld.getGameTime(), true, true, false, pos.getX(), pos.getY(), pos.getZ()));
+        }
+        Standing before = rec.politics.get(STANDIN).status;
+        var res = rt.politics().apology(overworld, rec, p, com.mojang.brigadier.arguments.BoolArgumentType.getBool(c, "pay"));
+        SettlementSource source = Services.settlements();
+        int left = source == null ? -1 : source.playerMoney(p);
+        c.getSource().sendSuccess(() -> Component.literal("apology: before=" + before + " grievance=" + String.format("%.1f", res.quote().grievance())
+                + " outcome=" + res.quote().outcome() + " price=" + res.quote().price() + " paid=" + res.paid() + " after=" + res.status() + " left=" + left), false);
+        return res.paid() ? 1 : 0;
     }
 
     private static int hire(CommandContext<CommandSourceStack> c) {

@@ -55,6 +55,11 @@ final class PoliticsCommands {
                         .then(Commands.literal("for").requires(s -> s.hasPermission(2))
                                 .then(Commands.argument("player", UuidArgument.uuid()).executes(ctx -> pardon(ctx, UuidArgument.getUuid(ctx, "player"), false))
                                         .then(Commands.literal("pay").executes(ctx -> pardon(ctx, UuidArgument.getUuid(ctx, "player"), true))))))
+                .then(Commands.literal("apologize").executes(ctx -> apology(ctx, null, false))
+                        .then(Commands.literal("pay").executes(ctx -> apology(ctx, null, true)))
+                        .then(Commands.literal("for").requires(s -> s.hasPermission(2))
+                                .then(Commands.argument("player", UuidArgument.uuid()).executes(ctx -> apology(ctx, UuidArgument.getUuid(ctx, "player"), false))
+                                        .then(Commands.literal("pay").executes(ctx -> apology(ctx, UuidArgument.getUuid(ctx, "player"), true))))))
                 .then(request(Commands.literal("request"), null))
                 .then(Commands.literal("request-for").requires(s -> s.hasPermission(2))
                         .then(request(Commands.argument("player", UuidArgument.uuid()), "player")))
@@ -225,6 +230,19 @@ final class PoliticsCommands {
                 ctx.getSource().getServer().overworld(), player, rec.villageId, pay);
         send(ctx.getSource(), "politics pardon " + r.code() + ": " + r.message()
                 + (r.ok() && !pay ? "; run '/hywmill politics pardon pay' to pay" : ""));
+        return r.ok() ? 1 : 0;
+    }
+
+    private static int apology(CommandContext<CommandSourceStack> ctx, @Nullable UUID explicit, boolean pay) {
+        UUID player = who(ctx, explicit);
+        VillageRecord rec = player == null ? null : nearest(ctx);
+        if (rec == null) {
+            return 0;
+        }
+        dev.hywmill.politics.api.PoliticsActions.ActionResult r = dev.hywmill.politics.api.PoliticsActions.apology(
+                ctx.getSource().getServer().overworld(), player, rec.villageId, pay);
+        send(ctx.getSource(), "politics apology " + r.code() + ": " + r.message()
+                + (r.ok() && !pay ? "; run '/hywmill politics apologize pay' to pay" : ""));
         return r.ok() ? 1 : 0;
     }
 

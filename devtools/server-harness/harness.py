@@ -1965,6 +1965,34 @@ def scenario_MR(ctx):
           f"before {g0.get('live')}/{g0.get('target')} after {g1.get('live')}/{g1.get('target')}")
 
 
+def scenario_AP(ctx):
+    """Apology (post-M5): a player who is not an outlaw pays Millénaire money (1 argent per grievance point) and the
+    grievance is settled at once. Driven through the dev stand-in, three garrison assaults inside village A (27 points)."""
+    s = ctx.s
+    a = ctx.a
+    x, z = a[0] + 6, a[2] + 6
+    y = (surface_y(s, x, z) or a[1])
+
+    def apologize(hits, money, pay):
+        out = s.output(f"hywmill dev recruit apologize {x} {y} {z} {hits} {money} {'true' if pay else 'false'}", 3)
+        l = next((l for l in out if "apology: " in l), "")
+        m = re.search(r"before=(\w+) grievance=([\d.]+) outcome=(\w+) price=(\d+) paid=(\w+) after=(\w+) left=(-?\d+)", l)
+        return ({"before": m[1], "g": float(m[2]), "outcome": m[3], "price": int(m[4]), "paid": m[5] == "true", "after": m[6], "left": int(m[7])}
+                if m else {}), l
+
+    r, l = apologize(3, 5000, False)
+    check("AP-1 three garrison assaults make the stand-in Unwelcome; the apology is quoted at 1 argent per point",
+          r.get("before") == "UNWELCOME" and r.get("outcome") == "OK" and 27 * 64 - 64 <= r.get("price", 0) <= 27 * 64 and not r.get("paid"), l)
+    r, l = apologize(0, 1000, True)
+    check("AP-2 not enough money: refused, money kept, still Unwelcome",
+          r.get("outcome") == "TOO_POOR" and not r.get("paid") and r.get("left") == 1000 and r.get("after") == "UNWELCOME", l)
+    r, l = apologize(0, 2000, True)
+    check("AP-3 paid: grievance settled, no longer Unwelcome, the price taken",
+          r.get("paid") and r.get("after") not in ("UNWELCOME", "OUTLAW", None) and r.get("left") == 2000 - r.get("price", -1), l)
+    r, l = apologize(0, 1000, True)
+    check("AP-4 nothing left to settle", r.get("outcome") == "NOTHING_TO_SETTLE" and r.get("left") == 1000, l)
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -4828,7 +4856,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

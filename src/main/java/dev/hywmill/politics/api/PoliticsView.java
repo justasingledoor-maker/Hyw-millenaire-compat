@@ -15,6 +15,7 @@ import dev.hywmill.settlement.GarrisonLedger;
 import dev.hywmill.settlement.SettlementSource;
 import dev.hywmill.settlement.VillageRecord;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -316,6 +317,14 @@ public final class PoliticsView {
                         source.playerReputation(overworld, home, player), tb);
                 out.add(new ActionOption("PARDON_PAY", "Pay the weregild", q.ok(), "costs " + q.price() + " reputation",
                         q.ok() ? "pardon at once" : q.outcome().name().toLowerCase()));
+            } else if (r != null) {
+                ServerPlayer payer = overworld.getServer().getPlayerList().getPlayer(player);
+                dev.hywmill.politics.Apology.Quote q = dev.hywmill.politics.Apology.quote(r, overworld.getGameTime(),
+                        payer == null ? 0 : source.playerMoney(payer), tb);
+                if (q.outcome() == dev.hywmill.politics.Apology.Outcome.OK || q.outcome() == dev.hywmill.politics.Apology.Outcome.TOO_POOR) {
+                    out.add(new ActionOption("APOLOGY_PAY", "Pay an apology", q.ok(), "costs " + dev.hywmill.recruit.RecruitOffers.money(q.price()),
+                            q.ok() ? "grievance settled" : "too_poor"));
+                }
             }
             boolean lent = !dev.hywmill.garrison.service.ErrandService.lentTo(h, player).isEmpty();
             out.add(new ActionOption("DISMISS", "Send lent soldiers home", lent, lent ? "" : "no soldiers lent to you", ""));

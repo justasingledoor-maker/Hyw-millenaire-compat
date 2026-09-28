@@ -55,6 +55,32 @@ public final class PoliticsActions {
         return new ActionResult(q.ok(), q.outcome().name() + (res.paid() ? "_PAID" : ""), msg);
     }
 
+    /** Post-M5: an apology in Millénaire money (the payer must be online: the money is taken from their inventory). */
+    public static ActionResult apology(ServerLevel overworld, UUID player, UUID village, boolean pay) {
+        VillageRecord rec = GarrisonLedger.get(overworld).get(village);
+        if (rec == null) {
+            return new ActionResult(false, "UNKNOWN_VILLAGE", "Unknown village");
+        }
+        net.minecraft.server.level.ServerPlayer payer = overworld.getServer().getPlayerList().getPlayer(player);
+        if (payer == null) {
+            return new ActionResult(false, "OFFLINE", "The player must be online to pay");
+        }
+        PoliticsService.ApologyResult res = HywMillRuntime.require().politics().apology(overworld, rec, payer, pay);
+        dev.hywmill.politics.Apology.Quote q = res.quote();
+        String place = rec.name.isEmpty() ? "this village" : rec.name;
+        String price = dev.hywmill.recruit.RecruitOffers.money(q.price());
+        String msg = switch (q.outcome()) {
+            case OUTLAW -> place + " will not take your money: outlaws must seek a pardon";
+            case DISABLED -> place + " accepts no apologies; wait for the grievance to fade";
+            case NOTHING_TO_SETTLE -> place + " holds no grievance against you";
+            case TOO_POOR -> "The apology costs " + price + " and you carry " + dev.hywmill.recruit.RecruitOffers.money(Math.max(0, res.moneyLeft()));
+            case OK -> res.paid()
+                    ? "Apology accepted: " + price + " paid; the grievance is settled and you are " + res.status() + " in " + place
+                    : "Apology quote: " + price + " (grievance " + String.format("%.1f", q.grievance()) + ")";
+        };
+        return new ActionResult(q.ok(), q.outcome().name() + (res.paid() ? "_PAID" : ""), msg);
+    }
+
     /** M5-5: asks the village for a detachment holding {@code point} for {@code days} (escorts are deferred). */
     public static ActionResult request(ServerLevel overworld, UUID player, UUID village, dev.hywmill.politics.Requests.Kind kind, int asked,
                                        int days, @javax.annotation.Nullable net.minecraft.core.BlockPos point) {
@@ -121,6 +147,12 @@ public final class PoliticsActions {
             }
             case "PARDON_PAY" -> {
                 return pardon(overworld, player, home, true);
+            }
+            case "APOLOGY" -> {
+                return apology(overworld, player, home, false);
+            }
+            case "APOLOGY_PAY" -> {
+                return apology(overworld, player, home, true);
             }
             case "DISMISS" -> {
                 return dismiss(overworld, player);
