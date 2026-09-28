@@ -363,7 +363,7 @@ village agrees, and only while the two are at war and the player is on campaign 
   * Kept between 5% and 90%.
 * **Agreement.** Millénaire plans the raid its usual way (`RaidManager.planRaid`): its announcement, then the raid
   about a day later. The garrison's M4 raid share goes with it. The chronicle records who counselled it.
-* **Also.** The Politics screen tooltips no longer show a literal "\\n" before "Outcome:".
+* **Also.** The Politics screen tooltips no longer show a literal `\n` before "Outcome:".
 * **Tests.**
   * JUnit 300/300 (`RaidCounselTest`, `PoliticsDataTest`).
   * Harness `RC` on a fresh world after `G4_0` (`raid-counsel2.txt`), 14/14 in all. It checks:
