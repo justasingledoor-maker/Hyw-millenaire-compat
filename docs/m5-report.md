@@ -257,3 +257,38 @@ armour slot, so a unit's slots came from different lists, or kept HYW's own item
   * EK6 failed only because the harness pattern did not match the SNBT field order (`show_in_tooltip` before `rgb`).
     Checked against the same logged data, 195/195 dyeable pieces were dyed, in 12 distinct colours. The pattern is fixed;
     the scenario has not been re-run.
+
+### 6.5 Muster Roll and apologies (`dist/hywmill-m5-fix5.jar`)
+
+**Muster Roll (request).** A block, the Muster Roll, hires soldiers of the village it stands in, paid in Millénaire money.
+
+* **How it works.**
+  * The block binds to the village it is placed in; only the player who placed it can set the spawn radius (2–36).
+  * Any player can use it, within their own standing with that village.
+  * Money is taken from the inventory; reputation is untouched.
+  * Recruits appear around the block, belong to the player (not to the garrison), and never change the garrison.
+* **Offers.**
+  * Unwelcome and outlaws: nothing.
+  * Anyone else: mercenaries (militia 3, archer 4, crossbowman 5 argent) in light gear.
+  * The village's own soldiers from Trusted (Guard post gear), Patron (Garrison) and Sworn (Stronghold), capped by the
+    village's tier and priced in or.
+  * Patron gets 10% off and Sworn 20%.
+  * At most 32 units per purchase.
+  * All of this is data (`hywmill_recruitment`).
+* **Recipe.** Iron sword, any banner and shield over a book and quill, over a lectern.
+
+**Apology (request).** A player who is not an outlaw can pay to settle a grievance at once. This is the fix for Unwelcome
+after striking the garrison.
+
+* **Price and effect.** 1 argent per grievance point (`apologyPerGrievance`; 0 disables it). The grievance goes to zero
+  and the standing is re-evaluated; reputation is untouched. Outlaws still need the pardon.
+* **Where.** The Politics screen (home village) and `/hywmill politics apologize [pay]`.
+
+**Tests.**
+* JUnit 291/291, including `RecruitOffersTest` and `ApologyTest`.
+* Server harness, driven through a dev stand-in player:
+  * `MR` (`muster-roll1.txt`), 16/16: the offers per standing, hire, not enough money, the Unwelcome refusal, cultural
+    soldiers, the 32 cap, recruits owned and placed near the block, and the garrison unchanged (48/47 before and after).
+  * `AP` (`apology1.txt`), 6/6: three garrison assaults make the stand-in Unwelcome (grievance 27). The apology costs
+    1728 deniers; it is refused with too little money, and after paying the stand-in is back to Stranger.
+* SHA-256 of the jar: `666b182b8e6ceb8e16dc8cb664f96f2765fae26cb83f9ba9c6a8e55ff355dc7f`.

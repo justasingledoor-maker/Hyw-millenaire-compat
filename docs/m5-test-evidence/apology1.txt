@@ -1,0 +1,17 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario status
+[harness] PASS status: goal bridge installed hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+[harness] --- scenario AP
+[harness] PASS AP-1 three garrison assaults make the stand-in Unwelcome; the apology is quoted at 1 argent per point apology: before=UNWELCOME grievance=27.0 outcome=OK price=1728 paid=false after=UNWELCOME left=5000
+[harness] PASS AP-2 not enough money: refused, money kept, still Unwelcome apology: before=UNWELCOME grievance=27.0 outcome=TOO_POOR price=1728 paid=false after=UNWELCOME left=1000
+[harness] PASS AP-3 paid: grievance settled, no longer Unwelcome, the price taken apology: before=UNWELCOME grievance=27.0 outcome=OK price=1728 paid=true after=STRANGER left=272
+[harness] PASS AP-4 nothing left to settle apology: before=STRANGER grievance=0.0 outcome=NOTHING_TO_SETTLE price=0 paid=false after=STRANGER left=1000
+[harness] server stopped
+[harness] RESULT 6/6 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  status: goal bridge installed  hywmill integrations: {millenaire=enabled, hundred_years_war=enabled}; settlement source: Millénaire, faction service: HYW;   millenaire.goalBridge: millenaire:engage_target=bridged; millenaire:hunt_monster=bridged; millenaire:hide=bridged; millenaire:defend_village=bridged; loaded villagers re-initialized: 0
+  PASS  AP-1 three garrison assaults make the stand-in Unwelcome; the apology is quoted at 1 argent per point  apology: before=UNWELCOME grievance=27.0 outcome=OK price=1728 paid=false after=UNWELCOME left=5000
+  PASS  AP-2 not enough money: refused, money kept, still Unwelcome  apology: before=UNWELCOME grievance=27.0 outcome=TOO_POOR price=1728 paid=false after=UNWELCOME left=1000
+  PASS  AP-3 paid: grievance settled, no longer Unwelcome, the price taken  apology: before=UNWELCOME grievance=27.0 outcome=OK price=1728 paid=true after=STRANGER left=272
+  PASS  AP-4 nothing left to settle  apology: before=STRANGER grievance=0.0 outcome=NOTHING_TO_SETTLE price=0 paid=false after=STRANGER left=1000
