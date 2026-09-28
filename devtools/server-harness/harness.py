@@ -2267,14 +2267,19 @@ def g4_sentry_state(s, vs):
     return out
 
 
+G4_2_WINDOW = 600  # seconds; see scenario_G4_2
+
+
 def scenario_G4_2(ctx):
     """Sentries stand in pairs at posts taken from Millénaire's buildings (walls, gates, towers...).
 
     Approved measurement (M5): eventual placement, not a single snapshot. First a bounded settle precondition (<= 10 min):
     no RECRUITED slot is left and every village's quota of sentry pairs is assigned with two living units each (the
-    stronghold at its full population and duty allocation). Then a fixed 6-minute window, polled every 15 s: PASS as soon as
+    stronghold at its full population and duty allocation). Then a fixed window, polled every 15 s: PASS as soon as
     every sentry of every pair is within 10 blocks of its own post (pairs complete, posts distinct); FAIL at timeout.
-    The 10-block requirement is unchanged."""
+    The 10-block requirement is unchanged. Window (approved, harness timing only): 10 minutes, longer than the documented
+    worst-case path of a trapped sentry through the M4 reliability recovery (6000 ticks to detect + 3000 ticks of
+    fallback = 7.5 min, then the walk to the post); it was 6 minutes."""
     s = ctx.s
     vs = g4_villages(ctx)
     t0 = time.time()
@@ -2302,7 +2307,9 @@ def scenario_G4_2(ctx):
                     first_ok[(k, i)] = el
                     log(f"G4-2 pair {k}#{i} first within 10 blocks of its post at {el} s")
         ok = all(v[3] and v[4] and v[5] for v in st.values())
-        if ok or time.time() - w0 >= 360:
+        if ok:
+            log(f"G4-2 every pair first fully within 10 blocks of its post at {el} s")
+        if ok or time.time() - w0 >= G4_2_WINDOW:
             break
         time.sleep(15)
     if not ok:
@@ -2315,7 +2322,7 @@ def scenario_G4_2(ctx):
             if not distinct:
                 note(f"G4-2 timeout {k}", "two pairs share a post")
     detail = {k: (v[0], {i: [x["pos"] for x in p] for i, p in sorted(v[1].items())}, v[3], v[4], v[5]) for k, v in st.items()}
-    check("G4-2 every sentry pair has two units, standing at (within 10 blocks of) its own post (from building data; settled, 6-min window)",
+    check("G4-2 every sentry pair has two units, standing at (within 10 blocks of) its own post (from building data; settled, 10-min window)",
           ok, f"window {round(time.time() - w0)} s; settle {'ok' if settled else 'not reached'}; {detail}")
 
 
