@@ -99,6 +99,14 @@ class DefenseCoordinatorTest {
         assertEquals(3, passive.assignments().size());
     }
 
+    /** A settlement-mod raider sent against the village (e.g. a Millénaire bandit raid) is an attack: actionable without proactive. */
+    @Test
+    void settlementRaiderIsActionableWithoutProactive() {
+        assertTrue(DefenseCoordinator.isActionable(java.util.Set.of(Reason.SETTLEMENT_RAIDER), false));
+        DefenseCoordinator.Result passive = run(baseline(), AlertState.ALERT, fiveSoldiers(), List.of(threat(1, 5, 0, Reason.SETTLEMENT_RAIDER)));
+        assertEquals(3, passive.assignments().size(), "defenders are committed to the raider");
+    }
+
     @Test
     void calmAssignsNothing() {
         assertEquals(DefenseCoordinator.Result.EMPTY, run(baseline(), AlertState.CALM, fiveSoldiers(),

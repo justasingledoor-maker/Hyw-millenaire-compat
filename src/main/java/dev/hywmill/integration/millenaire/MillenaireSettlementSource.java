@@ -346,6 +346,13 @@ final class MillenaireSettlementSource implements SettlementSource {
         return Optional.of(new ResidentInfo(vid.uuid(), raider, origin, MillTypes.isDefender(mv), type));
     }
 
+    /** Raid clones are registered to the village they raid ({@code getVillageId} is the target), flagged {@code isRaiderEntity}. */
+    @Override
+    public List<net.minecraft.world.entity.LivingEntity> raidersAgainst(ServerLevel level, UUID settlementId, net.minecraft.world.phys.AABB box) {
+        return new ArrayList<>(level.getEntitiesOfClass(MillVillager.class, box, mv -> mv.isAlive() && mv.isRaiderEntity()
+                && mv.getVillageId() != null && settlementId.equals(mv.getVillageId().uuid())));
+    }
+
     @Override
     public List<Entity> loadedResidents(ServerLevel level, UUID settlementId) {
         Village v = manager(level).getVillage(new VillageId(settlementId));

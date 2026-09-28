@@ -105,6 +105,14 @@ public interface SettlementSource {
         }
     }
 
+    /**
+     * Living raiders the settlement mod has sent against {@code settlementId} inside {@code box} (Millénaire: raid clones
+     * registered to the target village). Loaded entities only; empty if unsupported.
+     */
+    default List<net.minecraft.world.entity.LivingEntity> raidersAgainst(ServerLevel level, UUID settlementId, net.minecraft.world.phys.AABB box) {
+        return List.of();
+    }
+
     /** Current layout, in the settlement mod's own (stable) building order; empty if unknown or unsupported. */
     default Optional<Layout> layout(ServerLevel level, UUID settlementId) {
         return Optional.empty();

@@ -55,7 +55,12 @@ public final class ThreatTracker {
         /** M5-3: a player this village has outlawed, inside the defense radius (actionable even with proactive=false). */
         OUTLAWED_PLAYER,
         /** M5-5b: a player on campaign against this village (a co-belligerent of its enemy), inside the defense radius. */
-        ENEMY_COMBATANT
+        ENEMY_COMBATANT,
+        /**
+         * A settlement-mod raider sent against this village (Millénaire raid clone registered to it), inside the defense
+         * radius. Raiders carry no HYW identity, so the HYW-unit scan never saw them and the garrison stood by.
+         */
+        SETTLEMENT_RAIDER
     }
 
     /** Why a player is a legitimate target of the village (outlaw, enemy combatant), or null. Supplied by the politics service. */
@@ -165,6 +170,17 @@ public final class ThreatTracker {
                 if (!reasons.isEmpty()) {
                     found.add(new Threat(unit, reasons));
                 }
+            }
+            // settlement-mod raiders sent against this village (not HYW units: the scan above cannot see them)
+            for (LivingEntity raider : source.raidersAgainst(level, st.village, box)) {
+                if (!DefenseArea.inside(st.center.getX() + 0.5, st.center.getZ() + 0.5, r, raider.getX(), raider.getZ())) {
+                    continue;
+                }
+                EnumSet<Reason> reasons = EnumSet.of(Reason.SETTLEMENT_RAIDER);
+                if (incidents.recentlyAttackedVillage(raider.getUUID(), st.village, now)) {
+                    reasons.add(Reason.RECENT_ATTACKER);
+                }
+                found.add(new Threat(raider, reasons));
             }
             // M5-3/5b: outlawed players and enemy combatants in the defense radius (online players only, not an entity scan)
             for (Player p : level.players()) {

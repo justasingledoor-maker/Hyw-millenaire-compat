@@ -1866,6 +1866,38 @@ def village_id8(s, c):
     return (info(s, c).get("villageId") or "")[:8]
 
 
+def scenario_RD(ctx):
+    """Bug report (post-M5): a Millénaire raid (e.g. bandits) on a village with a HYW garrison. The raiders carry no HYW
+    identity, so the M2 threat scan (HYW units only) never saw them and the garrison stood by. Village B raids A (run after
+    G4_0 so A has a garrison): A must list the raiders as SETTLEMENT_RAIDER threats and deploy garrison units on DEFENSE."""
+    s = ctx.s
+    a, b = ctx.a, ctx.b
+    p = s.pos()
+    out = s.output(f"millenaire dev raid trigger {b[0]} {b[1]} {b[2]} {a[0]} {a[1]} {a[2]}", 3)
+    check("RD-0 Millénaire raid B -> A triggered", any("Raid triggered" in l for l in out), "; ".join(out))
+    t0 = time.time()
+    raider_threat, deployed, first = None, 0, {}
+    ended = None
+    while time.time() - t0 < 360:
+        th = [l for l in s.output(at(a, "hywmill threats"), 2) if "SETTLEMENT_RAIDER" in l]
+        if th and raider_threat is None:
+            raider_threat = th[0]
+            first["threat"] = round(time.time() - t0)
+        rows = duties(s, a)["rows"]
+        dep = [r for r in rows if r["duty"] == "DEFENSE" or r["state"] == "DEPLOYED"]
+        if dep and "deployed" not in first:
+            first["deployed"] = round(time.time() - t0)
+        deployed = max(deployed, len(dep))
+        lines = s.read_since(p)
+        ended = next((l for l in lines if re.search(r"Raid (FAILURE|SUCCESS)|repulsed|succeeded", l)), None)
+        if ended or (raider_threat and deployed >= 2 and time.time() - t0 > 90):
+            break
+        time.sleep(5)
+    note("RD timeline", f"{first}; raid end: {(ended or 'not yet')[-160:]}")
+    check("RD-1 the raiders are threats of the raided village (SETTLEMENT_RAIDER)", raider_threat is not None, raider_threat or "none seen")
+    check("RD-2 the raided village's HYW garrison deploys against them", deployed >= 1, f"max units on DEFENSE/DEPLOYED: {deployed}")
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -4703,7 +4735,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
