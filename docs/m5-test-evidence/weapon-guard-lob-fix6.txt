@@ -1,0 +1,20 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario WL
+[harness] server stopped
+Traceback (most recent call last):
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 5383, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 5379, in main
+    return 0 if run(a.dir, a.scenarios, fresh=not a.keep_world) else 1
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 5005, in run
+    SCENARIOS[n](ctx)
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 2088, in scenario_WL
+    s.cmd("item replace entity @e[tag=hwWL,limit=1] weapon.mainhand with minecraft:air", 0.25)
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 156, in cmd
+    self.send(command)
+  File "/home/user/Hyw-millenaire-compat/devtools/server-harness/harness.py", line 151, in send
+    self.proc.stdin.flush()
+BrokenPipeError: [Errno 32] Broken pipe

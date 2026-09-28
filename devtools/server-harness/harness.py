@@ -2030,6 +2030,77 @@ def scenario_WG(ctx):
     s.cmd(f"forceload remove {x - 16} {z - 16} {x + 16} {z + 16}", 1)
 
 
+def scenario_WX(ctx):
+    """Exploration (post-M5 crash): how do HYW archers end up with an empty main hand in play? Hire mercenary archers from a
+    Muster Roll far from the villages, feed them zombies for a few minutes and log main hand and HYW's intrinsic main hand."""
+    s = ctx.s
+    a = ctx.a
+    x, z = a[0] + 6, a[2] + 6
+    y = (surface_y(s, x, z) or a[1])
+    s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+    out = s.output(f'hywmill dev recruit hire {x} {y} {z} "merc:archer" 4 5000 STRANGER', 3)
+    note("WX hire", "; ".join(l for l in out if "recruit:" in l)[:300])
+    s.output(f'hywmill dev recruit hire {x} {y} {z} "unit:archer" 2 20000 SWORN', 3)
+    time.sleep(3)
+    ids = [u for u, r in spike_info(s, "@e[type=hundred_years_war:archer]").items() if dist(r["pos"], (x, y, z)) < 80]
+    note("WX archers", str(len(ids)))
+    empty_seen = {}
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        s.cmd(f"execute positioned {x} {y} {z} run summon minecraft:zombie ~12 ~ ~ {{PersistenceRequired:1b}}", 0.3)
+        s.cmd(f"execute positioned {x} {y} {z} run summon minecraft:skeleton ~-12 ~ ~4 {{PersistenceRequired:1b}}", 0.3)
+        for u in ids:
+            hand = " ".join(s.output(f"data get entity {u} HandItems[0]", 0.3))
+            intr = " ".join(s.output(f"data get entity {u} HywIntrinsicEquipment", 0.3))
+            if "No entity" in hand:
+                continue
+            if 'id: "' not in hand:
+                empty_seen.setdefault(u, (round(time.time() - t0), hand[-200:], intr[-300:]))
+        time.sleep(8)
+    for u in ids:
+        hand = " ".join(s.output(f"data get entity {u} HandItems[0]", 0.3))
+        intr = " ".join(s.output(f"data get entity {u} HywIntrinsicEquipment", 0.3))
+        note(f"WX {u[:8]}", (hand[-160:] + " || " + intr[-260:]))
+    note("WX empty", str(empty_seen)[:2000])
+    check("WX no archer seen with an empty main hand", not empty_seen, str(list(empty_seen))[:300])
+
+
+def scenario_WL(ctx):
+    """Crash guard, lob path (post-M5 bug report, fix6 still crashed): the archer's per-tick target check lobs over cover and
+    runs at the start of its tick. An archer with a zombie penned behind a wall has its main hand emptied repeatedly; the
+    server must keep ticking and the archer must be holding a weapon."""
+    s = ctx.s
+    a = ctx.a
+    x, z = a[0] + 40, a[2] - 330
+    s.cmd(f"forceload add {x - 24} {z - 24} {x + 24} {z + 24}", 3)
+    y = (surface_y(s, x, z) or a[1])
+    p = s.pos()
+    s.cmd(f"fill {x - 3} {y} {z - 8} {x + 12} {y + 6} {z + 8} minecraft:air", 1)
+    s.cmd(f"fill {x - 3} {y - 1} {z - 8} {x + 12} {y - 1} {z + 8} minecraft:stone", 1)
+    s.cmd(f"fill {x + 5} {y} {z - 6} {x + 5} {y + 3} {z + 6} minecraft:stone", 1)          # the cover
+    s.cmd(f"fill {x + 8} {y} {z - 2} {x + 11} {y + 2} {z + 2} minecraft:glass hollow", 1)   # the pen
+    s.cmd(f"fill {x + 9} {y} {z - 1} {x + 10} {y + 1} {z + 1} minecraft:air", 1)
+    s.cmd(f'summon hundred_years_war:archer {x} {y} {z} {{Tags:["hwWL"],PersistenceRequired:1b}}', 1)
+    s.cmd(f'summon minecraft:zombie {x + 9} {y} {z} {{Tags:["hwWLz"],PersistenceRequired:1b,NoAI:0b}}', 1)
+    s.cmd("item replace entity @e[tag=hwWL,limit=1] weapon.mainhand with minecraft:bow", 0.5)
+    time.sleep(3)
+    for _ in range(40):
+        s.cmd("item replace entity @e[tag=hwWL,limit=1] weapon.mainhand with minecraft:air", 0.25)
+    time.sleep(3)
+    alive = any("There are" in l for l in s.output("list", 1))
+    out = " ".join(s.output("data get entity @e[tag=hwWL,limit=1] HandItems[0]", 1))
+    lines = s.read_since(p)
+    crashed = [l for l in lines if "Invalid weapon firing an arrow" in l]
+    rearm = [l for l in lines if "Re-armed unarmed HYW" in l]
+    note("WL", f"re-arm lines {len(rearm)}; {(rearm[-1][-160:] if rearm else '')}")
+    check("WL-1 the server keeps ticking with an archer lobbing over cover while its hand is emptied 40 times",
+          alive and not crashed, "; ".join(crashed)[:300] or ("server gone" if not alive else ""))
+    check("WL-2 the archer holds a weapon afterwards", 'id: "' in out, out[-160:])
+    s.cmd("kill @e[tag=hwWL]", 0.3)
+    s.cmd("kill @e[tag=hwWLz]", 0.3)
+    s.cmd(f"forceload remove {x - 24} {z - 24} {x + 24} {z + 24}", 1)
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -4893,7 +4964,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

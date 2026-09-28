@@ -1,0 +1,21 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario WL
+[harness] NOTE WL: re-arm lines 2; d unarmed HYW hundred_years_war:archer 3487b44e-c794-4f4f-b2bb-0c2dfb538fca at 681, 105, 304 (before tick): an empty main hand crashes HYW's ranged target check
+[harness] PASS WL-1 the server keeps ticking with an archer lobbing over cover while its hand is emptied 40 times 
+[harness] PASS WL-2 the archer holds a weapon afterwards Archer has the following entity data: {components: {"minecraft:damage": 2}, count: 1, id: "minecraft:bow"}
+[harness] --- scenario WG
+[harness] NOTE WG log: FO] [de.hy.co.HmLog/]: [hywmill] Re-armed unarmed HYW hundred_years_war:archer 7fa89264-2f4e-4b90-ac22-e91dcdc192ce at 686, 106, 289 (before tick): an empty main hand crashes HYW's ranged target check
+[harness] PASS WG-1 an archer whose main hand is emptied is re-armed with a bow {'hwWGa': 'minecraft:bow', 'hwWGc': 'minecraft:crossbow'}
+[harness] PASS WG-2 a crossbowman likewise gets a crossbow {'hwWGa': 'minecraft:bow', 'hwWGc': 'minecraft:crossbow'}
+[harness] PASS WG-3 the server keeps ticking (no 'Invalid weapon firing an arrow') 
+[harness] server stopped
+[harness] RESULT 6/6 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  WL-1 the server keeps ticking with an archer lobbing over cover while its hand is emptied 40 times  
+  PASS  WL-2 the archer holds a weapon afterwards  Archer has the following entity data: {components: {"minecraft:damage": 2}, count: 1, id: "minecraft:bow"}
+  PASS  WG-1 an archer whose main hand is emptied is re-armed with a bow  {'hwWGa': 'minecraft:bow', 'hwWGc': 'minecraft:crossbow'}
+  PASS  WG-2 a crossbowman likewise gets a crossbow  {'hwWGa': 'minecraft:bow', 'hwWGc': 'minecraft:crossbow'}
+  PASS  WG-3 the server keeps ticking (no 'Invalid weapon firing an arrow')  
+  NOTE  WL  re-arm lines 2; d unarmed HYW hundred_years_war:archer 3487b44e-c794-4f4f-b2bb-0c2dfb538fca at 681, 105, 304 (before tick): an empty main hand crashes HYW's ranged target check
+  NOTE  WG log  FO] [de.hy.co.HmLog/]: [hywmill] Re-armed unarmed HYW hundred_years_war:archer 7fa89264-2f4e-4b90-ac22-e91dcdc192ce at 686, 106, 289 (before tick): an empty main hand crashes HYW's ranged target check

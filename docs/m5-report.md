@@ -317,3 +317,27 @@ after striking the garrison.
   * The guarded server also re-armed, on load, an unarmed unit left in the save of the crashed run.
   * JUnit 291/291.
 * SHA-256 of the jar: `ea769c20ba150f3e11d9702b933885af53d27b7b18fd3c07858008f04ec12461`.
+
+### 6.7 Crash fix, second round: the guard ran too late (`dist/hywmill-m5-fix7.jar`)
+
+**Bug report.** fix6 still crashed three more times, with the same stack, around the same archers.
+
+* **Cause.**
+  * HYW empties archers' hands itself in ordinary combat. Seen in the harness with Epic Knights (`WX`,
+    `weapon-guard-combat-fix6.txt`): 4 archers had their main hand emptied in 5 minutes of fighting around a village.
+  * The crashing check (`updateCombatMovementPauseByTargetTransition` → `canLobAttackTarget`) runs at the start of
+    `BaseCombatEntity.tick`, before `super.tick()`. That is where vanilla detects equipment changes and fires
+    `LivingEquipmentChangeEvent`, so fix6 re-armed one tick too late.
+  * It only crashes when the archer would lob, i.e. when its target is behind cover.
+* **Fix.** `HywRangedWeaponGuard` also listens to `EntityTickEvent.Pre` and `EntityTickEvent.Post`. Right before and
+  right after every tick of an HYW archer or crossbowman, an empty main hand gets the default bow or crossbow. This is an
+  instanceof check per entity tick, and it acts only when the hand is empty. Still no mixin.
+* **Tests.**
+  * Harness scenario `WL`: an archer with a zombie penned behind a stone wall has its hand emptied 40 times.
+    * With fix6 it crashes with the reported stack (`weapon-guard-lob-fix6.txt`, `weapon-guard-lob-fix6-crash.txt`).
+    * With fix7 it passes 2/2 runs together with `WG` (`weapon-guard-lob-fix7-*.txt`); the log shows the re-arms
+      "before tick".
+  * The 5-minute Epic Knights combat run (`weapon-guard-combat-fix7.txt`) ends with no crash and 4 "before tick" re-arms.
+    Its "empty main hand" flags are a harness artefact (the query returned no output in its 0.3 s wait).
+  * JUnit 291/291.
+* SHA-256 of the jar: `a13f2137ec3b294907385a8ee0fe9089dd1ead2fd5e40226f2b10ec5c2a2a85c`.

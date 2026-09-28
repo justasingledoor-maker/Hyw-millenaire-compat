@@ -1,0 +1,168 @@
+---- Minecraft Crash Report ----
+// Who set us up the TNT?
+
+Time: 2026-09-28 19:42:21
+Description: Ticking entity
+
+java.lang.IllegalArgumentException: Invalid weapon firing an arrow
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.entity.projectile.AbstractArrow.<init>(AbstractArrow.java:99) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,re:classloading,pl:mixin:APP:hundred_years_war.mixins.json:AbstractArrowMixin from mod hundred_years_war,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.entity.projectile.AbstractArrow.<init>(AbstractArrow.java:115) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,re:classloading,pl:mixin:APP:hundred_years_war.mixins.json:AbstractArrowMixin from mod hundred_years_war,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.entity.projectile.Arrow.<init>(Arrow.java:38) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.item.ArrowItem.createArrow(ArrowItem.java:18) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.entity.projectile.ProjectileUtil.getMobArrow(ProjectileUtil.java:167) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.ArcherEntity.canLobAttackTarget(ArcherEntity.java:435) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.ArcherEntity.canAttackTargetWithAnyTrajectory(ArcherEntity.java:417) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.ArcherEntity.isValidTarget(ArcherEntity.java:386) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.BaseCombatEntity.isValidOrForcedAttackTarget(BaseCombatEntity.java:5977) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:mixin,re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.BaseCombatEntity.isActiveTarget(BaseCombatEntity.java:6067) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:mixin,re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.BaseCombatEntity.updateCombatMovementPauseByTargetTransition(BaseCombatEntity.java:6020) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:mixin,re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.BaseCombatEntity.tick(BaseCombatEntity.java:2743) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:mixin,re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.ArcherEntity.tick(ArcherEntity.java:126) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.level.ServerLevel.tickNonPassenger(ServerLevel.java:774) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.level.Level.guardEntityTick(Level.java:576) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:computing_frames,pl:accesstransformer:B,re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.level.ServerLevel.lambda$tick$2(ServerLevel.java:420) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.level.entity.EntityTickList.forEach(EntityTickList.java:54) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.level.ServerLevel.tick(ServerLevel.java:400) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:1037) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.dedicated.DedicatedServer.tickChildren(DedicatedServer.java:317) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:917) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:707) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:267) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?] {}
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Server thread
+Stacktrace:
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.entity.projectile.AbstractArrow.<init>(AbstractArrow.java:99) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,re:classloading,pl:mixin:APP:hundred_years_war.mixins.json:AbstractArrowMixin from mod hundred_years_war,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.entity.projectile.AbstractArrow.<init>(AbstractArrow.java:115) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,re:classloading,pl:mixin:APP:hundred_years_war.mixins.json:AbstractArrowMixin from mod hundred_years_war,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.entity.projectile.Arrow.<init>(Arrow.java:38) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.item.ArrowItem.createArrow(ArrowItem.java:18) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.entity.projectile.ProjectileUtil.getMobArrow(ProjectileUtil.java:167) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.ArcherEntity.canLobAttackTarget(ArcherEntity.java:435) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.ArcherEntity.canAttackTargetWithAnyTrajectory(ArcherEntity.java:417) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.ArcherEntity.isValidTarget(ArcherEntity.java:386) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.BaseCombatEntity.isValidOrForcedAttackTarget(BaseCombatEntity.java:5977) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:mixin,re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.BaseCombatEntity.isActiveTarget(BaseCombatEntity.java:6067) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:mixin,re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.BaseCombatEntity.updateCombatMovementPauseByTargetTransition(BaseCombatEntity.java:6020) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:mixin,re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.BaseCombatEntity.tick(BaseCombatEntity.java:2743) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:mixin,re:classloading}
+	at TRANSFORMER/hundred_years_war@0.7.1r-fix1-1.21.1-neoforge/ydmsama.hundred_years_war.main.entity.entities.ArcherEntity.tick(ArcherEntity.java:126) ~[HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar%23122!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.level.ServerLevel.tickNonPassenger(ServerLevel.java:774) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.level.Level.guardEntityTick(Level.java:576) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:computing_frames,pl:accesstransformer:B,re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.level.ServerLevel.lambda$tick$2(ServerLevel.java:420) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.level.entity.EntityTickList.forEach(EntityTickList.java:54) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+-- Entity being ticked --
+Details:
+	Entity Type: hundred_years_war:archer (ydmsama.hundred_years_war.main.entity.entities.ArcherEntity)
+	Entity ID: 1305
+	Entity Name: Archer
+	Entity's Exact location: 689.20, 106.00, 297.77
+	Entity's Block location: World: (689,106,297), Section: (at 1,10,9 in 43,6,18; chunk contains blocks 688,-64,288 to 703,319,303), Region: (1,0; contains chunks 32,0 to 63,31, blocks 512,-64,0 to 1023,319,511)
+	Entity's Momentum: 0.00, -0.08, 0.05
+	Entity's Passengers: []
+	Entity's Vehicle: null
+Stacktrace:
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.level.Level.guardEntityTick(Level.java:576) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:computing_frames,pl:accesstransformer:B,re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.level.ServerLevel.lambda$tick$2(ServerLevel.java:420) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.level.entity.EntityTickList.forEach(EntityTickList.java:54) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.level.ServerLevel.tick(ServerLevel.java:400) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:1037) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.dedicated.DedicatedServer.tickChildren(DedicatedServer.java:317) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:917) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:707) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:267) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?] {}
+
+
+-- Affected level --
+Details:
+	All players: 0 total; []
+	Chunk stats: 5759
+	Level dimension: minecraft:overworld
+	Level spawn location: World: (0,80,0), Section: (at 0,0,0 in 0,5,0; chunk contains blocks 0,-64,0 to 15,319,15), Region: (0,0; contains chunks 0,0 to 31,31, blocks 0,-64,0 to 511,319,511)
+	Level time: 38945 game time, 39521 day time
+	Level name: world
+	Level game mode: Game mode: survival (ID 0). Hardcore: false. Commands: false
+	Level weather: Rain time: 58123 (now: false), thunder time: 55468 (now: false)
+	Known server brands: neoforge
+	Removed feature flags: 
+	Level was modded: true
+	Level storage version: 0x04ABD - Anvil
+	Loaded entity count: 1276
+Stacktrace:
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.level.ServerLevel.fillReportDetails(ServerLevel.java:1721) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B,pl:mixin:A}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:1040) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.dedicated.DedicatedServer.tickChildren(DedicatedServer.java:317) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:917) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:707) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:267) ~[server-1.21.1-20240808.144430-srg.jar%23120!/:?] {re:mixin,pl:accesstransformer:B,re:classloading,pl:accesstransformer:B}
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?] {}
+
+
+-- System Details --
+Details:
+	Minecraft Version: 1.21.1
+	Minecraft Version ID: 1.21.1
+	Operating System: Linux (amd64) version 6.18.44-fc-v37
+	Java Version: 21.0.10, Ubuntu
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode, sharing), Ubuntu
+	Memory: 217317760 bytes (207 MiB) / 1595932672 bytes (1522 MiB) up to 4294967296 bytes (4096 MiB)
+	CPUs: 4
+	Processor Vendor: GenuineIntel
+	Processor Name: Intel(R) Xeon(R) Processor @ 2.10GHz
+	Identifier: Intel64 Family 6 Model 207 Stepping 2
+	Microarchitecture: unknown
+	Frequency (GHz): 2.10
+	Number of physical packages: 1
+	Number of physical CPUs: 4
+	Number of logical CPUs: 4
+	Graphics card #0 name: unknown
+	Graphics card #0 vendor: unknown
+	Graphics card #0 VRAM (MiB): 0.00
+	Graphics card #0 deviceId: unknown
+	Graphics card #0 versionInfo: unknown
+	Virtual memory max (MiB): 8047.84
+	Virtual memory used (MiB): 3003.70
+	Swap memory total (MiB): 0.00
+	Swap memory used (MiB): 0.00
+	Space in storage for jna.tmpdir (MiB): <path not set>
+	Space in storage for org.lwjgl.system.SharedLibraryExtractPath (MiB): <path not set>
+	Space in storage for io.netty.native.workdir (MiB): <path not set>
+	Space in storage for java.io.tmpdir (MiB): available: 27621.00, total: 258019.61
+	Space in storage for workdir (MiB): available: 27621.00, total: 258019.61
+	JVM Flags: 1 total; -Xmx4G
+	Server Running: true
+	Player Count: 0 / 20; []
+	Active Data Packs: vanilla, mod_data, mod/millenaire (incompatible), mod/hundred_years_war (incompatible), mod/hywmill, mod/neoforge
+	Available Data Packs: bundle, trade_rebalance, vanilla, mod/hundred_years_war (incompatible), mod/hywmill, mod/millenaire (incompatible), mod/neoforge, mod_data
+	Enabled Feature Flags: minecraft:vanilla
+	World Generation: Stable
+	World Seed: 20260925
+	Is Modded: Definitely; Server brand changed to 'neoforge'
+	Type: Dedicated Server (map_server.txt)
+	ModLauncher: 11.0.5+main.901c6ea8
+	ModLauncher launch target: forgeserver
+	ModLauncher services: 
+		sponge-mixin-0.15.2+mixin.0.8.7.jar mixin PLUGINSERVICE 
+		loader-4.0.42.jar slf4jfixer PLUGINSERVICE 
+		loader-4.0.42.jar runtime_enum_extender PLUGINSERVICE 
+		at-modlauncher-10.0.1.jar accesstransformer PLUGINSERVICE 
+		loader-4.0.42.jar runtimedistcleaner PLUGINSERVICE 
+		modlauncher-11.0.5.jar mixin TRANSFORMATIONSERVICE 
+		modlauncher-11.0.5.jar fml TRANSFORMATIONSERVICE 
+	FML Language Providers: 
+		javafml@4.0
+		lowcodefml@4.0
+		minecraft@4.0
+	Mod List: 
+		HundredYearsWar-0.7.1r-fix1-1.21.1-neoforge.jar   |Hundred Years War             |hundred_years_war             |0.7.1r-fix1-1.21.1-n|Manifest: NOSIGNATURE
+		hywmill-0.1.0-m1.jar                              |HYW-Millenaire Compat         |hywmill                       |0.1.0-m1            |Manifest: NOSIGNATURE
+		millenaire-9.0.2.jar                              |Millénaire                    |millenaire                    |9.0.2               |Manifest: NOSIGNATURE
+		server-1.21.1-20240808.144430-srg.jar             |Minecraft                     |minecraft                     |1.21.1              |Manifest: NOSIGNATURE
+		neoforge-21.1.226-universal.jar                   |NeoForge                      |neoforge                      |21.1.226            |Manifest: NOSIGNATURE
+	Crash Report UUID: cafc19b1-2570-43b3-b16b-c83de885f305
+	FML: 4.0.42
+	NeoForge: 21.1.226
