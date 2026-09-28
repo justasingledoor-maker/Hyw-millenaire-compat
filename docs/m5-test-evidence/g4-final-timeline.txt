@@ -1,0 +1,282 @@
+[00:01:21] [] Duty unit 6bf3e93f of village 'Putot les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[00:02:05] [] Duty unit c60295b9 of village 'Putot les-mines' was trapped; moved onto its PATROL hop 1072, 80, 630
+[00:02:19] [] Duty unit 572da0d5 of village 'Courseulles le-volcan' was trapped; moved onto its GARRISON spot 640, 65, 923
+[00:02:20] [] Duty unit 94130331 of village 'Ussy les-pâtures' was trapped; moved onto its RESERVE spot 846, 91, 636
+[00:03:11] [] Duties of village 'Courseulles le-volcan' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [871a9e60 GARRISON->SENTRY#0]
+[00:03:45] [] Duty unit 91a4ad92 of village 'Putot les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[00:04:12] [] Duties of village 'Courseulles le-volcan' (84 available: 12 sentry pair(s), 21 patrol, 6 scout(s), 16 reserve): [7c8b26d4 RESERVE->GARRISON, 66205ac3 RESERVE->GARRISON, e1d05611 SCOUT->GARRISON, 765d9c6b RESERVE->GARRISON, 5a70caa2 PATROL->GARRISON, 9293526e SENTRY->GARRISON, 470a0a2d PATROL->GARRISON, 9f0b4bd6 SENTRY->GARRISON, 72337c0e RESERVE->GARRISON, 578b4495 PATROL->GARRISON, ef7d4274 SENTRY->GARRISON, eab858fe SENTRY->GARRISON, e1b0bc30 SENTRY->GARRISON, 27211810 SENTRY->GARRISON, 0cecd56f SENTRY->GARRISON, 9c915399 SCOUT->SCOUT#5, ca7d7824 SCOUT->GARRISON, 81388c99 SCOUT->SCOUT#1, 962635d1 SENTRY->GARRISON]
+[00:04:38] [] Duty unit 091c8417 of village 'Ussy les-pâtures' was trapped; moved onto its SCOUT hop 817, 80, 595
+[00:04:55] [] Duties of village 'Courseulles le-volcan' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [66205ac3 GARRISON->RESERVE, 5a70caa2 GARRISON->RESERVE, 9293526e GARRISON->SENTRY#12, 9f0b4bd6 GARRISON->SENTRY#13, 578b4495 GARRISON->RESERVE, ef7d4274 GARRISON->SENTRY#15, eab858fe GARRISON->SENTRY#14, e1b0bc30 GARRISON->SENTRY#14, ad0fcf62 GARRISON->SCOUT#6, b54acf06 GARRISON->SCOUT#7, fe43d347 GARRISON->SENTRY#15, 99526e63 GARRISON->SENTRY#13, 962635d1 GARRISON->SENTRY#12, f76e88ae GARRISON->PATROL#23, 9511bead GARRISON->PATROL#21, a3067fda GARRISON->PATROL#22, fd0a7f25 GARRISON->RESERVE]
+[00:05:20] [] Duty unit 9c915399 of village 'Courseulles le-volcan' (SCOUT) made no progress towards 658, 78, 975 for 6000 ticks at 698, 49, 856: stuck, falling back to 658, 78, 975
+[00:05:26] [] Duties of village 'Courseulles le-volcan' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [560b1e96 RESERVE->GARRISON, 66205ac3 RESERVE->GARRISON, 65e229a3 RESERVE->GARRISON, ff9f26a8 SENTRY->GARRISON, 5a70caa2 RESERVE->GARRISON, 9293526e SENTRY->GARRISON, e556fb6c SENTRY->GARRISON, 534571db SENTRY->GARRISON, b5bba936 PATROL->GARRISON, f9a961b2 PATROL->GARRISON, dfda2d41 SENTRY->GARRISON, c15c26b5 PATROL->GARRISON, 9f0b4bd6 SENTRY->GARRISON, 57604b77 RESERVE->GARRISON, d6251f4c PATROL->GARRISON, 761d6ba4 SENTRY->GARRISON, a8ef08bd SENTRY->GARRISON, a2466ee5 PATROL->GARRISON, c010f2e2 SENTRY->GARRISON, 88e93c25 
+[00:05:41] [] Duty unit 871a9e60 of village 'Courseulles le-volcan' was trapped; moved onto its SENTRY hop 635, 57, 915
+[00:05:59] [] Duty unit 81388c99 of village 'Courseulles le-volcan' (SCOUT) made no progress towards 658, 78, 975 for 6000 ticks at 641, 38, 910: stuck, falling back to 658, 78, 975
+[00:06:35] [] Duty unit e31fa3f8 of village 'Putot les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[00:06:55] [] Duty unit 297c61e8 of village 'Courseulles le-volcan' (PATROL) made no progress towards 697, 68, 923 for 6000 ticks at 623, 66, 1027: stuck, falling back to 658, 78, 975
+[00:07:09] [] Duty unit 712e8180 of village 'Courseulles le-volcan' was trapped; moved onto its GARRISON spot 634, 62, 923
+[00:07:24] [] Duty unit 84e34ef9 of village 'Ussy les-pâtures' was trapped; moved onto its SCOUT hop 817, 80, 595
+[00:07:27] [] Duty unit 19d5dd8f of village 'Courseulles le-volcan' was trapped; moved onto its GARRISON hop 631, 80, 992
+[00:07:27] [] Duty unit 572da0d5 of village 'Courseulles le-volcan' was trapped; moved onto its GARRISON hop 635, 73, 977
+[00:07:29] [] Duty unit 9582203e of village 'Courseulles le-volcan' (SCOUT) made no progress towards 533, 69, 933 for 6000 ticks at 633, 39, 920: stuck, falling back to 658, 78, 975
+[00:07:49] [] Duty unit 9c915399 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 54195, resumes at ride 1
+[00:07:55] [] Duty unit c15c26b5 of village 'Courseulles le-volcan' was trapped; moved onto its GARRISON hop 607, 71, 997
+[00:07:57] [] Duty unit c7036e31 of village 'Courseulles le-volcan' was trapped; moved onto its GARRISON spot 603, 70, 934
+[00:08:14] [] Duty unit 8b002e93 of village 'Saint-Laurent les-pâtures' was trapped; moved onto its SCOUT hop 640, 81, 580
+[00:08:14] [] Duty unit cc541abc of village 'Saint-Laurent les-pâtures' was trapped; moved onto its SCOUT hop 641, 81, 581
+[00:08:19] [] Duty unit ca7d7824 of village 'Courseulles le-volcan' (GARRISON) made no progress towards 646, 68, 923 for 6000 ticks at 696, 51, 857: stuck, falling back to 658, 78, 975
+[00:08:23] [] Duty unit 91a4ad92 of village 'Putot les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[00:08:29] [] Duty unit 81388c99 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 54995, resumes at ride 1
+[00:08:31] [] Duties of village 'Courseulles le-volcan' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [aafec2c4 GARRISON->SCOUT#1]
+[00:11:03] [] Duty unit f76e88ae of village 'Courseulles le-volcan' was trapped; moved onto its GARRISON spot 614, 68, 923
+[00:11:33] [] Duty unit 297c61e8 of village 'Courseulles le-volcan' was trapped; moved onto its PATROL hop 603, 69, 1001
+[00:11:33] [] Duty unit 572da0d5 of village 'Courseulles le-volcan' was trapped; moved onto its GARRISON spot 640, 65, 923
+[00:11:57] [] Duty unit 297c61e8 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (walked back); on GARRISON duty until the next allocation; avoids PATROL#0 until tick 59115
+[00:11:59] [] Duties of village 'Courseulles le-volcan' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [88e93c25 GARRISON->PATROL#0]
+[00:13:05] [] Duty unit ca7d7824 of village 'Courseulles le-volcan' was trapped; moved onto its GARRISON hop 722, 71, 878
+[00:13:15] [] Duty unit 6bf3e93f of village 'Putot les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[00:13:35] [] Duty unit 9582203e of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 61075, resumes at ride 2
+[00:13:36] [] Duty unit 9647ff9e of village 'Saint-Laurent les-pâtures' was trapped; moved onto its SCOUT hop 610, 82, 618
+[00:13:37] [] Duties of village 'Courseulles le-volcan' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [ad0fcf62 GARRISON->SCOUT#2]
+[00:14:35] [] Duty unit aafec2c4 of village 'Courseulles le-volcan' was trapped; moved onto its SCOUT hop 626, 71, 902
+[00:15:05] [] Duty unit 91a4ad92 of village 'Putot les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[00:15:29] [] Duty unit ca7d7824 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; no post exclusion
+[00:15:44] [] Duty unit 5d9eee12 of village 'Courseulles le-volcan' (PATROL) made no progress towards 667, 72, 976 for 6000 ticks at 622, 65, 1026: stuck, falling back to 658, 78, 975
+[00:15:44] [] Duty unit e1d05611 of village 'Courseulles le-volcan' (GARRISON) made no progress towards 639, 69, 1028 for 6000 ticks at 636, 27, 952: stuck, falling back to 658, 78, 975
+[00:15:44] [] Duty unit 1d089c7c of village 'Courseulles le-volcan' (PATROL) made no progress towards 667, 72, 976 for 6000 ticks at 623, 66, 1027: stuck, falling back to 658, 78, 975
+[00:15:44] [] Duty unit 45ba65d5 of village 'Courseulles le-volcan' (GARRISON) made no progress towards 677, 71, 923 for 6000 ticks at 634, 36, 921: stuck, falling back to 658, 78, 975
+[00:15:44] [] Duty unit c5e8b3f6 of village 'Courseulles le-volcan' (GARRISON) made no progress towards 603, 69, 954 for 6000 ticks at 565, 63, 916: stuck, falling back to 658, 78, 975
+[00:17:00] [] Duty unit 6bf3e93f of village 'Putot les-mines' was trapped; moved onto its PATROL hop 1080, 85, 630
+[00:17:09] [] Duty unit e1d05611 of village 'Courseulles le-volcan' was trapped; moved onto its GARRISON spot 658, 78, 975
+[00:17:11] [] Duty unit e1d05611 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (walked back); on GARRISON duty until the next allocation; no post exclusion
+[00:17:34] [] Duty unit 5d9eee12 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#3 until tick 67075
+[00:17:34] [] Duty unit 1d089c7c of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#6 until tick 67075
+[00:17:34] [] Duty unit 45ba65d5 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; no post exclusion
+[00:17:35] [] Duties of village 'Courseulles le-volcan' (126 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [a2466ee5 GARRISON->PATROL#6, 9511bead GARRISON->PATROL#3]
+[00:17:37] [] Duty unit c5e8b3f6 of village 'Courseulles le-volcan' recovered at 658, 78, 975 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; no post exclusion
+[00:17:41] [] Duties of village 'Putot les-mines' (17 available: 2 sentry pair(s), 5 patrol, 1 scout(s), 1 reserve): [43a5b38b GARRISON->PATROL#4]
+[00:18:08] [] Duty unit 9647ff9e of village 'Saint-Laurent les-pâtures' was trapped; moved onto its SCOUT hop 640, 81, 581
+[00:18:23] [] Duty unit aafec2c4 of village 'Courseulles le-volcan' (SCOUT) made no progress towards 658, 78, 975 for 6000 ticks at 629, 48, 951: stuck, falling back to 658, 78, 975
+[00:28:41] [] Duties of village 'Tour les-pâtures' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 1 reserve): [c3ac70c6 GARRISON->RESERVE]
+[00:29:01] [] Duties of village 'Tour les-pâtures' (6 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 1 reserve): [8e8a1843 GARRISON->SENTRY#0, 45221c6c GARRISON->PATROL#0, 103b628b GARRISON->SENTRY#0]
+[00:29:11] [] Duties of village 'Tour les-pâtures' (8 available: 1 sentry pair(s), 2 patrol, 1 scout(s), 1 reserve): [8e8a1843 SENTRY->SCOUT#0, 294e81e7 GARRISON->SENTRY#0, c0d8bccd GARRISON->PATROL#1]
+[00:29:22] [] Duties of village 'Crèvecoeur les-pâtures' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 1 reserve): [4efd6f2d GARRISON->RESERVE]
+[00:29:38] [] Duties of village 'Tour les-pâtures' (12 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 1 reserve): [de4a968c GARRISON->PATROL#2]
+[00:29:39] [] Duties of village 'Crèvecoeur les-pâtures' (4 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 1 reserve): [607dd264 GARRISON->SENTRY#0, 758fba1a GARRISON->PATROL#0, bd479cc5 GARRISON->SENTRY#0]
+[00:29:54] [] Duties of village 'Tour les-pâtures' (14 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 2 reserve): [8aedae25 GARRISON->RESERVE]
+[00:30:05] [] Duties of village 'Tour les-pâtures' (16 available: 1 sentry pair(s), 4 patrol, 1 scout(s), 2 reserve): [e3e42c9f GARRISON->PATROL#3]
+[00:30:05] [] Duties of village 'Crèvecoeur les-pâtures' (8 available: 1 sentry pair(s), 2 patrol, 0 scout(s), 1 reserve): [7f7be408 GARRISON->PATROL#1]
+[00:30:25] [] Duties of village 'Tour les-pâtures' (20 available: 1 sentry pair(s), 5 patrol, 2 scout(s), 3 reserve): [f00cee7b GARRISON->PATROL#4, 89f8923d GARRISON->SCOUT#1, f33541d2 GARRISON->RESERVE]
+[00:30:45] [] Duties of village 'Tour les-pâtures' (24 available: 1 sentry pair(s), 6 patrol, 2 scout(s), 3 reserve): [eea518fa GARRISON->PATROL#5]
+[00:30:52] [] Duties of village 'Sainte-Honorine le-fort' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 2 reserve): [0fa1b61c GARRISON->RESERVE, 4ccdf0e7 GARRISON->RESERVE]
+[00:31:02] [] Duties of village 'Sainte-Honorine le-fort' (4 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 3 reserve): [f7796080 GARRISON->RESERVE]
+[00:31:16] [] Duties of village 'Sainte-Honorine le-fort' (6 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 3 reserve): [98968963 GARRISON->PATROL#0, 51a5e066 GARRISON->SENTRY#0, b1cba5e8 GARRISON->SENTRY#0]
+[00:31:26] [] Duties of village 'Sainte-Honorine le-fort' (8 available: 1 sentry pair(s), 2 patrol, 0 scout(s), 3 reserve): [75b3a107 GARRISON->PATROL#1]
+[00:31:46] [] Duties of village 'Sainte-Honorine le-fort' (12 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 3 reserve): [39f21095 GARRISON->SCOUT#0, cfaae566 GARRISON->PATROL#2]
+[00:31:53] [] Duties of village 'Apoudoulu' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 1 reserve): [13ce8562 GARRISON->RESERVE]
+[00:31:59] [] Duties of village 'Sainte-Honorine le-fort' (14 available: 2 sentry pair(s), 3 patrol, 1 scout(s), 3 reserve): [03970335 GARRISON->SENTRY#1, 8835cb85 GARRISON->SENTRY#1]
+[00:32:09] [] Duties of village 'Sainte-Honorine le-fort' (16 available: 2 sentry pair(s), 4 patrol, 1 scout(s), 3 reserve): [00df157d GARRISON->PATROL#3]
+[00:32:16] [] Duties of village 'Apoudoulu' (6 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 1 reserve): [b0ab3564 GARRISON->SENTRY#0, ea9e3d72 GARRISON->PATROL#0, 82eca116 GARRISON->SENTRY#0]
+[00:32:26] [] Duties of village 'Apoudoulu' (8 available: 1 sentry pair(s), 2 patrol, 1 scout(s), 1 reserve): [17a1508c GARRISON->SENTRY#0, 82eca116 SENTRY->SCOUT#0, add4ec30 GARRISON->PATROL#1]
+[00:32:29] [] Duties of village 'Sainte-Honorine le-fort' (20 available: 3 sentry pair(s), 5 patrol, 1 scout(s), 4 reserve): [aff89fd2 GARRISON->SENTRY#2, bde39667 GARRISON->PATROL#4, 2cfa60d8 GARRISON->SENTRY#2, c3a212e8 GARRISON->RESERVE]
+[00:32:33] [] Duties of village 'Putot la-forge' (2 available: 0 sentry pair(s), 0 patrol, 0 scout(s), 1 reserve): [eb53a986 GARRISON->RESERVE]
+[00:32:43] [] Duties of village 'Putot la-forge' (4 available: 1 sentry pair(s), 1 patrol, 0 scout(s), 1 reserve): [37a2c5af GARRISON->SENTRY#0, 7ef16679 GARRISON->PATROL#0, 2eabd5cb GARRISON->SENTRY#0]
+[00:32:46] [] Duties of village 'Apoudoulu' (12 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 1 reserve): [bd7b163a GARRISON->PATROL#2]
+[00:32:52] [] Duties of village 'Sainte-Honorine le-fort' (24 available: 3 sentry pair(s), 6 patrol, 1 scout(s), 4 reserve): [d7cd2421 GARRISON->PATROL#5]
+[00:32:58] [] Duties of village 'Apoudoulu' (14 available: 2 sentry pair(s), 3 patrol, 1 scout(s), 2 reserve): [c96ad9ac GARRISON->RESERVE, 175e05d5 GARRISON->SENTRY#1, 2414c81a GARRISON->SENTRY#1]
+[00:33:01] [] Duties of village 'Sainte-Honorine le-fort' (26 available: 3 sentry pair(s), 6 patrol, 2 scout(s), 5 reserve): [da5b710b GARRISON->SCOUT#1, a7a80bf8 GARRISON->RESERVE]
+[00:33:05] [] Duties of village 'Putot la-forge' (8 available: 1 sentry pair(s), 2 patrol, 0 scout(s), 1 reserve): [db4793e8 GARRISON->PATROL#1]
+[00:33:08] [] Duties of village 'Apoudoulu' (16 available: 2 sentry pair(s), 4 patrol, 1 scout(s), 2 reserve): [8be992d8 GARRISON->PATROL#3]
+[00:33:11] [] Duties of village 'Sainte-Honorine le-fort' (28 available: 4 sentry pair(s), 7 patrol, 2 scout(s), 5 reserve): [ec7abd4e GARRISON->SENTRY#3, 0f57187b GARRISON->PATROL#6, 11b2f30a GARRISON->SENTRY#3]
+[00:33:15] [] Duties of village 'Putot la-forge' (10 available: 2 sentry pair(s), 3 patrol, 0 scout(s), 1 reserve): [88ac4a67 GARRISON->SENTRY#1, a520eee9 GARRISON->SENTRY#1, c130d125 GARRISON->PATROL#2]
+[00:33:21] [] Duty unit 89f8923d of village 'Tour les-pâtures' was trapped; moved onto its SCOUT hop 613, 82, 623
+[00:33:21] [] Duties of village 'Sainte-Honorine le-fort' (30 available: 4 sentry pair(s), 7 patrol, 2 scout(s), 6 reserve): [938e1267 GARRISON->RESERVE]
+[00:33:25] [] Duties of village 'Putot la-forge' (12 available: 2 sentry pair(s), 3 patrol, 1 scout(s), 1 reserve): [88ac4a67 SENTRY->SCOUT#0, 9fa12075 GARRISON->SENTRY#1]
+[00:33:28] [] Duties of village 'Apoudoulu' (20 available: 3 sentry pair(s), 5 patrol, 2 scout(s), 3 reserve): [465d1fc4 GARRISON->SENTRY#2, d9686242 GARRISON->PATROL#4, aed1c71e GARRISON->SENTRY#2, ea138a6b GARRISON->RESERVE, 92ec248e GARRISON->SCOUT#1]
+[00:33:31] [] Duties of village 'Sainte-Honorine le-fort' (32 available: 4 sentry pair(s), 8 patrol, 2 scout(s), 6 reserve): [b38d4c95 GARRISON->PATROL#7]
+[00:33:41] [] Duties of village 'Sainte-Honorine le-fort' (34 available: 5 sentry pair(s), 8 patrol, 2 scout(s), 6 reserve): [99dbe27f GARRISON->SENTRY#4, d0f096d9 GARRISON->SENTRY#4]
+[00:33:48] [] Duties of village 'Apoudoulu' (24 available: 3 sentry pair(s), 6 patrol, 2 scout(s), 3 reserve): [de8faf40 GARRISON->PATROL#5]
+[00:33:50] [] Duties of village 'Putot la-forge' (11 available: 2 sentry pair(s), 3 patrol, 0 scout(s), 1 reserve): [88ac4a67 SCOUT->GARRISON, 1494628d GARRISON->PATROL#2]
+[00:33:52] [] Duties of village 'Sainte-Honorine le-fort' (36 available: 5 sentry pair(s), 9 patrol, 2 scout(s), 7 reserve): [fd6340fb GARRISON->RESERVE, fc1df456 GARRISON->PATROL#8]
+[00:34:01] [] Duties of village 'Sainte-Honorine le-fort' (38 available: 5 sentry pair(s), 9 patrol, 3 scout(s), 7 reserve): [296ec161 GARRISON->SCOUT#2]
+[00:34:11] [] Duties of village 'Sainte-Honorine le-fort' (40 available: 6 sentry pair(s), 10 patrol, 3 scout(s), 8 reserve): [77bd7038 GARRISON->SENTRY#5, 15f83b8b GARRISON->RESERVE, 1588e3d7 GARRISON->PATROL#9, 6f25e647 GARRISON->SENTRY#5]
+[00:34:31] [] Duties of village 'Sainte-Honorine le-fort' (44 available: 6 sentry pair(s), 11 patrol, 3 scout(s), 8 reserve): [18588c56 GARRISON->PATROL#10]
+[00:34:35] [] Duties of village 'Tour les-pâtures' (27 available: 1 sentry pair(s), 6 patrol, 2 scout(s), 4 reserve): [8047c02c GARRISON->RESERVE]
+[00:34:41] [] Duties of village 'Sainte-Honorine le-fort' (46 available: 6 sentry pair(s), 11 patrol, 3 scout(s), 9 reserve): [c2cf75b9 GARRISON->RESERVE]
+[00:34:45] [] Duties of village 'Tour les-pâtures' (29 available: 1 sentry pair(s), 7 patrol, 2 scout(s), 4 reserve): [a0c05887 GARRISON->PATROL#6]
+[00:34:51] [] Duties of village 'Sainte-Honorine le-fort' (48 available: 7 sentry pair(s), 12 patrol, 3 scout(s), 9 reserve): [90af526c GARRISON->SENTRY#6, 17a66663 GARRISON->SENTRY#6, 217864ed GARRISON->PATROL#11]
+[00:34:55] [] Duties of village 'Tour les-pâtures' (31 available: 1 sentry pair(s), 7 patrol, 3 scout(s), 4 reserve): [a612aa44 GARRISON->SCOUT#2]
+[00:35:05] [] Duties of village 'Tour les-pâtures' (33 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 4 reserve): [9473bdce GARRISON->PATROL#7]
+[00:35:06] [] Duties of village 'Crèvecoeur les-pâtures' (11 available: 1 sentry pair(s), 3 patrol, 0 scout(s), 1 reserve): [afa7ef98 GARRISON->PATROL#2]
+[00:35:07] [] Duty unit de4a968c of village 'Tour les-pâtures' (PATROL) made no progress towards 668, 88, 684 for 6000 ticks at 643, 79, 613: stuck, falling back to 647, 82, 638
+[00:35:11] [] Duty unit ec7abd4e of village 'Sainte-Honorine le-fort' was trapped; moved onto its SENTRY spot 635, 78, 884
+[00:35:15] [] Duties of village 'Tour les-pâtures' (35 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 5 reserve): [d40abbde GARRISON->RESERVE]
+[00:35:16] [] Duties of village 'Crèvecoeur les-pâtures' (13 available: 1 sentry pair(s), 3 patrol, 1 scout(s), 1 reserve): [e9b2901f GARRISON->PATROL#2, afa7ef98 PATROL->SCOUT#0]
+[00:35:19] [] Duty unit de4a968c of village 'Tour les-pâtures' recovered at 647, 82, 638 (walked back); on GARRISON duty until the next allocation; avoids PATROL#2 until tick 20712
+[00:35:21] [] Duties of village 'Tour les-pâtures' (35 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 5 reserve): [e3146d40 GARRISON->PATROL#2]
+[00:35:26] [] Duties of village 'Crèvecoeur les-pâtures' (15 available: 1 sentry pair(s), 4 patrol, 1 scout(s), 1 reserve): [dde22cb3 GARRISON->PATROL#3]
+[00:35:36] [] Duties of village 'Crèvecoeur les-pâtures' (17 available: 1 sentry pair(s), 5 patrol, 1 scout(s), 1 reserve): [180b634d GARRISON->PATROL#4]
+[00:35:39] [] Duty unit 11b2f30a of village 'Sainte-Honorine le-fort' was trapped; moved onto its SENTRY spot 638, 78, 882
+[00:35:41] [] Duties of village 'Sainte-Honorine le-fort' (50 available: 7 sentry pair(s), 12 patrol, 4 scout(s), 10 reserve): [e2efeab0 GARRISON->SCOUT#3, 80c94df2 GARRISON->RESERVE]
+[00:35:45] [] Duties of village 'Tour les-pâtures' (41 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 6 reserve): [de4a968c GARRISON->RESERVE]
+[00:35:49] [] Duty unit 4e6c61b4 of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON hop 612, 72, 907
+[00:35:51] [] Duties of village 'Sainte-Honorine le-fort' (52 available: 7 sentry pair(s), 13 patrol, 4 scout(s), 10 reserve): [9621ef7c GARRISON->PATROL#12]
+[00:35:56] [] Duties of village 'Crèvecoeur les-pâtures' (21 available: 1 sentry pair(s), 6 patrol, 1 scout(s), 2 reserve): [23338f76 GARRISON->PATROL#5, 6986347f GARRISON->RESERVE]
+[00:36:01] [] Duties of village 'Sainte-Honorine le-fort' (54 available: 8 sentry pair(s), 13 patrol, 4 scout(s), 10 reserve): [092dc6f2 GARRISON->SENTRY#7, fff3282a GARRISON->SENTRY#7]
+[00:36:11] [] Duties of village 'Sainte-Honorine le-fort' (56 available: 8 sentry pair(s), 14 patrol, 4 scout(s), 11 reserve): [2de647b0 GARRISON->RESERVE, 0c856b57 GARRISON->PATROL#13]
+[00:36:15] [] Duties of village 'Tour les-pâtures' (47 available: 1 sentry pair(s), 8 patrol, 3 scout(s), 7 reserve): [8033a3af GARRISON->RESERVE]
+[00:36:18] [] Duties of village 'Apoudoulu' (27 available: 3 sentry pair(s), 6 patrol, 2 scout(s), 4 reserve): [9fbd92c0 GARRISON->RESERVE]
+[00:36:28] [] Duties of village 'Apoudoulu' (29 available: 3 sentry pair(s), 7 patrol, 2 scout(s), 4 reserve): [ce2916fc GARRISON->PATROL#6]
+[00:36:31] [] Duties of village 'Sainte-Honorine le-fort' (60 available: 9 sentry pair(s), 15 patrol, 4 scout(s), 12 reserve): [32523207 GARRISON->RESERVE, fe610cad GARRISON->SENTRY#8, 9baad096 GARRISON->SENTRY#8, feb3a319 GARRISON->PATROL#14]
+[00:36:38] [] Duties of village 'Apoudoulu' (31 available: 3 sentry pair(s), 7 patrol, 3 scout(s), 4 reserve): [aed1c71e SENTRY->SCOUT#2, 17a521e7 GARRISON->SENTRY#2]
+[00:36:48] [] Duties of village 'Apoudoulu' (33 available: 3 sentry pair(s), 8 patrol, 3 scout(s), 4 reserve): [e6c9b9f9 GARRISON->PATROL#7]
+[00:36:51] [] Duties of village 'Sainte-Honorine le-fort' (64 available: 9 sentry pair(s), 16 patrol, 5 scout(s), 12 reserve): [6ba5081a GARRISON->SCOUT#4, c7b3fe97 GARRISON->PATROL#15]
+[00:36:58] [] Duties of village 'Apoudoulu' (35 available: 3 sentry pair(s), 8 patrol, 3 scout(s), 5 reserve): [ea22679d GARRISON->RESERVE]
+[00:37:01] [] Duties of village 'Sainte-Honorine le-fort' (66 available: 9 sentry pair(s), 16 patrol, 5 scout(s), 13 reserve): [a74ce0a2 GARRISON->RESERVE]
+[00:37:12] [] Duties of village 'Sainte-Honorine le-fort' (68 available: 10 sentry pair(s), 17 patrol, 5 scout(s), 13 reserve): [14bf96d9 GARRISON->SENTRY#9, 1936e93e GARRISON->PATROL#16, eb1989aa GARRISON->SENTRY#9]
+[00:37:21] [] Duties of village 'Sainte-Honorine le-fort' (70 available: 10 sentry pair(s), 17 patrol, 5 scout(s), 14 reserve): [a84b780c GARRISON->RESERVE]
+[00:37:28] [] Duties of village 'Apoudoulu' (41 available: 3 sentry pair(s), 8 patrol, 3 scout(s), 6 reserve): [0301754e GARRISON->RESERVE]
+[00:37:31] [] Duties of village 'Sainte-Honorine le-fort' (72 available: 10 sentry pair(s), 18 patrol, 5 scout(s), 14 reserve): [a9ac792d GARRISON->PATROL#17]
+[00:37:41] [] Duties of village 'Sainte-Honorine le-fort' (74 available: 11 sentry pair(s), 18 patrol, 5 scout(s), 14 reserve): [fa2d674d GARRISON->SENTRY#10, fa1e27c0 GARRISON->SENTRY#10]
+[00:37:51] [] Duties of village 'Sainte-Honorine le-fort' (76 available: 11 sentry pair(s), 19 patrol, 6 scout(s), 15 reserve): [90af526c SENTRY->SCOUT#5, 016affa3 GARRISON->PATROL#18, 1cdb088f GARRISON->RESERVE, d7d649b9 GARRISON->SENTRY#6]
+[00:37:58] [] Duties of village 'Apoudoulu' (47 available: 3 sentry pair(s), 8 patrol, 3 scout(s), 7 reserve): [a2579820 GARRISON->RESERVE]
+[00:38:13] [] Duties of village 'Sainte-Honorine le-fort' (80 available: 12 sentry pair(s), 20 patrol, 6 scout(s), 16 reserve): [251f9100 GARRISON->PATROL#19, 2c12e666 GARRISON->RESERVE, 0ef61305 GARRISON->SENTRY#11, d759d5f7 GARRISON->SENTRY#11]
+[00:38:16] [] Duty unit b38d4c95 of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 637, 84, 972
+[00:38:31] [] Duties of village 'Sainte-Honorine le-fort' (84 available: 12 sentry pair(s), 21 patrol, 6 scout(s), 16 reserve): [3d09aafe GARRISON->PATROL#20]
+[00:38:41] [] Duties of village 'Sainte-Honorine le-fort' (86 available: 12 sentry pair(s), 21 patrol, 6 scout(s), 17 reserve): [41243f2c GARRISON->RESERVE]
+[00:38:49] [] Duty unit da5b710b of village 'Sainte-Honorine le-fort' (SCOUT) made no progress towards 668, 78, 935 for 6000 ticks at 647, 46, 908: stuck, falling back to 668, 78, 935
+[00:38:51] [] Duties of village 'Sainte-Honorine le-fort' (88 available: 13 sentry pair(s), 22 patrol, 7 scout(s), 17 reserve): [480a98c0 GARRISON->PATROL#21, a24ea049 GARRISON->SENTRY#12, 81ebbffd GARRISON->SCOUT#6, 96f9c4ca GARRISON->SENTRY#12]
+[00:39:01] [] Duties of village 'Sainte-Honorine le-fort' (90 available: 13 sentry pair(s), 22 patrol, 7 scout(s), 18 reserve): [4e6c61b4 GARRISON->RESERVE]
+[00:39:11] [] Duties of village 'Sainte-Honorine le-fort' (92 available: 13 sentry pair(s), 23 patrol, 7 scout(s), 18 reserve): [4ec690a4 GARRISON->PATROL#22]
+[00:39:15] [] Duties of village 'Putot la-forge' (12 available: 2 sentry pair(s), 3 patrol, 1 scout(s), 1 reserve): [88ac4a67 GARRISON->SCOUT#0]
+[00:39:21] [] Duties of village 'Sainte-Honorine le-fort' (94 available: 14 sentry pair(s), 23 patrol, 7 scout(s), 18 reserve): [90af526c SCOUT->SENTRY#13, 81ebbffd SCOUT->SENTRY#13, 59e9e3f9 GARRISON->SCOUT#6, 92497a6c GARRISON->SCOUT#5]
+[00:39:31] [] Duties of village 'Sainte-Honorine le-fort' (96 available: 14 sentry pair(s), 24 patrol, 7 scout(s), 19 reserve): [5ae34d2d GARRISON->PATROL#23, 5b60d282 GARRISON->RESERVE]
+[00:39:43] [] Duty unit b38d4c95 of village 'Sainte-Honorine le-fort' (PATROL) made no progress towards 625, 82, 883 for 6000 ticks at 650, 79, 957: stuck, falling back to 668, 78, 935
+[00:39:51] [] Duties of village 'Sainte-Honorine le-fort' (100 available: 15 sentry pair(s), 24 patrol, 8 scout(s), 20 reserve): [5da0bd1d GARRISON->RESERVE, b4ac2b33 GARRISON->SENTRY#14, bf5d6179 GARRISON->SENTRY#14, aa728200 GARRISON->SCOUT#7]
+[00:40:21] [] Duties of village 'Sainte-Honorine le-fort' (106 available: 15 sentry pair(s), 24 patrol, 8 scout(s), 21 reserve): [66788c7c GARRISON->RESERVE]
+[00:40:23] [] Duty unit 6f25e647 of village 'Sainte-Honorine le-fort' (SENTRY) made no progress towards 612, 72, 908 for 6000 ticks at 660, 63, 882: stuck, falling back to 668, 78, 935
+[00:40:31] [] Duties of village 'Sainte-Honorine le-fort' (108 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 21 reserve): [da6f2070 GARRISON->SENTRY#15, e2898f24 GARRISON->SENTRY#15]
+[00:40:41] [] Duties of village 'Sainte-Honorine le-fort' (110 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 22 reserve): [6acb1c90 GARRISON->RESERVE]
+[00:40:49] [] Duty unit 6f25e647 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation; avoids SENTRY#5 until tick 27315
+[00:40:51] [] Duties of village 'Sainte-Honorine le-fort' (112 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 22 reserve): [0efe95d3 GARRISON->SENTRY#5]
+[00:41:11] [] Duties of village 'Sainte-Honorine le-fort' (116 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 23 reserve): [6f890647 GARRISON->RESERVE]
+[00:41:19] [] Duty unit da5b710b of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 27915, resumes at ride 1
+[00:41:21] [] Duties of village 'Sainte-Honorine le-fort' (118 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 23 reserve): [9acd80b3 GARRISON->SCOUT#1]
+[00:41:31] [] Duties of village 'Sainte-Honorine le-fort' (120 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 24 reserve): [8b3a3968 GARRISON->RESERVE]
+[00:42:01] [] Duties of village 'Sainte-Honorine le-fort' (126 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [95b82bd5 GARRISON->RESERVE]
+[00:42:12] [] Duty unit afa7ef98 of village 'Crèvecoeur les-pâtures' was trapped; moved onto its SCOUT hop 811, 80, 618
+[00:42:13] [] Duty unit b38d4c95 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#7 until tick 28995
+[00:42:15] [] Duties of village 'Sainte-Honorine le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [bfb1694d GARRISON->PATROL#7]
+[00:42:27] [] Duty unit 39f21095 of village 'Sainte-Honorine le-fort' was trapped; moved onto its SCOUT hop 640, 79, 948
+[00:42:27] [] Duty unit e2efeab0 of village 'Sainte-Honorine le-fort' (SCOUT) made no progress towards 745, 72, 1039 for 6000 ticks at 722, 57, 895: stuck, falling back to 668, 78, 935
+[00:43:11] [] Duty unit 65cbac3d of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 649, 72, 988
+[00:43:23] [] Duty unit 251f9100 of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 637, 84, 973
+[00:43:33] [] Duty unit d7cd2421 of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 654, 74, 972
+[00:43:37] [] Duty unit 1c1141ab of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 619, 82, 883
+[00:43:43] [] Duty unit 6f890647 of village 'Sainte-Honorine le-fort' was trapped; moved onto its RESERVE hop 630, 87, 873
+[00:44:43] [] Duty unit 5ae34d2d of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 638, 84, 973
+[00:44:51] [] Duty unit 251f9100 of village 'Sainte-Honorine le-fort' (PATROL) made no progress towards 625, 82, 883 for 6000 ticks at 650, 78, 957: stuck, falling back to 668, 78, 935
+[00:44:53] [] Duty unit 89f8923d of village 'Tour les-pâtures' was trapped; moved onto its SCOUT hop 697, 90, 740
+[00:44:57] [] Duty unit e2efeab0 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 32275, resumes at ride 2
+[00:44:59] [] Duties of village 'Sainte-Honorine le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [9dbd7063 GARRISON->SCOUT#3]
+[00:45:39] [] Duty unit 00df157d of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 642, 65, 1016
+[00:45:45] [] Duty unit 6f890647 of village 'Sainte-Honorine le-fort' was trapped; moved onto its RESERVE spot 667, 69, 912
+[00:46:07] [] Duty unit 296ec161 of village 'Sainte-Honorine le-fort' (SCOUT) made no progress towards 745, 72, 1039 for 6000 ticks at 723, 57, 896: stuck, falling back to 668, 78, 935
+[00:46:11] [] Duty unit 5ae34d2d of village 'Sainte-Honorine le-fort' (PATROL) made no progress towards 625, 82, 883 for 6000 ticks at 650, 79, 957: stuck, falling back to 668, 78, 935
+[00:47:07] [] Duty unit 4ec690a4 of village 'Sainte-Honorine le-fort' (PATROL) made no progress towards 707, 70, 883 for 6000 ticks at 626, 62, 1045: stuck, falling back to 668, 78, 935
+[00:47:13] [] Duty unit 0efe95d3 of village 'Sainte-Honorine le-fort' (SENTRY) made no progress towards 612, 72, 908 for 6000 ticks at 678, 53, 877: stuck, falling back to 668, 78, 935
+[00:47:28] [] Duty unit 251f9100 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#19 until tick 35155
+[00:47:30] [] Duties of village 'Sainte-Honorine le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [b38d4c95 GARRISON->PATROL#19]
+[00:47:36] [] Duty unit 39f21095 of village 'Sainte-Honorine le-fort' (SCOUT) made no progress towards 769, 72, 856 for 6000 ticks at 651, 60, 913: stuck, falling back to 668, 78, 935
+[00:48:04] [] Duty unit 0efe95d3 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation; avoids SENTRY#5 until tick 35875
+[00:48:04] [] Duty unit afa7ef98 of village 'Crèvecoeur les-pâtures' was trapped; moved onto its SCOUT hop 842, 73, 581
+[00:48:06] [] Duties of village 'Sainte-Honorine le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [e1a37afb GARRISON->SENTRY#5]
+[00:48:20] [] Duty unit aa728200 of village 'Sainte-Honorine le-fort' (SCOUT) made no progress towards 745, 72, 1039 for 6000 ticks at 723, 57, 895: stuck, falling back to 668, 78, 935
+[00:48:44] [] Duty unit 296ec161 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 36675, resumes at ride 3
+[00:48:46] [] Duty unit 8e8a1843 of village 'Tour les-pâtures' was trapped; moved onto its SCOUT hop 698, 86, 741
+[00:48:46] [] Duties of village 'Sainte-Honorine le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [aa27f505 GARRISON->SCOUT#2]
+[00:48:48] [] Duty unit 5ae34d2d of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#23 until tick 36755
+[00:48:50] [] Duties of village 'Sainte-Honorine le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [d095cb42 GARRISON->PATROL#23]
+[00:48:50] [] Duty unit d7cd2421 of village 'Sainte-Honorine le-fort' (PATROL) made no progress towards 718, 58, 895 for 6000 ticks at 662, 79, 957: stuck, falling back to 668, 78, 935
+[00:50:06] [] Duty unit 39f21095 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 38315, resumes at ride 4
+[00:50:08] [] Duties of village 'Sainte-Honorine le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [ac2cf773 GARRISON->SCOUT#0]
+[00:50:50] [] Duty unit aa728200 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 39195, resumes at ride 2
+[00:50:52] [] Duties of village 'Sainte-Honorine le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [ad1136c3 GARRISON->SCOUT#7]
+[00:51:06] [] Duty unit 9621ef7c of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 638, 84, 973
+[00:51:20] [] Duty unit d7cd2421 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#5 until tick 39795
+[00:51:22] [] Duties of village 'Sainte-Honorine le-fort' (128 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [d7cfda68 GARRISON->PATROL#5]
+[00:51:54] [] Duties of village 'Sainte-Honorine le-fort' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [d7cd2421 GARRISON->PATROL#22]
+[00:52:02] [] Duty unit 6ba5081a of village 'Sainte-Honorine le-fort' (SCOUT) made no progress towards 586, 72, 832 for 6000 ticks at 616, 61, 945: stuck, falling back to 668, 78, 935
+[00:52:26] [] Duty unit 92497a6c of village 'Sainte-Honorine le-fort' (SCOUT) made no progress towards 668, 78, 935 for 6000 ticks at 645, 42, 922: stuck, falling back to 668, 78, 935
+[00:52:28] [] Duty unit b38d4c95 of village 'Sainte-Honorine le-fort' (PATROL) made no progress towards 677, 72, 936 for 6000 ticks at 613, 79, 889: stuck, falling back to 668, 78, 935
+[00:52:34] [] Duty unit 9621ef7c of village 'Sainte-Honorine le-fort' (PATROL) made no progress towards 625, 82, 883 for 6000 ticks at 650, 79, 957: stuck, falling back to 668, 78, 935
+[00:52:51] [] Duties of village 'Putot la-forge' (14 available: 2 sentry pair(s), 4 patrol, 1 scout(s), 1 reserve): [844ec3e1 GARRISON->PATROL#3]
+[00:53:10] [] Duty unit e1a37afb of village 'Sainte-Honorine le-fort' (SENTRY) made no progress towards 612, 72, 908 for 6000 ticks at 615, 62, 944: stuck, falling back to 668, 78, 935
+[00:53:14] [] Duty unit 9dbd7063 of village 'Sainte-Honorine le-fort' (SCOUT) made no progress towards 745, 72, 1039 for 6000 ticks at 722, 57, 896: stuck, falling back to 668, 78, 935
+[00:53:36] [] Duty unit aa728200 of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON hop 619, 82, 883
+[00:54:16] [] Duty unit 9acd80b3 of village 'Sainte-Honorine le-fort' (SCOUT) made no progress towards 769, 72, 856 for 6000 ticks at 645, 41, 914: stuck, falling back to 668, 78, 935
+[00:54:25] [] Duty unit 844ec3e1 of village 'Putot la-forge' was trapped; moved onto its PATROL hop 1081, 81, 629
+[00:54:33] [] Duty unit 6ba5081a of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 43635, resumes at ride 3
+[00:54:35] [] Duties of village 'Sainte-Honorine le-fort' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [b3af2013 GARRISON->SCOUT#4]
+[00:54:39] [] Duty unit 89f8923d of village 'Tour les-pâtures' was trapped; moved onto its SCOUT hop 613, 82, 623
+[00:54:54] [] Duty unit b38d4c95 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation; avoids PATROL#19 until tick 44035
+[00:54:57] [] Duties of village 'Sainte-Honorine le-fort' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [e1fbfc11 GARRISON->PATROL#19]
+[00:55:00] [] Duty unit 92497a6c of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 44115, resumes at ride 3
+[00:55:03] [] Duties of village 'Sainte-Honorine le-fort' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [da5b710b GARRISON->SCOUT#5]
+[00:55:12] [] Duty unit 9621ef7c of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#12 until tick 44275
+[00:55:14] [] Duty unit 7ef16679 of village 'Putot la-forge' was trapped; moved onto its PATROL hop 1081, 81, 629
+[00:55:15] [] Duties of village 'Sainte-Honorine le-fort' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [b38d4c95 GARRISON->PATROL#12]
+[00:56:02] [] Duty unit e1a37afb of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SENTRY#5 until tick 45035
+[00:56:04] [] Duties of village 'Sainte-Honorine le-fort' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [19e85dda GARRISON->SENTRY#5]
+[00:56:04] [] Duty unit 9dbd7063 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 45075, resumes at ride 2
+[00:56:05] [] Duties of village 'Sainte-Honorine le-fort' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [ddada26f GARRISON->SCOUT#3]
+[00:56:25] [] Duty unit db4793e8 of village 'Putot la-forge' was trapped; moved onto its PATROL hop 1081, 81, 629
+[00:57:04] [] Duty unit 9acd80b3 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 46315, resumes at ride 3
+[00:57:07] [] Duties of village 'Sainte-Honorine le-fort' (127 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [e2efeab0 GARRISON->SCOUT#1]
+[00:57:07] [] Duty unit 00df157d of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 638, 84, 973
+[00:57:50] [] Duty unit aa27f505 of village 'Sainte-Honorine le-fort' was trapped; moved onto its SCOUT hop 689, 70, 899
+[01:00:43] [] Duty unit 9acd80b3 of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 719, 68, 882
+[01:01:17] [] Duty unit 217864ed of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 640, 82, 967
+[01:01:33] [] Duties of village 'Sainte-Honorine le-fort' (126 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [e1a37afb GARRISON->SENTRY#0]
+[01:02:33] [] Duties of village 'Sainte-Honorine le-fort' (84 available: 12 sentry pair(s), 21 patrol, 6 scout(s), 16 reserve): [480a98c0 PATROL->GARRISON, d7cd2421 PATROL->GARRISON, 90af526c SENTRY->GARRISON, e2efeab0 SCOUT->GARRISON, 5da0bd1d RESERVE->GARRISON, 6f890647 RESERVE->GARRISON, 6acb1c90 RESERVE->GARRISON, 66788c7c RESERVE->GARRISON, b4ac2b33 SENTRY->GARRISON, da6f2070 SENTRY->GARRISON, a24ea049 SENTRY->GARRISON, 81ebbffd SENTRY->GARRISON, bf5d6179 SENTRY->GARRISON, 96f9c4ca SENTRY->GARRISON, e2898f24 SENTRY->GARRISON, 59e9e3f9 SCOUT->GARRISON, ad1136c3 SCOUT->SCOUT#1, d095cb42 PATROL->GARRISON]
+[01:03:07] [] Duty unit fc1df456 of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 642, 65, 1016
+[01:03:09] [] Duty unit aa27f505 of village 'Sainte-Honorine le-fort' was trapped; moved onto its SCOUT hop 698, 67, 928
+[01:03:16] [] Duties of village 'Sainte-Honorine le-fort' (125 available: 16 sentry pair(s), 24 patrol, 8 scout(s), 25 reserve): [d7cd2421 GARRISON->PATROL#23, 90af526c GARRISON->SENTRY#12, 9621ef7c GARRISON->PATROL#21, 251f9100 GARRISON->RESERVE, b4ac2b33 GARRISON->SENTRY#14, da6f2070 GARRISON->SENTRY#15, a24ea049 GARRISON->SENTRY#13, 81ebbffd GARRISON->SENTRY#12, bf5d6179 GARRISON->SENTRY#14, 96f9c4ca GARRISON->SENTRY#13, e2898f24 GARRISON->SENTRY#15, 92497a6c GARRISON->SCOUT#6, 9acd80b3 GARRISON->SCOUT#7, d095cb42 GARRISON->PATROL#22, 2f2bc0e9 GARRISON->RESERVE, 1d604e07 GARRISON->RESERVE, ef53c038 GARRISON->RESERVE]
+[01:03:33] [] Duty unit e1a37afb of village 'Sainte-Honorine le-fort' was trapped; moved onto its SENTRY spot 641, 72, 949
+[01:03:43] [] Duty unit 00df157d of village 'Sainte-Honorine le-fort' (PATROL) made no progress towards 667, 69, 988 for 6000 ticks at 652, 79, 959: stuck, falling back to 668, 78, 935
+[01:03:43] [] Duty unit ddada26f of village 'Sainte-Honorine le-fort' (SCOUT) made no progress towards 668, 78, 935 for 6000 ticks at 720, 58, 896: stuck, falling back to 668, 78, 935
+[01:03:45] [] Duty unit d7cd2421 of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 683, 64, 957
+[01:03:47] [] Duties of village 'Sainte-Honorine le-fort' (125 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [4ccdf0e7 RESERVE->GARRISON, 41243f2c RESERVE->GARRISON, 4e6c61b4 RESERVE->GARRISON, da5b710b SCOUT->GARRISON, d7cd2421 PATROL->GARRISON, 18588c56 PATROL->GARRISON, 77bd7038 SENTRY->GARRISON, b38d4c95 PATROL->GARRISON, 99dbe27f SENTRY->GARRISON, d0f096d9 SENTRY->GARRISON, 1588e3d7 PATROL->GARRISON, fc1df456 PATROL->GARRISON, 2de647b0 RESERVE->GARRISON, 90af526c SENTRY->GARRISON, 3d09aafe PATROL->GARRISON, 17a66663 SENTRY->GARRISON, 217864ed PATROL->GARRISON, 092dc6f2 SENTRY->GARRISON, 0c856b57 PATROL->GARRISON, 9621ef7c 
+[01:04:09] [] Duty unit 844ec3e1 of village 'Putot la-forge' was trapped; moved onto its PATROL hop 1081, 81, 629
+[01:05:17] [] Duty unit e4f5f901 of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 677, 72, 936
+[01:05:37] [] Duty unit a612aa44 of village 'Tour les-pâtures' was trapped; moved onto its SCOUT hop 698, 86, 741
+[01:05:45] [] Duty unit bfb1694d of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 638, 84, 973
+[01:05:47] [] Duty unit da5b710b of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 719, 68, 882
+[01:05:47] [] Duty unit 54c718fe of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON hop 680, 66, 958
+[01:05:47] [] Duty unit e8dd7c24 of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON hop 625, 82, 883
+[01:06:03] [] Duty unit 32523207 of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 637, 78, 882
+[01:06:05] [] Duty unit ad1136c3 of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 637, 78, 882
+[01:06:09] [] Duty unit 4e6c61b4 of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 612, 72, 907
+[01:06:13] [] Duty unit 00df157d of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#3 until tick 56355
+[01:06:13] [] Duty unit aa728200 of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 636, 90, 880
+[01:06:13] [] Duty unit ddada26f of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids SCOUT (any) until tick 56355, resumes at ride 2
+[01:06:15] [] Duties of village 'Sainte-Honorine le-fort' (125 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [9621ef7c GARRISON->PATROL#3]
+[01:06:17] [] Duty unit 81ebbffd of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON hop 613, 71, 982
+[01:06:29] [] Duty unit 8e8a1843 of village 'Tour les-pâtures' was trapped; moved onto its SCOUT hop 638, 81, 590
+[01:06:38] [] Duty unit afa7ef98 of village 'Crèvecoeur les-pâtures' was trapped; moved onto its SCOUT hop 811, 85, 617
+[01:06:43] [] Duty unit fa2d674d of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON hop 703, 69, 862
+[01:09:21] [] Duty unit a9ac792d of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 619, 82, 883
+[01:10:51] [] Duty unit cfaae566 of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 637, 84, 973
+[01:11:21] [] Duty unit d7cd2421 of village 'Sainte-Honorine le-fort' was trapped; moved onto its GARRISON spot 625, 82, 883
+[01:13:44] [] Duty unit cfaae566 of village 'Sainte-Honorine le-fort' (PATROL) made no progress towards 718, 58, 895 for 6000 ticks at 652, 79, 957: stuck, falling back to 668, 78, 935
+[01:13:44] [] Duty unit c7b3fe97 of village 'Sainte-Honorine le-fort' (GARRISON) made no progress towards 707, 70, 883 for 6000 ticks at 687, 63, 993: stuck, falling back to 668, 78, 935
+[01:13:44] [] Duty unit bfb1694d of village 'Sainte-Honorine le-fort' (PATROL) made no progress towards 624, 73, 988 for 6000 ticks at 652, 79, 959: stuck, falling back to 668, 78, 935
+[01:14:06] [] Duty unit 90af526c of village 'Sainte-Honorine le-fort' (GARRISON) made no progress towards 613, 72, 907 for 6000 ticks at 678, 53, 877: stuck, falling back to 668, 78, 935
+[01:14:39] [] Duty unit 90af526c of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation; no post exclusion
+[01:15:09] [] Duty unit 75b3a107 of village 'Sainte-Honorine le-fort' was trapped; moved onto its PATROL hop 637, 84, 972
+[01:15:19] [] Duty unit cfaae566 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#2 until tick 69115
+[01:15:19] [] Duty unit aa27f505 of village 'Sainte-Honorine le-fort' was trapped; moved onto its SCOUT hop 649, 72, 945
+[01:15:19] [] Duty unit bfb1694d of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (last resort: moved onto the fallback spot); on GARRISON duty until the next allocation; avoids PATROL#7 until tick 69115
+[01:15:20] [] Duties of village 'Sainte-Honorine le-fort' (125 available: 4 sentry pair(s), 8 patrol, 3 scout(s), 18 reserve): [9baad096 GARRISON->PATROL#2, a9ac792d GARRISON->PATROL#7]
+[01:15:27] [] Duty unit 89f8923d of village 'Tour les-pâtures' was trapped; moved onto its SCOUT hop 612, 82, 623
+[01:15:41] [] Duty unit c7b3fe97 of village 'Sainte-Honorine le-fort' recovered at 668, 78, 935 (walked back); on GARRISON duty until the next allocation; no post exclusion
+[01:15:44] [] Duty unit a612aa44 of village 'Tour les-pâtures' was trapped; moved onto its SCOUT hop 613, 82, 623
