@@ -1,0 +1,14 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario WG
+[harness] NOTE WG log: [de.hy.co.HmLog/]: [hywmill] Re-armed unarmed HYW hundred_years_war:archer 519813f2-f39b-4f86-99ed-f9676dffe835 at 687, 80, 294 (joined the level): an empty main hand crashes HYW's ranged target check
+[harness] PASS WG-1 an archer whose main hand is emptied is re-armed with a bow {'hwWGa': 'minecraft:bow', 'hwWGc': 'minecraft:crossbow'}
+[harness] PASS WG-2 a crossbowman likewise gets a crossbow {'hwWGa': 'minecraft:bow', 'hwWGc': 'minecraft:crossbow'}
+[harness] PASS WG-3 the server keeps ticking (no 'Invalid weapon firing an arrow') 
+[harness] server stopped
+[harness] RESULT 4/4 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  WG-1 an archer whose main hand is emptied is re-armed with a bow  {'hwWGa': 'minecraft:bow', 'hwWGc': 'minecraft:crossbow'}
+  PASS  WG-2 a crossbowman likewise gets a crossbow  {'hwWGa': 'minecraft:bow', 'hwWGc': 'minecraft:crossbow'}
+  PASS  WG-3 the server keeps ticking (no 'Invalid weapon firing an arrow')  
+  NOTE  WG log  [de.hy.co.HmLog/]: [hywmill] Re-armed unarmed HYW hundred_years_war:archer 519813f2-f39b-4f86-99ed-f9676dffe835 at 687, 80, 294 (joined the level): an empty main hand crashes HYW's ranged target check

@@ -1993,6 +1993,43 @@ def scenario_AP(ctx):
     check("AP-4 nothing left to settle", r.get("outcome") == "NOTHING_TO_SETTLE" and r.get("left") == 1000, l)
 
 
+def scenario_WG(ctx):
+    """Crash guard (post-M5 bug report): an HYW archer with an empty main hand crashed the server in its per-tick lob check
+    ("Invalid weapon firing an arrow"). Empty the main hand of an archer and a crossbowman that have a zombie in reach:
+    they must be re-armed and the server must keep ticking."""
+    s = ctx.s
+    a = ctx.a
+    # far from every village (an ownerless HYW unit in a village is a threat its garrison kills)
+    x, z = a[0] + 40, a[2] - 330
+    s.cmd(f"forceload add {x - 16} {z - 16} {x + 16} {z + 16}", 3)
+    y = (surface_y(s, x, z) or a[1])
+    p = s.pos()
+    for kind, tag in (("archer", "hwWGa"), ("crossbowman", "hwWGc")):
+        s.cmd(f'summon hundred_years_war:{kind} {x} {y} {z} {{Tags:["{tag}"],PersistenceRequired:1b}}', 1)
+    s.cmd(f'summon minecraft:zombie {x + 6} {y} {z} {{Tags:["hwWGz"],PersistenceRequired:1b}}', 1)
+    time.sleep(2)
+    for tag in ("hwWGa", "hwWGc"):
+        s.cmd(f"item replace entity @e[tag={tag},limit=1] weapon.mainhand with minecraft:air", 0.5)
+    time.sleep(8)
+    held = {}
+    for tag in ("hwWGa", "hwWGc"):
+        out = " ".join(s.output(f"data get entity @e[tag={tag},limit=1] HandItems[0]", 1))
+        m = re.search(r'id: "([^"]+)"', out)
+        held[tag] = m[1] if m else out[-120:]
+    alive = any("There are" in l for l in s.output("list", 1))
+    lines = s.read_since(p)
+    crashed = [l for l in lines if "Invalid weapon firing an arrow" in l or "Ticking entity" in l]
+    rearmed = [l for l in lines if "Re-armed unarmed HYW" in l]
+    note("WG log", (rearmed[0][-200:] if rearmed else "no re-arm line"))
+    check("WG-1 an archer whose main hand is emptied is re-armed with a bow", held.get("hwWGa") == "minecraft:bow", str(held))
+    check("WG-2 a crossbowman likewise gets a crossbow", held.get("hwWGc") == "minecraft:crossbow", str(held))
+    check("WG-3 the server keeps ticking (no 'Invalid weapon firing an arrow')", alive and not crashed, "; ".join(crashed)[:300])
+    s.cmd("kill @e[tag=hwWGa]", 0.3)
+    s.cmd("kill @e[tag=hwWGc]", 0.3)
+    s.cmd("kill @e[tag=hwWGz]", 0.3)
+    s.cmd(f"forceload remove {x - 16} {z - 16} {x + 16} {z + 16}", 1)
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -4856,7 +4893,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

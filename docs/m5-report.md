@@ -292,3 +292,28 @@ after striking the garrison.
   * `AP` (`apology1.txt`), 6/6: three garrison assaults make the stand-in Unwelcome (grievance 27). The apology costs
     1728 deniers; it is refused with too little money, and after paying the stand-in is back to Stranger.
 * SHA-256 of the jar: `666b182b8e6ceb8e16dc8cb664f96f2765fae26cb83f9ba9c6a8e55ff355dc7f`.
+
+### 6.6 Crash fix: unarmed HYW archers (`dist/hywmill-m5-fix6.jar`)
+
+**Bug report.** A game crashed with "Ticking entity" and `IllegalArgumentException: Invalid weapon firing an arrow` in
+`ArcherEntity.canLobAttackTarget`.
+
+* **Cause (HYW).** Every tick an archer has a target, HYW builds a test arrow from the main-hand stack. Vanilla rejects an
+  empty weapon stack, so an HYW archer with an empty main hand crashes the server. HYW leaves the hand empty in several
+  cases:
+  * an item named in its equipment data is missing;
+  * a unit is summoned with NBT (no spawn equipment);
+  * another mod clears the hand.
+
+  HywMill's equipment overlay only ever puts registered items in the main hand.
+* **Fix.** `HywRangedWeaponGuard` is a server-side event listener: no mixin and no change to HYW. When any HYW archer or
+  crossbowman joins the level with an empty main hand, or its main hand becomes empty, it gets HYW's own default weapon
+  back (a bow or a crossbow). A throttled log line records each re-arm.
+* **Tests.**
+  * The crash was reproduced with fix5: an archer whose main hand was emptied next to a zombie crashed the server with
+    the same stack (`weapon-guard-repro.txt`, `weapon-guard-repro-crash.txt`).
+  * With the fix, harness scenario `WG` passes 4/4 (`weapon-guard1.txt`): both units are re-armed and the server keeps
+    ticking.
+  * The guarded server also re-armed, on load, an unarmed unit left in the save of the crashed run.
+  * JUnit 291/291.
+* SHA-256 of the jar: `ea769c20ba150f3e11d9702b933885af53d27b7b18fd3c07858008f04ec12461`.

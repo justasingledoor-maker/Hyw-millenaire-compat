@@ -25,6 +25,8 @@ public final class HywIntegration implements Integration {
         Services.registerEquipment(new HywEquipmentProvider());
         Services.registerEquipment(new HywProfileEquipmentProvider());
         Services.registerSpikeCommands(HywM5Spike::node);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HywRangedWeaponGuard::onJoin);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HywRangedWeaponGuard::onEquipmentChange);
         Services.putDiagnostic("hyw.identityMarker", "RelationOwnerMarkedEntity present on Entity");
         HmLog.info("HYW faction service registered (identity marker mixin verified on net.minecraft.world.entity.Entity).");
     }
