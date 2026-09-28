@@ -87,6 +87,7 @@ public final class HywMillCommands {
                         .then(M4SpikeCommands.duties())
                         .then(M4SpikeCommands.equip())
                         .then(M5SpikeCommands.node())
+                        .then(dev.hywmill.recruit.RecruitCommands.node())
                         .then(Commands.literal("inspect")
                                 .then(Commands.argument("targets", EntityArgument.entities())
                                         .executes(HywMillCommands::devInspect)))));

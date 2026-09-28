@@ -65,7 +65,9 @@ public final class HywUnitProvider implements UnitProvider {
                 unit.setDropChance(slot, 0.0f);
             }
         }
-        GarrisonAttachments.set(unit, req.tag());
+        if (req.tag() != null) {
+            GarrisonAttachments.set(unit, req.tag()); // hired recruits carry no garrison tag: the garrison never counts them
+        }
         unit.setUUID(req.entityUuid());
         unit.setPos(req.pos().x, req.pos().y, req.pos().z);
         if (!level.addFreshEntity(unit)) {

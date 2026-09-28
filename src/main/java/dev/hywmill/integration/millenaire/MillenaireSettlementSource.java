@@ -346,6 +346,24 @@ final class MillenaireSettlementSource implements SettlementSource {
         return Optional.of(new ResidentInfo(vid.uuid(), raider, origin, MillTypes.isDefender(mv), type));
     }
 
+    @Override
+    public int playerMoney(net.minecraft.world.entity.player.Player player) {
+        return org.millenaire.item.MoneyHelper.getTotalDeniers(player.getInventory());
+    }
+
+    @Override
+    public boolean takeMoney(net.minecraft.world.entity.player.Player player, int amount) {
+        return amount >= 0 && org.millenaire.item.MoneyHelper.getTotalDeniers(player.getInventory()) >= amount
+                && org.millenaire.item.MoneyHelper.removeDeniers(player.getInventory(), amount);
+    }
+
+    @Override
+    public void giveMoney(net.minecraft.world.entity.player.Player player, int amount) {
+        if (amount > 0) {
+            org.millenaire.item.MoneyHelper.addDeniers(player.getInventory(), amount, player);
+        }
+    }
+
     /** Raid clones are registered to the village they raid ({@code getVillageId} is the target), flagged {@code isRaiderEntity}. */
     @Override
     public List<net.minecraft.world.entity.LivingEntity> raidersAgainst(ServerLevel level, UUID settlementId, net.minecraft.world.phys.AABB box) {

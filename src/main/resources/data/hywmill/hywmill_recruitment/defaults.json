@@ -1,0 +1,13 @@
+{
+  "_comment": "Muster Roll prices (post-M5). Money is Millénaire's: 1 denier argent = 64 deniers, 1 denier or = 64 argent. MERCENARIES ('mercs': unit key -> price in denier argent) are sold to anyone not Outlaw or Unwelcome, in the village culture's light (WATCH) gear. CULTURAL SOLDIERS are the village's own unit types (its garrison composition, not levies), equipped at gear tier = min(village tier, standingCap[your standing]) and priced in denier or: (soldierBase + soldierPerCost x unit cost) x tierFactor[gear tier]; unit costs are in hywmill_garrison/units.json (spearman/archer 2, crossbowman/warrior/shieldman 3, cavalry 4). Prices round to whole argent, then 'discount' applies per standing. No limit on how many; 'maxPerPurchase' only caps one click. The placer sets the spawn radius within [minRadius, maxRadius]; players use the block within 'useRange' blocks.",
+  "mercs": { "militia": 3, "archer": 4, "crossbowman": 5 },
+  "soldierBase": 0.5,
+  "soldierPerCost": 0.25,
+  "tierFactor": { "GUARD_POST": 1.0, "GARRISON": 1.25, "STRONGHOLD": 1.5 },
+  "standingCap": { "TRUSTED": "GUARD_POST", "PATRON": "GARRISON", "SWORN": "STRONGHOLD" },
+  "discount": { "PATRON": 0.10, "SWORN": 0.20 },
+  "maxPerPurchase": 32,
+  "minRadius": 2,
+  "maxRadius": 36,
+  "useRange": 8
+}

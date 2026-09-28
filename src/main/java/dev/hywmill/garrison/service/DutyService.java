@@ -619,7 +619,7 @@ public final class DutyService {
         return null;
     }
 
-    static boolean standable(ServerLevel level, BlockPos feet) {
+    public static boolean standable(ServerLevel level, BlockPos feet) {
         BlockPos below = feet.below();
         return level.getBlockState(below).isFaceSturdy(level, below, Direction.UP)
                 && level.getBlockState(feet).getCollisionShape(level, feet).isEmpty()

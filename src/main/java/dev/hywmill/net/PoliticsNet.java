@@ -66,6 +66,26 @@ public final class PoliticsNet {
         r.playToClient(PoliticsSnapshot.TYPE, PoliticsSnapshot.CODEC, (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.PoliticsClient.onSnapshot(p)));
         r.playToClient(PoliticsPayloads.ActionResult.TYPE, PoliticsPayloads.ActionResult.CODEC,
                 (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.PoliticsClient.onResult(p)));
+        // Muster Roll (post-M5 recruitment): same registrar and version; the server re-validates every intent
+        r.playToServer(RecruitPayloads.Hire.TYPE, RecruitPayloads.Hire.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
+            if (ctx.player() instanceof ServerPlayer sp && limiter(sp)) {
+                dev.hywmill.recruit.RecruitService.hire(sp, p.pos(), p.key(), p.count());
+            }
+        }));
+        r.playToServer(RecruitPayloads.SetRadius.TYPE, RecruitPayloads.SetRadius.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
+            if (ctx.player() instanceof ServerPlayer sp && limiter(sp)) {
+                dev.hywmill.recruit.RecruitService.setRadius(sp, p.pos(), p.radius());
+            }
+        }));
+        r.playToClient(RecruitPayloads.View.TYPE, RecruitPayloads.View.CODEC,
+                (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.RecruitClient.onView(p)));
+        r.playToClient(RecruitPayloads.Result.TYPE, RecruitPayloads.Result.CODEC,
+                (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.RecruitClient.onResult(p)));
+    }
+
+    private static boolean limiter(ServerPlayer sp) {
+        dev.hywmill.core.HywMillRuntime rt = dev.hywmill.core.HywMillRuntime.get();
+        return rt == null || rt.uiLimiter().allow(sp.getUUID(), sp.serverLevel().getGameTime());
     }
 
     private interface Reply {

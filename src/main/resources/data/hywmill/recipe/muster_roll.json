@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SBH",
+    " W ",
+    " L "
+  ],
+  "key": {
+    "S": { "item": "minecraft:iron_sword" },
+    "B": { "tag": "minecraft:banners" },
+    "H": { "item": "minecraft:shield" },
+    "W": { "item": "minecraft:writable_book" },
+    "L": { "item": "minecraft:lectern" }
+  },
+  "result": { "id": "hywmill:muster_roll", "count": 1 }
+}

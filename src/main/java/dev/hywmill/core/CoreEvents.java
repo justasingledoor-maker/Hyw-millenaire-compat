@@ -165,6 +165,7 @@ public final class CoreEvents {
         event.addListener(new dev.hywmill.garrison.duty.DutyTableLoader());
         event.addListener(new dev.hywmill.garrison.equip.EquipmentProfileLoader());
         event.addListener(new dev.hywmill.politics.service.PoliticsTableLoader());
+        event.addListener(new dev.hywmill.recruit.RecruitTableLoader());
     }
 
     @SubscribeEvent

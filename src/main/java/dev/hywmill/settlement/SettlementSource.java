@@ -113,6 +113,20 @@ public interface SettlementSource {
         return List.of();
     }
 
+    /** The player's money in the settlement mod's currency (Millénaire: deniers, purses included); -1 if unsupported. */
+    default int playerMoney(net.minecraft.world.entity.player.Player player) {
+        return -1;
+    }
+
+    /** Takes {@code amount} from the player; false (nothing taken) if they have less or it is unsupported. */
+    default boolean takeMoney(net.minecraft.world.entity.player.Player player, int amount) {
+        return false;
+    }
+
+    /** Gives {@code amount} to the player (refunds). */
+    default void giveMoney(net.minecraft.world.entity.player.Player player, int amount) {
+    }
+
     /** Current layout, in the settlement mod's own (stable) building order; empty if unknown or unsupported. */
     default Optional<Layout> layout(ServerLevel level, UUID settlementId) {
         return Optional.empty();
