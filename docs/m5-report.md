@@ -236,3 +236,24 @@ never a threat.
   * Server harness scenario `RD` (`rd1.txt`), 8/8: a Millénaire raid B → A. Both raiders were listed as
     `SETTLEMENT_RAIDER` threats of A 29 s after the trigger, 4 garrison units deployed at 31 s, and the raid was repulsed.
 * **Scope.** Includes the §6.1 and §6.2 fixes.
+
+### 6.4 Equipment: whole armour kits, dyed liveries, painted shields (`dist/hywmill-m5-fix4.jar`)
+
+**Bug report.** Units wore mixed gear, for example a knight's helmet over plain clothes. Each role list could set a single
+armour slot, so a unit's slots came from different lists, or kept HYW's own item.
+
+* **Kits.** Armour now comes from one whole kit ("kits": head, chest, legs, feet; "none" means empty) per culture, tier
+  and class. The shipped data has kits for all 7 cultures and the defaults, and no per-slot armour lists.
+* **Livery (request).**
+  * Dyeable Epic Knights pieces are dyed in two colours per unit, from a 12-colour medieval palette
+    (`dye.palette`).
+  * Shields get random arms: vanilla geometric patterns and Epic Knights emblems, following the rule of tincture.
+    Heraldry can be turned off with `heraldry: false`.
+  * Both use vanilla item components and are deterministic per unit. Units re-equip once when the profile data changes.
+* **Tests.**
+  * JUnit 280/280, including `LiveryTest` and new `EquipmentProfilesTest` cases.
+  * Server run with Epic Knights (`ek-livery1.txt`): EK1–EK5 and EK7 pass. Whole kits: 248/248 units in Epic Knights
+    armour, 0 mixed. Three sampled shields carry three distinct arms.
+  * EK6 failed only because the harness pattern did not match the SNBT field order (`show_in_tooltip` before `rgb`).
+    Checked against the same logged data, 195/195 dyeable pieces were dyed, in 12 distinct colours. The pattern is fixed;
+    the scenario has not been re-run.

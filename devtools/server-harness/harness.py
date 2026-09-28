@@ -2853,7 +2853,7 @@ def scenario_G4_EK(ctx):
             hands = " ".join(s.output(f"data get entity {uuid} HandItems", 1))
             for piece in re.findall(r'id: "magistuarmory:(coif|gambeson_chestplate|pantyhose|gambeson_boots|brigandine_chestplate|crusader_chestplate|crusader_boots|norman_helmet|greathelm)"', armor):
                 dyeable += 1
-            found = re.findall(r'dyed_color": \{rgb: (-?\d+)', armor)
+            found = re.findall(r'dyed_color": \{[^}]*rgb: (-?\d+)', armor)
             dyed += len(found)
             colours.update(found)
             if "shield" in hands:
