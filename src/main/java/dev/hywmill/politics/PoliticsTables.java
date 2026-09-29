@@ -117,7 +117,7 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
         public static final SiegeRule DEFAULT = new SiegeRule(true, 0.5, 6, 64, 0.4, 1, 1, 10,
                 1200, 1200, 1200, 12000, 1200, 18000, 0.2, 0.2, 0.3, 2.0, 0.5, 0.35, 0.5,
                 standingDoubles(Standing.PATRON, 0.5, Standing.SWORN, 0.75), 0.4, 2, 48000, true, 1200, 0.25, 0.9, 72000,
-                tributes(), 2.0, 0.4, 512);
+                tributes(), 0.5, 0.4, 512);
 
         public double counselChance(Standing s) {
             return counselChance.getOrDefault(s, 0.0);
@@ -161,10 +161,10 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
 
     private static Map<MilitaryTierKey, Integer> tributes() {
         Map<MilitaryTierKey, Integer> m = new EnumMap<>(MilitaryTierKey.class);
-        m.put(MilitaryTierKey.WATCH, 6144);
-        m.put(MilitaryTierKey.GUARD_POST, 12288);
-        m.put(MilitaryTierKey.GARRISON, 36864);
-        m.put(MilitaryTierKey.STRONGHOLD, 98304);
+        m.put(MilitaryTierKey.WATCH, 32768);
+        m.put(MilitaryTierKey.GUARD_POST, 65536);
+        m.put(MilitaryTierKey.GARRISON, 163840);
+        m.put(MilitaryTierKey.STRONGHOLD, 393216);
         return java.util.Collections.unmodifiableMap(m);
     }
 

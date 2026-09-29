@@ -39,8 +39,8 @@
       "loserLoss": 0.5, "winnerLossBase": 0.35, "winnerLossMax": 0.5,
       "counselChance": { "PATRON": 0.5, "SWORN": 0.75 }, "tooStrongFactor": 0.4, "counselPoints": 2, "counselCooldown": 48000,
       "aiEnabled": true, "aiInterval": 1200, "aiDailyChance": 0.25, "aiMinRatio": 0.9, "aiCooldown": 72000,
-      "tribute": { "WATCH": 6144, "GUARD_POST": 12288, "GARRISON": 36864, "STRONGHOLD": 98304 },
-      "levyShare": 2.0, "playerShare": 0.4, "helperRep": 512
+      "tribute": { "WATCH": 32768, "GUARD_POST": 65536, "GARRISON": 163840, "STRONGHOLD": 393216 },
+      "levyShare": 0.5, "playerShare": 0.4, "helperRep": 512
     },
     "arsenal": {
       "enabled": true,

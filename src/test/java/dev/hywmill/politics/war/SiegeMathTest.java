@@ -89,11 +89,12 @@ class SiegeMathTest {
 
     @Test
     void tributeLevyAndHelperPay() {
-        assertEquals(6144, R.tribute(PoliticsTables.MilitaryTierKey.WATCH));
-        assertEquals(36864, R.tribute(PoliticsTables.MilitaryTierKey.GARRISON));
-        assertEquals(98304, R.tribute(PoliticsTables.MilitaryTierKey.STRONGHOLD));
-        assertEquals(18.0, SiegeMath.levy(36864, R), 1e-9);
-        assertEquals(7372, SiegeMath.helperPay(36864, 2, R));
+        // about 25 of the loser's own soldiers at Muster Roll prices for a Garrison (1 denier or = 4096 deniers)
+        assertEquals(8 * 4096, R.tribute(PoliticsTables.MilitaryTierKey.WATCH));
+        assertEquals(40 * 4096, R.tribute(PoliticsTables.MilitaryTierKey.GARRISON));
+        assertEquals(96 * 4096, R.tribute(PoliticsTables.MilitaryTierKey.STRONGHOLD));
+        assertEquals(20.0, SiegeMath.levy(40 * 4096, R), 1e-9);
+        assertEquals(32768, SiegeMath.helperPay(40 * 4096, 2, R));
         assertEquals(0, SiegeMath.helperPay(12288, 0, R));
     }
 

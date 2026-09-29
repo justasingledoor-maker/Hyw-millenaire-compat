@@ -610,3 +610,31 @@ up around the village.
   * the helpers' 40% share.
 * **Tests.** JUnit 320/320 (`SiegeMathTest` tribute case updated); no harness run.
 * SHA-256 of the jar: `df6f180544e2a12e136771d7260159d79fa435262400e65e720e00147afe0034`.
+
+### 6.20 Siege tribute sized to soldier prices (`dist/hywmill-m5-fix20.jar`)
+
+**Request.** fix19's tribute was still small. One regular soldier costs about an or and some argent on the Muster
+Roll: for a Garrison, (0.5 + 0.25 × 3) × 1.25 ≈ 1.56 or.
+
+* **Change.** The tribute is now worth about 25 of the loser's soldiers for a Garrison.
+
+  | Tier | Tribute |
+  | --- | --- |
+  | Watch | 8 or |
+  | Guard post | 16 or |
+  | Garrison | 40 or |
+  | Stronghold | 96 or |
+
+* **Levy.** `levyShare` is cut from 2.0 to 0.5 levy points per 4096 deniers, so the recruiting points that move from
+  the loser to the winner stay moderate:
+
+  | Tier | Levy points |
+  | --- | --- |
+  | Watch | 4 |
+  | Guard post | 8 |
+  | Garrison | 20 |
+  | Stronghold | 48 |
+
+* **Helper pay.** The helpers still split 40% of the tribute: 16 or for a Garrison loser.
+* **Tests.** JUnit 320/320 (`SiegeMathTest` tribute case updated); no harness run.
+* SHA-256 of the jar: `7b360ab1a4d5edb92909daa97cb73abee4e5ec2648104fff2fd5ddd7bab9e085`.
