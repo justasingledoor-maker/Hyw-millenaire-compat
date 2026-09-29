@@ -37,6 +37,8 @@ public final class Siege {
     public long pausedSince = -1;
     /** DEV/admin test switch: treat the target as unwatched (unloaded) even when it is loaded. */
     public boolean forceUnwatched;
+    /** Post-M5: relief forces sent to the target by villages on great terms with it. */
+    public final List<Relief> reliefs = new ArrayList<>();
     /** One line on how it ended (for the chronicle, status and the report). */
     public String summary = "";
 
@@ -57,6 +59,16 @@ public final class Siege {
 
     public boolean involves(UUID village) {
         return attacker.equals(village) || target.equals(village);
+    }
+
+    /** All relief forces are home (the siege record may go once its own host is home too). */
+    public boolean reliefsDone() {
+        for (Relief r : reliefs) {
+            if (r.phase != Relief.Phase.DONE) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** A seed for this siege's draws (stable across restarts). */

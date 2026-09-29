@@ -9,7 +9,13 @@ import java.util.Map;
  */
 public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
                              RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege, ArsenalRule arsenal,
-                             WarCounselRule warCounsel, MobilizationRule mobilization) {
+                             WarCounselRule warCounsel, MobilizationRule mobilization, ReliefRule relief) {
+
+    public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
+                          RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege, ArsenalRule arsenal,
+                          WarCounselRule warCounsel, MobilizationRule mobilization) {
+        this(standing, grievance, favor, pardon, diplomacy, requests, raidCounsel, siege, arsenal, warCounsel, mobilization, ReliefRule.DEFAULT);
+    }
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
                           RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege, ArsenalRule arsenal) {
@@ -182,6 +188,20 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
      * it goes to war, at no levy cost, with fresh troops equipped at max(equipmentFloor, regular level - equipmentDrop).
      * They serve like any other unit and are sent home when the village is at peace again.
      */
+    /**
+     * Relief forces (post-M5): when a siege is launched, each village with a relation of at least {@code minRelation} to the
+     * besieged village (and at peace with it) sends relief with {@code chance}, at most {@code maxHelpers} per siege. The
+     * force is shareMin..shareMax of its garrison at home (a garrison of at least {@code minGarrison}); it sets out when the
+     * attackers march and arrives after minTicks..maxTicks. On the way it may be ambushed ({@code ambushChance}: it loses
+     * ambushLossMin..ambushLossMax of its soldiers, and routs home with {@code routChance}) or lose its way
+     * ({@code lostChance}: lostMin..all of it never arrives, unharmed). It fights until the siege ends, then goes home.
+     */
+    public record ReliefRule(boolean enabled, int minRelation, double chance, int maxHelpers, int minGarrison, double shareMin, double shareMax,
+                             long minTicks, long maxTicks, double ambushChance, double ambushLossMin, double ambushLossMax, double routChance,
+                             double lostChance, double lostMin) {
+        public static final ReliefRule DEFAULT = new ReliefRule(true, 80, 0.2, 2, 4, 0.05, 0.2, 1200, 2400, 0.12, 0.2, 0.6, 0.4, 0.06, 0.3);
+    }
+
     public record MobilizationRule(boolean enabled, int equipmentFloor, int equipmentDrop) {
         public static final MobilizationRule DEFAULT = new MobilizationRule(true, 1, 1);
     }

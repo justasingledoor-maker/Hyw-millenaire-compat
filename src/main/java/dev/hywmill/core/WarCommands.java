@@ -68,6 +68,12 @@ final class WarCommands {
                         .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminSiege(ctx, false))
                                 .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                                         .executes(ctx -> adminSiege(ctx, true))))))
+                .then(Commands.literal("relief").then(Commands.argument("helper", BlockPosArgument.blockPos())
+                        .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminRelief(ctx, "NONE"))
+                                .then(Commands.argument("fate", com.mojang.brigadier.arguments.StringArgumentType.word())
+                                        .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(
+                                                java.util.List.of("clean", "ambushed", "routed", "straggled", "lost"), b))
+                                        .executes(ctx -> adminRelief(ctx, com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "fate")))))))
                 .then(Commands.literal("clear-projections").executes(ctx -> {
                     HywMillRuntime rt = HywMillRuntime.require();
                     int n = rt.relations().clearAll(ctx.getSource().getServer().overworld(), rt);
@@ -203,6 +209,30 @@ final class WarCommands {
         var r = PoliticsActions.suggestSiege(ow, player, c.ally(), c.enemy(), draw, free);
         send(ctx.getSource(), "war siege " + r.code() + ": " + r.message());
         return r.ok() ? 1 : 0;
+    }
+
+    /** Post-M5 admin: the village at {@code helper} promises relief to the siege of the village at {@code target}. */
+    private static int adminRelief(CommandContext<CommandSourceStack> ctx, String fate) {
+        VillageRecord h = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "helper"));
+        VillageRecord t = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "target"));
+        if (h == null || t == null) {
+            return 0;
+        }
+        dev.hywmill.politics.war.Relief.Fate f;
+        try {
+            f = dev.hywmill.politics.war.Relief.Fate.valueOf(fate.toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            send(ctx.getSource(), "war relief BAD_FATE: use clean, ambushed, routed, straggled or lost");
+            return 0;
+        }
+        GarrisonLedger ledger = GarrisonLedger.get(ctx.getSource().getServer().overworld());
+        dev.hywmill.politics.war.Siege s = dev.hywmill.garrison.service.SiegeService.against(ledger, t.villageId);
+        if (s == null) {
+            send(ctx.getSource(), "war relief NO_SIEGE: " + t.name + " is not besieged");
+            return 0;
+        }
+        send(ctx.getSource(), "war relief OK: " + dev.hywmill.garrison.service.ReliefService.promise(ledger, s, h, f));
+        return 1;
     }
 
     /** Post-M5: war or peace counsel to the village at {@code village} about the one at {@code other}. */

@@ -342,6 +342,22 @@ public final class PoliticsNbt {
             if (g.forceUnwatched) {
                 x.putBoolean("unwatched", true);
             }
+            if (!g.reliefs.isEmpty()) {
+                ListTag rl = new ListTag();
+                for (dev.hywmill.politics.war.Relief r : g.reliefs) {
+                    CompoundTag y = new CompoundTag();
+                    y.putUUID("helper", r.helper);
+                    y.putString("phase", r.phase.name());
+                    y.putLong("phaseEnd", r.phaseEnd);
+                    y.putString("fate", r.fate.name());
+                    y.put("units", uuids(r.units));
+                    y.put("strays", uuids(r.strays));
+                    y.putInt("sent", r.sent);
+                    y.putInt("killed", r.killed);
+                    rl.add(y);
+                }
+                x.put("reliefs", rl);
+            }
             l.add(x);
         }
         return l;
@@ -366,6 +382,19 @@ public final class PoliticsNbt {
                 g.summary = x.getString("summary");
                 g.forceUnwatched = x.getBoolean("unwatched");
                 g.pausedSince = x.contains("pausedSince") ? x.getLong("pausedSince") : -1;
+                ListTag rl = x.getList("reliefs", Tag.TAG_COMPOUND);
+                for (int j = 0; j < rl.size(); j++) {
+                    CompoundTag y = rl.getCompound(j);
+                    dev.hywmill.politics.war.Relief r = new dev.hywmill.politics.war.Relief(y.getUUID("helper"));
+                    r.phase = dev.hywmill.politics.war.Relief.Phase.valueOf(y.getString("phase"));
+                    r.phaseEnd = y.getLong("phaseEnd");
+                    r.fate = dev.hywmill.politics.war.Relief.Fate.valueOf(y.getString("fate"));
+                    r.units.addAll(readUuids(y.getList("units", Tag.TAG_INT_ARRAY)));
+                    r.strays.addAll(readUuids(y.getList("strays", Tag.TAG_INT_ARRAY)));
+                    r.sent = y.getInt("sent");
+                    r.killed = y.getInt("killed");
+                    g.reliefs.add(r);
+                }
                 out.add(g);
             } catch (IllegalArgumentException | NullPointerException ignored) {
                 // malformed: dropped; its host slots are brought home by the siege service's orphan sweep

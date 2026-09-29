@@ -81,8 +81,16 @@ public final class RelationProjector {
         for (VillageRecord r : ledger.all()) {
             factionOf.put(r.villageId, r.factionId);
         }
+        List<UUID[]> reliefs = new ArrayList<>();
+        for (dev.hywmill.politics.war.Siege g : ledger.sieges()) {
+            for (dev.hywmill.politics.war.Relief rl : g.reliefs) {
+                if (rl.active()) {
+                    reliefs.add(new UUID[]{rl.helper, g.attacker});
+                }
+            }
+        }
         Map<RelationPlan.Edge, String> desired = RelationPlan.desired(ledger.wars().values(), ledger.campaigns(), now, factionOf::get,
-                v -> ledger.get(v) != null ? dev.hywmill.faction.FactionIds.residentsOf(v) : null);
+                v -> ledger.get(v) != null ? dev.hywmill.faction.FactionIds.residentsOf(v) : null, reliefs);
         plan = Map.copyOf(desired);
         dirty |= apply(rt, factions, ledger, desired);
         if (dirty) {

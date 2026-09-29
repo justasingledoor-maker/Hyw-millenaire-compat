@@ -280,6 +280,7 @@ public final class SiegeService {
         }
         a.hywRoster.lastSiegeTick = tick;
         ledger.sieges().add(s);
+        ReliefService.plan(overworld, ledger, s, a, t, tick);
         ledger.setDirty();
         count(C_LAUNCHED);
         String who = counsel != null ? " on " + PoliticsService.playerName(overworld, counsel) + "'s counsel" : "";
@@ -404,6 +405,7 @@ public final class SiegeService {
             return;
         }
         PoliticsTables.SiegeRule r = rule(a);
+        ReliefService.step(overworld, ledger, s, a, t, tick);
         List<RosterEntry> alive = entries(a, s.host);
         if (soldiers(a, alive).isEmpty() && s.phase != Siege.Phase.RETURN) {
             finish(overworld, ledger, s, a, t, Siege.Outcome.LOST, "the whole host fell", tick, false);
@@ -556,7 +558,7 @@ public final class SiegeService {
             }
             return;
         }
-        s.defendersStart = defenders(overworld, t).size();
+        s.defendersStart = defenders(overworld, t).size() + ReliefService.entities(overworld, ledger, s).size();
         s.enter(Siege.Phase.BATTLE, tick, tick + r.battleTicks());
         ledger.setDirty();
         announce(overworld, ledger, s, a, t, "The host of " + a.name + " (" + n + " soldiers) stands before " + t.name + "; "
@@ -631,8 +633,11 @@ public final class SiegeService {
             s.pausedSince = -1;
             ledger.setDirty();
         }
-        List<LivingEntity> defs = defenders(overworld, t);
-        List<LivingEntity> foes = targets(overworld, t);
+        List<LivingEntity> relief = ReliefService.entities(overworld, ledger, s);
+        List<LivingEntity> defs = new ArrayList<>(defenders(overworld, t));
+        defs.addAll(relief); // relief forces stand with the defenders
+        List<LivingEntity> foes = new ArrayList<>(targets(overworld, t));
+        foes.addAll(relief);
         UnitProvider units = Services.units();
         if (units != null) {
             for (RosterEntry e : alive) {
@@ -719,6 +724,9 @@ public final class SiegeService {
                            PoliticsTables.SiegeRule r) {
         List<RosterEntry> home = homeDefenders(t);
         double h = hostStrength(a, alive), d = defense(overworld, t, engineCount(a, alive));
+        for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+            d += strength(ReliefService.present(ledger, s, rl.helper)); // relief forces at the target
+        }
         double p = SiegeMath.winChance(h, d, r);
         boolean won = SiegeMath.draw(s.seed(tick)) < p;
         double[] loss = SiegeMath.losses(won, h, d, r);
@@ -728,6 +736,17 @@ public final class SiegeService {
         List<UUID> defDead = SiegeMath.casualties(defIds, loss[1], s.seed(2));
         hostDead.forEach(id -> kill(overworld, a, id, tick));
         defDead.forEach(id -> kill(overworld, t, id, tick));
+        for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+            VillageRecord hv = ledger.get(rl.helper);
+            if (hv != null) {
+                // relief forces share the defenders' losses
+                List<UUID> ids = ReliefService.present(ledger, s, rl.helper).stream().map(e -> e.rosterId).toList();
+                SiegeMath.casualties(ids, loss[1], s.seed(3) ^ rl.helper.getMostSignificantBits()).forEach(id -> {
+                    kill(overworld, hv, id, tick);
+                    rl.killed++;
+                });
+            }
+        }
         count(C_OFFSCREEN);
         HmLog.info("Siege {} decided off-screen: host {} (strength {}) vs {} (defense {}): P(win) {} -> {}; host lost {}, defenders lost {}",
                 s.id.toString().substring(0, 8), alive.size(), fmt(h), t.name, fmt(d), fmt(p), won ? "WON" : "LOST", hostDead.size(), defDead.size());
@@ -843,7 +862,7 @@ public final class SiegeService {
         long march = t == null ? r.minMarch() : SiegeMath.marchTicks(Math.sqrt(a.center.distSqr(t.center)), r);
         s.enter(Siege.Phase.RETURN, tick, tick + march);
         if (alive.isEmpty()) {
-            ledger.sieges().remove(s);
+            retire(ledger, s);
         }
         ledger.setDirty();
     }
@@ -896,8 +915,10 @@ public final class SiegeService {
             }
         }
         if (pending == 0) {
-            ledger.sieges().remove(s);
-            HmLog.info("Siege {}: {} survivor(s) back in {}", s.id.toString().substring(0, 8), back, a.name);
+            retire(ledger, s);
+            if (back > 0) {
+                HmLog.info("Siege {}: {} survivor(s) back in {}", s.id.toString().substring(0, 8), back, a.name);
+            }
         }
         ledger.setDirty();
     }
@@ -957,7 +978,22 @@ public final class SiegeService {
         }
     }
 
-    private static void chronicle(ServerLevel overworld, VillageRecord a, @Nullable VillageRecord t, long tick, String text) {
+    /** The host is home: the record goes, unless relief forces are still out (it stays until they are home too). */
+    private static void retire(GarrisonLedger ledger, Siege s) {
+        if (s.reliefsDone()) {
+            ledger.sieges().remove(s);
+        }
+    }
+
+    /** Tells the players near either village of {@code s} (relief news). */
+    static void announceNear(ServerLevel overworld, GarrisonLedger ledger, Siege s, String text) {
+        VillageRecord a = ledger.get(s.attacker);
+        if (a != null) {
+            announce(overworld, ledger, s, a, ledger.get(s.target), text);
+        }
+    }
+
+    static void chronicle(ServerLevel overworld, VillageRecord a, @Nullable VillageRecord t, long tick, String text) {
         SettlementSource source = Services.settlements();
         PoliticsService.chronicle(overworld, source, a, tick, text);
         if (t != null) {
@@ -1002,7 +1038,7 @@ public final class SiegeService {
             int alive = a == null ? 0 : entries(a, s.host).size();
             out.add((a == null ? "?" : a.name) + " -> " + (t == null ? "?" : t.name) + " " + s.phase + " " + alive + "/" + s.hostStart
                     + (s.phaseEnd > now ? " next in " + (s.phaseEnd - now) / 20 + " s" : "") + (s.outcome != Siege.Outcome.NONE ? " " + s.outcome : "")
-                    + " id " + s.id.toString().substring(0, 8));
+                    + " id " + s.id.toString().substring(0, 8) + ReliefService.describe(ledger, s));
         }
         return out;
     }

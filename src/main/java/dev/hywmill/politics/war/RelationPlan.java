@@ -33,7 +33,23 @@ public final class RelationPlan {
     /** @param residentOf village id → its resident identity (null: none, no civilian edges) */
     public static Map<Edge, String> desired(Collection<WarRecord> wars, Collection<Campaign> campaigns, long now, Function<UUID, UUID> factionOf,
                                             Function<UUID, UUID> residentOf) {
+        return desired(wars, campaigns, now, factionOf, residentOf, java.util.List.of());
+    }
+
+    /**
+     * @param reliefs post-M5 relief forces as {helper village, attacking village} pairs: the two factions are HOSTILE while
+     *                the relief is on its way or at the besieged village, even though the two are not at war
+     */
+    public static Map<Edge, String> desired(Collection<WarRecord> wars, Collection<Campaign> campaigns, long now, Function<UUID, UUID> factionOf,
+                                            Function<UUID, UUID> residentOf, Collection<UUID[]> reliefs) {
         Map<Edge, String> out = new LinkedHashMap<>();
+        for (UUID[] pair : reliefs) {
+            UUID fh = factionOf.apply(pair[0]);
+            UUID fa = factionOf.apply(pair[1]);
+            if (fh != null && fa != null && !fh.equals(fa)) {
+                both(out, fh, fa, HOSTILE);
+            }
+        }
         for (WarRecord w : wars) {
             if (!w.atWar()) {
                 continue;

@@ -190,7 +190,25 @@ public final class PoliticsData {
                 mb = base.mobilization();
             }
         }
-        return new PoliticsTables(s, g, f, pr, dr, rq, rc, sg, ar, wc, mb);
+        PoliticsTables.ReliefRule rl = base.relief();
+        if (o.has("relief") && o.get("relief").isJsonObject()) {
+            JsonObject j = o.getAsJsonObject("relief");
+            PoliticsTables.ReliefRule b = rl;
+            rl = new PoliticsTables.ReliefRule(j.has("enabled") ? j.get("enabled").getAsBoolean() : b.enabled(), i(j, "minRelation", b.minRelation()),
+                    d(j, "chance", b.chance()), i(j, "maxHelpers", b.maxHelpers()), i(j, "minGarrison", b.minGarrison()), d(j, "shareMin", b.shareMin()),
+                    d(j, "shareMax", b.shareMax()), l(j, "minTicks", b.minTicks()), l(j, "maxTicks", b.maxTicks()), d(j, "ambushChance", b.ambushChance()),
+                    d(j, "ambushLossMin", b.ambushLossMin()), d(j, "ambushLossMax", b.ambushLossMax()), d(j, "routChance", b.routChance()),
+                    d(j, "lostChance", b.lostChance()), d(j, "lostMin", b.lostMin()));
+            if (rl.minRelation() < -100 || rl.minRelation() > 100 || rl.chance() < 0 || rl.chance() > 1 || rl.maxHelpers() < 0 || rl.minGarrison() < 1
+                    || rl.shareMin() < 0 || rl.shareMax() > 1 || rl.shareMin() > rl.shareMax() || rl.minTicks() < 0 || rl.minTicks() > rl.maxTicks()
+                    || rl.ambushChance() < 0 || rl.lostChance() < 0 || rl.ambushChance() + rl.lostChance() > 1 || rl.ambushLossMin() < 0
+                    || rl.ambushLossMax() > 1 || rl.ambushLossMin() > rl.ambushLossMax() || rl.routChance() < 0 || rl.routChance() > 1
+                    || rl.lostMin() < 0 || rl.lostMin() > 1) {
+                problems.add(where + ": relief values out of range; using " + where + " base");
+                rl = base.relief();
+            }
+        }
+        return new PoliticsTables(s, g, f, pr, dr, rq, rc, sg, ar, wc, mb, rl);
     }
 
     private static PoliticsTables.WarCounselRule warCounsel(PoliticsTables.WarCounselRule b, JsonObject j, List<String> problems, String where) {
