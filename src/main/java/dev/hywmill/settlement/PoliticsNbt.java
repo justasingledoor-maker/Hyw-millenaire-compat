@@ -332,6 +332,9 @@ public final class PoliticsNbt {
             x.put("attackerHelpers", uuids(g.attackerHelpers));
             x.put("defenderHelpers", uuids(g.defenderHelpers));
             x.putString("summary", g.summary);
+            if (g.pausedSince >= 0) {
+                x.putLong("pausedSince", g.pausedSince);
+            }
             if (g.forceUnwatched) {
                 x.putBoolean("unwatched", true);
             }
@@ -358,6 +361,7 @@ public final class PoliticsNbt {
                 g.defenderHelpers.addAll(readUuids(x.getList("defenderHelpers", Tag.TAG_INT_ARRAY)));
                 g.summary = x.getString("summary");
                 g.forceUnwatched = x.getBoolean("unwatched");
+                g.pausedSince = x.contains("pausedSince") ? x.getLong("pausedSince") : -1;
                 out.add(g);
             } catch (IllegalArgumentException | NullPointerException ignored) {
                 // malformed: dropped; its host slots are brought home by the siege service's orphan sweep

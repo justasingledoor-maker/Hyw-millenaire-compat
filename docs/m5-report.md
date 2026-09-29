@@ -471,3 +471,26 @@ The full design is in `docs/siege-design.md`.
       player.
     * No duplicate units at any point.
 * SHA-256 of the jar: `fe4645ba4647a8de25f39944fa09bcfa6e1e7d3800e34369934d320f822a36e4`.
+
+### 6.11 Siege fixes from play (`dist/hywmill-m5-fix11.jar`)
+
+**Report.** A stronghold host of about 50 attacked a village with 16 defenders. The attackers landed in water. Villagers
+killed the player while the HYW attackers ignored them. When the player respawned far away, the battle was decided
+off-screen, and the attackers lost 22 soldiers to the defenders' 1.
+
+* **Civilians.** Attackers now engage every villager of the target, civilians included (Millénaire villagers respawn).
+  Victory still counts the defenders' fighters.
+* **Water.** No unit is placed in water any more. The old fallback used the raw landing point when no safe spot was
+  found; now the search walks back towards home every 8 blocks, then tries the target's centre. A unit that cannot be
+  placed yet waits and retries; it is never resolved off-screen for that.
+* **Unwatched battles.** A battle whose target is no longer loaded (the player left or died) now pauses where it stands:
+  its clock stops, and it resumes when the area is loaded again. After 10 minutes unwatched it ends on the shares it
+  stood at, with no new losses. The off-screen strength roll is only for sieges nobody ever watched.
+* **Odds.** The off-screen exponent is 2 (was 1.5): a clearly stronger host wins more reliably.
+* **Tests.**
+  * JUnit 318/318.
+  * Harness `SGF` (`siege-fixes1.txt`), 4/4:
+    * attackers targeted `millenaire:villager`s as well as soldiers;
+    * no attacker stood in water;
+    * made unwatched mid-battle, the battle paused with no off-screen decision, and it resumed when watched again.
+* SHA-256 of the jar: `8180a58c6435baed7286d7de5f04d4198c31a53532de20c5f1c955af2ad305fd`.

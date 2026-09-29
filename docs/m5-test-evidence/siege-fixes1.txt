@@ -1,0 +1,16 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario SGF
+[harness] PASS SGF-1 attackers go for Millénaire villagers, not only soldiers ['hundred_years_war:archer', 'hundred_years_war:crossbowman', 'hundred_years_war:siege_engineer', 'hundred_years_war:trebuchets', 'millenaire:villager']
+[harness] PASS SGF-2 no attacker stands in water 0 in water
+[harness] PASS SGF-3 unwatched mid-battle, the battle pauses (no off-screen decision) ['Colombières les-pâtures -> Saint-Philbert les-pâtures BATTLE 16/21 next in 227 s id 690f0655']; off-screen 0
+[harness] PASS SGF-4 watched again, the battle resumes ['Colombières les-pâtures -> Saint-Philbert les-pâtures BATTLE 16/21 next in 216 s id 690f0655']
+[harness] NOTE SGF launch: war siege OK: Colombières les-pâtures musters 21 soldiers to besiege Saint-Philbert les-pâtures; they march in about 1 min id 690f0655 host 21
+[harness] server stopped
+[harness] RESULT 5/5 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  SGF-1 attackers go for Millénaire villagers, not only soldiers  ['hundred_years_war:archer', 'hundred_years_war:crossbowman', 'hundred_years_war:siege_engineer', 'hundred_years_war:trebuchets', 'millenaire:villager']
+  PASS  SGF-2 no attacker stands in water  0 in water
+  PASS  SGF-3 unwatched mid-battle, the battle pauses (no off-screen decision)  ['Colombières les-pâtures -> Saint-Philbert les-pâtures BATTLE 16/21 next in 227 s id 690f0655']; off-screen 0
+  PASS  SGF-4 watched again, the battle resumes  ['Colombières les-pâtures -> Saint-Philbert les-pâtures BATTLE 16/21 next in 216 s id 690f0655']
+  NOTE  SGF launch  war siege OK: Colombières les-pâtures musters 21 soldiers to besiege Saint-Philbert les-pâtures; they march in about 1 min id 690f0655 host 21

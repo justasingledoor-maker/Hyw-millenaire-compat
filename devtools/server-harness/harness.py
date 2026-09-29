@@ -2509,6 +2509,46 @@ def scenario_ARS(ctx):
     m5(s, f"mill mrel {ca} {cb} set 0")
 
 
+def scenario_SGF(ctx):
+    """Siege fixes (user report): attackers go for every villager (civilians too); a battle nobody watches pauses instead
+    of being decided off-screen, and resumes when watched again; nobody lands in water."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    fa = garrison(s, a).get("faction")
+    p0 = s.pos()
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill mrel {ca} {cb} set -100")
+    time.sleep(12)
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    sg, t_b = wait_siege(s, lambda l: l and ("BATTLE" in l[0] or "RETURN" in l[0]), 300)
+    kinds, wet = set(), 0
+    t0 = time.time()
+    while time.time() - t0 < 60:
+        for u, r in spike_info(s, "@e[type=!minecraft:player]").items():
+            if r["tag"] != "none" and ("owner=" + fa) in r["desc"] and dist(r["pos"], b) < 150:
+                if r["target"] != "none":
+                    kinds.add(r["target"].split("[")[0])
+        time.sleep(5)
+    for u, r in spike_info(s, "@e[type=!minecraft:player]").items():
+        if r["tag"] != "none" and ("owner=" + fa) in r["desc"] and dist(r["pos"], b) < 150:
+            if "water" in " ".join(s.output(f"execute at {u} if block ~ ~ ~ minecraft:water run say wet", 0.2)):
+                wet += 1
+    check("SGF-1 attackers go for Millénaire villagers, not only soldiers", any(k.startswith("millenaire:") for k in kinds), str(sorted(kinds)))
+    check("SGF-2 no attacker stands in water", wet == 0, f"{wet} in water")
+    s.output("hywmill war admin siege-unwatched true", 1)
+    time.sleep(40)
+    sg1 = sieges(s)
+    lines = s.read_since(p0)
+    paused = any("battle pauses" in l for l in lines)
+    offs = [l for l in lines if "decided off-screen" in l]
+    check("SGF-3 unwatched mid-battle, the battle pauses (no off-screen decision)", paused and not offs and sg1 and "BATTLE" in sg1[0], f"{sg1}; off-screen {len(offs)}")
+    s.output("hywmill war admin siege-unwatched false", 1)
+    time.sleep(10)
+    lines = s.read_since(p0)
+    check("SGF-4 watched again, the battle resumes", any("battle resumes" in l for l in lines), str(sieges(s)))
+    note("SGF launch", out)
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -5372,7 +5412,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

@@ -54,6 +54,16 @@ final class WarCommands {
             return lines.size();
         }));
         war.then(Commands.literal("admin").requires(s -> s.hasPermission(3))
+                .then(Commands.literal("siege-unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
+                        .then(Commands.argument("on", com.mojang.brigadier.arguments.BoolArgumentType.bool()).executes(ctx -> {
+                            ServerLevel ow = ctx.getSource().getServer().overworld();
+                            boolean on = com.mojang.brigadier.arguments.BoolArgumentType.getBool(ctx, "on");
+                            GarrisonLedger ledger = GarrisonLedger.get(ow);
+                            ledger.sieges().forEach(g -> g.forceUnwatched = on);
+                            ledger.setDirty();
+                            send(ctx.getSource(), "war siege-unwatched " + on + " for " + ledger.sieges().size() + " siege(s)");
+                            return ledger.sieges().size();
+                        })))
                 .then(Commands.literal("siege").then(Commands.argument("attacker", BlockPosArgument.blockPos())
                         .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminSiege(ctx, false))
                                 .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())

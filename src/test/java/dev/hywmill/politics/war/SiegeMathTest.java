@@ -30,7 +30,7 @@ class SiegeMathTest {
     @Test
     void winChanceIsEvenAtParityAndFavoursTheStronger() {
         assertEquals(0.5, SiegeMath.winChance(100, 100, R), 1e-9);
-        assertTrue(SiegeMath.winChance(200, 100, R) > 0.7);
+        assertTrue(SiegeMath.winChance(200, 100, R) > 0.75);
         assertEquals(0, SiegeMath.winChance(0, 100, R));
         assertEquals(1, SiegeMath.winChance(10, 0, R));
     }

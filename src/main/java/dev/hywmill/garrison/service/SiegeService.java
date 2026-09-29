@@ -66,6 +66,8 @@ public final class SiegeService {
     public static final double ENGAGE_RANGE = 32;
     /** Players this close to either village hear about the siege. */
     public static final double NEWS_RANGE = 256;
+    /** A paused (unwatched) battle ends on its standing shares after this long (10 minutes). */
+    public static final long PAUSE_LIMIT = 12000;
     public static final String C_LAUNCHED = "siege.launched", C_WON = "siege.won", C_LOST = "siege.lost", C_OFFSCREEN = "siege.offscreen";
 
     private final PerfCounters perf;
@@ -440,6 +442,21 @@ public final class SiegeService {
         return source == null ? t.center : source.raidLandingPoint(overworld, t.villageId, a.center).orElse(t.center);
     }
 
+    /**
+     * Dry, safe ground for a unit near {@code at}: the spot search (sturdy floor, no fluid), then points every 8 blocks back
+     * towards home, then around the target's centre. Null if nothing loaded qualifies.
+     */
+    @Nullable
+    static Vec3 dryGround(ServerLevel overworld, BlockPos at, BlockPos home, BlockPos targetCenter, UUID rosterId) {
+        for (int d = 0; d <= 64; d += 8) {
+            Vec3 v = GarrisonService.spotNear(overworld, behind(at, home, d), rosterId);
+            if (v != null) {
+                return v;
+            }
+        }
+        return GarrisonService.spotNear(overworld, targetCenter, rosterId);
+    }
+
     /** A point {@code dist} blocks from {@code from} towards {@code toward} (same height). */
     static BlockPos behind(BlockPos from, BlockPos toward, int dist) {
         double dx = toward.getX() - from.getX(), dz = toward.getZ() - from.getZ();
@@ -466,9 +483,9 @@ public final class SiegeService {
             }
             // the engines (and their crews) set up behind the landing point, towards home; the soldiers at it
             BlockPos at = arsenal ? back : landing;
-            Vec3 spot = GarrisonService.spotNear(overworld, at, e.rosterId);
+            Vec3 spot = dryGround(overworld, at, a.center, t.center, e.rosterId);
             if (spot == null) {
-                spot = Vec3.atBottomCenterOf(at);
+                continue; // no dry, safe ground found this time: this unit tries again on the next step
             }
             if (arsenal) {
                 GarrisonService.materialize(overworld, a, e, spot, BlockPos.containing(spot), tick);
@@ -482,7 +499,11 @@ public final class SiegeService {
             }
         }
         if (n == 0) {
-            offscreen(overworld, ledger, s, a, t, alive, tick, r);
+            // nobody could be placed on dry ground yet: wait before the target and try again (the wait's end still applies)
+            if (s.phase != Siege.Phase.WAIT) {
+                s.enter(Siege.Phase.WAIT, tick, tick + r.waitTicks());
+                ledger.setDirty();
+            }
             return;
         }
         s.defendersStart = defenders(overworld, t).size();
@@ -516,15 +537,52 @@ public final class SiegeService {
         return out;
     }
 
+    /** Everyone the host attacks: the target's garrison and every one of its villagers (Millénaire villagers respawn). */
+    static List<LivingEntity> targets(ServerLevel overworld, VillageRecord t) {
+        List<LivingEntity> out = new ArrayList<>();
+        for (RosterEntry e : homeDefenders(t)) {
+            if (e.entityUuid != null && GarrisonService.find(overworld.getServer(), e.entityUuid) instanceof LivingEntity le && le.isAlive()) {
+                out.add(le);
+            }
+        }
+        SettlementSource source = Services.settlements();
+        if (source != null) {
+            for (SettlementSource.RosterEntry d : source.defenseRoster(overworld, t.villageId)) {
+                if (overworld.getEntity(d.id()) instanceof LivingEntity le && le.isAlive()) {
+                    out.add(le);
+                }
+            }
+        }
+        return out;
+    }
+
     private void battle(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive, long tick,
                         PoliticsTables.SiegeRule r) {
-        if (!overworld.isPositionEntityTicking(t.center)) {
-            // nobody watches any more: the survivors leave the world and the rest is decided off-screen
-            alive.forEach(e -> GarrisonService.stow(overworld, e));
-            offscreen(overworld, ledger, s, a, t, alive, tick, r);
+        if (s.forceUnwatched || !overworld.isPositionEntityTicking(t.center)) {
+            // nobody near: the battle pauses where it stands (units stay in their chunks) and its clock stops; after a long
+            // absence it ends on the shares it stood at, without new losses
+            if (s.pausedSince < 0) {
+                s.pausedSince = tick;
+                ledger.setDirty();
+                HmLog.info("Siege {}: the battle pauses (nobody near {})", s.id.toString().substring(0, 8), t.name);
+            }
+            s.phaseEnd += INTERVAL;
+            if (tick - s.pausedSince >= PAUSE_LIMIT) {
+                int standing = soldiers(a, alive).size();
+                int defLeft = homeDefenders(t).size();
+                Siege.Outcome o = SiegeMath.battle(standing, s.hostStart, Math.min(defLeft, s.defendersStart), s.defendersStart, true, r);
+                finish(overworld, ledger, s, a, t, o, "left unwatched, it ended as it stood: " + standing + " of " + s.hostStart + " attackers, "
+                        + Math.min(defLeft, s.defendersStart) + " of " + s.defendersStart + " defenders", tick, true);
+            }
             return;
         }
+        if (s.pausedSince >= 0) {
+            HmLog.info("Siege {}: the battle resumes", s.id.toString().substring(0, 8));
+            s.pausedSince = -1;
+            ledger.setDirty();
+        }
         List<LivingEntity> defs = defenders(overworld, t);
+        List<LivingEntity> foes = targets(overworld, t);
         UnitProvider units = Services.units();
         if (units != null) {
             for (RosterEntry e : alive) {
@@ -541,7 +599,7 @@ public final class SiegeService {
                 }
                 LivingEntity best = null;
                 double bestD = ENGAGE_RANGE * ENGAGE_RANGE;
-                for (LivingEntity d : defs) {
+                for (LivingEntity d : foes) {
                     double d2 = d.distanceToSqr(ent);
                     if (d2 < bestD) {
                         bestD = d2;

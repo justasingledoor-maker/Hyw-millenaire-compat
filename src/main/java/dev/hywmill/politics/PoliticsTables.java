@@ -115,7 +115,7 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
                             double aiDailyChance, double aiMinRatio, long aiCooldown, Map<MilitaryTierKey, Integer> tribute,
                             double levyShare, double playerShare, int helperRep) {
         public static final SiegeRule DEFAULT = new SiegeRule(true, 0.5, 6, 64, 0.4, 1, 1, 10,
-                1200, 1200, 1200, 12000, 1200, 6000, 0.2, 0.3, 0.3, 1.5, 0.5, 0.35, 0.5,
+                1200, 1200, 1200, 12000, 1200, 6000, 0.2, 0.3, 0.3, 2.0, 0.5, 0.35, 0.5,
                 standingDoubles(Standing.PATRON, 0.5, Standing.SWORN, 0.75), 0.4, 2, 48000, true, 1200, 0.25, 0.9, 72000,
                 tributes(), 2.0, 0.4, 512);
 

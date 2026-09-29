@@ -33,6 +33,8 @@ public final class Siege {
     public int defendersStart;
     public final Set<UUID> attackerHelpers = new LinkedHashSet<>();
     public final Set<UUID> defenderHelpers = new LinkedHashSet<>();
+    /** Tick a watched battle paused because nobody was near (-1: not paused). */
+    public long pausedSince = -1;
     /** DEV/admin test switch: treat the target as unwatched (unloaded) even when it is loaded. */
     public boolean forceUnwatched;
     /** One line on how it ended (for the chronicle, status and the report). */
