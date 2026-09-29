@@ -494,3 +494,22 @@ off-screen, and the attackers lost 22 soldiers to the defenders' 1.
     * no attacker stood in water;
     * made unwatched mid-battle, the battle paused with no off-screen decision, and it resumed when watched again.
 * SHA-256 of the jar: `8180a58c6435baed7286d7de5f04d4198c31a53532de20c5f1c955af2ad305fd`.
+
+### 6.12 Civilians are fair game in war (`dist/hywmill-m5-fix12.jar`)
+
+**Report.** On campaign against a town, its civilians attacked the player and the player's troops, and the troops did
+not fight back. The user decided civilians should be killable: they respawn.
+
+* **Cause.** Option 1 kept every village's resident identity (its civilians) out of all HYW relations, and the escalation
+  guard reset any hostility involving one. So HYW never treated enemy civilians as enemies.
+* **Change** (`RelationPlan`, `PoliticalPolicy`, `EscalationGuard`):
+  * a war now also makes each village's soldiers HOSTILE with the enemy's residents;
+  * a campaign makes the player, and so the player's own troops, HOSTILE with the enemy's residents;
+  * the guard permits exactly these planned edges. Outlawry stays soldiers-only, and villagers are never set against
+    villagers.
+* **Tests.**
+  * JUnit 319/319 (`WarTest.warAndCampaignMakeTheEnemysCiviliansFairGame`).
+  * Harness `CIV` (`civilians-in-war1.txt`), 2/2:
+    * player ↔ enemy residents and ally soldiers ↔ enemy residents are HOSTILE both ways, and still so 25 s later;
+    * 4 archers owned by the campaigning player, placed in the enemy village, targeted its `millenaire:villager`s.
+* SHA-256 of the jar: `fb0089a7dc7ad51c5deee3c56391b7758e4ea0bb0f10e6f213c7ac39564e40b6`.

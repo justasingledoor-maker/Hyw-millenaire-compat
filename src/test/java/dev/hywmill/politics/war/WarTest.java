@@ -118,4 +118,20 @@ class WarTest {
         assertEquals(camps, c2);
         assertEquals(proj, p2);
     }
+
+    @Test
+    void warAndCampaignMakeTheEnemysCiviliansFairGame() {
+        UUID ra = new UUID(9, 1), rb = new UUID(9, 2);
+        WarRecord w = new WarRecord(A, B);
+        w.warSince = 0;
+        Campaign c = new Campaign(P, A, B, 0, 100);
+        Map<RelationPlan.Edge, String> plan = RelationPlan.desired(List.of(w), List.of(c), 50, WarTest::faction,
+                v -> v.equals(A) ? ra : v.equals(B) ? rb : null);
+        assertEquals("HOSTILE", plan.get(new RelationPlan.Edge(FA, rb)), "A's soldiers fight B's villagers");
+        assertEquals("HOSTILE", plan.get(new RelationPlan.Edge(FB, ra)), "and B's soldiers A's");
+        assertEquals("HOSTILE", plan.get(new RelationPlan.Edge(P, rb)), "the campaigning player (and their troops) fight the enemy's villagers");
+        assertEquals("HOSTILE", plan.get(new RelationPlan.Edge(rb, P)));
+        assertNull(plan.get(new RelationPlan.Edge(P, ra)), "never the ally's villagers");
+        assertNull(plan.get(new RelationPlan.Edge(ra, rb)), "villagers are not set against villagers");
+    }
 }

@@ -1,0 +1,10 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario CIV
+[harness] PASS CIV-1 on campaign, the enemy's villagers are HOSTILE to the player; at war, to the ally's soldiers (and they stay so) with your ally's soldiers, HOSTILE with the enemy's; the enemy holds a grievance player<->residents ('HOSTILE', 'HOSTILE'), A soldiers<->B residents ('HOSTILE', 'HOSTILE')
+[harness] PASS CIV-2 the player's own troops fight the enemy village's civilians 777777777777 msg=Hired 4 × Archer (mercenary) for 16 argent. troops 4; targets ['hundred_years_war:archer', 'hundred_years_war:crossbowman', 'millenaire:villager']
+[harness] server stopped
+[harness] RESULT 3/3 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  CIV-1 on campaign, the enemy's villagers are HOSTILE to the player; at war, to the ally's soldiers (and they stay so)  with your ally's soldiers, HOSTILE with the enemy's; the enemy holds a grievance player<->residents ('HOSTILE', 'HOSTILE'), A soldiers<->B residents ('HOSTILE', 'HOSTILE')
+  PASS  CIV-2 the player's own troops fight the enemy village's civilians  777777777777 msg=Hired 4 × Archer (mercenary) for 16 argent. troops 4; targets ['hundred_years_war:archer', 'hundred_years_war:crossbowman', 'millenaire:villager']

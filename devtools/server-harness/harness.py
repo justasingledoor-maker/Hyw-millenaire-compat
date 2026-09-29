@@ -2549,6 +2549,54 @@ def scenario_SGF(ctx):
     note("SGF launch", out)
 
 
+def scenario_CIV(ctx):
+    """Civilians in war (user report): a campaigning player's own troops fight the enemy's villagers who attack them, and
+    the enemy's residents stand HOSTILE to the player and to the ally's soldiers (kept by the escalation guard)."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    va, vb = info(s, a), info(s, b)
+    fa, rb = va.get("faction"), vb.get("residents")
+    P = "33333333-4444-4555-8666-777777777777"  # the Muster Roll stand-in: its hired troops belong to it
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill mrel {ca} {cb} set -100")
+    m5(s, f"mill discover {ca} {P}", 0.5)
+    m5(s, f"mill discover {cb} {P}", 0.5)
+    standin_at(s, P, a[0] + 3, a[2] + 3)
+    m5(s, f"mill rep {ca} {P} adjust 6000", 0.5)
+    time.sleep(16)
+    t0 = time.time()
+    while time.time() - t0 < 90 and not any("at war" in l for l in war_lines(s, a, f"for {P} status")):
+        time.sleep(5)
+    j = " | ".join(war_lines(s, a, f"for {P} join {ca} against {cb}"))
+    time.sleep(25)
+    r1, r2 = rel(s, P, rb), rel(s, fa, rb)
+    check("CIV-1 on campaign, the enemy's villagers are HOSTILE to the player; at war, to the ally's soldiers (and they stay so)",
+          "join OK" in j and r1 == ("HOSTILE", "HOSTILE") and r2 == ("HOSTILE", "HOSTILE"), f"{j[-80:]} player<->residents {r1}, A soldiers<->B residents {r2}")
+    m5(s, f"standin remove {P}", 0.3)
+    x, z = a[0] + 6, a[2] + 6
+    y = surface_y(s, x, z) or a[1]
+    s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+    before = set(spike_info(s, "@e[type=hundred_years_war:archer]"))
+    out = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "merc:archer" 4 5000 TRUSTED', 3) if "recruit:" in l)
+    time.sleep(3)
+    mine = [u for u, r in spike_info(s, "@e[type=hundred_years_war:archer]").items() if u not in before and ("owner=" + P) in r["desc"]]
+    bx, bz = b[0] + 4, b[2] + 4
+    by = surface_y(s, bx, bz) or b[1]
+    for u in mine:
+        s.cmd(f"tp {u} {bx} {by + 1} {bz}", 0.3)
+    kinds = set()
+    t0 = time.time()
+    while time.time() - t0 < 45:
+        for u in mine:
+            for k, r in spike_info(s, u).items():
+                if r["target"] != "none":
+                    kinds.add(r["target"].split("[")[0])
+        time.sleep(3)
+    check("CIV-2 the player's own troops fight the enemy village's civilians", any(k.startswith("millenaire:") for k in kinds),
+          f"{out[-60:]} troops {len(mine)}; targets {sorted(kinds)}")
+    war_lines(s, a, f"for {P} leave")
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -5412,7 +5460,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

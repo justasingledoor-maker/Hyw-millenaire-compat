@@ -10,8 +10,10 @@ import java.util.function.Function;
  * The HYW relations HywMill's political state wants (M5-5b), pure: a war is HOSTILE between the two
  * village <b>faction</b> identities in both directions; a campaign is HOSTILE between the player and
  * the enemy's faction and FRIENDLY between the player and the ally's faction, both directions.
- * HOSTILE wins over FRIENDLY. Resident identities never appear (Option 1: civilians are never relation
- * targets). Outlawry is projected separately (M5-3) and is not part of this plan.
+ * HOSTILE wins over FRIENDLY. Post-M5 (user decision: civilians are fair game in war, they respawn): a war also makes each
+ * faction HOSTILE with the enemy's <b>resident</b> identity, and a campaign makes the player HOSTILE with the enemy's
+ * residents, so soldiers and the player's own troops fight the villagers who attack them. Outlawry is projected separately
+ * (M5-3) and is not part of this plan.
  */
 public final class RelationPlan {
     private RelationPlan() {}
@@ -25,6 +27,12 @@ public final class RelationPlan {
      * @param factionOf village id → its faction identity (null: unknown village, skipped)
      */
     public static Map<Edge, String> desired(Collection<WarRecord> wars, Collection<Campaign> campaigns, long now, Function<UUID, UUID> factionOf) {
+        return desired(wars, campaigns, now, factionOf, v -> null);
+    }
+
+    /** @param residentOf village id → its resident identity (null: none, no civilian edges) */
+    public static Map<Edge, String> desired(Collection<WarRecord> wars, Collection<Campaign> campaigns, long now, Function<UUID, UUID> factionOf,
+                                            Function<UUID, UUID> residentOf) {
         Map<Edge, String> out = new LinkedHashMap<>();
         for (WarRecord w : wars) {
             if (!w.atWar()) {
@@ -34,6 +42,13 @@ public final class RelationPlan {
             UUID fb = factionOf.apply(w.b);
             if (fa != null && fb != null && !fa.equals(fb)) {
                 both(out, fa, fb, HOSTILE);
+                UUID ra = residentOf.apply(w.a), rb = residentOf.apply(w.b);
+                if (rb != null) {
+                    both(out, fa, rb, HOSTILE);
+                }
+                if (ra != null) {
+                    both(out, fb, ra, HOSTILE);
+                }
             }
         }
         for (Campaign c : campaigns) {
@@ -44,6 +59,10 @@ public final class RelationPlan {
             UUID ally = factionOf.apply(c.ally());
             if (enemy != null) {
                 both(out, c.player(), enemy, HOSTILE);
+            }
+            UUID enemyResidents = residentOf.apply(c.enemy());
+            if (enemyResidents != null) {
+                both(out, c.player(), enemyResidents, HOSTILE);
             }
             if (ally != null) {
                 both(out, c.player(), ally, FRIENDLY);

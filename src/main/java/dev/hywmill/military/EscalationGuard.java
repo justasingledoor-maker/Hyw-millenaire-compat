@@ -89,8 +89,8 @@ public final class EscalationGuard {
         rt.increment(C_DETECTED);
         // M5 (Option 1): a resident identity may never stand HOSTILE, whatever the political state;
         // wars and outlawry are projected on the faction identity only.
-        if (!rt.factions().isResidentIdentity(villageFaction) && !rt.factions().isResidentIdentity(other)
-                && rt.diplomacy().permitsPermanentHostility(villageFaction, other)) {
+        // post-M5: a resident identity may stand HOSTILE only where the political state plans it (war, campaign)
+        if (rt.diplomacy().permitsPermanentHostility(villageFaction, other)) {
             return;
         }
         if (HywMillConfig.PREVENT_PERMANENT_ESCALATION.get()) {

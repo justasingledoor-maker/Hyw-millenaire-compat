@@ -30,7 +30,8 @@ public final class PoliticalPolicy implements DiplomacyPolicy {
     @Override
     public boolean permitsPermanentHostility(UUID villageFaction, UUID other) {
         if (rt.factions().isResidentIdentity(villageFaction) || rt.factions().isResidentIdentity(other)) {
-            return false;
+            // post-M5: residents stand HOSTILE only where a war or a campaign plans it (never for outlawry)
+            return rt.relations().wantsHostile(villageFaction, other);
         }
         // M5-5b: a war between two factions, or a campaign against a faction, as planned by the relation projector
         return outlawedBy(villageFaction, other) || outlawedBy(other, villageFaction) || rt.relations().wantsHostile(villageFaction, other);
