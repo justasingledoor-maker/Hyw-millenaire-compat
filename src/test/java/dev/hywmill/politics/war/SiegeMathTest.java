@@ -60,11 +60,15 @@ class SiegeMathTest {
     }
 
     @Test
-    void watchedBattleIsFoughtToTheLastSoldierOrTheDeadline() {
+    void watchedBattleIsFoughtDownToTwentyPercentOrTheDeadline() {
         assertEquals(15 * 60 * 20, R.battleTicks());
+        assertEquals(0.2, R.breakFraction(), 1e-9);
+        assertEquals(0.2, R.routFraction(), 1e-9);
         assertEquals(Siege.Outcome.NONE, SiegeMath.battle(10, 12, 8, 10, false, R));
-        assertEquals(Siege.Outcome.NONE, SiegeMath.battle(10, 12, 1, 10, false, R), "one defender left: still fighting");
-        assertEquals(Siege.Outcome.NONE, SiegeMath.battle(1, 12, 8, 10, false, R), "one attacker left: still fighting");
+        assertEquals(Siege.Outcome.NONE, SiegeMath.battle(10, 12, 3, 10, false, R), "30% of the defenders left: still fighting");
+        assertEquals(Siege.Outcome.WON, SiegeMath.battle(10, 12, 2, 10, false, R), "defenders down to 20%: the attackers win");
+        assertEquals(Siege.Outcome.NONE, SiegeMath.battle(3, 12, 8, 10, false, R), "25% of the host left: still fighting");
+        assertEquals(Siege.Outcome.LOST, SiegeMath.battle(2, 12, 8, 10, false, R), "host down to 20% or less: the attackers lose");
         assertEquals(Siege.Outcome.WON, SiegeMath.battle(3, 12, 0, 10, false, R));
         assertEquals(Siege.Outcome.LOST, SiegeMath.battle(0, 12, 8, 10, false, R));
         PoliticsTables.SiegeRule early = new PoliticsTables.SiegeRule(true, 0.5, 6, 64, 0.4, 1, 1, 10, 1200, 1200, 1200, 12000, 1200, 6000, 0.2, 0.3,

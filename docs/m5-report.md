@@ -577,3 +577,16 @@ up around the village.
     shares its position with its crew.
 * **Tests.** JUnit 320/320; no harness run.
 * SHA-256 of the jar: `0e245351a75a4a640071ad6d20559657c6100923a7ebe2b196f38c09653be0c6`.
+
+### 6.18 A siege is lost at 20% of the starting force (`dist/hywmill-m5-fix18.jar`)
+
+**Request.** A side loses the siege when it is down to 20% of its force at the start.
+
+* **Change.** The default `breakFraction` and `routFraction` are now 0.2 (`hywmill_politics` `siege`; the
+  `PoliticsTables` default too).
+  * **Attackers.** They lose when the host falls to 20% or less of the soldiers who arrived.
+  * **Defenders.** The attackers win when the defenders fall to 20% or less of their number when the battle began.
+  * **Both at once.** If both sides reach the line in the same check, the attackers lose.
+* **Unchanged.** The 15-minute deadline; the side that kept the larger share wins at the deadline.
+* **Tests.** JUnit 320/320 (`SiegeMathTest` battle case updated to the new lines); no harness run.
+* SHA-256 of the jar: `3eaf10cf61eb1bc2d76ddaa3463b4db9bb13ce576a303ceed7bcb350d4d1e20c`.
