@@ -527,3 +527,14 @@ somewhere between 10 and 20 minutes.
 * **Tests.** JUnit 319/319 (`SiegeMathTest.watchedBattleIsFoughtToTheLastSoldierOrTheDeadline`). This is a data and
   threshold change; no new harness run.
 * SHA-256 of the jar: `3bfd2d9479540ef61195a578a2d8f6b13cedf52ffefdf41f18566f090bc1ba46`.
+
+### 6.14 Lone buildings leave the Politics screen (`dist/hywmill-m5-fix14.jar`)
+
+**Request.** Small non-village raider sites crowded the diplomacy screen, and diplomacy with bandits makes no sense.
+
+* **Change.** The Politics screen no longer lists Millénaire lone buildings (`VillageRecord.loneBuilding`: bandit
+  camps, inns, lone farms), and one is never chosen as the "home" village. Envoys to or from one are refused on the
+  server: "bandits and lone buildings take no part in diplomacy".
+* **Unchanged.** Their garrisons, raids and threat handling.
+* **Tests.** JUnit 319/319; no harness run (the harness world has no lone building).
+* SHA-256 of the jar: `b219eb5d417a2cfc983deef03c5a5a350701ea608b5f53cb93b20a6bcd62ff9b`.

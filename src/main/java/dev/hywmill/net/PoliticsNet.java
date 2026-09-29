@@ -125,9 +125,11 @@ public final class PoliticsNet {
         UUID me = player.getUUID();
         if (home == null || ledger.get(home) == null || !near(player, ledger.get(home))) {
             home = source.nearest(ow, player.blockPosition(), HOME_RANGE).map(SettlementSource.SettlementRef::id)
-                    .filter(id -> ledger.get(id) != null).orElse(null);
+                    .filter(id -> ledger.get(id) != null && !ledger.get(id).loneBuilding).orElse(null);
         }
-        List<PoliticsView.Summary> known = PoliticsView.list(ow, me);
+        // post-M5: lone buildings (bandit camps, inns, lone farms) take no part in diplomacy and are not listed
+        List<PoliticsView.Summary> known = PoliticsView.list(ow, me).stream()
+                .filter(v -> ledger.get(v.village()) == null || !ledger.get(v.village()).loneBuilding).toList();
         final UUID sel = selected;
         if (sel != null && !sel.equals(home) && known.stream().noneMatch(v -> v.village().equals(sel))) {
             selected = null; // only villages the player knows

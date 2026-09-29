@@ -67,6 +67,9 @@ public final class EnvoyService {
         if (from.equals(to)) {
             return new Proposal(DiplomacyOdds.Refusal.SAME_VILLAGE, null, "an envoy needs two different villages");
         }
+        if (a.loneBuilding || b.loneBuilding) {
+            return new Proposal(DiplomacyOdds.Refusal.NO_RELATION, null, "bandits and lone buildings take no part in diplomacy");
+        }
         if (!source.discovered(overworld, player, from) || !source.discovered(overworld, player, to)) {
             return new Proposal(DiplomacyOdds.Refusal.NOT_DISCOVERED, null, "you have not discovered both villages");
         }
