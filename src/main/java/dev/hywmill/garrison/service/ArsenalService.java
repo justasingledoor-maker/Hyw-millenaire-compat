@@ -25,7 +25,7 @@ import java.util.UUID;
 
 /**
  * Post-M5 war arsenal. A village that is at war (declared or declared on) fields 1 to 4 siege engines (catapults,
- * trebuchets; a stronghold also a nest of bees), each with an engineer, at its defending position. Engines lost during the
+ * springalds; a stronghold also a nest of bees), each with an engineer, at its defending position. Engines lost during the
  * war are not replaced; the survivors leave when the village is at peace again, and the next war brings a fresh arsenal.
  * A village's engines march with its sieges. The state is the roster's arsenal list; this service only reconciles it with
  * the wars and spawns what is not in the world yet.
@@ -83,6 +83,7 @@ public final class ArsenalService {
                     retire(overworld, ledger, rec, r);
                 }
                 if (r.arsenalWar) {
+                    dropRetiredTypes(overworld, ledger, rec, r);
                     spawnPending(overworld, ledger, rec, r, tick);
                 }
             } catch (RuntimeException ex) {
@@ -126,6 +127,24 @@ public final class ArsenalService {
         HmLog.info("War arsenal of village '{}' stood down: {} engine/crew slot(s) removed", rec.name, n);
     }
 
+    /**
+     * Engines of a type the rule no longer fields (trebuchets, from before they were dropped) leave at once, unless away
+     * on a siege; their engineer stays with the village's other engines.
+     */
+    private static void dropRetiredTypes(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, GarrisonRoster r) {
+        PoliticsTables.ArsenalRule rule = rule(rec);
+        for (RosterEntry e : new ArrayList<>(r.arsenal())) {
+            if (!ArsenalPlan.isEngine(e.unitKey) || rule.types().contains(e.unitKey) || rule.strongholdTypes().contains(e.unitKey)
+                    || (!e.state().terminal() && e.duty == Duty.SIEGE)) {
+                continue;
+            }
+            GarrisonService.stow(overworld, e);
+            r.disarm(e);
+            ledger.setDirty();
+            HmLog.info("War arsenal of village '{}': {} no longer fielded, removed", rec.name, label(e.unitKey));
+        }
+    }
+
     /** Arsenal entries not in the world yet appear at the defending position once it is loaded (engine first, then crew). */
     private static void spawnPending(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, GarrisonRoster r, long tick) {
         BlockPos anchor = GarrisonService.anchorOf(rec);
@@ -160,6 +179,7 @@ public final class ArsenalService {
         return switch (key) {
             case "mangonels" -> "catapult";
             case "trebuchets" -> "trebuchet";
+            case "springald" -> "springald";
             case "nest_of_bees" -> "nest of bees";
             case "battering_ram" -> "battering ram";
             case "siege_engineer" -> "engineer";

@@ -18,7 +18,7 @@ class ArsenalPlanTest {
         assertEquals(2, ArsenalPlan.engines(PoliticsTables.MilitaryTierKey.GUARD_POST, R, 1).size());
         List<String> g = ArsenalPlan.engines(PoliticsTables.MilitaryTierKey.GARRISON, R, 1);
         assertEquals(3, g.size());
-        assertTrue(List.of("mangonels", "trebuchets").containsAll(g), g.toString());
+        assertTrue(List.of("mangonels", "springald").containsAll(g), g.toString());
     }
 
     @Test

@@ -656,3 +656,21 @@ where they had mustered.
 * **Tests.** JUnit 320/320. No harness run: the diagnosis is from the code (the spawn order and the vanilla cramming
   rule).
 * SHA-256 of the jar: `ba2631f2ca3f7f6694a5f09833bc4cb530a4d4e28419f6b4b51a95d755f4edf6`.
+
+### 6.22 No trebuchets in village war arsenals (`dist/hywmill-m5-fix22.jar`)
+
+**Request.** Trebuchets are far too big for village defense. The war arsenal should field catapults and other engines
+that make sense.
+
+* **Change.** The arsenal's `types` are now `mangonels` (catapult) and `springald` (HYW's light bolt-thrower,
+  which is also crewed by a siege engineer). Before, they were `mangonels` and `trebuchets`.
+* **Unchanged.**
+  * A stronghold still fields one nest of bees (`strongholdTypes`).
+  * The counts per tier are the same.
+  * The Muster Roll still sells trebuchets to players.
+* **Current wars.**
+  * A trebuchet already in a village's arsenal is removed on the next arsenal pass (`dropRetiredTypes`), unless it
+    is away on a siege.
+  * Its engineer stays with the village.
+* **Tests.** JUnit 320/320 (`ArsenalPlanTest` updated); no harness run (the springald is not yet seen in play).
+* SHA-256 of the jar: `b9f0cd42e9f39be4a4010dddceb66eb6e5afcdb1e65c60b4e4c92e4d7d41b685`.
