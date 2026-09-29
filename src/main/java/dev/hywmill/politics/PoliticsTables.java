@@ -161,10 +161,10 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
 
     private static Map<MilitaryTierKey, Integer> tributes() {
         Map<MilitaryTierKey, Integer> m = new EnumMap<>(MilitaryTierKey.class);
-        m.put(MilitaryTierKey.WATCH, 2048);
-        m.put(MilitaryTierKey.GUARD_POST, 4096);
-        m.put(MilitaryTierKey.GARRISON, 12288);
-        m.put(MilitaryTierKey.STRONGHOLD, 32768);
+        m.put(MilitaryTierKey.WATCH, 6144);
+        m.put(MilitaryTierKey.GUARD_POST, 12288);
+        m.put(MilitaryTierKey.GARRISON, 36864);
+        m.put(MilitaryTierKey.STRONGHOLD, 98304);
         return java.util.Collections.unmodifiableMap(m);
     }
 

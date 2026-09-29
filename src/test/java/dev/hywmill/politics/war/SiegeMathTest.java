@@ -89,9 +89,11 @@ class SiegeMathTest {
 
     @Test
     void tributeLevyAndHelperPay() {
-        assertEquals(12288, R.tribute(PoliticsTables.MilitaryTierKey.GARRISON));
-        assertEquals(6.0, SiegeMath.levy(12288, R), 1e-9);
-        assertEquals(2457, SiegeMath.helperPay(12288, 2, R));
+        assertEquals(6144, R.tribute(PoliticsTables.MilitaryTierKey.WATCH));
+        assertEquals(36864, R.tribute(PoliticsTables.MilitaryTierKey.GARRISON));
+        assertEquals(98304, R.tribute(PoliticsTables.MilitaryTierKey.STRONGHOLD));
+        assertEquals(18.0, SiegeMath.levy(36864, R), 1e-9);
+        assertEquals(7372, SiegeMath.helperPay(36864, 2, R));
         assertEquals(0, SiegeMath.helperPay(12288, 0, R));
     }
 

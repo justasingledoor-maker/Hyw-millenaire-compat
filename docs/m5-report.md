@@ -590,3 +590,23 @@ up around the village.
 * **Unchanged.** The 15-minute deadline; the side that kept the larger share wins at the deadline.
 * **Tests.** JUnit 320/320 (`SiegeMathTest` battle case updated to the new lines); no harness run.
 * SHA-256 of the jar: `3eaf10cf61eb1bc2d76ddaa3463b4db9bb13ce576a303ceed7bcb350d4d1e20c`.
+
+### 6.19 Tripled siege tribute (`dist/hywmill-m5-fix19.jar`)
+
+**Request.** The loser of a siege should pay a larger tribute.
+
+* **Change.** The tribute by the loser's tier is tripled (`hywmill_politics` `siege.tribute`; the `PoliticsTables`
+  default too):
+
+  | Tier | Before (deniers) | Now (deniers) | Now (money) |
+  | --- | --- | --- | --- |
+  | Watch | 2048 | 6144 | 1½ or |
+  | Guard post | 4096 | 12288 | 3 or |
+  | Garrison | 12288 | 36864 | 9 or |
+  | Stronghold | 32768 | 98304 | 24 or |
+
+* **Effects.** Everything derived from the tribute triples with it:
+  * the levy points moved from the loser to the winner (a Garrison loser now gives 18);
+  * the helpers' 40% share.
+* **Tests.** JUnit 320/320 (`SiegeMathTest` tribute case updated); no harness run.
+* SHA-256 of the jar: `df6f180544e2a12e136771d7260159d79fa435262400e65e720e00147afe0034`.
