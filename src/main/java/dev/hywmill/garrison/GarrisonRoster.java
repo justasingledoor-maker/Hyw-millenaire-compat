@@ -32,6 +32,15 @@ public final class GarrisonRoster {
     public long goneSinceTick = -1;
     public final Totals totals = new Totals();
     private final List<RosterEntry> entries = new ArrayList<>();
+    /**
+     * Post-M5 war arsenal: siege engines and their engineers a village fields while it is at war. Kept apart from the
+     * garrison (never counted, recruited, reconciled or given duties) but found by {@link #entry} and {@link #boundTo}, so
+     * joins, deaths and duplicate refusal work as for garrison units. Lost engines are not replaced during the war.
+     */
+    private final List<RosterEntry> arsenal = new ArrayList<>();
+    private int arsenalSeq;
+    /** An arsenal was granted for the current war period (cleared when the village is at peace again). */
+    public boolean arsenalWar;
     /** M4: this village's own current Millénaire raid, if a contingent was sent (persisted as an optional key). */
     @Nullable public RaidRecord raid;
     /** Start tick of the last Millénaire raid a contingent was chosen for (never join the same raid twice). */
@@ -82,6 +91,11 @@ public final class GarrisonRoster {
                 return e;
             }
         }
+        for (RosterEntry e : arsenal) {
+            if (e.rosterId.equals(rosterId)) {
+                return e;
+            }
+        }
         return null;
     }
 
@@ -92,7 +106,33 @@ public final class GarrisonRoster {
                 return e;
             }
         }
+        for (RosterEntry e : arsenal) {
+            if (entityUuid.equals(e.entityUuid) && !e.state().terminal()) {
+                return e;
+            }
+        }
         return null;
+    }
+
+    public List<RosterEntry> arsenal() {
+        return Collections.unmodifiableList(arsenal);
+    }
+
+    public boolean isArsenal(RosterEntry e) {
+        return arsenal.contains(e);
+    }
+
+    /** Adds a RECRUITED arsenal entry (an engine or an engineer) with the next arsenal sequence number. */
+    public RosterEntry arm(UUID villageId, String key, String entityType, long tick) {
+        UUID id = UUID.nameUUIDFromBytes(("hywmill:arsenal_slot:" + villageId + ":" + arsenalSeq++).getBytes(StandardCharsets.UTF_8));
+        RosterEntry e = new RosterEntry(id, key, entityType, 0, tick, false);
+        arsenal.add(e);
+        return e;
+    }
+
+    /** Removes an arsenal entry (war over): its slot id is never reused, so a stale entity is refused as a duplicate. */
+    public void disarm(RosterEntry e) {
+        arsenal.remove(e);
     }
 
     /** Deterministic slot identity: village + sequence number. */
@@ -221,47 +261,18 @@ public final class GarrisonRoster {
         }
         ListTag list = new ListTag();
         for (RosterEntry e : entries) {
-            CompoundTag c = new CompoundTag();
-            c.putUUID("rosterId", e.rosterId);
-            c.putString("unitKey", e.unitKey);
-            c.putString("entityType", e.entityType);
-            c.putInt("equipmentLevel", e.equipmentLevel);
-            c.putString("state", e.state().name());
-            if (e.entityUuid != null) {
-                c.putUUID("entityUuid", e.entityUuid);
-            }
-            c.putInt("generation", e.generation);
-            c.putLong("stateSinceTick", e.stateSinceTick);
-            c.putLong("lastSeenTick", e.lastSeenTick);
-            c.putLongArray("lastSeenPos", new long[]{e.lastSeenX, e.lastSeenY, e.lastSeenZ});
-            c.putLong("recruitedTick", e.recruitedTick);
-            if (e.lossReason() != null) {
-                c.putString("lossReason", e.lossReason().name());
-            }
-            c.putBoolean("paid", e.paid);
-            if (e.assignedDuty != dev.hywmill.garrison.duty.Duty.GARRISON || e.duty != dev.hywmill.garrison.duty.Duty.GARRISON || e.dutyIndex >= 0
-                    || !e.equipRole.isEmpty() || e.errandPlayer != null) {
-                CompoundTag d = new CompoundTag();
-                d.putString("assigned", e.assignedDuty.name());
-                d.putString("current", e.duty.name());
-                d.putInt("index", e.dutyIndex);
-                d.putInt("step", e.dutyStep);
-                d.putLong("since", e.dutySince);
-                if (!e.equipRole.isEmpty()) {
-                    d.putString("equipRole", e.equipRole);
-                }
-                if (e.errandPlayer != null) {
-                    d.putUUID("errandPlayer", e.errandPlayer);
-                    d.putLong("errandUntil", e.errandUntil);
-                    if (e.errandPoint != Long.MIN_VALUE) {
-                        d.putLong("errandPoint", e.errandPoint);
-                    }
-                }
-                c.put("duty", d);
-            }
-            list.add(c);
+            list.add(entryTag(e));
         }
         t.put("entries", list);
+        if (!arsenal.isEmpty() || arsenalSeq > 0 || arsenalWar) {
+            ListTag al = new ListTag();
+            for (RosterEntry e : arsenal) {
+                al.add(entryTag(e));
+            }
+            t.put("arsenal", al);
+            t.putInt("arsenalSeq", arsenalSeq);
+            t.putBoolean("arsenalWar", arsenalWar);
+        }
         return t;
     }
 
@@ -294,51 +305,102 @@ public final class GarrisonRoster {
         }
         ListTag list = t.getList("entries", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
-            CompoundTag c = list.getCompound(i);
-            UnitState state;
-            try {
-                state = UnitState.valueOf(c.getString("state"));
-            } catch (IllegalArgumentException ex) {
-                state = UnitState.MISSING;
-            }
-            LossReason reason = null;
-            if (c.contains("lossReason")) {
-                try {
-                    reason = LossReason.valueOf(c.getString("lossReason"));
-                } catch (IllegalArgumentException ex) {
-                    reason = LossReason.REMOVED;
-                }
-            }
-            long[] pos = c.getLongArray("lastSeenPos");
-            RosterEntry e = new RosterEntry(c.getUUID("rosterId"), c.getString("unitKey"), c.getString("entityType"),
-                    c.getInt("equipmentLevel"), state, c.hasUUID("entityUuid") ? c.getUUID("entityUuid") : null, c.getInt("generation"),
-                    c.getLong("stateSinceTick"), c.getLong("lastSeenTick"), c.getLong("recruitedTick"), reason, c.getBoolean("paid"));
-            if (c.contains("duty", Tag.TAG_COMPOUND)) {
-                CompoundTag d = c.getCompound("duty");
-                e.assignedDuty = dev.hywmill.garrison.duty.Duty.parse(d.getString("assigned"), dev.hywmill.garrison.duty.Duty.GARRISON);
-                if (!e.assignedDuty.standing()) {
-                    e.assignedDuty = dev.hywmill.garrison.duty.Duty.GARRISON;
-                }
-                e.duty = dev.hywmill.garrison.duty.Duty.parse(d.getString("current"), e.assignedDuty);
-                e.dutyIndex = d.getInt("index");
-                e.dutyStep = d.getInt("step");
-                e.dutySince = d.getLong("since");
-                e.equipRole = d.getString("equipRole");
-                if (d.hasUUID("errandPlayer") && e.duty.errand()) {
-                    e.errandPlayer = d.getUUID("errandPlayer");
-                    e.errandUntil = d.getLong("errandUntil");
-                    e.errandPoint = d.contains("errandPoint") ? d.getLong("errandPoint") : Long.MIN_VALUE;
-                }
-                // an errand duty this version does not know (e.g. a deferred escort saved by a development build) loads as
-                // its standing duty; a DEPLOYED entry then takes the normal M2 return path home
-            }
-            if (pos.length == 3) {
-                e.lastSeenX = pos[0];
-                e.lastSeenY = pos[1];
-                e.lastSeenZ = pos[2];
-            }
-            r.entries.add(e);
+            r.entries.add(entryFrom(list.getCompound(i)));
         }
+        ListTag al = t.getList("arsenal", Tag.TAG_COMPOUND);
+        for (int i = 0; i < al.size(); i++) {
+            r.arsenal.add(entryFrom(al.getCompound(i)));
+        }
+        r.arsenalSeq = t.getInt("arsenalSeq");
+        r.arsenalWar = t.getBoolean("arsenalWar");
         return r;
+    }
+
+    private static CompoundTag entryTag(RosterEntry e) {
+        CompoundTag c = new CompoundTag();
+        c.putUUID("rosterId", e.rosterId);
+        c.putString("unitKey", e.unitKey);
+        c.putString("entityType", e.entityType);
+        c.putInt("equipmentLevel", e.equipmentLevel);
+        c.putString("state", e.state().name());
+        if (e.entityUuid != null) {
+            c.putUUID("entityUuid", e.entityUuid);
+        }
+        c.putInt("generation", e.generation);
+        c.putLong("stateSinceTick", e.stateSinceTick);
+        c.putLong("lastSeenTick", e.lastSeenTick);
+        c.putLongArray("lastSeenPos", new long[]{e.lastSeenX, e.lastSeenY, e.lastSeenZ});
+        c.putLong("recruitedTick", e.recruitedTick);
+        if (e.lossReason() != null) {
+            c.putString("lossReason", e.lossReason().name());
+        }
+        c.putBoolean("paid", e.paid);
+        if (e.assignedDuty != dev.hywmill.garrison.duty.Duty.GARRISON || e.duty != dev.hywmill.garrison.duty.Duty.GARRISON || e.dutyIndex >= 0
+                || !e.equipRole.isEmpty() || e.errandPlayer != null) {
+            CompoundTag d = new CompoundTag();
+            d.putString("assigned", e.assignedDuty.name());
+            d.putString("current", e.duty.name());
+            d.putInt("index", e.dutyIndex);
+            d.putInt("step", e.dutyStep);
+            d.putLong("since", e.dutySince);
+            if (!e.equipRole.isEmpty()) {
+                d.putString("equipRole", e.equipRole);
+            }
+            if (e.errandPlayer != null) {
+                d.putUUID("errandPlayer", e.errandPlayer);
+                d.putLong("errandUntil", e.errandUntil);
+                if (e.errandPoint != Long.MIN_VALUE) {
+                    d.putLong("errandPoint", e.errandPoint);
+                }
+            }
+            c.put("duty", d);
+        }
+        return c;
+    }
+
+    private static RosterEntry entryFrom(CompoundTag c) {
+        UnitState state;
+        try {
+            state = UnitState.valueOf(c.getString("state"));
+        } catch (IllegalArgumentException ex) {
+            state = UnitState.MISSING;
+        }
+        LossReason reason = null;
+        if (c.contains("lossReason")) {
+            try {
+                reason = LossReason.valueOf(c.getString("lossReason"));
+            } catch (IllegalArgumentException ex) {
+                reason = LossReason.REMOVED;
+            }
+        }
+        long[] pos = c.getLongArray("lastSeenPos");
+        RosterEntry e = new RosterEntry(c.getUUID("rosterId"), c.getString("unitKey"), c.getString("entityType"),
+                c.getInt("equipmentLevel"), state, c.hasUUID("entityUuid") ? c.getUUID("entityUuid") : null, c.getInt("generation"),
+                c.getLong("stateSinceTick"), c.getLong("lastSeenTick"), c.getLong("recruitedTick"), reason, c.getBoolean("paid"));
+        if (c.contains("duty", Tag.TAG_COMPOUND)) {
+            CompoundTag d = c.getCompound("duty");
+            e.assignedDuty = dev.hywmill.garrison.duty.Duty.parse(d.getString("assigned"), dev.hywmill.garrison.duty.Duty.GARRISON);
+            if (!e.assignedDuty.standing()) {
+                e.assignedDuty = dev.hywmill.garrison.duty.Duty.GARRISON;
+            }
+            e.duty = dev.hywmill.garrison.duty.Duty.parse(d.getString("current"), e.assignedDuty);
+            e.dutyIndex = d.getInt("index");
+            e.dutyStep = d.getInt("step");
+            e.dutySince = d.getLong("since");
+            e.equipRole = d.getString("equipRole");
+            if (d.hasUUID("errandPlayer") && e.duty.errand()) {
+                e.errandPlayer = d.getUUID("errandPlayer");
+                e.errandUntil = d.getLong("errandUntil");
+                e.errandPoint = d.contains("errandPoint") ? d.getLong("errandPoint") : Long.MIN_VALUE;
+            }
+            // an errand duty this version does not know (e.g. a deferred escort saved by a development build) loads as
+            // its standing duty; a DEPLOYED entry then takes the normal M2 return path home
+        }
+        if (pos.length == 3) {
+            e.lastSeenX = pos[0];
+            e.lastSeenY = pos[1];
+            e.lastSeenZ = pos[2];
+        }
+        return e;
     }
 }

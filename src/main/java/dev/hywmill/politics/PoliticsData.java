@@ -172,7 +172,45 @@ public final class PoliticsData {
         if (o.has("siege") && o.get("siege").isJsonObject()) {
             sg = siege(sg, o.getAsJsonObject("siege"), problems, where);
         }
-        return new PoliticsTables(s, g, f, pr, dr, rq, rc, sg);
+        PoliticsTables.ArsenalRule ar = base.arsenal();
+        if (o.has("arsenal") && o.get("arsenal").isJsonObject()) {
+            ar = arsenal(ar, o.getAsJsonObject("arsenal"), problems, where);
+        }
+        return new PoliticsTables(s, g, f, pr, dr, rq, rc, sg, ar);
+    }
+
+    private static PoliticsTables.ArsenalRule arsenal(PoliticsTables.ArsenalRule b, JsonObject j, List<String> problems, String where) {
+        Map<PoliticsTables.MilitaryTierKey, Integer> n = new EnumMap<>(PoliticsTables.MilitaryTierKey.class);
+        n.putAll(b.engines());
+        if (j.has("engines") && j.get("engines").isJsonObject()) {
+            for (Map.Entry<String, JsonElement> e : j.getAsJsonObject("engines").entrySet()) {
+                try {
+                    n.put(PoliticsTables.MilitaryTierKey.valueOf(e.getKey()), Math.max(0, Math.min(8, e.getValue().getAsInt())));
+                } catch (RuntimeException ex) {
+                    problems.add(where + ": arsenal.engines names unknown tier '" + e.getKey() + "'");
+                }
+            }
+        }
+        List<String> types = strings(j, "types", b.types());
+        List<String> stronghold = strings(j, "strongholdTypes", b.strongholdTypes());
+        PoliticsTables.ArsenalRule r = new PoliticsTables.ArsenalRule(j.has("enabled") ? j.get("enabled").getAsBoolean() : b.enabled(),
+                java.util.Collections.unmodifiableMap(n), types, stronghold, d(j, "engineStrength", b.engineStrength()), d(j, "fortCut", b.fortCut()));
+        if (r.types().isEmpty() || r.engineStrength() < 0 || r.fortCut() < 0 || r.fortCut() > 1) {
+            problems.add(where + ": arsenal values out of range; using " + where + " base");
+            return b;
+        }
+        return r;
+    }
+
+    private static List<String> strings(JsonObject j, String key, List<String> base) {
+        if (!j.has(key) || !j.get(key).isJsonArray()) {
+            return base;
+        }
+        List<String> out = new java.util.ArrayList<>();
+        for (JsonElement e : j.getAsJsonArray(key)) {
+            out.add(e.getAsString());
+        }
+        return List.copyOf(out);
     }
 
     private static PoliticsTables.SiegeRule siege(PoliticsTables.SiegeRule b, JsonObject j, List<String> problems, String where) {

@@ -41,6 +41,7 @@ public final class HywMillRuntime {
     private final dev.hywmill.politics.service.EnvoyService envoys = new dev.hywmill.politics.service.EnvoyService();
     private final dev.hywmill.politics.service.RelationProjector relations = new dev.hywmill.politics.service.RelationProjector();
     private final dev.hywmill.garrison.service.SiegeService sieges = new dev.hywmill.garrison.service.SiegeService(perf);
+    private final dev.hywmill.garrison.service.ArsenalService arsenal = new dev.hywmill.garrison.service.ArsenalService(perf);
     private final dev.hywmill.net.PoliticsNet.Limiter uiLimiter = new dev.hywmill.net.PoliticsNet.Limiter();
     /** M5-3: political hostility (outlaws; wars later). Replaces M1.1's ALWAYS_REVERT. */
     private final DiplomacyPolicy political = new dev.hywmill.politics.service.PoliticalPolicy(this);
@@ -138,6 +139,10 @@ public final class HywMillRuntime {
 
     public dev.hywmill.politics.service.RelationProjector relations() {
         return relations;
+    }
+
+    public dev.hywmill.garrison.service.ArsenalService arsenal() {
+        return arsenal;
     }
 
     public dev.hywmill.garrison.service.SiegeService sieges() {

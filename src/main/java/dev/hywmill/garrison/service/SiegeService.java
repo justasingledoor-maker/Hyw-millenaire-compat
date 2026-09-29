@@ -177,10 +177,44 @@ public final class SiegeService {
     }
 
     public static double defense(ServerLevel overworld, VillageRecord target) {
+        return defense(overworld, target, 0);
+    }
+
+    /**
+     * The target's defense against a host bringing {@code attackerEngines} siege engines: its garrison at home, weighted
+     * Millénaire defenders, its own war engines at home, times the fortification bonus left after the engines' cut.
+     */
+    public static double defense(ServerLevel overworld, VillageRecord target, int attackerEngines) {
         SettlementSource source = Services.settlements();
         int mill = source == null ? target.defendingStrength
                 : source.raidStrength(overworld, target.villageId).map(a -> a[1]).orElse(target.defendingStrength);
-        return SiegeMath.defense(strength(homeDefenders(target)), mill, target.fortification, rule(target));
+        PoliticsTables.ArsenalRule ar = ArsenalService.rule(target);
+        int ownEngines = 0;
+        if (target.hywRoster != null) {
+            for (RosterEntry e : ArsenalService.engines(target.hywRoster)) {
+                if (e.duty != Duty.SIEGE) {
+                    ownEngines++;
+                }
+            }
+        }
+        double plain = SiegeMath.defense(strength(homeDefenders(target)) + ownEngines * ar.engineStrength(), mill, 0, rule(target));
+        double fort = 1 + Math.min(0.5, Math.max(0, target.fortification) / 100.0);
+        return plain * dev.hywmill.politics.war.ArsenalPlan.fortificationLeft(fort, attackerEngines, ar);
+    }
+
+    /** The host's strength: its soldiers by cost and level, its engines by the arsenal rule (engineers ride with them). */
+    static double hostStrength(VillageRecord a, List<RosterEntry> alive) {
+        double h = strength(soldiers(a, alive));
+        return h + engineCount(a, alive) * ArsenalService.rule(a).engineStrength();
+    }
+
+    static List<RosterEntry> soldiers(VillageRecord a, List<RosterEntry> alive) {
+        return alive.stream().filter(e -> a.hywRoster == null || !a.hywRoster.isArsenal(e)).toList();
+    }
+
+    static int engineCount(VillageRecord a, List<RosterEntry> alive) {
+        return (int) alive.stream().filter(e -> a.hywRoster != null && a.hywRoster.isArsenal(e)
+                && dev.hywmill.politics.war.ArsenalPlan.isEngine(e.unitKey)).count();
     }
 
     // ------------------------------------------------------------------ launch
@@ -216,9 +250,17 @@ public final class SiegeService {
         s.enter(Siege.Phase.MUSTER, tick, tick + r.musterTicks());
         s.host.addAll(host);
         s.hostStart = host.size();
+        int engines = 0;
+        for (RosterEntry e : a.hywRoster.arsenal()) {
+            // the village's war engines and their crews march with the host
+            if (e.state() == UnitState.GARRISONED && e.duty != Duty.SIEGE) {
+                s.host.add(e.rosterId);
+                engines += dev.hywmill.politics.war.ArsenalPlan.isEngine(e.unitKey) ? 1 : 0;
+            }
+        }
         UnitProvider units = Services.units();
         BlockPos muster = GarrisonService.anchorOf(a);
-        for (UUID rid : host) {
+        for (UUID rid : s.host) {
             RosterEntry e = a.hywRoster.entry(rid);
             e.transition(UnitState.DEPLOYED, tick);
             e.duty = Duty.SIEGE;
@@ -233,7 +275,8 @@ public final class SiegeService {
         ledger.setDirty();
         count(C_LAUNCHED);
         String who = counsel != null ? " on " + PoliticsService.playerName(overworld, counsel) + "'s counsel" : "";
-        String text = a.name + " musters " + host.size() + " soldiers to besiege " + t.name + who + "; they march in about "
+        String text = a.name + " musters " + host.size() + " soldiers" + (engines > 0 ? " and " + engines + " siege engine" + (engines == 1 ? "" : "s") : "")
+                + " to besiege " + t.name + who + "; they march in about "
                 + r.musterTicks() / 1200 + " min";
         chronicle(overworld, a, t, tick, text);
         announce(overworld, ledger, s, a, t, text);
@@ -346,7 +389,7 @@ public final class SiegeService {
         }
         PoliticsTables.SiegeRule r = rule(a);
         List<RosterEntry> alive = entries(a, s.host);
-        if (alive.isEmpty() && s.phase != Siege.Phase.RETURN) {
+        if (soldiers(a, alive).isEmpty() && s.phase != Siege.Phase.RETURN) {
             finish(overworld, ledger, s, a, t, Siege.Outcome.LOST, "the whole host fell", tick, false);
             return;
         }
@@ -397,6 +440,16 @@ public final class SiegeService {
         return source == null ? t.center : source.raidLandingPoint(overworld, t.villageId, a.center).orElse(t.center);
     }
 
+    /** A point {@code dist} blocks from {@code from} towards {@code toward} (same height). */
+    static BlockPos behind(BlockPos from, BlockPos toward, int dist) {
+        double dx = toward.getX() - from.getX(), dz = toward.getZ() - from.getZ();
+        double len = Math.sqrt(dx * dx + dz * dz);
+        if (len < 1) {
+            return from;
+        }
+        return from.offset((int) Math.round(dx / len * dist), 0, (int) Math.round(dz / len * dist));
+    }
+
     private static boolean watched(ServerLevel overworld, VillageRecord t, BlockPos landing) {
         return overworld.isPositionEntityTicking(landing) && overworld.isPositionEntityTicking(t.center);
     }
@@ -404,12 +457,23 @@ public final class SiegeService {
     private void deploy(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive,
                         BlockPos landing, long tick, PoliticsTables.SiegeRule r) {
         int n = 0;
+        BlockPos back = behind(landing, a.center, 24);
         for (RosterEntry e : alive) {
+            boolean arsenal = a.hywRoster.isArsenal(e);
             if (e.entityUuid != null) {
-                n++;
+                n += arsenal ? 0 : 1;
                 continue;
             }
-            Vec3 spot = GarrisonService.spotNear(overworld, landing, e.rosterId);
+            // the engines (and their crews) set up behind the landing point, towards home; the soldiers at it
+            BlockPos at = arsenal ? back : landing;
+            Vec3 spot = GarrisonService.spotNear(overworld, at, e.rosterId);
+            if (spot == null) {
+                spot = Vec3.atBottomCenterOf(at);
+            }
+            if (arsenal) {
+                GarrisonService.materialize(overworld, a, e, spot, BlockPos.containing(spot), tick);
+                continue;
+            }
             if (spot == null) {
                 spot = Vec3.atBottomCenterOf(landing);
             }
@@ -468,6 +532,9 @@ public final class SiegeService {
                 if (ent == null || !ent.isAlive() || !(ent.level() instanceof ServerLevel level)) {
                     continue;
                 }
+                if (a.hywRoster.isArsenal(e)) {
+                    continue; // engines hold their ground (their HYW home is where they set up) and fire at what comes in range
+                }
                 LivingEntity current = units.target(ent);
                 if (current != null && current.isAlive()) {
                     continue;
@@ -504,10 +571,11 @@ public final class SiegeService {
                 }
             }
         }
-        Siege.Outcome o = SiegeMath.battle(alive.size(), s.hostStart, defs.size(), s.defendersStart, tick >= s.phaseEnd, r);
+        int standing = soldiers(a, alive).size();
+        Siege.Outcome o = SiegeMath.battle(standing, s.hostStart, defs.size(), s.defendersStart, tick >= s.phaseEnd, r);
         if (o != Siege.Outcome.NONE) {
             String how = o == Siege.Outcome.WON ? (defs.size() + " of " + s.defendersStart + " defenders still standing")
-                    : (alive.size() + " of " + s.hostStart + " attackers still standing");
+                    : (standing + " of " + s.hostStart + " attackers still standing");
             finish(overworld, ledger, s, a, t, o, how, tick, true);
         }
     }
@@ -515,7 +583,7 @@ public final class SiegeService {
     private void offscreen(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive, long tick,
                            PoliticsTables.SiegeRule r) {
         List<RosterEntry> home = homeDefenders(t);
-        double h = strength(alive), d = defense(overworld, t);
+        double h = hostStrength(a, alive), d = defense(overworld, t, engineCount(a, alive));
         double p = SiegeMath.winChance(h, d, r);
         boolean won = SiegeMath.draw(s.seed(tick)) < p;
         double[] loss = SiegeMath.losses(won, h, d, r);
@@ -626,6 +694,10 @@ public final class SiegeService {
         }
         int pending = 0, back = 0;
         for (RosterEntry e : alive) {
+            if (a.hywRoster.isArsenal(e) && !a.hywRoster.arsenalWar) {
+                a.hywRoster.disarm(e); // the war ended while they were away: they stand down without coming back into the world
+                continue;
+            }
             if (e.entityUuid == null) {
                 Vec3 spot = GarrisonService.spotNear(overworld, anchor, e.rosterId);
                 if (spot == null || !GarrisonService.materialize(overworld, a, e, spot, BlockPos.containing(spot), tick)) {
@@ -633,7 +705,15 @@ public final class SiegeService {
                     continue;
                 }
             }
-            if (e.duty == Duty.SIEGE) {
+            if (e.duty == Duty.SIEGE && a.hywRoster.isArsenal(e)) {
+                // war engines are not moved by the garrison's return path: back in position at once
+                if (e.state() == UnitState.DEPLOYED) {
+                    e.transition(UnitState.RETURNING, tick);
+                    e.transition(UnitState.GARRISONED, tick);
+                }
+                e.duty = Duty.GARRISON;
+                back++;
+            } else if (e.duty == Duty.SIEGE) {
                 if (e.state() == UnitState.DEPLOYED) {
                     e.transition(UnitState.RETURNING, tick);
                     e.duty = Duty.RETURNING;

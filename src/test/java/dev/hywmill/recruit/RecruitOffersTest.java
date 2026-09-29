@@ -77,16 +77,16 @@ class RecruitOffersTest {
         assertFalse(trusted.containsKey("unit:light_lancer_rider"), "cavalry needs a GARRISON gear tier");
         assertTrue(sworn.containsKey("unit:light_lancer_rider"), "Normans field lancers");
         assertEquals(MilitaryTier.STRONGHOLD, sworn.get("unit:spear_man").gearTier());
-        assertTrue(sworn.values().stream().noneMatch(o -> !o.merc() && o.unit().unitClass() == UnitClass.LEVY), "levies are mercenaries");
+        assertTrue(sworn.values().stream().noneMatch(o -> !o.merc() && !o.engine() && o.unit().unitClass() == UnitClass.LEVY), "levies are mercenaries");
         // a small village offers no cultural soldiers at all, however good the standing
-        assertTrue(offers(Standing.SWORN, MilitaryTier.WATCH, "millenaire:norman").values().stream().allMatch(RecruitOffers.Offer::merc));
+        assertTrue(offers(Standing.SWORN, MilitaryTier.WATCH, "millenaire:norman").values().stream().allMatch(o -> o.merc() || o.engine()));
     }
 
     @Test
     void culturalSoldiersCostOneToThreeOrAndBetterStandingIsCheaper() throws IOException {
         for (Standing s : List.of(Standing.TRUSTED, Standing.PATRON, Standing.SWORN)) {
             for (var o : offers(s, MilitaryTier.STRONGHOLD, "millenaire:norman").values()) {
-                if (!o.merc()) {
+                if (!o.merc() && !o.engine()) {
                     assertTrue(o.price() >= OR * 0.75 && o.price() <= 3 * OR, s + " " + o.key() + " " + o.price());
                     if (s == Standing.TRUSTED) {
                         assertEquals(0, o.price() % ARGENT, "undiscounted prices are whole argent");
@@ -118,5 +118,20 @@ class RecruitOffersTest {
         assertEquals("2 or 16 argent", RecruitOffers.money(2 * 4096 + 16 * 64));
         assertEquals("3 argent", RecruitOffers.money(192));
         assertEquals("0 deniers", RecruitOffers.money(0));
+    }
+
+    @Test
+    void siegeEnginesForSaleNoGunpowderTrebuchetsForPatrons() throws IOException {
+        assertTrue(offers(Standing.STRANGER, MilitaryTier.STRONGHOLD, "millenaire:norman").values().stream().noneMatch(RecruitOffers.Offer::engine));
+        Map<String, RecruitOffers.Offer> trusted = offers(Standing.TRUSTED, MilitaryTier.WATCH, "millenaire:norman");
+        assertEquals(2 * OR, trusted.get("engine:mangonels").price());
+        assertTrue(trusted.get("engine:mangonels").crewed(), "a catapult comes with its engineer");
+        assertFalse(trusted.get("engine:battering_ram").crewed(), "the player drives a ram");
+        assertFalse(trusted.containsKey("engine:trebuchets"), "trebuchets are for patrons");
+        Map<String, RecruitOffers.Offer> patron = offers(Standing.PATRON, MilitaryTier.WATCH, "millenaire:norman");
+        assertEquals((int) Math.round(4 * OR * 0.9), patron.get("engine:trebuchets").price());
+        assertTrue(patron.keySet().stream().filter(k -> k.startsWith("engine:"))
+                .noneMatch(k -> k.contains("cannon") || k.contains("bombard") || k.contains("culverin") || k.contains("nest")));
+        assertEquals("Catapult (with an engineer)", trusted.get("engine:mangonels").label());
     }
 }

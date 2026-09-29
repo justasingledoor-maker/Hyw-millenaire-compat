@@ -40,6 +40,12 @@ final class WarCommands {
         subtree(war, WarCommands::self);
         war.then(Commands.literal("for").requires(s -> s.hasPermission(2))
                 .then(subtree(Commands.argument("player", UuidArgument.uuid()), ctx -> UuidArgument.getUuid(ctx, "player"))));
+        war.then(Commands.literal("arsenals").executes(ctx -> {
+            var lines = dev.hywmill.garrison.service.ArsenalService.describe(GarrisonLedger.get(ctx.getSource().getServer().overworld()));
+            send(ctx.getSource(), "war arsenals: " + lines.size());
+            lines.forEach(l -> send(ctx.getSource(), " " + l));
+            return lines.size();
+        }));
         war.then(Commands.literal("sieges").executes(ctx -> {
             var lines = dev.hywmill.garrison.service.SiegeService.describe(ctx.getSource().getServer().overworld(),
                     GarrisonLedger.get(ctx.getSource().getServer().overworld()));

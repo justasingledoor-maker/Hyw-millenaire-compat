@@ -310,8 +310,13 @@ public final class GarrisonService {
         Entity ent = id != null ? find(overworld.getServer(), id) : null;
         if (ent != null) {
             Entity root = ent.getRootVehicle();
-            if (root != ent) {
-                root.discard();
+            if (root != ent && GarrisonAttachments.get(root) == null) {
+                root.discard(); // an untracked mount (an HYW rider's horse) leaves with its rider
+            } else if (root != ent) {
+                ent.stopRiding(); // a tracked vehicle (a siege engine) has its own slot
+            }
+            for (Entity passenger : new ArrayList<>(ent.getPassengers())) {
+                passenger.stopRiding(); // an engineer on this engine stays with its own slot
             }
             ent.discard();
         }
@@ -335,7 +340,13 @@ public final class GarrisonService {
         if (eq == null) {
             return false;
         }
-        UnitSpec spec = tables.units().getOrDefault(e.unitKey, new UnitSpec(e.unitKey, e.entityType, UnitClass.LINE, 1, MilitaryTier.WATCH, true));
+        UnitSpec known = tables.units().get(e.unitKey);
+        if (known == null) {
+            // not a garrison unit (a post-M5 war engine or engineer, a bought engine): HYW's own equipment, no profile overlay
+            EquipmentProvider base = Services.equipment("hyw");
+            eq = base != null ? base : eq;
+        }
+        UnitSpec spec = known != null ? known : new UnitSpec(e.unitKey, e.entityType, UnitClass.LINE, 1, MilitaryTier.WATCH, true);
         e.generation++;
         e.entityUuid = GarrisonTag.entityUuid(e.rosterId, e.generation);
         GarrisonTag tag = new GarrisonTag(rec.villageId, e.rosterId, e.generation);
@@ -531,6 +542,13 @@ public final class GarrisonService {
         long tick = overworld.getGameTime();
         GarrisonSettings s = HywMillConfig.garrison();
         e.transition(UnitState.DEAD, tick, LossReason.KILLED);
+        if (r.isArsenal(e)) {
+            // post-M5 war arsenal: a destroyed engine (or its engineer) is gone for this war; no recruitment effects
+            HmLog.info("War engine of village '{}' destroyed: {} (not replaced during this war)", rec.name, e);
+            ledger.setDirty();
+            perf.stop("garrison.event", t0);
+            return;
+        }
         ErrandService.onDeath(rec, e, tick); // M5-5: a soldier lost on a player's errand
         r.totals.killed++;
         Recruitment.cooldown(r, tick, s.deathCooldown(), s.recruitInterval());

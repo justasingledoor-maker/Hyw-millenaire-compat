@@ -169,7 +169,7 @@ public final class RecruitService {
             return new Outcome(false, RecruitOffers.refused(st) ? rec.name + " will not hire out soldiers to you (" + st.name().toLowerCase() + ")."
                     : "That is not offered to you here.", 0);
         }
-        int n = Math.max(1, Math.min(t.maxPerPurchase(), count));
+        int n = Math.max(1, Math.min(offer.engine() ? t.maxEngines() : t.maxPerPurchase(), count));
         long total = (long) offer.price() * n;
         int have = source.playerMoney(payer);
         if (have < total) {
@@ -185,11 +185,21 @@ public final class RecruitService {
             eq = Services.equipment("hyw");
         }
         int level = table.tier(offer.gearTier()).equipmentLevel();
+        if (offer.engine()) {
+            eq = Services.equipment("hyw"); // engines and engineers: HYW's own equipment, no profile overlay
+            level = 0;
+        }
         RandomSource rnd = overworld.getRandom();
         int hired = 0;
         for (int i = 0; i < n; i++) {
             BlockPos spot = spot(overworld, pos, be.radius(), rnd);
             if (spot == null || eq == null) {
+                continue;
+            }
+            if (offer.engine()) {
+                if (spawnEngine(overworld, units, eq, rec, offer, payer.getUUID(), spot)) {
+                    hired++;
+                }
                 continue;
             }
             UUID id = UUID.randomUUID();
@@ -211,6 +221,26 @@ public final class RecruitService {
         }
         return new Outcome(true, "Hired " + hired + " × " + offer.label() + " for " + RecruitOffers.money((long) hired * offer.price())
                 + (refund > 0 ? "; " + (n - hired) + " could not be placed and were refunded" : "") + ".", hired);
+    }
+
+    /** Post-M5: a bought siege engine, owned by the player; a crewed one comes with an engineer who mounts it himself. */
+    private static boolean spawnEngine(ServerLevel overworld, UnitProvider units, EquipmentProvider eq, VillageRecord rec, RecruitOffers.Offer offer,
+                                       UUID owner, BlockPos spot) {
+        UUID id = UUID.randomUUID();
+        SpawnResult r = units.spawn(overworld, new SpawnRequest(offer.unit(), owner, id, Vec3.atBottomCenterOf(spot), spot, 0, false, null, eq, null));
+        if (!r.ok()) {
+            return false;
+        }
+        if (offer.crewed()) {
+            dev.hywmill.garrison.tables.UnitSpec eng = new dev.hywmill.garrison.tables.UnitSpec("siege_engineer", "hundred_years_war:siege_engineer",
+                    dev.hywmill.garrison.tables.UnitClass.LEVY, 1, MilitaryTier.WATCH, true);
+            UUID eid = UUID.randomUUID();
+            SpawnResult er = units.spawn(overworld, new SpawnRequest(eng, owner, eid, Vec3.atBottomCenterOf(spot.offset(2, 0, 0)), spot, 0, false, null, eq, null));
+            if (!er.ok()) {
+                HmLog.warn("Muster Roll: the engineer for a {} could not be placed", offer.unit().key());
+            }
+        }
+        return true;
     }
 
     public static Outcome setRadius(ServerPlayer player, BlockPos pos, int radius) {

@@ -8,16 +8,21 @@ import java.util.Map;
  * records; {@link #DEFAULTS} are the shipped values, used when no data is loaded.
  */
 public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
-                             RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege) {
+                             RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege, ArsenalRule arsenal) {
+
+    public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
+                          RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege) {
+        this(standing, grievance, favor, pardon, diplomacy, requests, raidCounsel, siege, ArsenalRule.DEFAULT);
+    }
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
                           RequestRule requests) {
-        this(standing, grievance, favor, pardon, diplomacy, requests, RaidCounselRule.DEFAULT, SiegeRule.DEFAULT);
+        this(standing, grievance, favor, pardon, diplomacy, requests, RaidCounselRule.DEFAULT, SiegeRule.DEFAULT, ArsenalRule.DEFAULT);
     }
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
                           RequestRule requests, RaidCounselRule raidCounsel) {
-        this(standing, grievance, favor, pardon, diplomacy, requests, raidCounsel, SiegeRule.DEFAULT);
+        this(standing, grievance, favor, pardon, diplomacy, requests, raidCounsel, SiegeRule.DEFAULT, ArsenalRule.DEFAULT);
     }
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor) {
@@ -121,6 +126,34 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
         public int tribute(MilitaryTierKey tier) {
             return tribute.getOrDefault(tier, 2048);
         }
+    }
+
+    /**
+     * War arsenal (post-M5): a village at war fields siege engines, each with one engineer, for the length of the war.
+     *
+     * @param engines         engines granted per village tier when it goes to war (absent: none)
+     * @param types           HYW entity ids (path only) the engines are drawn from, in a stable order
+     * @param strongholdTypes one engine of a stronghold is drawn from these instead (e.g. a nest of bees)
+     * @param engineStrength  an engine's weight in off-screen battles (a soldier weighs its cost, 1 to 4)
+     * @param fortCut         share of the target's fortification bonus each attacking engine cancels
+     */
+    public record ArsenalRule(boolean enabled, Map<MilitaryTierKey, Integer> engines, java.util.List<String> types,
+                              java.util.List<String> strongholdTypes, double engineStrength, double fortCut) {
+        public static final ArsenalRule DEFAULT = new ArsenalRule(true, engineCounts(), java.util.List.of("mangonels", "trebuchets"),
+                java.util.List.of("nest_of_bees"), 8, 0.25);
+
+        public int engines(MilitaryTierKey tier) {
+            return engines.getOrDefault(tier, 0);
+        }
+    }
+
+    private static Map<MilitaryTierKey, Integer> engineCounts() {
+        Map<MilitaryTierKey, Integer> m = new EnumMap<>(MilitaryTierKey.class);
+        m.put(MilitaryTierKey.WATCH, 1);
+        m.put(MilitaryTierKey.GUARD_POST, 2);
+        m.put(MilitaryTierKey.GARRISON, 3);
+        m.put(MilitaryTierKey.STRONGHOLD, 4);
+        return java.util.Collections.unmodifiableMap(m);
     }
 
     /** A village tier as the siege tribute table names it (mirrors {@code military.MilitaryTier}, kept pure here). */

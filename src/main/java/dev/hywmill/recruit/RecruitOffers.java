@@ -31,10 +31,33 @@ public final class RecruitOffers {
      */
     public record Offer(String key, UnitSpec unit, MilitaryTier gearTier, int price, boolean merc) {
         public String label() {
+            if (engine()) {
+                return engineLabel(unit.key()) + (crewed() ? " (with an engineer)" : " (you drive it)");
+            }
             String n = unit.key().replace('_', ' ');
             n = Character.toUpperCase(n.charAt(0)) + n.substring(1);
             return merc ? n + " (mercenary)" : n;
         }
+
+        /** Post-M5: a siege engine. */
+        public boolean engine() {
+            return key.startsWith("engine:");
+        }
+
+        /** An engine an engineer operates (every engine but the battering ram): sold with its engineer. */
+        public boolean crewed() {
+            return engine() && !unit.key().equals("battering_ram");
+        }
+    }
+
+    public static String engineLabel(String key) {
+        return switch (key) {
+            case "mangonels" -> "Catapult";
+            case "trebuchets" -> "Trebuchet";
+            case "battering_ram" -> "Battering ram";
+            case "nest_of_bees" -> "Nest of bees";
+            default -> Character.toUpperCase(key.charAt(0)) + key.substring(1).replace('_', ' ');
+        };
     }
 
     public static boolean refused(Standing s) {
@@ -60,6 +83,12 @@ public final class RecruitOffers {
             UnitSpec u = units.get(m.getKey());
             if (u != null && u.enabled()) {
                 out.add(new Offer("merc:" + u.key(), u, MilitaryTier.WATCH, discounted(argent(m.getValue()), off), true));
+            }
+        }
+        for (RecruitTables.EngineOffer eo : t.engines()) {
+            if (s.ordinal() >= eo.minStanding().ordinal()) {
+                UnitSpec u = new UnitSpec(eo.key(), "hundred_years_war:" + eo.key(), dev.hywmill.garrison.tables.UnitClass.LINE, 0, MilitaryTier.WATCH, true);
+                out.add(new Offer("engine:" + eo.key(), u, MilitaryTier.WATCH, discounted((int) Math.round(eo.priceOr() * RecruitTables.DENIER_OR), off), false));
             }
         }
         MilitaryTier gear = gearTier(s, village, t);

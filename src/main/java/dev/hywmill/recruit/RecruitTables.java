@@ -24,17 +24,35 @@ import java.util.Map;
  * @param minRadius      spawn radius range the block's owner may set
  * @param maxRadius      see {@code minRadius}
  * @param useRange       a player must be within this many blocks of the block to use it
+ * @param engines        post-M5 siege engines for sale (HYW entity id path, price in denier or, lowest standing), in
+ *                       display order; engineer-operated ones come with an engineer, a battering ram is driven by the player
+ * @param maxEngines     most engines in one purchase
  */
 public record RecruitTables(Map<String, Double> mercs, double soldierBase, double soldierPerCost, Map<MilitaryTier, Double> tierFactor,
                             Map<Standing, MilitaryTier> standingCap, Map<Standing, Double> discount, int maxPerPurchase, int minRadius,
-                            int maxRadius, double useRange) {
+                            int maxRadius, double useRange, java.util.List<EngineOffer> engines, int maxEngines) {
+    /** A siege engine for sale. */
+    public record EngineOffer(String key, double priceOr, Standing minStanding) {}
+
+    public RecruitTables(Map<String, Double> mercs, double soldierBase, double soldierPerCost, Map<MilitaryTier, Double> tierFactor,
+                         Map<Standing, MilitaryTier> standingCap, Map<Standing, Double> discount, int maxPerPurchase, int minRadius,
+                         int maxRadius, double useRange) {
+        this(mercs, soldierBase, soldierPerCost, tierFactor, standingCap, discount, maxPerPurchase, minRadius, maxRadius, useRange,
+                DEFAULT_ENGINES, 4);
+    }
+
+    public static final java.util.List<EngineOffer> DEFAULT_ENGINES = java.util.List.of(
+            new EngineOffer("mangonels", 2.0, Standing.TRUSTED),
+            new EngineOffer("trebuchets", 4.0, Standing.PATRON),
+            new EngineOffer("battering_ram", 1.5, Standing.TRUSTED));
+
     public static final int DENIER_ARGENT = 64;
     public static final int DENIER_OR = 4096;
 
     public static final RecruitTables DEFAULT = new RecruitTables(
             orderedMap("militia", 3.0, "archer", 4.0, "crossbowman", 5.0), 0.5, 0.25,
             tiers(MilitaryTier.GUARD_POST, 1.0, MilitaryTier.GARRISON, 1.25, MilitaryTier.STRONGHOLD, 1.5),
-            caps(), discounts(0.10, 0.20), 32, 2, 36, 8);
+            caps(), discounts(0.10, 0.20), 32, 2, 36, 8, DEFAULT_ENGINES, 4);
 
     private static volatile RecruitTables current = DEFAULT;
 
@@ -86,6 +104,8 @@ public record RecruitTables(Map<String, Double> mercs, double soldierBase, doubl
         Map<Standing, Double> discount = new EnumMap<>(DEFAULT.discount);
         int max = DEFAULT.maxPerPurchase, minR = DEFAULT.minRadius, maxR = DEFAULT.maxRadius;
         double range = DEFAULT.useRange;
+        java.util.List<EngineOffer> engines = DEFAULT.engines;
+        int maxEngines = DEFAULT.maxEngines;
         for (JsonObject f : files) {
             try {
                 if (f.has("mercs") && f.get("mercs").isJsonObject()) {
@@ -120,11 +140,26 @@ public record RecruitTables(Map<String, Double> mercs, double soldierBase, doubl
                 minR = f.has("minRadius") ? Math.max(1, f.get("minRadius").getAsInt()) : minR;
                 maxR = f.has("maxRadius") ? Math.max(minR, f.get("maxRadius").getAsInt()) : maxR;
                 range = f.has("useRange") ? f.get("useRange").getAsDouble() : range;
+                maxEngines = f.has("maxEngines") ? Math.max(1, f.get("maxEngines").getAsInt()) : maxEngines;
+                if (f.has("engines") && f.get("engines").isJsonObject()) {
+                    java.util.List<EngineOffer> list = new java.util.ArrayList<>();
+                    for (Map.Entry<String, JsonElement> e : f.getAsJsonObject("engines").entrySet()) {
+                        JsonObject o = e.getValue().getAsJsonObject();
+                        double price = o.get("price").getAsDouble();
+                        Standing st = o.has("standing") ? Standing.valueOf(o.get("standing").getAsString()) : Standing.TRUSTED;
+                        if (price > 0) {
+                            list.add(new EngineOffer(e.getKey(), price, st));
+                        } else {
+                            problems.add("engines " + e.getKey() + ": price must be > 0; ignored");
+                        }
+                    }
+                    engines = java.util.List.copyOf(list);
+                }
             } catch (RuntimeException ex) {
                 problems.add("recruitment data: " + ex.getMessage() + "; the rest of that file is ignored");
             }
         }
         return new RecruitTables(Map.copyOf(mercs), base, perCost, Map.copyOf(tierFactor), Map.copyOf(cap), Map.copyOf(discount), max, minR,
-                maxR, range);
+                maxR, range, engines, maxEngines);
     }
 }
