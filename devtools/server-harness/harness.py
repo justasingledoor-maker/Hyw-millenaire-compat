@@ -5570,13 +5570,15 @@ def scenario_RL(ctx):
             break
         time.sleep(5)
     logs = s.read_since(p0)
-    march = next((l for l in logs if "marches on" in l), None)
+    march = next((l for l in logs if "marching" in l and "stowed" in l), None)
     stands = next((l for l in logs if "stands before" in l), None)
     check("RL-2 the relief sets out when the attackers march", sent is not None and march is not None
           and logs.index(march) <= logs.index(sent), f"{march} || {sent}")
     time.sleep(8)
     here = relief_units(s, fc, b)
-    rel = relation(s, cc, fa) if fa else None
+    raw = s.output(at(c, f"hywmill dev relation {fa}"), 2) if fa else []
+    note("RL relation raw", f"fa={fa} fc={fc} :: " + " | ".join(raw)[:400])
+    rel = relation(s, c, fa) if fa else None
     check("RL-3 it arrives (before the attackers) and stands spread round B, HOSTILE to A's soldiers",
           arrived is not None and len(here) >= 1 and (stands is None or logs.index(arrived) < logs.index(stands)) and rel == ("HOSTILE", "HOSTILE"),
           f"{arrived}; {len(here)} of C's soldiers near B; attackers stand: {stands is not None}; C<->A {rel}; {sieges(s)}")
