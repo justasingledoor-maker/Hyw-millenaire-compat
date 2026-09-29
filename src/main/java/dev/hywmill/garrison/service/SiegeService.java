@@ -42,6 +42,7 @@ import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.OptionalInt;
@@ -671,17 +672,38 @@ public final class SiegeService {
                 }
             }
         }
+        // helpers: players near the battle who are on campaign with a side, or who fight for it (struck the other side)
+        double range = Math.max(HELPER_RANGE, (t.villageRadius > 0 ? t.villageRadius : DEFAULT_RADIUS) + STAGING_MARGIN + 32);
+        Set<UUID> hostIds = new HashSet<>();
+        for (RosterEntry e : alive) {
+            if (e.entityUuid != null) {
+                hostIds.add(e.entityUuid);
+            }
+        }
+        Set<LivingEntity> foeSet = new HashSet<>(foes);
         for (ServerPlayer p : overworld.players()) {
-            if (p.distanceToSqr(Vec3.atCenterOf(t.center)) > HELPER_RANGE * HELPER_RANGE) {
+            if (p.distanceToSqr(Vec3.atCenterOf(t.center)) > range * range) {
                 continue;
             }
             Campaign c = RelationProjector.campaignOf(ledger, p.getUUID());
+            boolean withAttacker = false, withDefender = false;
             if (c != null && c.active(tick)) {
-                if (c.ally().equals(a.villageId) && c.enemy().equals(t.villageId) && s.attackerHelpers.add(p.getUUID())) {
-                    ledger.setDirty();
-                } else if (c.ally().equals(t.villageId) && c.enemy().equals(a.villageId) && s.defenderHelpers.add(p.getUUID())) {
-                    ledger.setDirty();
+                withAttacker = c.ally().equals(a.villageId) && c.enemy().equals(t.villageId);
+                withDefender = c.ally().equals(t.villageId) && c.enemy().equals(a.villageId);
+            }
+            if (!withAttacker && !withDefender) {
+                LivingEntity struck = p.getLastHurtMob();
+                if (struck != null && p.tickCount - p.getLastHurtMobTimestamp() <= INTERVAL * 2) {
+                    withAttacker = foeSet.contains(struck);
+                    withDefender = hostIds.contains(struck.getUUID());
                 }
+            }
+            if (withAttacker && !s.defenderHelpers.contains(p.getUUID()) && s.attackerHelpers.add(p.getUUID())) {
+                ledger.setDirty();
+                HmLog.info("Siege {}: {} fights with {}", s.id.toString().substring(0, 8), p.getGameProfile().getName(), a.name);
+            } else if (withDefender && !s.attackerHelpers.contains(p.getUUID()) && s.defenderHelpers.add(p.getUUID())) {
+                ledger.setDirty();
+                HmLog.info("Siege {}: {} fights with {}", s.id.toString().substring(0, 8), p.getGameProfile().getName(), t.name);
             }
         }
         int standing = soldiers(a, alive).size();

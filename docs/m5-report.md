@@ -691,3 +691,21 @@ that make sense.
   * The soldiers' ranks and the engine line form round the staging point. The host then marches in.
 * **Tests.** JUnit 320/320; no harness run.
 * SHA-256 of the jar: `b726a3b452fa3924c2ac38bbf27a69ea3a44438fe6131b57acb3d5793dc54c18`.
+
+### 6.24 Siege helpers: those who fight count (`dist/hywmill-m5-fix24.jar`)
+
+**Report.** A player fought in a siege and got no money for helping.
+
+* **Cause.** A helper had to be on an active campaign with a side against the other, and within 96 blocks of the
+  target's centre. A player who fought without a campaign never counted. Since fix23 the host also lands
+  `villageRadius + 16` blocks out, so near a large village a player fighting beside it could be out of range.
+* **Fix.**
+  * A player also counts as a helper after striking a combatant or resident of the target, which counts for the
+    attackers. Striking a soldier of the host counts for the defenders. The strike must fall within the last 2 s at
+    each battle step.
+  * A player counts for one side only: the first one recorded.
+  * The helper range is now max(96, village radius + 16 + 32) round the target's centre.
+  * The log records each helper ("Siege …: <player> fights with <village>").
+* **Unchanged.** Only the winning side's helpers are paid: 40% of the tribute, shared.
+* **Tests.** JUnit 320/320; no harness run.
+* SHA-256 of the jar: `74660d1d0fae567b46b7cb8da3ae96d98c6813aa63c0329f1b2b6005f587043b`.
