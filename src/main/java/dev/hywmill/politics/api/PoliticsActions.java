@@ -153,6 +153,18 @@ public final class PoliticsActions {
         return new ActionResult(r.agreed(), code, r.ok() ? r.detail() : "You cannot suggest a siege: " + r.detail());
     }
 
+    /**
+     * Post-M5: the player suggests that {@code home} declare war on {@code other} ({@code WAR}) or make peace with it
+     * ({@code PEACE}). {@code force} (operator command) skips the standing, cost and rolls; {@code forcedDraw} is dev only.
+     */
+    public static ActionResult suggestWarOrPeace(ServerLevel overworld, UUID player, UUID home, UUID other, dev.hywmill.politics.WarCounsel.Kind kind,
+                                                 @javax.annotation.Nullable Double forcedDraw, boolean force) {
+        var r = dev.hywmill.politics.service.WarCounselService.suggest(overworld, player, home, other, kind, false, forcedDraw, force);
+        String code = !r.ok() ? r.refusal().name() : r.agreed() ? "AGREED" : "REFUSED";
+        String what = kind == dev.hywmill.politics.WarCounsel.Kind.WAR ? "war" : "peace";
+        return new ActionResult(r.agreed(), code, r.ok() ? r.detail() : "You cannot suggest " + what + ": " + r.detail());
+    }
+
     public static ActionResult leaveWar(ServerLevel overworld, UUID player) {
         HywMillRuntime rt = HywMillRuntime.require();
         boolean ok = rt.relations().leave(overworld, rt, player);
@@ -194,6 +206,12 @@ public final class PoliticsActions {
             }
             case "SUGGEST_RAID" -> {
                 return suggestRaid(overworld, player, home, target, null);
+            }
+            case "SUGGEST_WAR" -> {
+                return suggestWarOrPeace(overworld, player, home, target, dev.hywmill.politics.WarCounsel.Kind.WAR, null, false);
+            }
+            case "SUGGEST_PEACE" -> {
+                return suggestWarOrPeace(overworld, player, home, target, dev.hywmill.politics.WarCounsel.Kind.PEACE, null, false);
             }
             case "WAR_LEAVE" -> {
                 return leaveWar(overworld, player);

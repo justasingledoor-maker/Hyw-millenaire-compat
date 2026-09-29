@@ -97,6 +97,19 @@ final class WarCommands {
                 .then(Commands.literal("roll").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get() && s.hasPermission(2))
                         .then(Commands.argument("draw", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0, 1))
                                 .executes(ctx -> siege(ctx, who.get(ctx), com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "draw"), false)))));
+        for (dev.hywmill.politics.WarCounsel.Kind kind : dev.hywmill.politics.WarCounsel.Kind.values()) {
+            // war declare <village> on <other> | war peace <village> with <other>  [force | roll <draw>]
+            String word = kind == dev.hywmill.politics.WarCounsel.Kind.WAR ? "declare" : "peace";
+            String link = kind == dev.hywmill.politics.WarCounsel.Kind.WAR ? "on" : "with";
+            node.then(Commands.literal(word).then(Commands.argument("village", BlockPosArgument.blockPos())
+                    .then(Commands.literal(link).then(Commands.argument("other", BlockPosArgument.blockPos())
+                            .executes(ctx -> counsel(ctx, who.get(ctx), kind, null, false))
+                            .then(Commands.literal("force").requires(s -> s.hasPermission(2)).executes(ctx -> counsel(ctx, who.get(ctx), kind, null, true)))
+                            .then(Commands.literal("roll").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get() && s.hasPermission(2))
+                                    .then(Commands.argument("draw", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0, 1))
+                                            .executes(ctx -> counsel(ctx, who.get(ctx), kind,
+                                                    com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "draw"), false))))))));
+        }
         node.then(Commands.literal("join").then(Commands.argument("ally", BlockPosArgument.blockPos())
                 .then(Commands.literal("against").then(Commands.argument("enemy", BlockPosArgument.blockPos())
                         .executes(ctx -> join(ctx, who.get(ctx)))))));
@@ -189,6 +202,22 @@ final class WarCommands {
         }
         var r = PoliticsActions.suggestSiege(ow, player, c.ally(), c.enemy(), draw, free);
         send(ctx.getSource(), "war siege " + r.code() + ": " + r.message());
+        return r.ok() ? 1 : 0;
+    }
+
+    /** Post-M5: war or peace counsel to the village at {@code village} about the one at {@code other}. */
+    private static int counsel(CommandContext<CommandSourceStack> ctx, @Nullable UUID player, dev.hywmill.politics.WarCounsel.Kind kind,
+                               @Nullable Double draw, boolean force) {
+        if (player == null) {
+            return 0;
+        }
+        VillageRecord home = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "village"));
+        VillageRecord other = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "other"));
+        if (home == null || other == null) {
+            return 0;
+        }
+        var r = PoliticsActions.suggestWarOrPeace(ctx.getSource().getServer().overworld(), player, home.villageId, other.villageId, kind, draw, force);
+        send(ctx.getSource(), "war " + (kind == dev.hywmill.politics.WarCounsel.Kind.WAR ? "declare" : "peace") + " " + r.code() + ": " + r.message());
         return r.ok() ? 1 : 0;
     }
 

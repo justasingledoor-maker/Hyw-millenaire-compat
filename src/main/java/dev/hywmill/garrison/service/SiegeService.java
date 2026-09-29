@@ -780,6 +780,11 @@ public final class SiegeService {
         announce(overworld, ledger, s, a, t, s.summary);
         HmLog.info("Siege {} ended {}: {}", s.id.toString().substring(0, 8), o, s.summary);
         goHome(overworld, ledger, s, a, entries(a, s.host), tick, r, watched);
+        if (t != null && PoliticsService.tables(a).warCounsel().peaceAfterSiege()) {
+            // the loser sues for peace: the war ends and the relation rises above open conflict
+            dev.hywmill.politics.service.WarCounselService.makePeace(overworld, ledger, a, t, tick,
+                    (o == Siege.Outcome.WON ? t.name : a.name) + " lost a siege and sued for peace");
+        }
     }
 
     private static void reward(ServerLevel overworld, GarrisonLedger ledger, VillageRecord winner, Set<UUID> helpers, int pay,
@@ -803,6 +808,31 @@ public final class SiegeService {
             }
         }
         ledger.setDirty();
+    }
+
+    /**
+     * Peace between {@code x} and {@code y} (post-M5): every siege between them that has not ended yet is called off, and its
+     * host marches home without an outcome (no tribute, no losses). Returns the number recalled.
+     */
+    public static int recall(ServerLevel overworld, GarrisonLedger ledger, UUID x, UUID y, long tick) {
+        int n = 0;
+        for (Siege s : new ArrayList<>(ledger.sieges())) {
+            boolean pair = (s.attacker.equals(x) && s.target.equals(y)) || (s.attacker.equals(y) && s.target.equals(x));
+            if (!pair || s.outcome != Siege.Outcome.NONE || s.phase == Siege.Phase.RETURN) {
+                continue;
+            }
+            VillageRecord a = ledger.get(s.attacker);
+            if (a == null || a.hywRoster == null) {
+                continue;
+            }
+            VillageRecord t = ledger.get(s.target);
+            s.summary = "The host of " + a.name + " is called home: peace" + (t != null ? " with " + t.name : "");
+            announce(overworld, ledger, s, a, t, s.summary);
+            HmLog.info("Siege {} recalled: {}", s.id.toString().substring(0, 8), s.summary);
+            goHome(overworld, ledger, s, a, entries(a, s.host), tick, rule(a), false);
+            n++;
+        }
+        return n;
     }
 
     /** Survivors leave the target (stowed) and march home. */
@@ -832,6 +862,10 @@ public final class SiegeService {
         for (RosterEntry e : alive) {
             if (a.hywRoster.isArsenal(e) && !a.hywRoster.arsenalWar) {
                 a.hywRoster.disarm(e); // the war ended while they were away: they stand down without coming back into the world
+                continue;
+            }
+            if (e.mobilized && !ArsenalService.atWar(ledger, a.villageId)) {
+                MobilizationService.discharge(overworld, e, tick); // the war ended while they were away: they go straight home
                 continue;
             }
             int index = slot++;

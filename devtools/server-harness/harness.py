@@ -5455,12 +5455,78 @@ ORDER_SG = ["status", "SG_0", "SG_1", "SG_2", "SG_3", "SG_4", "SG_5"]
 ORDER_M5_PHASES = ["status", "G5_G", "G5_2", "G5_3", "G5_4", "G5_5", "G5_5b", "G5_6", "G5_UI"]
 
 
+def scenario_WP(ctx):
+    """War and peace counsel and mobilization (post-M5; run after G4_0): a stranger's war counsel is refused; an operator
+    forces A to declare war on B (at once, relation -100); A, short of its target after losses, mobilizes the gap with free
+    levies (not a stronghold); a forced peace sets the relation to -75, ends the war and sends the levies home; a finished
+    siege makes peace too."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    P = W_UUID
+    p0 = s.pos()
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill mrel {ca} {cb} set 0")
+    time.sleep(12)
+    ga = garrison(s, a)
+    fa, ta = ga.get("faction"), info(s, a).get("tier")
+    r0 = " ".join(l for l in s.output(f"hywmill war for {P} declare {ca} on {cb}", 2) if l.startswith("war declare"))
+    check("WP-1 a stranger cannot counsel war", "STANDING_TOO_LOW" in r0, r0)
+    # losses leave A short of its target (the death cooldown keeps ordinary recruitment from refilling at once)
+    units = [u for u, x in spike_info(s, "@e[type=!minecraft:player]").items()
+             if x["tag"] != "none" and ("owner=" + str(fa)) in x["desc"] and dist(x["pos"], a) <= 110]
+    for u in units[:3]:
+        s.cmd(f"kill {u}", 0.5)
+    time.sleep(3)
+    g1 = garrison(s, a)
+    r1 = " ".join(l for l in s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2) if l.startswith("war declare"))
+    rel1 = mrel_of(s, f"{ca} {cb}")
+    time.sleep(12)
+    g2 = garrison(s, a)
+    logs = s.read_since(p0)
+    mob = [l for l in logs if "Mobilization:" in l and "mobilizes" in l]
+    check("WP-2 a forced war counsel declares war at once (relation -100)",
+          "AGREED" in r1 and rel1 == (-100, -100) and any("started (declared)" in l for l in logs), f"{r1}; relation {rel1}")
+    expect = min(g1.get("target", 0), g1.get("cap", 0)) - g1.get("live", 0)
+    if ta == "STRONGHOLD":
+        check("WP-3 a stronghold does not mobilize", not any(" A " in l for l in mob), f"tier {ta}; {mob}")
+    else:
+        check("WP-3 A mobilizes the gap to its current target (not the tier cap), free", expect > 0 and g2.get("live") == g1.get("live", 0) + expect
+              and g2.get("levy") >= g1.get("levy", 0) - 0.01,
+              f"tier {ta}: before {g1.get('live')}/{g1.get('target')} (cap {g1.get('cap')}), after {g2.get('live')}/{g2.get('target')}; {mob[-1:] if mob else 'no line'}")
+    time.sleep(25)
+    g3 = garrison(s, a)
+    r2 = " ".join(l for l in s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2) if l.startswith("war peace"))
+    rel2 = mrel_of(s, f"{ca} {cb}")
+    time.sleep(12)
+    g4 = garrison(s, a)
+    logs = s.read_since(p0)
+    home = [l for l in logs if "Mobilization:" in l and "go home" in l]
+    check("WP-4 a forced peace sets the relation to -75 and ends the war",
+          "AGREED" in r2 and rel2 == (-75, -75) and any("ended (peace" in l for l in logs), f"{r2}; relation {rel2}")
+    check("WP-5 at peace the mobilized soldiers go home", ta == "STRONGHOLD" or (home and g4.get("live") == g3.get("live", 0) - expect),
+          f"live {g3.get('live')} -> {g4.get('live')}; {home[-1:] if home else 'no line'}")
+    time.sleep(30)
+    w = [l for l in s.read_since(p0) if "War: " in l and "started" in l]
+    check("WP-6 at -75 the war does not restart by itself", len(w) == 1, f"{len(w)} war start(s)")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(3)
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb} unwatched", 2) if l.startswith("war siege"))
+    sg, t_e = wait_siege(s, lambda l: not l or "RETURN" in l[0], 420)
+    time.sleep(8)
+    logs = s.read_since(p0)
+    rel3 = mrel_of(s, f"{ca} {cb}")
+    check("WP-7 a finished siege ends the war: the loser sues for peace (relation -75)",
+          any("sued for peace" in l for l in logs) and rel3 == (-75, -75), f"{out}; {sg}; relation {rel3}")
+    dups = [l for l in logs if "Duplicate garrison unit refused" in l]
+    check("WP-8 no duplicates", not dups, f"{len(dups)}")
+
+
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

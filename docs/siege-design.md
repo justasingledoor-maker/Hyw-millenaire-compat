@@ -69,3 +69,25 @@ The garrison used to join the village's own Millénaire raids, and in play the t
 * **Villages.** Checked every `aiInterval`. At war, not in a truce, no siege under way, past the cooldown, a large
   enough host and H/D ≥ `aiMinRatio` launch with `aiDailyChance` per day.
 * **Admin.** `/hywmill war admin siege <attacker> <target>` launches a siege at once.
+
+## War and peace (post-M5, fix25)
+
+* **Peace after a siege.** Every finished siege ends the war between the two villages: the loser sues for peace. Both
+  relations are set to `warCounsel.peaceRelation` (−75), above open conflict (−90), so the war does not restart
+  unless the villages drift back into conflict by themselves. Any other host between the two is called home, with no
+  outcome.
+* **War and peace counsel.** From the Politics screen, a Patron or Sworn player can suggest war (between villages at
+  peace) or peace (between villages at war). `WarCounsel` holds the pure rules; the service is `WarCounselService`.
+  * **War.** The council decides alone. A declared war starts at once, with both relations set to −100.
+  * **Peace.** The council decides, then the enemy weighs the armies. It accepts with probability equal to the
+    proposer's strength share, ours²/(ours² + theirs²), clamped to 0.1–0.9.
+  * **Cost.** Diplomacy points (war 2, peace 1) and a one-day cooldown per player and village.
+  * **Operators.** Operators can force either with `/hywmill war [for <player>] declare|peace <village> on|with <other>
+    force`, which skips the standing, the cost and both rolls.
+* **Mobilization.** A village that is not a stronghold fills its garrison up to its current target when it goes to
+  war.
+  * It pays no levy for these troops.
+  * They are equipped at `max(1, regular − 1)`: never a Watch's clubs.
+  * They serve like any other unit.
+  * When the village is at peace again they are discharged (LOST, DISCHARGED). A soldier who is away on a siege is
+    discharged when the host comes home.

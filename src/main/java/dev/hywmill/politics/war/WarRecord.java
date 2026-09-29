@@ -98,6 +98,24 @@ public final class WarRecord {
         return Change.ENDED;
     }
 
+    /** Post-M5 war counsel: the war starts now (the relation is set to open conflict by the caller). */
+    public Change declare(long now) {
+        conflictSince = now;
+        calmSince = -1;
+        if (atWar()) {
+            return Change.NONE;
+        }
+        warSince = now;
+        return Change.STARTED;
+    }
+
+    /** Post-M5 peace (a peace counsel, a finished siege): the war ends now (the relation is raised above open conflict by the caller). */
+    public Change makePeace() {
+        conflictSince = -1;
+        calmSince = -1;
+        return end();
+    }
+
     /** Nothing worth keeping (not at war, not counting towards one). */
     public boolean idle() {
         return !atWar() && conflictSince < 0;

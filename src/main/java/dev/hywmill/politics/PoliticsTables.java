@@ -8,7 +8,13 @@ import java.util.Map;
  * records; {@link #DEFAULTS} are the shipped values, used when no data is loaded.
  */
 public record PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
-                             RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege, ArsenalRule arsenal) {
+                             RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege, ArsenalRule arsenal,
+                             WarCounselRule warCounsel, MobilizationRule mobilization) {
+
+    public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
+                          RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege, ArsenalRule arsenal) {
+        this(standing, grievance, favor, pardon, diplomacy, requests, raidCounsel, siege, arsenal, WarCounselRule.DEFAULT, MobilizationRule.DEFAULT);
+    }
 
     public PoliticsTables(StandingRule standing, GrievanceRule grievance, FavorRule favor, PardonRule pardon, DiplomacyRule diplomacy,
                           RequestRule requests, RaidCounselRule raidCounsel, SiegeRule siege) {
@@ -145,6 +151,39 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
         public int engines(MilitaryTierKey tier) {
             return engines.getOrDefault(tier, 0);
         }
+    }
+
+    /**
+     * War and peace counsel (post-M5): a Patron or Sworn player suggests that a village declare war on another, or make
+     * peace with an enemy. The village's council decides first: {@code warChance}/{@code peaceChance} by standing, scaled
+     * by the relation (war) and the balance of strength, within minChance..maxChance. A peace must then be accepted by the
+     * enemy, with P = (our strength)^e / (ours^e + theirs^e) within enemyMin..enemyMax. Each suggestion costs diplomacy
+     * points with the village and starts a per-player cooldown. A peace, and every finished siege, sets both relations to
+     * {@code peaceRelation} and ends the war at once.
+     */
+    public record WarCounselRule(boolean enabled, Map<Standing, Double> warChance, Map<Standing, Double> peaceChance, double minChance,
+                                 double maxChance, int warPoints, int peacePoints, long cooldown, int peaceRelation, int warRelation,
+                                 double enemyMin, double enemyMax, double exponent, boolean peaceAfterSiege) {
+        public static final WarCounselRule DEFAULT = new WarCounselRule(true,
+                standingDoubles(Standing.PATRON, 0.4, Standing.SWORN, 0.65), standingDoubles(Standing.PATRON, 0.5, Standing.SWORN, 0.75),
+                0.05, 0.95, 2, 1, 24000, -75, -100, 0.1, 0.9, 2.0, true);
+
+        public double warChance(Standing s) {
+            return warChance.getOrDefault(s, 0.0);
+        }
+
+        public double peaceChance(Standing s) {
+            return peaceChance.getOrDefault(s, 0.0);
+        }
+    }
+
+    /**
+     * Wartime mobilization (post-M5): a village that is not a stronghold fills its garrison up to its current target when
+     * it goes to war, at no levy cost, with fresh troops equipped at max(equipmentFloor, regular level - equipmentDrop).
+     * They serve like any other unit and are sent home when the village is at peace again.
+     */
+    public record MobilizationRule(boolean enabled, int equipmentFloor, int equipmentDrop) {
+        public static final MobilizationRule DEFAULT = new MobilizationRule(true, 1, 1);
     }
 
     private static Map<MilitaryTierKey, Integer> engineCounts() {

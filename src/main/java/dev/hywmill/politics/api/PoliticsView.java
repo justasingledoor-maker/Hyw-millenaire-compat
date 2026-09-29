@@ -354,6 +354,13 @@ public final class PoliticsView {
         var sc = rt.sieges().suggest(overworld, player, home, target, true, null);
         out.add(new ActionOption("SUGGEST_SIEGE", "Suggest a siege of " + t.name, sc.ok(), sc.detail(),
                 sc.ok() ? dev.hywmill.politics.RaidCounsel.band(sc.chance()) : ""));
+        // post-M5 war and peace counsel: war while at peace, peace while at war
+        dev.hywmill.politics.WarCounsel.Kind kind = war ? dev.hywmill.politics.WarCounsel.Kind.PEACE : dev.hywmill.politics.WarCounsel.Kind.WAR;
+        var wc = dev.hywmill.politics.service.WarCounselService.suggest(overworld, player, home, target, kind, true, null, false);
+        String band = !wc.ok() ? "" : kind == dev.hywmill.politics.WarCounsel.Kind.WAR ? dev.hywmill.politics.RaidCounsel.band(wc.chance())
+                : dev.hywmill.politics.RaidCounsel.band(wc.chance() * wc.enemyChance());
+        out.add(new ActionOption(war ? "SUGGEST_PEACE" : "SUGGEST_WAR", war ? "Suggest peace with " + t.name : "Suggest war on " + t.name,
+                wc.ok(), wc.detail(), band));
         return out;
     }
 }

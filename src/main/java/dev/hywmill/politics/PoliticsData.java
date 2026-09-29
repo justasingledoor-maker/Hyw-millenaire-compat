@@ -176,7 +176,52 @@ public final class PoliticsData {
         if (o.has("arsenal") && o.get("arsenal").isJsonObject()) {
             ar = arsenal(ar, o.getAsJsonObject("arsenal"), problems, where);
         }
-        return new PoliticsTables(s, g, f, pr, dr, rq, rc, sg, ar);
+        PoliticsTables.WarCounselRule wc = base.warCounsel();
+        if (o.has("warCounsel") && o.get("warCounsel").isJsonObject()) {
+            wc = warCounsel(wc, o.getAsJsonObject("warCounsel"), problems, where);
+        }
+        PoliticsTables.MobilizationRule mb = base.mobilization();
+        if (o.has("mobilization") && o.get("mobilization").isJsonObject()) {
+            JsonObject j = o.getAsJsonObject("mobilization");
+            mb = new PoliticsTables.MobilizationRule(j.has("enabled") ? j.get("enabled").getAsBoolean() : mb.enabled(),
+                    i(j, "equipmentFloor", mb.equipmentFloor()), i(j, "equipmentDrop", mb.equipmentDrop()));
+            if (mb.equipmentFloor() < 0 || mb.equipmentDrop() < 0) {
+                problems.add(where + ": mobilization values out of range; using " + where + " base");
+                mb = base.mobilization();
+            }
+        }
+        return new PoliticsTables(s, g, f, pr, dr, rq, rc, sg, ar, wc, mb);
+    }
+
+    private static PoliticsTables.WarCounselRule warCounsel(PoliticsTables.WarCounselRule b, JsonObject j, List<String> problems, String where) {
+        PoliticsTables.WarCounselRule r = new PoliticsTables.WarCounselRule(j.has("enabled") ? j.get("enabled").getAsBoolean() : b.enabled(),
+                standingMap(j, "warChance", b.warChance(), problems, where), standingMap(j, "peaceChance", b.peaceChance(), problems, where),
+                d(j, "minChance", b.minChance()), d(j, "maxChance", b.maxChance()), i(j, "warPoints", b.warPoints()),
+                i(j, "peacePoints", b.peacePoints()), l(j, "cooldown", b.cooldown()), i(j, "peaceRelation", b.peaceRelation()),
+                i(j, "warRelation", b.warRelation()), d(j, "enemyMin", b.enemyMin()), d(j, "enemyMax", b.enemyMax()),
+                d(j, "exponent", b.exponent()), j.has("peaceAfterSiege") ? j.get("peaceAfterSiege").getAsBoolean() : b.peaceAfterSiege());
+        if (r.minChance() < 0 || r.maxChance() > 1 || r.minChance() > r.maxChance() || r.warPoints() < 0 || r.peacePoints() < 0
+                || r.cooldown() < 0 || r.peaceRelation() < -100 || r.peaceRelation() > 100 || r.warRelation() < -100 || r.warRelation() > -90
+                || r.enemyMin() < 0 || r.enemyMax() > 1 || r.enemyMin() > r.enemyMax() || r.exponent() <= 0) {
+            problems.add(where + ": warCounsel values out of range; using " + where + " base");
+            return b;
+        }
+        return r;
+    }
+
+    private static Map<Standing, Double> standingMap(JsonObject j, String key, Map<Standing, Double> base, List<String> problems, String where) {
+        Map<Standing, Double> m = new EnumMap<>(Standing.class);
+        m.putAll(base);
+        if (j.has(key) && j.get(key).isJsonObject()) {
+            for (Map.Entry<String, JsonElement> e : j.getAsJsonObject(key).entrySet()) {
+                try {
+                    m.put(Standing.valueOf(e.getKey()), Math.max(0, Math.min(1, e.getValue().getAsDouble())));
+                } catch (RuntimeException ex) {
+                    problems.add(where + ": " + key + " names unknown standing '" + e.getKey() + "'");
+                }
+            }
+        }
+        return java.util.Collections.unmodifiableMap(m);
     }
 
     private static PoliticsTables.ArsenalRule arsenal(PoliticsTables.ArsenalRule b, JsonObject j, List<String> problems, String where) {

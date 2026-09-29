@@ -60,6 +60,7 @@ public final class CoreEvents {
         guarded("relations", () -> rt.relations().tick(overworld, rt, tick));
         guarded("sieges", () -> rt.sieges().tick(overworld, tick));
         guarded("war arsenal", () -> rt.arsenal().tick(overworld, tick));
+        guarded("mobilization", () -> rt.mobilization().tick(overworld, tick));
         guarded("threat scan", () -> {
             rt.threats().scan(overworld);
             if (tick % HywMillConfig.THREAT_SCAN_INTERVAL.get() == 0) {

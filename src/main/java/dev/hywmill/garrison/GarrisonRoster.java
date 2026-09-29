@@ -47,6 +47,8 @@ public final class GarrisonRoster {
     public long lastRaidStart;
     /** Post-M5: tick the village last launched a siege (its own decisions wait {@code aiCooldown} after it); -1 never. */
     public long lastSiegeTick = -1;
+    /** Post-M5: the village has mobilized for its current war (reset when it is at peace and its levies went home). */
+    public boolean mobilizedWar;
 
     /**
      * M4 raid in progress. {@code performedBase}: the attacker's raid-history length when the raid
@@ -249,6 +251,9 @@ public final class GarrisonRoster {
         if (lastSiegeTick >= 0) {
             t.putLong("lastSiegeTick", lastSiegeTick);
         }
+        if (mobilizedWar) {
+            t.putBoolean("mobilizedWar", true);
+        }
         if (raid != null) {
             CompoundTag rd = new CompoundTag();
             rd.putUUID("target", raid.target);
@@ -296,6 +301,7 @@ public final class GarrisonRoster {
         r.totals.duplicatesDiscarded = tot.getInt("duplicatesDiscarded");
         r.lastRaidStart = t.getLong("lastRaidStart");
         r.lastSiegeTick = t.contains("lastSiegeTick") ? t.getLong("lastSiegeTick") : -1;
+        r.mobilizedWar = t.getBoolean("mobilizedWar");
         if (t.contains("raid", Tag.TAG_COMPOUND)) {
             CompoundTag rd = t.getCompound("raid");
             if (rd.hasUUID("target")) {
@@ -335,6 +341,9 @@ public final class GarrisonRoster {
             c.putString("lossReason", e.lossReason().name());
         }
         c.putBoolean("paid", e.paid);
+        if (e.mobilized) {
+            c.putBoolean("mobilized", true);
+        }
         if (e.assignedDuty != dev.hywmill.garrison.duty.Duty.GARRISON || e.duty != dev.hywmill.garrison.duty.Duty.GARRISON || e.dutyIndex >= 0
                 || !e.equipRole.isEmpty() || e.errandPlayer != null) {
             CompoundTag d = new CompoundTag();
@@ -401,6 +410,7 @@ public final class GarrisonRoster {
             e.lastSeenY = pos[1];
             e.lastSeenZ = pos[2];
         }
+        e.mobilized = c.getBoolean("mobilized");
         return e;
     }
 }
