@@ -787,14 +787,17 @@ public final class SiegeService {
         if (!overworld.isPositionEntityTicking(anchor)) {
             return; // home not loaded: they arrive when it is
         }
-        int pending = 0, back = 0;
+        int pending = 0, back = 0, slot = 0;
+        BlockPos toward = ledger.get(s.target) != null ? ledger.get(s.target).center : a.center;
         for (RosterEntry e : alive) {
             if (a.hywRoster.isArsenal(e) && !a.hywRoster.arsenalWar) {
                 a.hywRoster.disarm(e); // the war ended while they were away: they stand down without coming back into the world
                 continue;
             }
+            int index = slot++;
             if (e.entityUuid == null) {
-                Vec3 spot = GarrisonService.spotNear(overworld, anchor, e.rosterId);
+                // spaced ranks at the anchor, not one block (a crowd on one block dies of entity cramming)
+                Vec3 spot = GarrisonService.spotNear(overworld, formation(anchor, toward, index, 8, 3), e.rosterId);
                 if (spot == null || !GarrisonService.materialize(overworld, a, e, spot, BlockPos.containing(spot), tick)) {
                     pending++;
                     continue;

@@ -638,3 +638,21 @@ Roll: for a Garrison, (0.5 + 0.25 × 3) × 1.25 ≈ 1.56 or.
 * **Helper pay.** The helpers still split 40% of the tribute: 16 or for a Garrison loser.
 * **Tests.** JUnit 320/320 (`SiegeMathTest` tribute case updated); no harness run.
 * SHA-256 of the jar: `7b360ab1a4d5edb92909daa97cb73abee4e5ec2648104fff2fd5ddd7bab9e085`.
+
+### 6.21 Returning siege hosts no longer die of entity cramming (`dist/hywmill-m5-fix21.jar`)
+
+**Report.** 24 of 30 attackers survived a siege. After they returned home, the player found a pile of their gear
+where they had mustered.
+
+* **Cause.** The home is the defending position, which is also the muster point. When a host returns,
+  `bringHome` materializes every survivor at once through the spawn search, and that search tries the anchor block
+  itself first. So all the survivors appeared on the same block. With 24 or more mobs on one block, vanilla entity
+  cramming (`maxEntityCramming` 24) kills them, and they drop their gear. Each death is a real garrison death: the
+  slot becomes DEAD (KILLED).
+* **Fix.**
+  * `bringHome` places the survivors in spaced ranks round the anchor (`formation`: rows of 8, 3 blocks apart).
+  * The spawn search (`GarrisonService.findSpot`) skips any block a living entity already stands on. This applies to
+    every spawn: recruits, the arsenal and sieges.
+* **Tests.** JUnit 320/320. No harness run: the diagnosis is from the code (the spawn order and the vanilla cramming
+  rule).
+* SHA-256 of the jar: `ba2631f2ca3f7f6694a5f09833bc4cb530a4d4e28419f6b4b51a95d755f4edf6`.

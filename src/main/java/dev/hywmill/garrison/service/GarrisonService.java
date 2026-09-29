@@ -40,6 +40,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -411,6 +412,9 @@ public final class GarrisonService {
                     || !level.getBlockState(feet.above()).getCollisionShape(level, feet.above()).isEmpty()
                     || !level.getFluidState(feet).isEmpty() || !level.getFluidState(below).isEmpty()) {
                 continue;
+            }
+            if (!level.getEntitiesOfClass(LivingEntity.class, new AABB(feet), LivingEntity::isAlive).isEmpty()) {
+                continue; // taken: many units spawned on one block die of entity cramming (and drop their gear)
             }
             return Vec3.atBottomCenterOf(feet);
         }
