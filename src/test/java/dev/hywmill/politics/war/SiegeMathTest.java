@@ -60,10 +60,17 @@ class SiegeMathTest {
     }
 
     @Test
-    void watchedBattleBreakRoutAndDeadline() {
+    void watchedBattleIsFoughtToTheLastSoldierOrTheDeadline() {
+        assertEquals(15 * 60 * 20, R.battleTicks());
         assertEquals(Siege.Outcome.NONE, SiegeMath.battle(10, 12, 8, 10, false, R));
-        assertEquals(Siege.Outcome.WON, SiegeMath.battle(10, 12, 2, 10, false, R));
-        assertEquals(Siege.Outcome.LOST, SiegeMath.battle(3, 12, 8, 10, false, R));
+        assertEquals(Siege.Outcome.NONE, SiegeMath.battle(10, 12, 1, 10, false, R), "one defender left: still fighting");
+        assertEquals(Siege.Outcome.NONE, SiegeMath.battle(1, 12, 8, 10, false, R), "one attacker left: still fighting");
+        assertEquals(Siege.Outcome.WON, SiegeMath.battle(3, 12, 0, 10, false, R));
+        assertEquals(Siege.Outcome.LOST, SiegeMath.battle(0, 12, 8, 10, false, R));
+        PoliticsTables.SiegeRule early = new PoliticsTables.SiegeRule(true, 0.5, 6, 64, 0.4, 1, 1, 10, 1200, 1200, 1200, 12000, 1200, 6000, 0.2, 0.3,
+                0.3, 2.0, 0.5, 0.35, 0.5, R.counselChance(), 0.4, 2, 48000, true, 1200, 0.25, 0.9, 72000, R.tribute(), 2.0, 0.4, 512);
+        assertEquals(Siege.Outcome.WON, SiegeMath.battle(10, 12, 2, 10, false, early), "break/rout lines still work when a server sets them");
+        assertEquals(Siege.Outcome.LOST, SiegeMath.battle(3, 12, 8, 10, false, early));
         assertEquals(Siege.Outcome.WON, SiegeMath.battle(9, 12, 6, 10, true, R));
         assertEquals(Siege.Outcome.LOST, SiegeMath.battle(6, 12, 6, 10, true, R));
         assertEquals(Siege.Outcome.WON, SiegeMath.battle(5, 12, 0, 0, false, R));

@@ -513,3 +513,17 @@ not fight back. The user decided civilians should be killable: they respawn.
     * player ↔ enemy residents and ally soldiers ↔ enemy residents are HOSTILE both ways, and still so 25 s later;
     * 4 archers owned by the campaigning player, placed in the enemy village, targeted its `millenaire:villager`s.
 * SHA-256 of the jar: `fb0089a7dc7ad51c5deee3c56391b7758e4ea0bb0f10e6f213c7ac39564e40b6`.
+
+### 6.13 Longer sieges, fought to the last soldier (`dist/hywmill-m5-fix13.jar`)
+
+**Request.** Sieges were too short. A battle should run until one side has no soldiers left, or until a time limit
+somewhere between 10 and 20 minutes.
+
+* **Change.** `battleTicks` is 18000 (15 minutes) and `breakFraction`/`routFraction` are 0: a battle ends when the
+  attackers or the defenders' fighters (garrison and Millénaire soldiers; civilians do not count) reach zero.
+  * At the deadline the side that kept the larger share of its starting number wins.
+  * Time while nobody is near does not count.
+  * A server can still set break/rout lines in `hywmill_politics` `siege`.
+* **Tests.** JUnit 319/319 (`SiegeMathTest.watchedBattleIsFoughtToTheLastSoldierOrTheDeadline`). This is a data and
+  threshold change; no new harness run.
+* SHA-256 of the jar: `3bfd2d9479540ef61195a578a2d8f6b13cedf52ffefdf41f18566f090bc1ba46`.
