@@ -152,4 +152,30 @@ public final class SiegeMath {
         double checksPerDay = 24000.0 / r.aiInterval();
         return 1 - Math.pow(1 - r.aiDailyChance(), 1 / checksPerDay);
     }
+
+    /** Share of a siege host (in fifths) that forms the main force and storms the centre; the rest sweep the outskirts. */
+    public static final int MAIN_FIFTHS = 3;
+    /** How long a sweeping squad works one stretch of the outskirts before moving on round the village (ticks). */
+    public static final long SWEEP_PERIOD = 1200;
+
+    /** True if this soldier is in the main force (a stable choice per roster slot, about 60% of the host). */
+    public static boolean mainForce(UUID rosterId) {
+        return Math.floorMod(rosterId.getLeastSignificantBits() ^ rosterId.getMostSignificantBits(), 5L) < MAIN_FIFTHS;
+    }
+
+    /**
+     * Where a soldier heads when it has no one to fight, as an {x, z} offset from the target's centre. The main force goes
+     * for the centre (0, 0). The others form four squads, one per quarter, each on a ring round the village; every
+     * {@link #SWEEP_PERIOD} the squads move on 45 degrees, so over the battle they sweep the whole outskirts.
+     */
+    public static int[] sweepOffset(UUID rosterId, int villageRadius, long battleTick) {
+        if (mainForce(rosterId)) {
+            return new int[]{0, 0};
+        }
+        long h = rosterId.getMostSignificantBits() * 31 + rosterId.getLeastSignificantBits();
+        int squad = (int) Math.floorMod(h >>> 7, 4L);
+        double ring = Math.max(16, Math.min(48, villageRadius * 0.6));
+        double angle = Math.toRadians(squad * 90 + 45 * Math.floorDiv(Math.max(0, battleTick), SWEEP_PERIOD));
+        return new int[]{(int) Math.round(Math.cos(angle) * ring), (int) Math.round(Math.sin(angle) * ring)};
+    }
 }

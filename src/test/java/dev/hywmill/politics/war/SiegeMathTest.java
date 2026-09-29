@@ -122,4 +122,36 @@ class SiegeMathTest {
         assertTrue(c > 0 && c < 0.25);
         assertEquals(0.25, 1 - Math.pow(1 - c, 24000.0 / R.aiInterval()), 1e-9);
     }
+
+    @Test
+    void mainForceStormsTheCentreAndSquadsSweepTheOutskirts() {
+        int main = 0;
+        java.util.Set<String> spots = new java.util.HashSet<>();
+        for (int i = 0; i < 1000; i++) {
+            UUID id = UUID.nameUUIDFromBytes(("slot" + i).getBytes());
+            int[] o = SiegeMath.sweepOffset(id, 40, 0);
+            if (SiegeMath.mainForce(id)) {
+                main++;
+                assertArrayEquals(new int[]{0, 0}, o);
+            } else {
+                assertEquals(24, Math.hypot(o[0], o[1]), 1.0);
+                spots.add(o[0] + "," + o[1]);
+                // a squad moves on round the village each period
+                int[] later = SiegeMath.sweepOffset(id, 40, SiegeMath.SWEEP_PERIOD);
+                assertFalse(o[0] == later[0] && o[1] == later[1]);
+            }
+        }
+        assertTrue(main > 500 && main < 700, "about 60% main force, got " + main);
+        assertEquals(4, spots.size(), "four squads, one per quarter");
+        assertEquals(16, Math.hypot(SiegeMath.sweepOffset(flanker(), 5, 0)[0], SiegeMath.sweepOffset(flanker(), 5, 0)[1]), 1.0);
+    }
+
+    private static UUID flanker() {
+        for (int i = 0; ; i++) {
+            UUID id = UUID.nameUUIDFromBytes(("f" + i).getBytes());
+            if (!SiegeMath.mainForce(id)) {
+                return id;
+            }
+        }
+    }
 }

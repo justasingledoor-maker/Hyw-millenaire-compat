@@ -550,3 +550,17 @@ somewhere between 10 and 20 minutes.
   under way, a large enough host. The chance roll by standing still applies too.
 * **Tests.** JUnit 319/319; no harness run.
 * SHA-256 of the jar: `c21f01649ad9ca8f0d6a68dbd869bfd47b779b882c4df12a8951c846cba5a29e`.
+
+### 6.16 Attackers spread round the village (`dist/hywmill-m5-fix16.jar`)
+
+**Request.** Siege attackers should not all head for the centre. The main force takes the centre while other units mop
+up around the village.
+
+* **Change.** In a watched battle, a soldier with no one to fight heads for a goal set by `SiegeMath.sweepOffset`.
+  * **Main force.** About 60% of the host, a stable choice per roster slot, heads for the target's centre as before.
+  * **Squads.** The rest form four squads, one per quarter of the village. Each works a point on a ring round the
+    centre: 0.6 × the village radius, clamped to 16–48 blocks.
+  * **Sweep.** Every minute of battle the squads move on 45°, so over the battle they sweep the whole outskirts.
+  * Engaging is unchanged: any soldier attacks the nearest foe within 32 blocks, civilians included.
+* **Tests.** JUnit 320/320 (new `SiegeMathTest` case: roles, ring, four squads, rotation); no harness run.
+* SHA-256 of the jar: `464d35cf9236000780a3000bc7bfa1120997c8433c219db1ca445143929e8978`.

@@ -35,6 +35,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -617,7 +618,13 @@ public final class SiegeService {
                 if (best != null) {
                     units.engage(ent, best);
                 } else {
-                    BlockPos hop = DutyService.hopTarget(level, ent, t.center, 24);
+                    // the main force storms the centre; the other squads sweep round the outskirts
+                    int[] o = SiegeMath.sweepOffset(e.rosterId, t.villageRadius, tick - (s.phaseEnd - r.battleTicks()));
+                    BlockPos goal = t.center.offset(o[0], 0, o[1]);
+                    if (o[0] != 0 || o[1] != 0) {
+                        goal = goal.atY(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, goal.getX(), goal.getZ()));
+                    }
+                    BlockPos hop = DutyService.hopTarget(level, ent, goal, 24);
                     if (hop != null) {
                         units.setHome(ent, hop);
                     }
