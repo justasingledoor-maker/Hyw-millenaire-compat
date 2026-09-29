@@ -709,3 +709,58 @@ that make sense.
 * **Unchanged.** Only the winning side's helpers are paid: 40% of the tribute, shared.
 * **Tests.** JUnit 320/320; no harness run.
 * SHA-256 of the jar: `74660d1d0fae567b46b7cb8da3ae96d98c6813aa63c0329f1b2b6005f587043b`.
+
+### 6.25 War and peace counsel, wartime mobilization, peace after a siege (`dist/hywmill-m5-fix25.jar`)
+
+**Request.** The user asked for three things:
+
+* A mobilization boost at war for villages that are not strongholds. It fills the current cap, not the tier cap. The
+  troops are decently equipped but below regulars, draw on no population, behave as ordinary units and are sent home
+  after the war.
+* Peace after a lost siege, with the relation set to −75 instead of −100.
+* "Suggest war" and "Suggest peace" options. The council decides by chance, and the enemy weighs the armies. Both must
+  also be available as commands that an operator can force.
+
+**Changes.** docs/siege-design.md, "War and peace".
+
+* **Peace after a siege.**
+  * Every finished siege ends the war (`warCounsel.peaceAfterSiege`). `WarCounselService.makePeace` sets both
+    relations to `peaceRelation` (−75, above open conflict at −90) and ends the `WarRecord` at once.
+  * Any other host between the two villages is recalled, with no outcome (`SiegeService.recall`).
+  * The war restarts only if Millénaire's relation drifts back to −90.
+* **War and peace counsel** (`WarCounsel`, `WarCounselService`). Both need a Patron or Sworn player, and each has
+  a per-player cooldown of one day.
+  * **War** is offered while the villages are at peace. It costs 2 diplomacy points. The council's chance is
+    `warChance[standing]` (Patron 0.4, Sworn 0.65) × (1 − relation/200) × 2 × our strength share, where the last
+    factor is capped at ×1.25. If the council agrees, war is declared at once (relations −100).
+  * **Peace** is offered while they are at war. It costs 1 point. The council's chance is `peaceChance[standing]`
+    (0.5 / 0.75) × (1.5 − our share). If the council agrees, the enemy accepts with our share, clamped to 0.1–0.9.
+  * The share is ours²/(ours² + theirs²). Strength is the siege defense value: the garrison at home, weighted
+    Millénaire defenders, engines and fortification.
+  * **Politics screen.** It offers "Suggest war on X" or "Suggest peace with X" with the verdict and odds band.
+  * **Commands.** `/hywmill war [for <player>] declare <village> on <other>` and `... peace <village> with
+    <other>`.
+  * **Forcing.** Operators add `force`, which skips the standing, the cost and both rolls. `roll <draw>` is for
+    dev use.
+* **Mobilization** (`Mobilization`, `MobilizationService`).
+  * Once per war, a WATCH, GUARD_POST or GARRISON village raises min(target, tier cap) − live free recruits,
+    marked `mobilized`.
+  * Their equipment level is max(1, regular − 1), so there are no Watch clubs.
+  * They are ordinary garrison units. At peace they are discharged (LOST, DISCHARGED); soldiers away on a siege are
+    discharged when the host comes home.
+  * Strongholds and lone buildings do not mobilize. Losses during the war are replaced only by normal recruitment.
+* **Data.** The new blocks are `warCounsel` and `mobilization` in `hywmill_politics`. Cultures can patch them.
+
+**Tests.**
+
+* JUnit 326/326: `WarCounselTest` and `MobilizationTest` are new.
+* Harness scenario WP passed 8/8 (`docs/m5-test-evidence/war-peace-mobilization1.txt`):
+  * a stranger is refused;
+  * a forced war is declared at once at −100;
+  * A, a Guard post at 22/47, mobilized 25 to 47/47 at equipment level 1 without spending levy;
+  * a forced peace set −75 and ended the war;
+  * the 25 levies went home (47 → 22);
+  * no restart after 30 s;
+  * an unwatched siege ended with "sued for peace" at −75;
+  * no duplicates.
+* SHA-256 of the jar: `3912a6a240f5b791d8a6aeafcb62c7fe86e171a77c6ef7570b3307eae055ded7`.

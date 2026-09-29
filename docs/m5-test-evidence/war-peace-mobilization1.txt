@@ -1,0 +1,20 @@
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario WP
+[harness] PASS WP-1 a stranger cannot counsel war war declare STANDING_TOO_LOW: You cannot suggest war: Campigny les-pâtures only weighs war and peace on the counsel of a patron or a sworn friend (you are stranger)
+[harness] PASS WP-2 a forced war counsel declares war at once (relation -100) war declare AGREED: Campigny les-pâtures heeds your counsel and declares war on Barneville les-pâtures; relation (-100, -100)
+[harness] PASS WP-3 A mobilizes the gap to its current target (not the tier cap), free tier GUARD_POST: before 22/47 (cap 48), after 47/47; ['[18:42:18] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mobilization: Campigny les-pâtures mobilizes for war: 25 fresh soldiers fill its ranks (47/47) (equipment level 1): [militia, crossbowman, spear_man, militia, crossbowman, spear_man, spear_man, crossbowman, archer, spear_man, militia, crossbowman, spear_man, spear_man, crossbowman, archer, spear_man, militia, crossbowman, spear_man, spear_man, crossbowman, archer, spear_man, militia]']
+[harness] PASS WP-4 a forced peace sets the relation to -75 and ends the war war peace AGREED: Campigny les-pâtures and Barneville les-pâtures make peace; relation (-75, -75)
+[harness] PASS WP-5 at peace the mobilized soldiers go home live 47 -> 22; ['[18:43:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mobilization: The war is over: 25 mobilized soldiers of Campigny les-pâtures go home']
+[harness] PASS WP-6 at -75 the war does not restart by itself 1 war start(s)
+[harness] PASS WP-7 a finished siege ends the war: the loser sues for peace (relation -75) war siege OK: Campigny les-pâtures musters 10 soldiers and 2 siege engines to besiege Barneville les-pâtures; they march in about 1 min id c3684e2e host 10 (unwatched); ['Campigny les-pâtures -> Barneville les-pâtures RETURN 7/10 next in 118 s WON id c3684e2e']; relation (-75, -75)
+[harness] PASS WP-8 no duplicates 0
+[harness] RESULT 9/9 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  WP-1 a stranger cannot counsel war  war declare STANDING_TOO_LOW: You cannot suggest war: Campigny les-pâtures only weighs war and peace on the counsel of a patron or a sworn friend (you are stranger)
+  PASS  WP-2 a forced war counsel declares war at once (relation -100)  war declare AGREED: Campigny les-pâtures heeds your counsel and declares war on Barneville les-pâtures; relation (-100, -100)
+  PASS  WP-3 A mobilizes the gap to its current target (not the tier cap), free  tier GUARD_POST: before 22/47 (cap 48), after 47/47; ['[18:42:18] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mobilization: Campigny les-pâtures mobilizes for war: 25 fresh soldiers fill its ranks (47/47) (equipment level 1): [militia, crossbowman, spear_man, militia, crossbowman, spear_man, spear_man, crossbowman, archer, spear_man, militia, crossbowman, spear_man, spear_man, crossbowman, archer, spear_man, militia, crossbowman, spear_man, spear_man, crossbowman, archer, spear_man, militia]']
+  PASS  WP-4 a forced peace sets the relation to -75 and ends the war  war peace AGREED: Campigny les-pâtures and Barneville les-pâtures make peace; relation (-75, -75)
+  PASS  WP-5 at peace the mobilized soldiers go home  live 47 -> 22; ['[18:43:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mobilization: The war is over: 25 mobilized soldiers of Campigny les-pâtures go home']
+  PASS  WP-6 at -75 the war does not restart by itself  1 war start(s)
+  PASS  WP-7 a finished siege ends the war: the loser sues for peace (relation -75)  war siege OK: Campigny les-pâtures musters 10 soldiers and 2 siege engines to besiege Barneville les-pâtures; they march in about 1 min id c3684e2e host 10 (unwatched); ['Campigny les-pâtures -> Barneville les-pâtures RETURN 7/10 next in 118 s WON id c3684e2e']; relation (-75, -75)
+  PASS  WP-8 no duplicates  0
