@@ -91,3 +91,30 @@ The garrison used to join the village's own Millénaire raids, and in play the t
   * They serve like any other unit.
   * When the village is at peace again they are discharged (LOST, DISCHARGED). A soldier who is away on a siege is
     discharged when the host comes home.
+
+## Relief forces (post-M5, fix26)
+
+* **Who.**
+  * When any siege is launched (by counsel, by a village's own decision, or by an admin), each village that meets all
+    of these conditions promises relief with `relief.chance` (0.2):
+    * a relation of at least `minRelation` (80) with the besieged village;
+    * at peace with the besieged village;
+    * not a party to the siege and not a lone building;
+    * at least `minGarrison` soldiers at home.
+  * At most `maxHelpers` (2) villages relieve one siege.
+* **When.** The force sets out when the attackers finish mustering and march. It is 5–20% of the helper's garrison
+  at home. It travels stowed, by forced march, and arrives after 1–2 minutes, usually before the attackers.
+* **At the target.**
+  * The soldiers appear on a ring round the village (half its radius, 12–40 blocks).
+  * While the force is out, the helper's and the attacker's factions are projected HOSTILE (`RelationPlan` relief
+    pairs).
+  * The relief counts among the defenders, both in watched battles (foes, defenders, the 20% line) and off-screen
+    (strength, and a share of the defenders' losses).
+* **On the way.**
+  * **Ambush** (12%). 20–60% of the force is killed, a real loss to the helper's garrison. With a further 40% chance
+    the survivors rout home and none arrive.
+  * **Lost** (6%). 30% to all of the force never arrives. These soldiers go home unharmed.
+* **After.** When the siege ends, or peace calls it off, the force goes home. The siege record stays until the relief
+  is back.
+* **Admin.** `/hywmill war admin relief <helper> <target> [clean|ambushed|routed|straggled|lost]` makes the helper
+  relieve the siege of the target, optionally with a forced fate.
