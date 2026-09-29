@@ -1,0 +1,8 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario ARS7
+[harness] PASS ARS-7 the Muster Roll sells a crewed catapult and a ram to a Trusted player; a trebuchet needs a Patron r=33333333-4444-4555-8666-777777777777 msg=Hired 1 × Catapult (with an engineer) for 2 or. || 4444-4555-8666-777777777777 msg=Hired 1 × Battering ram (you drive it) for 1 or 32 argent. || recruit: ok=false hired=0 left=50000 owner=33333333-4444-4555-8666-777777777777 msg=That is not offered to you here. || owned ['mangonels', 'mangonels'], engineers 2, rams by the block 1 (owner null)
+[harness] server stopped
+[harness] RESULT 2/2 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  ARS-7 the Muster Roll sells a crewed catapult and a ram to a Trusted player; a trebuchet needs a Patron  r=33333333-4444-4555-8666-777777777777 msg=Hired 1 × Catapult (with an engineer) for 2 or. || 4444-4555-8666-777777777777 msg=Hired 1 × Battering ram (you drive it) for 1 or 32 argent. || recruit: ok=false hired=0 left=50000 owner=33333333-4444-4555-8666-777777777777 msg=That is not offered to you here. || owned ['mangonels', 'mangonels'], engineers 2, rams by the block 1 (owner null)

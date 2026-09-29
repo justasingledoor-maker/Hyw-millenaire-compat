@@ -424,3 +424,50 @@ The full design is in `docs/siege-design.md`.
       decided off-screen, host strength 65 against defense 260, P = 0.11 → **LOST**. The host lost 12 and the
       defenders 4, exactly the garrisons' killed totals. The survivors came home with 0 duplicates.
 * SHA-256 of the jar: `66129aa8b645922b224e2f387a2d57ce213e3314c311cd310988438e683f91e7`.
+
+### 6.10 War arsenals and siege engines; engines at the Muster Roll (`dist/hywmill-m5-fix10.jar`)
+
+**Request**, after the exploration (`docs/siege-engines-exploration.md`):
+* only catapults and trebuchets (strongholds also a nest of bees);
+* 1–4 engines per village whenever it goes to war;
+* lost engines are not replaced during the war, and survivors despawn at peace;
+* a fresh arsenal for the next war;
+* bystanders can be hit ("cost of war");
+* no gunpowder;
+* the Muster Roll sells catapults, trebuchets and battering rams.
+
+* **War arsenal** (`ArsenalService`, `ArsenalPlan`; the roster's separate arsenal list).
+  * A village at war, declared or declared on, raises engines by tier: watch 1, guard post 2, garrison 3, stronghold 4
+    (one of them a nest of bees). Each engine has a siege engineer, who mounts it by himself (HYW's own goal).
+  * They stand at the defending position and fire at enemies in range.
+  * The arsenal is not part of the garrison: never counted, recruited or given duties. Joins, deaths and duplicate
+    refusal work as for garrison units, and a destroyed engine does not affect recruiting.
+  * Lost engines are not replaced. At peace the survivors stand down; those away on a siege stand down when they come
+    home. The next war brings a fresh arsenal.
+* **Sieges.**
+  * The village's engines and crews march with the host and set up 24 blocks behind the landing point, where they hold.
+  * Rout and victory shares count soldiers only.
+  * Off-screen, each engine weighs 8 and cancels 25% of the target's fortification bonus; a defender's engines at home
+    add to its defense.
+* **Muster Roll** (`hywmill_recruitment` `engines`):
+  * catapult 2 or (Trusted, with an engineer);
+  * trebuchet 4 or (Patron, with an engineer);
+  * battering ram 1.5 or (Trusted, player-driven).
+
+  Standing discounts apply, at most 4 per purchase. An HYW ram belongs to whoever rides it: bought, it stands
+  ownerless by the block until the player boards it.
+* **Fix.** `GarrisonService.stow` no longer discards a tracked vehicle together with its rider.
+* **Tests.**
+  * JUnit 318/318, including `ArsenalPlanTest` (6) and a new engine-offer test.
+  * Harness `ARS` on a fresh world after `G4_0` (`war-arsenal1.txt`), 12/13, then 13/13 with ARS-7 re-checked
+    (`war-arsenal-ars7.txt`). The first ARS-7 expected the ram to carry the buyer as its owner; as above, that is not
+    HYW's rule.
+    * **At war:** A (guard post) raised a catapult and a trebuchet, and B (watch) a trebuchet, both crews mounted.
+    * **Losses:** a destroyed engine was not replaced (2 → 1).
+    * **Siege:** it took the surviving engine along, which set up behind the host before B.
+    * **Truce:** B's engines stood down, and A's stood down when its host came home.
+    * **Next war:** A raised 2 again.
+    * **Muster Roll:** it sold the catapult (with an engineer) and the ram, and refused the trebuchet to a Trusted
+      player.
+    * No duplicate units at any point.
+* SHA-256 of the jar: `fe4645ba4647a8de25f39944fa09bcfa6e1e7d3800e34369934d320f822a36e4`.

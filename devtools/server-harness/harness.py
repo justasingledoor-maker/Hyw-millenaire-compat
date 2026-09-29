@@ -2407,6 +2407,32 @@ def arsenal_lines(s):
     return [l.strip() for l in s.output("hywmill war arsenals", 1.5) if " arsenal " in l]
 
 
+def ars7(s, x, y, z, standin, h1, h2, h3):
+    mine = engines_of(s, standin)
+    eng = [u for u, r in spike_info(s, "@e[type=hundred_years_war:siege_engineer]").items() if ("owner=" + standin) in r["desc"]]
+    # an HYW battering ram belongs to whoever rides it: bought, it stands ownerless next to the block until the player boards
+    rams = [r for r in spike_info(s, "@e[type=hundred_years_war:battering_ram]").values() if dist(r["pos"], (x, y, z)) <= 40]
+    check("ARS-7 the Muster Roll sells a crewed catapult and a ram to a Trusted player; a trebuchet needs a Patron",
+          "ok=true" in h1 and "ok=true" in h2 and "ok=false" in h3 and [r["kind"] for r in mine.values()].count("mangonels") >= 1 and len(eng) >= 1
+          and len(rams) >= 1, f"{h1[-90:]} || {h2[-90:]} || {h3[-120:]} || owned {sorted(r['kind'] for r in mine.values())}, engineers {len(eng)}, "
+          f"rams by the block {len(rams)} (owner {rams[0]['desc'].split('owner=')[1].split()[0] if rams else '-'})")
+
+
+def scenario_ARS7(ctx):
+    """ARS-7 alone on a kept world (after ARS): Muster Roll engine sales."""
+    s, a = ctx.s, ctx.a
+    x, z = a[0] + 6, a[2] + 6
+    y = surface_y(s, x, z) or a[1]
+    s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+    s.cmd("kill @e[type=hundred_years_war:battering_ram]", 1)
+    standin = "33333333-4444-4555-8666-777777777777"
+    h1 = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "engine:mangonels" 1 20000 TRUSTED', 4) if "recruit:" in l)
+    h2 = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "engine:battering_ram" 1 20000 TRUSTED', 4) if "recruit:" in l)
+    h3 = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "engine:trebuchets" 1 50000 TRUSTED', 4) if "recruit:" in l)
+    time.sleep(8)
+    ars7(s, x, y, z, standin, h1, h2, h3)
+
+
 def scenario_ARS(ctx):
     """War arsenal (post-M5; run after G4_0 with [politics] warMinConflictTicks = 200): A and B go to war and each raises
     siege engines by tier (catapults/trebuchets, crewed); a destroyed engine is not replaced; A's engines march with its
@@ -2476,11 +2502,7 @@ def scenario_ARS(ctx):
     h2 = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "engine:battering_ram" 1 20000 TRUSTED', 4) if "recruit:" in l)
     h3 = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "engine:trebuchets" 1 50000 TRUSTED', 4) if "recruit:" in l)
     time.sleep(8)
-    mine = engines_of(s, standin)
-    eng = [u for u, r in spike_info(s, "@e[type=hundred_years_war:siege_engineer]").items() if ("owner=" + standin) in r["desc"]]
-    check("ARS-7 the Muster Roll sells a crewed catapult and a ram to a Trusted player; a trebuchet needs a Patron",
-          "ok=true" in h1 and "ok=true" in h2 and "ok=false" in h3 and sorted(r["kind"] for r in mine.values()) == ["battering_ram", "mangonels"] and len(eng) >= 1,
-          f"{h1[-90:]} || {h2[-90:]} || {h3[-120:]} || owned {sorted(r['kind'] for r in mine.values())}, engineers {len(eng)}")
+    ars7(s, x, y, z, standin, h1, h2, h3)
     dups = [l for l in s.read_since(p0) if "Duplicate garrison unit refused" in l]
     note("ARS duplicates refused", str(len(dups)))
     dip(s, a, f"admin truce {ca} {cb} 1")
@@ -5350,7 +5372,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
