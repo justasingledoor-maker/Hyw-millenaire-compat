@@ -2389,6 +2389,104 @@ def scenario_ENGC(ctx):
     check("ENGC-1 control recorded", True, str(results))
 
 
+ENGINE_TYPES = ("mangonels", "trebuchets", "nest_of_bees", "battering_ram")
+
+
+def engines_of(s, owner):
+    """{uuid: row} of loaded siege engines owned by {owner} (a faction or player UUID)."""
+    out = {}
+    for et in ENGINE_TYPES:
+        for u, r in spike_info(s, f"@e[type=hundred_years_war:{et}]").items():
+            if ("owner=" + owner) in r["desc"]:
+                r["kind"] = et
+                out[u] = r
+    return out
+
+
+def arsenal_lines(s):
+    return [l.strip() for l in s.output("hywmill war arsenals", 1.5) if " arsenal " in l]
+
+
+def scenario_ARS(ctx):
+    """War arsenal (post-M5; run after G4_0 with [politics] warMinConflictTicks = 200): A and B go to war and each raises
+    siege engines by tier (catapults/trebuchets, crewed); a destroyed engine is not replaced; A's engines march with its
+    siege and set up behind the host; at peace the survivors stand down; the next war brings a fresh arsenal. The Muster
+    Roll sells a crewed catapult and a ram to a Trusted player, not a trebuchet."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    fa, fb = garrison(s, a).get("faction"), garrison(s, b).get("faction")
+    ta, tb = info(s, a).get("tier"), info(s, b).get("tier")
+    want = {"WATCH": 1, "GUARD_POST": 2, "GARRISON": 3, "STRONGHOLD": 4}
+    p0 = s.pos()
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill mrel {ca} {cb} set -100")
+    t0 = time.time()
+    ea, eb = {}, {}
+    while time.time() - t0 < 150:
+        ea, eb = engines_of(s, fa), engines_of(s, fb)
+        if len(ea) >= want.get(ta, 0) and len(eb) >= want.get(tb, 0) and ea:
+            break
+        time.sleep(5)
+    time.sleep(8)
+    ea, eb = engines_of(s, fa), engines_of(s, fb)
+    mounted = sum(1 for u in ea if "siege_engineer" in " ".join(s.output(f"data get entity {u} Passengers[0].id", 0.4)))
+    note("ARS arsenals", " || ".join(arsenal_lines(s))[:500])
+    check("ARS-1 at war, each village raises siege engines by its tier (catapults/trebuchets), crewed by engineers",
+          len(ea) == want.get(ta, 0) and len(eb) == want.get(tb, 0) and all(r["kind"] in ("mangonels", "trebuchets", "nest_of_bees") for r in {**ea, **eb}.values())
+          and mounted >= 1, f"A {ta}: {sorted(r['kind'] for r in ea.values())}, B {tb}: {sorted(r['kind'] for r in eb.values())}; A mounted {mounted}")
+    victim = next(iter(ea), None)
+    if victim:
+        s.cmd(f"kill {victim}", 1)
+    time.sleep(30)
+    ea2 = engines_of(s, fa)
+    check("ARS-2 a destroyed engine is not replaced during the war", victim is not None and victim not in ea2 and len(ea2) == len(ea) - 1,
+          f"{len(ea)} -> {len(ea2)}")
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    check("ARS-3 A's siege takes its engines along", "siege engine" in out, out)
+    sg, t_b = wait_siege(s, lambda l: l and ("BATTLE" in l[0] or "RETURN" in l[0]), 300)
+    time.sleep(10)
+    near = [r for r in engines_of(s, fa).values() if dist(r["pos"], b) <= 130]
+    check("ARS-4 before B, A's engines set up behind the host", t_b is not None and len(near) >= 1,
+          f"{sg}; A engines near B: {[(r['kind'], r['pos']) for r in near]}")
+    sg, t_e = wait_siege(s, lambda l: not l or "RETURN" in l[0], 420)
+    dip(s, a, f"admin truce {ca} {cb} 1")
+    t0 = time.time()
+    while time.time() - t0 < 120 and (engines_of(s, fb) or any("(at war)" in l for l in arsenal_lines(s))):
+        time.sleep(5)
+    eb3 = engines_of(s, fb)
+    check("ARS-5 at peace the survivors stand down (B's engines leave the world)", not eb3 and not any("(at war)" in l for l in arsenal_lines(s)),
+          f"B engines {len(eb3)}; {arsenal_lines(s)}")
+    sg, t_h = wait_siege(s, lambda l: not l, 420)
+    time.sleep(10)
+    check("ARS-5b engines away on the siege stand down when they come home", not engines_of(s, fa), f"A engines {len(engines_of(s, fa))} after siege {t_h}")
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill mrel {ca} {cb} set -100")
+    t0 = time.time()
+    while time.time() - t0 < 150 and len(engines_of(s, fa)) < want.get(ta, 0):
+        time.sleep(5)
+    ea4 = engines_of(s, fa)
+    check("ARS-6 the next war brings a fresh arsenal (the destroyed engine does not count against it)", len(ea4) == want.get(ta, 0),
+          f"A {len(ea4)} of {want.get(ta, 0)}")
+    # Muster Roll engines (dev stand-in, Trusted)
+    x, z = a[0] + 6, a[2] + 6
+    y = surface_y(s, x, z) or a[1]
+    s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+    standin = "33333333-4444-4555-8666-777777777777"
+    h1 = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "engine:mangonels" 1 20000 TRUSTED', 4) if "recruit:" in l)
+    h2 = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "engine:battering_ram" 1 20000 TRUSTED', 4) if "recruit:" in l)
+    h3 = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "engine:trebuchets" 1 50000 TRUSTED', 4) if "recruit:" in l)
+    time.sleep(8)
+    mine = engines_of(s, standin)
+    eng = [u for u, r in spike_info(s, "@e[type=hundred_years_war:siege_engineer]").items() if ("owner=" + standin) in r["desc"]]
+    check("ARS-7 the Muster Roll sells a crewed catapult and a ram to a Trusted player; a trebuchet needs a Patron",
+          "ok=true" in h1 and "ok=true" in h2 and "ok=false" in h3 and sorted(r["kind"] for r in mine.values()) == ["battering_ram", "mangonels"] and len(eng) >= 1,
+          f"{h1[-90:]} || {h2[-90:]} || {h3[-120:]} || owned {sorted(r['kind'] for r in mine.values())}, engineers {len(eng)}")
+    dups = [l for l in s.read_since(p0) if "Duplicate garrison unit refused" in l]
+    note("ARS duplicates refused", str(len(dups)))
+    dip(s, a, f"admin truce {ca} {cb} 1")
+    m5(s, f"mill mrel {ca} {cb} set 0")
+
+
 def scenario_S4(ctx):
     """M4-0 spike on the dedicated server: Millénaire raid lifecycle + HYW contingent mechanics,
     HYW mounted units as scouts, Wand of Negation lifecycle. Findings are logged as 'spike4 ...'."""
@@ -5252,7 +5350,7 @@ SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": s
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
