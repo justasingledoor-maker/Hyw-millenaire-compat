@@ -5548,6 +5548,9 @@ def scenario_RL(ctx):
     p0 = s.pos()
     fa, fc = info(s, a).get("faction"), info(s, c).get("faction")
     time.sleep(15)
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):  # a siege left over from an earlier scenario finishes its return first
+        time.sleep(5)
     dip(s, a, f"admin truce {ca} {cb} 0")
     m5(s, f"mill mrel {cc} {cb} set 90")
     m5(s, f"mill mrel {ca} {cc} set 0")
