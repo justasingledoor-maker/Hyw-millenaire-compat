@@ -65,6 +65,10 @@ public final class SiegeService {
     /** Players this close to the target during a battle count as helpers of the side their campaign is on. */
     public static final double HELPER_RANGE = 96;
     public static final double ENGAGE_RANGE = 32;
+    /** The host lands this many blocks outside the target's village radius. */
+    public static final int STAGING_MARGIN = 16;
+    /** Village radius assumed when Millénaire did not report one. */
+    public static final int DEFAULT_RADIUS = 48;
     /** Players this close to either village hear about the siege. */
     public static final double NEWS_RANGE = 256;
     /** A paused (unwatched) battle ends on its standing shares after this long (10 minutes). */
@@ -446,24 +450,32 @@ public final class SiegeService {
         }
     }
 
-    private static BlockPos landing(ServerLevel overworld, VillageRecord a, VillageRecord t) {
-        SettlementSource source = Services.settlements();
-        return source == null ? t.center : source.raidLandingPoint(overworld, t.villageId, a.center).orElse(t.center);
+    /**
+     * Where the host arrives: outside the target, {@link #STAGING_MARGIN} blocks beyond its village radius on the side facing
+     * the attacker's home (on the surface when loaded). Never inside the village: the host marches in from there.
+     */
+    static BlockPos landing(ServerLevel overworld, VillageRecord a, VillageRecord t) {
+        int radius = t.villageRadius > 0 ? t.villageRadius : DEFAULT_RADIUS;
+        BlockPos p = behind(t.center, a.center, radius + STAGING_MARGIN);
+        if (p.equals(t.center)) {
+            p = t.center.offset(radius + STAGING_MARGIN, 0, 0); // same spot as home (dev setups): any side will do
+        }
+        return surface(overworld, p);
     }
 
     /**
      * Dry, safe ground for a unit near {@code at}: the spot search (sturdy floor, no fluid), then points every 8 blocks back
-     * towards home, then around the target's centre. Null if nothing loaded qualifies.
+     * towards home (further from the target). Null if nothing loaded qualifies.
      */
     @Nullable
     static Vec3 dryGround(ServerLevel overworld, BlockPos at, BlockPos home, BlockPos targetCenter, UUID rosterId) {
         for (int d = 0; d <= 64; d += 8) {
-            Vec3 v = GarrisonService.spotNear(overworld, behind(at, home, d), rosterId);
+            Vec3 v = GarrisonService.spotNear(overworld, surface(overworld, behind(at, home, d)), rosterId);
             if (v != null) {
                 return v;
             }
         }
-        return GarrisonService.spotNear(overworld, targetCenter, rosterId);
+        return null; // never inside the target: wait and try again
     }
 
     /**
@@ -483,6 +495,12 @@ public final class SiegeService {
         double side = (index % perRow - (perRow - 1) / 2.0) * spacing;
         double depth = (index / perRow) * spacing;
         return at.offset((int) Math.round(dx * depth - dz * side), 0, (int) Math.round(dz * depth + dx * side));
+    }
+
+    /** {@code p} moved to the surface when its chunk is loaded (the spot search only looks a few blocks up and down). */
+    static BlockPos surface(ServerLevel overworld, BlockPos p) {
+        return overworld.hasChunk(p.getX() >> 4, p.getZ() >> 4)
+                ? p.atY(overworld.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, p.getX(), p.getZ())) : p;
     }
 
     /** A point {@code dist} blocks from {@code from} towards {@code toward} (same height). */

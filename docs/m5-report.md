@@ -674,3 +674,20 @@ that make sense.
   * Its engineer stays with the village.
 * **Tests.** JUnit 320/320 (`ArsenalPlanTest` updated); no harness run (the springald is not yet seen in play).
 * SHA-256 of the jar: `b9f0cd42e9f39be4a4010dddceb66eb6e5afcdb1e65c60b4e4c92e4d7d41b685`.
+
+### 6.23 The siege host lands outside the village (`dist/hywmill-m5-fix23.jar`)
+
+**Report.** Siege soldiers appeared in the middle of the target village, not outside its radius.
+
+* **Cause.** The host could be placed inside the village in two ways:
+  * it landed at Millénaire's raid landing point, which can lie inside the village;
+  * when no dry ground was found, the spot search fell back to the target's centre.
+* **Fix.**
+  * `SiegeService.landing` now uses its own staging point: on the side facing the attacker's home,
+    `villageRadius + 16` blocks from the target's centre (48 is assumed when no radius is known). The point is taken
+    on the surface when its chunk is loaded.
+  * The search for dry ground only steps further away from the target, never towards its centre. If nothing is
+    found, the host waits and tries again.
+  * The soldiers' ranks and the engine line form round the staging point. The host then marches in.
+* **Tests.** JUnit 320/320; no harness run.
+* SHA-256 of the jar: `b726a3b452fa3924c2ac38bbf27a69ea3a44438fe6131b57acb3d5793dc54c18`.
