@@ -466,6 +466,25 @@ public final class SiegeService {
         return GarrisonService.spotNear(overworld, targetCenter, rosterId);
     }
 
+    /**
+     * Slot {@code index} of a formation at {@code at}: ranks of {@code perRow} across the line from {@code at} to
+     * {@code home}, {@code spacing} blocks apart, each further rank {@code spacing} blocks nearer home.
+     */
+    static BlockPos formation(BlockPos at, BlockPos home, int index, int perRow, int spacing) {
+        double dx = home.getX() - at.getX(), dz = home.getZ() - at.getZ();
+        double len = Math.sqrt(dx * dx + dz * dz);
+        if (len < 1) {
+            dx = 0;
+            dz = 1;
+            len = 1;
+        }
+        dx /= len;
+        dz /= len;
+        double side = (index % perRow - (perRow - 1) / 2.0) * spacing;
+        double depth = (index / perRow) * spacing;
+        return at.offset((int) Math.round(dx * depth - dz * side), 0, (int) Math.round(dz * depth + dx * side));
+    }
+
     /** A point {@code dist} blocks from {@code from} towards {@code toward} (same height). */
     static BlockPos behind(BlockPos from, BlockPos toward, int dist) {
         double dx = toward.getX() - from.getX(), dz = toward.getZ() - from.getZ();
@@ -484,14 +503,17 @@ public final class SiegeService {
                         BlockPos landing, long tick, PoliticsTables.SiegeRule r) {
         int n = 0;
         BlockPos back = behind(landing, a.center, 24);
+        int soldier = 0, engine = 0;
         for (RosterEntry e : alive) {
             boolean arsenal = a.hywRoster.isArsenal(e);
+            // the engines (and their crews) set up in a line behind the landing point, towards home; the soldiers stand in
+            // spaced ranks at it, facing the target
+            int slot = arsenal ? engine++ : soldier++;
             if (e.entityUuid != null) {
                 n += arsenal ? 0 : 1;
                 continue;
             }
-            // the engines (and their crews) set up behind the landing point, towards home; the soldiers at it
-            BlockPos at = arsenal ? back : landing;
+            BlockPos at = arsenal ? formation(back, a.center, slot / 2, 6, 5) : formation(landing, a.center, slot, 8, 3);
             Vec3 spot = dryGround(overworld, at, a.center, t.center, e.rosterId);
             if (spot == null) {
                 continue; // no dry, safe ground found this time: this unit tries again on the next step

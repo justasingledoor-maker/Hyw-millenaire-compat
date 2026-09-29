@@ -564,3 +564,16 @@ up around the village.
   * Engaging is unchanged: any soldier attacks the nearest foe within 32 blocks, civilians included.
 * **Tests.** JUnit 320/320 (new `SiegeMathTest` case: roles, ring, four squads, rotation); no harness run.
 * SHA-256 of the jar: `464d35cf9236000780a3000bc7bfa1120997c8433c219db1ca445143929e8978`.
+
+### 6.17 Spaced ranks on arrival (`dist/hywmill-m5-fix17.jar`)
+
+**Request.** Space the siege host out when it materializes, as the arsenal engines are.
+
+* **Change.** `SiegeService.formation` places each unit's spawn point before the spot search (dry, sturdy ground)
+  runs from it.
+  * **Soldiers.** Ranks of 8, 3 blocks apart, across the line from the landing point to home. Each further rank is 3
+    blocks nearer home.
+  * **Engines and crews.** A line of 6 positions, 5 blocks apart, 24 blocks behind the landing point. Each engine
+    shares its position with its crew.
+* **Tests.** JUnit 320/320; no harness run.
+* SHA-256 of the jar: `0e245351a75a4a640071ad6d20559657c6100923a7ebe2b196f38c09653be0c6`.
