@@ -92,10 +92,11 @@ final class WarCommands {
                 .then(Commands.literal("roll").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get() && s.hasPermission(2))
                         .then(Commands.argument("draw", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0, 1))
                                 .executes(ctx -> raid(ctx, who.get(ctx), com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "draw"))))));
-        node.then(Commands.literal("siege").executes(ctx -> siege(ctx, who.get(ctx), null))
+        node.then(Commands.literal("siege").executes(ctx -> siege(ctx, who.get(ctx), null, false))
+                .then(Commands.literal("force").requires(s -> s.hasPermission(2)).executes(ctx -> siege(ctx, who.get(ctx), null, true)))
                 .then(Commands.literal("roll").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get() && s.hasPermission(2))
                         .then(Commands.argument("draw", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(0, 1))
-                                .executes(ctx -> siege(ctx, who.get(ctx), com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "draw"))))));
+                                .executes(ctx -> siege(ctx, who.get(ctx), com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "draw"), false)))));
         node.then(Commands.literal("join").then(Commands.argument("ally", BlockPosArgument.blockPos())
                 .then(Commands.literal("against").then(Commands.argument("enemy", BlockPosArgument.blockPos())
                         .executes(ctx -> join(ctx, who.get(ctx)))))));
@@ -176,7 +177,7 @@ final class WarCommands {
     }
 
     /** Post-M5: suggest a siege to the village of the player's campaign against its enemy ({@code roll}: dev, forced draw). */
-    private static int siege(CommandContext<CommandSourceStack> ctx, @Nullable UUID player, @Nullable Double draw) {
+    private static int siege(CommandContext<CommandSourceStack> ctx, @Nullable UUID player, @Nullable Double draw, boolean free) {
         if (player == null) {
             return 0;
         }
@@ -186,7 +187,7 @@ final class WarCommands {
             send(ctx.getSource(), "war siege NOT_ON_CAMPAIGN: You are not on campaign; join a war first ('/hywmill war join <ally> against <enemy>')");
             return 0;
         }
-        var r = PoliticsActions.suggestSiege(ow, player, c.ally(), c.enemy(), draw);
+        var r = PoliticsActions.suggestSiege(ow, player, c.ally(), c.enemy(), draw, free);
         send(ctx.getSource(), "war siege " + r.code() + ": " + r.message());
         return r.ok() ? 1 : 0;
     }

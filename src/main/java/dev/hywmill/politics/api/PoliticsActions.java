@@ -142,7 +142,13 @@ public final class PoliticsActions {
      * {@code forcedDraw} replaces the random draw (dev commands only; null in play).
      */
     public static ActionResult suggestSiege(ServerLevel overworld, UUID player, UUID attacker, UUID target, @javax.annotation.Nullable Double forcedDraw) {
-        var r = HywMillRuntime.require().sieges().suggest(overworld, player, attacker, target, false, forcedDraw);
+        return suggestSiege(overworld, player, attacker, target, forcedDraw, false);
+    }
+
+    /** {@code free}: the operator command, without the cooldown and the diplomacy points. */
+    public static ActionResult suggestSiege(ServerLevel overworld, UUID player, UUID attacker, UUID target, @javax.annotation.Nullable Double forcedDraw,
+                                            boolean free) {
+        var r = HywMillRuntime.require().sieges().suggest(overworld, player, attacker, target, false, forcedDraw, free);
         String code = !r.ok() ? r.refusal().name() : r.agreed() ? "AGREED" : "REFUSED";
         return new ActionResult(r.agreed(), code, r.ok() ? r.detail() : "You cannot suggest a siege: " + r.detail());
     }

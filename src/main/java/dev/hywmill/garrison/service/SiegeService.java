@@ -293,6 +293,12 @@ public final class SiegeService {
      * spent or rolled (the Politics screen's verdict); {@code forcedDraw} (dev only) replaces the draw.
      */
     public Counsel suggest(ServerLevel overworld, UUID player, UUID attackerId, UUID targetId, boolean dryRun, @Nullable Double forcedDraw) {
+        return suggest(overworld, player, attackerId, targetId, dryRun, forcedDraw, false);
+    }
+
+    /** {@code free} (operator command): no cooldown and no diplomacy points; every other rule and the roll still apply. */
+    public Counsel suggest(ServerLevel overworld, UUID player, UUID attackerId, UUID targetId, boolean dryRun, @Nullable Double forcedDraw,
+                           boolean free) {
         SettlementSource source = Services.settlements();
         GarrisonLedger ledger = GarrisonLedger.get(overworld);
         VillageRecord a = ledger.get(attackerId);
@@ -311,7 +317,7 @@ public final class SiegeService {
         OptionalInt points = source.diplomacyPoints(overworld, attackerId, player);
         SiegeMath.Facts f = new SiegeMath.Facts(RelationProjector.atWar(ledger, attackerId, targetId), onCampaign, standing,
                 byAttacker(ledger, attackerId) != null, against(ledger, targetId) != null, host.size(), now,
-                pr == null ? -1 : pr.lastSiegeCounsel, points.isPresent() ? points.getAsInt() : -1);
+                free || pr == null ? -1 : pr.lastSiegeCounsel, free || points.isEmpty() ? -1 : points.getAsInt());
         SiegeMath.Refusal refusal = SiegeMath.check(f, r);
         if (refusal != SiegeMath.Refusal.OK) {
             return new Counsel(refusal, 0, false, false, refusalText(refusal, a, t, r, f));
@@ -322,12 +328,14 @@ public final class SiegeService {
         if (dryRun) {
             return new Counsel(SiegeMath.Refusal.OK, chance, false, false, "costs " + r.counselPoints() + " diplomacy points with " + a.name + "; " + odds);
         }
-        for (int i = 0; i < r.counselPoints(); i++) {
+        for (int i = 0; !free && i < r.counselPoints(); i++) {
             if (!source.consumeDiplomacyPoint(overworld, attackerId, player)) {
                 return new Counsel(SiegeMath.Refusal.NO_DIPLOMACY_POINT, chance, false, i > 0, "no Millénaire diplomacy point left with " + a.name);
             }
         }
-        a.politics.get(player).lastSiegeCounsel = now;
+        if (!free) {
+            a.politics.get(player).lastSiegeCounsel = now;
+        }
         ledger.setDirty();
         UUID seedId = UUID.nameUUIDFromBytes((player + ">" + attackerId + ">" + targetId + ">siegecounsel>" + now).getBytes(StandardCharsets.UTF_8));
         double draw = forcedDraw != null ? forcedDraw : SiegeMath.draw(seedId.getMostSignificantBits() ^ seedId.getLeastSignificantBits());

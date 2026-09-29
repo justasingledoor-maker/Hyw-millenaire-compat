@@ -538,3 +538,15 @@ somewhere between 10 and 20 minutes.
 * **Unchanged.** Their garrisons, raids and threat handling.
 * **Tests.** JUnit 319/319; no harness run (the harness world has no lone building).
 * SHA-256 of the jar: `b219eb5d417a2cfc983deef03c5a5a350701ea608b5f53cb93b20a6bcd62ff9b`.
+
+### 6.15 Siege counsel without cooldown or points (`dist/hywmill-m5-fix15.jar`)
+
+**Request.** A command to suggest a siege without the counsel cooldown or the diplomacy point cost.
+
+* **Change.** `/hywmill war siege force` (operators, permission level 2; `/hywmill war for <player> siege force` for
+  another player) makes the Politics screen's siege counsel. It skips the cooldown and costs no diplomacy points, and it
+  does not start a new cooldown.
+* **Unchanged.** The other checks still apply: at war, on campaign against the target, Patron or better, no siege
+  under way, a large enough host. The chance roll by standing still applies too.
+* **Tests.** JUnit 319/319; no harness run.
+* SHA-256 of the jar: `c21f01649ad9ca8f0d6a68dbd869bfd47b779b882c4df12a8951c846cba5a29e`.
