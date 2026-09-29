@@ -5521,12 +5521,112 @@ def scenario_WP(ctx):
     check("WP-8 no duplicates", not dups, f"{len(dups)}")
 
 
+def relief_units(s, fac, c, r=90):
+    return [u for u, x in spike_info(s, "@e[type=!minecraft:player]").items()
+            if x["tag"] != "none" and ("owner=" + str(fac)) in x["desc"] and dist(x["pos"], c) <= r]
+
+
+def scenario_RL(ctx):
+    """Relief forces (post-M5; run after G4_0, --keep-world with the extra villages): C, on great terms with B, relieves B
+    against A's siege: its force sets out when A marches, arrives first and stands spread round B, HOSTILE to A's
+    soldiers, and goes home when the siege ends; an ambushed and routed relief loses soldiers (dead) and never arrives;
+    a relief that loses its way costs no lives."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    for box in EXTRA_FORCELOAD:
+        s.cmd("forceload add {} {} {} {}".format(*box), wait=10)
+    centers = []
+    for l in s.output("hywmill village list", 2):
+        m = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=| (-?\d+), (-?\d+), (-?\d+) tier=", l)
+        if m:
+            centers.append(tuple(int(x) for x in m.groups() if x is not None))
+    c = next((v for v in centers if v not in (a, b) and dist(v, b) < 450), None)
+    check("RL-0 a third village to send relief", c is not None, str(centers))
+    if c is None:
+        return
+    ca, cb, cc = (f"{v[0]} {v[1]} {v[2]}" for v in (a, b, c))
+    P = W_UUID
+    p0 = s.pos()
+    fa, fc = info(s, a).get("faction"), info(s, c).get("faction")
+    time.sleep(15)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill mrel {cc} {cb} set 90")
+    m5(s, f"mill mrel {ca} {cc} set 0")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(3)
+    gc0 = garrison(s, c)
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    r1 = " | ".join(l for l in s.output(f"hywmill war admin relief {cc} {cb} clean", 2) if l.startswith("war relief"))
+    check("RL-1 C promises relief to the besieged B", "war siege OK" in out and "war relief OK" in r1, f"{out} || {r1}")
+    t0 = time.time()
+    sent = arrived = None
+    while time.time() - t0 < 360:
+        logs = s.read_since(p0)
+        sent = sent or next((l for l in logs if "by forced march to relieve" in l), None)
+        arrived = next((l for l in logs if "reaches" in l and "takes position" in l), None)
+        if arrived:
+            break
+        time.sleep(5)
+    logs = s.read_since(p0)
+    march = next((l for l in logs if "marches on" in l), None)
+    stands = next((l for l in logs if "stands before" in l), None)
+    check("RL-2 the relief sets out when the attackers march", sent is not None and march is not None
+          and logs.index(march) <= logs.index(sent), f"{march} || {sent}")
+    time.sleep(8)
+    here = relief_units(s, fc, b)
+    rel = relation(s, cc, fa) if fa else None
+    check("RL-3 it arrives (before the attackers) and stands spread round B, HOSTILE to A's soldiers",
+          arrived is not None and len(here) >= 1 and (stands is None or logs.index(arrived) < logs.index(stands)) and rel == ("HOSTILE", "HOSTILE"),
+          f"{arrived}; {len(here)} of C's soldiers near B; attackers stand: {stands is not None}; C<->A {rel}; {sieges(s)}")
+    spread = max((dist(x, y) for x in [spike_info(s, u).get(u, {}).get("pos") for u in here[:6]] for y in [spike_info(s, u).get(u, {}).get("pos") for u in here[:6]]
+                  if x and y), default=0)
+    note("RL relief spread", f"max distance between relief soldiers {spread:.0f}")
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    time.sleep(8)
+    gc1 = garrison(s, c)
+    home = [l for l in s.read_since(p0) if "relief goes home" in l]
+    check("RL-4 at the siege's end the relief goes home (siege record kept until it is back)", not sieges(s) and not relief_units(s, fc, b) and home,
+          f"sieges {sieges(s)}; C near B {len(relief_units(s, fc, b))}; C live {gc0.get('live')} -> {gc1.get('live')}")
+    # an ambushed, routed relief: dead soldiers and nobody arrives
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(3)
+    k0 = garrison(s, c).get("t_killed", 0)
+    s.output(f"hywmill war admin siege {ca} {cb}", 2)
+    s.output(f"hywmill war admin relief {cc} {cb} routed", 2)
+    routed = s.wait_for(r"relief ROUTED", 360, since=p0)
+    time.sleep(5)
+    k1 = garrison(s, c).get("t_killed", 0)
+    check("RL-5 an ambushed, routed relief loses soldiers (a real loss) and never arrives", routed is not None and k1 > k0,
+          f"{routed}; C killed {k0} -> {k1}")
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(3)
+    k2 = garrison(s, c).get("t_killed", 0)
+    s.output(f"hywmill war admin siege {ca} {cb}", 2)
+    s.output(f"hywmill war admin relief {cc} {cb} lost", 2)
+    lost = s.wait_for(r"relief LOST", 360, since=p0)
+    time.sleep(5)
+    k3 = garrison(s, c).get("t_killed", 0)
+    check("RL-6 a relief that loses its way never arrives but costs no lives", lost is not None and k3 == k2, f"{lost}; C killed {k2} -> {k3}")
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    dups = [l for l in s.read_since(p0) if "Duplicate garrison unit refused" in l]
+    check("RL-7 no duplicates, all sieges and reliefs wound up", not dups and not sieges(s), f"{len(dups)} dups; {sieges(s)}")
+
+
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "RL": scenario_RL, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
