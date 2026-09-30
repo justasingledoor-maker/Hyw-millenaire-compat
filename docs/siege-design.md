@@ -101,7 +101,7 @@ The garrison used to join the village's own Millénaire raids, and in play the t
     * at peace with the besieged village;
     * not a party to the siege and not a lone building;
     * at least `minGarrison` soldiers at home.
-  * At most `maxHelpers` (2) villages relieve one siege.
+  * At most `maxHelpers` (6) villages relieve one siege.
 * **When.** The force sets out when the attackers finish mustering and march. It is 5–20% of the helper's garrison
   at home. It travels stowed, by forced march, and arrives after 1–2 minutes, usually before the attackers.
 * **At the target.**

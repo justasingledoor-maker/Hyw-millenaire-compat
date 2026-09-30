@@ -58,7 +58,7 @@
     },
     "mobilization": { "enabled": true, "equipmentFloor": 1, "equipmentDrop": 1 },
     "relief": {
-      "enabled": true, "minRelation": 80, "chance": 0.2, "maxHelpers": 2, "minGarrison": 4, "shareMin": 0.05, "shareMax": 0.2,
+      "enabled": true, "minRelation": 80, "chance": 0.2, "maxHelpers": 6, "minGarrison": 4, "shareMin": 0.05, "shareMax": 0.2,
       "minTicks": 1200, "maxTicks": 2400, "ambushChance": 0.12, "ambushLossMin": 0.2, "ambushLossMax": 0.6, "routChance": 0.4,
       "lostChance": 0.06, "lostMin": 0.3
     }

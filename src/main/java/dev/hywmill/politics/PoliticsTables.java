@@ -199,7 +199,7 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
     public record ReliefRule(boolean enabled, int minRelation, double chance, int maxHelpers, int minGarrison, double shareMin, double shareMax,
                              long minTicks, long maxTicks, double ambushChance, double ambushLossMin, double ambushLossMax, double routChance,
                              double lostChance, double lostMin) {
-        public static final ReliefRule DEFAULT = new ReliefRule(true, 80, 0.2, 2, 4, 0.05, 0.2, 1200, 2400, 0.12, 0.2, 0.6, 0.4, 0.06, 0.3);
+        public static final ReliefRule DEFAULT = new ReliefRule(true, 80, 0.2, 6, 4, 0.05, 0.2, 1200, 2400, 0.12, 0.2, 0.6, 0.4, 0.06, 0.3);
     }
 
     public record MobilizationRule(boolean enabled, int equipmentFloor, int equipmentDrop) {

@@ -821,3 +821,13 @@ clean in the JUnit check. The journey and dispatch draws now use `SplittableRand
   * Two earlier runs failed only on harness mistakes, now fixed: a march check that read a player message, and a
     relation lookup passed a string instead of coordinates.
 * SHA-256 of the jar: `b5c27626f15a3d72d91078604fcdaebaf1435a33116c8e9a08f8caa7a2096195`.
+
+### 6.27 Up to 6 relief forces per siege (`dist/hywmill-m5-fix27.jar`)
+
+**Request.** At most 2 helpers per siege is too low.
+
+* **Change.** `relief.maxHelpers` default 2 → 6. This is in the code default and in `hywmill_politics`.
+* **Unchanged.** A village helps only with a relation of 80 or more to the besieged village, and each one decides with
+  a 20% chance. A village with many close friends can now receive several relief forces at once.
+* **Tests.** JUnit 330/330; no harness run (a data value; the relief path is covered by RL in 6.26).
+* SHA-256 of the jar: `4654b47a43fc16b0a82191cd3a03ef73a06b71ab9ca0178e6e48c79735e5fc5e`.
