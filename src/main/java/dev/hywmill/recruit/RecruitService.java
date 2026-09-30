@@ -109,7 +109,28 @@ public final class RecruitService {
         RecruitPayloads.View v = view(player, pos);
         if (v != null) {
             PacketDistributor.sendToPlayer(player, v);
+            PacketDistributor.sendToPlayer(player, new RecruitPayloads.Squads(pos, squadViews(player, pos)));
         }
+    }
+
+    /** Post-M5: the village's culture squads as this player sees them (each with its price, or why it cannot be hired). */
+    static List<RecruitPayloads.SquadView> squadViews(ServerPlayer player, BlockPos pos) {
+        MusterRollBlockEntity be = roll(player, pos);
+        ServerLevel overworld = player.getServer().overworld();
+        VillageRecord rec = be == null || player.level() != overworld ? null : village(overworld, be, pos);
+        List<RecruitPayloads.SquadView> out = new ArrayList<>();
+        if (rec == null) {
+            return out;
+        }
+        Standing st = standing(overworld, rec, player.getUUID());
+        Squads sq = Squads.current();
+        for (Squads.Squad s : sq.forCulture(rec.culture)) {
+            String why = Squads.refusal(s, st, rec.tier);
+            out.add(new RecruitPayloads.SquadView(s.id(), s.name(), s.category().name(), s.quality().name(), s.roster(),
+                    s.topGear().name(), s.size(), sq.price(s, GarrisonTables.current().units(), RecruitTables.current(), st), why == null ? "" : why,
+                    s.description()));
+        }
+        return out;
     }
 
     @Nullable
@@ -162,6 +183,9 @@ public final class RecruitService {
         UnitProvider units = Services.units();
         if (rec == null || source == null || units == null) {
             return new Outcome(false, "This Muster Roll is not within a village.", 0);
+        }
+        if (key.startsWith("squad:")) {
+            return hireSquad(overworld, payer, pos, be, rec, source, units, key.substring("squad:".length()));
         }
         RecruitOffers.Offer offer = offers(overworld, rec, payer.getUUID()).stream().filter(x -> x.key().equals(key)).findFirst().orElse(null);
         if (offer == null) {
@@ -221,6 +245,69 @@ public final class RecruitService {
         }
         return new Outcome(true, "Hired " + hired + " × " + offer.label() + " for " + RecruitOffers.money((long) hired * offer.price())
                 + (refund > 0 ? "; " + (n - hired) + " could not be placed and were refunded" : "") + ".", hired);
+    }
+
+    /**
+     * Post-M5: hires one whole culture squad. Every member is the player's own unit, equipped as this village's troops at the
+     * member's gear tier (and kit: {@code levy} for light kits); they muster together round the block.
+     */
+    private static Outcome hireSquad(ServerLevel overworld, Player payer, BlockPos pos, MusterRollBlockEntity be, VillageRecord rec,
+                                     SettlementSource source, UnitProvider units, String id) {
+        Squads sq = Squads.current();
+        Squads.Squad s = sq.find(rec.culture, id);
+        if (s == null) {
+            return new Outcome(false, "That squad is not raised here.", 0);
+        }
+        Standing st = standing(overworld, rec, payer.getUUID());
+        String why = Squads.refusal(s, st, rec.tier);
+        if (why != null) {
+            return new Outcome(false, s.name() + ": " + why + ".", 0);
+        }
+        GarrisonTables gt = GarrisonTables.current();
+        int price = sq.price(s, gt.units(), RecruitTables.current(), st);
+        int have = source.playerMoney(payer);
+        if (have < price) {
+            return new Outcome(false, "Not enough money: " + s.name() + " costs " + RecruitOffers.money(price) + ", you have "
+                    + RecruitOffers.money(Math.max(0, have)) + ".", 0);
+        }
+        if (!source.takeMoney(payer, price)) {
+            return new Outcome(false, "The payment could not be taken.", 0);
+        }
+        GarrisonTable table = gt.forCulture(rec.culture);
+        EquipmentProvider eq = Services.equipment(table.equipmentProvider());
+        if (eq == null) {
+            eq = Services.equipment("hyw");
+        }
+        RandomSource rnd = overworld.getRandom();
+        int hired = 0;
+        for (Squads.Member m : s.members()) {
+            dev.hywmill.garrison.tables.UnitSpec spec = gt.units().get(m.unit());
+            int level = table.tier(m.gear()).equipmentLevel();
+            for (int i = 0; i < m.count(); i++) {
+                BlockPos spot = spot(overworld, pos, be.radius(), rnd);
+                if (spot == null || eq == null || spec == null) {
+                    continue;
+                }
+                UUID uid = UUID.randomUUID();
+                SpawnResult r = units.spawn(overworld, new SpawnRequest(spec, payer.getUUID(), uid, Vec3.atBottomCenterOf(spot), spot, level, false,
+                        null, eq, new EquipmentProvider.Context(rec.culture, m.gear(), m.kit(), EquipmentProfiles.classRole(spec.unitClass()), uid)));
+                if (r.ok()) {
+                    hired++;
+                }
+            }
+        }
+        int size = s.size();
+        int refund = hired == size ? 0 : (int) Math.round((double) price * (size - hired) / size);
+        if (refund > 0) {
+            source.giveMoney(payer, refund);
+        }
+        HmLog.info("Muster Roll: {} hired squad {} ({} of {}) from '{}' for {} deniers{}", payer.getName().getString(), s.id(), hired, size, rec.name,
+                price - refund, refund > 0 ? " (" + (size - hired) + " not placed, refunded)" : "");
+        if (hired == 0) {
+            return new Outcome(false, "No safe ground within " + be.radius() + " blocks to muster them; you were refunded.", 0);
+        }
+        return new Outcome(true, s.name() + " (" + hired + " soldiers) mustered for " + RecruitOffers.money(price - refund)
+                + (refund > 0 ? "; " + (size - hired) + " could not be placed and were refunded" : "") + ".", hired);
     }
 
     /** Post-M5: a bought siege engine, owned by the player; a crewed one comes with an engineer who mounts it himself. */

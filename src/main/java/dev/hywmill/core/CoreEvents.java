@@ -170,6 +170,7 @@ public final class CoreEvents {
         event.addListener(new dev.hywmill.garrison.equip.EquipmentProfileLoader());
         event.addListener(new dev.hywmill.politics.service.PoliticsTableLoader());
         event.addListener(new dev.hywmill.recruit.RecruitTableLoader());
+        event.addListener(new dev.hywmill.recruit.SquadTableLoader()); // after the garrison tables: squads name their units
     }
 
     @SubscribeEvent

@@ -17,6 +17,22 @@ public final class RecruitClient {
         }
     }
 
+    /** The squads arrive right after the view; kept for a screen that opens a moment later. */
+    private static RecruitPayloads.Squads pending;
+
+    public static void onSquads(RecruitPayloads.Squads s) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen instanceof MusterRollScreen scr && scr.pos().equals(s.pos())) {
+            scr.squads(s.squads());
+        } else {
+            pending = s;
+        }
+    }
+
+    static java.util.List<RecruitPayloads.SquadView> pendingFor(net.minecraft.core.BlockPos pos) {
+        return pending != null && pending.pos().equals(pos) ? pending.squads() : java.util.List.of();
+    }
+
     public static void onResult(RecruitPayloads.Result r) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen instanceof MusterRollScreen s) {

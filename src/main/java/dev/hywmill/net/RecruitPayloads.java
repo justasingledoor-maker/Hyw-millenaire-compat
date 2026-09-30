@@ -33,6 +33,39 @@ public final class RecruitPayloads {
         }
     }
 
+    /**
+     * One culture squad as shown (post-M5): hire it by sending {@code Hire(pos, "squad:" + id, 1)}. {@code refusal} is empty when the
+     * player may hire it; {@code price} in deniers for the whole squad.
+     */
+    public record SquadView(String id, String name, String category, String quality, String roster, String gear, int size, int price,
+                            String refusal, String description) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, SquadView> CODEC = StreamCodec.of((buf, v) -> {
+            buf.writeUtf(v.id(), 64);
+            buf.writeUtf(v.name(), 64);
+            buf.writeUtf(v.category(), 16);
+            buf.writeUtf(v.quality(), 16);
+            buf.writeUtf(v.roster(), 256);
+            buf.writeUtf(v.gear(), 32);
+            buf.writeVarInt(v.size());
+            buf.writeVarInt(v.price());
+            buf.writeUtf(v.refusal(), 128);
+            buf.writeUtf(v.description(), 256);
+        }, buf -> new SquadView(buf.readUtf(64), buf.readUtf(64), buf.readUtf(16), buf.readUtf(16), buf.readUtf(256), buf.readUtf(32),
+                buf.readVarInt(), buf.readVarInt(), buf.readUtf(128), buf.readUtf(256)));
+    }
+
+    /** Server → client (post-M5): the village's culture squads, sent with every {@link View}. */
+    public record Squads(BlockPos pos, List<SquadView> squads) implements CustomPacketPayload {
+        public static final Type<Squads> TYPE = new Type<>(PoliticsPayloads.id("muster_squads"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, Squads> CODEC = StreamCodec.composite(
+                BlockPos.STREAM_CODEC, Squads::pos, SquadView.CODEC.apply(ByteBufCodecs.list(32)), Squads::squads, Squads::new);
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
     /** Server → client: the outcome of a hire or radius change. */
     public record Result(boolean ok, String message) implements CustomPacketPayload {
         public static final Type<Result> TYPE = new Type<>(PoliticsPayloads.id("muster_result"));

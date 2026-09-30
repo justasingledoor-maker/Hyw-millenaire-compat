@@ -48,7 +48,7 @@ class GarrisonTablesTest {
         // must still resolve compositions against the final unit set.
         assertEquals(List.of(), problems);
         assertEquals(Set.of("militia", "spear_man", "shieldman", "warrior", "archer", "crossbowman", "handgonne_man", "matchlock_man",
-                        "light_lancer_rider", "archer_rider"),
+                        "light_lancer_rider", "archer_rider", "lancer_rider"),
                 t.units().keySet());
     }
 
@@ -68,7 +68,7 @@ class GarrisonTablesTest {
     @Test
     void defaultsMatchTheAuthorization() throws IOException {
         GarrisonTable d = shipped(new ArrayList<>()).defaults();
-        assertEquals(Map.of("militia", 1, "spear_man", 3, "archer", 2), d.composition());
+        assertEquals(Map.of("spear_man", 3, "archer", 2), d.composition());
         assertEquals(0.25, d.perCapacityDaily());
         assertEquals(0.5, d.startingFraction());
         assertEquals(2, d.commitPerThreat());
@@ -77,19 +77,20 @@ class GarrisonTablesTest {
         assertEquals(1, d.tier(MilitaryTier.GUARD_POST).equipmentLevel());
         assertEquals(2, d.tier(MilitaryTier.GARRISON).equipmentLevel());
         assertEquals(3, d.tier(MilitaryTier.STRONGHOLD).equipmentLevel());
-        assertEquals(Set.of(UnitClass.LEVY, UnitClass.RANGED), d.tier(MilitaryTier.WATCH).classes());
+        assertEquals(Set.of(UnitClass.LEVY, UnitClass.LINE, UnitClass.RANGED), d.tier(MilitaryTier.WATCH).classes());
     }
 
     @Test
     void cultureCompositionsMatchTheAuthorization() throws IOException {
         GarrisonTables t = shipped(new ArrayList<>());
-        assertEquals(Map.of("militia", 1, "spear_man", 3, "shieldman", 2, "crossbowman", 2, "archer", 1, "light_lancer_rider", 1), t.forCulture("millenaire:norman").composition());
-        assertEquals(Map.of("militia", 1, "spear_man", 2, "shieldman", 3, "archer", 2, "light_lancer_rider", 1), t.forCulture("millenaire:byzantines").composition());
-        assertEquals(Map.of("militia", 1, "spear_man", 2, "warrior", 1, "archer", 4, "archer_rider", 2), t.forCulture("millenaire:seljuk").composition());
-        assertEquals(Map.of("militia", 1, "spear_man", 4, "archer", 3, "archer_rider", 1), t.forCulture("millenaire:japanese").composition());
-        assertEquals(Map.of("militia", 2, "spear_man", 2, "warrior", 2, "archer", 2, "light_lancer_rider", 1), t.forCulture("millenaire:indian").composition());
-        assertEquals(Map.of("militia", 2, "spear_man", 2, "warrior", 2, "archer", 2), t.forCulture("millenaire:mayan").composition());
-        assertEquals(Map.of("militia", 3, "spear_man", 1, "archer", 2), t.forCulture("millenaire:inuits").composition());
+        // post-M5: militia only where every farmer or hunter fights (Maya, Inuit), and then few
+        assertEquals(Map.of("spear_man", 3, "shieldman", 2, "crossbowman", 2, "archer", 1, "light_lancer_rider", 1), t.forCulture("millenaire:norman").composition());
+        assertEquals(Map.of("spear_man", 2, "shieldman", 3, "archer", 2, "light_lancer_rider", 1), t.forCulture("millenaire:byzantines").composition());
+        assertEquals(Map.of("spear_man", 2, "warrior", 1, "archer", 4, "archer_rider", 2), t.forCulture("millenaire:seljuk").composition());
+        assertEquals(Map.of("spear_man", 4, "archer", 3, "archer_rider", 1), t.forCulture("millenaire:japanese").composition());
+        assertEquals(Map.of("spear_man", 3, "warrior", 2, "archer", 2, "light_lancer_rider", 1), t.forCulture("millenaire:indian").composition());
+        assertEquals(Map.of("militia", 1, "spear_man", 3, "warrior", 2, "archer", 2), t.forCulture("millenaire:mayan").composition());
+        assertEquals(Map.of("militia", 1, "spear_man", 3, "archer", 3), t.forCulture("millenaire:inuits").composition());
         assertEquals(t.defaults().composition(), t.forCulture("millenaire:unknown").composition());
         // culture patches inherit tiers
         assertEquals(128, t.forCulture("millenaire:norman").tier(MilitaryTier.STRONGHOLD).maxUnits());
@@ -112,7 +113,7 @@ class GarrisonTablesTest {
                 { "units": {
                     "cav":   { "entity": "hundred_years_war:cavalry", "class": "LINE", "cost": 2 },
                     "mage":  { "entity": "hundred_years_war:iron_mage", "class": "RANGED", "cost": 2 },
-                    "horse": { "entity": "hundred_years_war:mounted_lancer_rider", "class": "LINE", "cost": 2 },
+                    "horse": { "entity": "hundred_years_war:mounted_matchlock_man", "class": "LINE", "cost": 2 },
                     "siege": { "entity": "hundred_years_war:siege_engineer", "class": "LINE", "cost": 2 },
                     "bad":   { "entity": "hundred_years_war:archer", "class": "WIZARD", "cost": 2 },
                     "ok":    { "entity": "hundred_years_war:archer", "class": "RANGED", "cost": 2 } },

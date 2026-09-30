@@ -1,0 +1,2244 @@
+{
+ "_comment": "HywMill culture squads (post-M5), sold on the Muster Roll's Squads tab. Per culture 16 squads: 6 infantry (2 LOW, 2 MEDIUM, 2 HIGH), 4 ranged, 4 cavalry (cultures without horses get fast foot bands instead), 2 unique; 8-12 soldiers each. A member is a unit key from hywmill_garrison/units.json (plus lancer_rider), a count, a gear tier (the profile tier and HYW equipment level it is equipped at) and an optional kit ('levy': light gambeson kits). Quality sets the default requirements: LOW Trusted, MEDIUM Patron and a Guard Post village, HIGH Sworn and a Garrison village ('standing' and 'village' override). The price is the sum of the members' Muster Roll prices less 'squadDiscount', then the standing discount. No siege engines. Cultures are replaced whole by later files; 'defaults' serves unknown cultures.",
+ "squadDiscount": 0.1,
+ "cultures": {
+  "millenaire:norman": [
+   {
+    "id": "norman.fyrd_spearmen",
+    "name": "Fyrd Spearmen",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Freemen called up by the shire: a spear, a padded coat and a stout heart.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "norman.village_shieldwall",
+    "name": "Village Shield-Wall",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Farmers who know to lock shields and let the spears do the work.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "norman.serjeants",
+    "name": "Serjeants-at-Arms",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Paid professional footmen in mail, the backbone of a castle garrison.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "norman.brabancons",
+    "name": "Brabancon Routiers",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Flemish mercenary foot: hard men who fight for coin and fear nothing.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "norman.dismounted_knights",
+    "name": "Dismounted Knights",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "Knights on foot, heavy mail and kite shields; they do not break.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "warrior",
+      "count": 2,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "norman.household_men",
+    "name": "Household Men-at-Arms",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "A lord's own retinue, armoured head to foot and sworn to him.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "norman.longbowmen",
+    "name": "Welsh Longbowmen",
+    "category": "RANGED",
+    "quality": "HIGH",
+    "description": "Hired from the marches; their volleys darken the sky.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 12,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "norman.genoese",
+    "name": "Genoese Crossbowmen",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "description": "Italian professionals with their pavise-bearers.",
+    "members": [
+     {
+      "unit": "crossbowman",
+      "count": 8,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "shieldman",
+      "count": 2,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "norman.peasant_bowmen",
+    "name": "Peasant Bowmen",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Villagers who practise at the butts on Sundays, as the law requires.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "norman.town_crossbows",
+    "name": "Town Crossbowmen",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "The burghers' watch, slow to reload but hard-hitting.",
+    "members": [
+     {
+      "unit": "crossbowman",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "norman.knights",
+    "name": "Knights of the Household",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "description": "Armoured knights on destriers; the charge that decides battles.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "norman.mounted_serjeants",
+    "name": "Mounted Serjeants",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Lesser horsemen in mail who ride behind the knights.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "norman.hobelars",
+    "name": "Hobelars",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "description": "Light riders on hardy ponies, for scouting and raiding.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "norman.turcopoles",
+    "name": "Turcopoles",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Horse archers raised in the crusader states and brought home.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "norman.conroi",
+    "name": "Conroi",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "description": "A banner of knights with their mounted squires, riding as one.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "light_lancer_rider",
+      "count": 6,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "norman.crusader_band",
+    "name": "Crusader Band",
+    "category": "UNIQUE",
+    "quality": "MEDIUM",
+    "description": "Veterans of the holy wars: shield, spear and crossbow in one company.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "crossbowman",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   }
+  ],
+  "millenaire:byzantines": [
+   {
+    "id": "byz.thematic_levy",
+    "name": "Thematic Levies",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Soldier-farmers of the themes, owing service for their land.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "byz.akritai",
+    "name": "Akritai Border Guards",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Frontiersmen of the eastern marches, used to endless skirmish.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 6,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "byz.skoutatoi",
+    "name": "Skoutatoi",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Regular heavy infantry with the great oval shield, drilled by the manual.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "byz.menavlatoi",
+    "name": "Menavlatoi",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Heavy-spear men trained to stop a cavalry charge dead.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 8,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "shieldman",
+      "count": 2,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "byz.varangians",
+    "name": "Varangian Guard",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "The emperor's axe-bearing northmen, loyal to the throne alone.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 10,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "byz.excubitors",
+    "name": "Excubitors",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "The palace guard in gilded lamellar.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "byz.toxotai",
+    "name": "Toxotai",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "description": "Regular archers with the composite bow.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "byz.tzangratores",
+    "name": "Tzangratores",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "description": "Crossbowmen armed with the Latin tzangra.",
+    "members": [
+     {
+      "unit": "crossbowman",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "byz.psiloi",
+    "name": "Psiloi Archers",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Unarmoured light archers who screen the line.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "byz.harbour_crossbows",
+    "name": "Harbour Crossbowmen",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Sailors and dockhands who guard the sea walls.",
+    "members": [
+     {
+      "unit": "crossbowman",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "byz.kataphraktoi",
+    "name": "Kataphraktoi",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "description": "Horse and rider clad in iron; the hammer of the empire.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "byz.kavallarioi",
+    "name": "Kavallarioi",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "The regular cavalry of the tagmata.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "byz.prokoursatores",
+    "name": "Prokoursatores",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "description": "Forward scouts who ride ahead of the army.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "byz.hippotoxotai",
+    "name": "Hippotoxotai",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Mounted archers in the steppe manner.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "byz.tagma",
+    "name": "Tagma of the Scholai",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "description": "An elite field regiment of the capital, horse and foot together.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "archer",
+      "count": 2,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "byz.latinikon",
+    "name": "Latinikon",
+    "category": "UNIQUE",
+    "quality": "MEDIUM",
+    "description": "Frankish mercenary knights with their own crossbowmen.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 4,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "crossbowman",
+      "count": 6,
+      "gear": "GARRISON"
+     }
+    ]
+   }
+  ],
+  "millenaire:seljuk": [
+   {
+    "id": "seljuk.ahdath",
+    "name": "Ahdath Militia",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "The young men of the town quarters, armed for its defence.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 6,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.tribal_foot",
+    "name": "Turkmen Foot",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Tribesmen who fight on foot when their horses are spent.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.daylamites",
+    "name": "Daylamite Infantry",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Famed mountain infantry with tall shields and twin javelins.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.ghulam_foot",
+    "name": "Ghulam Foot Guard",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Slave-soldiers trained from boyhood in the palace schools.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.hassa",
+    "name": "Hassa Guard",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "The sultan's household troops in fine mail.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.mamluk_foot",
+    "name": "Dismounted Mamluks",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "Elite horse-soldiers fighting on foot at the walls.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 2,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.foot_archers",
+    "name": "Turkic Foot Archers",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "description": "Archers with the powerful recurve bow of the steppe.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.citadel_crossbows",
+    "name": "Citadel Crossbowmen",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "description": "Garrison crossbowmen of the great fortresses.",
+    "members": [
+     {
+      "unit": "crossbowman",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.tribal_bows",
+    "name": "Tribal Bowmen",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Herders who can shoot as well as any soldier.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.garrison_crossbows",
+    "name": "Garrison Crossbowmen",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Townsmen drilled on the crossbow for sieges.",
+    "members": [
+     {
+      "unit": "crossbowman",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.turkmen_horse_archers",
+    "name": "Turkmen Horse Archers",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "description": "Nomad riders who shoot and wheel away before you close.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 12,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.ghulam_horse_archers",
+    "name": "Ghulam Horse Archers",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Professional mounted archers in lamellar.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.cataphracts",
+    "name": "Aswaran Cataphracts",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "description": "Heavy lancers in the old Persian manner, horse and man armoured.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.iqta_cavalry",
+    "name": "Iqta Cavalry",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Horsemen who hold land grants in return for service.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.mamluk_horse",
+    "name": "Mamluk Heavy Horse Archers",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "description": "Armoured horse archers: they shoot like nomads and charge like knights.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.atabeg_retinue",
+    "name": "Atabeg's Retinue",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "description": "A regent-prince's own guard of lancers, archers and swordsmen.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 3,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "archer_rider",
+      "count": 4,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "warrior",
+      "count": 3,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   }
+  ],
+  "millenaire:japanese": [
+   {
+    "id": "jp.ashigaru_yari",
+    "name": "Ashigaru Yari-gumi",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Peasant spearmen in a tight pike line.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 12,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "jp.nobushi",
+    "name": "Nobushi",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Armed farmers and wandering fighters, hired by the season.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "jp.sohei",
+    "name": "Sohei Warrior Monks",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Temple warriors with naginata, feared even by lords.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "jp.ashigaru_tate",
+    "name": "Ashigaru Tate-gumi",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Foot soldiers behind wooden standing shields.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "jp.samurai",
+    "name": "Samurai Retainers",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "Bushi in lacquered armour, masters of the sword.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 10,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "jp.hatamoto",
+    "name": "Hatamoto Guard",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "The lord's bannermen who guard his standard with their lives.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "jp.yumi_samurai",
+    "name": "Samurai Archers",
+    "category": "RANGED",
+    "quality": "HIGH",
+    "description": "The way of horse and bow, practised on foot.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "jp.temple_archers",
+    "name": "Temple Archers",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "description": "Monk-archers of the great mountain temples.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "jp.ashigaru_yumi",
+    "name": "Ashigaru Yumi-gumi",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Peasant archers in massed ranks.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "jp.hunters",
+    "name": "Mountain Hunters",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Hunters and trappers with their long bows (Japan fielded no crossbows).",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 8,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "spear_man",
+      "count": 2,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "jp.kiba_musha",
+    "name": "Kiba-musha",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "description": "Mounted samurai archers, the old heart of the warrior class.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 10,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "jp.mounted_samurai",
+    "name": "Mounted Samurai Lancers",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "description": "Armoured horsemen with long yari.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "jp.mounted_retainers",
+    "name": "Mounted Retainers",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Lesser vassals who ride to war.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "jp.scouts",
+    "name": "Kiba Scouts",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "description": "Light riders who carry messages and watch the roads.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "jp.ronin",
+    "name": "Ronin Band",
+    "category": "UNIQUE",
+    "quality": "MEDIUM",
+    "description": "Masterless samurai selling their blades to whoever pays.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "archer",
+      "count": 4,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "spear_man",
+      "count": 2,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "jp.daimyo_guard",
+    "name": "Daimyo's Honour Guard",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "description": "The lord's own household, horse and foot, in his colours.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 3,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "archer_rider",
+      "count": 3,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   }
+  ],
+  "millenaire:indian": [
+   {
+    "id": "in.paika",
+    "name": "Paika Footmen",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Village militia who hold land for military service.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "in.bhil",
+    "name": "Bhil Hillmen",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Hill tribesmen, fierce and elusive.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "in.nayar",
+    "name": "Nayar Swordsmen",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Warrior caste of the south, trained from childhood in the kalari.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "in.dhal",
+    "name": "Dhal Shield-Bearers",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Round-shield infantry who hold the line against horse.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "in.rajput_foot",
+    "name": "Rajput Guard",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "Rajput swordsmen who would rather die than retreat.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 2,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "in.royal_spears",
+    "name": "Royal Spears",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "The palace guard in quilted and mail armour.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "in.imperial_archers",
+    "name": "Imperial Archers",
+    "category": "RANGED",
+    "quality": "HIGH",
+    "description": "Master bowmen of the royal armoury.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "in.dhanurdhara",
+    "name": "Dhanurdhara",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "description": "Trained archers with the long bamboo bow.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "in.hill_archers",
+    "name": "Hill Archers",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Tribal archers from the forests.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "in.temple_bows",
+    "name": "Temple Bowmen",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Temple servants who guard the shrine lands (crossbows were rare here).",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 8,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "spear_man",
+      "count": 2,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "in.rajput_lancers",
+    "name": "Rajput Lancers",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "description": "Armoured noble horsemen who charge with lance and sword.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "in.silladar",
+    "name": "Silladar Horse",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Horsemen who bring their own mounts and arms.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "in.pindari",
+    "name": "Pindari Raiders",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "description": "Freebooting light horse who live off the land.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 12,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "in.turki_archers",
+    "name": "Turki Horse Archers",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Central Asian mounted archers in royal service.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "in.kshatriya",
+    "name": "Kshatriya Retinue",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "description": "A prince's household of warrior nobles.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 3,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "archer",
+      "count": 3,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "in.temple_defenders",
+    "name": "Temple Defenders",
+    "category": "UNIQUE",
+    "quality": "MEDIUM",
+    "description": "Guardians of the great temple and its treasury.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "archer",
+      "count": 4,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "warrior",
+      "count": 2,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   }
+  ],
+  "millenaire:mayan": [
+   {
+    "id": "maya.milpa_levy",
+    "name": "Milpa Levy",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Maize farmers called to war after the harvest.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "maya.hunters",
+    "name": "Jungle Hunters",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Hunters who know every path in the forest.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "maya.holkan",
+    "name": "Holkan",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Professional warriors in quilted cotton armour.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "maya.atlatl",
+    "name": "Atlatl Spearmen",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Spearmen who strike from afar and close in.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 8,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "shieldman",
+      "count": 2,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "maya.jaguar",
+    "name": "Jaguar Warriors",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "Elite warriors in jaguar skins; the captives they take prove their worth.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 10,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "maya.nacom_guard",
+    "name": "Nacom's Guard",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "The war leader's sworn guard.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "maya.royal_archers",
+    "name": "Royal Archers",
+    "category": "RANGED",
+    "quality": "HIGH",
+    "description": "Archers of the king's court.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "maya.temple_archers",
+    "name": "Temple Archers",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "description": "Archers who guard the pyramids.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "maya.bowmen",
+    "name": "Village Bowmen",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Villagers with hunting bows.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "maya.skirmishers",
+    "name": "Forest Skirmishers",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Archers and spearmen who harass from the trees.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 6,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "maya.runners",
+    "name": "Swift Runners",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "description": "Messenger-warriors who cover the ground faster than any army (the Maya had no horses).",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "maya.serpent",
+    "name": "Serpent Raiders",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Raiders who strike the enemy's fields and vanish (no horses).",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "archer",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "maya.captive_takers",
+    "name": "Captive-Takers",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Warriors who fight to take prisoners for the temple (no horses).",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "maya.eagle",
+    "name": "Eagle Warriors",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "description": "Fast shock troops who fall on the enemy like a bird of prey (no horses).",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 2,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "maya.sacred_war_band",
+    "name": "Sacred War Band",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "description": "Warriors consecrated by the priests for a holy war.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "archer",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "maya.city_guard",
+    "name": "City-State Guard",
+    "category": "UNIQUE",
+    "quality": "MEDIUM",
+    "description": "The standing guard of a great city.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "archer",
+      "count": 2,
+      "gear": "GARRISON"
+     }
+    ]
+   }
+  ],
+  "millenaire:inuits": [
+   {
+    "id": "inuit.harpooners",
+    "name": "Harpooners",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Seal hunters armed with harpoon and lance.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "inuit.camp_defenders",
+    "name": "Camp Defenders",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "description": "Everyone who can hold a knife, when the camp is threatened.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "militia",
+      "count": 2,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "inuit.bone_armour",
+    "name": "Bone-Armour Warriors",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Fighters in slat armour of bone and ivory.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "inuit.lancers",
+    "name": "Walrus Lancers",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "description": "Hunters of the great walrus, with heavy lances.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "inuit.champions",
+    "name": "Champion Hunters",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "The finest hunters of the band, whose names are sung.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 10,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "inuit.ice_wall",
+    "name": "Ice-Wall Shields",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "description": "Warriors with heavy shields who stand like the ice.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "spear_man",
+      "count": 2,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "inuit.master_bows",
+    "name": "Master Bowmen",
+    "category": "RANGED",
+    "quality": "HIGH",
+    "description": "Archers with the sinew-backed bow, deadly at any range.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "inuit.sinew_bows",
+    "name": "Sinew-Bow Archers",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "description": "Experienced hunters with strong composite bows.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "inuit.caribou_hunters",
+    "name": "Caribou Hunters",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Hunters of the herds, patient and accurate.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "inuit.snow_skirmishers",
+    "name": "Snow Skirmishers",
+    "category": "RANGED",
+    "quality": "LOW",
+    "description": "Bowmen and spearmen who fight from the drifts.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 6,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "inuit.kayak_raiders",
+    "name": "Kayak Raiders",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Raiders who arrive by water before anyone sees them (no horses).",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "archer",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "inuit.tundra_scouts",
+    "name": "Tundra Scouts",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "description": "Scouts who cross the tundra in a day (no horses).",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 8,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "warrior",
+      "count": 2,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ]
+   },
+   {
+    "id": "inuit.whale_hunt",
+    "name": "Whale-Hunt Band",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "description": "The crew of a whaling boat, used to facing giants (no horses).",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "archer",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "inuit.winter_warband",
+    "name": "Winter Warband",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "description": "Warriors who travel fast in the dark season (no horses).",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "inuit.shaman_band",
+    "name": "Angakkuq's Band",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "description": "Warriors who follow a shaman's vision.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "archer",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 2,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "inuit.feud_party",
+    "name": "Blood-Feud Party",
+    "category": "UNIQUE",
+    "quality": "MEDIUM",
+    "description": "Kinsmen bound to avenge a wrong.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GARRISON"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GARRISON"
+     }
+    ]
+   }
+  ]
+ },
+ "defaults": [
+  {
+   "id": "norman.fyrd_spearmen",
+   "name": "Fyrd Spearmen",
+   "category": "INFANTRY",
+   "quality": "LOW",
+   "description": "Freemen called up by the shire: a spear, a padded coat and a stout heart.",
+   "members": [
+    {
+     "unit": "spear_man",
+     "count": 10,
+     "gear": "GUARD_POST",
+     "kit": "levy"
+    }
+   ]
+  },
+  {
+   "id": "norman.village_shieldwall",
+   "name": "Village Shield-Wall",
+   "category": "INFANTRY",
+   "quality": "LOW",
+   "description": "Farmers who know to lock shields and let the spears do the work.",
+   "members": [
+    {
+     "unit": "shieldman",
+     "count": 6,
+     "gear": "GUARD_POST",
+     "kit": "levy"
+    },
+    {
+     "unit": "spear_man",
+     "count": 4,
+     "gear": "GUARD_POST",
+     "kit": "levy"
+    }
+   ]
+  },
+  {
+   "id": "norman.serjeants",
+   "name": "Serjeants-at-Arms",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "description": "Paid professional footmen in mail, the backbone of a castle garrison.",
+   "members": [
+    {
+     "unit": "spear_man",
+     "count": 6,
+     "gear": "GARRISON"
+    },
+    {
+     "unit": "shieldman",
+     "count": 4,
+     "gear": "GARRISON"
+    }
+   ]
+  },
+  {
+   "id": "norman.brabancons",
+   "name": "Brabancon Routiers",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "description": "Flemish mercenary foot: hard men who fight for coin and fear nothing.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 6,
+     "gear": "GARRISON"
+    },
+    {
+     "unit": "spear_man",
+     "count": 4,
+     "gear": "GARRISON"
+    }
+   ]
+  },
+  {
+   "id": "norman.dismounted_knights",
+   "name": "Dismounted Knights",
+   "category": "INFANTRY",
+   "quality": "HIGH",
+   "description": "Knights on foot, heavy mail and kite shields; they do not break.",
+   "members": [
+    {
+     "unit": "shieldman",
+     "count": 8,
+     "gear": "STRONGHOLD"
+    },
+    {
+     "unit": "warrior",
+     "count": 2,
+     "gear": "STRONGHOLD"
+    }
+   ]
+  },
+  {
+   "id": "norman.household_men",
+   "name": "Household Men-at-Arms",
+   "category": "INFANTRY",
+   "quality": "HIGH",
+   "description": "A lord's own retinue, armoured head to foot and sworn to him.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 6,
+     "gear": "STRONGHOLD"
+    },
+    {
+     "unit": "shieldman",
+     "count": 4,
+     "gear": "STRONGHOLD"
+    }
+   ]
+  },
+  {
+   "id": "norman.longbowmen",
+   "name": "Welsh Longbowmen",
+   "category": "RANGED",
+   "quality": "HIGH",
+   "description": "Hired from the marches; their volleys darken the sky.",
+   "members": [
+    {
+     "unit": "archer",
+     "count": 12,
+     "gear": "STRONGHOLD"
+    }
+   ]
+  },
+  {
+   "id": "norman.genoese",
+   "name": "Genoese Crossbowmen",
+   "category": "RANGED",
+   "quality": "MEDIUM",
+   "description": "Italian professionals with their pavise-bearers.",
+   "members": [
+    {
+     "unit": "crossbowman",
+     "count": 8,
+     "gear": "GARRISON"
+    },
+    {
+     "unit": "shieldman",
+     "count": 2,
+     "gear": "GARRISON"
+    }
+   ]
+  },
+  {
+   "id": "norman.peasant_bowmen",
+   "name": "Peasant Bowmen",
+   "category": "RANGED",
+   "quality": "LOW",
+   "description": "Villagers who practise at the butts on Sundays, as the law requires.",
+   "members": [
+    {
+     "unit": "archer",
+     "count": 10,
+     "gear": "GUARD_POST",
+     "kit": "levy"
+    }
+   ]
+  },
+  {
+   "id": "norman.town_crossbows",
+   "name": "Town Crossbowmen",
+   "category": "RANGED",
+   "quality": "LOW",
+   "description": "The burghers' watch, slow to reload but hard-hitting.",
+   "members": [
+    {
+     "unit": "crossbowman",
+     "count": 10,
+     "gear": "GUARD_POST",
+     "kit": "levy"
+    }
+   ]
+  },
+  {
+   "id": "norman.knights",
+   "name": "Knights of the Household",
+   "category": "CAVALRY",
+   "quality": "HIGH",
+   "description": "Armoured knights on destriers; the charge that decides battles.",
+   "members": [
+    {
+     "unit": "lancer_rider",
+     "count": 8,
+     "gear": "STRONGHOLD"
+    }
+   ]
+  },
+  {
+   "id": "norman.mounted_serjeants",
+   "name": "Mounted Serjeants",
+   "category": "CAVALRY",
+   "quality": "MEDIUM",
+   "description": "Lesser horsemen in mail who ride behind the knights.",
+   "members": [
+    {
+     "unit": "light_lancer_rider",
+     "count": 10,
+     "gear": "GARRISON"
+    }
+   ]
+  },
+  {
+   "id": "norman.hobelars",
+   "name": "Hobelars",
+   "category": "CAVALRY",
+   "quality": "LOW",
+   "description": "Light riders on hardy ponies, for scouting and raiding.",
+   "members": [
+    {
+     "unit": "light_lancer_rider",
+     "count": 10,
+     "gear": "GUARD_POST",
+     "kit": "levy"
+    }
+   ]
+  },
+  {
+   "id": "norman.turcopoles",
+   "name": "Turcopoles",
+   "category": "CAVALRY",
+   "quality": "MEDIUM",
+   "description": "Horse archers raised in the crusader states and brought home.",
+   "members": [
+    {
+     "unit": "archer_rider",
+     "count": 10,
+     "gear": "GARRISON"
+    }
+   ]
+  },
+  {
+   "id": "norman.conroi",
+   "name": "Conroi",
+   "category": "UNIQUE",
+   "quality": "HIGH",
+   "description": "A banner of knights with their mounted squires, riding as one.",
+   "members": [
+    {
+     "unit": "lancer_rider",
+     "count": 4,
+     "gear": "STRONGHOLD"
+    },
+    {
+     "unit": "light_lancer_rider",
+     "count": 6,
+     "gear": "GARRISON"
+    }
+   ]
+  },
+  {
+   "id": "norman.crusader_band",
+   "name": "Crusader Band",
+   "category": "UNIQUE",
+   "quality": "MEDIUM",
+   "description": "Veterans of the holy wars: shield, spear and crossbow in one company.",
+   "members": [
+    {
+     "unit": "shieldman",
+     "count": 4,
+     "gear": "STRONGHOLD"
+    },
+    {
+     "unit": "spear_man",
+     "count": 4,
+     "gear": "GARRISON"
+    },
+    {
+     "unit": "crossbowman",
+     "count": 4,
+     "gear": "GARRISON"
+    }
+   ]
+  }
+ ]
+}

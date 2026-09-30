@@ -29,7 +29,9 @@ public final class Recruitment {
             "hundred_years_war:handgonne_man", "hundred_years_war:matchlock_man");
     /** M4: light mounted HYW riders (class CAVALRY, scouts). They manage their own HYW horse; the rider is the roster unit. */
     public static final Set<String> M4_CAVALRY_TYPES = Set.of(
-            "hundred_years_war:mounted_light_lancer_rider", "hundred_years_war:mounted_archer_rider");
+            "hundred_years_war:mounted_light_lancer_rider", "hundred_years_war:mounted_archer_rider",
+            // post-M5 squads: the heavy lancer (knights, cataphracts); in no garrison composition
+            "hundred_years_war:mounted_lancer_rider");
 
     /** Every HYW entity type a garrison may use (M3 set plus the M4 riders). */
     public static boolean allowedType(String entityType) {

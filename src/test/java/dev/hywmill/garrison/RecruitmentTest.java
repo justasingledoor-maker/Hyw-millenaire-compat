@@ -229,12 +229,14 @@ class RecruitmentTest {
     // ---- unit choice ----
 
     @Test
-    void watchRecruitsOnlyLevyAndRanged() {
+    void watchRecruitsLevySpearmenAndRanged() {
+        // post-M5: militia are rare, so a Watch may field spearmen (LINE from WATCH, spear_man minTier WATCH)
         List<UnitSpec> u = Recruitment.eligibleUnits(MilitaryTier.WATCH, norman, tables.units());
         assertFalse(u.isEmpty());
         for (UnitSpec s : u) {
-            assertTrue(s.unitClass() == UnitClass.LEVY || s.unitClass() == UnitClass.RANGED, s.key());
+            assertTrue(s.unitClass() == UnitClass.LEVY || s.unitClass() == UnitClass.RANGED || s.key().equals("spear_man"), s.key());
         }
+        assertTrue(u.stream().anyMatch(s -> s.key().equals("spear_man")));
         assertTrue(u.stream().noneMatch(s -> s.key().equals("shieldman")));
     }
 
@@ -255,7 +257,7 @@ class RecruitmentTest {
         assertFalse(Recruitment.allowedAtTier(shield, MilitaryTier.WATCH, norman));
         assertFalse(Recruitment.allowedAtTier(shield, MilitaryTier.GUARD_POST, norman));
         assertTrue(Recruitment.allowedAtTier(shield, MilitaryTier.GARRISON, norman));
-        assertFalse(Recruitment.allowedAtTier(spear, MilitaryTier.WATCH, norman)); // LINE needs GUARD_POST+
+        assertTrue(Recruitment.allowedAtTier(spear, MilitaryTier.WATCH, norman)); // post-M5: spearmen from WATCH
         assertTrue(Recruitment.allowedAtTier(archer, MilitaryTier.WATCH, norman));
         assertFalse(Recruitment.allowedAtTier(archer, MilitaryTier.NONE, norman));
         assertFalse(Recruitment.allowedAtTier(gun, MilitaryTier.STRONGHOLD, norman)); // disabled by default
@@ -285,8 +287,8 @@ class RecruitmentTest {
             UnitSpec s = Recruitment.chooseUnit(VILLAGE, seq, u, norman.composition(), counts);
             counts.merge(s.key(), 1, Integer::sum);
         }
-        // weights 1:3:2:2:1 (+1 light rider, M4) over 10 -> 10:30:20:20:10:10 of 100
-        assertEquals(Map.of("militia", 10, "spear_man", 30, "shieldman", 20, "crossbowman", 20, "archer", 10, "light_lancer_rider", 10), counts);
+        // post-M5 weights 3:2:2:1:1 (no militia) over 9 -> 100 soldiers split 34:22:22:11:11 (rounding by deficit)
+        assertEquals(Map.of("spear_man", 34, "shieldman", 22, "crossbowman", 22, "archer", 11, "light_lancer_rider", 11), counts);
     }
 
     @Test

@@ -1,9 +1,9 @@
 {
-  "_comment": "HywMill garrison rules (M5-G formula C3). raw = capacity * perCapacity + sum(infraBonus[role] * operational buildings of that role) + min(fortification / fortDiv, fortCap) + levyShare * adults; target = min(clamp(round(raw * typeFactors[type]), minTarget, maxTarget), maxUnits); maxUnits is the per-village tier ceiling (locked caps 24/48/72/128; there is no server-wide cap). Population is not a ceiling unless a tier sets supportRatio. Levy: baseDaily + perCapacityDaily * capacity + perTargetDaily * target points per active in-game day, capped at max(poolCap, poolCapShare * target). With levyShare/fortDiv/perTargetDaily/poolCapShare 0 and no infraBonus the formula is exactly M3's. Culture entries patch the defaults (composition replaces, tiers merge per field). M4: equipmentProvider 'hyw_profiles' is HYW's own equipment plus optional Epic Knights profiles (hywmill_equipment; identical to 'hyw' without Epic Knights). CAVALRY (light mounted scouts) is allowed from GARRISON tier and appears only in the compositions of horse-riding cultures (not Mayan or Inuit).",
+  "_comment": "HywMill garrison rules (M5-G formula C3). raw = capacity * perCapacity + sum(infraBonus[role] * operational buildings of that role) + min(fortification / fortDiv, fortCap) + levyShare * adults; target = min(clamp(round(raw * typeFactors[type]), minTarget, maxTarget), maxUnits); maxUnits is the per-village tier ceiling (locked caps 24/48/72/128; there is no server-wide cap). Population is not a ceiling unless a tier sets supportRatio. Levy: baseDaily + perCapacityDaily * capacity + perTargetDaily * target points per active in-game day, capped at max(poolCap, poolCapShare * target). With levyShare/fortDiv/perTargetDaily/poolCapShare 0 and no infraBonus the formula is exactly M3's. Culture entries patch the defaults (composition replaces, tiers merge per field). M4: equipmentProvider 'hyw_profiles' is HYW's own equipment plus optional Epic Knights profiles (hywmill_equipment; identical to 'hyw' without Epic Knights). Post-M5: militia are rare (only the Maya and the Inuit keep a few, where every hunter or farmer fights); WATCH villages may field spearmen (LINE) so a small village is not all militia and archers. CAVALRY (light mounted scouts) is allowed from GARRISON tier and appears only in the compositions of horse-riding cultures (not Mayan or Inuit).",
   "defaults": {
     "tiers": {
       "NONE":       { "perCapacity": 0.0, "minTarget": 0, "maxTarget": 0,  "maxUnits": 0,  "baseDaily": 0.0, "poolCap": 0,  "equipmentLevel": 0, "classes": [] },
-      "WATCH":      { "perCapacity": 2.0,  "minTarget": 1, "maxTarget": 24,  "maxUnits": 24,  "baseDaily": 1.0, "poolCap": 4,  "equipmentLevel": 0, "classes": ["LEVY", "RANGED"],
+      "WATCH":      { "perCapacity": 2.0,  "minTarget": 1, "maxTarget": 24,  "maxUnits": 24,  "baseDaily": 1.0, "poolCap": 4,  "equipmentLevel": 0, "classes": ["LEVY", "LINE", "RANGED"],
                       "levyShare": 0.15, "fortDiv": 3, "fortCap": 30, "perTargetDaily": 0.12, "poolCapShare": 0.25 },
       "GUARD_POST": { "perCapacity": 2.25, "minTarget": 2, "maxTarget": 48,  "maxUnits": 48,  "baseDaily": 1.5, "poolCap": 6,  "equipmentLevel": 1, "classes": ["LEVY", "LINE", "RANGED"],
                       "levyShare": 0.20, "fortDiv": 3, "fortCap": 30, "perTargetDaily": 0.12, "poolCapShare": 0.25 },
@@ -16,16 +16,16 @@
     "perCapacityDaily": 0.25,
     "startingFraction": 0.5,
     "commitPerThreat": 2,
-    "composition": { "militia": 1, "spear_man": 3, "archer": 2 },
+    "composition": { "spear_man": 3, "archer": 2 },
     "equipmentProvider": "hyw_profiles"
   },
   "cultures": {
-    "millenaire:norman":     { "composition": { "militia": 1, "spear_man": 3, "shieldman": 2, "crossbowman": 2, "archer": 1, "light_lancer_rider": 1 } },
-    "millenaire:byzantines": { "composition": { "militia": 1, "spear_man": 2, "shieldman": 3, "archer": 2, "light_lancer_rider": 1 } },
-    "millenaire:seljuk":     { "composition": { "militia": 1, "spear_man": 2, "warrior": 1, "archer": 4, "archer_rider": 2 } },
-    "millenaire:japanese":   { "composition": { "militia": 1, "spear_man": 4, "archer": 3, "archer_rider": 1 } },
-    "millenaire:indian":     { "composition": { "militia": 2, "spear_man": 2, "warrior": 2, "archer": 2, "light_lancer_rider": 1 } },
-    "millenaire:mayan":      { "composition": { "militia": 2, "spear_man": 2, "warrior": 2, "archer": 2 } },
-    "millenaire:inuits":     { "composition": { "militia": 3, "spear_man": 1, "archer": 2 } }
+    "millenaire:norman":     { "composition": { "spear_man": 3, "shieldman": 2, "crossbowman": 2, "archer": 1, "light_lancer_rider": 1 } },
+    "millenaire:byzantines": { "composition": { "spear_man": 2, "shieldman": 3, "archer": 2, "light_lancer_rider": 1 } },
+    "millenaire:seljuk":     { "composition": { "spear_man": 2, "warrior": 1, "archer": 4, "archer_rider": 2 } },
+    "millenaire:japanese":   { "composition": { "spear_man": 4, "archer": 3, "archer_rider": 1 } },
+    "millenaire:indian":     { "composition": { "spear_man": 3, "warrior": 2, "archer": 2, "light_lancer_rider": 1 } },
+    "millenaire:mayan":      { "composition": { "militia": 1, "spear_man": 3, "warrior": 2, "archer": 2 } },
+    "millenaire:inuits":     { "composition": { "militia": 1, "spear_man": 3, "archer": 3 } }
   }
 }
