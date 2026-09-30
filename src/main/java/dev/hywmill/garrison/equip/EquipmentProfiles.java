@@ -49,7 +49,15 @@ public final class EquipmentProfiles {
     public static final Set<String> ROLES = Set.of("militia", "line", "ranged", "sentry", "patrol", "scout", "reserve", "all", "levy");
     private static final String DEFAULTS = "";
 
-    private static volatile EquipmentProfiles current = new EquipmentProfiles(Map.of(), Map.of(), Map.of(), true);
+    /**
+     * Post-M5 squad look: a squad's own armour kits, weapon and shield lists, dye palette and shield arms (fixed heraldry),
+     * used instead of the culture's lists wherever it names something. Selected with the role {@code look:<id>}.
+     */
+    public record Look(List<Kit> kits, Map<String, List<String>> items, List<Integer> palette, List<Livery.Arms> arms) {}
+
+    public static final String LOOK_PREFIX = "look:";
+
+    private static volatile EquipmentProfiles current = new EquipmentProfiles(Map.of(), Map.of(), Map.of(), true, Map.of());
 
     /** culture ("" = defaults) → tier → role → slot → items */
     private final Map<String, Map<String, Map<String, Map<String, List<String>>>>> data;
@@ -58,15 +66,29 @@ public final class EquipmentProfiles {
     /** culture ("" = defaults) → dye palette */
     private final Map<String, List<Integer>> palettes;
     private final boolean heraldry;
+    /** Post-M5 squad looks by id. */
+    private final Map<String, Look> looks;
     private final String revision;
 
     private EquipmentProfiles(Map<String, Map<String, Map<String, Map<String, List<String>>>>> data,
-                              Map<String, Map<String, Map<String, List<Kit>>>> kits, Map<String, List<Integer>> palettes, boolean heraldry) {
+                              Map<String, Map<String, Map<String, List<Kit>>>> kits, Map<String, List<Integer>> palettes, boolean heraldry,
+                              Map<String, Look> looks) {
         this.data = data;
         this.kits = kits;
         this.palettes = palettes;
         this.heraldry = heraldry;
-        this.revision = Integer.toHexString((data.toString() + "|" + kits + "|" + palettes + "|" + heraldry).hashCode());
+        this.looks = looks;
+        this.revision = Integer.toHexString((data.toString() + "|" + kits + "|" + palettes + "|" + heraldry + "|" + looks).hashCode());
+    }
+
+    /** The squad look a role names ({@code look:<id>}), or null. */
+    @javax.annotation.Nullable
+    public Look lookFor(String role) {
+        return role != null && role.startsWith(LOOK_PREFIX) ? looks.get(role.substring(LOOK_PREFIX.length())) : null;
+    }
+
+    public Map<String, Look> looks() {
+        return looks;
     }
 
     /** Changes whenever the profile data changes (units re-equip once when it does). */
@@ -218,8 +240,18 @@ public final class EquipmentProfiles {
         Map<String, Map<String, Map<String, Map<String, List<String>>>>> data = new LinkedHashMap<>();
         Map<String, Map<String, Map<String, List<Kit>>>> kits = new LinkedHashMap<>();
         Map<String, List<Integer>> palettes = new LinkedHashMap<>();
+        Map<String, Look> looks = new LinkedHashMap<>();
         boolean heraldry = true;
         for (JsonObject f : files) {
+            if (f.has("looks") && f.get("looks").isJsonObject()) {
+                for (Map.Entry<String, JsonElement> l : f.getAsJsonObject("looks").entrySet()) {
+                    if (l.getValue().isJsonObject()) {
+                        looks.put(l.getKey(), look(l.getValue().getAsJsonObject(), "look " + l.getKey(), problems));
+                    } else {
+                        problems.add("look " + l.getKey() + ": not an object");
+                    }
+                }
+            }
             if (f.has("heraldry") && f.get("heraldry").isJsonPrimitive()) {
                 heraldry = f.get("heraldry").getAsBoolean();
             }
@@ -236,7 +268,67 @@ public final class EquipmentProfiles {
                 }
             }
         }
-        return new EquipmentProfiles(Collections.unmodifiableMap(data), Collections.unmodifiableMap(kits), Map.copyOf(palettes), heraldry);
+        return new EquipmentProfiles(Collections.unmodifiableMap(data), Collections.unmodifiableMap(kits), Map.copyOf(palettes), heraldry,
+                Map.copyOf(looks));
+    }
+
+    /**
+     * One squad look: {@code "kits": [...]} (as in the tiers), {@code "mainhand"/"offhand": [ids]}, {@code "palette": ["#RRGGBB"]}
+     * (repeat a colour to weight it) and {@code "arms": [{"base": dye, "layers": [{"pattern": id, "color": dye}]}]}.
+     */
+    private static Look look(JsonObject o, String where, List<String> problems) {
+        List<Kit> ks = new ArrayList<>();
+        if (o.has("kits") && o.get("kits").isJsonArray()) {
+            for (JsonElement k : o.getAsJsonArray("kits")) {
+                Kit kit = kit(k, where, problems);
+                if (kit != null) {
+                    ks.add(kit);
+                }
+            }
+        }
+        Map<String, List<String>> items = new LinkedHashMap<>();
+        for (String slot : List.of("mainhand", "offhand")) {
+            if (o.has(slot) && o.get(slot).isJsonArray()) {
+                List<String> l = new ArrayList<>();
+                o.getAsJsonArray(slot).forEach(e -> l.add(e.getAsString()));
+                items.put(slot, List.copyOf(l));
+            }
+        }
+        List<Integer> pal = new ArrayList<>();
+        if (o.has("palette") && o.get("palette").isJsonArray()) {
+            for (JsonElement e : o.getAsJsonArray("palette")) {
+                try {
+                    pal.add(Integer.parseInt(e.getAsString().replace("#", ""), 16) & 0xFFFFFF);
+                } catch (NumberFormatException ex) {
+                    problems.add(where + ": bad colour " + e + "; ignored");
+                }
+            }
+        }
+        List<Livery.Arms> arms = new ArrayList<>();
+        if (o.has("arms") && o.get("arms").isJsonArray()) {
+            for (JsonElement e : o.getAsJsonArray("arms")) {
+                JsonObject a = e.getAsJsonObject();
+                net.minecraft.world.item.DyeColor base = net.minecraft.world.item.DyeColor.byName(a.get("base").getAsString(), null);
+                if (base == null) {
+                    problems.add(where + ": bad arms colour " + a.get("base") + "; ignored");
+                    continue;
+                }
+                List<Livery.Layer> layers = new ArrayList<>();
+                if (a.has("layers")) {
+                    for (JsonElement le : a.getAsJsonArray("layers")) {
+                        JsonObject lo = le.getAsJsonObject();
+                        net.minecraft.world.item.DyeColor c = net.minecraft.world.item.DyeColor.byName(lo.get("color").getAsString(), null);
+                        if (c == null) {
+                            problems.add(where + ": bad layer colour " + lo.get("color") + "; ignored");
+                            continue;
+                        }
+                        layers.add(new Livery.Layer(lo.get("pattern").getAsString(), c));
+                    }
+                }
+                arms.add(new Livery.Arms(base, List.copyOf(layers)));
+            }
+        }
+        return new Look(List.copyOf(ks), Map.copyOf(items), List.copyOf(pal), List.copyOf(arms));
     }
 
     private static void read(Map<String, Map<String, Map<String, Map<String, List<String>>>>> data,

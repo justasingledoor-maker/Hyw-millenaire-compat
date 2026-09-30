@@ -134,4 +134,34 @@ class SquadsTest {
         assertEquals(List.of("ok"), s.forCulture("x").stream().map(Squads.Squad::id).toList());
         assertEquals(2, problems.size(), problems.toString());
     }
+
+    @Test
+    void everySquadWearsItsOwnLook() throws IOException {
+        Squads s = shipped(new ArrayList<>());
+        List<String> problems = new ArrayList<>();
+        Path eq = Path.of("src/main/resources/data/hywmill/hywmill_equipment");
+        dev.hywmill.garrison.equip.EquipmentProfiles p = dev.hywmill.garrison.equip.EquipmentProfiles.fromJson(List.of(
+                JsonParser.parseString(Files.readString(eq.resolve("profiles.json"))).getAsJsonObject(),
+                JsonParser.parseString(Files.readString(eq.resolve("squad_looks.json"))).getAsJsonObject()), problems);
+        assertEquals(List.of(), problems);
+        Set<String> seen = new java.util.HashSet<>();
+        for (List<Squads.Squad> l : s.cultures().values()) {
+            for (Squads.Squad q : l) {
+                assertFalse(q.look().isEmpty(), q.id());
+                var look = p.lookFor(q.role(q.members().get(0)));
+                assertNotNull(look, "look of " + q.id());
+                assertFalse(look.kits().isEmpty(), q.id() + " has its own armour");
+                assertFalse(look.palette().isEmpty(), q.id() + " has its own colours");
+                seen.add(q.look());
+            }
+        }
+        assertEquals(112, seen.size(), "one look per squad");
+        // crusader squads: white surcoats with red crosses on their shields
+        var crus = p.lookFor("look:norman.crusader_band");
+        assertTrue(crus.kits().stream().allMatch(k -> k.piece("chest").equals("magistuarmory:crusader_chestplate")));
+        assertTrue(crus.arms().stream().anyMatch(a -> a.base() == net.minecraft.world.item.DyeColor.WHITE
+                && a.layers().stream().anyMatch(l -> l.pattern().equals("magistuarmory:crusader_cross") && l.color() == net.minecraft.world.item.DyeColor.RED)));
+        var excub = p.lookFor("look:byz.excubitors");
+        assertTrue(excub.arms().stream().anyMatch(a -> a.layers().stream().anyMatch(l -> l.pattern().equals("magistuarmory:two_headed_eagle"))));
+    }
 }

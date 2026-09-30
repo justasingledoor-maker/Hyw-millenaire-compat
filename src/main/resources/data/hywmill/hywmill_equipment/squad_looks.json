@@ -1,0 +1,3273 @@
+{
+ "_comment": "Post-M5 squad looks (Epic Knights only): each Muster Roll squad wears its own armour kits, carries its own shields, is dyed in its own colours (repeat a colour to weight it) and bears its own arms on its shields. A squad names its look in hywmill_squads. Kits and items that Epic Knights lacks or HYW cannot use are skipped (the culture's gear is used instead).",
+ "looks": {
+  "norman.fyrd_spearmen": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_kiteshield",
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#B08A5A",
+    "#3F6B35",
+    "#6B4A2A"
+   ],
+   "arms": [
+    {
+     "base": "brown",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_middle",
+       "color": "yellow"
+      }
+     ]
+    },
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.village_shieldwall": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_kiteshield"
+   ],
+   "palette": [
+    "#B08A5A",
+    "#6B4A2A",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "minecraft:half_vertical",
+       "color": "red"
+      }
+     ]
+    },
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_center",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.serjeants": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_kiteshield",
+    "magistuarmory:iron_heatershield"
+   ],
+   "palette": [
+    "#2E4A7D",
+    "#D4A22A",
+    "#2E4A7D"
+   ],
+   "arms": [
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lily",
+       "color": "yellow"
+      }
+     ]
+    },
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "yellow"
+      },
+      {
+       "pattern": "magistuarmory:lily",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.brabancons": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:brigandine_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:brigandine_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_heatershield",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#222222",
+    "#D4A22A",
+    "#222222"
+   ],
+   "arms": [
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lion1",
+       "color": "black"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.dismounted_knights": {
+   "kits": [
+    {
+     "head": "magistuarmory:greathelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:greathelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:crusader_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_kiteshield",
+    "magistuarmory:steel_heatershield"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#E9E4D4",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "magistuarmory:crusader_cross",
+       "color": "red"
+      }
+     ]
+    },
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:straight_cross",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.household_men": {
+   "kits": [
+    {
+     "head": "magistuarmory:bascinet",
+     "chest": "magistuarmory:xivcenturyknight_chestplate",
+     "legs": "magistuarmory:xivcenturyknight_leggings",
+     "feet": "magistuarmory:xivcenturyknight_boots"
+    },
+    {
+     "head": "magistuarmory:grand_bascinet",
+     "chest": "magistuarmory:xivcenturyknight_chestplate",
+     "legs": "magistuarmory:xivcenturyknight_leggings",
+     "feet": "magistuarmory:xivcenturyknight_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_heatershield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#D4A22A",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lion2",
+       "color": "yellow"
+      }
+     ]
+    },
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "yellow"
+      },
+      {
+       "pattern": "magistuarmory:lion2",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.longbowmen": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#3F6B35",
+    "#E9E4D4",
+    "#3F6B35"
+   ]
+  },
+  "norman.genoese": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:brigandine_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:brigandine_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_pavese"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#9E1B1B",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:straight_cross",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.peasant_bowmen": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#3F6B35",
+    "#B08A5A"
+   ]
+  },
+  "norman.town_crossbows": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#2E4A7D",
+    "#E9E4D4",
+    "#2E4A7D"
+   ]
+  },
+  "norman.knights": {
+   "kits": [
+    {
+     "head": "magistuarmory:greathelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:crusader_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:stechhelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_kiteshield",
+    "magistuarmory:steel_heatershield"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#E9E4D4",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "magistuarmory:crusader_cross",
+       "color": "red"
+      }
+     ]
+    },
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:straight_cross",
+       "color": "white"
+      }
+     ]
+    },
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:straight_cross",
+       "color": "black"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.mounted_serjeants": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_kiteshield"
+   ],
+   "palette": [
+    "#2E4A7D",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_middle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.hobelars": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_kiteshield"
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#3F6B35",
+    "#B08A5A"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "minecraft:half_horizontal",
+       "color": "brown"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.turcopoles": {
+   "kits": [
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#9E1B1B",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "magistuarmory:crusader_cross",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.conroi": {
+   "kits": [
+    {
+     "head": "magistuarmory:greathelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:crusader_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:stechhelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:bascinet",
+     "chest": "magistuarmory:xivcenturyknight_chestplate",
+     "legs": "magistuarmory:xivcenturyknight_leggings",
+     "feet": "magistuarmory:xivcenturyknight_boots"
+    },
+    {
+     "head": "magistuarmory:grand_bascinet",
+     "chest": "magistuarmory:xivcenturyknight_chestplate",
+     "legs": "magistuarmory:xivcenturyknight_leggings",
+     "feet": "magistuarmory:xivcenturyknight_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_heatershield",
+    "magistuarmory:steel_kiteshield"
+   ],
+   "palette": [
+    "#2E4A7D",
+    "#D4A22A",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lily",
+       "color": "yellow"
+      }
+     ]
+    },
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lion1",
+       "color": "red"
+      }
+     ]
+    },
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "magistuarmory:crusader_cross",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.crusader_band": {
+   "kits": [
+    {
+     "head": "magistuarmory:greathelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:greathelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:crusader_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_kiteshield",
+    "magistuarmory:iron_heatershield"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#E9E4D4",
+    "#9E1B1B",
+    "#222222"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "magistuarmory:crusader_cross",
+       "color": "red"
+      }
+     ]
+    },
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:straight_cross",
+       "color": "white"
+      }
+     ]
+    },
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:straight_cross",
+       "color": "black"
+      }
+     ]
+    },
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "magistuarmory:apostolic_cross",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.thematic_levy": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#6B4A2A",
+    "#B08A5A"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "yellow"
+      }
+     ]
+    },
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.akritai": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_ellipticalshield"
+   ],
+   "palette": [
+    "#B08A5A",
+    "#9E1B1B",
+    "#6B4A2A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_center",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.skoutatoi": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_ellipticalshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#2E4A7D",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:orthodox_cross",
+       "color": "yellow"
+      }
+     ]
+    },
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "magistuarmory:orthodox_cross",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.menavlatoi": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_middle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.varangians": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#222222",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "black",
+     "layers": [
+      {
+       "pattern": "magistuarmory:dragon",
+       "color": "red"
+      }
+     ]
+    },
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:dragon",
+       "color": "black"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.excubitors": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_ellipticalshield"
+   ],
+   "palette": [
+    "#5B2C6F",
+    "#C9A227",
+    "#5B2C6F"
+   ],
+   "arms": [
+    {
+     "base": "purple",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.toxotai": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#B08A5A"
+   ]
+  },
+  "byz.tzangratores": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#2E4A7D",
+    "#E9E4D4"
+   ]
+  },
+  "byz.psiloi": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#B08A5A",
+    "#E9E4D4"
+   ]
+  },
+  "byz.harbour_crossbows": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#1E2C50",
+    "#E9E4D4",
+    "#6A9CC8"
+   ]
+  },
+  "byz.kataphraktoi": {
+   "kits": [
+    {
+     "head": "magistuarmory:face_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_kiteshield"
+   ],
+   "palette": [
+    "#5B2C6F",
+    "#C9A227"
+   ],
+   "arms": [
+    {
+     "base": "purple",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    },
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.kavallarioi": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_kiteshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:orthodox_cross",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.prokoursatores": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:half_horizontal",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.hippotoxotai": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#D4A22A"
+   ]
+  },
+  "byz.tagma": {
+   "kits": [
+    {
+     "head": "magistuarmory:face_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_ellipticalshield"
+   ],
+   "palette": [
+    "#5B2C6F",
+    "#9E1B1B",
+    "#C9A227"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    },
+    {
+     "base": "purple",
+     "layers": [
+      {
+       "pattern": "magistuarmory:orthodox_cross",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.latinikon": {
+   "kits": [
+    {
+     "head": "magistuarmory:greathelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmory:greathelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:crusader_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_kiteshield",
+    "magistuarmory:iron_heatershield"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#9E1B1B",
+    "#2E4A7D"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "magistuarmory:crusader_cross",
+       "color": "red"
+      }
+     ]
+    },
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lily",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.ahdath": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#3F6B35",
+    "#E9E4D4",
+    "#B08A5A"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.tribal_foot": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#9E1B1B",
+    "#B08A5A"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_middle",
+       "color": "black"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.daylamites": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:brigandine_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:brigandine_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_pavese"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.ghulam_foot": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#3F6B35",
+    "#C9A227"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.hassa": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#C9A227",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.mamluk_foot": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#D4A22A",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "red"
+      }
+     ]
+    },
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "magistuarmory:swords",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.foot_archers": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#3F6B35",
+    "#B08A5A"
+   ]
+  },
+  "seljuk.citadel_crossbows": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#3F6B35"
+   ]
+  },
+  "seljuk.tribal_bows": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#B08A5A",
+    "#9E1B1B"
+   ]
+  },
+  "seljuk.garrison_crossbows": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#3F6B35",
+    "#E9E4D4"
+   ]
+  },
+  "seljuk.turkmen_horse_archers": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#9E1B1B",
+    "#B08A5A"
+   ]
+  },
+  "seljuk.ghulam_horse_archers": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "palette": [
+    "#3F6B35",
+    "#C9A227"
+   ]
+  },
+  "seljuk.cataphracts": {
+   "kits": [
+    {
+     "head": "magistuarmory:face_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#C9A227"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.iqta_cavalry": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#3F6B35",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.mamluk_horse": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#D4A22A",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "magistuarmory:swords",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.atabeg_retinue": {
+   "kits": [
+    {
+     "head": "magistuarmory:face_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#222222",
+    "#C9A227"
+   ],
+   "arms": [
+    {
+     "base": "black",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "jp.ashigaru_yari": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#222222",
+    "#9E1B1B",
+    "#222222"
+   ]
+  },
+  "jp.nobushi": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#707070",
+    "#6B4A2A",
+    "#222222"
+   ]
+  },
+  "jp.sohei": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#222222",
+    "#E9E4D4"
+   ]
+  },
+  "jp.ashigaru_tate": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_pavese"
+   ],
+   "palette": [
+    "#222222",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "black",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "jp.samurai": {
+   "kits": [
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:barbute",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#222222",
+    "#9E1B1B"
+   ]
+  },
+  "jp.hatamoto": {
+   "kits": [
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:barbute",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "palette": [
+    "#2E4A7D",
+    "#E9E4D4"
+   ]
+  },
+  "jp.yumi_samurai": {
+   "kits": [
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:barbute",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#222222"
+   ]
+  },
+  "jp.temple_archers": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#707070"
+   ]
+  },
+  "jp.ashigaru_yumi": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#222222",
+    "#9E1B1B"
+   ]
+  },
+  "jp.hunters": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#3F6B35"
+   ]
+  },
+  "jp.kiba_musha": {
+   "kits": [
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:barbute",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#222222"
+   ]
+  },
+  "jp.mounted_samurai": {
+   "kits": [
+    {
+     "head": "magistuarmory:face_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#222222",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "black",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "jp.mounted_retainers": {
+   "kits": [
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:barbute",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#2E4A7D",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "jp.scouts": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#707070",
+    "#222222"
+   ]
+  },
+  "jp.ronin": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:barbute",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "palette": [
+    "#707070",
+    "#222222",
+    "#6B4A2A"
+   ]
+  },
+  "jp.daimyo_guard": {
+   "kits": [
+    {
+     "head": "magistuarmory:face_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#E9E4D4",
+    "#C9A227"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "in.paika": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#D8781F",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "orange",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "in.bhil": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#3F6B35",
+    "#B08A5A"
+   ],
+   "arms": [
+    {
+     "base": "brown",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "green"
+      }
+     ]
+    }
+   ]
+  },
+  "in.nayar": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "in.dhal": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:brigandine_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:brigandine_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#E39A2B",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "orange",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "in.rajput_foot": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#E39A2B",
+    "#9E1B1B",
+    "#E39A2B"
+   ],
+   "arms": [
+    {
+     "base": "orange",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "yellow"
+      }
+     ]
+    },
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lion2",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "in.royal_spears": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#3F6B35",
+    "#C9A227"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lion1",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "in.imperial_archers": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:brigandine_boots"
+    }
+   ],
+   "palette": [
+    "#3F6B35",
+    "#C9A227"
+   ]
+  },
+  "in.dhanurdhara": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#E39A2B"
+   ]
+  },
+  "in.hill_archers": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#3F6B35"
+   ]
+  },
+  "in.temple_bows": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#E39A2B",
+    "#9E1B1B",
+    "#E39A2B"
+   ]
+  },
+  "in.rajput_lancers": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#E39A2B",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "orange",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "in.silladar": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#3F6B35"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "in.pindari": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#9E1B1B",
+    "#B08A5A"
+   ],
+   "arms": [
+    {
+     "base": "brown",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_middle",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "in.turki_archers": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "palette": [
+    "#3F6B35",
+    "#B08A5A"
+   ]
+  },
+  "in.kshatriya": {
+   "kits": [
+    {
+     "head": "magistuarmory:face_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_roundshield"
+   ],
+   "palette": [
+    "#E39A2B",
+    "#C9A227",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "orange",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lion2",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "in.temple_defenders": {
+   "kits": [
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#E39A2B",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "orange",
+     "layers": [
+      {
+       "pattern": "magistuarmory:snake",
+       "color": "green"
+      }
+     ]
+    }
+   ]
+  },
+  "maya.milpa_levy": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#B08A5A",
+    "#E9E4D4"
+   ]
+  },
+  "maya.hunters": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#3F6B35",
+    "#6B4A2A"
+   ]
+  },
+  "maya.holkan": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "maya.atlatl": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_rondache"
+   ],
+   "palette": [
+    "#2A8C8C",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "cyan",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_middle",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "maya.jaguar": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#D4A22A",
+    "#222222",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "minecraft:flower",
+       "color": "black"
+      }
+     ]
+    }
+   ]
+  },
+  "maya.nacom_guard": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#3E8E6A"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "magistuarmory:snake",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "maya.royal_archers": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#3E8E6A",
+    "#D4A22A"
+   ]
+  },
+  "maya.temple_archers": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#9E1B1B"
+   ]
+  },
+  "maya.bowmen": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#B08A5A",
+    "#6B4A2A"
+   ]
+  },
+  "maya.skirmishers": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#3F6B35",
+    "#B08A5A"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "minecraft:half_horizontal",
+       "color": "brown"
+      }
+     ]
+    }
+   ]
+  },
+  "maya.runners": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#6A9CC8"
+   ]
+  },
+  "maya.serpent": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#3E8E6A",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "magistuarmory:snake",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "maya.captive_takers": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#222222"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "black"
+      }
+     ]
+    }
+   ]
+  },
+  "maya.eagle": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#6B4A2A",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "magistuarmory:eagle",
+       "color": "brown"
+      }
+     ]
+    }
+   ]
+  },
+  "maya.sacred_war_band": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_rondache"
+   ],
+   "palette": [
+    "#2A8C8C",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "cyan",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "maya.city_guard": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "magistuarmory:tower",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "inuit.harpooners": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#9C7A52",
+    "#6B4A2A",
+    "#9C7A52"
+   ]
+  },
+  "inuit.camp_defenders": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#9C7A52",
+    "#DCD2B8"
+   ]
+  },
+  "inuit.bone_armour": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_target"
+   ],
+   "palette": [
+    "#DCD2B8",
+    "#9C7A52"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "black"
+      }
+     ]
+    }
+   ]
+  },
+  "inuit.lancers": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#9C7A52"
+   ]
+  },
+  "inuit.champions": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#DCD2B8",
+    "#707070"
+   ]
+  },
+  "inuit.ice_wall": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#DCD2B8",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "light_blue"
+      }
+     ]
+    }
+   ]
+  },
+  "inuit.master_bows": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#DCD2B8",
+    "#707070"
+   ]
+  },
+  "inuit.sinew_bows": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#9C7A52"
+   ]
+  },
+  "inuit.caribou_hunters": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#9C7A52",
+    "#B08A5A"
+   ]
+  },
+  "inuit.snow_skirmishers": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#707070"
+   ]
+  },
+  "inuit.kayak_raiders": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6B4A2A",
+    "#222222"
+   ]
+  },
+  "inuit.tundra_scouts": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#DCD2B8"
+   ]
+  },
+  "inuit.whale_hunt": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#707070",
+    "#222222"
+   ]
+  },
+  "inuit.winter_warband": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#222222",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "black",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "inuit.shaman_band": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:wood_roundshield"
+   ],
+   "palette": [
+    "#9E1B1B",
+    "#222222"
+   ],
+   "arms": [
+    {
+     "base": "black",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "inuit.feud_party": {
+   "kits": [
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#5A1A1A",
+    "#9C7A52"
+   ]
+  }
+ }
+}

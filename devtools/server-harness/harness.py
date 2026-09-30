@@ -5795,12 +5795,82 @@ def scenario_SQ(ctx):
           ("ok=true" in h6 and len(ha) >= 10) or (tz == "WATCH" and "ok=false" in h6), f"{tz}: {h6[-160:]}; {len(ha)} horse archers")
 
 
+def gear_of(s, u):
+    """Chest item id, its dye colour and the off-hand shield's base colour and patterns (raw NBT text)."""
+    chest = " ".join(s.output(f"data get entity {u} ArmorItems[2]", 0.6))
+    off = " ".join(s.output(f"data get entity {u} HandItems[1]", 0.6))
+    return chest, off
+
+
+def scenario_LK(ctx):
+    """Squad looks (post-M5; run with HYWMILL_EXTRA_MODS=<Epic Knights>): hired squads wear their own look. The Crusader Band
+    in crusader surcoats dyed in its colours with crusader-cross shields; Byzantine Excubitors in lamellar with the
+    two-headed eagle; the knights of a Norman household in surcoats."""
+    s, a = ctx.s, ctx.a
+    for box in EXTRA_FORCELOAD:
+        s.cmd("forceload add {} {} {} {}".format(*box), wait=10)
+    ek = any("magistuarmory" in l for l in s.output("hywmill dev equipcheck", 3))
+    check("LK-0 Epic Knights is loaded", ek, "")
+    centers = []
+    for l in s.output("hywmill village list", 2):
+        m = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=| (-?\d+), (-?\d+), (-?\d+) tier=", l)
+        if m:
+            centers.append(tuple(int(v) for v in m.groups() if v is not None))
+    P = "33333333-4444-4555-8666-777777777777"
+    s.cmd("kill @e[type=hundred_years_war:shieldman]", 1)
+    s.cmd("kill @e[type=hundred_years_war:spear_man]", 1)
+
+    def roll(c):
+        x, z = c[0] + 6, c[2] + 6
+        y = surface_y(s, x, z) or c[1]
+        s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+        return x, y, z
+
+    def hire(pos, key, standing):
+        x, y, z = pos
+        return " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "{key}" 1 400000 {standing}', 5) if "recruit:" in l)
+
+    ra = roll(a)
+    h1 = hire(ra, "squad:norman.crusader_band", "PATRON")
+    time.sleep(5)
+    shields = [u for u, x in spike_info(s, "@e[type=hundred_years_war:shieldman]").items() if ("owner=" + P) in x["desc"] and dist(x["pos"], ra) <= 45]
+    rows = [gear_of(s, u) for u in shields[:4]]
+    note("LK crusader gear", " || ".join(c[:220] + " ## " + o[:300] for c, o in rows))
+    surcoat = sum(1 for c, o in rows if "crusader_chestplate" in c)
+    dyed = sum(1 for c, o in rows if "dyed_color" in c)
+    cross = sum(1 for c, o in rows if "crusader_cross" in o or "straight_cross" in o or "apostolic_cross" in o)
+    check("LK-1 the Crusader Band wears crusader surcoats in its colours and bears crosses on its shields",
+          "ok=true" in h1 and rows and surcoat == len(rows) and dyed == len(rows) and cross >= 1,
+          f"{h1[-100:]}; {len(rows)} shieldmen: surcoat {surcoat}, dyed {dyed}, cross shields {cross}")
+    byz = next((c for c in centers if "byzantines" in " ".join(s.output(at(c, "hywmill village info"), 2))), None)
+    if byz:
+        rz = roll(byz)
+        h2 = hire(rz, "squad:byz.excubitors", "SWORN")
+        time.sleep(5)
+        ex = [u for u, x in spike_info(s, "@e[type=hundred_years_war:shieldman]").items() if ("owner=" + P) in x["desc"] and dist(x["pos"], rz) <= 45]
+        rows2 = [gear_of(s, u) for u in ex[:3]]
+        lam = sum(1 for c, o in rows2 if "lamellar_chestplate" in c)
+        eagle = sum(1 for c, o in rows2 if "two_headed_eagle" in o)
+        check("LK-2 Byzantine Excubitors wear lamellar and bear the two-headed eagle", "ok=true" in h2 and rows2 and lam == len(rows2) and eagle >= 1,
+              f"{h2[-100:]}; {len(rows2)} shieldmen: lamellar {lam}, eagle {eagle}")
+    big = next((c for c in centers if info(s, c).get("tier") in ("GARRISON", "STRONGHOLD")
+                and "norman" in " ".join(s.output(at(c, "hywmill village info"), 2))), None)
+    if big:
+        rb = roll(big)
+        h3 = hire(rb, "squad:norman.knights", "SWORN")
+        time.sleep(6)
+        kn = [u for u, x in spike_info(s, "@e[type=hundred_years_war:mounted_lancer_rider]").items() if ("owner=" + P) in x["desc"] and dist(x["pos"], rb) <= 45]
+        rows3 = [gear_of(s, u) for u in kn[:3]]
+        sc = sum(1 for c, o in rows3 if "crusader_chestplate" in c)
+        check("LK-3 Norman knights ride in surcoats", "ok=true" in h3 and rows3 and sc == len(rows3), f"{h3[-100:]}; {len(rows3)} knights, surcoats {sc}")
+
+
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "RL": scenario_RL, "LV": scenario_LV, "WT": scenario_WT, "SQ": scenario_SQ, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "RL": scenario_RL, "LV": scenario_LV, "WT": scenario_WT, "SQ": scenario_SQ, "LK": scenario_LK, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

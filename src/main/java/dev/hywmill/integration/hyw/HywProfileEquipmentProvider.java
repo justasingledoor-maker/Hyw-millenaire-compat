@@ -70,7 +70,11 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
 
     private static void overlay(BaseCombatEntity u, UnitSpec unit, Context ctx) {
         EquipmentProfiles p = EquipmentProfiles.current();
-        EquipmentProfiles.Kit kit = chooseKit(p, unit.entityType(), ctx);
+        EquipmentProfiles.Look look = p.lookFor(ctx.dutyRole()); // post-M5 squads: their own kits, shields, colours and arms
+        EquipmentProfiles.Kit kit = look != null ? pick(look.kits(), unit.entityType(), ctx) : null;
+        if (kit == null) {
+            kit = chooseKit(p, unit.entityType(), ctx);
+        }
         for (String slot : EquipmentProfiles.SLOTS) {
             if (kit != null && EquipmentProfiles.ARMOUR.contains(slot)) {
                 // one whole armour set: never a piece from another list (no plate helmet over cloth)
@@ -79,12 +83,50 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                         : new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(id))));
                 continue;
             }
-            String item = choose(p, unit.entityType(), slot, ctx);
+            String item = look != null ? pickItem(look.items().get(slot), unit.entityType(), slot, ctx) : null;
+            if (item == null) {
+                item = choose(p, unit.entityType(), slot, ctx);
+            }
             if (item != null) {
                 u.setItemSlot(slotOf(slot), new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(item))));
             }
         }
-        decorate(u, p, ctx);
+        decorate(u, p, ctx, look);
+    }
+
+    /** A usable kit of {@code kits} (deterministic by roster id), or null. */
+    @javax.annotation.Nullable
+    static EquipmentProfiles.Kit pick(List<EquipmentProfiles.Kit> kits, String entityType, Context ctx) {
+        List<EquipmentProfiles.Kit> valid = new ArrayList<>();
+        for (EquipmentProfiles.Kit k : kits) {
+            if (kitUsable(entityType, k)) {
+                valid.add(k);
+            }
+        }
+        if (valid.isEmpty()) {
+            return null;
+        }
+        long h = ctx.rosterId().getLeastSignificantBits() * 31 + ctx.rosterId().getMostSignificantBits() + 0x4B17L;
+        return valid.get((int) Math.floorMod(h, (long) valid.size()));
+    }
+
+    /** A usable item of {@code items} for the slot (deterministic by roster id), or null. */
+    @javax.annotation.Nullable
+    static String pickItem(@javax.annotation.Nullable List<String> items, String entityType, String slot, Context ctx) {
+        if (items == null) {
+            return null;
+        }
+        List<String> valid = new ArrayList<>();
+        for (String id : items) {
+            if (check(entityType, slot, id) == Verdict.OK) {
+                valid.add(id);
+            }
+        }
+        if (valid.isEmpty()) {
+            return null;
+        }
+        long h = ctx.rosterId().getLeastSignificantBits() * 31 + ctx.rosterId().getMostSignificantBits() + slot.hashCode() * 17L;
+        return valid.get((int) Math.floorMod(h, (long) valid.size()));
     }
 
     /** The unit's armour kit (deterministic by roster id): from the first kit list with a kit whose every piece is usable. */
@@ -116,8 +158,9 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
     }
 
     /** Livery: dyeable armour in the unit's two colours; a shield painted with its arms (vanilla banner components). */
-    private static void decorate(BaseCombatEntity u, EquipmentProfiles p, Context ctx) {
-        int[] c = dev.hywmill.garrison.equip.Livery.colours(ctx.rosterId(), p.palette(ctx.culture()));
+    private static void decorate(BaseCombatEntity u, EquipmentProfiles p, Context ctx, @javax.annotation.Nullable EquipmentProfiles.Look look) {
+        List<Integer> palette = look != null && !look.palette().isEmpty() ? look.palette() : p.palette(ctx.culture());
+        int[] c = dev.hywmill.garrison.equip.Livery.colours(ctx.rosterId(), palette);
         for (String slot : EquipmentProfiles.ARMOUR) {
             ItemStack st = u.getItemBySlot(slotOf(slot));
             if (!st.isEmpty() && st.is(net.minecraft.tags.ItemTags.DYEABLE)) {
@@ -127,8 +170,28 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
         }
         ItemStack shield = u.getItemBySlot(EquipmentSlot.OFFHAND);
         if (p.heraldry() && shield.getItem() instanceof net.minecraft.world.item.ShieldItem) {
-            paint(u, shield, ctx.rosterId());
+            if (look != null && !look.arms().isEmpty()) {
+                // a squad bears its own arms (one of the look's, by roster id)
+                long h = ctx.rosterId().getMostSignificantBits() ^ 0xA2A5L;
+                paint(u, shield, look.arms().get((int) Math.floorMod(h, (long) look.arms().size())));
+            } else {
+                paint(u, shield, ctx.rosterId());
+            }
         }
+    }
+
+    private static void paint(BaseCombatEntity u, ItemStack shield, dev.hywmill.garrison.equip.Livery.Arms arms) {
+        var reg = u.level().registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.BANNER_PATTERN);
+        net.minecraft.world.level.block.entity.BannerPatternLayers.Builder b = new net.minecraft.world.level.block.entity.BannerPatternLayers.Builder();
+        for (dev.hywmill.garrison.equip.Livery.Layer l : arms.layers()) {
+            ResourceLocation id = ResourceLocation.tryParse(l.pattern());
+            if (id != null) {
+                reg.getHolder(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.BANNER_PATTERN, id))
+                        .ifPresent(h -> b.add(h, l.color()));
+            }
+        }
+        shield.set(net.minecraft.core.component.DataComponents.BASE_COLOR, arms.base());
+        shield.set(net.minecraft.core.component.DataComponents.BANNER_PATTERNS, b.build());
     }
 
     private static void paint(BaseCombatEntity u, ItemStack shield, java.util.UUID id) {

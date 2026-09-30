@@ -290,7 +290,7 @@ public final class RecruitService {
                 }
                 UUID uid = UUID.randomUUID();
                 SpawnResult r = units.spawn(overworld, new SpawnRequest(spec, payer.getUUID(), uid, Vec3.atBottomCenterOf(spot), spot, level, false,
-                        null, eq, new EquipmentProvider.Context(rec.culture, m.gear(), m.kit(), EquipmentProfiles.classRole(spec.unitClass()), uid)));
+                        null, eq, new EquipmentProvider.Context(rec.culture, m.gear(), s.role(m), EquipmentProfiles.classRole(spec.unitClass()), uid)));
                 if (r.ok()) {
                     hired++;
                 }

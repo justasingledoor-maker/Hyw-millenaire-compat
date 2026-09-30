@@ -32,9 +32,15 @@ public record Squads(Map<String, List<Squad>> cultures, List<Squad> defaults, do
     /**
      * @param standing lowest standing that may hire it
      * @param village  lowest village tier that can raise it
+     * @param look     its look in hywmill_equipment ({@code looks}: own armour, colours and shield arms); "" = the culture's gear
      */
     public record Squad(String id, String name, Category category, Quality quality, Standing standing, MilitaryTier village, String description,
-                        List<Member> members) {
+                        List<Member> members, String look) {
+        /** The equipment role its members are equipped for: the squad's look, else the member's kit. */
+        public String role(Member m) {
+            return look.isEmpty() ? m.kit() : dev.hywmill.garrison.equip.EquipmentProfiles.LOOK_PREFIX + look;
+        }
+
         public int size() {
             return members.stream().mapToInt(Member::count).sum();
         }
@@ -202,7 +208,7 @@ public record Squads(Map<String, List<Squad>> cultures, List<Squad> defaults, do
                     m.has("kit") ? m.get("kit").getAsString() : ""));
         }
         Squad s = new Squad(id, j.get("name").getAsString(), cat, q, st, vt, j.has("description") ? j.get("description").getAsString() : "",
-                List.copyOf(members));
+                List.copyOf(members), j.has("look") ? j.get("look").getAsString() : "");
         if (s.size() < MIN_SIZE || s.size() > MAX_SIZE) {
             problems.add(where + " " + id + ": " + s.size() + " soldiers (a squad has " + MIN_SIZE + "-" + MAX_SIZE + "); squad skipped");
             return null;
