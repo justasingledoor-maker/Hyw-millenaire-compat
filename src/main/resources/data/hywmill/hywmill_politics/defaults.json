@@ -57,7 +57,7 @@
       "peaceRelation": -75, "warRelation": -100, "enemyMin": 0.1, "enemyMax": 0.9, "exponent": 2.0, "peaceAfterSiege": true
     },
     "mobilization": {
-      "enabled": true, "equipmentFloor": 1, "equipmentDrop": 1, "reinforceInterval": 600, "reinforceBatch": 2,
+      "enabled": true, "equipmentFloor": 1, "equipmentDrop": 1, "reinforceInterval": 600, "reinforceBatch": 2, "rotateInterval": 2400,
       "levyUnits": { "spear_man": 3, "shieldman": 3 }
     },
     "relief": {

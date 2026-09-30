@@ -68,6 +68,7 @@ final class WarCommands {
                         .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminSiege(ctx, false))
                                 .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                                         .executes(ctx -> adminSiege(ctx, true))))))
+                .then(Commands.literal("mercs").then(Commands.argument("attacker", BlockPosArgument.blockPos()).executes(WarCommands::adminMercs)))
                 .then(Commands.literal("relief").then(Commands.argument("helper", BlockPosArgument.blockPos())
                         .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminRelief(ctx, "NONE"))
                                 .then(Commands.argument("fate", com.mojang.brigadier.arguments.StringArgumentType.word())
@@ -193,6 +194,25 @@ final class WarCommands {
         send(ctx.getSource(), "war siege " + l.refusal() + ": " + l.detail() + (l.ok() ? " id " + l.siege().id.toString().substring(0, 8)
                 + " host " + l.siege().hostStart + (unwatched ? " (unwatched)" : "") : ""));
         return l.ok() ? 1 : 0;
+    }
+
+    /** Post-M5: {@code /hywmill war admin mercs <attacker>}: the host of that village hires a free company now (before it deploys). */
+    private static int adminMercs(CommandContext<CommandSourceStack> ctx) {
+        VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
+        if (a == null) {
+            return 0;
+        }
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(ow);
+        var s = dev.hywmill.garrison.service.SiegeService.byAttacker(ledger, a.villageId);
+        VillageRecord t = s == null ? null : ledger.get(s.target);
+        if (s == null || t == null || s.phase == dev.hywmill.politics.war.Siege.Phase.BATTLE || s.phase == dev.hywmill.politics.war.Siege.Phase.RETURN) {
+            send(ctx.getSource(), "war mercs NONE: " + a.name + " has no host on the way to a siege");
+            return 0;
+        }
+        int n = HywMillRuntime.require().sieges().hireMercs(ow, ledger, s, a, t, ow.getGameTime(), true);
+        send(ctx.getSource(), "war mercs " + (n > 0 ? "HIRED " + n + " " + s.mercCompany : "NONE: a company is already hired") + " host " + s.hostStart);
+        return n;
     }
 
     /** Post-M5: suggest a siege to the village of the player's campaign against its enemy ({@code roll}: dev, forced draw). */

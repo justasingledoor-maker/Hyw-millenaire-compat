@@ -354,13 +354,16 @@ public final class GarrisonService {
         e.generation++;
         e.entityUuid = GarrisonTag.entityUuid(e.rosterId, e.generation);
         GarrisonTag tag = new GarrisonTag(rec.villageId, e.rosterId, e.generation);
-        int[] livery = known != null ? LiveryService.of(overworld, rec) : null; // garrison soldiers wear the village's colours; engines do not
-        e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "", livery);
+        boolean merc = !e.mercLook.isEmpty();
+        // garrison soldiers wear the village's colours; engines and hired mercenaries (their company's look) do not
+        int[] livery = known != null && !merc ? LiveryService.of(overworld, rec) : null;
+        String role = merc ? dev.hywmill.garrison.equip.EquipmentProfiles.LOOK_PREFIX + e.mercLook
+                : e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "";
+        e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(role, livery);
         SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, rec.factionId, e.entityUuid, pos, home, e.equipmentLevel,
                 HywMillConfig.garrison().equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture,
-                dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier),
-                e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "",
-                dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId).withLivery(livery)));
+                dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier), // mercenaries are mobilized: a levy's tier
+                role, dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId).withLivery(livery)));
         if (!res.ok()) {
             e.generation = Math.max(0, e.generation - 1);
             e.entityUuid = null;

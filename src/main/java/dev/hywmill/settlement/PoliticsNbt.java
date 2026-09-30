@@ -342,6 +342,11 @@ public final class PoliticsNbt {
             if (g.forceUnwatched) {
                 x.putBoolean("unwatched", true);
             }
+            if (g.mercRolled) {
+                x.putBoolean("mercRolled", true);
+                x.putString("mercCompany", g.mercCompany);
+                x.putInt("mercCount", g.mercCount);
+            }
             if (!g.reliefs.isEmpty()) {
                 ListTag rl = new ListTag();
                 for (dev.hywmill.politics.war.Relief r : g.reliefs) {
@@ -381,6 +386,9 @@ public final class PoliticsNbt {
                 g.defenderHelpers.addAll(readUuids(x.getList("defenderHelpers", Tag.TAG_INT_ARRAY)));
                 g.summary = x.getString("summary");
                 g.forceUnwatched = x.getBoolean("unwatched");
+                g.mercRolled = x.getBoolean("mercRolled");
+                g.mercCompany = x.getString("mercCompany");
+                g.mercCount = x.getInt("mercCount");
                 g.pausedSince = x.contains("pausedSince") ? x.getLong("pausedSince") : -1;
                 ListTag rl = x.getList("reliefs", Tag.TAG_COMPOUND);
                 for (int j = 0; j < rl.size(); j++) {

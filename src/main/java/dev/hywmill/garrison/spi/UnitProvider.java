@@ -45,6 +45,12 @@ public interface UnitProvider {
     /** Moves the unit's HYW home position (its idle/return anchor). */
     void setHome(Entity unit, BlockPos home);
 
+    /**
+     * Post-M5: the unit's combat stance. {@code autonomous}: it seeks and fights enemies on its own (HYW "Autonomous
+     * Combat"), as in the thick of a siege; otherwise the garrison's usual stance. Default: no stance to set.
+     */
+    default void setAutonomous(Entity unit, boolean autonomous) {}
+
     /** The vehicle (e.g. an HYW rider's horse) the unit is riding, or null. */
     @Nullable
     Entity mount(Entity unit);

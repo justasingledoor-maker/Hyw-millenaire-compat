@@ -27,6 +27,9 @@ public final class RosterEntry {
     public final boolean paid;
     /** Post-M5: raised by wartime mobilization (free, fresh troops); sent home when the village is at peace again. */
     public boolean mobilized;
+    /** Post-M5: a hired siege mercenary, wearing this company look ({@code look:<id>}); "" = not a mercenary. Mercenaries are
+     *  also {@link #mobilized}, and leave when their siege ends. */
+    public String mercLook = "";
 
     // ---- M4 duty (persisted as optional keys; an M3 roster loads as GARRISON) ----
     /** Standing duty assigned by the duty allocation. */

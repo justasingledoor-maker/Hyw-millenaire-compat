@@ -200,7 +200,7 @@ public final class GarrisonRoster {
     public int live() {
         int n = 0;
         for (RosterEntry e : entries) {
-            if (!e.state().terminal()) {
+            if (!e.state().terminal() && e.mercLook.isEmpty()) { // hired siege mercenaries are not the village's own
                 n++;
             }
         }
@@ -350,6 +350,9 @@ public final class GarrisonRoster {
         if (e.mobilized) {
             c.putBoolean("mobilized", true);
         }
+        if (!e.mercLook.isEmpty()) {
+            c.putString("merc", e.mercLook);
+        }
         if (e.assignedDuty != dev.hywmill.garrison.duty.Duty.GARRISON || e.duty != dev.hywmill.garrison.duty.Duty.GARRISON || e.dutyIndex >= 0
                 || !e.equipRole.isEmpty() || e.errandPlayer != null) {
             CompoundTag d = new CompoundTag();
@@ -417,6 +420,7 @@ public final class GarrisonRoster {
             e.lastSeenZ = pos[2];
         }
         e.mobilized = c.getBoolean("mobilized");
+        e.mercLook = c.getString("merc");
         return e;
     }
 }

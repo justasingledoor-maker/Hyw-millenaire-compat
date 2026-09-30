@@ -39,6 +39,11 @@ public final class Siege {
     public boolean forceUnwatched;
     /** Post-M5: relief forces sent to the target by villages on great terms with it. */
     public final List<Relief> reliefs = new ArrayList<>();
+    /** Post-M5: the mercenary roll before the assault was made. */
+    public boolean mercRolled;
+    /** The company hired for this siege ("" none) and how many it brought. */
+    public String mercCompany = "";
+    public int mercCount;
     /** One line on how it ended (for the chronicle, status and the report). */
     public String summary = "";
 

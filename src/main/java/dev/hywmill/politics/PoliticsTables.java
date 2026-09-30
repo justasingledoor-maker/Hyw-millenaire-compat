@@ -205,12 +205,22 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
      * plus {@code levyUnits} (extra weights, allowed below their usual tier: shieldmen and spearmen hold a line well).
      * They serve like any other unit and are sent home when the village is at peace again.
      */
+    /**
+     * @param rotateInterval in a long war, once the garrison is at strength, one mobilized levy at home is sent home and replaced
+     *                       by a paid regular (if the levy points cover it) every this many ticks; 0 = never
+     */
     public record MobilizationRule(boolean enabled, int equipmentFloor, int equipmentDrop, long reinforceInterval, int reinforceBatch,
-                                   Map<String, Integer> levyUnits) {
-        public static final MobilizationRule DEFAULT = new MobilizationRule(true, 1, 1, 600, 2, defaultLevyUnits());
+                                   Map<String, Integer> levyUnits, long rotateInterval) {
+        public static final long DEFAULT_ROTATE = 2400;
+        public static final MobilizationRule DEFAULT = new MobilizationRule(true, 1, 1, 600, 2, defaultLevyUnits(), DEFAULT_ROTATE);
 
         public MobilizationRule(boolean enabled, int equipmentFloor, int equipmentDrop) {
-            this(enabled, equipmentFloor, equipmentDrop, 600, 2, defaultLevyUnits());
+            this(enabled, equipmentFloor, equipmentDrop, 600, 2, defaultLevyUnits(), DEFAULT_ROTATE);
+        }
+
+        public MobilizationRule(boolean enabled, int equipmentFloor, int equipmentDrop, long reinforceInterval, int reinforceBatch,
+                                Map<String, Integer> levyUnits) {
+            this(enabled, equipmentFloor, equipmentDrop, reinforceInterval, reinforceBatch, levyUnits, DEFAULT_ROTATE);
         }
     }
 

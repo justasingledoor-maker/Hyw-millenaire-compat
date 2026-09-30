@@ -5571,7 +5571,7 @@ def scenario_RL(ctx):
         time.sleep(5)
     logs = s.read_since(p0)
     march = next((l for l in logs if "marching" in l and "stowed" in l), None)
-    stands = next((l for l in logs if "stands before" in l), None)
+    stands = next((l for l in logs if "closes on" in l), None)
     check("RL-2 the relief sets out when the attackers march", sent is not None and march is not None
           and logs.index(march) <= logs.index(sent), f"{march} || {sent}")
     time.sleep(8)
@@ -5697,8 +5697,8 @@ def scenario_WT(ctx):
     time.sleep(3)
     fa = garrison(s, a).get("faction")
     out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
-    at = s.wait_for(r"materialized at", 360, since=p0)
-    m = re.search(r"materialized at (-?\d+), (-?\d+), (-?\d+)", at or "")
+    at = s.wait_for(r"main at", 360, since=p0)
+    m = re.search(r"main at (-?\d+), (-?\d+), (-?\d+)", at or "")
     land = (int(m[1]), int(m[2]), int(m[3])) if m else None
     wet_side = land is not None and (land[0] - b[0]) * sx > 15 and abs(land[2] - b[2]) < 60
     check("WT-1 with water on the side facing home, the host lands on a dry side", land is not None and not wet_side,

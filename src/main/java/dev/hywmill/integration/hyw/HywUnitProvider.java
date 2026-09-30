@@ -120,6 +120,13 @@ public final class HywUnitProvider implements UnitProvider {
     }
 
     @Override
+    public void setAutonomous(Entity unit, boolean autonomous) {
+        if (unit instanceof BaseCombatEntity b) {
+            b.setAttackStrategy(autonomous ? AttackStrategy.FREE_FIGHT : AttackStrategy.DEFAULT);
+        }
+    }
+
+    @Override
     public void setHome(Entity unit, BlockPos home) {
         if (unit instanceof BaseCombatEntity b) {
             b.setHomePosition(home);

@@ -269,6 +269,9 @@ public final class DutyService {
      * unit's role changed since its equipment was applied, re-applies it (HYW's level, then the overlay).
      */
     private static void reequip(VillageRecord rec, RosterEntry e, Entity ent, UnitProvider units) {
+        if (!e.mercLook.isEmpty()) {
+            return; // a hired mercenary keeps its company's look
+        }
         String role = dev.hywmill.garrison.equip.EquipmentProfiles.role(e.mobilized, e.assignedDuty);
         int[] livery = ent.level() instanceof net.minecraft.server.level.ServerLevel sl ? LiveryService.of(sl.getServer().overworld(), rec) : null;
         String stamp = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(role, livery); // role + profile revision + livery: new data re-equips once

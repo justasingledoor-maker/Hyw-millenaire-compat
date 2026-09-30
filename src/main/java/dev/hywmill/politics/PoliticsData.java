@@ -193,8 +193,10 @@ public final class PoliticsData {
             }
             mb = new PoliticsTables.MobilizationRule(j.has("enabled") ? j.get("enabled").getAsBoolean() : mb.enabled(),
                     i(j, "equipmentFloor", mb.equipmentFloor()), i(j, "equipmentDrop", mb.equipmentDrop()),
-                    l(j, "reinforceInterval", mb.reinforceInterval()), i(j, "reinforceBatch", mb.reinforceBatch()), lu);
-            if (mb.equipmentFloor() < 0 || mb.equipmentDrop() < 0 || mb.reinforceInterval() < 20 || mb.reinforceBatch() < 0) {
+                    l(j, "reinforceInterval", mb.reinforceInterval()), i(j, "reinforceBatch", mb.reinforceBatch()), lu,
+                    l(j, "rotateInterval", mb.rotateInterval()));
+            if (mb.equipmentFloor() < 0 || mb.equipmentDrop() < 0 || mb.reinforceInterval() < 20 || mb.reinforceBatch() < 0
+                    || (mb.rotateInterval() != 0 && mb.rotateInterval() < 20)) {
                 problems.add(where + ": mobilization values out of range; using " + where + " base");
                 mb = base.mobilization();
             }

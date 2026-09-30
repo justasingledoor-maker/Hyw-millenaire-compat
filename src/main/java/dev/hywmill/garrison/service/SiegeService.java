@@ -77,6 +77,8 @@ public final class SiegeService {
     public static final String C_LAUNCHED = "siege.launched", C_WON = "siege.won", C_LOST = "siege.lost", C_OFFSCREEN = "siege.offscreen";
 
     private final PerfCounters perf;
+    /** Post-M5: one boss bar per siege in battle, shown to players near the target (runtime only; rebuilt from the ledger). */
+    private final java.util.Map<UUID, net.minecraft.server.level.ServerBossEvent> bars = new java.util.HashMap<>();
 
     public SiegeService(PerfCounters perf) {
         this.perf = perf;
@@ -392,6 +394,11 @@ public final class SiegeService {
         if (tick % AI_INTERVAL == AI_OFFSET) {
             villageDecisions(overworld, ledger, tick);
         }
+        try {
+            bars(overworld, ledger);
+        } catch (RuntimeException ex) {
+            HmLog.warn("Siege boss bars failed: {}", ex.toString());
+        }
         perf.stop("siege.tick", t0);
     }
 
@@ -429,6 +436,9 @@ public final class SiegeService {
                 }
             }
             case MARCH -> {
+                if (!s.mercRolled && tick >= s.phaseEnd - dev.hywmill.politics.war.Mercenaries.LEAD) {
+                    hireMercs(overworld, ledger, s, a, t, tick, false);
+                }
                 if (tick >= s.phaseEnd) {
                     BlockPos landing = landing(overworld, a, t);
                     if (!s.forceUnwatched && watched(overworld, t, landing)) {
@@ -560,30 +570,39 @@ public final class SiegeService {
         // "behind" is away from the target (the landing may be on any side of the village, not only towards home)
         BlockPos away = landing.offset(landing.getX() - t.center.getX(), 0, landing.getZ() - t.center.getZ());
         BlockPos back = behind(landing, away, 24);
+        // the soldiers land in groups of 4-8 round the near half of the village, the main group at the landing (post-M5)
+        int soldiers = 0;
+        for (RosterEntry e : alive) {
+            soldiers += a.hywRoster.isArsenal(e) ? 0 : 1;
+        }
+        int[] sizes = dev.hywmill.politics.war.SiegeGroups.sizes(soldiers);
+        BlockPos[] groups = groupLandings(overworld, t, landing, sizes.length, s.seed(0x6C616E64L));
+        int[] placedIn = new int[groups.length];
+        UnitProvider units = Services.units();
         int soldier = 0, engine = 0;
         for (RosterEntry e : alive) {
             boolean arsenal = a.hywRoster.isArsenal(e);
-            // the engines (and their crews) set up in a line behind the landing point, away from the target; the soldiers stand in
-            // spaced ranks at it, facing the target
+            // the engines (and their crews) set up in a line behind the landing point, away from the target; each group of soldiers
+            // stands in spaced ranks at its own landing, facing the target
             int slot = arsenal ? engine++ : soldier++;
             if (e.entityUuid != null) {
                 n += arsenal ? 0 : 1;
                 continue;
             }
-            BlockPos at = arsenal ? formation(back, away, slot / 2, 6, 5) : formation(landing, away, slot, 8, 3);
-            Vec3 spot = dryGround(overworld, at, away, t.center, e.rosterId);
+            int g = arsenal ? 0 : dev.hywmill.politics.war.SiegeGroups.groupOf(slot, sizes);
+            BlockPos gAt = arsenal ? back : groups[g];
+            BlockPos gAway = gAt.offset(gAt.getX() - t.center.getX(), 0, gAt.getZ() - t.center.getZ());
+            BlockPos at = arsenal ? formation(back, away, slot / 2, 6, 5) : formation(gAt, gAway, placedIn[g]++, 4, 3);
+            Vec3 spot = dryGround(overworld, at, arsenal ? away : gAway, t.center, e.rosterId);
             if (spot == null) {
                 continue; // no dry, safe ground found this time: this unit tries again on the next step
             }
-            if (arsenal) {
-                GarrisonService.materialize(overworld, a, e, spot, BlockPos.containing(spot), tick);
-                continue;
-            }
-            if (spot == null) {
-                spot = Vec3.atBottomCenterOf(landing);
-            }
-            if (GarrisonService.materialize(overworld, a, e, spot, BlockPos.containing(spot), tick)) {
+            if (GarrisonService.materialize(overworld, a, e, spot, BlockPos.containing(spot), tick) && !arsenal) {
                 n++;
+                Entity ent = GarrisonService.find(overworld.getServer(), e.entityUuid);
+                if (ent != null && units != null) {
+                    units.setAutonomous(ent, true); // in the thick of a siege every soldier seeks out the enemy
+                }
             }
         }
         if (n == 0) {
@@ -594,13 +613,171 @@ public final class SiegeService {
             }
             return;
         }
-        s.defendersStart = defenders(overworld, t).size() + ReliefService.entities(overworld, ledger, s).size();
+        List<LivingEntity> defs = new ArrayList<>(defenders(overworld, t));
+        defs.addAll(ReliefService.entities(overworld, ledger, s));
+        stance(defs, true);
+        s.defendersStart = defs.size();
         s.enter(Siege.Phase.BATTLE, tick, tick + r.battleTicks());
         ledger.setDirty();
-        announce(overworld, ledger, s, a, t, "The host of " + a.name + " (" + n + " soldiers) stands before " + t.name + "; "
-                + s.defendersStart + " defenders take up arms");
-        HmLog.info("Siege {}: {} unit(s) materialized at {} before {}; {} defender(s)", s.id.toString().substring(0, 8), n, landing.toShortString(),
-                t.name, s.defendersStart);
+        announce(overworld, ledger, s, a, t, "The host of " + a.name + " (" + n + " soldiers in " + groups.length + " group"
+                + (groups.length == 1 ? "" : "s") + ") closes on " + t.name + " from every side; " + s.defendersStart + " defenders take up arms");
+        HmLog.info("Siege {}: {} unit(s) materialized in {} group(s) round {} (main at {}); {} defender(s)", s.id.toString().substring(0, 8), n,
+                groups.length, t.name, landing.toShortString(), s.defendersStart);
+    }
+
+    /**
+     * Landing points of the host's groups: group 0 at the main landing, the others round the village's rim at the bearings of
+     * {@link dev.hywmill.politics.war.SiegeGroups#bearings}, each on dry ground with a dry way in (turned a little either side
+     * until one is found), else at the main landing.
+     */
+    static BlockPos[] groupLandings(ServerLevel overworld, VillageRecord t, BlockPos landing, int groups, long seed) {
+        BlockPos[] out = new BlockPos[Math.max(1, groups)];
+        out[0] = landing;
+        int radius = t.villageRadius > 0 ? t.villageRadius : DEFAULT_RADIUS;
+        double base = Math.atan2(landing.getZ() - t.center.getZ(), landing.getX() - t.center.getX());
+        double[] bearings = dev.hywmill.politics.war.SiegeGroups.bearings(out.length, seed);
+        for (int g = 1; g < out.length; g++) {
+            int dist = radius + STAGING_MARGIN + dev.hywmill.politics.war.SiegeGroups.depth(g, seed);
+            out[g] = landing;
+            for (int k = 0; k < 5; k++) {
+                double angle = base + Math.toRadians(bearings[g] + 12.0 * ((k + 1) / 2) * (k % 2 == 1 ? 1 : -1));
+                BlockPos p = surface(overworld, t.center.offset((int) Math.round(Math.cos(angle) * dist), 0, (int) Math.round(Math.sin(angle) * dist)));
+                if (dryApproach(overworld, p, t.center, radius / 2)) {
+                    out[g] = p;
+                    break;
+                }
+            }
+        }
+        return out;
+    }
+
+    /** Sets the combat stance of HYW units among {@code entities} (Millénaire villagers have none). */
+    private static void stance(Collection<? extends Entity> entities, boolean autonomous) {
+        UnitProvider units = Services.units();
+        if (units == null) {
+            return;
+        }
+        for (Entity e : entities) {
+            if (units.isUnit(e)) {
+                units.setAutonomous(e, autonomous);
+            }
+        }
+    }
+
+    /**
+     * Post-M5 mercenaries: about a minute before the host arrives, a small chance ({@code force}: certainly) that its village
+     * has hired a free company, which joins the host for this siege (see {@link dev.hywmill.politics.war.Mercenaries}).
+     * Returns the number hired.
+     */
+    public int hireMercs(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, boolean force) {
+        s.mercRolled = true;
+        ledger.setDirty();
+        if (!s.mercCompany.isEmpty()) {
+            return 0; // one company per siege
+        }
+        dev.hywmill.politics.war.Mercenaries.Hire h = force ? dev.hywmill.politics.war.Mercenaries.hire(s.seed(tick))
+                : dev.hywmill.politics.war.Mercenaries.roll(s.seed(0x4D455243L), dev.hywmill.politics.war.Mercenaries.CHANCE);
+        if (h == null) {
+            return 0;
+        }
+        GarrisonTables tables = GarrisonTables.current();
+        var table = tables.forCulture(a.culture);
+        PoliticsTables.MobilizationRule mob = MobilizationService.rule(a);
+        // hired men come as they are: equipped like the village's levies, a step below its regulars
+        int level = dev.hywmill.garrison.Mobilization.equipmentLevel(dev.hywmill.garrison.Recruitment.equipmentLevel(a.tier, table),
+                mob.equipmentFloor(), mob.equipmentDrop());
+        int n = 0;
+        for (String key : h.units()) {
+            UnitSpec u = tables.units().get(key);
+            if (u == null || !u.enabled()) {
+                continue;
+            }
+            RosterEntry e = a.hywRoster.recruit(a.villageId, key, u.entityType(), level, tick, false);
+            e.mobilized = true;
+            e.mercLook = h.company().look();
+            // straight into the host, stowed on the march like the rest of it
+            e.transition(UnitState.SPAWNED, tick);
+            e.transition(UnitState.GARRISONED, tick);
+            e.transition(UnitState.DEPLOYED, tick);
+            e.duty = Duty.SIEGE;
+            s.host.add(e.rosterId);
+            n++;
+        }
+        if (n == 0) {
+            return 0;
+        }
+        s.hostStart += n;
+        s.mercCompany = h.company().name();
+        s.mercCount = n;
+        ledger.setDirty();
+        String text = a.name + " has struck a deal with " + h.company().name() + ": " + n + " mercenaries join its host before " + t.name;
+        chronicle(overworld, a, t, tick, text);
+        announce(overworld, ledger, s, a, t, text);
+        HmLog.info("Siege {}: {} hired ({} soldiers: {})", s.id.toString().substring(0, 8), h.company().name(), n, h.units());
+        return n;
+    }
+
+    // ------------------------------------------------------------------ boss bars
+
+    /**
+     * One boss bar per siege in battle (post-M5), shown to players near the target: the two villages, how many stand on each
+     * side, and the defenders' share still standing; in the attacker's first livery colour. Removed when the battle ends.
+     */
+    private void bars(ServerLevel overworld, GarrisonLedger ledger) {
+        Set<UUID> live = new HashSet<>();
+        for (Siege s : ledger.sieges()) {
+            VillageRecord a = ledger.get(s.attacker), t = ledger.get(s.target);
+            if (s.phase != Siege.Phase.BATTLE || s.outcome != Siege.Outcome.NONE || a == null || t == null || a.hywRoster == null) {
+                continue;
+            }
+            live.add(s.id);
+            net.minecraft.server.level.ServerBossEvent bar = bars.computeIfAbsent(s.id, id -> new net.minecraft.server.level.ServerBossEvent(
+                    Component.empty(), barColour(overworld, a), net.minecraft.world.BossEvent.BossBarOverlay.NOTCHED_10));
+            int host = soldiers(a, entries(a, s.host)).size();
+            List<LivingEntity> defs = new ArrayList<>(defenders(overworld, t));
+            defs.addAll(ReliefService.entities(overworld, ledger, s));
+            bar.setName(Component.literal("Siege of " + t.name + ": " + a.name + " " + host + "/" + s.hostStart + " vs " + t.name + " " + defs.size()
+                    + "/" + s.defendersStart + (s.pausedSince >= 0 ? " (paused)" : "")));
+            bar.setProgress(s.defendersStart <= 0 ? 0f : Math.max(0f, Math.min(1f, defs.size() / (float) s.defendersStart)));
+            double range = (t.villageRadius > 0 ? t.villageRadius : DEFAULT_RADIUS) + STAGING_MARGIN + 64;
+            Set<ServerPlayer> near = new HashSet<>();
+            for (ServerPlayer p : overworld.players()) {
+                if (p.distanceToSqr(Vec3.atCenterOf(t.center)) <= range * range) {
+                    near.add(p);
+                }
+            }
+            for (ServerPlayer p : new ArrayList<>(bar.getPlayers())) {
+                if (!near.contains(p)) {
+                    bar.removePlayer(p);
+                }
+            }
+            near.forEach(bar::addPlayer);
+        }
+        bars.entrySet().removeIf(en -> {
+            if (!live.contains(en.getKey())) {
+                en.getValue().removeAllPlayers();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /** The boss bar colour nearest the village's first livery colour (pink when it has none). */
+    static net.minecraft.world.BossEvent.BossBarColor barColour(ServerLevel overworld, VillageRecord v) {
+        int[] liv = LiveryService.of(overworld, v);
+        return liv == null ? net.minecraft.world.BossEvent.BossBarColor.PINK : barColour(net.minecraft.world.item.DyeColor.byId(liv[0]));
+    }
+
+    static net.minecraft.world.BossEvent.BossBarColor barColour(net.minecraft.world.item.DyeColor d) {
+        return switch (d) {
+            case RED, ORANGE, BROWN -> net.minecraft.world.BossEvent.BossBarColor.RED;
+            case YELLOW -> net.minecraft.world.BossEvent.BossBarColor.YELLOW;
+            case LIME, GREEN -> net.minecraft.world.BossEvent.BossBarColor.GREEN;
+            case CYAN, LIGHT_BLUE, BLUE -> net.minecraft.world.BossEvent.BossBarColor.BLUE;
+            case PURPLE, MAGENTA -> net.minecraft.world.BossEvent.BossBarColor.PURPLE;
+            case PINK -> net.minecraft.world.BossEvent.BossBarColor.PINK;
+            default -> net.minecraft.world.BossEvent.BossBarColor.WHITE; // white, greys, black
+        };
     }
 
     /** The target's fighting defenders that are loaded and alive: its garrison at home and Millénaire's combatants. */
@@ -811,6 +988,11 @@ public final class SiegeService {
                         long tick, boolean watched) {
         s.outcome = o;
         PoliticsTables.SiegeRule r = rule(a);
+        if (t != null && watched) {
+            List<LivingEntity> defs = new ArrayList<>(defenders(overworld, t));
+            defs.addAll(ReliefService.entities(overworld, ledger, s));
+            stance(defs, false); // the defenders stand down to their usual stance
+        }
         count(o == Siege.Outcome.WON ? C_WON : C_LOST);
         StringBuilder text = new StringBuilder();
         if (t != null) {
@@ -896,6 +1078,15 @@ public final class SiegeService {
     private static void goHome(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, List<RosterEntry> alive, long tick,
                                PoliticsTables.SiegeRule r, boolean watched) {
         alive.forEach(e -> GarrisonService.stow(overworld, e));
+        List<RosterEntry> going = new ArrayList<>();
+        for (RosterEntry e : alive) {
+            if (!e.mercLook.isEmpty()) {
+                MobilizationService.discharge(overworld, e, tick); // the hired company is paid off and goes its own way
+            } else {
+                going.add(e);
+            }
+        }
+        alive = going;
         VillageRecord t = ledger.get(s.target);
         long march = t == null ? r.minMarch() : SiegeMath.marchTicks(Math.sqrt(a.center.distSqr(t.center)), r);
         s.enter(Siege.Phase.RETURN, tick, tick + march);

@@ -60,7 +60,9 @@ public final class MobilizationService {
                 if (war && !r.mobilizedWar && r.startingGranted) {
                     mobilize(overworld, ledger, rec, r, tick);
                 } else if (war && r.mobilizedWar) {
-                    reinforce(overworld, ledger, rec, r, tick);
+                    if (reinforce(overworld, ledger, rec, r, tick) == 0) {
+                        rotate(overworld, ledger, rec, r, tick);
+                    }
                 } else if (!war && (r.mobilizedWar || hasLevies(r))) {
                     demobilize(overworld, ledger, rec, r, tick);
                 }
@@ -124,6 +126,51 @@ public final class MobilizationService {
             HmLog.info("Mobilization: {} raises {} more levies ({}/{}): {}", rec.name, raised.size(), r.live(), target, raised);
         }
         return raised.size();
+    }
+
+    /**
+     * Garrison rotation (post-M5): in a long war, once the garrison is at strength and the village is calm, one mobilized levy
+     * at home is sent home every {@code rotateInterval} ticks and a paid regular is recruited in its place, if the levy points
+     * cover him. The army's quality recovers over the war instead of staying all fresh levies. Returns true if one rotated.
+     */
+    public static boolean rotate(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, GarrisonRoster r, long tick) {
+        PoliticsTables.MobilizationRule rule = rule(rec);
+        if (!rule.enabled() || rule.rotateInterval() <= 0 || r.paused || tick - r.lastLevyTick < rule.rotateInterval()
+                || tick - r.lastRecruitTick < rule.rotateInterval()) {
+            return false;
+        }
+        HywMillRuntime rt = HywMillRuntime.get();
+        if (rt != null && rt.garrison().alertState(rec.villageId) != dev.hywmill.military.defense.AlertState.CALM) {
+            return false; // not while the village is fighting
+        }
+        GarrisonTables tables = GarrisonTables.current();
+        GarrisonTable table = tables.forCulture(rec.culture);
+        if (r.live() < target(rec, table)) {
+            return false; // below strength: recruitment and levies fill it first
+        }
+        RosterEntry levy = null;
+        for (RosterEntry e : r.entries()) {
+            // the longest-serving levy at home (not away on a siege, an errand or a raid)
+            if (e.mobilized && e.mercLook.isEmpty() && e.state() == UnitState.GARRISONED && e.duty == e.assignedDuty && e.errandPlayer == null
+                    && (levy == null || e.recruitedTick < levy.recruitedTick)) {
+                levy = e;
+            }
+        }
+        if (levy == null) {
+            return false;
+        }
+        UnitSpec next = Recruitment.chooseUnit(rec.villageId, r.nextSeq, Recruitment.eligibleUnits(rec.tier, table, tables.units()),
+                table.composition(), Recruitment.liveCounts(r));
+        if (next == null || r.levyPoints + 1e-9 < next.cost()) {
+            return false; // the village cannot afford a regular yet: the levy stays
+        }
+        RosterEntry regular = Recruitment.recruitPaid(r, rec.villageId, next, Recruitment.equipmentLevel(rec.tier, table), tick);
+        String gone = levy.unitKey;
+        discharge(overworld, levy, tick);
+        ledger.setDirty();
+        HmLog.info("Mobilization: {} rotates its garrison: a levy {} goes home, a regular {} takes his place ({} levy left)", rec.name, gone,
+                regular.unitKey, String.format("%.2f", r.levyPoints));
+        return true;
     }
 
     private static int target(VillageRecord rec, GarrisonTable table) {
