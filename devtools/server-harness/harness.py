@@ -5857,10 +5857,13 @@ def scenario_LK(ctx):
                 and "norman" in " ".join(s.output(at(c, "hywmill village info"), 2))), None)
     if big:
         rb = roll(big)
+        s.cmd("kill @e[type=hundred_years_war:mounted_lancer_rider]", 1)  # knights from earlier runs, hired before squads had looks
+        time.sleep(2)
         h3 = hire(rb, "squad:norman.knights", "SWORN")
         time.sleep(6)
         kn = [u for u, x in spike_info(s, "@e[type=hundred_years_war:mounted_lancer_rider]").items() if ("owner=" + P) in x["desc"] and dist(x["pos"], rb) <= 45]
-        rows3 = [gear_of(s, u) for u in kn[:3]]
+        rows3 = [gear_of(s, u) for u in kn[:4]]
+        note("LK knight gear", " || ".join(c[:200] for c, o in rows3))
         sc = sum(1 for c, o in rows3 if "crusader_chestplate" in c)
         check("LK-3 Norman knights ride in surcoats", "ok=true" in h3 and rows3 and sc == len(rows3), f"{h3[-100:]}; {len(rows3)} knights, surcoats {sc}")
 
