@@ -39,6 +39,21 @@ public final class RecruitCommands {
                                 .then(Commands.argument("count", IntegerArgumentType.integer(1, 64))
                                         .then(Commands.argument("deniers", IntegerArgumentType.integer(0))
                                                 .then(Commands.argument("standing", StringArgumentType.word()).executes(RecruitCommands::hire)))))))
+                .then(Commands.literal("colours").then(Commands.argument("first", IntegerArgumentType.integer(-1, 15))
+                        .then(Commands.argument("second", IntegerArgumentType.integer(-1, 15)).executes(c -> {
+                            // the stand-in's colours for the soldiers it hires (dye ids; -1 clears)
+                            int a = IntegerArgumentType.getInteger(c, "first"), b = IntegerArgumentType.getInteger(c, "second");
+                            ServerLevel ow = c.getSource().getServer().overworld();
+                            var ledger = dev.hywmill.settlement.GarrisonLedger.get(ow);
+                            if (a < 0 || b < 0) {
+                                ledger.playerColours().remove(STANDIN);
+                            } else {
+                                ledger.playerColours().put(STANDIN, new int[]{a, b});
+                            }
+                            ledger.setDirty();
+                            c.getSource().sendSuccess(() -> net.minecraft.network.chat.Component.literal("recruit: colours " + a + " " + b), false);
+                            return 1;
+                        }))))
                 .then(Commands.literal("apologize").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .then(Commands.argument("hits", IntegerArgumentType.integer(0, 50))
                                 .then(Commands.argument("deniers", IntegerArgumentType.integer(0))

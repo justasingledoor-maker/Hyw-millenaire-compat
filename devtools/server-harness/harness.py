@@ -5930,7 +5930,31 @@ def scenario_VL(ctx):
     s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
 
 
-SCENARIOS = {"VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_PC(ctx):
+    """Player colours (post-M5; run with Epic Knights): a player picks two colours on the Muster Roll; the soldiers and generic
+    squads they hire wear them (and bear arms in them); unique squads keep their own look."""
+    s, a = ctx.s, ctx.a
+    P = "33333333-4444-4555-8666-777777777777"
+    x, z = a[0] + 6, a[2] + 6
+    y = surface_y(s, x, z) or a[1]
+    s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+    s.cmd("kill @e[type=hundred_years_war:shieldman]", 1)
+    s.cmd("kill @e[type=hundred_years_war:spear_man]", 1)
+    out = " ".join(s.output("hywmill dev recruit colours 11 4", 2))  # blue and yellow
+    h = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "squad:norman.village_shieldwall" 1 400000 SWORN', 5) if "recruit:" in l)
+    time.sleep(5)
+    mine = [u for u, v in spike_info(s, "@e[type=hundred_years_war:shieldman]").items() if ("owner=" + P) in v["desc"] and dist(v["pos"], (x, y, z)) <= 45]
+    rows = [gear_of(s, u) for u in mine[:4]]
+    note("PC gear", " || ".join(c[:160] + " ## " + o[:220] for c, o in rows[:3]))
+    blue, yellow = 3949738, 16701501  # DyeColor BLUE / YELLOW texture colours
+    dyed = sum(1 for c, o in rows if f"rgb: {blue}" in c)
+    arms = sum(1 for c, o in rows if ('"blue"' in o or '"yellow"' in o))
+    check("PC-1 a generic squad wears the player's colours and bears arms in them", "ok=true" in h and rows and dyed == len(rows) and arms >= 1,
+          f"{out}; {h[-100:]}; {len(rows)} shieldmen: dyed blue {dyed}, blue/yellow arms {arms}")
+    s.output("hywmill dev recruit colours -1 -1", 2)
+
+
+SCENARIOS = {"PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

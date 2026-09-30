@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The same {@link #snapshot}/{@link #submit} are driven headless by {@code /hywmill dev ui}.
  */
 public final class PoliticsNet {
-    public static final String VERSION = "3"; // 2: post-M5 Muster Roll squads; 3: village liveries and distances
+    public static final String VERSION = "4"; // 2: post-M5 Muster Roll squads; 3: village liveries and distances; 4: player colours
     /** At most one request per player per this many ticks. */
     public static final long RATE_TICKS = 5;
     /** Local requests (pardon, apology) and the home view need the player near the home village. */
@@ -75,6 +75,11 @@ public final class PoliticsNet {
         r.playToServer(RecruitPayloads.SetRadius.TYPE, RecruitPayloads.SetRadius.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
             if (ctx.player() instanceof ServerPlayer sp && limiter(sp)) {
                 dev.hywmill.recruit.RecruitService.setRadius(sp, p.pos(), p.radius());
+            }
+        }));
+        r.playToServer(RecruitPayloads.SetColours.TYPE, RecruitPayloads.SetColours.CODEC, (p, ctx) -> ctx.enqueueWork(() -> {
+            if (ctx.player() instanceof ServerPlayer sp && limiter(sp)) {
+                dev.hywmill.recruit.RecruitService.setColours(sp, p.pos(), p.colour1(), p.colour2());
             }
         }));
         r.playToClient(RecruitPayloads.View.TYPE, RecruitPayloads.View.CODEC,

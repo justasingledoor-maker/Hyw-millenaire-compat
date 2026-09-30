@@ -1044,3 +1044,23 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
     The check was waiting for the chat announcement in the server log, but that text goes to players, not the log. The
     server log has the hire line, and the check now waits for it. The scenario has not been re-run since that change.
 * SHA-256 of the jar: `195af9f32802433968065c7e8a78ebef3b260c9dc3fd678e07f00dfbd7404e7a`.
+
+### 6.33 Player colours on the Muster Roll (`dist/hywmill-m5-fix33.jar`)
+
+* **The pickers.**
+  * The Muster Roll has two colour pickers, "Your colours", at the bottom left: left-click steps forward through the 16
+    dyes, right-click steps back, and "x" clears the choice.
+  * The choice is per player and kept in the garrison ledger (`playerColours`), so it survives death and restarts.
+  * The server re-validates it: dye ids 0-15, or cleared.
+* **Who wears them.**
+  * Single hires and generic squads wear the player's colours on dyeable Epic Knights pieces, with shields bearing
+    culture arms in them.
+  * With no choice made, single hires keep the culture palette and generic squads the village's livery.
+  * Unique and foreign squads always keep their own look.
+  * Soldiers already hired keep what they wear.
+* **Protocol:** version 4. The `View` carries the colours, and a new `SetColours` intent sets them.
+* **Tests.**
+  * JUnit 347/347, including a new wire round trip for the View and SetColours.
+  * Harness scenario PC with Epic Knights (`docs/m5-test-evidence/player-colours1.txt`): with blue and yellow chosen,
+    a Village Shield-Wall came out as 4 of 4 shieldmen in blue gambesons with blue-and-yellow shields.
+* SHA-256 of the jar: `99a21b29d8d8f7875c25f142f7964548af15a75ffc3e3e62321659a7f0b23b0b`.

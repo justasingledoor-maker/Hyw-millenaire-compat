@@ -70,6 +70,13 @@ public final class GarrisonLedger extends SavedData {
         return pendingPay;
     }
 
+    /** Post-M5: each player's chosen colours for the soldiers they hire on the Muster Roll, as {first, second} dye ids. */
+    private final java.util.Map<UUID, int[]> playerColours = new java.util.LinkedHashMap<>();
+
+    public java.util.Map<UUID, int[]> playerColours() {
+        return playerColours;
+    }
+
     public static GarrisonLedger get(ServerLevel overworld) {
         return overworld.getDataStorage().computeIfAbsent(
                 new SavedData.Factory<>(GarrisonLedger::new, GarrisonLedger::load, null), DATA_NAME);
@@ -152,6 +159,14 @@ public final class GarrisonLedger extends SavedData {
         if (root.contains("pendingPay", Tag.TAG_LIST)) {
             ledger.pendingPay.addAll(PoliticsNbt.loadPending(root.getList("pendingPay", Tag.TAG_COMPOUND)));
         }
+        ListTag pc = root.getList("playerColours", Tag.TAG_COMPOUND);
+        for (int i = 0; i < pc.size(); i++) {
+            CompoundTag x = pc.getCompound(i);
+            int[] c = x.getIntArray("c");
+            if (x.hasUUID("player") && c.length == 2) {
+                ledger.playerColours.put(x.getUUID("player"), c);
+            }
+        }
         if (format >= 5 && root.contains("envoyReports", Tag.TAG_LIST)) {
             ledger.reports.addAll(PoliticsNbt.loadReports(root.getList("envoyReports", Tag.TAG_COMPOUND)));
         }
@@ -184,6 +199,16 @@ public final class GarrisonLedger extends SavedData {
         }
         if (!pendingPay.isEmpty()) {
             root.put("pendingPay", PoliticsNbt.savePending(pendingPay));
+        }
+        if (!playerColours.isEmpty()) {
+            ListTag pc = new ListTag();
+            playerColours.forEach((p, c) -> {
+                CompoundTag x = new CompoundTag();
+                x.putUUID("player", p);
+                x.putIntArray("c", c);
+                pc.add(x);
+            });
+            root.put("playerColours", pc);
         }
         return root;
     }

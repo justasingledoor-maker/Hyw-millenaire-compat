@@ -19,13 +19,29 @@ public final class RecruitPayloads {
                 OfferView::gear, ByteBufCodecs.VAR_INT, OfferView::price, OfferView::new);
     }
 
-    /** Server → client: the Muster Roll screen (header: village, culture, tier, standing, gear; money in deniers). */
-    public record View(BlockPos pos, String header, int money, int radius, boolean owner, List<OfferView> offers) implements CustomPacketPayload {
+    /**
+     * Server → client: the Muster Roll screen (header: village, culture, tier, standing, gear; money in deniers). {@code colour1} and
+     * {@code colour2}: the player's chosen colours for hired soldiers, as dye ids (-1: none chosen, the village's own).
+     */
+    public record View(BlockPos pos, String header, int money, int radius, boolean owner, List<OfferView> offers, int colour1, int colour2)
+            implements CustomPacketPayload {
+        public View(BlockPos pos, String header, int money, int radius, boolean owner, List<OfferView> offers) {
+            this(pos, header, money, radius, owner, offers, -1, -1);
+        }
+
         public static final Type<View> TYPE = new Type<>(PoliticsPayloads.id("muster_view"));
-        public static final StreamCodec<RegistryFriendlyByteBuf, View> CODEC = StreamCodec.composite(
-                BlockPos.STREAM_CODEC, View::pos, ByteBufCodecs.stringUtf8(512), View::header, ByteBufCodecs.VAR_INT, View::money,
-                ByteBufCodecs.VAR_INT, View::radius, ByteBufCodecs.BOOL, View::owner, OfferView.CODEC.apply(ByteBufCodecs.list(64)), View::offers,
-                View::new);
+        private static final StreamCodec<RegistryFriendlyByteBuf, List<OfferView>> OFFERS = OfferView.CODEC.apply(ByteBufCodecs.list(64));
+        public static final StreamCodec<RegistryFriendlyByteBuf, View> CODEC = StreamCodec.of((buf, v) -> {
+            BlockPos.STREAM_CODEC.encode(buf, v.pos());
+            buf.writeUtf(v.header(), 512);
+            buf.writeVarInt(v.money());
+            buf.writeVarInt(v.radius());
+            buf.writeBoolean(v.owner());
+            OFFERS.encode(buf, v.offers());
+            buf.writeVarInt(v.colour1() + 1);
+            buf.writeVarInt(v.colour2() + 1);
+        }, buf -> new View(BlockPos.STREAM_CODEC.decode(buf), buf.readUtf(512), buf.readVarInt(), buf.readVarInt(), buf.readBoolean(),
+                OFFERS.decode(buf), buf.readVarInt() - 1, buf.readVarInt() - 1));
 
         @Override
         public Type<? extends CustomPacketPayload> type() {
@@ -83,6 +99,19 @@ public final class RecruitPayloads {
         public static final Type<Hire> TYPE = new Type<>(PoliticsPayloads.id("muster_hire"));
         public static final StreamCodec<RegistryFriendlyByteBuf, Hire> CODEC = StreamCodec.composite(
                 BlockPos.STREAM_CODEC, Hire::pos, ByteBufCodecs.stringUtf8(64), Hire::key, ByteBufCodecs.VAR_INT, Hire::count, Hire::new);
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
+    /** Client → server (post-M5): the player's colours for the soldiers they hire, as dye ids (-1: none, the village's own). */
+    public record SetColours(BlockPos pos, int colour1, int colour2) implements CustomPacketPayload {
+        public static final Type<SetColours> TYPE = new Type<>(PoliticsPayloads.id("muster_colours"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, SetColours> CODEC = StreamCodec.composite(
+                BlockPos.STREAM_CODEC, SetColours::pos, ByteBufCodecs.VAR_INT, c -> c.colour1() + 1, ByteBufCodecs.VAR_INT, c -> c.colour2() + 1,
+                (p, a, b) -> new SetColours(p, a - 1, b - 1));
 
         @Override
         public Type<? extends CustomPacketPayload> type() {

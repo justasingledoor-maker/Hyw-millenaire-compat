@@ -14,7 +14,8 @@ import java.util.List;
 /**
  * The Muster Roll screen. Two tabs: Soldiers (single hires: unit, gear tier, price, a quantity 1-32 and Hire) and Squads
  * (post-M5: the village culture's 16 squads, hired whole; one that cannot be hired shows why). The spawn radius (2-36) is the
- * placer's. Everything shown comes from the server; it decides and re-validates.
+ * placer's. Your colours (post-M5): two dye colours the soldiers you hire here wear, cycled by clicking (right-click goes back);
+ * "Village" leaves them in their look's or the village's colours. Everything shown comes from the server; it decides and re-validates.
  */
 public final class MusterRollScreen extends Screen {
     private static final int PARCHMENT = 0xE0F2E3C2;
@@ -119,7 +120,53 @@ public final class MusterRollScreen extends Screen {
             addRenderableWidget(Button.builder(Component.literal("-"), b -> radius(view.radius() - 1)).bounds(x, ry, 30, 20).build());
             addRenderableWidget(Button.builder(Component.literal("+"), b -> radius(view.radius() + 1)).bounds(x + 170, ry, 30, 20).build());
         }
+        addRenderableWidget(new ColourButton(left + 76, height - 50, 0));
+        addRenderableWidget(new ColourButton(left + 166, height - 50, 1));
+        if (view.colour1() >= 0) {
+            addRenderableWidget(Button.builder(Component.literal("x"), b -> PacketDistributor.sendToServer(new RecruitPayloads.SetColours(view.pos(), -1, -1)))
+                    .bounds(left + 256, height - 50, 16, 20).tooltip(net.minecraft.client.gui.components.Tooltip.create(
+                            Component.literal("Clear: hired soldiers wear their look's or the village's colours"))).build());
+        }
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(width / 2 - 40, height - 26, 80, 20).build());
+    }
+
+    /** One of the two colour pickers: click for the next dye colour, right-click for the previous; "Village" is none chosen. */
+    private final class ColourButton extends Button {
+        private final int which;
+
+        ColourButton(int x, int y, int which) {
+            super(x, y, 86, 20, Component.literal(label(which == 0 ? view.colour1() : view.colour2())), b -> {}, DEFAULT_NARRATION);
+            this.which = which;
+        }
+
+        @Override
+        public boolean mouseClicked(double mx, double my, int button) {
+            if (!active || !visible || !isMouseOver(mx, my) || (button != 0 && button != 1)) {
+                return false;
+            }
+            playDownSound(net.minecraft.client.Minecraft.getInstance().getSoundManager());
+            int c1 = view.colour1(), c2 = view.colour2();
+            if (c1 < 0 || c2 < 0) {
+                c1 = 14; // red and white to start from
+                c2 = 0;
+            }
+            int step = button == 0 ? 1 : 15;
+            if (which == 0) {
+                c1 = (c1 + step) % 16;
+            } else {
+                c2 = (c2 + step) % 16;
+            }
+            PacketDistributor.sendToServer(new RecruitPayloads.SetColours(view.pos(), c1, c2));
+            return true;
+        }
+    }
+
+    private static String label(int dye) {
+        if (dye < 0) {
+            return "Village";
+        }
+        String n = net.minecraft.world.item.DyeColor.byId(dye).getName().replace('_', ' ');
+        return "   " + Character.toUpperCase(n.charAt(0)) + n.substring(1);
     }
 
     private static String cat(String category) {
@@ -195,6 +242,16 @@ public final class MusterRollScreen extends Screen {
                 view.owner() ? height - 72 : height - 58, INK, false);
         if (view.owner()) {
             g.drawCenteredString(font, view.radius() + "", x + 100, height - 52, INK);
+        }
+        // your colours: label, a swatch on each picker, and a reset
+        g.drawString(font, "Your colours:", 20, height - 44, 0xFFFFFFFF, false);
+        if (view.colour1() >= 0) {
+            for (int i = 0; i < 2; i++) {
+                int dye = i == 0 ? view.colour1() : view.colour2();
+                int bx = 20 + 76 + i * 90 + 4, by = height - 50 + 5;
+                g.fill(bx - 1, by - 1, bx + 11, by + 11, 0xFF000000);
+                g.fill(bx, by, bx + 10, by + 10, 0xFF000000 | (net.minecraft.world.item.DyeColor.byId(dye).getTextureDiffuseColor() & 0xFFFFFF));
+            }
         }
         if (!lastResult.isEmpty()) {
             int ry = height - 46 - 10 * Math.max(0, font.split(Component.literal(lastResult), 210).size() - 1);

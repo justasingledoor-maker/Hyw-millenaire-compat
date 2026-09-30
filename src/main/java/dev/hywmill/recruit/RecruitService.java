@@ -156,7 +156,33 @@ public final class RecruitService {
         for (RecruitOffers.Offer o : offers(overworld, rec, player.getUUID())) {
             list.add(new RecruitPayloads.OfferView(o.key(), o.label(), o.gearTier().name(), o.price()));
         }
-        return new RecruitPayloads.View(pos, header, money, be.radius(), owner, list);
+        int[] c = colours(overworld, player.getUUID());
+        return new RecruitPayloads.View(pos, header, money, be.radius(), owner, list, c == null ? -1 : c[0], c == null ? -1 : c[1]);
+    }
+
+    /** Post-M5: the player's chosen colours for the soldiers they hire ({first, second} dye ids), or null if none are chosen. */
+    @Nullable
+    public static int[] colours(ServerLevel overworld, UUID player) {
+        int[] c = GarrisonLedger.get(overworld).playerColours().get(player);
+        return c != null && c.length == 2 && c[0] >= 0 && c[0] < 16 && c[1] >= 0 && c[1] < 16 ? c.clone() : null;
+    }
+
+    /**
+     * Post-M5: sets the player's colours (-1 for either clears the choice: soldiers then wear the look's or culture's colours,
+     * generic squads the village's). Soldiers already hired keep theirs. Refreshes the screen.
+     */
+    public static void setColours(ServerPlayer player, BlockPos pos, int c1, int c2) {
+        ServerLevel overworld = player.getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(overworld);
+        if (c1 < 0 || c1 > 15 || c2 < 0 || c2 > 15) {
+            ledger.playerColours().remove(player.getUUID());
+        } else {
+            ledger.playerColours().put(player.getUUID(), new int[]{c1, c2});
+        }
+        ledger.setDirty();
+        if (roll(player, pos) != null) {
+            open(player, pos);
+        }
     }
 
     /** Hires {@code count} of offer {@code key}; answers the player and refreshes the screen. */
@@ -215,6 +241,7 @@ public final class RecruitService {
         }
         RandomSource rnd = overworld.getRandom();
         int hired = 0;
+        int[] mine = colours(overworld, payer.getUUID()); // the player's own colours, if chosen
         for (int i = 0; i < n; i++) {
             BlockPos spot = spot(overworld, pos, be.radius(), rnd);
             if (spot == null || eq == null) {
@@ -229,7 +256,7 @@ public final class RecruitService {
             UUID id = UUID.randomUUID();
             SpawnResult r = units.spawn(overworld, new SpawnRequest(offer.unit(), payer.getUUID(), id, Vec3.atBottomCenterOf(spot), spot, level,
                     false, null, eq, new EquipmentProvider.Context(rec.culture, offer.gearTier(), "",
-                    EquipmentProfiles.classRole(offer.unit().unitClass()), id)));
+                    EquipmentProfiles.classRole(offer.unit().unitClass()), id).withLivery(mine)));
             if (r.ok()) {
                 hired++;
             }
@@ -280,7 +307,9 @@ public final class RecruitService {
         }
         RandomSource rnd = overworld.getRandom();
         int hired = 0;
-        int[] livery = s.villageLivery() ? dev.hywmill.garrison.service.LiveryService.of(overworld, rec) : null; // generic squads: the village's colours
+        // generic squads: the hiring player's colours if chosen, else the village's; unique and foreign squads keep their own look
+        int[] mine = colours(overworld, payer.getUUID());
+        int[] livery = !s.villageLivery() ? null : mine != null ? mine : dev.hywmill.garrison.service.LiveryService.of(overworld, rec);
         for (Squads.Member m : s.members()) {
             dev.hywmill.garrison.tables.UnitSpec spec = gt.units().get(m.unit());
             int level = table.tier(m.gear()).equipmentLevel();
