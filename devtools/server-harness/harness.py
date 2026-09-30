@@ -5674,12 +5674,56 @@ def scenario_LV(ctx):
           f"live {g3.get('live')} -> {g4.get('live')}; {home[-1:]}")
 
 
+def scenario_WT(ctx):
+    """Water before the target (user report: the host landed across a lake and never advanced): the ground between the side
+    of B facing A and B is flooded; the host lands on another, dry side and advances into B."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    P = W_UUID
+    p0 = s.pos()
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(5)
+    # flood a wide band on the side of B facing A (A lies west of B): the grass tops turn to water
+    sx = 1 if a[0] > b[0] else -1
+    x1, x2 = b[0] + sx * 20, b[0] + sx * 110
+    box = f"{min(x1, x2)} {b[1] - 8} {b[2] - 60} {max(x1, x2)} {b[1] + 8} {b[2] + 60}"
+    for part in range(6):
+        z1 = b[2] - 60 + part * 20
+        s.cmd(f"fill {min(x1, x2)} {b[1] - 8} {z1} {max(x1, x2)} {b[1] + 8} {z1 + 19} minecraft:water replace minecraft:grass_block", 2)
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(3)
+    fa = garrison(s, a).get("faction")
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    at = s.wait_for(r"materialized at", 360, since=p0)
+    m = re.search(r"materialized at (-?\d+), (-?\d+), (-?\d+)", at or "")
+    land = (int(m[1]), int(m[2]), int(m[3])) if m else None
+    wet_side = land is not None and (land[0] - b[0]) * sx > 15 and abs(land[2] - b[2]) < 60
+    check("WT-1 with water on the side facing home, the host lands on a dry side", land is not None and not wet_side,
+          f"{out}; landing {land} (B {b}); flooded x {min(x1, x2)}..{max(x1, x2)}")
+    inside = 0
+    t0 = time.time()
+    while time.time() - t0 < 150:
+        inside = sum(1 for u, x in spike_info(s, "@e[type=!minecraft:player]").items()
+                     if x["tag"] != "none" and ("owner=" + str(fa)) in x["desc"] and dist(x["pos"], b) <= 40)
+        if inside >= 3:
+            break
+        time.sleep(10)
+    check("WT-2 the host advances into the village", inside >= 3, f"{inside} of A's soldiers within 40 blocks of B's centre")
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    for part in range(6):
+        z1 = b[2] - 60 + part * 20
+        s.cmd(f"fill {min(x1, x2)} {b[1] - 8} {z1} {max(x1, x2)} {b[1] + 8} {z1 + 19} minecraft:grass_block replace minecraft:water", 2)
+
+
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "RL": scenario_RL, "LV": scenario_LV, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "RL": scenario_RL, "LV": scenario_LV, "WT": scenario_WT, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,

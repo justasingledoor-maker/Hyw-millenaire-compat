@@ -459,11 +459,45 @@ public final class SiegeService {
      */
     static BlockPos landing(ServerLevel overworld, VillageRecord a, VillageRecord t) {
         int radius = t.villageRadius > 0 ? t.villageRadius : DEFAULT_RADIUS;
-        BlockPos p = behind(t.center, a.center, radius + STAGING_MARGIN);
-        if (p.equals(t.center)) {
-            p = t.center.offset(radius + STAGING_MARGIN, 0, 0); // same spot as home (dev setups): any side will do
+        int dist = radius + STAGING_MARGIN;
+        double base = Math.atan2(a.center.getZ() - t.center.getZ(), a.center.getX() - t.center.getX());
+        if (a.center.getX() == t.center.getX() && a.center.getZ() == t.center.getZ()) {
+            base = 0; // same spot as home (dev setups): any side will do
         }
-        return surface(overworld, p);
+        BlockPos first = null;
+        // the side facing home first, then ever wider round the village: the first dry spot with a dry way in (no lake or
+        // river between the host and the village, which it could not cross)
+        for (int k = 0; k < 16; k++) {
+            double angle = base + Math.toRadians(22.5 * ((k + 1) / 2) * (k % 2 == 1 ? 1 : -1));
+            BlockPos p = surface(overworld, t.center.offset((int) Math.round(Math.cos(angle) * dist), 0, (int) Math.round(Math.sin(angle) * dist)));
+            if (first == null) {
+                first = p;
+            }
+            if (dryApproach(overworld, p, t.center, radius / 2)) {
+                return p;
+            }
+        }
+        return first;
+    }
+
+    /**
+     * True if {@code from} and the ground every 4 blocks towards {@code to}, until {@code stopShort} blocks from it, is loaded
+     * dry land (no water or lava on top). Unloaded ground counts as not dry.
+     */
+    static boolean dryApproach(ServerLevel overworld, BlockPos from, BlockPos to, int stopShort) {
+        double dx = to.getX() - from.getX(), dz = to.getZ() - from.getZ();
+        double len = Math.sqrt(dx * dx + dz * dz);
+        for (double d = 0; d <= Math.max(0, len - stopShort); d += 4) {
+            int x = (int) Math.round(from.getX() + dx / Math.max(1, len) * d), z = (int) Math.round(from.getZ() + dz / Math.max(1, len) * d);
+            if (!overworld.hasChunk(x >> 4, z >> 4)) {
+                return false;
+            }
+            int y = overworld.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            if (!overworld.getFluidState(new BlockPos(x, y - 1, z)).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -523,19 +557,21 @@ public final class SiegeService {
     private void deploy(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive,
                         BlockPos landing, long tick, PoliticsTables.SiegeRule r) {
         int n = 0;
-        BlockPos back = behind(landing, a.center, 24);
+        // "behind" is away from the target (the landing may be on any side of the village, not only towards home)
+        BlockPos away = landing.offset(landing.getX() - t.center.getX(), 0, landing.getZ() - t.center.getZ());
+        BlockPos back = behind(landing, away, 24);
         int soldier = 0, engine = 0;
         for (RosterEntry e : alive) {
             boolean arsenal = a.hywRoster.isArsenal(e);
-            // the engines (and their crews) set up in a line behind the landing point, towards home; the soldiers stand in
+            // the engines (and their crews) set up in a line behind the landing point, away from the target; the soldiers stand in
             // spaced ranks at it, facing the target
             int slot = arsenal ? engine++ : soldier++;
             if (e.entityUuid != null) {
                 n += arsenal ? 0 : 1;
                 continue;
             }
-            BlockPos at = arsenal ? formation(back, a.center, slot / 2, 6, 5) : formation(landing, a.center, slot, 8, 3);
-            Vec3 spot = dryGround(overworld, at, a.center, t.center, e.rosterId);
+            BlockPos at = arsenal ? formation(back, away, slot / 2, 6, 5) : formation(landing, away, slot, 8, 3);
+            Vec3 spot = dryGround(overworld, at, away, t.center, e.rosterId);
             if (spot == null) {
                 continue; // no dry, safe ground found this time: this unit tries again on the next step
             }
@@ -671,9 +707,11 @@ public final class SiegeService {
                         goal = goal.atY(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, goal.getX(), goal.getZ()));
                     }
                     BlockPos hop = DutyService.hopTarget(level, ent, goal, 24);
-                    if (hop != null) {
-                        units.setHome(ent, hop);
+                    for (int turn = 1; hop == null && turn <= 6; turn++) {
+                        hop = DutyService.hopTarget(level, ent, goal, 24, turn); // water or a wall ahead: try a detour to either side
                     }
+                    // nothing dry within a hop: let the unit's own pathfinding take it towards the goal (round the water)
+                    units.setHome(ent, hop != null ? hop : goal);
                 }
             }
         }
