@@ -764,3 +764,60 @@ that make sense.
   * an unwatched siege ended with "sued for peace" at −75;
   * no duplicates.
 * SHA-256 of the jar: `3912a6a240f5b791d8a6aeafcb62c7fe86e171a77c6ef7570b3307eae055ded7`.
+
+### 6.26 Relief forces (`dist/hywmill-m5-fix26.jar`)
+
+**Request.** An allied village on great terms with a besieged village sometimes sends a relief force.
+
+* **Size.** 5–20% of its garrison, deployed temporarily until the siege is over.
+* **Timing.** It sets out when the attackers finish mustering and march, and arrives by forced march in 1–2 minutes,
+  usually before the attackers.
+* **Outcomes on the way:**
+  * the force arrives cleanly, spread round the village;
+  * it is ambushed and loses soldiers, then arrives smaller or routs and never arrives;
+  * more rarely, it loses its way: part or all of it never shows, with no loss to the home garrison.
+* **Who.** AI-launched sieges trigger it as well.
+
+**Changes.** docs/siege-design.md, "Relief forces"; `Relief`, `ReliefService`, and the `relief` block in
+`hywmill_politics`.
+
+* **Planning.** At every siege launch, each village meeting all of these conditions promises relief with chance 0.2, at
+  most 2 per siege:
+  * relation with the besieged village of at least 80;
+  * at peace with it;
+  * not a party to the siege and not a lone building;
+  * at least 4 soldiers at home.
+
+  This covers counsel, a village's own decision and admin launches.
+* **Dispatch and arrival.** When the attackers march, the helper sends `Relief.size` (5–20% of its garrison at home)
+  stowed. They arrive after 1200–2400 ticks and appear on a ring round the village (`Relief.post`). While the force is
+  out, the `RelationPlan` relief pairs make the helper's faction and the attacker's HOSTILE both ways.
+* **In battle.** The relief counts among the defenders:
+  * watched: foes, defenders and the 20% line, with `defendersStart` raised if it joins mid-battle;
+  * off-screen: its strength is added to the defense, and it takes the defenders' loss share.
+* **Journey** (`Relief.journey`, seeded with `SplittableRandom`):
+  * **Ambush** (12%): 20–60% of the force killed (DEAD, a real loss). With 40% the rest rout home and none arrive.
+  * **Lost** (6%): 30% to all of the force never arrive, and they go home unharmed.
+  * Otherwise the force arrives cleanly.
+* **Return.** When the siege ends or peace recalls it, the force goes home, in spaced ranks at the helper's anchor. The
+  siege record stays until the relief is home (`Siege.reliefsDone`).
+* **Admin.** `/hywmill war admin relief <helper> <target> [clean|ambushed|routed|straggled|lost]`.
+* **Status.** `/hywmill war sieges` shows each relief (phase, fate, soldiers).
+
+**Found by the tests.** `java.util.Random`'s first draw hardly varies across nearby seeds, so every journey came out
+clean in the JUnit check. The journey and dispatch draws now use `SplittableRandom`.
+
+**Tests.**
+
+* JUnit 330/330, with the new `ReliefTest`: eligibility, size, travel, fate distribution, posts.
+* Harness scenario RL passed 9/9 (`docs/m5-test-evidence/relief-forces1.txt`). Villages: C = Saint-Pierre le-fort,
+  relation 90 with B; A besieges B.
+  * The relief set out 1 s after A's host marched. It arrived about 30 s before the attackers, and C↔A was
+    HOSTILE/HOSTILE.
+  * At the peace it went home, and the siege record cleared after it.
+  * A forced ROUTED relief lost 2 soldiers (C killed 3 → 5), and none arrived.
+  * A forced LOST relief never arrived, with no deaths.
+  * No duplicates.
+  * Two earlier runs failed only on harness mistakes, now fixed: a march check that read a player message, and a
+    relation lookup passed a string instead of coordinates.
+* SHA-256 of the jar: `b5c27626f15a3d72d91078604fcdaebaf1435a33116c8e9a08f8caa7a2096195`.
