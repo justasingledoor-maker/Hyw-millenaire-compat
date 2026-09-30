@@ -998,3 +998,49 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
   * The first run's LK-0 and LK-3 failures were harness mistakes: a wrong command name, and knights from an earlier
     run sampled.
 * SHA-256 of the jar: `73ae7011fe6cf4b661533561b5409be7c7b9ecc7c95787588cbf8874e5d0e990`.
+
+### 6.32 Village liveries, Politics colours and distances, siege field (`dist/hywmill-m5-fix32.jar`)
+
+* **Village livery.**
+  * Each village takes two dye colours once, and they are persisted (`VillageLivery`, `LiveryService`).
+  * The first colour is the one least used by the liveries within 3000 blocks. After that the culture's taste decides,
+    and the village id breaks ties.
+  * The second colour contrasts with the first by the rule of tincture, and the pair avoids the pairs already used
+    nearby.
+  * So neighbours, the villages that fight each other, rarely share a first colour, and never share a full pair while
+    one is free.
+  * The garrison wears the livery on Epic Knights dyeable pieces: chest, head and feet in the first colour, legs in the
+    second. Shields bear assorted arms drawn from the culture's ordinaries and charges (`profiles.json` `heraldry`), in
+    the village's two colours.
+  * Existing soldiers re-dress once, through the equip stamp.
+* **Politics screen** (protocol version 3). Each village row shows its two colours and its distance from the home
+  village, in m or km. The home header shows its own colours.
+* **Squads.**
+  * The 68 generic squads (levies and regulars of the culture) keep their look's armour but wear the hiring village's
+    colours and arms.
+  * Unique and foreign squads keep their own look: crusaders, Varangians, Genoese, Welsh, Mamluks, Jaguar and Eagle
+    warriors, monks and ronin.
+* **Sieges** (see `docs/siege-design.md`, "The field of battle").
+  * The host lands in groups of 4–8 round the near half of the village.
+  * Attackers and defenders fight in HYW autonomous combat (`FREE_FIGHT`).
+  * A boss bar per siege is shown near the target.
+  * There is a 25% chance of a mercenary company of 10–20 a minute before the assault. It is announced, equipped like
+    levies, and paid off at the end.
+* **Garrison rotation.** In a long war, a calm village at strength swaps its longest-serving levy for a paid regular
+  every `rotateInterval` ticks (2400), if its levy points allow.
+* **Tests.**
+  * JUnit 346/346. New: `VillageLiveryTest`, which covers neighbour avoidance, unique pairs, contrast, and arms in the two
+    colours only; and `SiegeExtrasTest`, which covers the mercenary odds and sizes, group sizes and bearings.
+  * Harness scenario VL with Epic Knights 10.15 (`docs/m5-test-evidence/siege-field1.txt`):
+    * **VL-1 liveries:** 4 neighbouring villages took purple/yellow, red/white, blue/yellow and green/white.
+    * **VL-2 garrison colours:** 5 of 6 soldiers dyed; the sixth wore undyeable mail.
+    * **VL-3 mercenaries:** 12 Genoese crossbowmen hired, taking the host from 6 to 18.
+    * **VL-4 groups:** 18 soldiers landed in 3 groups, against 24 defenders.
+    * **VL-5 boss bar:** raised, green, in the attacker's colour.
+    * **VL-6 autonomous combat:** 5 of 5 sampled attackers in `FREE_FIGHT`.
+    * **VL-7 pay-off:** the 12 mercenaries paid off at peace.
+    * **VL-8 rotation:** a levy shieldman went home and a regular crossbowman took his place.
+  * VL-3 failed in the recorded run, but the hire itself worked: the command returned "HIRED 12" and the host grew to 18.
+    The check was waiting for the chat announcement in the server log, but that text goes to players, not the log. The
+    server log has the hire line, and the check now waits for it. The scenario has not been re-run since that change.
+* SHA-256 of the jar: `195af9f32802433968065c7e8a78ebef3b260c9dc3fd678e07f00dfbd7404e7a`.

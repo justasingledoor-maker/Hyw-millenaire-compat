@@ -5900,7 +5900,7 @@ def scenario_VL(ctx):
     out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
     time.sleep(3)
     merc = " | ".join(l for l in s.output(f"hywmill war admin mercs {ca}", 2) if l.startswith("war mercs"))
-    check("VL-3 the host hires a mercenary company, announced", "HIRED" in merc and s.wait_for(r"has struck a deal with", 10, since=p0) is not None,
+    check("VL-3 the host hires a mercenary company, announced", "HIRED" in merc and s.wait_for(r"hired \(\d+ soldiers", 10, since=p0) is not None,
           f"{out}; {merc}")
     land = s.wait_for(r"materialized in \d+ group", 400, since=p0)
     m = re.search(r"(\d+) unit\(s\) materialized in (\d+) group", land or "")
