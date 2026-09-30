@@ -890,3 +890,67 @@ shieldmen and poorly armoured spearmen in the mix.
     737..827). The host landed on the dry north side at (847, 70, 518) and advanced: 3 of A's soldiers were inside 40
     blocks of B's centre.
 * SHA-256 of the jar: `82a244317aa718201c9a34aa3f60954111dcbfff018b64b6440d2ba7c34e27c4`.
+
+### 6.30 Culture squads; militia made rare (`dist/hywmill-m5-fix30.jar`)
+
+**Request.**
+
+* Shields and spears draw battles out longer than single-weapon militia. Militia should be few and far between unless
+  a culture calls for them.
+* Design 16 culturally aligned squads per culture, hired permanently from the Muster Roll on a separate tab:
+  * 6 infantry: 2 low, 2 medium and 2 high quality;
+  * 4 ranged: bows, crossbows, and low-quality bows and crossbows;
+  * 4 horse, for example Seljuk cataphracts and horse archers or Norman heavy knights;
+  * 2 unique.
+* Each squad has 8–12 soldiers, no siege weapons, and costs a little less than its soldiers bought singly.
+
+**Militia.**
+
+* Militia weight is 0 in the default, Norman, Byzantine, Seljuk, Japanese and Indian compositions; Indian militia go
+  to spearmen.
+* The Maya and the Inuit keep 1, since every farmer or hunter fights there. Inuit weights are now spearmen 3,
+  archers 3.
+* WATCH villages may field spearmen: LINE is allowed at WATCH and `spear_man` has minTier WATCH. This stops a small
+  village from being all militia and archers.
+* Existing militia stay until they die.
+
+**Squads** (`hywmill_squads/defaults.json`, `Squads`, `SquadTableLoader`; the full list is in
+`docs/squads.md`).
+
+* There are 7 cultures × 16 = 112 squads, each with the agreed split and 8–12 soldiers.
+* A member is a unit, a count, a gear tier and an optional `levy` kit.
+* Requirements by quality:
+
+  | Quality | Standing | Village | Gear |
+  | --- | --- | --- | --- |
+  | LOW | Trusted | any | levy kit, guard-post weapons |
+  | MEDIUM | Patron | Guard Post+ | garrison gear |
+  | HIGH | Sworn | Garrison+ | stronghold gear |
+
+* **Price:** the members' single prices, less `squadDiscount` (10%), then the standing discount.
+* **Heavy cavalry:** HYW's `mounted_lancer_rider` (heavy lancer) is added as unit `lancer_rider` (CAVALRY, cost 6)
+  and allow-listed. It is used only by squads: knights, kataphraktoi, cataphracts and mounted samurai.
+* **Substitutions.** The Maya and the Inuit had no horses, so their 4 "cavalry" slots are fast foot bands. Japan,
+  India, the Maya and the Inuit rarely fielded crossbows, so their crossbow slots are bow squads.
+* **Muster Roll screen.** New tabs: Soldiers and Squads. Each squad lists its category, name and price. A squad that
+  cannot be hired is marked x and says why.
+* **Details panel:** quality, size, roster, best gear, description and price, with a "Hire this squad" button.
+* **Protocol:** a new client-bound `muster_squads` payload; version 2. A hire is `Hire(pos, "squad:<id>", 1)`.
+* **Refunds:** members that cannot be placed are refunded pro rata.
+
+**Tests.**
+
+* JUnit 338/338:
+  * the new `SquadsTest` covers the catalogue shape, horses by culture, no engines, militia, pricing, requirements
+    and bad data;
+  * garrison tests were updated to the new compositions and the Watch LINE rule;
+  * the wire version test is now 2.
+* Harness scenario SQ passed 7/7 (`docs/m5-test-evidence/squads1.txt`):
+  * the catalogue loaded 7 cultures and 112 squads;
+  * Fyrd Spearmen hired whole (10) for 9 or;
+  * the Serjeants were refused (needs Patron), and knights were refused at a Guard Post;
+  * at a Garrison-sized Norman village, the Knights of the Household came to 8 heavy lancers, all 8 mounted;
+  * the Conroi came to 4 knights and 6 light riders;
+  * the Byzantine Hippotoxotai came to 10 horse archers.
+* The squads tab itself was not clicked through in a client.
+* SHA-256 of the jar: `3997f92ab1f7ac7646007998e2147b0e163c8baea7053b8620331e306c80271c`.
