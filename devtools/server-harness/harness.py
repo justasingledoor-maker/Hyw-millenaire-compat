@@ -5718,12 +5718,89 @@ def scenario_WT(ctx):
         s.cmd(f"fill {min(x1, x2)} {b[1] - 8} {z1} {max(x1, x2)} {b[1] + 8} {z1 + 19} minecraft:grass_block replace minecraft:water", 2)
 
 
+def owned_near(s, etype, owner, c, r=45):
+    return [x for x in spike_info(s, f"@e[type=hundred_years_war:{etype}]").values() if ("owner=" + owner) in x["desc"] and dist(x["pos"], c) <= r]
+
+
+def scenario_SQ(ctx):
+    """Culture squads on the Muster Roll (post-M5; --keep-world with the extra villages): the catalogue loads (7 cultures, 16
+    each); a Trusted player hires a low squad whole; a squad is refused when the standing or the village is too small; a
+    Sworn player hires Norman knights (heavy lancers, mounted) and a mixed unique squad; a Byzantine village raises horse
+    archers."""
+    s, a = ctx.s, ctx.a
+    for box in EXTRA_FORCELOAD:
+        s.cmd("forceload add {} {} {} {}".format(*box), wait=10)
+    loaded = s.wait_for(r"Squads loaded from", 5, since=s.start_pos)
+    check("SQ-1 the squad catalogue loads: 7 cultures, 112 squads", loaded is not None and "7 culture(s), 112 squads" in loaded, loaded or "")
+    centers = []
+    for l in s.output("hywmill village list", 2):
+        m = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=| (-?\d+), (-?\d+), (-?\d+) tier=", l)
+        if m:
+            centers.append(tuple(int(v) for v in m.groups() if v is not None))
+    P = "33333333-4444-4555-8666-777777777777"
+
+    def roll(c):
+        x, z = c[0] + 6, c[2] + 6
+        y = surface_y(s, x, z) or c[1]
+        s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+        return x, y, z
+
+    def hire(pos, key, standing, money=400000):
+        x, y, z = pos
+        return " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "{key}" 1 {money} {standing}', 5) if "recruit:" in l)
+
+    ra = roll(a)
+    h1 = hire(ra, "squad:norman.fyrd_spearmen", "TRUSTED")
+    time.sleep(4)
+    sp = owned_near(s, "spear_man", P, ra)
+    check("SQ-2 a Trusted player hires a low squad whole (10 Fyrd Spearmen)", "ok=true" in h1 and len(sp) >= 10, f"{h1[-160:]}; {len(sp)} spearmen")
+    ta = info(s, a).get("tier")
+    h2 = hire(ra, "squad:norman.serjeants", "TRUSTED")
+    h3 = hire(ra, "squad:norman.knights", "SWORN")
+    check("SQ-3 refused: a medium squad needs a Patron; knights need a Garrison-sized village",
+          "ok=false" in h2 and "patron" in h2 and (ta in ("GARRISON", "STRONGHOLD") or ("ok=false" in h3 and "garrison" in h3)),
+          f"{h2[-120:]} || A {ta}: {h3[-140:]}")
+    big = None
+    for c in centers:
+        v = info(s, c)
+        if v.get("tier") in ("GARRISON", "STRONGHOLD") and "norman" in " ".join(s.output(at(c, "hywmill village info"), 2)):
+            big = c
+            break
+    if big is None:
+        check("SQ-4 a Garrison-sized Norman village to raise knights", False, str(centers))
+        return
+    rb = roll(big)
+    h4 = hire(rb, "squad:norman.knights", "SWORN")
+    time.sleep(6)
+    kn = owned_near(s, "mounted_lancer_rider", P, rb)
+    mounted = sum(1 for k in kn if k.get("mount", "none") not in ("none", ""))
+    check("SQ-4 a Sworn player hires Norman knights: 8 heavy lancers, mounted", "ok=true" in h4 and len(kn) >= 8 and mounted >= 8,
+          f"{h4[-160:]}; {len(kn)} lancers, {mounted} mounted")
+    h5 = hire(rb, "squad:norman.conroi", "SWORN")
+    time.sleep(6)
+    kn2 = owned_near(s, "mounted_lancer_rider", P, rb)
+    li = owned_near(s, "mounted_light_lancer_rider", P, rb)
+    check("SQ-5 a mixed unique squad (Conroi: 4 knights, 6 mounted squires)", "ok=true" in h5 and len(kn2) >= len(kn) + 4 and len(li) >= 6,
+          f"{h5[-160:]}; lancers {len(kn)} -> {len(kn2)}, light {len(li)}")
+    byz = next((c for c in centers if "byzantines" in " ".join(s.output(at(c, "hywmill village info"), 2))), None)
+    if byz is None:
+        check("SQ-6 a Byzantine village", False, str(centers))
+        return
+    rz = roll(byz)
+    h6 = hire(rz, "squad:byz.hippotoxotai", "PATRON")
+    time.sleep(6)
+    ha = owned_near(s, "mounted_archer_rider", P, rz)
+    tz = info(s, byz).get("tier")
+    check("SQ-6 a Byzantine village raises Hippotoxotai (10 horse archers) for a Patron",
+          ("ok=true" in h6 and len(ha) >= 10) or (tz == "WATCH" and "ok=false" in h6), f"{tz}: {h6[-160:]}; {len(ha)} horse archers")
+
+
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "RL": scenario_RL, "LV": scenario_LV, "WT": scenario_WT, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "RL": scenario_RL, "LV": scenario_LV, "WT": scenario_WT, "SQ": scenario_SQ, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
