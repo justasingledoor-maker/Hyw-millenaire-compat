@@ -1,0 +1,4 @@
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  LV-1 at war, losses are topped up with levies in batches back to target  tier GUARD_POST: 47/47 -> killed -> 39 -> 47 in 4 batch(es)
+  PASS  LV-2 levies lean on shieldmen and spearmen (shieldmen even below their usual tier)  hy.co.HmLog/]: [hywmill] Mobilization: Campigny les-pâtures raises 2 more levies (43/47): [crossbowman, archer] [22:40:38] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mobilization: Campigny les-pâtures raises 2 more levies (46/47): [shieldman, crossbowman] [22:41:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mobilization: Campigny les-pâtures raises 1 more levies (47/47): [spear_man]
+  PASS  LV-3 at peace every levy goes home  live 47 -> 6; ['[22:41:18] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Mobilization: The war is over: 10 mobilized soldiers of Barneville les-pâtures go home']

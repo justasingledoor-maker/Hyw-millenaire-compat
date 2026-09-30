@@ -1064,3 +1064,25 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
   * Harness scenario PC with Epic Knights (`docs/m5-test-evidence/player-colours1.txt`): with blue and yellow chosen,
     a Village Shield-Wall came out as 4 of 4 shieldmen in blue gambesons with blue-and-yellow shields.
 * SHA-256 of the jar: `99a21b29d8d8f7875c25f142f7964548af15a75ffc3e3e62321659a7f0b23b0b`.
+
+### 6.34 No recruiting during a siege battle; levies muster faster (`dist/hywmill-m5-fix34.jar`)
+
+* **The user's report.** A village about to be besieged showed 48/48 but "alive 11, recruited 37".
+* **The cause.** This was not a loss:
+  * At war the village raised its whole levy at once.
+  * Those slots count towards the target, but spawn only 2 per garrison slot, so the numbers crept up.
+* **The rule now.**
+  * While a siege is being fought at a village (its BATTLE phase), the village recruits nothing:
+    * no war reinforcement levies;
+    * no paid recruits (blocker NOT_CALM);
+    * no garrison rotation;
+    * no spawning of slots still waiting to muster.
+  * The muster, march and wait before the battle are unaffected.
+* **Faster mustering.** While mobilized levies wait to muster, a village spawns up to 8 a slot
+  (`GarrisonService.LEVY_BURST`), so a fresh levy fills the ranks in a few slots.
+* **Tests.**
+  * JUnit 347/347.
+  * Harness LV 3/3 (`docs/m5-test-evidence/levies-fix34.txt`).
+  * Harness VL 8/8 with Epic Knights (`docs/m5-test-evidence/siege-field2.txt`). The target recruited nothing during
+    the battle, and VL-3 now passes with its corrected check (the Turki horse archers, 19 hired).
+* SHA-256 of the jar: `fcfbcc399a2d237b9acc1ebf0e2911eccebc72b606d00551bc6664a2269bf236`.

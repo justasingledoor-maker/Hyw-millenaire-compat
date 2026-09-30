@@ -109,8 +109,8 @@ public final class MobilizationService {
      */
     public static int reinforce(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, GarrisonRoster r, long tick) {
         PoliticsTables.MobilizationRule rule = rule(rec);
-        if (!rule.enabled() || !Mobilization.mobilizes(rec.tier, rec.loneBuilding) || r.paused) {
-            return 0;
+        if (!rule.enabled() || !Mobilization.mobilizes(rec.tier, rec.loneBuilding) || r.paused || inSiegeBattle(ledger, rec)) {
+            return 0; // no fresh levies while a siege is being fought at the village (the build-up before it is fine)
         }
         GarrisonTable table = GarrisonTables.current().forCulture(rec.culture);
         int target = target(rec, table);
@@ -140,7 +140,7 @@ public final class MobilizationService {
             return false;
         }
         HywMillRuntime rt = HywMillRuntime.get();
-        if (rt != null && rt.garrison().alertState(rec.villageId) != dev.hywmill.military.defense.AlertState.CALM) {
+        if (inSiegeBattle(ledger, rec) || (rt != null && rt.garrison().alertState(rec.villageId) != dev.hywmill.military.defense.AlertState.CALM)) {
             return false; // not while the village is fighting
         }
         GarrisonTables tables = GarrisonTables.current();
@@ -171,6 +171,12 @@ public final class MobilizationService {
         HmLog.info("Mobilization: {} rotates its garrison: a levy {} goes home, a regular {} takes his place ({} levy left)", rec.name, gone,
                 regular.unitKey, String.format("%.2f", r.levyPoints));
         return true;
+    }
+
+    /** A siege is being fought at the village right now (its battle phase; the muster, march and wait before it do not count). */
+    public static boolean inSiegeBattle(GarrisonLedger ledger, VillageRecord rec) {
+        dev.hywmill.politics.war.Siege s = SiegeService.against(ledger, rec.villageId);
+        return s != null && s.phase == dev.hywmill.politics.war.Siege.Phase.BATTLE;
     }
 
     private static int target(VillageRecord rec, GarrisonTable table) {

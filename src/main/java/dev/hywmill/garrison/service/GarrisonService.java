@@ -182,6 +182,9 @@ public final class GarrisonService {
         List<UnitSpec> eligible = Recruitment.eligibleUnits(tier, table, tables.units());
         UnitSpec next = Recruitment.chooseUnit(rec.villageId, r.nextSeq, eligible, table.composition(), Recruitment.liveCounts(r));
         Recruitment.Blocker blocker = Recruitment.blocker(r, s.enabled(), alert == AlertState.CALM, target, tierMax, tick, s.recruitInterval(), next);
+        if (blocker == Recruitment.Blocker.NONE && MobilizationService.inSiegeBattle(ledger, rec)) {
+            blocker = Recruitment.Blocker.NOT_CALM; // no recruiting while a siege is being fought at the village
+        }
         if (blocker == Recruitment.Blocker.NONE) {
             RosterEntry e = Recruitment.recruitPaid(r, rec.villageId, next, equipmentLevel, tick);
             HmLog.info("Village '{}' recruits {} ({} levy left, {}/{} target)", rec.name, e, String.format("%.2f", r.levyPoints), r.live(), target);
@@ -192,8 +195,10 @@ public final class GarrisonService {
         ledger.setDirty();
         // the slot's own work; spawning is measured per unit as garrison.spawn
         perf.stop("garrison.slot", t0);
-        if (s.enabled() && settled && (alert == AlertState.CALM || alert == AlertState.RECOVERY)) {
-            spawnPending(overworld, rec, r, table, tables, units, s, tick, s.spawnsPerSlot());
+        if (s.enabled() && settled && (alert == AlertState.CALM || alert == AlertState.RECOVERY) && !MobilizationService.inSiegeBattle(ledger, rec)) {
+            // wartime levies muster fast: a village raising a whole levy at once fills its ranks in a few slots, not minutes
+            boolean levies = r.entries().stream().anyMatch(e -> e.mobilized && e.state() == UnitState.RECRUITED);
+            spawnPending(overworld, rec, r, table, tables, units, s, tick, levies ? Math.max(s.spawnsPerSlot(), LEVY_BURST) : s.spawnsPerSlot());
         }
     }
 
@@ -232,6 +237,9 @@ public final class GarrisonService {
     }
 
     /** Spawns up to {@code max} RECRUITED entries (bounded by the per-tick budget). Returns the number spawned. */
+    /** Most mobilized levies one village musters (spawns) in one garrison slot. */
+    public static final int LEVY_BURST = 8;
+
     public int spawnPending(ServerLevel overworld, VillageRecord rec, GarrisonRoster r, GarrisonTable table, GarrisonTables tables,
                             UnitProvider units, GarrisonSettings s, long tick, int max) {
         if (budgetTick != tick) {
@@ -256,8 +264,9 @@ public final class GarrisonService {
             return 0;
         }
         int n = 0;
+        int tickCap = max > s.spawnsPerSlot() ? Math.max(s.spawnsPerTick(), max) : s.spawnsPerTick(); // a levy burst gets its own room
         for (RosterEntry e : new ArrayList<>(r.entries())) {
-            if (n >= max || spawnsThisTick >= s.spawnsPerTick()) {
+            if (n >= max || spawnsThisTick >= tickCap) {
                 break;
             }
             if (e.state() != UnitState.RECRUITED || !units.isValidUnitType(e.entityType)) {
