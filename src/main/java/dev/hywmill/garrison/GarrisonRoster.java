@@ -49,6 +49,8 @@ public final class GarrisonRoster {
     public long lastSiegeTick = -1;
     /** Post-M5: the village has mobilized for its current war (reset when it is at peace and its levies went home). */
     public boolean mobilizedWar;
+    /** Post-M5: tick of the last wartime levy top-up (-1: none this war). */
+    public long lastLevyTick = -1;
 
     /**
      * M4 raid in progress. {@code performedBase}: the attacker's raid-history length when the raid
@@ -254,6 +256,9 @@ public final class GarrisonRoster {
         if (mobilizedWar) {
             t.putBoolean("mobilizedWar", true);
         }
+        if (lastLevyTick >= 0) {
+            t.putLong("lastLevyTick", lastLevyTick);
+        }
         if (raid != null) {
             CompoundTag rd = new CompoundTag();
             rd.putUUID("target", raid.target);
@@ -302,6 +307,7 @@ public final class GarrisonRoster {
         r.lastRaidStart = t.getLong("lastRaidStart");
         r.lastSiegeTick = t.contains("lastSiegeTick") ? t.getLong("lastSiegeTick") : -1;
         r.mobilizedWar = t.getBoolean("mobilizedWar");
+        r.lastLevyTick = t.contains("lastLevyTick") ? t.getLong("lastLevyTick") : -1;
         if (t.contains("raid", Tag.TAG_COMPOUND)) {
             CompoundTag rd = t.getCompound("raid");
             if (rd.hasUUID("target")) {

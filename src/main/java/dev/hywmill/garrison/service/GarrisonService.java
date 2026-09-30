@@ -280,9 +280,11 @@ public final class GarrisonService {
                     new UnitSpec(e.unitKey, e.entityType, UnitClass.LINE, 1, MilitaryTier.WATCH, true));
             long t0 = perf.start();
             GarrisonTag tag = r.beginSpawn(rec.villageId, e, tick);
-            e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(""); // equipped below for GARRISON with the current data
+            e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : ""); // equipped below with the current data
             SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, rec.factionId, e.entityUuid, pos, anchor, e.equipmentLevel,
-                    s.equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture, rec.tier, "",
+                    s.equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture,
+                    dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier),
+                    e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "",
                     dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId)));
             perf.stop("garrison.spawn", t0);
             spawnsThisTick++;
@@ -351,9 +353,11 @@ public final class GarrisonService {
         e.generation++;
         e.entityUuid = GarrisonTag.entityUuid(e.rosterId, e.generation);
         GarrisonTag tag = new GarrisonTag(rec.villageId, e.rosterId, e.generation);
-        e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp("");
+        e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "");
         SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, rec.factionId, e.entityUuid, pos, home, e.equipmentLevel,
-                HywMillConfig.garrison().equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture, rec.tier, "",
+                HywMillConfig.garrison().equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture,
+                dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier),
+                e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "",
                 dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId)));
         if (!res.ok()) {
             e.generation = Math.max(0, e.generation - 1);

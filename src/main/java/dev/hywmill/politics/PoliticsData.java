@@ -183,9 +183,18 @@ public final class PoliticsData {
         PoliticsTables.MobilizationRule mb = base.mobilization();
         if (o.has("mobilization") && o.get("mobilization").isJsonObject()) {
             JsonObject j = o.getAsJsonObject("mobilization");
+            Map<String, Integer> lu = mb.levyUnits();
+            if (j.has("levyUnits") && j.get("levyUnits").isJsonObject()) {
+                Map<String, Integer> m = new java.util.LinkedHashMap<>();
+                for (Map.Entry<String, JsonElement> e : j.getAsJsonObject("levyUnits").entrySet()) {
+                    m.put(e.getKey(), Math.max(0, e.getValue().getAsInt()));
+                }
+                lu = java.util.Collections.unmodifiableMap(m);
+            }
             mb = new PoliticsTables.MobilizationRule(j.has("enabled") ? j.get("enabled").getAsBoolean() : mb.enabled(),
-                    i(j, "equipmentFloor", mb.equipmentFloor()), i(j, "equipmentDrop", mb.equipmentDrop()));
-            if (mb.equipmentFloor() < 0 || mb.equipmentDrop() < 0) {
+                    i(j, "equipmentFloor", mb.equipmentFloor()), i(j, "equipmentDrop", mb.equipmentDrop()),
+                    l(j, "reinforceInterval", mb.reinforceInterval()), i(j, "reinforceBatch", mb.reinforceBatch()), lu);
+            if (mb.equipmentFloor() < 0 || mb.equipmentDrop() < 0 || mb.reinforceInterval() < 20 || mb.reinforceBatch() < 0) {
                 problems.add(where + ": mobilization values out of range; using " + where + " base");
                 mb = base.mobilization();
             }

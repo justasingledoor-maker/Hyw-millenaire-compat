@@ -46,7 +46,7 @@ public final class EquipmentProfiles {
     /** A medieval dye palette (RGB), used when no data sets one. */
     public static final List<Integer> DEFAULT_PALETTE = List.of(0x8E2323, 0xA01E2C, 0x2E4A7D, 0x283B63, 0xC9A227, 0xD8912A, 0x3F6B35,
             0x7A4A2A, 0x222222, 0xD8CFB8, 0x6E6E6E, 0x5B2C6F);
-    public static final Set<String> ROLES = Set.of("militia", "line", "ranged", "sentry", "patrol", "scout", "reserve", "all");
+    public static final Set<String> ROLES = Set.of("militia", "line", "ranged", "sentry", "patrol", "scout", "reserve", "all", "levy");
     private static final String DEFAULTS = "";
 
     private static volatile EquipmentProfiles current = new EquipmentProfiles(Map.of(), Map.of(), Map.of(), true);
@@ -140,6 +140,30 @@ public final class EquipmentProfiles {
     }
 
     /** Duty role of a standing duty ({@code ""} for GARRISON and non-standing duties). */
+    /** Post-M5: the role of mobilized soldiers (fresh wartime levies): light armour kits, whatever their duty. */
+    public static final String LEVY = "levy";
+
+    /**
+     * The profile tier and role a unit is equipped for. A mobilized soldier (post-M5) wears {@link #LEVY} kits at the tier of
+     * its own equipment level (1: GUARD_POST, iron weapons), not its village's tier, so a Watch's levies are not handed
+     * clubs; everyone else uses the village tier and the duty role.
+     */
+    public static MilitaryTier gearTier(boolean mobilized, int equipmentLevel, MilitaryTier village) {
+        if (!mobilized) {
+            return village;
+        }
+        return switch (Math.max(0, Math.min(3, equipmentLevel))) {
+            case 0 -> MilitaryTier.WATCH;
+            case 1 -> MilitaryTier.GUARD_POST;
+            case 2 -> MilitaryTier.GARRISON;
+            default -> MilitaryTier.STRONGHOLD;
+        };
+    }
+
+    public static String role(boolean mobilized, Duty assigned) {
+        return mobilized ? LEVY : dutyRole(assigned);
+    }
+
     public static String dutyRole(Duty d) {
         return switch (d) {
             case SENTRY -> "sentry";

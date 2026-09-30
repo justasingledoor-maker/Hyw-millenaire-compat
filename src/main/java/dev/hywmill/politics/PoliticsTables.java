@@ -184,11 +184,6 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
     }
 
     /**
-     * Wartime mobilization (post-M5): a village that is not a stronghold fills its garrison up to its current target when
-     * it goes to war, at no levy cost, with fresh troops equipped at max(equipmentFloor, regular level - equipmentDrop).
-     * They serve like any other unit and are sent home when the village is at peace again.
-     */
-    /**
      * Relief forces (post-M5): when a siege is launched, each village with a relation of at least {@code minRelation} to the
      * besieged village (and at peace with it) sends relief with {@code chance}, at most {@code maxHelpers} per siege. The
      * force is shareMin..shareMax of its garrison at home (a garrison of at least {@code minGarrison}); it sets out when the
@@ -202,8 +197,28 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
         public static final ReliefRule DEFAULT = new ReliefRule(true, 80, 0.2, 6, 4, 0.05, 0.2, 1200, 2400, 0.12, 0.2, 0.6, 0.4, 0.06, 0.3);
     }
 
-    public record MobilizationRule(boolean enabled, int equipmentFloor, int equipmentDrop) {
-        public static final MobilizationRule DEFAULT = new MobilizationRule(true, 1, 1);
+    /**
+     * Wartime mobilization (post-M5): a village that is not a stronghold fills its garrison up to its current target when
+     * it goes to war, at no levy cost, with fresh troops equipped at max(equipmentFloor, regular level - equipmentDrop).
+     * While the war lasts, losses are made good the same way: every {@code reinforceInterval} ticks up to
+     * {@code reinforceBatch} more levies while the garrison is below target. Levies are drawn from the village's composition
+     * plus {@code levyUnits} (extra weights, allowed below their usual tier: shieldmen and spearmen hold a line well).
+     * They serve like any other unit and are sent home when the village is at peace again.
+     */
+    public record MobilizationRule(boolean enabled, int equipmentFloor, int equipmentDrop, long reinforceInterval, int reinforceBatch,
+                                   Map<String, Integer> levyUnits) {
+        public static final MobilizationRule DEFAULT = new MobilizationRule(true, 1, 1, 600, 2, defaultLevyUnits());
+
+        public MobilizationRule(boolean enabled, int equipmentFloor, int equipmentDrop) {
+            this(enabled, equipmentFloor, equipmentDrop, 600, 2, defaultLevyUnits());
+        }
+    }
+
+    private static Map<String, Integer> defaultLevyUnits() {
+        Map<String, Integer> m = new java.util.LinkedHashMap<>();
+        m.put("spear_man", 3);
+        m.put("shieldman", 3);
+        return java.util.Collections.unmodifiableMap(m);
     }
 
     private static Map<MilitaryTierKey, Integer> engineCounts() {

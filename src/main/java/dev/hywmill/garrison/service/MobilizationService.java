@@ -59,6 +59,8 @@ public final class MobilizationService {
                 boolean war = ArsenalService.atWar(ledger, rec.villageId);
                 if (war && !r.mobilizedWar && r.startingGranted) {
                     mobilize(overworld, ledger, rec, r, tick);
+                } else if (war && r.mobilizedWar) {
+                    reinforce(overworld, ledger, rec, r, tick);
                 } else if (!war && (r.mobilizedWar || hasLevies(r))) {
                     demobilize(overworld, ledger, rec, r, tick);
                 }
@@ -81,21 +83,73 @@ public final class MobilizationService {
     /** Raises the gap between the living garrison and the current target (once per war). Returns the number raised. */
     public static int mobilize(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, GarrisonRoster r, long tick) {
         r.mobilizedWar = true;
+        r.lastLevyTick = tick;
         ledger.setDirty();
         PoliticsTables.MobilizationRule rule = rule(rec);
         if (!rule.enabled() || !Mobilization.mobilizes(rec.tier, rec.loneBuilding)) {
             return 0;
         }
+        GarrisonTable table = GarrisonTables.current().forCulture(rec.culture);
+        int target = target(rec, table);
+        List<String> raised = raise(rec, r, Mobilization.count(r.live(), target, table.tier(rec.tier).maxUnits()), rule, tick);
+        if (!raised.isEmpty()) {
+            String text = rec.name + " mobilizes for war: " + raised.size() + " fresh soldier" + (raised.size() == 1 ? "" : "s")
+                    + " fill its ranks (" + r.live() + "/" + target + ")";
+            PoliticsService.chronicle(overworld, Services.settlements(), rec, tick, text);
+            HmLog.info("Mobilization: {}: {}", text, raised);
+        }
+        return raised.size();
+    }
+
+    /**
+     * While at war: losses are made good with more levies, up to {@code reinforceBatch} every {@code reinforceInterval} ticks
+     * while the garrison is below target (so a village beaten in one siege is not an empty shell for the next).
+     */
+    public static int reinforce(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, GarrisonRoster r, long tick) {
+        PoliticsTables.MobilizationRule rule = rule(rec);
+        if (!rule.enabled() || !Mobilization.mobilizes(rec.tier, rec.loneBuilding) || r.paused) {
+            return 0;
+        }
+        GarrisonTable table = GarrisonTables.current().forCulture(rec.culture);
+        int target = target(rec, table);
+        int n = Mobilization.topUp(r.live(), target, table.tier(rec.tier).maxUnits(), tick, r.lastLevyTick, rule.reinforceInterval(),
+                rule.reinforceBatch());
+        if (n <= 0) {
+            return 0;
+        }
+        List<String> raised = raise(rec, r, n, rule, tick);
+        r.lastLevyTick = tick;
+        ledger.setDirty();
+        if (!raised.isEmpty()) {
+            HmLog.info("Mobilization: {} raises {} more levies ({}/{}): {}", rec.name, raised.size(), r.live(), target, raised);
+        }
+        return raised.size();
+    }
+
+    private static int target(VillageRecord rec, GarrisonTable table) {
         HywMillRuntime rt = HywMillRuntime.get();
+        return rt != null ? rt.garrison().effectiveTarget(rec) : GarrisonService.target(rec, table);
+    }
+
+    /**
+     * Recruits {@code n} free levies (marked mobilized) from the village's composition plus the levy units, which are allowed
+     * below their usual tier, at the mobilized equipment level. Returns their unit keys.
+     */
+    static List<String> raise(VillageRecord rec, GarrisonRoster r, int n, PoliticsTables.MobilizationRule rule, long tick) {
         GarrisonTables tables = GarrisonTables.current();
         GarrisonTable table = tables.forCulture(rec.culture);
-        int target = rt != null ? rt.garrison().effectiveTarget(rec) : GarrisonService.target(rec, table);
-        int n = Mobilization.count(r.live(), target, table.tier(rec.tier).maxUnits());
-        List<UnitSpec> eligible = Recruitment.eligibleUnits(rec.tier, table, tables.units());
+        List<UnitSpec> eligible = new ArrayList<>(Recruitment.eligibleUnits(rec.tier, table, tables.units()));
+        for (String key : rule.levyUnits().keySet()) {
+            UnitSpec u = tables.units().get(key);
+            if (u != null && eligible.stream().noneMatch(x -> x.key().equals(key))) {
+                eligible.add(u);
+            }
+        }
+        java.util.Map<String, Integer> weights = Mobilization.weights(table.composition(), rule.levyUnits());
         int level = Mobilization.equipmentLevel(Recruitment.equipmentLevel(rec.tier, table), rule.equipmentFloor(), rule.equipmentDrop());
         List<String> raised = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            UnitSpec u = Recruitment.chooseUnit(rec.villageId, r.nextSeq, eligible, table.composition(), Recruitment.liveCounts(r));
+            UnitSpec u = Recruitment.chooseUnit(rec.villageId, r.nextSeq, eligible, weights, Recruitment.liveCounts(r));
             if (u == null) {
                 break;
             }
@@ -103,13 +157,7 @@ public final class MobilizationService {
             e.mobilized = true;
             raised.add(u.key());
         }
-        if (!raised.isEmpty()) {
-            String text = rec.name + " mobilizes for war: " + raised.size() + " fresh soldier" + (raised.size() == 1 ? "" : "s")
-                    + " fill its ranks (" + r.live() + "/" + target + ")";
-            PoliticsService.chronicle(overworld, Services.settlements(), rec, tick, text);
-            HmLog.info("Mobilization: {} (equipment level {}): {}", text, level, raised);
-        }
-        return raised.size();
+        return raised;
     }
 
     /** At peace: the mobilized soldiers go home; those away on a siege go when they are back. Returns the number sent home. */
@@ -129,6 +177,7 @@ public final class MobilizationService {
         }
         if (!away) {
             r.mobilizedWar = false;
+            r.lastLevyTick = -1;
         }
         ledger.setDirty();
         if (n > 0) {

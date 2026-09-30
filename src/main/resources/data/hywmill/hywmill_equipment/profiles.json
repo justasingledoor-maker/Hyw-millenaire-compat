@@ -1,5 +1,5 @@
 {
- "_comment": "HywMill optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded: ARMOUR comes from one whole kit ('kits': head/chest/legs/feet, 'none' = empty slot), chosen from the first matching kit list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all' - so pieces never mix across lists. WEAPONS and OFFHAND take an item from the first matching slot list in the same order; an item is used only if it is registered and belongs to an item family HYW itself gives that unit, else HYW's own item stays. Dyeable pieces (the minecraft:dyeable tag: gambeson, coif, pantyhose, brigandine, crusader, norman helmet, ...) are dyed in two colours per unit from 'dye.palette'; shields carry random arms (vanilla geometric patterns and Epic Knights emblems, rule of tincture) unless 'heraldry' is false. Choices are deterministic per unit; units re-equip once when this data changes. Validate with /hywmill dev equipcheck.",
+ "_comment": "HywMill optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded: ARMOUR comes from one whole kit ('kits': head/chest/legs/feet, 'none' = empty slot), chosen from the first matching kit list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all' - so pieces never mix across lists. WEAPONS and OFFHAND take an item from the first matching slot list in the same order; an item is used only if it is registered and belongs to an item family HYW itself gives that unit, else HYW's own item stays. Dyeable pieces (the minecraft:dyeable tag: gambeson, coif, pantyhose, brigandine, crusader, norman helmet, ...) are dyed in two colours per unit from 'dye.palette'; shields carry random arms (vanilla geometric patterns and Epic Knights emblems, rule of tincture) unless 'heraldry' is false. Choices are deterministic per unit; units re-equip once when this data changes. Validate with /hywmill dev equipcheck. Post-M5 role 'levy': mobilized wartime soldiers wear these light kits (gambeson, kettle hat or coif, cheap shields), at the tier of their own equipment level (1 = GUARD_POST: iron weapons from the class lists), not their village's tier.",
  "defaults": {
   "tiers": {
    "WATCH": {
@@ -88,6 +88,33 @@
        "feet": "magistuarmory:gambeson_boots"
       }
      ]
+    },
+    "levy": {
+     "offhand": [
+      "magistuarmory:wood_heatershield",
+      "magistuarmory:wood_kiteshield",
+      "magistuarmory:iron_heatershield"
+     ],
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "none",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
+     ]
     }
    },
    "GUARD_POST": {
@@ -167,6 +194,33 @@
      "kits": [
       {
        "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
+     ]
+    },
+    "levy": {
+     "offhand": [
+      "magistuarmory:wood_heatershield",
+      "magistuarmory:wood_kiteshield",
+      "magistuarmory:iron_heatershield"
+     ],
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "none",
        "chest": "magistuarmory:gambeson_chestplate",
        "legs": "magistuarmory:pantyhose",
        "feet": "magistuarmory:gambeson_boots"
@@ -278,6 +332,33 @@
        "feet": "magistuarmory:gambeson_boots"
       }
      ]
+    },
+    "levy": {
+     "offhand": [
+      "magistuarmory:wood_heatershield",
+      "magistuarmory:wood_kiteshield",
+      "magistuarmory:iron_heatershield"
+     ],
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "none",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
+     ]
     }
    },
    "STRONGHOLD": {
@@ -376,6 +457,33 @@
       {
        "head": "magistuarmory:sallet",
        "chest": "magistuarmory:brigandine_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      }
+     ]
+    },
+    "levy": {
+     "offhand": [
+      "magistuarmory:wood_heatershield",
+      "magistuarmory:wood_kiteshield",
+      "magistuarmory:iron_heatershield"
+     ],
+     "kits": [
+      {
+       "head": "magistuarmory:kettlehat",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "magistuarmory:coif",
+       "chest": "magistuarmory:gambeson_chestplate",
+       "legs": "magistuarmory:pantyhose",
+       "feet": "magistuarmory:gambeson_boots"
+      },
+      {
+       "head": "none",
+       "chest": "magistuarmory:gambeson_chestplate",
        "legs": "magistuarmory:pantyhose",
        "feet": "magistuarmory:gambeson_boots"
       }

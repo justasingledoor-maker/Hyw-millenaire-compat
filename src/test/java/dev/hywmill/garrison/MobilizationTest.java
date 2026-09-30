@@ -31,4 +31,32 @@ class MobilizationTest {
         assertEquals(1, Mobilization.equipmentLevel(1, 1, 1));
         assertEquals(1, Mobilization.equipmentLevel(0, 1, 1), "a watch's clubs are not handed out");
     }
+
+    @Test
+    void leviesLeanOnShieldmenAndSpearmen() {
+        java.util.Map<String, Integer> w = Mobilization.weights(java.util.Map.of("militia", 1, "spear_man", 3, "archer", 2),
+                java.util.Map.of("spear_man", 3, "shieldman", 3));
+        assertEquals(1, w.get("militia"));
+        assertEquals(6, w.get("spear_man"));
+        assertEquals(3, w.get("shieldman"), "shieldmen join even where the composition has none");
+        assertEquals(2, w.get("archer"));
+    }
+
+    @Test
+    void wartimeTopUpComesInBatchesUpToTheTarget() {
+        assertEquals(2, Mobilization.topUp(10, 40, 48, 1000, -1, 600, 2), "first top-up at once");
+        assertEquals(0, Mobilization.topUp(10, 40, 48, 1000, 700, 600, 2), "not before the interval");
+        assertEquals(2, Mobilization.topUp(10, 40, 48, 1300, 700, 600, 2));
+        assertEquals(1, Mobilization.topUp(39, 40, 48, 1300, 700, 600, 2), "only up to the target");
+        assertEquals(0, Mobilization.topUp(40, 40, 48, 1300, 700, 600, 2));
+    }
+
+    @Test
+    void leviesAreGearedByTheirOwnLevelNotTheVillageTier() {
+        assertEquals(MilitaryTier.GUARD_POST, dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(true, 1, MilitaryTier.WATCH),
+                "a Watch's levies get guard-post (iron) weapons, not clubs");
+        assertEquals(MilitaryTier.WATCH, dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(false, 0, MilitaryTier.WATCH));
+        assertEquals("levy", dev.hywmill.garrison.equip.EquipmentProfiles.role(true, dev.hywmill.garrison.duty.Duty.SENTRY));
+        assertEquals("sentry", dev.hywmill.garrison.equip.EquipmentProfiles.role(false, dev.hywmill.garrison.duty.Duty.SENTRY));
+    }
 }

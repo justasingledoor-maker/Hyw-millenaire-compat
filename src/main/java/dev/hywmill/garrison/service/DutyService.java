@@ -269,7 +269,7 @@ public final class DutyService {
      * unit's role changed since its equipment was applied, re-applies it (HYW's level, then the overlay).
      */
     private static void reequip(VillageRecord rec, RosterEntry e, Entity ent, UnitProvider units) {
-        String role = dev.hywmill.garrison.equip.EquipmentProfiles.dutyRole(e.assignedDuty);
+        String role = dev.hywmill.garrison.equip.EquipmentProfiles.role(e.mobilized, e.assignedDuty);
         String stamp = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(role); // role + profile revision: new data re-equips once
         if (stamp.equals(e.equipRole)) {
             return;
@@ -281,7 +281,8 @@ public final class DutyService {
             e.equipRole = stamp;
             return;
         }
-        eq.apply(ent, spec, e.equipmentLevel, new dev.hywmill.garrison.spi.EquipmentProvider.Context(rec.culture, rec.tier, role,
+        eq.apply(ent, spec, e.equipmentLevel, new dev.hywmill.garrison.spi.EquipmentProvider.Context(rec.culture,
+                dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier), role,
                 dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId));
         e.equipRole = stamp;
     }
