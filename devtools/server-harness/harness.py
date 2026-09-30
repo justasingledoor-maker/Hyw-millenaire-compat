@@ -5626,12 +5626,60 @@ def scenario_RL(ctx):
     check("RL-7 no duplicates, all sieges and reliefs wound up", not dups and not sieges(s), f"{len(dups)} dups; {sieges(s)}")
 
 
+def scenario_LV(ctx):
+    """Wartime levies (post-M5; run after G4_0): at war, a non-stronghold village that loses soldiers is topped up with
+    free levies in batches until it is back at target, drawn heavily from shieldmen and spearmen (shieldmen even below
+    their usual tier); at peace every levy goes home."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    P = W_UUID
+    p0 = s.pos()
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(12)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    ta = info(s, a).get("tier")
+    fa = garrison(s, a).get("faction")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(15)
+    g1 = garrison(s, a)
+    units = [u for u, x in spike_info(s, "@e[type=!minecraft:player]").items()
+             if x["tag"] != "none" and ("owner=" + str(fa)) in x["desc"] and dist(x["pos"], a) <= 110]
+    for u in units[:8]:
+        s.cmd(f"kill {u}", 0.3)
+    time.sleep(3)
+    g2 = garrison(s, a)
+    t0 = time.time()
+    while time.time() - t0 < 240:
+        g3 = garrison(s, a)
+        if g3.get("live", 0) >= g1.get("live", 0):
+            break
+        time.sleep(10)
+    g3 = garrison(s, a)
+    logs = s.read_since(p0)
+    tops = [l for l in logs if "more levies" in l]
+    raised = " ".join(tops)
+    check("LV-1 at war, losses are topped up with levies in batches back to target",
+          ta == "STRONGHOLD" or (g2.get("live", 0) < g1.get("live", 0) and g3.get("live", 0) >= g1.get("live", 0) and len(tops) >= 2),
+          f"tier {ta}: {g1.get('live')}/{g1.get('target')} -> killed -> {g2.get('live')} -> {g3.get('live')} in {len(tops)} batch(es)")
+    check("LV-2 levies lean on shieldmen and spearmen (shieldmen even below their usual tier)",
+          ta == "STRONGHOLD" or ("shieldman" in raised and "spear_man" in raised), raised[-400:])
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(12)
+    g4 = garrison(s, a)
+    home = [l for l in s.read_since(p0) if "Mobilization:" in l and "go home" in l]
+    check("LV-3 at peace every levy goes home", ta == "STRONGHOLD" or (home and g4.get("live", 0) < g3.get("live", 0)),
+          f"live {g3.get('live')} -> {g4.get('live')}; {home[-1:]}")
+
+
 SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
              "G3_11": scenario_G3_11, "G3_12": scenario_G3_12, "G3_13": scenario_G3_13, "G3_14": scenario_G3_14, "G3_15": scenario_G3_15,
-             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "RL": scenario_RL, "S4b": scenario_S4b,
+             "G3_17": scenario_G3_17, "G3_18": scenario_G3_18, "G3_perf": scenario_G3_perf, "S4": scenario_S4, "RD": scenario_RD, "MR": scenario_MR, "AP": scenario_AP, "WG": scenario_WG, "WX": scenario_WX, "WL": scenario_WL, "RC": scenario_RC, "SG": scenario_SG, "OS": scenario_OS, "ENG": scenario_ENG, "ENGC": scenario_ENGC, "ARS": scenario_ARS, "ARS7": scenario_ARS7, "SGF": scenario_SGF, "CIV": scenario_CIV, "WP": scenario_WP, "RL": scenario_RL, "LV": scenario_LV, "S4b": scenario_S4b,
              "S5_0": scenario_S5_0, "S5_A": scenario_S5_A, "S5_B": scenario_S5_B, "S5_C": scenario_S5_C, "S5_D": scenario_S5_D,
              "S5_E": scenario_S5_E, "S5_F": scenario_S5_F, "S5_G": scenario_S5_G, "S5_H": scenario_S5_H, "S5_I": scenario_S5_I,
              "S5_J": scenario_S5_J, "S5_K": scenario_S5_K, "S5_L": scenario_S5_L, "S5_M": scenario_S5_M, "S5_N": scenario_S5_N,
