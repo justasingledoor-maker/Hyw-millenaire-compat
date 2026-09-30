@@ -866,3 +866,27 @@ shieldmen and poorly armoured spearmen in the mix.
     * At peace, A's live garrison went from 47 to 21 as the levies went home.
   * The harness has no Epic Knights, so the `levy` kits themselves were not seen in play.
 * SHA-256 of the jar: `886c88610a52b1deb20c51a860001c92b207e2ca7aab879f63028a7c57b05b5c`.
+
+### 6.29 Sieges across water (`dist/hywmill-m5-fix29.jar`)
+
+**Report.** A siege host sometimes landed across a body of water from the target and never advanced.
+
+* **Causes.**
+  * The landing point was always on the side of the target facing the attacker's home. Water between that point and
+    the village was not checked.
+  * When a soldier's next hop fell on water (`DutyService.standable` refuses fluid), `hopTarget` returned
+    nothing and the soldier was given no goal: it stood still.
+* **Fix.**
+  * `SiegeService.landing` tries 16 bearings round the village, starting with the side facing home and widening
+    alternately. It takes the first staging point with a dry way in, checked by `dryApproach`: loaded ground every
+    4 blocks, with no water or lava on top, up to half the village radius. If none qualifies, it keeps the old point.
+  * In battle, a soldier whose hop is blocked tries up to 6 detours to either side (`hopTarget` with turns). Failing
+    those, it is sent to its goal directly, so the unit's own pathfinding finds a way round.
+  * The soldiers' ranks, the engine line and the dry-ground search now extend away from the target rather than
+    towards home, since the landing may be on any side.
+* **Tests.**
+  * JUnit 333/333.
+  * Harness scenario WT 3/3 (`docs/m5-test-evidence/siege-water1.txt`). The side of B facing A was flooded (x
+    737..827). The host landed on the dry north side at (847, 70, 518) and advanced: 3 of A's soldiers were inside 40
+    blocks of B's centre.
+* SHA-256 of the jar: `82a244317aa718201c9a34aa3f60954111dcbfff018b64b6440d2ba7c34e27c4`.
