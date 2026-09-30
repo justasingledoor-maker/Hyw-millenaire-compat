@@ -954,3 +954,47 @@ shieldmen and poorly armoured spearmen in the mix.
   * the Byzantine Hippotoxotai came to 10 horse archers.
 * The squads tab itself was not clicked through in a client.
 * SHA-256 of the jar: `3997f92ab1f7ac7646007998e2147b0e163c8baea7053b8620331e306c80271c`.
+
+### 6.31 Squad looks (`dist/hywmill-m5-fix31.jar`)
+
+**Request.** Squads' armour should be unique or relevant, for example crusaders in assorted crusader attire, in
+crusader colours, with crusade-like banner patterns on their shields. This applies to every new squad.
+
+* **Looks** (`hywmill_equipment/squad_looks.json`, `EquipmentProfiles.Look`).
+  * There are 112 looks, one per squad; a squad names its look in `hywmill_squads` (`"look"`).
+  * A look has its own armour kits, shield list, dye palette (a repeated colour is weighted) and fixed arms (base
+    colour and banner layers).
+  * Squad members are equipped with the role `look:<id>`. Where the look names nothing for a slot, or Epic Knights
+    or HYW cannot use an item, the culture's gear is used.
+  * All item and pattern ids were checked against the Epic Knights 10.15 jar.
+* **Provider** (`HywProfileEquipmentProvider`).
+  * The look's kits and items come first.
+  * The look's palette dyes the dyeable pieces: surcoat, gambeson, coif, great helm and others.
+  * Shields are painted with one of the look's arms, chosen by the soldier; there is no random livery.
+* **Examples** (every squad is listed in `squad_looks.json`):
+
+  | Squads | Armour | Colours | Shields |
+  | --- | --- | --- | --- |
+  | Norman Crusader Band, Dismounted Knights, Knights | great helm / Norman helm, crusader surcoat | mostly white, some red and black | white field with a red crusader or apostolic cross; red field with a white cross; white field with a black cross |
+  | Byzantine Excubitors, Kataphraktoi | lamellar (and face helms) | purple and gold | two-headed eagle |
+  | Skoutatoi | lamellar | red or blue | Orthodox cross on oval shields |
+  | Varangians | Norman helms, mail | — | dragon on round shields |
+  | Seljuk Hassa, Cataphracts | shishak, lamellar | red and gold | two-headed eagle |
+  | Daylamites | — | — | sun on pavises |
+  | Japanese | lamellar, sallets and face helms | red and black, or blue and white | — |
+  | Ashigaru | kettle-hat "jingasa" | — | wooden standing shields |
+  | Indian | shishak and mail | saffron | sun and lion on round dhal shields |
+  | Maya | quilted cotton | Jaguar yellow and black, Eagle white and brown | serpent and sun shields |
+  | Inuit | bone slat armour (lamellar) | hide and bone | — |
+
+* **Tests.**
+  * JUnit 339/339. The new `SquadsTest` case checks that every squad has its own look (112), with kits and a
+    palette, and that crusader surcoats and red-cross arms and the two-headed eagle are present.
+  * Harness scenario LK 5/5 with Epic Knights 10.15 (`docs/m5-test-evidence/squad-looks1.txt`):
+    * **Crusader Band:** 4 of 4 shieldmen in crusader surcoats, dyed; steel kite shields with a red crusader cross,
+      a red apostolic cross and a black cross, on white.
+    * **Excubitors:** 3 of 3 in lamellar with the two-headed eagle.
+    * **Knights of the Household:** 4 of 4 riders in crusader surcoats, dyed white and red.
+  * The first run's LK-0 and LK-3 failures were harness mistakes: a wrong command name, and knights from an earlier
+    run sampled.
+* SHA-256 of the jar: `73ae7011fe6cf4b661533561b5409be7c7b9ecc7c95787588cbf8874e5d0e990`.
