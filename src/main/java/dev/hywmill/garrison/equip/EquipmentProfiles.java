@@ -57,7 +57,15 @@ public final class EquipmentProfiles {
 
     public static final String LOOK_PREFIX = "look:";
 
-    private static volatile EquipmentProfiles current = new EquipmentProfiles(Map.of(), Map.of(), Map.of(), true, Map.of());
+    /**
+     * Post-M5: a culture's heraldic taste for village liveries: its preferred dye colours (best first), and the banner
+     * patterns its shields use (ordinaries: geometric; charges: emblems). Empty lists: any.
+     */
+    public record Heraldry(List<net.minecraft.world.item.DyeColor> colours, List<String> ordinaries, List<String> charges) {
+        public static final Heraldry ANY = new Heraldry(List.of(), List.of(), List.of());
+    }
+
+    private static volatile EquipmentProfiles current = new EquipmentProfiles(Map.of(), Map.of(), Map.of(), true, Map.of(), Map.of());
 
     /** culture ("" = defaults) → tier → role → slot → items */
     private final Map<String, Map<String, Map<String, Map<String, List<String>>>>> data;
@@ -68,17 +76,30 @@ public final class EquipmentProfiles {
     private final boolean heraldry;
     /** Post-M5 squad looks by id. */
     private final Map<String, Look> looks;
+    /** Post-M5 heraldic taste by culture ("" = defaults). */
+    private final Map<String, Heraldry> heraldryByCulture;
     private final String revision;
 
     private EquipmentProfiles(Map<String, Map<String, Map<String, Map<String, List<String>>>>> data,
                               Map<String, Map<String, Map<String, List<Kit>>>> kits, Map<String, List<Integer>> palettes, boolean heraldry,
-                              Map<String, Look> looks) {
+                              Map<String, Look> looks, Map<String, Heraldry> heraldryByCulture) {
         this.data = data;
         this.kits = kits;
         this.palettes = palettes;
         this.heraldry = heraldry;
         this.looks = looks;
-        this.revision = Integer.toHexString((data.toString() + "|" + kits + "|" + palettes + "|" + heraldry + "|" + looks).hashCode());
+        this.heraldryByCulture = heraldryByCulture;
+        this.revision = Integer.toHexString((data.toString() + "|" + kits + "|" + palettes + "|" + heraldry + "|" + looks + "|" + heraldryByCulture)
+                .hashCode());
+    }
+
+    /** The culture's heraldic taste, else the defaults', else {@link Heraldry#ANY}. */
+    public Heraldry heraldryOf(String culture) {
+        Heraldry h = heraldryByCulture.get(culture);
+        if (h == null) {
+            h = heraldryByCulture.get(DEFAULTS);
+        }
+        return h == null ? Heraldry.ANY : h;
     }
 
     /** The squad look a role names ({@code look:<id>}), or null. */
@@ -99,6 +120,11 @@ public final class EquipmentProfiles {
     /** The equipment stamp stored on a unit: its duty role and the profile revision it was equipped with. */
     public static String stamp(String dutyRole) {
         return dutyRole + "@" + current.revision;
+    }
+
+    /** Post-M5: the stamp of a unit in a village livery ({primary, secondary}, or null): a new livery re-equips once too. */
+    public static String stamp(String dutyRole, @javax.annotation.Nullable int[] livery) {
+        return stamp(dutyRole) + (livery == null ? "" : "#" + livery[0] + "," + livery[1]);
     }
 
     public boolean heraldry() {
@@ -241,6 +267,7 @@ public final class EquipmentProfiles {
         Map<String, Map<String, Map<String, List<Kit>>>> kits = new LinkedHashMap<>();
         Map<String, List<Integer>> palettes = new LinkedHashMap<>();
         Map<String, Look> looks = new LinkedHashMap<>();
+        Map<String, Heraldry> heraldries = new LinkedHashMap<>();
         boolean heraldry = true;
         for (JsonObject f : files) {
             if (f.has("looks") && f.get("looks").isJsonObject()) {
@@ -257,11 +284,13 @@ public final class EquipmentProfiles {
             }
             if (f.has("defaults") && f.get("defaults").isJsonObject()) {
                 read(data, kits, palettes, DEFAULTS, f.getAsJsonObject("defaults"), "defaults", problems);
+                heraldryOf(heraldries, DEFAULTS, f.getAsJsonObject("defaults"), "defaults", problems);
             }
             if (f.has("cultures") && f.get("cultures").isJsonObject()) {
                 for (Map.Entry<String, JsonElement> c : f.getAsJsonObject("cultures").entrySet()) {
                     if (c.getValue().isJsonObject()) {
                         read(data, kits, palettes, c.getKey(), c.getValue().getAsJsonObject(), "culture " + c.getKey(), problems);
+                        heraldryOf(heraldries, c.getKey(), c.getValue().getAsJsonObject(), "culture " + c.getKey(), problems);
                     } else {
                         problems.add("culture " + c.getKey() + ": not an object");
                     }
@@ -269,7 +298,34 @@ public final class EquipmentProfiles {
             }
         }
         return new EquipmentProfiles(Collections.unmodifiableMap(data), Collections.unmodifiableMap(kits), Map.copyOf(palettes), heraldry,
-                Map.copyOf(looks));
+                Map.copyOf(looks), Map.copyOf(heraldries));
+    }
+
+    /** {@code "heraldry": {"colours": [dye names], "ordinaries": [pattern ids], "charges": [pattern ids]}} of a culture section. */
+    private static void heraldryOf(Map<String, Heraldry> out, String culture, JsonObject o, String where, List<String> problems) {
+        if (!o.has("heraldry") || !o.get("heraldry").isJsonObject()) {
+            return;
+        }
+        JsonObject h = o.getAsJsonObject("heraldry");
+        List<net.minecraft.world.item.DyeColor> colours = new ArrayList<>();
+        if (h.has("colours")) {
+            for (JsonElement e : h.getAsJsonArray("colours")) {
+                net.minecraft.world.item.DyeColor c = net.minecraft.world.item.DyeColor.byName(e.getAsString(), null);
+                if (c == null) {
+                    problems.add(where + " heraldry: unknown dye colour " + e + "; ignored");
+                } else {
+                    colours.add(c);
+                }
+            }
+        }
+        List<String> ord = new ArrayList<>(), ch = new ArrayList<>();
+        if (h.has("ordinaries")) {
+            h.getAsJsonArray("ordinaries").forEach(e -> ord.add(e.getAsString()));
+        }
+        if (h.has("charges")) {
+            h.getAsJsonArray("charges").forEach(e -> ch.add(e.getAsString()));
+        }
+        out.put(culture, new Heraldry(List.copyOf(colours), List.copyOf(ord), List.copyOf(ch)));
     }
 
     /**

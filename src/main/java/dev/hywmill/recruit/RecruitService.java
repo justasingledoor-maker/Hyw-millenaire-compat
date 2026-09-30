@@ -280,6 +280,7 @@ public final class RecruitService {
         }
         RandomSource rnd = overworld.getRandom();
         int hired = 0;
+        int[] livery = s.villageLivery() ? dev.hywmill.garrison.service.LiveryService.of(overworld, rec) : null; // generic squads: the village's colours
         for (Squads.Member m : s.members()) {
             dev.hywmill.garrison.tables.UnitSpec spec = gt.units().get(m.unit());
             int level = table.tier(m.gear()).equipmentLevel();
@@ -290,7 +291,8 @@ public final class RecruitService {
                 }
                 UUID uid = UUID.randomUUID();
                 SpawnResult r = units.spawn(overworld, new SpawnRequest(spec, payer.getUUID(), uid, Vec3.atBottomCenterOf(spot), spot, level, false,
-                        null, eq, new EquipmentProvider.Context(rec.culture, m.gear(), s.role(m), EquipmentProfiles.classRole(spec.unitClass()), uid)));
+                        null, eq, new EquipmentProvider.Context(rec.culture, m.gear(), s.role(m), EquipmentProfiles.classRole(spec.unitClass()), uid)
+                        .withLivery(livery)));
                 if (r.ok()) {
                     hired++;
                 }

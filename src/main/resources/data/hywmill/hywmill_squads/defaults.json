@@ -1,5 +1,5 @@
 {
- "_comment": "HywMill culture squads (post-M5), sold on the Muster Roll's Squads tab. Per culture 16 squads: 6 infantry (2 LOW, 2 MEDIUM, 2 HIGH), 4 ranged, 4 cavalry (cultures without horses get fast foot bands instead), 2 unique; 8-12 soldiers each. A member is a unit key from hywmill_garrison/units.json (plus lancer_rider), a count, a gear tier (the profile tier and HYW equipment level it is equipped at) and an optional kit ('levy': light gambeson kits). Quality sets the default requirements: LOW Trusted, MEDIUM Patron and a Guard Post village, HIGH Sworn and a Garrison village ('standing' and 'village' override). The price is the sum of the members' Muster Roll prices less 'squadDiscount', then the standing discount. No siege engines. Cultures are replaced whole by later files; 'defaults' serves unknown cultures.",
+ "_comment": "HywMill culture squads (post-M5), sold on the Muster Roll's Squads tab. Per culture 16 squads: 6 infantry (2 LOW, 2 MEDIUM, 2 HIGH), 4 ranged, 4 cavalry (cultures without horses get fast foot bands instead), 2 unique; 8-12 soldiers each. A member is a unit key from hywmill_garrison/units.json (plus lancer_rider), a count, a gear tier (the profile tier and HYW equipment level it is equipped at) and an optional kit ('levy': light gambeson kits). Quality sets the default requirements: LOW Trusted, MEDIUM Patron and a Guard Post village, HIGH Sworn and a Garrison village ('standing' and 'village' override). The price is the sum of the members' Muster Roll prices less 'squadDiscount', then the standing discount. No siege engines. Cultures are replaced whole by later files; 'defaults' serves unknown cultures. 'look' names the squad's look (hywmill_equipment/squad_looks.json); 'livery': 'village' marks a generic squad, raised from the village itself: it keeps its look's armour but wears the hiring village's colours and arms.",
  "squadDiscount": 0.1,
  "cultures": {
   "millenaire:norman": [
@@ -9,6 +9,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "norman.fyrd_spearmen",
+    "livery": "village",
     "description": "Freemen called up by the shire: a spear, a padded coat and a stout heart.",
     "members": [
      {
@@ -25,6 +26,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "norman.village_shieldwall",
+    "livery": "village",
     "description": "Farmers who know to lock shields and let the spears do the work.",
     "members": [
      {
@@ -47,6 +49,7 @@
     "category": "INFANTRY",
     "quality": "MEDIUM",
     "look": "norman.serjeants",
+    "livery": "village",
     "description": "Paid professional footmen in mail, the backbone of a castle garrison.",
     "members": [
      {
@@ -107,6 +110,7 @@
     "category": "INFANTRY",
     "quality": "HIGH",
     "look": "norman.household_men",
+    "livery": "village",
     "description": "A lord's own retinue, armoured head to foot and sworn to him.",
     "members": [
      {
@@ -162,6 +166,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "norman.peasant_bowmen",
+    "livery": "village",
     "description": "Villagers who practise at the butts on Sundays, as the law requires.",
     "members": [
      {
@@ -178,6 +183,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "norman.town_crossbows",
+    "livery": "village",
     "description": "The burghers' watch, slow to reload but hard-hitting.",
     "members": [
      {
@@ -209,6 +215,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "norman.mounted_serjeants",
+    "livery": "village",
     "description": "Lesser horsemen in mail who ride behind the knights.",
     "members": [
      {
@@ -224,6 +231,7 @@
     "category": "CAVALRY",
     "quality": "LOW",
     "look": "norman.hobelars",
+    "livery": "village",
     "description": "Light riders on hardy ponies, for scouting and raiding.",
     "members": [
      {
@@ -302,6 +310,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "byz.thematic_levy",
+    "livery": "village",
     "description": "Soldier-farmers of the themes, owing service for their land.",
     "members": [
      {
@@ -318,6 +327,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "byz.akritai",
+    "livery": "village",
     "description": "Frontiersmen of the eastern marches, used to endless skirmish.",
     "members": [
      {
@@ -340,6 +350,7 @@
     "category": "INFANTRY",
     "quality": "MEDIUM",
     "look": "byz.skoutatoi",
+    "livery": "village",
     "description": "Regular heavy infantry with the great oval shield, drilled by the manual.",
     "members": [
      {
@@ -360,6 +371,7 @@
     "category": "INFANTRY",
     "quality": "MEDIUM",
     "look": "byz.menavlatoi",
+    "livery": "village",
     "description": "Heavy-spear men trained to stop a cavalry charge dead.",
     "members": [
      {
@@ -415,6 +427,7 @@
     "category": "RANGED",
     "quality": "MEDIUM",
     "look": "byz.toxotai",
+    "livery": "village",
     "description": "Regular archers with the composite bow.",
     "members": [
      {
@@ -430,6 +443,7 @@
     "category": "RANGED",
     "quality": "MEDIUM",
     "look": "byz.tzangratores",
+    "livery": "village",
     "description": "Crossbowmen armed with the Latin tzangra.",
     "members": [
      {
@@ -445,6 +459,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "byz.psiloi",
+    "livery": "village",
     "description": "Unarmoured light archers who screen the line.",
     "members": [
      {
@@ -461,6 +476,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "byz.harbour_crossbows",
+    "livery": "village",
     "description": "Sailors and dockhands who guard the sea walls.",
     "members": [
      {
@@ -492,6 +508,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "byz.kavallarioi",
+    "livery": "village",
     "description": "The regular cavalry of the tagmata.",
     "members": [
      {
@@ -507,6 +524,7 @@
     "category": "CAVALRY",
     "quality": "LOW",
     "look": "byz.prokoursatores",
+    "livery": "village",
     "description": "Forward scouts who ride ahead of the army.",
     "members": [
      {
@@ -523,6 +541,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "byz.hippotoxotai",
+    "livery": "village",
     "description": "Mounted archers in the steppe manner.",
     "members": [
      {
@@ -585,6 +604,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "seljuk.ahdath",
+    "livery": "village",
     "description": "The young men of the town quarters, armed for its defence.",
     "members": [
      {
@@ -607,6 +627,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "seljuk.tribal_foot",
+    "livery": "village",
     "description": "Tribesmen who fight on foot when their horses are spent.",
     "members": [
      {
@@ -649,6 +670,7 @@
     "category": "INFANTRY",
     "quality": "MEDIUM",
     "look": "seljuk.ghulam_foot",
+    "livery": "village",
     "description": "Slave-soldiers trained from boyhood in the palace schools.",
     "members": [
      {
@@ -709,6 +731,7 @@
     "category": "RANGED",
     "quality": "MEDIUM",
     "look": "seljuk.foot_archers",
+    "livery": "village",
     "description": "Archers with the powerful recurve bow of the steppe.",
     "members": [
      {
@@ -724,6 +747,7 @@
     "category": "RANGED",
     "quality": "MEDIUM",
     "look": "seljuk.citadel_crossbows",
+    "livery": "village",
     "description": "Garrison crossbowmen of the great fortresses.",
     "members": [
      {
@@ -739,6 +763,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "seljuk.tribal_bows",
+    "livery": "village",
     "description": "Herders who can shoot as well as any soldier.",
     "members": [
      {
@@ -755,6 +780,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "seljuk.garrison_crossbows",
+    "livery": "village",
     "description": "Townsmen drilled on the crossbow for sieges.",
     "members": [
      {
@@ -771,6 +797,7 @@
     "category": "CAVALRY",
     "quality": "LOW",
     "look": "seljuk.turkmen_horse_archers",
+    "livery": "village",
     "description": "Nomad riders who shoot and wheel away before you close.",
     "members": [
      {
@@ -787,6 +814,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "seljuk.ghulam_horse_archers",
+    "livery": "village",
     "description": "Professional mounted archers in lamellar.",
     "members": [
      {
@@ -817,6 +845,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "seljuk.iqta_cavalry",
+    "livery": "village",
     "description": "Horsemen who hold land grants in return for service.",
     "members": [
      {
@@ -874,6 +903,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "jp.ashigaru_yari",
+    "livery": "village",
     "description": "Peasant spearmen in a tight pike line.",
     "members": [
      {
@@ -927,6 +957,7 @@
     "category": "INFANTRY",
     "quality": "MEDIUM",
     "look": "jp.ashigaru_tate",
+    "livery": "village",
     "description": "Foot soldiers behind wooden standing shields.",
     "members": [
      {
@@ -947,6 +978,7 @@
     "category": "INFANTRY",
     "quality": "HIGH",
     "look": "jp.samurai",
+    "livery": "village",
     "description": "Bushi in lacquered armour, masters of the sword.",
     "members": [
      {
@@ -962,6 +994,7 @@
     "category": "INFANTRY",
     "quality": "HIGH",
     "look": "jp.hatamoto",
+    "livery": "village",
     "description": "The lord's bannermen who guard his standard with their lives.",
     "members": [
      {
@@ -982,6 +1015,7 @@
     "category": "RANGED",
     "quality": "HIGH",
     "look": "jp.yumi_samurai",
+    "livery": "village",
     "description": "The way of horse and bow, practised on foot.",
     "members": [
      {
@@ -1012,6 +1046,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "jp.ashigaru_yumi",
+    "livery": "village",
     "description": "Peasant archers in massed ranks.",
     "members": [
      {
@@ -1028,6 +1063,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "jp.hunters",
+    "livery": "village",
     "description": "Hunters and trappers with their long bows (Japan fielded no crossbows).",
     "members": [
      {
@@ -1050,6 +1086,7 @@
     "category": "CAVALRY",
     "quality": "HIGH",
     "look": "jp.kiba_musha",
+    "livery": "village",
     "description": "Mounted samurai archers, the old heart of the warrior class.",
     "members": [
      {
@@ -1065,6 +1102,7 @@
     "category": "CAVALRY",
     "quality": "HIGH",
     "look": "jp.mounted_samurai",
+    "livery": "village",
     "description": "Armoured horsemen with long yari.",
     "members": [
      {
@@ -1080,6 +1118,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "jp.mounted_retainers",
+    "livery": "village",
     "description": "Lesser vassals who ride to war.",
     "members": [
      {
@@ -1095,6 +1134,7 @@
     "category": "CAVALRY",
     "quality": "LOW",
     "look": "jp.scouts",
+    "livery": "village",
     "description": "Light riders who carry messages and watch the roads.",
     "members": [
      {
@@ -1163,6 +1203,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "in.paika",
+    "livery": "village",
     "description": "Village militia who hold land for military service.",
     "members": [
      {
@@ -1221,6 +1262,7 @@
     "category": "INFANTRY",
     "quality": "MEDIUM",
     "look": "in.dhal",
+    "livery": "village",
     "description": "Round-shield infantry who hold the line against horse.",
     "members": [
      {
@@ -1241,6 +1283,7 @@
     "category": "INFANTRY",
     "quality": "HIGH",
     "look": "in.rajput_foot",
+    "livery": "village",
     "description": "Rajput swordsmen who would rather die than retreat.",
     "members": [
      {
@@ -1261,6 +1304,7 @@
     "category": "INFANTRY",
     "quality": "HIGH",
     "look": "in.royal_spears",
+    "livery": "village",
     "description": "The palace guard in quilted and mail armour.",
     "members": [
      {
@@ -1281,6 +1325,7 @@
     "category": "RANGED",
     "quality": "HIGH",
     "look": "in.imperial_archers",
+    "livery": "village",
     "description": "Master bowmen of the royal armoury.",
     "members": [
      {
@@ -1296,6 +1341,7 @@
     "category": "RANGED",
     "quality": "MEDIUM",
     "look": "in.dhanurdhara",
+    "livery": "village",
     "description": "Trained archers with the long bamboo bow.",
     "members": [
      {
@@ -1349,6 +1395,7 @@
     "category": "CAVALRY",
     "quality": "HIGH",
     "look": "in.rajput_lancers",
+    "livery": "village",
     "description": "Armoured noble horsemen who charge with lance and sword.",
     "members": [
      {
@@ -1364,6 +1411,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "in.silladar",
+    "livery": "village",
     "description": "Horsemen who bring their own mounts and arms.",
     "members": [
      {
@@ -1462,6 +1510,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "maya.milpa_levy",
+    "livery": "village",
     "description": "Maize farmers called to war after the harvest.",
     "members": [
      {
@@ -1478,6 +1527,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "maya.hunters",
+    "livery": "village",
     "description": "Hunters who know every path in the forest.",
     "members": [
      {
@@ -1500,6 +1550,7 @@
     "category": "INFANTRY",
     "quality": "MEDIUM",
     "look": "maya.holkan",
+    "livery": "village",
     "description": "Professional warriors in quilted cotton armour.",
     "members": [
      {
@@ -1520,6 +1571,7 @@
     "category": "INFANTRY",
     "quality": "MEDIUM",
     "look": "maya.atlatl",
+    "livery": "village",
     "description": "Spearmen who strike from afar and close in.",
     "members": [
      {
@@ -1555,6 +1607,7 @@
     "category": "INFANTRY",
     "quality": "HIGH",
     "look": "maya.nacom_guard",
+    "livery": "village",
     "description": "The war leader's sworn guard.",
     "members": [
      {
@@ -1575,6 +1628,7 @@
     "category": "RANGED",
     "quality": "HIGH",
     "look": "maya.royal_archers",
+    "livery": "village",
     "description": "Archers of the king's court.",
     "members": [
      {
@@ -1605,6 +1659,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "maya.bowmen",
+    "livery": "village",
     "description": "Villagers with hunting bows.",
     "members": [
      {
@@ -1621,6 +1676,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "maya.skirmishers",
+    "livery": "village",
     "description": "Archers and spearmen who harass from the trees.",
     "members": [
      {
@@ -1643,6 +1699,7 @@
     "category": "CAVALRY",
     "quality": "LOW",
     "look": "maya.runners",
+    "livery": "village",
     "description": "Messenger-warriors who cover the ground faster than any army (the Maya had no horses).",
     "members": [
      {
@@ -1659,6 +1716,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "maya.serpent",
+    "livery": "village",
     "description": "Raiders who strike the enemy's fields and vanish (no horses).",
     "members": [
      {
@@ -1679,6 +1737,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "maya.captive_takers",
+    "livery": "village",
     "description": "Warriors who fight to take prisoners for the temple (no horses).",
     "members": [
      {
@@ -1771,6 +1830,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "inuit.harpooners",
+    "livery": "village",
     "description": "Seal hunters armed with harpoon and lance.",
     "members": [
      {
@@ -1787,6 +1847,7 @@
     "category": "INFANTRY",
     "quality": "LOW",
     "look": "inuit.camp_defenders",
+    "livery": "village",
     "description": "Everyone who can hold a knife, when the camp is threatened.",
     "members": [
      {
@@ -1835,6 +1896,7 @@
     "category": "INFANTRY",
     "quality": "MEDIUM",
     "look": "inuit.lancers",
+    "livery": "village",
     "description": "Hunters of the great walrus, with heavy lances.",
     "members": [
      {
@@ -1900,6 +1962,7 @@
     "category": "RANGED",
     "quality": "MEDIUM",
     "look": "inuit.sinew_bows",
+    "livery": "village",
     "description": "Experienced hunters with strong composite bows.",
     "members": [
      {
@@ -1915,6 +1978,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "inuit.caribou_hunters",
+    "livery": "village",
     "description": "Hunters of the herds, patient and accurate.",
     "members": [
      {
@@ -1931,6 +1995,7 @@
     "category": "RANGED",
     "quality": "LOW",
     "look": "inuit.snow_skirmishers",
+    "livery": "village",
     "description": "Bowmen and spearmen who fight from the drifts.",
     "members": [
      {
@@ -1953,6 +2018,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "inuit.kayak_raiders",
+    "livery": "village",
     "description": "Raiders who arrive by water before anyone sees them (no horses).",
     "members": [
      {
@@ -1973,6 +2039,7 @@
     "category": "CAVALRY",
     "quality": "LOW",
     "look": "inuit.tundra_scouts",
+    "livery": "village",
     "description": "Scouts who cross the tundra in a day (no horses).",
     "members": [
      {
@@ -2015,6 +2082,7 @@
     "category": "CAVALRY",
     "quality": "MEDIUM",
     "look": "inuit.winter_warband",
+    "livery": "village",
     "description": "Warriors who travel fast in the dark season (no horses).",
     "members": [
      {
@@ -2083,6 +2151,7 @@
    "category": "INFANTRY",
    "quality": "LOW",
    "look": "norman.fyrd_spearmen",
+   "livery": "village",
    "description": "Freemen called up by the shire: a spear, a padded coat and a stout heart.",
    "members": [
     {
@@ -2099,6 +2168,7 @@
    "category": "INFANTRY",
    "quality": "LOW",
    "look": "norman.village_shieldwall",
+   "livery": "village",
    "description": "Farmers who know to lock shields and let the spears do the work.",
    "members": [
     {
@@ -2121,6 +2191,7 @@
    "category": "INFANTRY",
    "quality": "MEDIUM",
    "look": "norman.serjeants",
+   "livery": "village",
    "description": "Paid professional footmen in mail, the backbone of a castle garrison.",
    "members": [
     {
@@ -2181,6 +2252,7 @@
    "category": "INFANTRY",
    "quality": "HIGH",
    "look": "norman.household_men",
+   "livery": "village",
    "description": "A lord's own retinue, armoured head to foot and sworn to him.",
    "members": [
     {
@@ -2236,6 +2308,7 @@
    "category": "RANGED",
    "quality": "LOW",
    "look": "norman.peasant_bowmen",
+   "livery": "village",
    "description": "Villagers who practise at the butts on Sundays, as the law requires.",
    "members": [
     {
@@ -2252,6 +2325,7 @@
    "category": "RANGED",
    "quality": "LOW",
    "look": "norman.town_crossbows",
+   "livery": "village",
    "description": "The burghers' watch, slow to reload but hard-hitting.",
    "members": [
     {
@@ -2283,6 +2357,7 @@
    "category": "CAVALRY",
    "quality": "MEDIUM",
    "look": "norman.mounted_serjeants",
+   "livery": "village",
    "description": "Lesser horsemen in mail who ride behind the knights.",
    "members": [
     {
@@ -2298,6 +2373,7 @@
    "category": "CAVALRY",
    "quality": "LOW",
    "look": "norman.hobelars",
+   "livery": "village",
    "description": "Light riders on hardy ponies, for scouting and raiding.",
    "members": [
     {

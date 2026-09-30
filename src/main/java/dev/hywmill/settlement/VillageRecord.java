@@ -69,6 +69,9 @@ public final class VillageRecord {
     /** -1 until measured on loaded defenders; then the last measured value. */
     public double equipmentScore = -1;
     public int villageRadius;
+    /** Post-M5 livery: the village's two dye colours (dye ids; -1: not chosen yet). Chosen once, then kept. */
+    public int liveryPrimary = -1;
+    public int liverySecondary = -1;
     public boolean loneBuilding;
     /** Controlling player of a player-controlled village. Never replaces {@link #factionId}. */
     @Nullable public UUID controllerPlayerId;
@@ -199,6 +202,10 @@ public final class VillageRecord {
         t.putInt("readiness", readiness);
         t.putDouble("equipmentScore", equipmentScore);
         t.putInt("villageRadius", villageRadius);
+        if (liveryPrimary >= 0) {
+            t.putInt("liveryPrimary", liveryPrimary);
+            t.putInt("liverySecondary", liverySecondary);
+        }
         t.putBoolean("loneBuilding", loneBuilding);
         if (controllerPlayerId != null) {
             t.putUUID("controller", controllerPlayerId);
@@ -292,6 +299,8 @@ public final class VillageRecord {
             r.readiness = t.getInt("readiness");
             r.equipmentScore = t.contains("equipmentScore") ? t.getDouble("equipmentScore") : -1;
             r.villageRadius = t.getInt("villageRadius");
+            r.liveryPrimary = t.contains("liveryPrimary") ? t.getInt("liveryPrimary") : -1;
+            r.liverySecondary = t.contains("liverySecondary") ? t.getInt("liverySecondary") : -1;
             r.loneBuilding = t.getBoolean("loneBuilding");
             r.controllerPlayerId = t.hasUUID("controller") ? t.getUUID("controller") : null;
             List<String> problems = new ArrayList<>();

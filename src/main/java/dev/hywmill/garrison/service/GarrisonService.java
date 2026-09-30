@@ -280,12 +280,13 @@ public final class GarrisonService {
                     new UnitSpec(e.unitKey, e.entityType, UnitClass.LINE, 1, MilitaryTier.WATCH, true));
             long t0 = perf.start();
             GarrisonTag tag = r.beginSpawn(rec.villageId, e, tick);
-            e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : ""); // equipped below with the current data
+            int[] livery = LiveryService.of(overworld, rec); // post-M5: the village's colours
+            e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "", livery); // equipped below with the current data
             SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, rec.factionId, e.entityUuid, pos, anchor, e.equipmentLevel,
                     s.equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture,
                     dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier),
                     e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "",
-                    dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId)));
+                    dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId).withLivery(livery)));
             perf.stop("garrison.spawn", t0);
             spawnsThisTick++;
             if (res.ok()) {
@@ -353,12 +354,13 @@ public final class GarrisonService {
         e.generation++;
         e.entityUuid = GarrisonTag.entityUuid(e.rosterId, e.generation);
         GarrisonTag tag = new GarrisonTag(rec.villageId, e.rosterId, e.generation);
-        e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "");
+        int[] livery = known != null ? LiveryService.of(overworld, rec) : null; // garrison soldiers wear the village's colours; engines do not
+        e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "", livery);
         SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, rec.factionId, e.entityUuid, pos, home, e.equipmentLevel,
                 HywMillConfig.garrison().equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture,
                 dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier),
                 e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "",
-                dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId)));
+                dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId).withLivery(livery)));
         if (!res.ok()) {
             e.generation = Math.max(0, e.generation - 1);
             e.entityUuid = null;

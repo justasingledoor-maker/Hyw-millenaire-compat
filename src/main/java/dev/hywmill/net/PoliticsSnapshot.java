@@ -23,9 +23,16 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
                                List<VillageRow> villages, @Nullable UUID selected, List<ActionRow> actions, List<String> envoys,
                                List<String> lent, List<String> honours) implements CustomPacketPayload {
 
-    /** A discovered village: its name, the player's standing there, and home's relation towards it. */
-    public record VillageRow(UUID id, String name, String standing, int relation, boolean truce) {
+    /**
+     * A discovered village: its name, the player's standing there, and home's relation towards it. Post-M5: its livery
+     * colours (RGB, -1: none) and its distance in metres (blocks) from the home village (-1: unknown, or it is home).
+     */
+    public record VillageRow(UUID id, String name, String standing, int relation, boolean truce, int colour1, int colour2, int distance) {
         public static final int NO_RELATION = Integer.MIN_VALUE;
+
+        public VillageRow(UUID id, String name, String standing, int relation, boolean truce) {
+            this(id, name, standing, relation, truce, -1, -1, -1);
+        }
     }
 
     /**
@@ -58,6 +65,9 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
             buf.writeUtf(v.standing());
             buf.writeInt(v.relation());
             buf.writeBoolean(v.truce());
+            buf.writeInt(v.colour1());
+            buf.writeInt(v.colour2());
+            buf.writeVarInt(v.distance() + 1);
         }
         writeUuid(buf, s.selected);
         buf.writeVarInt(Math.min(MAX_ROWS, s.actions.size()));
@@ -81,7 +91,8 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
         int nv = Math.min(MAX_ROWS, buf.readVarInt());
         List<VillageRow> villages = new ArrayList<>();
         for (int i = 0; i < nv; i++) {
-            villages.add(new VillageRow(buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readBoolean()));
+            villages.add(new VillageRow(buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readBoolean(), buf.readInt(), buf.readInt(),
+                    buf.readVarInt() - 1));
         }
         UUID selected = readUuid(buf);
         int na = Math.min(MAX_ROWS, buf.readVarInt());

@@ -159,8 +159,14 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
 
     /** Livery: dyeable armour in the unit's two colours; a shield painted with its arms (vanilla banner components). */
     private static void decorate(BaseCombatEntity u, EquipmentProfiles p, Context ctx, @javax.annotation.Nullable EquipmentProfiles.Look look) {
-        List<Integer> palette = look != null && !look.palette().isEmpty() ? look.palette() : p.palette(ctx.culture());
-        int[] c = dev.hywmill.garrison.equip.Livery.colours(ctx.rosterId(), palette);
+        int[] c;
+        if (ctx.hasLivery()) {
+            // post-M5: the village's livery, head to foot in its first colour, hose in its second
+            c = new int[]{dev.hywmill.garrison.equip.VillageLivery.rgb(ctx.liveryPrimary()), dev.hywmill.garrison.equip.VillageLivery.rgb(ctx.liverySecondary())};
+        } else {
+            List<Integer> palette = look != null && !look.palette().isEmpty() ? look.palette() : p.palette(ctx.culture());
+            c = dev.hywmill.garrison.equip.Livery.colours(ctx.rosterId(), palette);
+        }
         for (String slot : EquipmentProfiles.ARMOUR) {
             ItemStack st = u.getItemBySlot(slotOf(slot));
             if (!st.isEmpty() && st.is(net.minecraft.tags.ItemTags.DYEABLE)) {
@@ -170,12 +176,17 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
         }
         ItemStack shield = u.getItemBySlot(EquipmentSlot.OFFHAND);
         if (p.heraldry() && shield.getItem() instanceof net.minecraft.world.item.ShieldItem) {
-            if (look != null && !look.arms().isEmpty()) {
+            List<String>[] figures = figures(u, p.heraldryOf(ctx.culture()));
+            if (ctx.hasLivery()) {
+                // post-M5: assorted arms in the culture's manner, always in the village's two colours
+                paint(u, shield, dev.hywmill.garrison.equip.Livery.villageArms(ctx.rosterId(), net.minecraft.world.item.DyeColor.byId(ctx.liveryPrimary()),
+                        net.minecraft.world.item.DyeColor.byId(ctx.liverySecondary()), figures[0], figures[1]));
+            } else if (look != null && !look.arms().isEmpty()) {
                 // a squad bears its own arms (one of the look's, by roster id)
                 long h = ctx.rosterId().getMostSignificantBits() ^ 0xA2A5L;
                 paint(u, shield, look.arms().get((int) Math.floorMod(h, (long) look.arms().size())));
             } else {
-                paint(u, shield, ctx.rosterId());
+                paint(u, shield, dev.hywmill.garrison.equip.Livery.arms(ctx.rosterId(), figures[0], figures[1]));
             }
         }
     }
@@ -194,27 +205,38 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
         shield.set(net.minecraft.core.component.DataComponents.BANNER_PATTERNS, b.build());
     }
 
-    private static void paint(BaseCombatEntity u, ItemStack shield, java.util.UUID id) {
+    /**
+     * The culture's ordinaries and charges (post-M5 heraldic taste), else every registered geometric pattern and Epic Knights
+     * emblem; only patterns registered in this world, in a stable order.
+     */
+    @SuppressWarnings("unchecked")
+    private static List<String>[] figures(BaseCombatEntity u, EquipmentProfiles.Heraldry taste) {
         var reg = u.level().registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.BANNER_PATTERN);
         List<String> ordinaries = new ArrayList<>();
-        reg.getTag(net.minecraft.tags.BannerPatternTags.NO_ITEM_REQUIRED).ifPresent(set -> set.forEach(h -> h.unwrapKey()
-                .map(k -> k.location().toString()).filter(s -> !s.equals("minecraft:base")).ifPresent(ordinaries::add)));
         List<String> charges = new ArrayList<>();
-        for (ResourceLocation k : reg.keySet()) {
-            if (k.getNamespace().equals(EK)) {
-                charges.add(k.toString());
+        if (taste.ordinaries().isEmpty()) {
+            reg.getTag(net.minecraft.tags.BannerPatternTags.NO_ITEM_REQUIRED).ifPresent(set -> set.forEach(h -> h.unwrapKey()
+                    .map(k -> k.location().toString()).filter(x -> !x.equals("minecraft:base")).ifPresent(ordinaries::add)));
+        } else {
+            taste.ordinaries().stream().filter(id -> registered(reg, id)).forEach(ordinaries::add);
+        }
+        if (taste.charges().isEmpty()) {
+            for (ResourceLocation k : reg.keySet()) {
+                if (k.getNamespace().equals(EK)) {
+                    charges.add(k.toString());
+                }
             }
+        } else {
+            taste.charges().stream().filter(id -> registered(reg, id)).forEach(charges::add);
         }
         java.util.Collections.sort(ordinaries);
         java.util.Collections.sort(charges);
-        dev.hywmill.garrison.equip.Livery.Arms arms = dev.hywmill.garrison.equip.Livery.arms(id, ordinaries, charges);
-        net.minecraft.world.level.block.entity.BannerPatternLayers.Builder b = new net.minecraft.world.level.block.entity.BannerPatternLayers.Builder();
-        for (dev.hywmill.garrison.equip.Livery.Layer l : arms.layers()) {
-            reg.getHolder(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.BANNER_PATTERN,
-                    ResourceLocation.parse(l.pattern()))).ifPresent(h -> b.add(h, l.color()));
-        }
-        shield.set(net.minecraft.core.component.DataComponents.BASE_COLOR, arms.base());
-        shield.set(net.minecraft.core.component.DataComponents.BANNER_PATTERNS, b.build());
+        return new List[]{ordinaries, charges};
+    }
+
+    private static boolean registered(net.minecraft.core.Registry<?> reg, String id) {
+        ResourceLocation rl = ResourceLocation.tryParse(id);
+        return rl != null && reg.containsKey(rl);
     }
 
     @Override

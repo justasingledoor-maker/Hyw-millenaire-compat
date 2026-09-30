@@ -270,7 +270,8 @@ public final class DutyService {
      */
     private static void reequip(VillageRecord rec, RosterEntry e, Entity ent, UnitProvider units) {
         String role = dev.hywmill.garrison.equip.EquipmentProfiles.role(e.mobilized, e.assignedDuty);
-        String stamp = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(role); // role + profile revision: new data re-equips once
+        int[] livery = ent.level() instanceof net.minecraft.server.level.ServerLevel sl ? LiveryService.of(sl.getServer().overworld(), rec) : null;
+        String stamp = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(role, livery); // role + profile revision + livery: new data re-equips once
         if (stamp.equals(e.equipRole)) {
             return;
         }
@@ -283,7 +284,7 @@ public final class DutyService {
         }
         eq.apply(ent, spec, e.equipmentLevel, new dev.hywmill.garrison.spi.EquipmentProvider.Context(rec.culture,
                 dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier), role,
-                dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId));
+                dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId).withLivery(livery));
         e.equipRole = stamp;
     }
 

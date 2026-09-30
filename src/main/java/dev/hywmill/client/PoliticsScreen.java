@@ -50,10 +50,12 @@ public final class PoliticsScreen extends Screen {
         for (int i = 0; i < Math.min(ROWS, vs.size() - scroll); i++) {
             PoliticsSnapshot.VillageRow v = vs.get(scroll + i);
             String rel = v.relation() == PoliticsSnapshot.VillageRow.NO_RELATION ? "" : " " + v.relation();
+            String dist = v.distance() < 0 ? "" : " " + (v.distance() >= 1000 ? String.format("%.1f km", v.distance() / 1000.0) : v.distance() + " m");
             Button b = Button.builder(Component.literal((v.id().equals(snap.selected()) ? "> " : "") + v.name() + rel + (v.truce() ? " [truce]" : "")),
                             btn -> select(v.id()))
-                    .bounds(left, top + i * 20, 150, 18)
-                    .tooltip(Tooltip.create(Component.literal("Your standing: " + v.standing().toLowerCase()))).build();
+                    .bounds(left + 12, top + i * 20, 138, 18)
+                    .tooltip(Tooltip.create(Component.literal("Your standing: " + v.standing().toLowerCase()
+                            + (v.distance() < 0 ? "" : "\nDistance from " + snap.homeName() + ":" + dist)))).build();
             addRenderableWidget(b);
         }
         if (vs.size() > ROWS) {
@@ -100,6 +102,17 @@ public final class PoliticsScreen extends Screen {
         super.render(g, mouseX, mouseY, partial);
         int x0 = 190, x1 = width - 190;
         g.drawCenteredString(font, title, width / 2, 10, 0xFFFFFFFF);
+        // post-M5: each village's livery (two colours) beside its name, and its distance from home
+        List<PoliticsSnapshot.VillageRow> vs = snap.villages();
+        for (int i = 0; i < Math.min(ROWS, vs.size() - scroll); i++) {
+            PoliticsSnapshot.VillageRow v = vs.get(scroll + i);
+            int ry = 34 + i * 20;
+            swatch(g, 12, ry + 1, v.colour1(), v.colour2());
+            if (v.distance() >= 0) {
+                String d = v.distance() >= 1000 ? String.format("%.1f km", v.distance() / 1000.0) : v.distance() + " m";
+                g.drawString(font, d, 12 + 138 - font.width(d) - 3, ry + 5, 0xFFD8CFB8, false);
+            }
+        }
         int y = 34;
         if (snap.home() == null) {
             for (String n : snap.notes()) {
@@ -108,6 +121,10 @@ public final class PoliticsScreen extends Screen {
             }
         } else {
             g.drawString(font, snap.homeName() + " (" + snap.culture().replace("millenaire:", "") + ")", x0, y, INK, false);
+            final int hy = y;
+            snap.villages().stream().filter(v -> v.id().equals(snap.home())).findFirst()
+                    .ifPresent(v -> swatch(g, x0 + font.width(snap.homeName() + " (" + snap.culture().replace("millenaire:", "") + ")") + 6, hy - 1,
+                            v.colour1(), v.colour2()));
             y += 13;
             String st = snap.standing().equals(snap.effective()) ? snap.standing() : snap.standing() + " (treated as " + snap.effective() + ")";
             g.drawString(font, "Standing: " + st.toLowerCase(), x0, y, INK, false);
@@ -154,5 +171,15 @@ public final class PoliticsScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    /** Post-M5: a village's livery as two stacked colour squares (nothing if it has none). */
+    private static void swatch(GuiGraphics g, int x, int y, int c1, int c2) {
+        if (c1 < 0 || c2 < 0) {
+            return;
+        }
+        g.fill(x - 1, y - 1, x + 9, y + 17, 0xFF3B2A14);
+        g.fill(x, y, x + 8, y + 8, 0xFF000000 | c1);
+        g.fill(x, y + 8, x + 8, y + 16, 0xFF000000 | c2);
     }
 }

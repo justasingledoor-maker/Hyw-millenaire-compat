@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The same {@link #snapshot}/{@link #submit} are driven headless by {@code /hywmill dev ui}.
  */
 public final class PoliticsNet {
-    public static final String VERSION = "2"; // 2: post-M5 Muster Roll squads
+    public static final String VERSION = "3"; // 2: post-M5 Muster Roll squads; 3: village liveries and distances
     /** At most one request per player per this many ticks. */
     public static final long RATE_TICKS = 5;
     /** Local requests (pardon, apology) and the home view need the player near the home village. */
@@ -143,9 +143,14 @@ public final class PoliticsNet {
         for (PoliticsView.Summary v : known) {
             OptionalInt rel = home == null || v.village().equals(home) ? OptionalInt.empty() : source.villageRelation(ow, home, v.village());
             VillageRecord hr = home == null ? null : ledger.get(home);
+            VillageRecord vr = ledger.get(v.village());
+            int[] liv = vr == null ? null : dev.hywmill.garrison.service.LiveryService.of(ow, vr);
+            int dist = hr == null || vr == null || vr == hr ? -1 : (int) Math.round(Math.sqrt(hr.center.distSqr(vr.center)));
             rows.add(new PoliticsSnapshot.VillageRow(v.village(), v.name(), v.effective().name(),
                     rel.isPresent() ? rel.getAsInt() : PoliticsSnapshot.VillageRow.NO_RELATION,
-                    hr != null && hr.politics.truceWith(v.village(), ow.getGameTime())));
+                    hr != null && hr.politics.truceWith(v.village(), ow.getGameTime()),
+                    liv == null ? -1 : dev.hywmill.garrison.equip.VillageLivery.rgb(liv[0]), liv == null ? -1 : dev.hywmill.garrison.equip.VillageLivery.rgb(liv[1]),
+                    dist));
         }
         List<String> envoys = new ArrayList<>();
         PoliticsView.envoys(ow, me).forEach(e -> envoys.add(e.kind().name().toLowerCase() + " " + e.from() + " -> " + e.to() + ", about "

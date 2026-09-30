@@ -1,5 +1,5 @@
 {
- "_comment": "HywMill optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded: ARMOUR comes from one whole kit ('kits': head/chest/legs/feet, 'none' = empty slot), chosen from the first matching kit list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all' - so pieces never mix across lists. WEAPONS and OFFHAND take an item from the first matching slot list in the same order; an item is used only if it is registered and belongs to an item family HYW itself gives that unit, else HYW's own item stays. Dyeable pieces (the minecraft:dyeable tag: gambeson, coif, pantyhose, brigandine, crusader, norman helmet, ...) are dyed in two colours per unit from 'dye.palette'; shields carry random arms (vanilla geometric patterns and Epic Knights emblems, rule of tincture) unless 'heraldry' is false. Choices are deterministic per unit; units re-equip once when this data changes. Validate with /hywmill dev equipcheck. Post-M5 role 'levy': mobilized wartime soldiers wear these light kits (gambeson, kettle hat or coif, cheap shields), at the tier of their own equipment level (1 = GUARD_POST: iron weapons from the class lists), not their village's tier.",
+ "_comment": "HywMill optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded: ARMOUR comes from one whole kit ('kits': head/chest/legs/feet, 'none' = empty slot), chosen from the first matching kit list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all' - so pieces never mix across lists. WEAPONS and OFFHAND take an item from the first matching slot list in the same order; an item is used only if it is registered and belongs to an item family HYW itself gives that unit, else HYW's own item stays. Dyeable pieces (the minecraft:dyeable tag: gambeson, coif, pantyhose, brigandine, crusader, norman helmet, ...) are dyed in two colours per unit from 'dye.palette'; shields carry random arms (vanilla geometric patterns and Epic Knights emblems, rule of tincture) unless 'heraldry' is false. Choices are deterministic per unit; units re-equip once when this data changes. Validate with /hywmill dev equipcheck. Post-M5 role 'levy': mobilized wartime soldiers wear these light kits (gambeson, kettle hat or coif, cheap shields), at the tier of their own equipment level (1 = GUARD_POST: iron weapons from the class lists), not their village's tier. Post-M5 'heraldry' (defaults and per culture): the village livery's preferred dye colours (best first) and the banner patterns its shields use (ordinaries: geometric; charges: emblems). Each village takes two colours, chosen away from its neighbours' (3000 blocks); its soldiers wear them and bear assorted arms in them.",
  "defaults": {
   "tiers": {
    "WATCH": {
@@ -506,6 +506,37 @@
     "#6E6E6E",
     "#5B2C6F"
    ]
+  },
+  "heraldry": {
+   "colours": [],
+   "ordinaries": [
+    "minecraft:stripe_center",
+    "minecraft:stripe_middle",
+    "minecraft:cross",
+    "minecraft:straight_cross",
+    "minecraft:half_vertical",
+    "minecraft:half_horizontal",
+    "minecraft:diagonal_left",
+    "minecraft:diagonal_right",
+    "minecraft:triangle_top",
+    "minecraft:triangle_bottom",
+    "minecraft:triangles_bottom",
+    "minecraft:stripe_left",
+    "minecraft:stripe_right",
+    "minecraft:small_stripes",
+    "minecraft:rhombus",
+    "minecraft:circle",
+    "minecraft:border",
+    "minecraft:square_top_left"
+   ],
+   "charges": [
+    "magistuarmory:lion1",
+    "magistuarmory:lion2",
+    "magistuarmory:eagle",
+    "magistuarmory:tower",
+    "magistuarmory:sun",
+    "magistuarmory:lily"
+   ]
   }
  },
  "cultures": {
@@ -713,6 +744,46 @@
       ]
      }
     }
+   },
+   "heraldry": {
+    "colours": [
+     "red",
+     "blue",
+     "yellow",
+     "white",
+     "green",
+     "black"
+    ],
+    "ordinaries": [
+     "minecraft:stripe_center",
+     "minecraft:stripe_middle",
+     "minecraft:cross",
+     "minecraft:straight_cross",
+     "minecraft:half_vertical",
+     "minecraft:half_horizontal",
+     "minecraft:diagonal_left",
+     "minecraft:diagonal_right",
+     "minecraft:triangle_top",
+     "minecraft:triangle_bottom",
+     "minecraft:triangles_bottom",
+     "minecraft:stripe_left",
+     "minecraft:stripe_right",
+     "minecraft:small_stripes",
+     "minecraft:rhombus",
+     "minecraft:circle",
+     "minecraft:border",
+     "minecraft:square_top_left"
+    ],
+    "charges": [
+     "magistuarmory:lion1",
+     "magistuarmory:lion2",
+     "magistuarmory:lily",
+     "magistuarmory:tower",
+     "magistuarmory:eagle",
+     "magistuarmory:swords",
+     "magistuarmory:dragon",
+     "magistuarmory:crusader_cross"
+    ]
    }
   },
   "millenaire:byzantines": {
@@ -901,6 +972,30 @@
       ]
      }
     }
+   },
+   "heraldry": {
+    "colours": [
+     "purple",
+     "red",
+     "yellow",
+     "white",
+     "blue"
+    ],
+    "ordinaries": [
+     "minecraft:cross",
+     "minecraft:straight_cross",
+     "minecraft:border",
+     "minecraft:circle",
+     "minecraft:stripe_middle",
+     "minecraft:half_horizontal",
+     "minecraft:rhombus"
+    ],
+    "charges": [
+     "magistuarmory:two_headed_eagle",
+     "magistuarmory:orthodox_cross",
+     "magistuarmory:eagle",
+     "magistuarmory:tower"
+    ]
    }
   },
   "millenaire:seljuk": {
@@ -1117,6 +1212,31 @@
       ]
      }
     }
+   },
+   "heraldry": {
+    "colours": [
+     "green",
+     "red",
+     "white",
+     "yellow",
+     "black"
+    ],
+    "ordinaries": [
+     "minecraft:stripe_middle",
+     "minecraft:stripe_center",
+     "minecraft:border",
+     "minecraft:circle",
+     "minecraft:half_horizontal",
+     "minecraft:triangle_top",
+     "minecraft:rhombus"
+    ],
+    "charges": [
+     "magistuarmory:sun",
+     "magistuarmory:two_headed_eagle",
+     "magistuarmory:bull",
+     "magistuarmory:swords",
+     "magistuarmory:horse"
+    ]
    }
   },
   "millenaire:indian": {
@@ -1281,6 +1401,31 @@
       ]
      }
     }
+   },
+   "heraldry": {
+    "colours": [
+     "orange",
+     "green",
+     "yellow",
+     "red",
+     "white"
+    ],
+    "ordinaries": [
+     "minecraft:circle",
+     "minecraft:border",
+     "minecraft:stripe_middle",
+     "minecraft:half_vertical",
+     "minecraft:rhombus",
+     "minecraft:flower"
+    ],
+    "charges": [
+     "magistuarmory:sun",
+     "magistuarmory:lion1",
+     "magistuarmory:lion2",
+     "magistuarmory:snake",
+     "magistuarmory:tree",
+     "magistuarmory:bull"
+    ]
    }
   },
   "millenaire:japanese": {
@@ -1447,6 +1592,28 @@
       ]
      }
     }
+   },
+   "heraldry": {
+    "colours": [
+     "red",
+     "black",
+     "white",
+     "blue",
+     "yellow"
+    ],
+    "ordinaries": [
+     "minecraft:circle",
+     "minecraft:flower",
+     "minecraft:border",
+     "minecraft:stripe_middle",
+     "minecraft:stripe_center",
+     "minecraft:half_horizontal",
+     "minecraft:rhombus"
+    ],
+    "charges": [
+     "minecraft:circle",
+     "minecraft:flower"
+    ]
    }
   },
   "millenaire:mayan": {
@@ -1646,6 +1813,30 @@
       ]
      }
     }
+   },
+   "heraldry": {
+    "colours": [
+     "cyan",
+     "green",
+     "red",
+     "yellow",
+     "white"
+    ],
+    "ordinaries": [
+     "minecraft:border",
+     "minecraft:stripe_middle",
+     "minecraft:stripe_center",
+     "minecraft:circle",
+     "minecraft:triangle_top",
+     "minecraft:triangle_bottom",
+     "minecraft:small_stripes"
+    ],
+    "charges": [
+     "magistuarmory:sun",
+     "magistuarmory:snake",
+     "magistuarmory:eagle",
+     "magistuarmory:tree"
+    ]
    }
   },
   "millenaire:inuits": {
@@ -1790,6 +1981,25 @@
       ]
      }
     }
+   },
+   "heraldry": {
+    "colours": [
+     "white",
+     "brown",
+     "light_gray",
+     "black",
+     "gray"
+    ],
+    "ordinaries": [
+     "minecraft:circle",
+     "minecraft:border",
+     "minecraft:half_horizontal",
+     "minecraft:stripe_middle",
+     "minecraft:triangle_bottom"
+    ],
+    "charges": [
+     "minecraft:circle"
+    ]
    }
   }
  },

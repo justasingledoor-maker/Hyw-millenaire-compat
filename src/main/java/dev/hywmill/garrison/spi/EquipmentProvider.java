@@ -17,7 +17,24 @@ public interface EquipmentProvider {
      * ({@code sentry}, {@code patrol}, {@code scout}, {@code reserve}, or empty) and its class role
      * ({@code militia}, {@code line}, {@code ranged}); {@code rosterId} makes item choices deterministic.
      */
-    record Context(String culture, MilitaryTier tier, String dutyRole, String classRole, UUID rosterId) {}
+    record Context(String culture, MilitaryTier tier, String dutyRole, String classRole, UUID rosterId, int liveryPrimary, int liverySecondary) {
+        /** No village livery (-1): per-unit colours, or a squad's own look. */
+        public Context(String culture, MilitaryTier tier, String dutyRole, String classRole, UUID rosterId) {
+            this(culture, tier, dutyRole, classRole, rosterId, -1, -1);
+        }
+
+        /**
+         * Post-M5: the same context in a village's livery ({@code livery} = {primary, secondary} dye ids, or null for none):
+         * the unit wears the village's two colours and bears its colours on its shield.
+         */
+        public Context withLivery(@javax.annotation.Nullable int[] livery) {
+            return livery == null ? this : new Context(culture, tier, dutyRole, classRole, rosterId, livery[0], livery[1]);
+        }
+
+        public boolean hasLivery() {
+            return liveryPrimary >= 0 && liverySecondary >= 0;
+        }
+    }
 
     String id();
 

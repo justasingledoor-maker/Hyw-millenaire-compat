@@ -69,6 +69,35 @@ public final class Livery {
         return new Arms(field, List.copyOf(layers.subList(0, Math.min(MAX_LAYERS, layers.size()))));
     }
 
+    /**
+     * Post-M5: a soldier's arms in his village's livery. Assorted per soldier (ordinary, charge, bordure, as {@link #arms}),
+     * but always in the village's two colours: mostly the first as the field and the second for the figures, sometimes the
+     * other way round. {@code ordinaries} and {@code charges} are the culture's (stable order).
+     */
+    public static Arms villageArms(UUID id, DyeColor first, DyeColor second, List<String> ordinaries, List<String> charges) {
+        Random r = random(id, 0x71A6);
+        boolean swap = r.nextDouble() < 0.25;
+        DyeColor field = swap ? second : first;
+        DyeColor figure = swap ? first : second;
+        List<Layer> layers = new ArrayList<>();
+        if (!ordinaries.isEmpty() && r.nextDouble() < 0.7) {
+            layers.add(new Layer(pick(r, ordinaries), figure));
+        }
+        if (!charges.isEmpty() && r.nextDouble() < 0.6) {
+            layers.add(new Layer(pick(r, charges), figure));
+        }
+        if (layers.size() < MAX_LAYERS && r.nextDouble() < 0.2) {
+            layers.add(new Layer("minecraft:border", figure));
+        }
+        if (layers.isEmpty()) {
+            List<String> any = !charges.isEmpty() ? charges : ordinaries;
+            if (!any.isEmpty()) {
+                layers.add(new Layer(pick(r, any), figure));
+            }
+        }
+        return new Arms(field, List.copyOf(layers.subList(0, Math.min(MAX_LAYERS, layers.size()))));
+    }
+
     private static <T> T pick(Random r, List<T> list) {
         return list.get(r.nextInt(list.size()));
     }
