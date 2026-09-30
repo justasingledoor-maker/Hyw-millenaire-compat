@@ -831,3 +831,38 @@ clean in the JUnit check. The journey and dispatch draws now use `SplittableRand
   a 20% chance. A village with many close friends can now receive several relief forces at once.
 * **Tests.** JUnit 330/330; no harness run (a data value; the relief path is covered by RL in 6.26).
 * SHA-256 of the jar: `4654b47a43fc16b0a82191cd3a03ef73a06b71ab9ca0178e6e48c79735e5fc5e`.
+
+### 6.28 Wartime levies (`dist/hywmill-m5-fix28.jar`)
+
+**Report.** In several wars at once a village loses its whole garrison to one siege, is besieged again and is "just
+punched around".
+
+**Request.** Accelerated recruitment for villages that are not strongholds, of mobilized quality, with low-quality
+shieldmen and poorly armoured spearmen in the mix.
+
+* **Top-up** (`MobilizationService.reinforce`, `Mobilization.topUp`).
+  * While at war, after the war-start fill, a village that is not a stronghold and is below its target raises
+    `reinforceBatch` (2) more free levies every `reinforceInterval` (600 ticks = 30 s).
+  * A wiped-out garrison of 40 is back in about 10 minutes.
+  * Levies are marked mobilized and go home at peace, as in 6.25.
+  * Normal paid recruitment still runs alongside.
+* **Mix** (`Mobilization.weights`).
+  * Levies are drawn from the village's composition plus `levyUnits` extra weights: spearmen +3 and shieldmen +3.
+  * Shieldmen are allowed even below their usual tier (GARRISON).
+* **Gear.**
+  * Mobilized soldiers use the new `levy` equipment role. It gives light kits (gambeson with kettle hat, coif or bare
+    head; cheap wooden or iron shields) at the tier of their own equipment level, via `EquipmentProfiles.gearTier`
+    (level 1 = GUARD_POST: iron weapons).
+* **Fix.** Before this change, with Epic Knights installed, mobilized troops in a Watch village drew the Watch's
+  clubs and wooden swords, because profiles were keyed by the village tier.
+* **Data.** `mobilization.reinforceInterval`, `reinforceBatch` and `levyUnits` in `hywmill_politics`; `levy`
+  role kits in `hywmill_equipment`.
+* **Tests.**
+  * JUnit 333/333; new `MobilizationTest` cases for the mix, the top-up batches and the levy gear tier/role.
+  * Harness scenario LV 4/4 (`docs/m5-test-evidence/wartime-levies1.txt`):
+    * A (GUARD_POST) at war lost 8 of 47, and was topped back to 47 in 4 batches 30 s apart.
+    * The batches were [spear_man, crossbowman], [shieldman, spear_man] and [spear_man, shieldman]: shieldmen at a
+      guard post.
+    * At peace, A's live garrison went from 47 to 21 as the levies went home.
+  * The harness has no Epic Knights, so the `levy` kits themselves were not seen in play.
+* SHA-256 of the jar: `886c88610a52b1deb20c51a860001c92b207e2ca7aab879f63028a7c57b05b5c`.
