@@ -5809,7 +5809,7 @@ def scenario_LK(ctx):
     s, a = ctx.s, ctx.a
     for box in EXTRA_FORCELOAD:
         s.cmd("forceload add {} {} {} {}".format(*box), wait=10)
-    ek = any("magistuarmory" in l for l in s.output("hywmill dev equipcheck", 3))
+    ek = any("Epic Knights loaded" in l for l in s.output("hywmill dev equipcheck", 3))
     check("LK-0 Epic Knights is loaded", ek, "")
     centers = []
     for l in s.output("hywmill village list", 2):
