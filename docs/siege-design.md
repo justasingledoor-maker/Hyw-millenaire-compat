@@ -118,3 +118,41 @@ The garrison used to join the village's own Millénaire raids, and in play the t
   is back.
 * **Admin.** `/hywmill war admin relief <helper> <target> [clean|ambushed|routed|straggled|lost]` makes the helper
   relieve the siege of the target, optionally with a forced fate.
+
+## The field of battle (post-M5, fix32)
+
+* **Landing in groups.**
+  * The host no longer lands as one block. `SiegeGroups` splits its soldiers into groups of 4–8, about six each, so a
+    50-soldier host lands as eight groups.
+  * Group 0 lands at the main landing, on the side facing home. The others land round the near half of the village's rim,
+    alternately either side, within 110° of the main landing, with jitter and 0–12 blocks of extra depth.
+  * Each group needs dry ground with a dry way in. If none is found, its bearing is turned 12° either side, and if that
+    fails too the group lands at the main landing.
+  * The engines still set up behind the main landing.
+* **Autonomous combat.** Every attacker placed, and every HYW defender (garrison and relief), is set to HYW
+  `FREE_FIGHT` for the battle. Defenders go back to `DEFAULT` when it ends. Attackers take the garrison's default again
+  when they re-materialize at home.
+* **Boss bar.**
+  * Each siege in battle has one boss bar, shown to players within the village radius + 80 of the target.
+  * Its title: "Siege of B: A attackers-standing/start vs B defenders-standing/start".
+  * Progress is the defenders' share still standing. The colour is the nearest bar colour to the attacker's first livery
+    colour.
+  * It is runtime-only: rebuilt from the ledger and removed when the battle ends.
+* **Mercenaries.**
+  * One minute before the host arrives (`Mercenaries.LEAD`), there is a 25% roll, drawn from the siege's seed, that the
+    attacker has hired a free company. The candidates are the Brabançon routiers, Genoese crossbowmen, Turcopoles,
+    Daylamites, nobushi, ronin, Bhil, Pindari and Turki horse archers.
+  * A company brings 10–20 soldiers who wear its look and no village livery. They are equipped like the village's levies,
+    a step below its regulars.
+  * They join the host as mobilized roster slots marked `mercLook`: DEPLOYED, duty SIEGE, stowed. `hostStart` grows by
+    their number.
+  * They do not count towards the village's garrison (`live()`), are never re-equipped by duties, and are paid off
+    (LOST, DISCHARGED) when the siege ends or is recalled.
+  * The deal is announced and chronicled.
+  * Admin: `/hywmill war admin mercs <attacker>` forces a hire before the host deploys.
+* **Garrison rotation** (`mobilization.rotateInterval`, default 2400 ticks; 0 turns it off).
+  * During a war, a village that is calm, at strength and not topping up levies does one of these every interval (and
+    not within one interval of its last levy or recruit):
+    * sends its longest-serving levy at home back home;
+    * recruits a paid regular in his place, but only if its levy points cover the regular's cost.
+  * The army's quality recovers over a long war.

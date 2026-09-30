@@ -731,8 +731,11 @@ public final class SiegeService {
                 continue;
             }
             live.add(s.id);
-            net.minecraft.server.level.ServerBossEvent bar = bars.computeIfAbsent(s.id, id -> new net.minecraft.server.level.ServerBossEvent(
-                    Component.empty(), barColour(overworld, a), net.minecraft.world.BossEvent.BossBarOverlay.NOTCHED_10));
+            net.minecraft.server.level.ServerBossEvent bar = bars.computeIfAbsent(s.id, id -> {
+                HmLog.info("Siege {}: boss bar raised over {} ({})", id.toString().substring(0, 8), t.name, barColour(overworld, a));
+                return new net.minecraft.server.level.ServerBossEvent(Component.empty(), barColour(overworld, a),
+                        net.minecraft.world.BossEvent.BossBarOverlay.NOTCHED_10);
+            });
             int host = soldiers(a, entries(a, s.host)).size();
             List<LivingEntity> defs = new ArrayList<>(defenders(overworld, t));
             defs.addAll(ReliefService.entities(overworld, ledger, s));
@@ -1085,6 +1088,9 @@ public final class SiegeService {
             } else {
                 going.add(e);
             }
+        }
+        if (going.size() < alive.size()) {
+            HmLog.info("Siege {}: {} mercenaries of {} paid off", s.id.toString().substring(0, 8), alive.size() - going.size(), s.mercCompany);
         }
         alive = going;
         VillageRecord t = ledger.get(s.target);

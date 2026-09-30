@@ -5868,7 +5868,69 @@ def scenario_LK(ctx):
         check("LK-3 Norman knights ride in surcoats", "ok=true" in h3 and rows3 and sc == len(rows3), f"{h3[-100:]}; {len(rows3)} knights, surcoats {sc}")
 
 
-SCENARIOS = {"G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_VL(ctx):
+    """Village liveries and the siege extras (post-M5; run after G4_0, ideally with Epic Knights): each village takes two
+    colours and its garrison wears them; a siege raises a boss bar, may hire a mercenary company (forced here), lands in
+    groups round the target and fights in autonomous combat; the company is paid off at the end. In a long war a levy is
+    rotated out for a paid regular."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    P = W_UUID
+    p0 = s.pos()
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(12)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    fa = garrison(s, a).get("faction")
+    time.sleep(8)
+    logs = s.read_since(0)
+    col = [l for l in logs if "takes the colours" in l]
+    check("VL-1 villages take their colours, apart from their neighbours'", len(col) >= 2, " | ".join(c[-110:] for c in col[:4]))
+    mine = [u for u, x in spike_info(s, "@e[type=!minecraft:player]").items()
+            if x["tag"] != "none" and ("owner=" + str(fa)) in x["desc"] and dist(x["pos"], a) <= 110]
+    rows = [gear_of(s, u) for u in mine[:6]]
+    ek = any("Epic Knights loaded" in l for l in s.output("hywmill admin equipcheck", 4))
+    dyed = sum(1 for c, o in rows if "dyed_color" in c)
+    note("VL gear", " || ".join(c[:160] + " ## " + o[:200] for c, o in rows[:3]))
+    check("VL-2 the garrison wears the village's colours (Epic Knights dyeable pieces)", not ek or dyed >= 1, f"EK {ek}: {dyed} of {len(rows)} dyed")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(15)
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    time.sleep(3)
+    merc = " | ".join(l for l in s.output(f"hywmill war admin mercs {ca}", 2) if l.startswith("war mercs"))
+    check("VL-3 the host hires a mercenary company, announced", "HIRED" in merc and s.wait_for(r"has struck a deal with", 10, since=p0) is not None,
+          f"{out}; {merc}")
+    land = s.wait_for(r"materialized in \d+ group", 400, since=p0)
+    m = re.search(r"(\d+) unit\(s\) materialized in (\d+) group", land or "")
+    check("VL-4 the host lands in groups round the target", bool(m) and int(m[2]) >= 2, land or "no landing")
+    bar = s.wait_for(r"boss bar raised over", 30, since=p0)
+    check("VL-5 a boss bar is raised over the siege", bar is not None, bar or "")
+    time.sleep(6)
+    near = [u for u, x in spike_info(s, "@e[type=!minecraft:player]").items()
+            if x["tag"] != "none" and ("owner=" + str(fa)) in x["desc"] and dist(x["pos"], b) <= 120]
+    strat = [re.search(r"strategy=(\w+)", m5_1(s, f"hyw ident {u}")) for u in near[:5]]
+    free = sum(1 for x in strat if x and x[1] == "FREE_FIGHT")
+    check("VL-6 attackers fight in autonomous combat", near and free >= 1, f"{free} of {len(strat)} sampled: FREE_FIGHT")
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    paid = s.wait_for(r"mercenaries of .* paid off", 60, since=p0)
+    check("VL-7 the company is paid off when the siege ends", paid is not None, paid or "")
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    p1 = s.pos()
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(20)
+    s.output(at(a, "hywmill admin setpoints 60"), 1)
+    rot = s.wait_for(r"rotates its garrison", 260, since=p1)
+    ta = info(s, a).get("tier")
+    check("VL-8 in a long war a levy is rotated out for a paid regular", ta == "STRONGHOLD" or rot is not None, f"tier {ta}: {rot}")
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+
+
+SCENARIOS = {"VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
