@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The same {@link #snapshot}/{@link #submit} are driven headless by {@code /hywmill dev ui}.
  */
 public final class PoliticsNet {
-    public static final String VERSION = "4"; // 2: post-M5 Muster Roll squads; 3: village liveries and distances; 4: player colours
+    public static final String VERSION = "5"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab
     /** At most one request per player per this many ticks. */
     public static final long RATE_TICKS = 5;
     /** Local requests (pardon, apology) and the home view need the player near the home village. */
@@ -163,7 +163,7 @@ public final class PoliticsNet {
         List<String> honours = PoliticsView.honours(ow, me);
         if (home == null) {
             return new PoliticsSnapshot(null, "", "", "", "", 0, 0, 0, 0, List.of("No village nearby. Select a village you know."), List.of(),
-                    rows, null, List.of(), envoys, List.of(), honours);
+                    rows, null, List.of(), envoys, List.of(), honours, history(ow, ledger, null));
         }
         PoliticsView.Home h = PoliticsView.home(ow, me, home).orElseThrow();
         List<String> chron = new ArrayList<>();
@@ -175,7 +175,41 @@ public final class PoliticsNet {
         OptionalInt dp = source.diplomacyPoints(ow, home, me);
         return new PoliticsSnapshot(home, h.name(), h.culture(), h.status().name(), h.effective().name(), h.reputation(), h.grievance(),
                 h.favor(), dp.isPresent() ? dp.getAsInt() : -1, h.wordTravels(), chron, rows, selected, actions, envoys,
-                PoliticsView.lent(ow, me, home), honours);
+                PoliticsView.lent(ow, me, home), honours, history(ow, ledger, home));
+    }
+
+    /**
+     * Post-M5, the History tab: the home village's vassal ties (with days left), then the reports of the sieges it fought,
+     * newest first; with no home village, the latest sieges anywhere.
+     */
+    public static List<String> history(ServerLevel ow, GarrisonLedger ledger, @Nullable UUID home) {
+        List<String> out = new ArrayList<>();
+        long now = ow.getGameTime();
+        for (dev.hywmill.politics.war.Vassalage v : ledger.vassalages()) {
+            if (home != null && !v.vassal.equals(home) && !v.overlord.equals(home)) {
+                continue;
+            }
+            VillageRecord vr = ledger.get(v.vassal), or = ledger.get(v.overlord);
+            out.add("Vassalage: " + (vr == null ? "?" : vr.name) + " is the vassal of " + (or == null ? "?" : or.name) + " (" + v.daysLeft(now)
+                    + " day(s) left)");
+        }
+        List<dev.hywmill.politics.war.BattleReport> rs = ledger.battles();
+        int shown = 0;
+        for (int i = rs.size() - 1; i >= 0 && shown < 15; i--) {
+            dev.hywmill.politics.war.BattleReport r = rs.get(i);
+            if (home != null && !r.involves(home)) {
+                continue;
+            }
+            if (!out.isEmpty()) {
+                out.add("");
+            }
+            out.addAll(r.lines());
+            shown++;
+        }
+        if (out.isEmpty()) {
+            out.add(home == null ? "No sieges have been fought yet." : "No sieges in this village's history yet.");
+        }
+        return out;
     }
 
     /** Validates and performs one intent through {@link PoliticsActions#submit}. */

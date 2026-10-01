@@ -53,6 +53,29 @@ final class WarCommands {
             lines.forEach(l -> send(ctx.getSource(), " " + l));
             return lines.size();
         }));
+        war.then(Commands.literal("history").then(Commands.argument("village", BlockPosArgument.blockPos()).executes(ctx -> {
+            // the Politics screen's History tab for that village: its vassal ties and battle reports
+            VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "village"));
+            if (v == null) {
+                return 0;
+            }
+            ServerLevel ow = ctx.getSource().getServer().overworld();
+            var lines = dev.hywmill.net.PoliticsNet.history(ow, GarrisonLedger.get(ow), v.villageId);
+            send(ctx.getSource(), "war history of " + v.name + ": " + lines.size() + " line(s)");
+            lines.forEach(l -> send(ctx.getSource(), " " + l));
+            return lines.size();
+        })));
+        war.then(Commands.literal("vassals").executes(ctx -> {
+            ServerLevel ow = ctx.getSource().getServer().overworld();
+            GarrisonLedger ledger = GarrisonLedger.get(ow);
+            send(ctx.getSource(), "war vassals: " + ledger.vassalages().size());
+            for (var v : ledger.vassalages()) {
+                VillageRecord vr = ledger.get(v.vassal), or = ledger.get(v.overlord);
+                send(ctx.getSource(), " " + (vr == null ? "?" : vr.name) + " is the vassal of " + (or == null ? "?" : or.name) + ", "
+                        + v.daysLeft(ow.getGameTime()) + " day(s) left");
+            }
+            return ledger.vassalages().size();
+        }));
         war.then(Commands.literal("tributes").executes(ctx -> {
             ServerLevel ow = ctx.getSource().getServer().overworld();
             var lines = dev.hywmill.garrison.service.SiegeService.describeTributes(ow, GarrisonLedger.get(ow));
@@ -97,6 +120,19 @@ final class WarCommands {
                         .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminSiege(ctx, false))
                                 .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                                         .executes(ctx -> adminSiege(ctx, true))))))
+                .then(Commands.literal("vassal").then(Commands.argument("vassal", BlockPosArgument.blockPos())
+                        .then(Commands.argument("overlord", BlockPosArgument.blockPos()).executes(ctx -> {
+                            // swears the first village to the second for 21 days, as if it had lost a siege to it
+                            VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "vassal"));
+                            VillageRecord o = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "overlord"));
+                            if (v == null || o == null || v == o) {
+                                return 0;
+                            }
+                            ServerLevel ow = ctx.getSource().getServer().overworld();
+                            dev.hywmill.garrison.service.SiegeService.swearFealty(ow, GarrisonLedger.get(ow), v, o, ow.getGameTime());
+                            send(ctx.getSource(), "war vassal OK: " + v.name + " is the vassal of " + o.name);
+                            return 1;
+                        }))))
                 .then(Commands.literal("aid").then(Commands.argument("attacker", BlockPosArgument.blockPos()).executes(ctx -> {
                     // the target of that village's host gets every kind of help now (militia, mercenaries, household), before the battle
                     VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
@@ -112,7 +148,8 @@ final class WarCommands {
                         return 0;
                     }
                     int n = HywMillRuntime.require().sieges().defenderAid(ow, ledger, s, a, t, ow.getGameTime(), true);
-                    send(ctx.getSource(), "war aid RAISED " + n + " for " + t.name);
+                    int v = HywMillRuntime.require().sieges().vassalHelp(ow, ledger, s, a, t, ow.getGameTime(), true);
+                    send(ctx.getSource(), "war aid RAISED " + n + " for " + t.name + "; vassals sent " + v);
                     return n;
                 })))
                 .then(Commands.literal("mercs").then(Commands.argument("attacker", BlockPosArgument.blockPos()).executes(WarCommands::adminMercs)))

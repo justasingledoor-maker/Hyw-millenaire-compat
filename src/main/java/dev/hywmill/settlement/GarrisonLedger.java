@@ -77,6 +77,18 @@ public final class GarrisonLedger extends SavedData {
         return tributes;
     }
 
+    /** Post-M5: vassalages in force, and the reports of finished sieges (newest last, at most BattleReport.KEEP). */
+    private final java.util.List<dev.hywmill.politics.war.Vassalage> vassalages = new java.util.ArrayList<>();
+    private final java.util.List<dev.hywmill.politics.war.BattleReport> battles = new java.util.ArrayList<>();
+
+    public java.util.List<dev.hywmill.politics.war.Vassalage> vassalages() {
+        return vassalages;
+    }
+
+    public java.util.List<dev.hywmill.politics.war.BattleReport> battles() {
+        return battles;
+    }
+
     /** Post-M5: each player's chosen colours for the soldiers they hire on the Muster Roll, as {first, second} dye ids. */
     private final java.util.Map<UUID, int[]> playerColours = new java.util.LinkedHashMap<>();
 
@@ -167,6 +179,8 @@ public final class GarrisonLedger extends SavedData {
             ledger.pendingPay.addAll(PoliticsNbt.loadPending(root.getList("pendingPay", Tag.TAG_COMPOUND)));
         }
         ledger.tributes.addAll(PoliticsNbt.loadTributes(root.getList("tributes", Tag.TAG_COMPOUND)));
+        ledger.vassalages.addAll(PoliticsNbt.loadVassalages(root.getList("vassalages", Tag.TAG_COMPOUND)));
+        ledger.battles.addAll(PoliticsNbt.loadBattles(root.getList("battles", Tag.TAG_COMPOUND)));
         ListTag pc = root.getList("playerColours", Tag.TAG_COMPOUND);
         for (int i = 0; i < pc.size(); i++) {
             CompoundTag x = pc.getCompound(i);
@@ -210,6 +224,12 @@ public final class GarrisonLedger extends SavedData {
         }
         if (!tributes.isEmpty()) {
             root.put("tributes", PoliticsNbt.saveTributes(tributes));
+        }
+        if (!vassalages.isEmpty()) {
+            root.put("vassalages", PoliticsNbt.saveVassalages(vassalages));
+        }
+        if (!battles.isEmpty()) {
+            root.put("battles", PoliticsNbt.saveBattles(battles));
         }
         if (!playerColours.isEmpty()) {
             ListTag pc = new ListTag();

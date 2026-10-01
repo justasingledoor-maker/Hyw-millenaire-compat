@@ -46,6 +46,11 @@ public final class Siege {
     public int mercCount;
     /** Post-M5: the defenders' help (militia, mercenaries, the lord's household) was rolled; the temporary slots it raised in the target's roster. */
     public boolean aidRolled;
+    /** Post-M5: vassals were asked for help; what helped this siege (mercenaries, militia, household, vassals) for its report. */
+    public boolean vassalRolled;
+    public final List<String> notes = new ArrayList<>();
+    /** Defenders fallen, set as the siege is decided (for its report; not persisted). -1: unknown. */
+    public int defLost = -1;
     public final List<UUID> extras = new ArrayList<>();
     /** One line on how it ended (for the chronicle, status and the report). */
     public String summary = "";

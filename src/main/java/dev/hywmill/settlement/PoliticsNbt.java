@@ -342,6 +342,14 @@ public final class PoliticsNbt {
             if (g.forceUnwatched) {
                 x.putBoolean("unwatched", true);
             }
+            if (g.vassalRolled) {
+                x.putBoolean("vassalRolled", true);
+            }
+            if (!g.notes.isEmpty()) {
+                ListTag nl = new ListTag();
+                g.notes.forEach(n -> nl.add(net.minecraft.nbt.StringTag.valueOf(n)));
+                x.put("notes", nl);
+            }
             if (g.aidRolled) {
                 x.putBoolean("aidRolled", true);
                 x.put("extras", uuids(g.extras));
@@ -392,6 +400,11 @@ public final class PoliticsNbt {
                 g.forceUnwatched = x.getBoolean("unwatched");
                 g.mercRolled = x.getBoolean("mercRolled");
                 g.aidRolled = x.getBoolean("aidRolled");
+                g.vassalRolled = x.getBoolean("vassalRolled");
+                ListTag nl = x.getList("notes", Tag.TAG_STRING);
+                for (int k = 0; k < nl.size(); k++) {
+                    g.notes.add(nl.getString(k));
+                }
                 g.extras.addAll(readUuids(x.getList("extras", Tag.TAG_INT_ARRAY)));
                 g.mercCompany = x.getString("mercCompany");
                 g.mercCount = x.getInt("mercCount");
@@ -436,6 +449,71 @@ public final class PoliticsNbt {
             if (x.hasUUID("player")) {
                 out.add(new PendingPay(x.getUUID("player"), x.getInt("deniers"), x.getString("text")));
             }
+        }
+        return out;
+    }
+
+    public static ListTag saveVassalages(List<dev.hywmill.politics.war.Vassalage> list) {
+        ListTag l = new ListTag();
+        for (dev.hywmill.politics.war.Vassalage v : list) {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("vassal", v.vassal);
+            x.putUUID("overlord", v.overlord);
+            x.putLong("since", v.since);
+            x.putLong("until", v.until);
+            l.add(x);
+        }
+        return l;
+    }
+
+    public static List<dev.hywmill.politics.war.Vassalage> loadVassalages(ListTag l) {
+        List<dev.hywmill.politics.war.Vassalage> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            CompoundTag x = l.getCompound(i);
+            if (x.hasUUID("vassal") && x.hasUUID("overlord")) {
+                out.add(new dev.hywmill.politics.war.Vassalage(x.getUUID("vassal"), x.getUUID("overlord"), x.getLong("since"), x.getLong("until")));
+            }
+        }
+        return out;
+    }
+
+    public static ListTag saveBattles(List<dev.hywmill.politics.war.BattleReport> list) {
+        ListTag l = new ListTag();
+        for (dev.hywmill.politics.war.BattleReport r : list) {
+            CompoundTag x = new CompoundTag();
+            x.putLong("tick", r.tick);
+            x.putUUID("aId", r.attackerId);
+            x.putUUID("tId", r.targetId);
+            x.putString("a", r.attacker);
+            x.putString("t", r.target);
+            x.putString("outcome", r.outcome);
+            x.putIntArray("n", new int[]{r.hostStart, r.hostLost, r.defStart, r.defLost});
+            x.putBoolean("watched", r.watched);
+            ListTag nl = new ListTag();
+            r.notes.forEach(n -> nl.add(net.minecraft.nbt.StringTag.valueOf(n)));
+            x.put("notes", nl);
+            x.putString("tribute", r.tribute);
+            l.add(x);
+        }
+        return l;
+    }
+
+    public static List<dev.hywmill.politics.war.BattleReport> loadBattles(ListTag l) {
+        List<dev.hywmill.politics.war.BattleReport> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            CompoundTag x = l.getCompound(i);
+            int[] n = x.getIntArray("n");
+            if (!x.hasUUID("aId") || !x.hasUUID("tId") || n.length != 4) {
+                continue;
+            }
+            dev.hywmill.politics.war.BattleReport r = new dev.hywmill.politics.war.BattleReport(x.getLong("tick"), x.getUUID("aId"), x.getUUID("tId"),
+                    x.getString("a"), x.getString("t"), x.getString("outcome"), n[0], n[1], n[2], n[3], x.getBoolean("watched"));
+            ListTag nl = x.getList("notes", Tag.TAG_STRING);
+            for (int k = 0; k < nl.size(); k++) {
+                r.notes.add(nl.getString(k));
+            }
+            r.tribute = x.getString("tribute");
+            out.add(r);
         }
         return out;
     }

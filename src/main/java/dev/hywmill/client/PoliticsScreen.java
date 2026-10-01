@@ -24,6 +24,9 @@ public final class PoliticsScreen extends Screen {
     private static final int FADED = 0xFF7A6548;
     private PoliticsSnapshot snap;
     private int scroll;
+    /** Post-M5: the History tab (vassal ties and battle reports) instead of the overview, and its scroll. */
+    private boolean history;
+    private int historyScroll;
     private String lastResult = "";
     private boolean lastOk = true;
 
@@ -73,7 +76,51 @@ public final class PoliticsScreen extends Screen {
             addRenderableWidget(b);
             i++;
         }
+        int x0 = 190;
+        addRenderableWidget(Button.builder(Component.literal((history ? "" : "> ") + "Overview"), b -> { history = false; rebuildWidgets(); })
+                .bounds(x0, 12, 70, 16).build());
+        addRenderableWidget(Button.builder(Component.literal((history ? "> " : "") + "History"), b -> { history = true; rebuildWidgets(); })
+                .bounds(x0 + 74, 12, 70, 16).build());
+        if (history) {
+            addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { historyScroll = Math.max(0, historyScroll - 5); })
+                    .bounds(width - 190 - 18, 12, 16, 16).build());
+            addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { historyScroll += 5; })
+                    .bounds(width - 190 - 36, 12, 16, 16).build());
+        }
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(width / 2 - 40, height - 26, 80, 20).build());
+    }
+
+    @Override
+    public boolean mouseScrolled(double mx, double my, double dx, double dy) {
+        if (history && mx >= 190 && mx <= width - 190) {
+            historyScroll = Math.max(0, historyScroll - (int) Math.signum(dy) * 2);
+            return true;
+        }
+        return super.mouseScrolled(mx, my, dx, dy);
+    }
+
+    /** Post-M5: the History tab: vassal ties and battle reports, wrapped, from the scroll position. */
+    private void renderHistory(GuiGraphics g, int x0, int x1) {
+        List<String> lines = new java.util.ArrayList<>();
+        for (String h : snap.history()) {
+            if (h.isEmpty()) {
+                lines.add("");
+                continue;
+            }
+            for (var l : font.split(Component.literal(h), x1 - x0)) {
+                StringBuilder sb = new StringBuilder();
+                l.accept((i, style, cp) -> { sb.appendCodePoint(cp); return true; });
+                lines.add((h.startsWith("Day ") || h.startsWith("Vassalage") ? "\u0001" : "") + sb);
+            }
+        }
+        historyScroll = Math.min(historyScroll, Math.max(0, lines.size() - 1));
+        int y = 34;
+        for (int i = historyScroll; i < lines.size() && y < height - 44; i++) {
+            String l = lines.get(i);
+            boolean head = l.startsWith("\u0001");
+            g.drawString(font, head ? l.substring(1) : l, x0, y, head ? INK : FADED, false);
+            y += 10;
+        }
     }
 
     private void select(UUID village) {
@@ -101,7 +148,7 @@ public final class PoliticsScreen extends Screen {
         // background (blur + parchment) and widgets first; the text goes on top (drawn before, the 1.21 blur covered it)
         super.render(g, mouseX, mouseY, partial);
         int x0 = 190, x1 = width - 190;
-        g.drawCenteredString(font, title, width / 2, 10, 0xFFFFFFFF);
+        g.drawString(font, title, 12, 14, 0xFFFFFFFF); // top left: the Overview/History tabs sit above the centre panel
         // post-M5: each village's livery (two colours) beside its name, and its distance from home
         List<PoliticsSnapshot.VillageRow> vs = snap.villages();
         for (int i = 0; i < Math.min(ROWS, vs.size() - scroll); i++) {
@@ -112,6 +159,13 @@ public final class PoliticsScreen extends Screen {
                 String d = v.distance() >= 1000 ? String.format("%.1f km", v.distance() / 1000.0) : v.distance() + " m";
                 g.drawString(font, d, 12 + 138 - font.width(d) - 3, ry + 5, 0xFFD8CFB8, false);
             }
+        }
+        if (history) {
+            renderHistory(g, x0, x1);
+            if (!lastResult.isEmpty()) {
+                wrap(g, lastResult, x0, height - 58, x1 - x0, lastOk ? 0xFF2E5E1E : 0xFF8A1E1E);
+            }
+            return;
         }
         int y = 34;
         if (snap.home() == null) {
