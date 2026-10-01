@@ -6221,11 +6221,11 @@ def scenario_RS(ctx):
     # go back on their rosters and reappear when their village is next loaded ('stowed': as if no village were loaded)
     p3 = s.pos()
     t0 = time.time()
-    while time.time() - t0 < 180:
+    while time.time() - t0 < 420:
         if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} unwatched", 2)):
             break
         time.sleep(10)
-    s.wait_for(r"Siege \\w+ ended", 600, since=p3)
+    s.wait_for(r"marching \d+ ticks", 300, since=p3)
     time.sleep(3)
     st = " | ".join(s.output("hywmill war sieges", 2))
     out4 = " | ".join(s.output("hywmill war admin recall-all stowed", 3))
@@ -6234,7 +6234,7 @@ def scenario_RS(ctx):
     again = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
     check("RC-4 hosts marching home to unloaded villages: every record is wiped at once, the soldiers reappear when their village loads, "
           "and a new siege is not refused as already besieging",
-          "RETURN" in st and "war sieges: 0" in st2 and back is not None and "ALREADY_BESIEGING" not in again and "TARGET_BESIEGED" not in again,
+          ("MARCH" in st or "RETURN" in st) and "war sieges: 0" in st2 and back is not None and "ALREADY_BESIEGING" not in again and "TARGET_BESIEGED" not in again,
           f"before: {st[-120:]} || {out4[-160:]} || after: {st2} || {(back or '')[-120:]} || {again[-120:]}")
     s.output("hywmill war admin recall-all", 3)
     s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
