@@ -61,14 +61,9 @@ final class WarCommands {
             return lines.size();
         }));
         war.then(Commands.literal("admin").requires(s -> s.hasPermission(3))
-                .then(Commands.literal("recall-all").executes(ctx -> {
-                    // every host away comes home now (sieges not yet decided are called off; nothing is decided)
-                    ServerLevel ow = ctx.getSource().getServer().overworld();
-                    var lines = HywMillRuntime.require().sieges().recallAll(ow, GarrisonLedger.get(ow), ow.getGameTime());
-                    send(ctx.getSource(), "war recall-all: " + lines.size());
-                    lines.forEach(l -> send(ctx.getSource(), " " + l));
-                    return lines.size();
-                }))
+                .then(Commands.literal("recall-all").executes(ctx -> recallAll(ctx, false))
+                        .then(Commands.literal("stowed").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
+                                .executes(ctx -> recallAll(ctx, true))))
                 .then(Commands.literal("siege-forget").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get()).executes(ctx -> {
                     // DEV: drops every siege record without bringing its host home (as a record lost to a mod update)
                     ServerLevel ow = ctx.getSource().getServer().overworld();
@@ -246,6 +241,18 @@ final class WarCommands {
         send(ctx.getSource(), "war siege " + l.refusal() + ": " + l.detail() + (l.ok() ? " id " + l.siege().id.toString().substring(0, 8)
                 + " host " + l.siege().hostStart + (unwatched ? " (unwatched)" : "") : ""));
         return l.ok() ? 1 : 0;
+    }
+
+    /**
+     * Post-M5: {@code /hywmill war admin recall-all}: wipes every siege (nothing decided); every host comes home at once.
+     * {@code stowed} (DEV): as if every village were unloaded.
+     */
+    private static int recallAll(CommandContext<CommandSourceStack> ctx, boolean stowed) {
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        var lines = HywMillRuntime.require().sieges().recallAll(ow, GarrisonLedger.get(ow), ow.getGameTime(), stowed);
+        send(ctx.getSource(), "war recall-all: " + lines.size() + " siege(s) wiped");
+        lines.forEach(l -> send(ctx.getSource(), " " + l));
+        return lines.size();
     }
 
     /** Post-M5: {@code /hywmill war admin mercs <attacker>}: the host of that village hires a free company now (before it deploys). */

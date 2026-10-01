@@ -1410,6 +1410,11 @@ public final class SiegeService {
      * update) come home when their village is loaded, as if their siege had ended. Returns the number brought home.
      */
     static int returnOrphans(ServerLevel overworld, GarrisonLedger ledger, long tick) {
+        return returnOrphans(overworld, ledger, tick, false);
+    }
+
+    /** {@code now}: villages that are not loaded take their soldiers back at once too (stowed until they load). */
+    static int returnOrphans(ServerLevel overworld, GarrisonLedger ledger, long tick, boolean now) {
         Set<UUID> held = new HashSet<>();
         for (Siege s : ledger.sieges()) {
             held.addAll(s.host);
@@ -1440,7 +1445,16 @@ public final class SiegeService {
                 }
             }
             BlockPos anchor = GarrisonService.anchorOf(rec);
-            if (lost.isEmpty() || !overworld.isPositionEntityTicking(anchor)) {
+            if (lost.isEmpty()) {
+                continue;
+            }
+            if (!overworld.isPositionEntityTicking(anchor)) {
+                if (now) {
+                    lost.forEach(e -> stowHome(overworld, ledger, rec, e, tick));
+                    n += lost.size();
+                    ledger.setDirty();
+                    HmLog.info("Siege repair: {} soldier(s) of {} with no siege record go home (they reappear when it is loaded)", lost.size(), rec.name);
+                }
                 continue;
             }
             for (RosterEntry e : lost) {
@@ -1457,49 +1471,100 @@ public final class SiegeService {
     }
 
     /**
-     * Admin (post-M5): every host away comes home now, without deciding anything: sieges not yet decided are called off (no
-     * outcome, no tribute, no losses), and every host on its way home arrives at once if its village is loaded (else as soon
-     * as it is). Soldiers with no siege record come home too. Returns one line per host.
+     * Admin (post-M5): wipes every siege. Nothing is decided (no outcome, no tribute, no losses): every host and relief force
+     * comes home at once, appearing at its village if that is loaded, else put back on its village's roster to reappear
+     * there when it next loads; the besieged's temporary help goes home; every siege record is removed. Soldiers with no
+     * siege record come home too. Returns one line per siege.
      */
     public List<String> recallAll(ServerLevel overworld, GarrisonLedger ledger, long tick) {
+        return recallAll(overworld, ledger, tick, false);
+    }
+
+    /** {@code asUnloaded} (DEV): every village is treated as unloaded, so every host is put back on its roster stowed. */
+    public List<String> recallAll(ServerLevel overworld, GarrisonLedger ledger, long tick, boolean asUnloaded) {
         List<String> out = new ArrayList<>();
         for (Siege s : new ArrayList<>(ledger.sieges())) {
             VillageRecord a = ledger.get(s.attacker);
-            if (a == null || a.hywRoster == null) {
-                ledger.sieges().remove(s);
-                out.add("siege " + s.id.toString().substring(0, 8) + ": its village is gone; record dropped");
-                continue;
+            VillageRecord t = ledger.get(s.target);
+            String label = (a == null ? "?" : a.name) + " -> " + (t == null ? "?" : t.name);
+            if (a != null && a.hywRoster != null) {
+                if (s.phase != Siege.Phase.RETURN && s.outcome == Siege.Outcome.NONE) {
+                    s.summary = "The host of " + a.name + " is called home" + (t != null ? " from " + t.name : "");
+                    announce(overworld, ledger, s, a, t, s.summary);
+                }
+                for (RosterEntry e : entries(a, s.host)) {
+                    if (!e.mercLook.isEmpty()) {
+                        GarrisonService.stow(overworld, e);
+                        MobilizationService.discharge(overworld, e, tick); // the hired company is paid off
+                    }
+                }
+                label += ": " + bringBack(overworld, ledger, a, entries(a, s.host), t != null ? t.center : a.center, tick, asUnloaded);
             }
-            if (s.phase != Siege.Phase.RETURN) {
-                VillageRecord t = ledger.get(s.target);
-                s.summary = "The host of " + a.name + " is called home" + (t != null ? " from " + t.name : "");
-                announce(overworld, ledger, s, a, t, s.summary);
-                goHome(overworld, ledger, s, a, entries(a, s.host), tick, rule(a), false);
-            }
-            s.phaseEnd = tick; // the march home is skipped
-            // relief forces turn back too, and skip their march home as well
-            ReliefService.step(overworld, ledger, s, a, ledger.get(s.target), tick);
             for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
-                if (rl.phase == dev.hywmill.politics.war.Relief.Phase.RETURN) {
-                    rl.phaseEnd = tick;
+                VillageRecord h = ledger.get(rl.helper);
+                if (h != null && h.hywRoster != null) {
+                    List<UUID> ids = new ArrayList<>(rl.units);
+                    ids.addAll(rl.strays);
+                    bringBack(overworld, ledger, h, entries(h, ids), t != null ? t.center : h.center, tick, asUnloaded);
                 }
             }
-            ReliefService.step(overworld, ledger, s, a, ledger.get(s.target), tick);
-            if (ledger.sieges().contains(s)) {
-                bringHome(overworld, ledger, s, a, entries(a, s.host), tick);
-            }
-            boolean hostHome = entries(a, s.host).stream().noneMatch(e -> e.duty == Duty.SIEGE);
-            out.add(a.name + ": " + (!ledger.sieges().contains(s) ? "home"
-                    : !hostHome ? "on its way, arrives as soon as " + a.name + " is loaded"
-                    : "home; relief forces arrive as soon as their villages are loaded"));
-            HmLog.info("Siege {}: recalled by an admin ({})", s.id.toString().substring(0, 8), out.get(out.size() - 1));
+            dismissExtras(overworld, ledger, s, tick);
+            ledger.sieges().remove(s);
+            out.add(label);
+            HmLog.info("Siege {}: wiped by an admin ({})", s.id.toString().substring(0, 8), label);
         }
-        int orphans = returnOrphans(overworld, ledger, tick);
+        int orphans = returnOrphans(overworld, ledger, tick, true);
         if (orphans > 0) {
             out.add(orphans + " soldier(s) with no siege record came home");
         }
         ledger.setDirty();
         return out;
+    }
+
+    /**
+     * Brings slots of a host home at once: placed at the village if it is loaded, else (or where no spot is found) put back
+     * on its roster at home, stowed, to reappear when it loads. Returns a short note.
+     */
+    static String bringBack(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, List<RosterEntry> list, BlockPos toward, long tick,
+                            boolean asUnloaded) {
+        if (list.isEmpty()) {
+            return "home";
+        }
+        BlockPos anchor = GarrisonService.anchorOf(rec);
+        int placed = 0;
+        if (!asUnloaded && overworld.isPositionEntityTicking(anchor)) {
+            placed = homecoming(overworld, ledger, rec, list, anchor, toward, tick)[1];
+        }
+        int stowed = 0;
+        for (RosterEntry e : list) {
+            if (e.state().terminal() || e.duty != Duty.SIEGE) {
+                continue; // home already (placed, discharged or disarmed)
+            }
+            stowHome(overworld, ledger, rec, e, tick);
+            stowed++;
+        }
+        ledger.setDirty();
+        return stowed == 0 ? "home" : "home (" + stowed + " reappear when " + rec.name + " is next loaded)";
+    }
+
+    /** One slot of a host goes home without an entity: back to its duty at home, stowed until its village is loaded. */
+    static void stowHome(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, RosterEntry e, long tick) {
+        GarrisonService.stow(overworld, e);
+        if (rec.hywRoster.isArsenal(e) && !rec.hywRoster.arsenalWar) {
+            rec.hywRoster.disarm(e);
+            return;
+        }
+        if (!e.mercLook.isEmpty() || !e.extra.isEmpty() || (e.mobilized && !ArsenalService.atWar(ledger, rec.villageId))) {
+            MobilizationService.discharge(overworld, e, tick);
+            return;
+        }
+        if (e.state() == UnitState.DEPLOYED) {
+            e.transition(UnitState.RETURNING, tick);
+        }
+        if (e.state() == UnitState.RETURNING) {
+            e.transition(UnitState.GARRISONED, tick);
+        }
+        e.duty = rec.hywRoster.isArsenal(e) ? Duty.GARRISON : e.assignedDuty;
     }
 
     // ------------------------------------------------------------------ village decisions

@@ -6201,7 +6201,44 @@ def scenario_DA(ctx):
     s.output(f"hywmill war for {P} peace {ca} with {cg} force", 2)
 
 
-SCENARIOS = {"DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_RS(ctx):
+    """recall-all (user report): hosts marching home to villages that are not loaded. Every siege record is wiped at once; the
+    soldiers go back on their rosters and reappear when their village is next loaded ('stowed': as if none were loaded)."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    P = W_UUID
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(10)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(12)
+    # RC-4 (user report): hosts marching home to villages that are not loaded. recall-all wipes their records anyway; the soldiers
+    # go back on their rosters and reappear when their village is next loaded ('stowed': as if no village were loaded)
+    p3 = s.pos()
+    t0 = time.time()
+    while time.time() - t0 < 180:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} unwatched", 2)):
+            break
+        time.sleep(10)
+    s.wait_for(r"Siege \\w+ ended", 600, since=p3)
+    time.sleep(3)
+    st = " | ".join(s.output("hywmill war sieges", 2))
+    out4 = " | ".join(s.output("hywmill war admin recall-all stowed", 3))
+    st2 = " | ".join(s.output("hywmill war sieges", 2))
+    back = s.wait_for(r"brought home while it was unloaded rejoin", 120, since=p3)
+    again = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    check("RC-4 hosts marching home to unloaded villages: every record is wiped at once, the soldiers reappear when their village loads, "
+          "and a new siege is not refused as already besieging",
+          "RETURN" in st and "war sieges: 0" in st2 and back is not None and "ALREADY_BESIEGING" not in again and "TARGET_BESIEGED" not in again,
+          f"before: {st[-120:]} || {out4[-160:]} || after: {st2} || {(back or '')[-120:]} || {again[-120:]}")
+    s.output("hywmill war admin recall-all", 3)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+
+
+SCENARIOS = {"RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

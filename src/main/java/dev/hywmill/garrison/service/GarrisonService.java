@@ -199,7 +199,38 @@ public final class GarrisonService {
             // wartime levies muster fast: a village raising a whole levy at once fills its ranks in a few slots, not minutes
             boolean levies = r.entries().stream().anyMatch(e -> e.mobilized && e.state() == UnitState.RECRUITED);
             spawnPending(overworld, rec, r, table, tables, units, s, tick, levies ? Math.max(s.spawnsPerSlot(), LEVY_BURST) : s.spawnsPerSlot());
+            respawnStowed(overworld, rec, r, tick, LEVY_BURST);
         }
+    }
+
+    /**
+     * Post-M5: slots at home without an entity (a host brought home by an admin while its village was unloaded) reappear in
+     * spaced ranks round the anchor, up to {@code max} per slot, once it is loaded. Returns how many.
+     */
+    static int respawnStowed(ServerLevel overworld, VillageRecord rec, GarrisonRoster r, long tick, int max) {
+        BlockPos anchor = anchorOf(rec);
+        if (!overworld.isPositionEntityTicking(anchor)) {
+            return 0;
+        }
+        int n = 0, i = 0;
+        for (RosterEntry e : new ArrayList<>(r.entries())) {
+            if (n >= max) {
+                break;
+            }
+            UnitState st = e.state();
+            if ((st != UnitState.GARRISONED && st != UnitState.RECOVERED) || e.entityUuid != null || e.duty.away() || !e.extra.isEmpty()) {
+                continue;
+            }
+            Vec3 spot = spotNear(overworld, anchor.offset((i % 8) * 3 - 10, 0, (i / 8) * 3 + 3), e.rosterId);
+            i++;
+            if (spot != null && materialize(overworld, rec, e, spot, BlockPos.containing(spot), tick)) {
+                n++;
+            }
+        }
+        if (n > 0) {
+            HmLog.info("Village '{}': {} soldier(s) brought home while it was unloaded rejoin the garrison", rec.name, n);
+        }
+        return n;
     }
 
     /** The garrison target of a village from its record (M5-G formula; the scaling gate is applied by the slot). */
