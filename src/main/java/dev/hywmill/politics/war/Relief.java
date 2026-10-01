@@ -28,6 +28,8 @@ public final class Relief {
     /** Soldiers who did not arrive (lost their way, or routed) and are on their way home. */
     public final List<UUID> strays = new ArrayList<>();
     public int sent;
+    /** Post-M5: the helper was reached by the besieged's messenger (only then does it set out); quick sieges call at once. */
+    public boolean called = true;
     public int killed;
 
     public Relief(UUID helper) {

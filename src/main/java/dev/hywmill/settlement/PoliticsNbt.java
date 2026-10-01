@@ -342,6 +342,20 @@ public final class PoliticsNbt {
             if (g.forceUnwatched) {
                 x.putBoolean("unwatched", true);
             }
+            x.putLong("startDay", g.startDay);
+            x.putLong("arriveAt", g.arriveAt);
+            x.putLong("march", g.march);
+            x.putBoolean("quick", g.quick);
+            if (!g.pendingUnits.isEmpty()) {
+                x.put("pendingUnits", strings(g.pendingUnits));
+                x.put("pendingLook", strings(g.pendingLook));
+                x.put("pendingKind", strings(g.pendingKind));
+                byte[] reg = new byte[g.pendingRegular.size()];
+                for (int k = 0; k < reg.length; k++) {
+                    reg[k] = (byte) (g.pendingRegular.get(k) ? 1 : 0);
+                }
+                x.putByteArray("pendingRegular", reg);
+            }
             if (g.vassalRolled) {
                 x.putBoolean("vassalRolled", true);
             }
@@ -371,6 +385,7 @@ public final class PoliticsNbt {
                     y.put("strays", uuids(r.strays));
                     y.putInt("sent", r.sent);
                     y.putInt("killed", r.killed);
+                    y.putBoolean("called", r.called);
                     rl.add(y);
                 }
                 x.put("reliefs", rl);
@@ -401,6 +416,16 @@ public final class PoliticsNbt {
                 g.mercRolled = x.getBoolean("mercRolled");
                 g.aidRolled = x.getBoolean("aidRolled");
                 g.vassalRolled = x.getBoolean("vassalRolled");
+                g.startDay = x.getLong("startDay");
+                g.arriveAt = x.getLong("arriveAt");
+                g.march = x.getLong("march");
+                g.quick = !x.contains("quick") || x.getBoolean("quick");
+                g.pendingUnits.addAll(readStrings(x.getList("pendingUnits", Tag.TAG_STRING)));
+                g.pendingLook.addAll(readStrings(x.getList("pendingLook", Tag.TAG_STRING)));
+                g.pendingKind.addAll(readStrings(x.getList("pendingKind", Tag.TAG_STRING)));
+                for (byte b : x.getByteArray("pendingRegular")) {
+                    g.pendingRegular.add(b != 0);
+                }
                 ListTag nl = x.getList("notes", Tag.TAG_STRING);
                 for (int k = 0; k < nl.size(); k++) {
                     g.notes.add(nl.getString(k));
@@ -420,6 +445,7 @@ public final class PoliticsNbt {
                     r.strays.addAll(readUuids(y.getList("strays", Tag.TAG_INT_ARRAY)));
                     r.sent = y.getInt("sent");
                     r.killed = y.getInt("killed");
+                    r.called = !y.contains("called") || y.getBoolean("called");
                     g.reliefs.add(r);
                 }
                 out.add(g);
@@ -448,6 +474,134 @@ public final class PoliticsNbt {
             CompoundTag x = l.getCompound(i);
             if (x.hasUUID("player")) {
                 out.add(new PendingPay(x.getUUID("player"), x.getInt("deniers"), x.getString("text")));
+            }
+        }
+        return out;
+    }
+
+    static ListTag strings(List<String> list) {
+        ListTag l = new ListTag();
+        list.forEach(v -> l.add(net.minecraft.nbt.StringTag.valueOf(v)));
+        return l;
+    }
+
+    static List<String> readStrings(ListTag l) {
+        List<String> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            out.add(l.getString(i));
+        }
+        return out;
+    }
+
+    public static ListTag saveColumns(List<dev.hywmill.politics.war.Column> list) {
+        ListTag l = new ListTag();
+        for (dev.hywmill.politics.war.Column c : list) {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("id", c.id);
+            x.putString("kind", c.kind.name());
+            if (c.siege != null) {
+                x.putUUID("siege", c.siege);
+            }
+            x.putUUID("owner", c.owner);
+            if (c.destination != null) {
+                x.putUUID("dest", c.destination);
+            }
+            if (c.helper != null) {
+                x.putUUID("helper", c.helper);
+            }
+            x.putIntArray("road", new int[]{c.fromX, c.fromZ, c.toX, c.toZ});
+            x.putLong("depart", c.depart);
+            x.putLong("arrive", c.arrive);
+            x.put("units", strings(c.units));
+            byte[] reg = new byte[c.regular.size()];
+            for (int k = 0; k < reg.length; k++) {
+                reg[k] = (byte) (c.regular.get(k) ? 1 : 0);
+            }
+            x.putByteArray("regular", reg);
+            x.putString("look", c.look);
+            x.putString("name", c.name);
+            x.putString("theme", c.theme);
+            x.putString("state", c.state.name());
+            x.putInt("survivors", c.survivors);
+            if (c.revealedBy != null) {
+                x.putUUID("revealedBy", c.revealedBy);
+            }
+            x.putLong("revealedAt", c.revealedAt);
+            if (c.takenBy != null) {
+                x.putUUID("takenBy", c.takenBy);
+            }
+            x.putBoolean("council", c.councilDecided);
+            x.putBoolean("bribed", c.bribed);
+            x.put("materialized", uuids(c.materialized));
+            x.putLong("heldSince", c.heldSince);
+            x.putBoolean("cartsSpawned", c.cartsSpawned);
+            x.put("carts", uuids(c.carts));
+            x.putString("outcome", c.outcome);
+            l.add(x);
+        }
+        return l;
+    }
+
+    public static List<dev.hywmill.politics.war.Column> loadColumns(ListTag l) {
+        List<dev.hywmill.politics.war.Column> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            CompoundTag x = l.getCompound(i);
+            int[] road = x.getIntArray("road");
+            if (!x.hasUUID("id") || !x.hasUUID("owner") || road.length != 4) {
+                continue;
+            }
+            try {
+                dev.hywmill.politics.war.Column c = new dev.hywmill.politics.war.Column(x.getUUID("id"),
+                        dev.hywmill.politics.war.Column.Kind.valueOf(x.getString("kind")), x.hasUUID("siege") ? x.getUUID("siege") : null,
+                        x.getUUID("owner"), x.hasUUID("dest") ? x.getUUID("dest") : null, road[0], road[1], road[2], road[3], x.getLong("depart"),
+                        x.getLong("arrive"));
+                c.helper = x.hasUUID("helper") ? x.getUUID("helper") : null;
+                c.units.addAll(readStrings(x.getList("units", Tag.TAG_STRING)));
+                for (byte b : x.getByteArray("regular")) {
+                    c.regular.add(b != 0);
+                }
+                c.look = x.getString("look");
+                c.name = x.getString("name");
+                c.theme = x.getString("theme");
+                c.state = dev.hywmill.politics.war.Column.State.valueOf(x.getString("state"));
+                c.survivors = x.getInt("survivors");
+                c.revealedBy = x.hasUUID("revealedBy") ? x.getUUID("revealedBy") : null;
+                c.revealedAt = x.getLong("revealedAt");
+                c.takenBy = x.hasUUID("takenBy") ? x.getUUID("takenBy") : null;
+                c.councilDecided = x.getBoolean("council");
+                c.bribed = x.getBoolean("bribed");
+                c.materialized.addAll(readUuids(x.getList("materialized", Tag.TAG_INT_ARRAY)));
+                c.heldSince = x.getLong("heldSince");
+                c.cartsSpawned = x.getBoolean("cartsSpawned");
+                c.carts.addAll(readUuids(x.getList("carts", Tag.TAG_INT_ARRAY)));
+                c.outcome = x.getString("outcome");
+                out.add(c);
+            } catch (IllegalArgumentException ignored) {
+                // an unknown kind or state (a newer save): dropped
+            }
+        }
+        return out;
+    }
+
+    public static ListTag saveRides(List<dev.hywmill.politics.war.ScoutRide> list) {
+        ListTag l = new ListTag();
+        for (dev.hywmill.politics.war.ScoutRide r : list) {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("village", r.village());
+            x.putUUID("rider", r.rider());
+            x.putLong("out", r.out());
+            x.putLong("back", r.back());
+            l.add(x);
+        }
+        return l;
+    }
+
+    public static List<dev.hywmill.politics.war.ScoutRide> loadRides(ListTag l) {
+        List<dev.hywmill.politics.war.ScoutRide> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            CompoundTag x = l.getCompound(i);
+            if (x.hasUUID("village") && x.hasUUID("rider")) {
+                out.add(new dev.hywmill.politics.war.ScoutRide(x.getUUID("village"), x.getUUID("rider"), x.getLong("out"), x.getLong("back")));
             }
         }
         return out;

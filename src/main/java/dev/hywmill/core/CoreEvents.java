@@ -96,6 +96,17 @@ public final class CoreEvents {
                 return;
             }
         }
+        if (rt != null && event.getLevel() instanceof ServerLevel level && entity.getPersistentData().hasUUID(dev.hywmill.garrison.service.ColumnService.TAG)) {
+            // post-M5: a column's soldier loaded after his column left the world (or ended): he is not there any more
+            guarded("column join", () -> {
+                if (!dev.hywmill.garrison.service.ColumnService.onJoin(entity, level)) {
+                    event.setCanceled(true);
+                }
+            });
+            if (event.isCanceled()) {
+                return;
+            }
+        }
         guarded("identity marking", () -> FactionMarker.onJoin(entity));
     }
 

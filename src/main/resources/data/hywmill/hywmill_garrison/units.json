@@ -9,8 +9,8 @@
     "crossbowman":   { "entity": "hundred_years_war:crossbowman",   "class": "RANGED",    "cost": 3, "minTier": "WATCH" },
     "handgonne_man": { "entity": "hundred_years_war:handgonne_man", "class": "GUNPOWDER", "cost": 4, "minTier": "GARRISON",   "enabled": false },
     "matchlock_man": { "entity": "hundred_years_war:matchlock_man", "class": "GUNPOWDER", "cost": 5, "minTier": "STRONGHOLD", "enabled": false },
-    "light_lancer_rider": { "entity": "hundred_years_war:mounted_light_lancer_rider", "class": "CAVALRY", "cost": 4, "minTier": "GARRISON" },
-    "archer_rider":       { "entity": "hundred_years_war:mounted_archer_rider",       "class": "CAVALRY", "cost": 4, "minTier": "GARRISON" },
+    "light_lancer_rider": { "entity": "hundred_years_war:mounted_light_lancer_rider", "class": "CAVALRY", "cost": 4, "minTier": "GUARD_POST" },
+    "archer_rider":       { "entity": "hundred_years_war:mounted_archer_rider",       "class": "CAVALRY", "cost": 4, "minTier": "GUARD_POST" },
     "lancer_rider":       { "entity": "hundred_years_war:mounted_lancer_rider",       "class": "CAVALRY", "cost": 6, "minTier": "STRONGHOLD" }
   }
 }

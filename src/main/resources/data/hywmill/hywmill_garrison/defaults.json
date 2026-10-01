@@ -20,11 +20,11 @@
     "equipmentProvider": "hyw_profiles"
   },
   "cultures": {
-    "millenaire:norman":     { "composition": { "spear_man": 3, "shieldman": 2, "crossbowman": 2, "archer": 1, "light_lancer_rider": 1 } },
-    "millenaire:byzantines": { "composition": { "spear_man": 2, "shieldman": 3, "archer": 2, "light_lancer_rider": 1 } },
-    "millenaire:seljuk":     { "composition": { "spear_man": 2, "warrior": 1, "archer": 4, "archer_rider": 2 } },
-    "millenaire:japanese":   { "composition": { "spear_man": 4, "archer": 3, "archer_rider": 1 } },
-    "millenaire:indian":     { "composition": { "spear_man": 3, "warrior": 2, "archer": 2, "light_lancer_rider": 1 } },
+    "millenaire:norman":     { "composition": { "spear_man": 3, "shieldman": 2, "crossbowman": 2, "archer": 1, "light_lancer_rider": 2 } },
+    "millenaire:byzantines": { "composition": { "spear_man": 2, "shieldman": 3, "archer": 2, "light_lancer_rider": 2 } },
+    "millenaire:seljuk":     { "composition": { "spear_man": 2, "warrior": 1, "archer": 4, "archer_rider": 3 } },
+    "millenaire:japanese":   { "composition": { "spear_man": 4, "archer": 3, "archer_rider": 2 } },
+    "millenaire:indian":     { "composition": { "spear_man": 3, "warrior": 2, "archer": 2, "light_lancer_rider": 2 } },
     "millenaire:mayan":      { "composition": { "militia": 1, "spear_man": 3, "warrior": 2, "archer": 2 } },
     "millenaire:inuits":     { "composition": { "militia": 1, "spear_man": 3, "archer": 3 } }
   }

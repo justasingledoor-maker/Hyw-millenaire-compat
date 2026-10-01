@@ -181,7 +181,9 @@ public final class GarrisonService {
         AlertState alert = alertState(rec.villageId);
         List<UnitSpec> eligible = Recruitment.eligibleUnits(tier, table, tables.units());
         UnitSpec next = Recruitment.chooseUnit(rec.villageId, r.nextSeq, eligible, table.composition(), Recruitment.liveCounts(r));
-        Recruitment.Blocker blocker = Recruitment.blocker(r, s.enabled(), alert == AlertState.CALM, target, tierMax, tick, s.recruitInterval(), next);
+        // post-M5: the alarm of a coming siege opened the coffers: regular recruitment four times as fast for a while
+        long interval = tick < r.coffersUntil ? Math.max(20, s.recruitInterval() / 4) : s.recruitInterval();
+        Recruitment.Blocker blocker = Recruitment.blocker(r, s.enabled(), alert == AlertState.CALM, target, tierMax, tick, interval, next);
         if (blocker == Recruitment.Blocker.NONE && MobilizationService.inSiegeBattle(ledger, rec)) {
             blocker = Recruitment.Blocker.NOT_CALM; // no recruiting while a siege is being fought at the village
         }

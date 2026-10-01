@@ -13,7 +13,8 @@ import java.util.UUID;
  * they are stowed (no entity).
  */
 public final class Siege {
-    public enum Phase { MUSTER, MARCH, WAIT, BATTLE, RETURN }
+    /** PREPARE (post-M5): the build-up of two days after the siege is announced; the host musters on the third and arrives at dawn. */
+    public enum Phase { PREPARE, MUSTER, MARCH, WAIT, BATTLE, RETURN }
 
     public enum Outcome { NONE, WON, LOST }
 
@@ -39,6 +40,20 @@ public final class Siege {
     public boolean forceUnwatched;
     /** Post-M5: relief forces sent to the target by villages on great terms with it. */
     public final List<Relief> reliefs = new ArrayList<>();
+    /**
+     * Post-M5 timing: the day time at the announcement, and when (ticks after it) the host arrives, at dawn; its march's length.
+     * Time is the further of game time and day time since the announcement, so sleeping through a night moves it on, and it
+     * still moves without a daylight cycle. {@code quick} (admin): no build-up, the old muster and march.
+     */
+    public long startDay;
+    public long arriveAt;
+    public long march;
+    public boolean quick = true;
+    /** Men who reached the attacker before it mustered (mercenaries, vassals' men), joining its host at the muster. */
+    public final List<String> pendingUnits = new ArrayList<>();
+    public final List<Boolean> pendingRegular = new ArrayList<>();
+    public final List<String> pendingLook = new ArrayList<>();
+    public final List<String> pendingKind = new ArrayList<>();
     /** Post-M5: the mercenary roll before the assault was made. */
     public boolean mercRolled;
     /** The company hired for this siege ("" none) and how many it brought. */
@@ -82,6 +97,11 @@ public final class Siege {
             }
         }
         return true;
+    }
+
+    /** Ticks since the announcement: the further of game time and day time (sleep moves day time on). */
+    public long elapsed(long gameTime, long dayTime) {
+        return Math.max(gameTime - launched, dayTime - startDay);
     }
 
     /** A seed for this siege's draws (stable across restarts). */

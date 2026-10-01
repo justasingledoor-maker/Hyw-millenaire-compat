@@ -121,7 +121,8 @@ public final class ReliefService {
                 case PENDING -> {
                     if (over) {
                         rl.phase = Relief.Phase.DONE; // the siege ended before the attackers marched: nobody set out
-                    } else if (s.phase != Siege.Phase.MUSTER) {
+                    } else if (rl.called && s.phase != Siege.Phase.MUSTER && s.phase != Siege.Phase.PREPARE) {
+                        // post-M5: only once the besieged's messenger has reached the helper (a quick siege calls at once)
                         dispatch(overworld, ledger, s, rl, h, a, t, tick);
                     }
                 }

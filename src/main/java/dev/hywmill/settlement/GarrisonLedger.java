@@ -89,6 +89,18 @@ public final class GarrisonLedger extends SavedData {
         return battles;
     }
 
+    /** Post-M5: columns on the road (and the recent ended ones, for the War tab), and scouts out on a ride. */
+    private final java.util.List<dev.hywmill.politics.war.Column> columns = new java.util.ArrayList<>();
+    private final java.util.List<dev.hywmill.politics.war.ScoutRide> scoutRides = new java.util.ArrayList<>();
+
+    public java.util.List<dev.hywmill.politics.war.Column> columns() {
+        return columns;
+    }
+
+    public java.util.List<dev.hywmill.politics.war.ScoutRide> scoutRides() {
+        return scoutRides;
+    }
+
     /** Post-M5: each player's chosen colours for the soldiers they hire on the Muster Roll, as {first, second} dye ids. */
     private final java.util.Map<UUID, int[]> playerColours = new java.util.LinkedHashMap<>();
 
@@ -181,6 +193,8 @@ public final class GarrisonLedger extends SavedData {
         ledger.tributes.addAll(PoliticsNbt.loadTributes(root.getList("tributes", Tag.TAG_COMPOUND)));
         ledger.vassalages.addAll(PoliticsNbt.loadVassalages(root.getList("vassalages", Tag.TAG_COMPOUND)));
         ledger.battles.addAll(PoliticsNbt.loadBattles(root.getList("battles", Tag.TAG_COMPOUND)));
+        ledger.columns.addAll(PoliticsNbt.loadColumns(root.getList("columns", Tag.TAG_COMPOUND)));
+        ledger.scoutRides.addAll(PoliticsNbt.loadRides(root.getList("scoutRides", Tag.TAG_COMPOUND)));
         ListTag pc = root.getList("playerColours", Tag.TAG_COMPOUND);
         for (int i = 0; i < pc.size(); i++) {
             CompoundTag x = pc.getCompound(i);
@@ -230,6 +244,12 @@ public final class GarrisonLedger extends SavedData {
         }
         if (!battles.isEmpty()) {
             root.put("battles", PoliticsNbt.saveBattles(battles));
+        }
+        if (!columns.isEmpty()) {
+            root.put("columns", PoliticsNbt.saveColumns(columns));
+        }
+        if (!scoutRides.isEmpty()) {
+            root.put("scoutRides", PoliticsNbt.saveRides(scoutRides));
         }
         if (!playerColours.isEmpty()) {
             ListTag pc = new ListTag();

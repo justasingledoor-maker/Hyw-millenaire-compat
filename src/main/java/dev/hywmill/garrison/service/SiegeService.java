@@ -135,14 +135,22 @@ public final class SiegeService {
 
     /** The host the village would send now (units at home on a standing duty, loaded or not), by the raid planner's rules. */
     public static List<UUID> planHost(VillageRecord rec) {
+        return planHost(rec, true);
+    }
+
+    /**
+     * {@code loaded}: only soldiers in the world (a launch's check); false at a prepared siege's muster, when the village may
+     * not be loaded. Light horse stay home: they scout (post-M5).
+     */
+    public static List<UUID> planHost(VillageRecord rec, boolean loaded) {
         GarrisonRoster r = rec.hywRoster;
         if (r == null) {
             return List.of();
         }
         List<RaidPlanner.Candidate> cands = new ArrayList<>();
         for (RosterEntry e : r.entries()) {
-            if ((e.state() == UnitState.GARRISONED || e.state() == UnitState.RECOVERED) && e.duty.standing() && e.entityUuid != null
-                    && !DutyMotion.scoutAway(e)) {
+            if ((e.state() == UnitState.GARRISONED || e.state() == UnitState.RECOVERED) && e.duty.standing() && (e.entityUuid != null || !loaded)
+                    && !DutyMotion.scoutAway(e) && !ColumnService.LIGHT.contains(e.unitKey)) {
                 cands.add(new RaidPlanner.Candidate(e.rosterId, e.assignedDuty, e.dutyIndex));
             }
         }
@@ -235,6 +243,15 @@ public final class SiegeService {
 
     /** Starts a siege now (the counsel and village decisions come through here; admins too). */
     public Launch launch(ServerLevel overworld, UUID attackerId, UUID targetId, @Nullable UUID counsel, long tick, boolean requireWar) {
+        return launch(overworld, attackerId, targetId, counsel, tick, requireWar, false);
+    }
+
+    /**
+     * Post-M5: a siege is announced, then prepared for two days: the host musters on the third and arrives at dawn
+     * ({@code quick}, admin: the old muster of a minute and march, no build-up). During the build-up mercenaries, vassals' men
+     * and messengers take the road (see {@link ColumnService}). The host is chosen when it musters.
+     */
+    public Launch launch(ServerLevel overworld, UUID attackerId, UUID targetId, @Nullable UUID counsel, long tick, boolean requireWar, boolean quick) {
         GarrisonLedger ledger = GarrisonLedger.get(overworld);
         VillageRecord a = ledger.get(attackerId);
         VillageRecord t = ledger.get(targetId);
@@ -261,20 +278,60 @@ public final class SiegeService {
         }
         UUID id = UUID.nameUUIDFromBytes((attackerId + ">" + targetId + ">siege>" + tick).getBytes(StandardCharsets.UTF_8));
         Siege s = new Siege(id, attackerId, targetId, counsel, tick);
-        s.enter(Siege.Phase.MUSTER, tick, tick + r.musterTicks());
+        long day = overworld.getDayTime();
+        s.startDay = day;
+        s.march = SiegeMath.marchTicks(Math.sqrt(a.center.distSqr(t.center)), r);
+        s.quick = quick;
+        a.hywRoster.lastSiegeTick = tick;
+        ledger.sieges().add(s);
+        String who = counsel != null ? " on " + PoliticsService.playerName(overworld, counsel) + "'s counsel" : "";
+        String text;
+        if (quick) {
+            s.arriveAt = r.musterTicks() + s.march;
+            int n = commitHost(overworld, ledger, s, a, tick);
+            s.enter(Siege.Phase.MUSTER, tick, tick + r.musterTicks());
+            ReliefService.plan(overworld, ledger, s, a, t, tick);
+            text = a.name + " musters " + n + " soldiers to besiege " + t.name + who + "; they march in about " + r.musterTicks() / 1200 + " min";
+        } else {
+            // the host arrives at the dawn of the third day: two days of preparation, then the muster and the march by night
+            long dawn = (Math.floorDiv(day, Tribute.DAY) + 3) * Tribute.DAY;
+            s.arriveAt = dawn - day;
+            s.enter(Siege.Phase.PREPARE, tick, tick + Math.max(0, s.arriveAt - s.march - r.musterTicks()));
+            ReliefService.plan(overworld, ledger, s, a, t, tick);
+            s.reliefs.forEach(rl -> rl.called = false); // they come only if the besieged's messenger reaches them
+            text = a.name + " declares that it will besiege " + t.name + who + ": its host of about " + host.size()
+                    + " will be before the walls at dawn in " + (s.arriveAt + Tribute.DAY / 2) / Tribute.DAY + " days";
+        }
+        ledger.setDirty();
+        count(C_LAUNCHED);
+        chronicle(overworld, a, t, tick, text);
+        announce(overworld, ledger, s, a, t, text);
+        horn(overworld, t.center);
+        HmLog.info("Siege {} launched: {} -> {} ({}, arrives in {} ticks){}", s.id.toString().substring(0, 8), a.name, t.name, quick ? "quick" : "prepared",
+                s.arriveAt, who);
+        if (!quick) {
+            ColumnService.announced(overworld, ledger, s, a, t, tick);
+        }
+        return new Launch(SiegeMath.Refusal.OK, s, text);
+    }
+
+    /**
+     * The host is chosen and musters (at the launch of a quick siege, else at the end of its build-up): soldiers it can spare,
+     * its war engines, and the men who reached it before (mercenaries, vassals' men). Returns the soldiers committed.
+     */
+    int commitHost(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, long tick) {
+        List<UUID> host = planHost(a, s.quick);
         s.host.addAll(host);
         s.hostStart = host.size();
-        int engines = 0;
         for (RosterEntry e : a.hywRoster.arsenal()) {
             // the village's war engines and their crews march with the host
             if (e.state() == UnitState.GARRISONED && e.duty != Duty.SIEGE) {
                 s.host.add(e.rosterId);
-                engines += dev.hywmill.politics.war.ArsenalPlan.isEngine(e.unitKey) ? 1 : 0;
             }
         }
         UnitProvider units = Services.units();
         BlockPos muster = GarrisonService.anchorOf(a);
-        for (UUID rid : s.host) {
+        for (UUID rid : new ArrayList<>(s.host)) {
             RosterEntry e = a.hywRoster.entry(rid);
             e.transition(UnitState.DEPLOYED, tick);
             e.duty = Duty.SIEGE;
@@ -284,19 +341,45 @@ public final class SiegeService {
                 units.setHome(ent, muster);
             }
         }
-        a.hywRoster.lastSiegeTick = tick;
-        ledger.sieges().add(s);
-        ReliefService.plan(overworld, ledger, s, a, t, tick);
+        joinPending(ledger, s, a, tick);
         ledger.setDirty();
-        count(C_LAUNCHED);
-        String who = counsel != null ? " on " + PoliticsService.playerName(overworld, counsel) + "'s counsel" : "";
-        String text = a.name + " musters " + host.size() + " soldiers" + (engines > 0 ? " and " + engines + " siege engine" + (engines == 1 ? "" : "s") : "")
-                + " to besiege " + t.name + who + "; they march in about "
-                + r.musterTicks() / 1200 + " min";
-        chronicle(overworld, a, t, tick, text);
-        announce(overworld, ledger, s, a, t, text);
-        HmLog.info("Siege {} launched: {} -> {} with {} unit(s){}", s.id.toString().substring(0, 8), a.name, t.name, host.size(), who);
-        return new Launch(SiegeMath.Refusal.OK, s, text);
+        return s.hostStart;
+    }
+
+    /** Men who reached the attacker before its muster (mercenaries, vassals' men) join its host, stowed with it. */
+    static void joinPending(GarrisonLedger ledger, Siege s, VillageRecord a, long tick) {
+        GarrisonTables tables = GarrisonTables.current();
+        var table = tables.forCulture(a.culture);
+        PoliticsTables.MobilizationRule mob = MobilizationService.rule(a);
+        int regular = dev.hywmill.garrison.Recruitment.equipmentLevel(a.tier, table);
+        int levy = dev.hywmill.garrison.Mobilization.equipmentLevel(regular, mob.equipmentFloor(), mob.equipmentDrop());
+        for (int i = 0; i < s.pendingUnits.size(); i++) {
+            UnitSpec u = tables.units().get(s.pendingUnits.get(i));
+            if (u == null || !u.enabled()) {
+                continue;
+            }
+            boolean reg = i < s.pendingRegular.size() && s.pendingRegular.get(i);
+            String look = i < s.pendingLook.size() ? s.pendingLook.get(i) : "";
+            String kind = i < s.pendingKind.size() ? s.pendingKind.get(i) : "merc";
+            RosterEntry e = a.hywRoster.recruit(a.villageId, u.key(), u.entityType(), reg ? regular : levy, tick, false);
+            e.mobilized = !reg;
+            if (kind.equals("merc")) {
+                e.mercLook = look;
+            } else {
+                e.extra = kind;
+            }
+            e.transition(UnitState.SPAWNED, tick);
+            e.transition(UnitState.GARRISONED, tick);
+            e.transition(UnitState.DEPLOYED, tick);
+            e.duty = Duty.SIEGE;
+            s.host.add(e.rosterId);
+            s.hostStart++;
+        }
+        s.pendingUnits.clear();
+        s.pendingRegular.clear();
+        s.pendingLook.clear();
+        s.pendingKind.clear();
+        ledger.setDirty();
     }
 
     // ------------------------------------------------------------------ player counsel
@@ -400,6 +483,11 @@ public final class SiegeService {
         }
         payTributes(overworld, ledger, tick);
         endVassalages(overworld, ledger, tick);
+        try {
+            ColumnService.tick(overworld, ledger, tick); // post-M5: columns on the road, scouts
+        } catch (RuntimeException ex) {
+            HmLog.warn("Columns failed: {}", ex.toString());
+        }
         if (tick % AI_INTERVAL == AI_OFFSET) {
             returnOrphans(overworld, ledger, tick); // repair: soldiers left on a siege that no longer exists come home
         }
@@ -423,7 +511,7 @@ public final class SiegeService {
         PoliticsTables.SiegeRule r = rule(a);
         ReliefService.step(overworld, ledger, s, a, t, tick);
         List<RosterEntry> alive = entries(a, s.host);
-        if (soldiers(a, alive).isEmpty() && s.phase != Siege.Phase.RETURN) {
+        if (soldiers(a, alive).isEmpty() && s.phase != Siege.Phase.RETURN && s.phase != Siege.Phase.PREPARE) {
             finish(overworld, ledger, s, a, t, Siege.Outcome.LOST, "the whole host fell", tick, false);
             return;
         }
@@ -432,12 +520,44 @@ public final class SiegeService {
             goHome(overworld, ledger, s, a, alive, tick, r, false);
             return;
         }
+        long el = s.elapsed(tick, overworld.getDayTime());
+        if (s.march <= 0) {
+            // a siege saved before the build-up existed: its old timing, as a quick siege
+            s.march = SiegeMath.marchTicks(Math.sqrt(a.center.distSqr(t.center)), r);
+            s.arriveAt = (s.phase == Siege.Phase.MUSTER ? r.musterTicks() : 0) + s.march;
+            s.startDay = overworld.getDayTime() - (tick - s.launched);
+            s.quick = true;
+            el = s.elapsed(tick, overworld.getDayTime());
+        }
         switch (s.phase) {
+            case PREPARE -> {
+                long musterAt = s.arriveAt - s.march - r.musterTicks();
+                s.phaseEnd = tick + Math.max(0, musterAt - el);
+                if (el >= musterAt) {
+                    int n = commitHost(overworld, ledger, s, a, tick);
+                    if (soldiers(a, entries(a, s.host)).size() < Math.max(1, r.minCommit() / 2)) {
+                        s.summary = a.name + " could not raise a host to march on " + t.name;
+                        announce(overworld, ledger, s, a, t, s.summary);
+                        chronicle(overworld, a, t, tick, s.summary);
+                        goHome(overworld, ledger, s, a, entries(a, s.host), tick, r, false);
+                        return;
+                    }
+                    s.enter(Siege.Phase.MUSTER, tick, tick + Math.max(0, s.arriveAt - s.march - el));
+                    ledger.setDirty();
+                    horn(overworld, a.center);
+                    announce(overworld, ledger, s, a, t, "The host of " + a.name + " (" + n + " soldiers) musters to march on " + t.name + " by night");
+                    HmLog.info("Siege {}: the host musters ({} soldiers)", s.id.toString().substring(0, 8), n);
+                }
+            }
             case MUSTER -> {
-                if (tick >= s.phaseEnd) {
+                if (el >= s.arriveAt - s.march) {
+                    alive = entries(a, s.host);
                     alive.forEach(e -> GarrisonService.stow(overworld, e));
-                    long march = SiegeMath.marchTicks(Math.sqrt(a.center.distSqr(t.center)), r);
+                    long march = Math.max(0, s.arriveAt - el);
                     s.enter(Siege.Phase.MARCH, tick, tick + march);
+                    if (!s.quick) {
+                        ColumnService.marching(overworld, ledger, s, a, t, tick);
+                    }
                     ledger.setDirty();
                     horn(overworld, a.center);
                     announce(overworld, ledger, s, a, t, "The host of " + a.name + " (" + alive.size() + " soldiers) marches on " + t.name
@@ -446,16 +566,19 @@ public final class SiegeService {
                 }
             }
             case MARCH -> {
-                if (!s.mercRolled && tick >= s.phaseEnd - dev.hywmill.politics.war.Mercenaries.LEAD) {
+                s.phaseEnd = tick + Math.max(0, s.arriveAt - el);
+                boolean soon = el >= s.arriveAt - dev.hywmill.politics.war.Mercenaries.LEAD;
+                // a quick siege rolls its mercenaries and vassals here; a prepared one sent them by road during its build-up
+                if (s.quick && !s.mercRolled && soon) {
                     hireMercs(overworld, ledger, s, a, t, tick, false);
                 }
-                if (!s.aidRolled && tick >= s.phaseEnd - dev.hywmill.politics.war.Mercenaries.LEAD) {
+                if (!s.aidRolled && soon) {
                     defenderAid(overworld, ledger, s, a, t, tick, false);
                 }
-                if (!s.vassalRolled && tick >= s.phaseEnd - dev.hywmill.politics.war.Mercenaries.LEAD) {
+                if (s.quick && !s.vassalRolled && soon) {
                     vassalHelp(overworld, ledger, s, a, t, tick, false);
                 }
-                if (tick >= s.phaseEnd) {
+                if (el >= s.arriveAt) {
                     BlockPos landing = landing(overworld, a, t);
                     if (!s.forceUnwatched && watched(overworld, t, landing)) {
                         deploy(overworld, ledger, s, a, t, alive, landing, tick, r);
@@ -772,7 +895,7 @@ public final class SiegeService {
                 aidNews(overworld, ledger, s, a, t, tick, "The bells of " + t.name + " ring: " + n + " of its people take up arms against the host of " + a.name);
             }
         }
-        if (aid.mercs() != null) {
+        if (aid.mercs() != null && (s.quick || force)) { // a prepared siege's mercenaries come by road (ColumnService)
             int n = raiseExtras(t, s, aid.mercs().units(), "merc", aid.mercs().company().look(), true, levyLevel, tick);
             if (n > 0) {
                 raised += n;
@@ -830,7 +953,7 @@ public final class SiegeService {
     }
 
     /** New temporary slots of the target, at home (GARRISONED, stowed until mustered). Returns how many. */
-    private static int raiseExtras(VillageRecord t, Siege s, List<String> units, String kind, String look, boolean mobilized, int level, long tick) {
+    static int raiseExtras(VillageRecord t, Siege s, List<String> units, String kind, String look, boolean mobilized, int level, long tick) {
         GarrisonTables tables = GarrisonTables.current();
         int n = 0;
         for (String key : units) {
@@ -1618,6 +1741,7 @@ public final class SiegeService {
                 held.addAll(r.strays);
             }
         }
+        ledger.scoutRides().forEach(sr -> held.add(sr.rider())); // scouts out on a ride
         Set<UUID> extras = new HashSet<>();
         for (Siege s : ledger.sieges()) {
             extras.addAll(s.extras);
@@ -1679,6 +1803,7 @@ public final class SiegeService {
     /** {@code asUnloaded} (DEV): every village is treated as unloaded, so every host is put back on its roster stowed. */
     public List<String> recallAll(ServerLevel overworld, GarrisonLedger ledger, long tick, boolean asUnloaded) {
         List<String> out = new ArrayList<>();
+        ColumnService.dropSiegeColumns(overworld, ledger, tick);
         for (Siege s : new ArrayList<>(ledger.sieges())) {
             VillageRecord a = ledger.get(s.attacker);
             VillageRecord t = ledger.get(s.target);
@@ -1842,7 +1967,7 @@ public final class SiegeService {
     }
 
     /** Tells players near either village, the counsel, the helpers and everyone on campaign with or against the attacker. */
-    private static void announce(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, @Nullable VillageRecord t, String text) {
+    static void announce(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, @Nullable VillageRecord t, String text) {
         Set<UUID> to = new LinkedHashSet<>();
         for (ServerPlayer p : overworld.players()) {
             Vec3 pos = p.position();

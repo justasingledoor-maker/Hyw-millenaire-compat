@@ -47,6 +47,8 @@ public final class GarrisonRoster {
     public long lastRaidStart;
     /** Post-M5: tick the village last launched a siege (its own decisions wait {@code aiCooldown} after it); -1 never. */
     public long lastSiegeTick = -1;
+    /** Post-M5: the alarm of a coming siege reached the village: its coffers are open (regular recruitment four times as fast) until then. */
+    public long coffersUntil = -1;
     /** Post-M5: the village has mobilized for its current war (reset when it is at peace and its levies went home). */
     public boolean mobilizedWar;
     /** Post-M5: tick of the last wartime levy top-up (-1: none this war). */
@@ -253,6 +255,9 @@ public final class GarrisonRoster {
         if (lastSiegeTick >= 0) {
             t.putLong("lastSiegeTick", lastSiegeTick);
         }
+        if (coffersUntil >= 0) {
+            t.putLong("coffersUntil", coffersUntil);
+        }
         if (mobilizedWar) {
             t.putBoolean("mobilizedWar", true);
         }
@@ -307,6 +312,7 @@ public final class GarrisonRoster {
         r.lastRaidStart = t.getLong("lastRaidStart");
         r.lastSiegeTick = t.contains("lastSiegeTick") ? t.getLong("lastSiegeTick") : -1;
         r.mobilizedWar = t.getBoolean("mobilizedWar");
+        r.coffersUntil = t.contains("coffersUntil") ? t.getLong("coffersUntil") : -1;
         r.lastLevyTick = t.contains("lastLevyTick") ? t.getLong("lastLevyTick") : -1;
         if (t.contains("raid", Tag.TAG_COMPOUND)) {
             CompoundTag rd = t.getCompound("raid");
