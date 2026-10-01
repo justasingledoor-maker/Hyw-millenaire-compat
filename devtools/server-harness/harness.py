@@ -6455,7 +6455,7 @@ def scenario_CL(ctx):
     sg = " | ".join(s.output("hywmill war sieges", 2))
     check("CL-1 a declared siege is announced for dawn in days and prepares (no host yet)", "before the walls at dawn on the third day" in out and "PREPARE" in sg,
           f"{j[-60:]} || {out[-200:]} || {sg[-200:]}")
-    s.cmd("time add 60000", 1)
+    s.cmd("time add 72000", 1)
     m = s.wait_for(r"the host musters \(\d+ soldiers\)", 90, since=p0)
     check("CL-2 on the third day the host musters", m is not None, (m or "")[-160:])
     sc = " | ".join(s.output(f"hywmill war admin scout {ca}", 3))

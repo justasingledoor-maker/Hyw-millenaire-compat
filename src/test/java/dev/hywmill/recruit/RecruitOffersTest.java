@@ -74,7 +74,7 @@ class RecruitOffersTest {
         assertEquals(MilitaryTier.NONE, RecruitOffers.gearTier(Standing.STRANGER, MilitaryTier.STRONGHOLD, RecruitTables.DEFAULT));
         Map<String, RecruitOffers.Offer> trusted = offers(Standing.TRUSTED, MilitaryTier.STRONGHOLD, "millenaire:norman");
         Map<String, RecruitOffers.Offer> sworn = offers(Standing.SWORN, MilitaryTier.STRONGHOLD, "millenaire:norman");
-        assertFalse(trusted.containsKey("unit:light_lancer_rider"), "cavalry needs a GARRISON gear tier");
+        assertTrue(trusted.containsKey("unit:light_lancer_rider"), "post-M5: light horse (scouts) from a GUARD_POST gear tier");
         assertTrue(sworn.containsKey("unit:light_lancer_rider"), "Normans field lancers");
         assertEquals(MilitaryTier.STRONGHOLD, sworn.get("unit:spear_man").gearTier());
         assertTrue(sworn.values().stream().noneMatch(o -> !o.merc() && !o.engine() && o.unit().unitClass() == UnitClass.LEVY), "levies are mercenaries");

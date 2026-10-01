@@ -131,7 +131,7 @@ public final class Column {
             case VASSAL -> "a vassal's men (" + n + ")";
             case MESSENGER -> "a messenger (" + n + " rider" + (n == 1 ? "" : "s") + ")";
             case ALARM -> "enemy scouts carrying the alarm (" + n + ")";
-            case CONVOY -> (theme.isEmpty() ? "a supply" : "a " + theme) + " convoy (" + n + " guards)";
+            case CONVOY -> (theme.isEmpty() ? "a supply" : ("aeiou".indexOf(theme.charAt(0)) >= 0 ? "an " : "a ") + theme) + " convoy (" + n + " guards)";
         };
     }
 }
