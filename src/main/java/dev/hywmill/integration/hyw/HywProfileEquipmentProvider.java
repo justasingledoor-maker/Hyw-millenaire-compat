@@ -100,12 +100,26 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                 u.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(pv))));
             }
         }
+        if (dev.hywmill.garrison.equip.SpearShield.spearman(unit.entityType()) && u.getOffhandItem().isEmpty()) {
+            // post-M5: most spearmen carry a shield of their culture's shape (a squad's look may already have given one)
+            String sh = dev.hywmill.garrison.equip.SpearShield.choose(ctx.culture(), ctx.tier(), ctx.rosterId());
+            if (sh != null && check(unit.entityType(), "offhand", sh) == Verdict.OK) {
+                u.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(sh))));
+            }
+        }
         decorate(u, p, ctx, look);
         ItemStack off = u.getOffhandItem();
+        String offId = off.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(off.getItem()).toString();
+        int armour = 0;
         if (dev.hywmill.garrison.equip.Pavise.crossbowman(unit.entityType()) && !off.isEmpty()
-                && EquipmentProfiles.family(BuiltInRegistries.ITEM.getKey(off.getItem()).toString()).equals(dev.hywmill.garrison.equip.Pavise.FAMILY)) {
-            // a crossbowman never raises it to block: carried, it gives a little armour instead
-            int armour = dev.hywmill.garrison.equip.Pavise.armour(BuiltInRegistries.ITEM.getKey(off.getItem()).toString());
+                && EquipmentProfiles.family(offId).equals(dev.hywmill.garrison.equip.Pavise.FAMILY)) {
+            armour = dev.hywmill.garrison.equip.Pavise.armour(offId); // a crossbowman never raises it to block
+        } else if (dev.hywmill.garrison.equip.SpearShield.spearman(unit.entityType()) && !off.isEmpty()
+                && dev.hywmill.garrison.equip.SpearShield.FAMILIES.contains(EquipmentProfiles.family(offId))) {
+            armour = dev.hywmill.garrison.equip.SpearShield.armour(offId); // nor does a spearman
+        }
+        if (armour > 0) {
+            // carried, the shield gives a little armour instead
             off.set(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS, net.minecraft.world.item.component.ItemAttributeModifiers.builder()
                     .add(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR, new net.minecraft.world.entity.ai.attributes.AttributeModifier(
                             ResourceLocation.fromNamespaceAndPath("hywmill", "pavise_armour"), armour,
@@ -404,6 +418,10 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
         if (slot.equals("offhand") && dev.hywmill.garrison.equip.Pavise.crossbowman(entityType)
                 && EquipmentProfiles.family(itemId).equals(dev.hywmill.garrison.equip.Pavise.FAMILY)) {
             return Verdict.OK; // post-M5: crossbowmen carry pavises (HYW gives them nothing in the off hand)
+        }
+        if (slot.equals("offhand") && dev.hywmill.garrison.equip.SpearShield.spearman(entityType)
+                && dev.hywmill.garrison.equip.SpearShield.FAMILIES.contains(EquipmentProfiles.family(itemId))) {
+            return Verdict.OK; // post-M5: spearmen carry shields (spear and shield)
         }
         return HywEkFamilies.families(entityType, slot).contains(EquipmentProfiles.family(itemId)) ? Verdict.OK : Verdict.NOT_HYW_FAMILY;
     }

@@ -1299,3 +1299,26 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
     * a 200-health zombie placed in front of them lost 13 health to their bolts, so the pavise does not stop them
       shooting.
 * SHA-256 of the jar: `21d9fd087427666f439ea8fb73b523872066c23d2361ec4949b2dbf4d489852a`.
+
+### 6.42 Spearmen carry shields (`dist/hywmill-m5-fix42.jar`)
+
+* **The change.** HYW gives its spearmen nothing in the off hand. Now about 75% of them carry a shield (`SpearShield`) of
+  their culture's shape and their tier's material:
+  * **Normans:** kite shields, and heater shields in Garrison and Stronghold villages.
+  * **Byzantines:** the oval skoutarion (elliptical), sometimes round.
+  * **Seljuks, Indians and others:** round shields.
+  * **Maya:** wooden round shields.
+  * **Japanese** (yari, both hands) and **Inuit:** none.
+* **Material** by tier: wood, wood or iron, iron, steel.
+* **Squad looks and levy lists** that give spearmen off-hand shields now take effect: the off-hand family check allows
+  shield families for spearmen.
+* **Painting and armour.** Shields are painted like any other. Never raised to block, a carried shield gives +1 armour
+  (wood), +2 (iron) or +3 (steel).
+* **Tests.**
+  * JUnit 358/358. New: `SpearShieldTest`.
+  * Harness SS 2/2 with Epic Knights (`docs/m5-test-evidence/spear-shields1.txt`):
+    * Fyrd Spearmen: 10 of 10 with painted, armoured shields, given by their look's levy list;
+    * a 200-health zombie in front of them lost 30 health. The village garrison stood nearby, so this shows they fight,
+      not how much each did.
+  * The first run failed on a wrong hire key in the harness (nothing was hired), which made its SS-2 vacuous.
+* SHA-256 of the jar: `55548ee0b682f68cb75ae8d0e71632d4d84c9f672e52a6ad70bb920cfc41968d`.
