@@ -1218,3 +1218,18 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
     longer refused as "already besieging". It was refused HOST_TOO_SMALL instead, because the whole garrison was away. The
     check was then corrected to accept that, and the scenario has not been re-run.
 * SHA-256 of the jar: `5b79ae1374f75333c87b4b7e976d9591e18e0f8467f40c5526b3330ac79b4c1d`.
+
+### 6.39 recall-all wipes every siege (`dist/hywmill-m5-fix39.jar`)
+
+* **The user's report.** After fix37, five hosts marching home to villages that were not loaded kept their records, and
+  those records blocked new sieges.
+* **The fix.** `/hywmill war admin recall-all` now removes every siege record at once, and decides nothing.
+  * Each host and relief force appears at its village if that village is loaded.
+  * Otherwise its soldiers are put back on the village's roster at home, stowed (GARRISONED, no entity).
+    `GarrisonService.respawnStowed` places them round the anchor when the village is next loaded.
+  * Temporary defenders go home, and mercenaries are paid off.
+* **Tests.** Harness RS 1/1 (`docs/m5-test-evidence/recall-all-wipe1.txt`), using the dev variant `recall-all stowed`,
+  which treats every village as unloaded:
+  * a marching host of 26 and a relief force of 10 were wiped at once, and `war sieges` showed 0;
+  * the relief soldiers rejoined their garrison as their village was processed;
+  * a new siege from the same village was launched at once.
