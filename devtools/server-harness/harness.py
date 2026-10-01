@@ -6306,7 +6306,48 @@ def scenario_VS(ctx):
     check("VS-4 when the siege ends the vassal's men go home (not counted in the overlord's garrison)", gone is not None, (gone or "")[-120:])
 
 
-SCENARIOS = {"VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_HA(ctx):
+    """Period horse armour (post-M5; run with Epic Knights): riders' horses wear dyed leather, Epic Knights chainmail horse
+    armour or plate barding, never gold or diamond horse armour."""
+    s, a = ctx.s, ctx.a
+    ek = any("Epic Knights loaded" in l for l in s.output("hywmill admin equipcheck", 4))
+    P = "33333333-4444-4555-8666-777777777777"
+    centers = []
+    for l in s.output("hywmill village list", 2):
+        mm = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=(\w+)| (-?\d+), (-?\d+), (-?\d+) tier=(\w+)", l)
+        if mm:
+            g = [v for v in mm.groups() if v is not None]
+            centers.append(((int(g[0]), int(g[1]), int(g[2])), g[3]))
+    big = next((c for c, t in centers if t in ("GARRISON", "STRONGHOLD")), centers[0][0] if centers else tuple(a))
+    x, z = big[0] + 6, big[2] + 6
+    y = surface_y(s, x, z) or big[1]
+    s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+    s.cmd("kill @e[type=hundred_years_war:hyw_horse]", 1)
+    s.cmd("kill @e[type=hundred_years_war:mounted_lancer_rider]", 1)
+    s.cmd("kill @e[type=hundred_years_war:mounted_light_lancer_rider]", 1)
+    hires = []
+    for key in ["squad:norman.knights", "squad:norman.mounted_serjeants", "squad:norman.hobelars"]:
+        hires.append(" ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "{key}" 1 900000 SWORN', 5) if "recruit:" in l)[-90:])
+    time.sleep(10)
+    horses = [u for u, v in spike_info(s, "@e[type=hundred_years_war:hyw_horse]").items() if dist(v["pos"], (x, y, z)) <= 60]
+    rows = [" ".join(s.output(f"data get entity {u} body_armor_item", 0.6)) for u in horses[:20]]
+    kinds = {}
+    for r in rows:
+        m = re.search(r'id: "([^"]+)"', r)
+        k = m[1] if m else "none"
+        kinds[k] = kinds.get(k, 0) + 1
+    bad = sum(v for k, v in kinds.items() if "diamond" in k or "golden" in k)
+    period = sum(v for k, v in kinds.items() if k in ("minecraft:leather_horse_armor", "magistuarmory:chainmail_horse_armor", "magistuarmory:barding",
+                                                       "magistuarmoryaddon:dark_barding"))
+    dyed = sum(1 for r in rows if "leather_horse_armor" in r and "dyed_color" in r)
+    note("HA horses", f"{kinds}; hires {hires}")
+    check("HA-1 riders' horses wear period armour (dyed leather, chainmail, barding), never gold or diamond",
+          rows and bad == 0 and period >= len(rows) - kinds.get("none", 0) and (not ek or kinds.get("magistuarmory:chainmail_horse_armor", 0)
+                                                                                + kinds.get("magistuarmory:barding", 0) + kinds.get("magistuarmoryaddon:dark_barding", 0) >= 1),
+          f"{len(rows)} horses: {kinds}; leather dyed {dyed}")
+
+
+SCENARIOS = {"HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
