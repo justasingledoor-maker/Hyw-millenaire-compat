@@ -6215,6 +6215,8 @@ def scenario_RS(ctx):
     dip(s, a, f"admin truce {ca} {cb} 0")
     s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
     time.sleep(12)
+    s.output(at(a, "hywmill admin grant spear_man 20"), 2)  # earlier scenarios may have left A without soldiers to spare
+    time.sleep(40)
     # RC-4 (user report): hosts marching home to villages that are not loaded. recall-all wipes their records anyway; the soldiers
     # go back on their rosters and reappear when their village is next loaded ('stowed': as if no village were loaded)
     p3 = s.pos()
