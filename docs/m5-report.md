@@ -1280,3 +1280,22 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
       visibility sync did not stick;
     * the final run had 20 horses: 12 in dyed leather, 6 in barding, 2 in dark barding, and none in diamond or iron.
 * SHA-256 of the jar: `49a22c964ce37e092f3d42a8c633762d7d0432e4cb918d39db8e6373980d8d14`.
+
+### 6.41 Crossbowmen carry pavises (`dist/hywmill-m5-fix41.jar`)
+
+* **The change.**
+  * HYW gives its crossbowmen nothing in the off hand. Now about 60% of them, chosen per soldier (`Pavise`), carry an
+    Epic Knights pavise of their gear tier: wood (Watch), wood or iron (Guard Post), iron (Garrison) or steel
+    (Stronghold).
+  * Squad looks that list pavises (the Genoese, for one) now get them too: the off-hand family check allows the pavise
+    for crossbowmen.
+  * The pavise is painted like any shield: village colours, squad arms or culture arms.
+* **Protection.** A mob holding a crossbow never raises a shield to block, so a carried pavise gives armour in the off
+  hand: +2 for wood, +3 for iron, +4 for steel (an attribute modifier on the item, `hywmill:pavise_armour`).
+* **Tests.**
+  * JUnit 357/357. New: `PaviseTest`.
+  * Harness CB 2/2 with Epic Knights (`docs/m5-test-evidence/pavises1.txt`):
+    * Town Crossbowmen and Genoese, 18 crossbowmen: 13 carried pavises, all painted and armoured;
+    * a 200-health zombie placed in front of them lost 13 health to their bolts, so the pavise does not stop them
+      shooting.
+* SHA-256 of the jar: `21d9fd087427666f439ea8fb73b523872066c23d2361ec4949b2dbf4d489852a`.

@@ -6347,7 +6347,44 @@ def scenario_HA(ctx):
           f"{len(rows)} horses: {kinds}; leather dyed {dyed}")
 
 
-SCENARIOS = {"HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_CB(ctx):
+    """Crossbowmen's pavises (post-M5; run with Epic Knights): most hired crossbowmen carry a painted pavise of their tier with a
+    little armour, and still shoot."""
+    s, a = ctx.s, ctx.a
+    P = "33333333-4444-4555-8666-777777777777"
+    x, z = a[0] + 6, a[2] + 6
+    y = surface_y(s, x, z) or a[1]
+    s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+    s.cmd("kill @e[type=hundred_years_war:crossbowman]", 1)
+    hires = []
+    for key in ["squad:norman.town_crossbows", "squad:norman.genoese"]:
+        hires.append(" ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "{key}" 1 900000 SWORN', 5) if "recruit:" in l)[-80:])
+    time.sleep(6)
+    cb = [u for u, v in spike_info(s, "@e[type=hundred_years_war:crossbowman]").items() if ("owner=" + P) in v["desc"] and dist(v["pos"], (x, y, z)) <= 45]
+    offs = [" ".join(s.output(f"data get entity {u} HandItems[1]", 0.6)) for u in cb]
+    pav = [o for o in offs if "_pavese" in o]
+    painted = sum(1 for o in pav if "banner_patterns" in o or "base_color" in o)
+    armoured = sum(1 for o in pav if "pavise_armour" in o)
+    note("CB offhands", " || ".join(o[:200] for o in offs[:3]))
+    check("CB-1 most crossbowmen carry a painted pavise with a little armour", cb and len(pav) >= len(cb) * 0.4 and painted == len(pav) and armoured == len(pav),
+          f"{hires}; {len(cb)} crossbowmen, {len(pav)} pavises, painted {painted}, armoured {armoured}")
+    # they still shoot: a tough zombie in front of them takes bolts
+    zx, zz = x + 14, z
+    zy = surface_y(s, zx, zz) or y
+    s.cmd(f"summon minecraft:zombie {zx} {zy} {zz} {{Tags:['cbT'],PersistenceRequired:1b,Health:200f,attributes:[{{id:'minecraft:generic.max_health',base:200}},{{id:'minecraft:generic.movement_speed',base:0.0}}]}}", 1)
+    h0 = health(s, "cbT")
+    t0 = time.time()
+    h1 = h0
+    while time.time() - t0 < 40:
+        time.sleep(4)
+        h1 = health(s, "cbT")
+        if h1 is None or (h0 is not None and h1 < h0 - 10):
+            break
+    s.cmd("kill @e[tag=cbT]", 1)
+    check("CB-2 crossbowmen with pavises still shoot", h0 is not None and (h1 is None or h1 < h0 - 10), f"zombie health {h0} -> {h1}")
+
+
+SCENARIOS = {"CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

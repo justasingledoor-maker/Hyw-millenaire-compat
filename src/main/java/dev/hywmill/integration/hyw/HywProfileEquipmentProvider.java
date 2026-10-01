@@ -93,7 +93,25 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                 u.setItemSlot(slotOf(slot), new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(item))));
             }
         }
+        if (dev.hywmill.garrison.equip.Pavise.crossbowman(unit.entityType()) && u.getOffhandItem().isEmpty()) {
+            // post-M5: most crossbowmen carry a pavise of their tier (a squad's look may already have given one)
+            String pv = dev.hywmill.garrison.equip.Pavise.choose(ctx.tier(), ctx.rosterId());
+            if (pv != null && check(unit.entityType(), "offhand", pv) == Verdict.OK) {
+                u.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(pv))));
+            }
+        }
         decorate(u, p, ctx, look);
+        ItemStack off = u.getOffhandItem();
+        if (dev.hywmill.garrison.equip.Pavise.crossbowman(unit.entityType()) && !off.isEmpty()
+                && EquipmentProfiles.family(BuiltInRegistries.ITEM.getKey(off.getItem()).toString()).equals(dev.hywmill.garrison.equip.Pavise.FAMILY)) {
+            // a crossbowman never raises it to block: carried, it gives a little armour instead
+            int armour = dev.hywmill.garrison.equip.Pavise.armour(BuiltInRegistries.ITEM.getKey(off.getItem()).toString());
+            off.set(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS, net.minecraft.world.item.component.ItemAttributeModifiers.builder()
+                    .add(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR, new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                            ResourceLocation.fromNamespaceAndPath("hywmill", "pavise_armour"), armour,
+                            net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE),
+                            net.minecraft.world.entity.EquipmentSlotGroup.OFFHAND).build());
+        }
     }
 
     /** A usable kit of {@code kits} (deterministic by roster id), or null. */
@@ -382,6 +400,10 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
         if (target.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
             Equipable eq = Equipable.get(new ItemStack(item));
             return eq != null && eq.getEquipmentSlot() == target ? Verdict.OK : Verdict.WRONG_SLOT;
+        }
+        if (slot.equals("offhand") && dev.hywmill.garrison.equip.Pavise.crossbowman(entityType)
+                && EquipmentProfiles.family(itemId).equals(dev.hywmill.garrison.equip.Pavise.FAMILY)) {
+            return Verdict.OK; // post-M5: crossbowmen carry pavises (HYW gives them nothing in the off hand)
         }
         return HywEkFamilies.families(entityType, slot).contains(EquipmentProfiles.family(itemId)) ? Verdict.OK : Verdict.NOT_HYW_FAMILY;
     }

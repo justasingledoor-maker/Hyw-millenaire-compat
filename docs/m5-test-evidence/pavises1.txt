@@ -1,0 +1,4 @@
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  CB-1 most crossbowmen carry a painted pavise with a little armour  ['444-4555-8666-777777777777 msg=Town Crossbowmen (10 soldiers) mustered for 9 or.', '777777777777 msg=Genoese Crossbowmen (10 soldiers) mustered for 11 or 16 argent.']; 18 crossbowmen, 13 pavises, painted 13, armoured 13
+  PASS  CB-2 crossbowmen with pavises still shoot  zombie health 200.0 -> 187.304
+  NOTE  CB offhands  Crossbowman has the following entity data: {components: {"minecraft:attribute_modifiers": {modifiers: [{amount: 2.0d, id: "hywmill:pavise_armour", slot: "offhand", type: "minecraft:generic.armor", ope || Crossbowman has the following entity data: {} || Crossbowman has the following entity data: {}
