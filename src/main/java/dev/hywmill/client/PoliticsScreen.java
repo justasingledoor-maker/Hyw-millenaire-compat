@@ -27,6 +27,10 @@ public final class PoliticsScreen extends Screen {
     /** Post-M5: the History tab (vassal ties and battle reports) instead of the overview, and its scroll. */
     private boolean history;
     private int historyScroll;
+    /** Post-M5: the War tab (scout reports: columns on the road, convoys), and its scroll (rows). */
+    private boolean war;
+    private int warScroll;
+    private static final int WAR_ROW = 34;
     private String lastResult = "";
     private boolean lastOk = true;
 
@@ -77,10 +81,39 @@ public final class PoliticsScreen extends Screen {
             i++;
         }
         int x0 = 190;
-        addRenderableWidget(Button.builder(Component.literal((history ? "" : "> ") + "Overview"), b -> { history = false; rebuildWidgets(); })
+        addRenderableWidget(Button.builder(Component.literal((history || war ? "" : "> ") + "Overview"), b -> { history = false; war = false; rebuildWidgets(); })
                 .bounds(x0, 12, 70, 16).build());
-        addRenderableWidget(Button.builder(Component.literal((history ? "> " : "") + "History"), b -> { history = true; rebuildWidgets(); })
+        addRenderableWidget(Button.builder(Component.literal((history ? "> " : "") + "History"), b -> { history = true; war = false; rebuildWidgets(); })
                 .bounds(x0 + 74, 12, 70, 16).build());
+        long openCount = snap.intel().stream().filter(PoliticsSnapshot.IntelRow::open).count();
+        addRenderableWidget(Button.builder(Component.literal((war ? "> " : "") + "War" + (openCount > 0 ? " (" + openCount + ")" : "")),
+                b -> { war = true; history = false; rebuildWidgets(); }).bounds(x0 + 148, 12, 70, 16).build());
+        if (war) {
+            List<PoliticsSnapshot.IntelRow> rows = snap.intel();
+            int fit = Math.max(1, (height - 44 - 34) / WAR_ROW);
+            warScroll = Math.max(0, Math.min(warScroll, Math.max(0, rows.size() - fit)));
+            int bx = width - 190 - 74;
+            for (int k = 0; k < fit && warScroll + k < rows.size(); k++) {
+                PoliticsSnapshot.IntelRow row = rows.get(warScroll + k);
+                int ry = 34 + k * WAR_ROW;
+                if (row.canTake()) {
+                    addRenderableWidget(Button.builder(Component.literal("Intercept"), b -> submitWar("INTERCEPT", row.id()))
+                            .bounds(bx, ry, 72, 14).tooltip(Tooltip.create(Component.literal("Take the job: ride out and cut it down."
+                                    + " Your village's council will leave it to you."))).build());
+                }
+                if (row.canBribe()) {
+                    addRenderableWidget(Button.builder(Component.literal("Bribe " + row.price() + "d"), b -> submitWar("BRIBE", row.id()))
+                            .bounds(bx, ry + 16, 72, 14).tooltip(Tooltip.create(Component.literal("Pay " + row.price()
+                                    + " deniers: the company rides for your side instead."))).build());
+                }
+            }
+            if (rows.size() > fit) {
+                addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { warScroll = Math.max(0, warScroll - 1); rebuildWidgets(); })
+                        .bounds(width - 190 - 18, 12, 16, 16).build());
+                addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { warScroll++; rebuildWidgets(); })
+                        .bounds(width - 190 - 36, 12, 16, 16).build());
+            }
+        }
         if (history) {
             addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { historyScroll = Math.max(0, historyScroll - 5); })
                     .bounds(width - 190 - 18, 12, 16, 16).build());
@@ -123,6 +156,29 @@ public final class PoliticsScreen extends Screen {
         }
     }
 
+    private void submitWar(String action, UUID column) {
+        PacketDistributor.sendToServer(new PoliticsPayloads.SubmitAction(action, snap.home() != null ? snap.home() : column, column, 0));
+    }
+
+    /** Post-M5: the War tab: each scout report (open ones first), two wrapped lines, its buttons on the right. */
+    private void renderWar(GuiGraphics g, int x0, int x1) {
+        List<PoliticsSnapshot.IntelRow> rows = snap.intel();
+        if (rows.isEmpty()) {
+            g.drawString(font, "No scout reports. In a war, your side's light horse ride out and report", x0, 34, FADED, false);
+            g.drawString(font, "columns on the road and enemy supply convoys here.", x0, 44, FADED, false);
+            return;
+        }
+        int fit = Math.max(1, (height - 44 - 34) / WAR_ROW);
+        for (int k = 0; k < fit && warScroll + k < rows.size(); k++) {
+            PoliticsSnapshot.IntelRow row = rows.get(warScroll + k);
+            int ry = 34 + k * WAR_ROW;
+            var lines = font.split(Component.literal(row.text()), x1 - x0 - 80);
+            for (int l = 0; l < Math.min(3, lines.size()); l++) {
+                g.drawString(font, lines.get(l), x0, ry + l * 10, row.open() ? INK : FADED, false);
+            }
+        }
+    }
+
     private void select(UUID village) {
         if (snap.home() != null) {
             PacketDistributor.sendToServer(new PoliticsPayloads.SelectVillage(snap.home(), village));
@@ -159,6 +215,13 @@ public final class PoliticsScreen extends Screen {
                 String d = v.distance() >= 1000 ? String.format("%.1f km", v.distance() / 1000.0) : v.distance() + " m";
                 g.drawString(font, d, 12 + 138 - font.width(d) - 3, ry + 5, 0xFFD8CFB8, false);
             }
+        }
+        if (war) {
+            renderWar(g, x0, x1);
+            if (!lastResult.isEmpty()) {
+                wrap(g, lastResult, x0, height - 58, x1 - x0, lastOk ? 0xFF2E5E1E : 0xFF8A1E1E);
+            }
+            return;
         }
         if (history) {
             renderHistory(g, x0, x1);

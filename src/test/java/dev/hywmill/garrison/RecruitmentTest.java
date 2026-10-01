@@ -287,8 +287,8 @@ class RecruitmentTest {
             UnitSpec s = Recruitment.chooseUnit(VILLAGE, seq, u, norman.composition(), counts);
             counts.merge(s.key(), 1, Integer::sum);
         }
-        // post-M5 weights 3:2:2:1:1 (no militia) over 9 -> 100 soldiers split 34:22:22:11:11 (rounding by deficit)
-        assertEquals(Map.of("spear_man", 34, "shieldman", 22, "crossbowman", 22, "archer", 11, "light_lancer_rider", 11), counts);
+        // post-M5 weights 3:2:2:1:2 (no militia; more light horse, for scouting) over 10 -> 100 soldiers split 30:20:20:10:20
+        assertEquals(Map.of("spear_man", 30, "shieldman", 20, "crossbowman", 20, "archer", 10, "light_lancer_rider", 20), counts);
     }
 
     @Test

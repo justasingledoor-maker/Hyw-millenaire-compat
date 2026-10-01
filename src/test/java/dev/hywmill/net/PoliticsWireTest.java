@@ -64,7 +64,7 @@ class PoliticsWireTest {
         var r = new PoliticsPayloads.ActionResult(false, "PAIR_COOLDOWN", "you proposed this recently");
         PoliticsPayloads.ActionResult.CODEC.encode(b, r);
         assertEquals(r, PoliticsPayloads.ActionResult.CODEC.decode(b));
-        assertEquals("5", PoliticsNet.VERSION); // 4: player colours; 5: History tab
+        assertEquals("6", PoliticsNet.VERSION); // 4: player colours; 5: History tab; 6: War tab
     }
 
     @Test

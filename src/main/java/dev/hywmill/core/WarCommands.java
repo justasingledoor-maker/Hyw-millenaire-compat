@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -83,7 +84,28 @@ final class WarCommands {
             lines.forEach(l -> send(ctx.getSource(), " " + l));
             return lines.size();
         }));
+        war.then(Commands.literal("intel").executes(WarCommands::intel)
+                .then(Commands.literal("take").then(Commands.argument("id", com.mojang.brigadier.arguments.StringArgumentType.word())
+                        .executes(ctx -> intelAct(ctx, false))))
+                .then(Commands.literal("bribe").then(Commands.argument("id", com.mojang.brigadier.arguments.StringArgumentType.word())
+                        .executes(ctx -> intelAct(ctx, true)))));
         war.then(Commands.literal("admin").requires(s -> s.hasPermission(3))
+                .then(Commands.literal("column").then(Commands.argument("kind", com.mojang.brigadier.arguments.StringArgumentType.word())
+                        .then(Commands.argument("owner", BlockPosArgument.blockPos()).then(Commands.argument("to", BlockPosArgument.blockPos())
+                                .executes(ctx -> adminColumn(ctx, false))
+                                .then(Commands.literal("reveal").executes(ctx -> adminColumn(ctx, true)))))))
+                .then(Commands.literal("column-show").then(Commands.argument("id", com.mojang.brigadier.arguments.StringArgumentType.word())
+                        .executes(WarCommands::adminColumnShow)))
+                .then(Commands.literal("scout").then(Commands.argument("village", BlockPosArgument.blockPos()).executes(ctx -> {
+                    VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "village"));
+                    if (v == null) {
+                        return 0;
+                    }
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    send(ctx.getSource(), "war scout " + v.name + ": " + dev.hywmill.garrison.service.ColumnService.forceScout(ow, GarrisonLedger.get(ow), v,
+                            ow.getGameTime()));
+                    return 1;
+                })))
                 .then(Commands.literal("recall-all").executes(ctx -> recallAll(ctx, false))
                         .then(Commands.literal("stowed").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                                 .executes(ctx -> recallAll(ctx, true))))
@@ -117,9 +139,12 @@ final class WarCommands {
                             return ledger.sieges().size();
                         })))
                 .then(Commands.literal("siege").then(Commands.argument("attacker", BlockPosArgument.blockPos())
-                        .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminSiege(ctx, false))
+                        .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminSiege(ctx, false, false))
+                                .then(Commands.literal("quick").executes(ctx -> adminSiege(ctx, false, true))
+                                        .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
+                                                .executes(ctx -> adminSiege(ctx, true, true))))
                                 .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
-                                        .executes(ctx -> adminSiege(ctx, true))))))
+                                        .executes(ctx -> adminSiege(ctx, true, true))))))
                 .then(Commands.literal("vassal").then(Commands.argument("vassal", BlockPosArgument.blockPos())
                         .then(Commands.argument("overlord", BlockPosArgument.blockPos()).executes(ctx -> {
                             // swears the first village to the second for 21 days, as if it had lost a siege to it
@@ -263,14 +288,14 @@ final class WarCommands {
     }
 
     /** Post-M5: {@code /hywmill war admin siege <attacker> <target> [unwatched]} launches a siege now (no war needed). */
-    private static int adminSiege(CommandContext<CommandSourceStack> ctx, boolean unwatched) {
+    private static int adminSiege(CommandContext<CommandSourceStack> ctx, boolean unwatched, boolean quick) {
         VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
         VillageRecord t = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "target"));
         if (a == null || t == null) {
             return 0;
         }
         ServerLevel ow = ctx.getSource().getServer().overworld();
-        var l = HywMillRuntime.require().sieges().launch(ow, a.villageId, t.villageId, null, ow.getGameTime(), false);
+        var l = HywMillRuntime.require().sieges().launch(ow, a.villageId, t.villageId, null, ow.getGameTime(), false, quick);
         if (l.ok() && unwatched) {
             l.siege().forceUnwatched = true;
             GarrisonLedger.get(ow).setDirty();
@@ -278,6 +303,68 @@ final class WarCommands {
         send(ctx.getSource(), "war siege " + l.refusal() + ": " + l.detail() + (l.ok() ? " id " + l.siege().id.toString().substring(0, 8)
                 + " host " + l.siege().hostStart + (unwatched ? " (unwatched)" : "") : ""));
         return l.ok() ? 1 : 0;
+    }
+
+    /** Post-M5: {@code /hywmill war intel}: what the scouts of the player's side found (columns on the road, convoys). */
+    private static int intel(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(ow);
+        net.minecraft.server.level.ServerPlayer p = ctx.getSource().getPlayer();
+        boolean all = p == null || ctx.getSource().hasPermission(2) && dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get();
+        List<dev.hywmill.politics.war.Column> cs = all ? ledger.columns() : dev.hywmill.garrison.service.ColumnService.visible(ledger, p.getUUID());
+        send(ctx.getSource(), "war intel: " + cs.size() + " column(s), " + ledger.scoutRides().size() + " scout(s) out");
+        for (dev.hywmill.politics.war.Column c : cs) {
+            send(ctx.getSource(), " " + c.id.toString().substring(0, 8) + " " + c.kind + (c.revealedBy == null ? " (unknown)" : "") + ": "
+                    + dev.hywmill.garrison.service.ColumnService.describe(ow, ledger, c, p));
+        }
+        return cs.size();
+    }
+
+    private static int intelAct(CommandContext<CommandSourceStack> ctx, boolean bribe) throws CommandSyntaxException {
+        net.minecraft.server.level.ServerPlayer p = ctx.getSource().getPlayerOrException();
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(ow);
+        var c = dev.hywmill.garrison.service.ColumnService.find(ledger, com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "id"));
+        if (c == null) {
+            ctx.getSource().sendFailure(Component.literal("No such column."));
+            return 0;
+        }
+        String r = bribe ? dev.hywmill.garrison.service.ColumnService.bribe(ow, ledger, p, c) : dev.hywmill.garrison.service.ColumnService.take(ow, ledger, p, c);
+        send(ctx.getSource(), "war intel " + (bribe ? "bribe" : "take") + ": " + r);
+        return 1;
+    }
+
+    /** Admin: {@code column <kind> <owner> <to> [reveal]} puts a column on the road now (tests). */
+    private static int adminColumn(CommandContext<CommandSourceStack> ctx, boolean reveal) {
+        VillageRecord o = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "owner"));
+        VillageRecord t = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "to"));
+        if (o == null || t == null) {
+            return 0;
+        }
+        dev.hywmill.politics.war.Column.Kind kind;
+        try {
+            kind = dev.hywmill.politics.war.Column.Kind.valueOf(com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "kind").toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            ctx.getSource().sendFailure(Component.literal("kind: mercs, vassal, messenger, alarm or convoy"));
+            return 0;
+        }
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(ow);
+        var c = dev.hywmill.garrison.service.ColumnService.spawn(ow, ledger, kind, o, t, ow.getGameTime(), reveal, t.villageId);
+        send(ctx.getSource(), "war column " + c.id.toString().substring(0, 8) + " " + c.kind + ": "
+                + dev.hywmill.garrison.service.ColumnService.describe(ow, ledger, c, ctx.getSource().getPlayer()));
+        return 1;
+    }
+
+    /** Admin: {@code column-show <id>} brings a column into the world beside the caller (tests). */
+    private static int adminColumnShow(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        net.minecraft.server.level.ServerPlayer p = ctx.getSource().getPlayerOrException();
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(ow);
+        var c = dev.hywmill.garrison.service.ColumnService.find(ledger, com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "id"));
+        boolean ok = c != null && dev.hywmill.garrison.service.ColumnService.forceMaterialize(ow, ledger, c, p, ow.getGameTime());
+        send(ctx.getSource(), "war column-show " + (ok ? "OK" : "FAILED"));
+        return ok ? 1 : 0;
     }
 
     /**

@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The same {@link #snapshot}/{@link #submit} are driven headless by {@code /hywmill dev ui}.
  */
 public final class PoliticsNet {
-    public static final String VERSION = "5"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab
+    public static final String VERSION = "6"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab; 6: War tab
     /** At most one request per player per this many ticks. */
     public static final long RATE_TICKS = 5;
     /** Local requests (pardon, apology) and the home view need the player near the home village. */
@@ -163,7 +163,7 @@ public final class PoliticsNet {
         List<String> honours = PoliticsView.honours(ow, me);
         if (home == null) {
             return new PoliticsSnapshot(null, "", "", "", "", 0, 0, 0, 0, List.of("No village nearby. Select a village you know."), List.of(),
-                    rows, null, List.of(), envoys, List.of(), honours, history(ow, ledger, null));
+                    rows, null, List.of(), envoys, List.of(), honours, history(ow, ledger, null), intel(player, ledger));
         }
         PoliticsView.Home h = PoliticsView.home(ow, me, home).orElseThrow();
         List<String> chron = new ArrayList<>();
@@ -175,7 +175,25 @@ public final class PoliticsNet {
         OptionalInt dp = source.diplomacyPoints(ow, home, me);
         return new PoliticsSnapshot(home, h.name(), h.culture(), h.status().name(), h.effective().name(), h.reputation(), h.grievance(),
                 h.favor(), dp.isPresent() ? dp.getAsInt() : -1, h.wordTravels(), chron, rows, selected, actions, envoys,
-                PoliticsView.lent(ow, me, home), honours, history(ow, ledger, home));
+                PoliticsView.lent(ow, me, home), honours, history(ow, ledger, home), intel(player, ledger));
+    }
+
+    /** Post-M5, the War tab: what the player's side found on the roads, the open ones first. */
+    public static List<PoliticsSnapshot.IntelRow> intel(ServerPlayer player, GarrisonLedger ledger) {
+        ServerLevel ow = player.getServer().overworld();
+        long now = ow.getGameTime();
+        List<PoliticsSnapshot.IntelRow> open = new ArrayList<>(), past = new ArrayList<>();
+        for (dev.hywmill.politics.war.Column c : dev.hywmill.garrison.service.ColumnService.visible(ledger, player.getUUID())) {
+            boolean o = c.open(now);
+            boolean take = o && dev.hywmill.garrison.service.ColumnService.mayAct(ledger, player.getUUID(), c);
+            boolean bribe = dev.hywmill.garrison.service.ColumnService.bribable(ledger, player.getUUID(), c, now);
+            String text = dev.hywmill.garrison.service.ColumnService.describe(ow, ledger, c, player);
+            (c.onRoad() ? open : past).add(new PoliticsSnapshot.IntelRow(c.id, text, o, take, bribe,
+                    bribe ? dev.hywmill.garrison.service.ColumnService.price(c) : 0));
+        }
+        java.util.Collections.reverse(past);
+        open.addAll(past);
+        return open;
     }
 
     /**
@@ -215,6 +233,18 @@ public final class PoliticsNet {
     /** Validates and performs one intent through {@link PoliticsActions#submit}. */
     public static PoliticsPayloads.ActionResult submit(ServerPlayer player, String action, UUID home, UUID target, int amount) {
         ServerLevel ow = player.getServer().overworld();
+        if (action.equals("INTERCEPT") || action.equals("BRIBE")) {
+            // post-M5, the War tab: the target is a column on the road
+            GarrisonLedger ledger = GarrisonLedger.get(ow);
+            dev.hywmill.politics.war.Column c = dev.hywmill.garrison.service.ColumnService.find(ledger, target.toString());
+            if (c == null) {
+                return new PoliticsPayloads.ActionResult(false, "UNKNOWN_COLUMN", "That column is gone");
+            }
+            String msg = action.equals("BRIBE") ? dev.hywmill.garrison.service.ColumnService.bribe(ow, ledger, player, c)
+                    : dev.hywmill.garrison.service.ColumnService.take(ow, ledger, player, c);
+            boolean ok = msg.startsWith("Paid") || msg.startsWith("You take");
+            return new PoliticsPayloads.ActionResult(ok, ok ? "OK" : "REFUSED", msg);
+        }
         VillageRecord h = GarrisonLedger.get(ow).get(home);
         if (h == null) {
             return new PoliticsPayloads.ActionResult(false, "UNKNOWN_VILLAGE", "Unknown village");
