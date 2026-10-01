@@ -1322,3 +1322,44 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
       not how much each did.
   * The first run failed on a wrong hire key in the harness (nothing was hired), which made its SS-2 vacuous.
 * SHA-256 of the jar: `55548ee0b682f68cb75ae8d0e71632d4d84c9f672e52a6ad70bb920cfc41968d`.
+
+### 6.43 Siege build-up, columns on the road, scouts, supply convoys, War tab (`dist/hywmill-m5-fix43.jar`)
+
+* **Build-up.** A declared siege now prepares for two days. On the third day the host musters and marches by night, so it
+  is before the walls at dawn. The host is chosen at the muster.
+  * Sleeping or `/time add` moves the build-up on.
+  * `war admin siege <a> <t> quick` keeps the old one-minute flow; the harness uses it.
+* **Columns** (`Column`, `ColumnService`) are mercenaries, vassals' men, messengers, the alarm and supply convoys.
+  * **Off-screen** a column is numbers moving along its road.
+  * **Near a player** (96 blocks) it comes into the world as HYW soldiers of its village, which fight a player on campaign
+    against it and his men. It is stowed again when nobody is within 144 blocks.
+  * **Killed to the last man**, it never arrives.
+  * **Mercenaries** of both sides come by road during the build-up. A siege that skips the build-up keeps the old
+    one-minute roll.
+  * **Messengers.** A relief comes only if the besieged's messenger reaches the helper. A vassal's messenger brings a
+    vassal column.
+  * **The alarm.** It is raised by the besieged's scouts when the host marches (50%). If it gets home, the village opens
+    its coffers: recruitment is four times as fast for a day, plus 4 levy points. Emergency levies are untouched.
+* **Supply convoys** camp somewhere in a war, siege or not.
+  * Each has 1-3 AstikorCarts supply carts with horses hitched (chest minecarts without AstikorCarts) and 4-8 resting
+    guards.
+  * The carts hold themed loot: culture food, soldiers' kit, camp supplies and trade goods.
+  * Kill the guards and the carts stay; walk away and the convoy breaks camp.
+* **Scouts.**
+  * Light horse are commoner (composition weights up, from Guard Post) and no longer march on sieges.
+  * Villages at war send riders out (40% a minute). One in ten dies; half the others find a column or a convoy.
+  * Players on campaign or nearby get its coordinates, distance and direction from where they stand, and when it arrives.
+* **War tab** (Politics screen, protocol 6) lists open reports first, then past ones.
+  * **Intercept** takes the job.
+  * **Bribe** (48 deniers a man) turns a mercenary company to your side.
+  * Untaken reports are decided by the council: it acts half the time and succeeds 60% of those.
+  * `/hywmill war intel [take|bribe <id>]` does the same in chat. Admin test commands: `column`, `column-show`, `scout`.
+* **Not implemented: the three-wave siege battle.** It is written up as a proposal in `docs/siege-design.md`.
+* **Tests.**
+  * JUnit 364/364. New: `ColumnTest`.
+  * Harness CL 8/8 with Epic Knights and AstikorCarts Redux (`docs/m5-test-evidence/columns-scouts1.txt`): build-up and
+    muster, scout report with coordinates, intel with direction and distance, bribe, materialized column destroyed,
+    convoy carts with culture loot, alarm.
+  * Two earlier runs failed on harness setup: no declared war, and too short a time skip. The second run also found that
+    Guard Post villages could not field light horse; that was fixed.
+* SHA-256 of the jar: `a01a53d871f633b791469796c4bd9146a694e32afb131cc805b7f1be4625c607`.
