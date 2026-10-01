@@ -365,7 +365,7 @@ public final class GarrisonService {
         GarrisonTag tag = new GarrisonTag(rec.villageId, e.rosterId, e.generation);
         boolean merc = !e.mercLook.isEmpty();
         // garrison soldiers wear the village's colours; engines and hired mercenaries (their company's look) do not
-        int[] livery = known != null && !merc ? LiveryService.of(overworld, rec) : null;
+        int[] livery = known != null && (!merc || e.extra.equals("household")) ? LiveryService.of(overworld, rec) : null; // the lord's guard wears his colours
         String role = merc ? dev.hywmill.garrison.equip.EquipmentProfiles.LOOK_PREFIX + e.mercLook
                 : e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "";
         e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(role, livery);

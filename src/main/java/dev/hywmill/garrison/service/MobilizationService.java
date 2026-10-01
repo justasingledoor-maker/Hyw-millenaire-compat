@@ -151,7 +151,7 @@ public final class MobilizationService {
         RosterEntry levy = null;
         for (RosterEntry e : r.entries()) {
             // the longest-serving levy at home (not away on a siege, an errand or a raid)
-            if (e.mobilized && e.mercLook.isEmpty() && e.state() == UnitState.GARRISONED && e.duty == e.assignedDuty && e.errandPlayer == null
+            if (e.mobilized && !e.temporary() && e.state() == UnitState.GARRISONED && e.duty == e.assignedDuty && e.errandPlayer == null
                     && (levy == null || e.recruitedTick < levy.recruitedTick)) {
                 levy = e;
             }

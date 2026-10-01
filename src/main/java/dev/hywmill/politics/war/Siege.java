@@ -44,6 +44,9 @@ public final class Siege {
     /** The company hired for this siege ("" none) and how many it brought. */
     public String mercCompany = "";
     public int mercCount;
+    /** Post-M5: the defenders' help (militia, mercenaries, the lord's household) was rolled; the temporary slots it raised in the target's roster. */
+    public boolean aidRolled;
+    public final List<UUID> extras = new ArrayList<>();
     /** One line on how it ended (for the chronicle, status and the report). */
     public String summary = "";
 

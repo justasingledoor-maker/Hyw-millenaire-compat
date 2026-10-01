@@ -46,13 +46,17 @@ public final class Relief {
         return r.enabled() && !isParty && !loneBuilding && !atWarWithTarget && relation >= r.minRelation() && available >= r.minGarrison();
     }
 
-    /** The force's size: shareMin..shareMax of the garrison at home (drawn), at least one soldier. */
+    /**
+     * The force's size: shareMin..shareMax of the garrison at home (drawn), but at least {@code minForce} soldiers (post-M5;
+     * a force of one is no relief) as long as that leaves the helper half its garrison; at least one soldier.
+     */
     public static int size(int available, double draw, PoliticsTables.ReliefRule r) {
         if (available <= 0) {
             return 0;
         }
         double share = r.shareMin() + (r.shareMax() - r.shareMin()) * Math.max(0, Math.min(1, draw));
-        return Math.max(1, Math.min(available, (int) Math.round(available * share)));
+        int floor = Math.min(r.minForce(), Math.max(1, available / 2));
+        return Math.max(Math.max(1, floor), Math.min(available, (int) Math.round(available * share)));
     }
 
     /** Travel time: minTicks..maxTicks (a forced march), drawn. */

@@ -6104,10 +6104,104 @@ def scenario_RC(ctx):
     g3 = garrison(s, a)
     check("RC-2 soldiers whose siege record is lost come home too", "no siege record came home" in out2 and g3.get("deployed", 0) < g2.get("deployed", 0),
           f"{out2[-200:]}; deployed {g2.get('deployed')} -> {g3.get('deployed')}")
+    # a host marching home does not stop its village from marching again (user report: five hosts on their way home, their
+    # villages unloaded, blocked every new siege)
+    p2 = s.pos()
+    t0 = time.time()
+    while time.time() - t0 < 180:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} unwatched", 2)):
+            break
+        time.sleep(10)
+    s.wait_for(r"Siege \w+ ended", 600, since=p2)
+    time.sleep(3)
+    st = " | ".join(s.output("hywmill war sieges", 2))
+    again = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    check("RC-3 while its last host marches home, a village is not refused as already besieging (only a host too small may stop it)",
+          "RETURN" in st and again and "ALREADY_BESIEGING" not in again and "TARGET_BESIEGED" not in again,
+          f"{st[-200:]} || {again[-200:]}")
+    s.output("hywmill war admin recall-all", 3)
     s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
 
 
-SCENARIOS = {"RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_DA(ctx):
+    """Help for the besieged (post-M5): before the assault the target may raise militia (5-15 by population), hire mercenaries
+    and (garrison/stronghold) call its lord's household; forced here with '/hywmill war admin aid'. They appear at home, count
+    among the defenders when the battle starts, and go home when the siege ends."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    P = W_UUID
+    p0 = s.pos()
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(10)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(12)
+    t0 = time.time()
+    while time.time() - t0 < 180:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2)):
+            break
+        time.sleep(10)
+    fb = garrison(s, b).get("faction")
+    near0 = sum(1 for u, x in spike_info(s, "@e[type=!minecraft:player]").items() if x["tag"] != "none" and ("owner=" + str(fb)) in x["desc"] and dist(x["pos"], b) <= 90)
+    aid = " ".join(l for l in s.output(f"hywmill war admin aid {ca}", 3) if l.startswith("war aid"))
+    time.sleep(5)
+    logs = s.read_since(p0)
+    news = [l for l in logs if "take up arms against" in l or "man its defences" in l or "household" in l and "stands with" in l]
+    near1 = sum(1 for u, x in spike_info(s, "@e[type=!minecraft:player]").items() if x["tag"] != "none" and ("owner=" + str(fb)) in x["desc"] and dist(x["pos"], b) <= 90)
+    m = re.search(r"RAISED (\d+)", aid)
+    n = int(m[1]) if m else 0
+    check("DA-1 the besieged raise militia and hire mercenaries (lord's household in a garrison or stronghold), announced",
+          n >= 15 and len(news) >= 2, f"{aid}; " + " | ".join(x[-120:] for x in news))
+    check("DA-2 they appear at home before the assault", near1 - near0 >= n * 0.6, f"B's soldiers near B: {near0} -> {near1} (raised {n})")
+    landed = s.wait_for(r"materialized in \d+ group", 400, since=p0)
+    md = re.search(r"; (\d+) defender", landed or "")
+    check("DA-3 they count among the defenders when the battle starts", md is not None and int(md[1]) >= n, (landed or "")[-160:])
+    s.output("hywmill war admin recall-all", 3)
+    home = s.wait_for(r"temporary defender\(s\) of .* go home", 30, since=p0)
+    check("DA-4 when the siege ends they go home", home is not None, (home or "")[-140:])
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    # the lord's household: only a garrison or stronghold village has one
+    big = None
+    for l in s.output("hywmill village list", 2):
+        mm = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=(GARRISON|STRONGHOLD)| (-?\d+), (-?\d+), (-?\d+) tier=(GARRISON|STRONGHOLD)", l)
+        if mm:
+            g = [v for v in mm.groups() if v is not None]
+            c = (int(g[0]), int(g[1]), int(g[2]))
+            if c != tuple(a):
+                big = c
+                break
+    if big is None:
+        note("DA-5", "no garrison or stronghold village in this world")
+        return
+    cg = f"{big[0]} {big[1]} {big[2]}"
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    dip(s, a, f"admin truce {ca} {cg} 0")
+    p1 = s.pos()
+    s.output(f"hywmill war for {P} declare {ca} on {cg} force", 2)
+    time.sleep(12)
+    t0 = time.time()
+    while time.time() - t0 < 180:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cg}", 2)):
+            break
+        time.sleep(10)
+    aid2 = " ".join(l for l in s.output(f"hywmill war admin aid {ca}", 3) if l.startswith("war aid"))
+    hh = s.wait_for(r"his household, \d+ of", 10, since=p1)
+    time.sleep(4)
+    fg = garrison(s, big).get("faction")
+    rows = [gear_of(s, u)[0] for u, x in spike_info(s, "@e[type=!minecraft:player]").items()
+            if x["tag"] != "none" and ("owner=" + str(fg)) in x["desc"] and dist(x["pos"], big) <= 90][:40]
+    note("DA household gear sample", " || ".join(r[:140] for r in rows[:4]))
+    check("DA-5 a garrison or stronghold village's lord's household joins the defence", hh is not None, f"{aid2}; {(hh or '')[-160:]}")
+    s.output("hywmill war admin recall-all", 3)
+    s.output(f"hywmill war for {P} peace {ca} with {cg} force", 2)
+
+
+SCENARIOS = {"DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

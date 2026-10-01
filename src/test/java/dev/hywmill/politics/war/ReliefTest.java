@@ -15,7 +15,8 @@ class ReliefTest {
     @Test
     void onlyGreatFriendsAtPeaceWithTheBesiegedSendRelief() {
         assertTrue(Relief.eligible(85, false, false, false, 10, R));
-        assertFalse(Relief.eligible(60, false, false, false, 10, R), "good terms are not enough");
+        assertTrue(Relief.eligible(72, false, false, false, 10, R), "post-M5: good friends (70+) send help too");
+        assertFalse(Relief.eligible(60, false, false, false, 10, R), "fair terms are not enough");
         assertFalse(Relief.eligible(95, true, false, false, 10, R), "not while at war with the besieged");
         assertFalse(Relief.eligible(95, false, true, false, 10, R), "the attacker and the target are parties");
         assertFalse(Relief.eligible(95, false, false, true, 10, R), "bandits send nobody");
@@ -23,10 +24,12 @@ class ReliefTest {
     }
 
     @Test
-    void forceIsFiveToTwentyPercentAndArrivesInOneToTwoMinutes() {
-        assertEquals(2, Relief.size(40, 0, R), "5% of 40");
-        assertEquals(8, Relief.size(40, 1, R), "20% of 40");
-        assertEquals(1, Relief.size(6, 0, R), "at least one soldier");
+    void forceIsEightToTwentyFivePercentAtLeastFiveAndArrivesInOneToTwoMinutes() {
+        assertEquals(5, Relief.size(40, 0, R), "8% of 40 is 3: at least five");
+        assertEquals(10, Relief.size(40, 1, R), "25% of 40");
+        assertEquals(15, Relief.size(60, 1, R), "25% of 60");
+        assertEquals(3, Relief.size(6, 0, R), "a small garrison sends half, not all");
+        assertEquals(1, Relief.size(1, 0, R), "at least one soldier");
         assertEquals(0, Relief.size(0, 0.5, R));
         assertEquals(1200, Relief.travel(0, R));
         assertEquals(2400, Relief.travel(1, R));

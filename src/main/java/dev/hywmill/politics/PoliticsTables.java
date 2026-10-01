@@ -191,10 +191,18 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
      * ambushLossMin..ambushLossMax of its soldiers, and routs home with {@code routChance}) or lose its way
      * ({@code lostChance}: lostMin..all of it never arrives, unharmed). It fights until the siege ends, then goes home.
      */
+    /** @param minForce a relief force is at least this many soldiers (post-M5; never more than half the helper's garrison at home) */
     public record ReliefRule(boolean enabled, int minRelation, double chance, int maxHelpers, int minGarrison, double shareMin, double shareMax,
                              long minTicks, long maxTicks, double ambushChance, double ambushLossMin, double ambushLossMax, double routChance,
-                             double lostChance, double lostMin) {
-        public static final ReliefRule DEFAULT = new ReliefRule(true, 80, 0.2, 6, 4, 0.05, 0.2, 1200, 2400, 0.12, 0.2, 0.6, 0.4, 0.06, 0.3);
+                             double lostChance, double lostMin, int minForce) {
+        public static final ReliefRule DEFAULT = new ReliefRule(true, 70, 0.35, 6, 4, 0.08, 0.25, 1200, 2400, 0.12, 0.2, 0.6, 0.4, 0.06, 0.3, 5);
+
+        public ReliefRule(boolean enabled, int minRelation, double chance, int maxHelpers, int minGarrison, double shareMin, double shareMax,
+                          long minTicks, long maxTicks, double ambushChance, double ambushLossMin, double ambushLossMax, double routChance,
+                          double lostChance, double lostMin) {
+            this(enabled, minRelation, chance, maxHelpers, minGarrison, shareMin, shareMax, minTicks, maxTicks, ambushChance, ambushLossMin,
+                    ambushLossMax, routChance, lostChance, lostMin, 5);
+        }
     }
 
     /**

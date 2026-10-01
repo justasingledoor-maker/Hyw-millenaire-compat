@@ -162,3 +162,26 @@ The garrison used to join the village's own Millénaire raids, and in play the t
     * sends its longest-serving levy at home back home;
     * recruits a paid regular in his place, but only if its levy points cover the regular's cost.
   * The army's quality recovers over a long war.
+
+## Help for the besieged (post-M5, fix38)
+
+* **When.** About a minute before the attackers arrive, at the same moment as the attackers' mercenary roll, the target
+  rolls for help. Each kind is a separate chance (`DefenderAid`):
+  * **Militia (50%).** 5–15 HYW soldiers in levy kit, from the mobilization levy units: 5 + population / 6, ±2. These are
+    HYW soldiers only; Millénaire's AI is not touched.
+  * **Mercenaries (20%).** A free company of 10–20, as for the attackers, in its own look.
+  * **The lord's household (30%, Garrison and Stronghold villages only).** 6–8 soldiers of the culture's best squad, in
+    its look, in the village's colours, at Stronghold equipment.
+* **What they are.** Temporary slots of the target's roster (`RosterEntry.extra`), held in `Siege.extras`:
+  * If the village is loaded they appear at home at once; otherwise when the battle starts.
+  * They count among the defenders, in the watched battle and off-screen.
+  * They take no standing duty and are not counted in the garrison.
+  * They go home (LOST, DISCHARGED) when the siege ends, is called off or is lost.
+* **Admin.** `/hywmill war admin aid <attacker>` brings every kind at once.
+* **Relief forces, bigger and more frequent.**
+  * Friends at relation 70+ now send help, not only 80+.
+  * The chance is 35% per friend, up from 20%.
+  * The force is 8–25% of the friend's garrison at home, and at least 5 soldiers (`minForce`), as long as that leaves the
+    friend half its garrison.
+* **A host on its way home blocks nothing.** It no longer stops its village from launching a new siege, or its target from
+  being besieged again.

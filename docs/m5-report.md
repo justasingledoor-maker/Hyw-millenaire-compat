@@ -1185,3 +1185,36 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
     * a host marching on Barneville, with a relief force out, was home at once (10 away to 0) and no siege was decided;
     * after its record was dropped, a marching host's 23 soldiers came home through the repair (23 away to 0).
 * SHA-256 of the jar: `092267e37119136f74b95ae60e302653f73b12d4b226813d47170e35aaacdc72`.
+
+### 6.38 Help for the besieged; bigger relief forces; a host marching home blocks nothing (`dist/hywmill-m5-fix38.jar`)
+
+* **Help for the besieged.** Rolled a minute before the assault, each kind by its own chance:
+  * **Militia (50%):** 5–15 HYW soldiers in levy kit, by population.
+  * **Mercenaries (20%):** a free company of 10–20.
+  * **The lord's household (30%, Garrison and Stronghold only):** 6–8 soldiers of the culture's best squad, in its look
+    and the village's colours.
+  * They appear at home, count among the defenders, take no duty, are not counted in the garrison, and go home when the
+    siege ends.
+  * Each kind is announced and chronicled.
+  * `/hywmill war admin aid <attacker>` forces all of them. See `docs/siege-design.md`.
+* **Relief forces.**
+  * Friends at relation 70+ send help, not only 80+.
+  * The chance is 35% per friend, up from 20%.
+  * The force is 8–25% of the friend's garrison, and at least 5 soldiers while that leaves the friend half its garrison.
+    Before, a small friend sent 1.
+* **The user's report:** after recall-all, five hosts on their way home to unloaded villages kept their villages from
+  launching new sieges.
+  * A host in RETURN no longer counts as "already besieging" for its village, and does not shield its target.
+  * Such a host still arrives when its village is loaded.
+* **Tests.**
+  * JUnit 352/352. New: `DefenderAidTest`. `ReliefTest` updated for the new sizes and relation.
+  * Harness DA 5/5 with Epic Knights + addons (`docs/m5-test-evidence/defender-aid1.txt`):
+    * Barneville raised 9 militia and 11 Bhil hillmen;
+    * its soldiers near home went from 20 to 41;
+    * the battle started with 48 defenders;
+    * all 20 went home after the recall;
+    * Saint-Pierre le-fort (a Garrison village) called its lord's household: 8 of the Conroi.
+  * Harness RC: RC-1 and RC-2 pass. RC-3 shows that, with a host of the same village marching home, a new siege is no
+    longer refused as "already besieging". It was refused HOST_TOO_SMALL instead, because the whole garrison was away. The
+    check was then corrected to accept that, and the scenario has not been re-run.
+* SHA-256 of the jar: `5b79ae1374f75333c87b4b7e976d9591e18e0f8467f40c5526b3330ac79b4c1d`.

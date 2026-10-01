@@ -102,6 +102,24 @@ final class WarCommands {
                         .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminSiege(ctx, false))
                                 .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                                         .executes(ctx -> adminSiege(ctx, true))))))
+                .then(Commands.literal("aid").then(Commands.argument("attacker", BlockPosArgument.blockPos()).executes(ctx -> {
+                    // the target of that village's host gets every kind of help now (militia, mercenaries, household), before the battle
+                    VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
+                    if (a == null) {
+                        return 0;
+                    }
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    GarrisonLedger ledger = GarrisonLedger.get(ow);
+                    var s = dev.hywmill.garrison.service.SiegeService.byAttacker(ledger, a.villageId);
+                    VillageRecord t = s == null ? null : ledger.get(s.target);
+                    if (s == null || t == null || s.phase == dev.hywmill.politics.war.Siege.Phase.BATTLE || s.phase == dev.hywmill.politics.war.Siege.Phase.RETURN) {
+                        send(ctx.getSource(), "war aid NONE: " + a.name + " has no host on the way to a siege");
+                        return 0;
+                    }
+                    int n = HywMillRuntime.require().sieges().defenderAid(ow, ledger, s, a, t, ow.getGameTime(), true);
+                    send(ctx.getSource(), "war aid RAISED " + n + " for " + t.name);
+                    return n;
+                })))
                 .then(Commands.literal("mercs").then(Commands.argument("attacker", BlockPosArgument.blockPos()).executes(WarCommands::adminMercs)))
                 .then(Commands.literal("relief").then(Commands.argument("helper", BlockPosArgument.blockPos())
                         .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminRelief(ctx, "NONE"))

@@ -324,7 +324,7 @@ public final class DutyService {
     static boolean available(RosterEntry e) {
         UnitState s = e.state();
         return (s == UnitState.SPAWNED || s == UnitState.GARRISONED || s == UnitState.RECOVERED || s == UnitState.DEPLOYED
-                || s == UnitState.RETURNING) && !e.duty.away();
+                || s == UnitState.RETURNING) && !e.duty.away() && !e.temporary(); // a siege's temporary defenders take no standing duty
     }
 
     /** Re-runs the allocation when the available units or the plan changed. Returns true if any duty changed. */

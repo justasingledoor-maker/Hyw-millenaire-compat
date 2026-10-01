@@ -103,22 +103,25 @@ public final class SiegeService {
 
     // ------------------------------------------------------------------ queries
 
-    /** The siege whose host belongs to {@code attacker} (any phase, including the march home). */
+    /**
+     * The siege whose host belongs to {@code attacker} and is on campaign (mustering, marching, waiting or fighting). A host on
+     * its way home does not count: it holds none of the soldiers a new siege would take, and the village may march again.
+     */
     @Nullable
     public static Siege byAttacker(GarrisonLedger ledger, UUID attacker) {
         for (Siege s : ledger.sieges()) {
-            if (s.attacker.equals(attacker)) {
+            if (s.attacker.equals(attacker) && s.phase != Siege.Phase.RETURN) {
                 return s;
             }
         }
         return null;
     }
 
-    /** The siege against {@code target} that has not been decided yet. */
+    /** The siege against {@code target} that has not been decided or called off yet (a host on its way home is no threat). */
     @Nullable
     public static Siege against(GarrisonLedger ledger, UUID target) {
         for (Siege s : ledger.sieges()) {
-            if (s.target.equals(target) && s.outcome == Siege.Outcome.NONE) {
+            if (s.target.equals(target) && s.outcome == Siege.Outcome.NONE && s.phase != Siege.Phase.RETURN) {
                 return s;
             }
         }
@@ -444,6 +447,9 @@ public final class SiegeService {
                 if (!s.mercRolled && tick >= s.phaseEnd - dev.hywmill.politics.war.Mercenaries.LEAD) {
                     hireMercs(overworld, ledger, s, a, t, tick, false);
                 }
+                if (!s.aidRolled && tick >= s.phaseEnd - dev.hywmill.politics.war.Mercenaries.LEAD) {
+                    defenderAid(overworld, ledger, s, a, t, tick, false);
+                }
                 if (tick >= s.phaseEnd) {
                     BlockPos landing = landing(overworld, a, t);
                     if (!s.forceUnwatched && watched(overworld, t, landing)) {
@@ -618,6 +624,7 @@ public final class SiegeService {
             }
             return;
         }
+        musterExtras(overworld, s, t, tick); // the besieged's temporary help stands with them before the fight
         List<LivingEntity> defs = new ArrayList<>(defenders(overworld, t));
         defs.addAll(ReliefService.entities(overworld, ledger, s));
         stance(defs, true);
@@ -720,6 +727,164 @@ public final class SiegeService {
         announce(overworld, ledger, s, a, t, text);
         HmLog.info("Siege {}: {} hired ({} soldiers: {})", s.id.toString().substring(0, 8), h.company().name(), n, h.units());
         return n;
+    }
+
+    // ------------------------------------------------------------------ help for the besieged (post-M5)
+
+    /**
+     * About a minute before the attackers arrive: each by chance ({@code force}: all), the target's militia takes up arms, it
+     * hires a mercenary company, and (garrison and stronghold villages) its lord's household joins the defence. They become
+     * temporary slots of the target's roster, at home: loaded and placed now if the village is loaded, else when the battle
+     * starts; off-screen they count in its defense. They leave when the siege ends. Returns how many were raised.
+     */
+    public int defenderAid(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, boolean force) {
+        s.aidRolled = true;
+        ledger.setDirty();
+        if (t.hywRoster == null || t.loneBuilding) {
+            return 0;
+        }
+        boolean lordly = t.tier == dev.hywmill.military.MilitaryTier.GARRISON || t.tier == dev.hywmill.military.MilitaryTier.STRONGHOLD;
+        dev.hywmill.politics.war.DefenderAid.Aid aid = dev.hywmill.politics.war.DefenderAid.roll(s.seed(tick ^ 0x616964L), t.population, lordly, force);
+        GarrisonTables tables = GarrisonTables.current();
+        var table = tables.forCulture(t.culture);
+        PoliticsTables.MobilizationRule mob = MobilizationService.rule(t);
+        int levyLevel = dev.hywmill.garrison.Mobilization.equipmentLevel(dev.hywmill.garrison.Recruitment.equipmentLevel(t.tier, table),
+                mob.equipmentFloor(), mob.equipmentDrop());
+        int raised = 0;
+        if (aid.militia() > 0) {
+            List<String> pool = new ArrayList<>();
+            mob.levyUnits().forEach((k, w) -> {
+                for (int i = 0; i < w; i++) {
+                    pool.add(k);
+                }
+            });
+            int n = raiseExtras(t, s, dev.hywmill.politics.war.DefenderAid.draw(pool, aid.militia(), s.seed(1)), "militia", "", true, levyLevel, tick);
+            if (n > 0) {
+                raised += n;
+                aidNews(overworld, ledger, s, a, t, tick, "The bells of " + t.name + " ring: " + n + " of its people take up arms against the host of " + a.name);
+            }
+        }
+        if (aid.mercs() != null) {
+            int n = raiseExtras(t, s, aid.mercs().units(), "merc", aid.mercs().company().look(), true, levyLevel, tick);
+            if (n > 0) {
+                raised += n;
+                aidNews(overworld, ledger, s, a, t, tick, t.name + " has struck a deal with " + aid.mercs().company().name() + ": " + n
+                        + " mercenaries man its defences against " + a.name);
+            }
+        }
+        if (aid.household() > 0) {
+            dev.hywmill.recruit.Squads.Squad guard = household(t.culture);
+            if (guard != null) {
+                List<String> pool = new ArrayList<>();
+                for (dev.hywmill.recruit.Squads.Member m : guard.members()) {
+                    for (int i = 0; i < m.count(); i++) {
+                        pool.add(m.unit());
+                    }
+                }
+                int level = table.tier(dev.hywmill.military.MilitaryTier.STRONGHOLD).equipmentLevel();
+                int n = raiseExtras(t, s, dev.hywmill.politics.war.DefenderAid.draw(pool, aid.household(), s.seed(2)), "household", guard.look(), false,
+                        level, tick);
+                if (n > 0) {
+                    raised += n;
+                    aidNews(overworld, ledger, s, a, t, tick, "The lord of " + t.name + " is at home: his household, " + n + " of " + guard.name()
+                            + ", stands with the defenders");
+                }
+            }
+        }
+        if (raised > 0 && overworld.isPositionEntityTicking(GarrisonService.anchorOf(t))) {
+            musterExtras(overworld, s, t, tick);
+        }
+        HmLog.info("Siege {}: help for {}: militia {}, mercenaries {}, household {} ({} raised)", s.id.toString().substring(0, 8), t.name,
+                aid.militia(), aid.mercs() == null ? 0 : aid.mercs().units().size(), aid.household(), raised);
+        return raised;
+    }
+
+    /** The culture's elite squad for a lord's household: its best unique squad, else its best squad. */
+    @Nullable
+    static dev.hywmill.recruit.Squads.Squad household(String culture) {
+        dev.hywmill.recruit.Squads.Squad best = null;
+        for (dev.hywmill.recruit.Squads.Squad q : dev.hywmill.recruit.Squads.current().forCulture(culture)) {
+            if (q.look().isEmpty() || q.category() == dev.hywmill.recruit.Squads.Category.RANGED) {
+                continue;
+            }
+            int score = q.quality().ordinal() * 2 + (q.category() == dev.hywmill.recruit.Squads.Category.UNIQUE ? 1 : 0);
+            int bestScore = best == null ? -1 : best.quality().ordinal() * 2 + (best.category() == dev.hywmill.recruit.Squads.Category.UNIQUE ? 1 : 0);
+            if (score > bestScore) {
+                best = q;
+            }
+        }
+        return best;
+    }
+
+    /** New temporary slots of the target, at home (GARRISONED, stowed until mustered). Returns how many. */
+    private static int raiseExtras(VillageRecord t, Siege s, List<String> units, String kind, String look, boolean mobilized, int level, long tick) {
+        GarrisonTables tables = GarrisonTables.current();
+        int n = 0;
+        for (String key : units) {
+            UnitSpec u = tables.units().get(key);
+            if (u == null || !u.enabled()) {
+                continue;
+            }
+            RosterEntry e = t.hywRoster.recruit(t.villageId, key, u.entityType(), level, tick, false);
+            e.mobilized = mobilized;
+            e.mercLook = look;
+            e.extra = kind;
+            e.transition(UnitState.SPAWNED, tick);
+            e.transition(UnitState.GARRISONED, tick);
+            s.extras.add(e.rosterId);
+            n++;
+        }
+        return n;
+    }
+
+    /** Places the target's stowed temporary defenders round its anchor (loaded ground only; the rest try again later). */
+    static void musterExtras(ServerLevel overworld, Siege s, VillageRecord t, long tick) {
+        if (t.hywRoster == null || s.extras.isEmpty()) {
+            return;
+        }
+        BlockPos anchor = GarrisonService.anchorOf(t);
+        if (!overworld.isPositionEntityTicking(anchor)) {
+            return;
+        }
+        int i = 0;
+        for (UUID id : s.extras) {
+            RosterEntry e = t.hywRoster.entry(id);
+            if (e == null || e.state().terminal() || e.entityUuid != null) {
+                continue;
+            }
+            Vec3 spot = GarrisonService.spotNear(overworld, formation(anchor, t.center.offset(1, 0, 0), i++, 6, 3), e.rosterId);
+            if (spot != null) {
+                GarrisonService.materialize(overworld, t, e, spot, anchor, tick);
+            }
+        }
+    }
+
+    /** The siege is over: the besieged's temporary defenders go home (LOST, DISCHARGED; not a loss). */
+    static void dismissExtras(ServerLevel overworld, GarrisonLedger ledger, Siege s, long tick) {
+        VillageRecord t = ledger.get(s.target);
+        if (t == null || t.hywRoster == null || s.extras.isEmpty()) {
+            s.extras.clear();
+            return;
+        }
+        int n = 0;
+        for (UUID id : s.extras) {
+            RosterEntry e = t.hywRoster.entry(id);
+            if (e != null && !e.state().terminal()) {
+                MobilizationService.discharge(overworld, e, tick);
+                n++;
+            }
+        }
+        s.extras.clear();
+        ledger.setDirty();
+        if (n > 0) {
+            HmLog.info("Siege {}: {} temporary defender(s) of {} go home", s.id.toString().substring(0, 8), n, t.name);
+        }
+    }
+
+    private static void aidNews(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, String text) {
+        chronicle(overworld, a, t, tick, text);
+        announce(overworld, ledger, s, a, t, text);
+        HmLog.info("Siege {}: {}", s.id.toString().substring(0, 8), text);
     }
 
     // ------------------------------------------------------------------ boss bars
@@ -1161,6 +1326,7 @@ public final class SiegeService {
         if (going.size() < alive.size()) {
             HmLog.info("Siege {}: {} mercenaries of {} paid off", s.id.toString().substring(0, 8), alive.size() - going.size(), s.mercCompany);
         }
+        dismissExtras(overworld, ledger, s, tick);
         alive = going;
         VillageRecord t = ledger.get(s.target);
         long march = t == null ? r.minMarch() : SiegeMath.marchTicks(Math.sqrt(a.center.distSqr(t.center)), r);
@@ -1252,10 +1418,20 @@ public final class SiegeService {
                 held.addAll(r.strays);
             }
         }
+        Set<UUID> extras = new HashSet<>();
+        for (Siege s : ledger.sieges()) {
+            extras.addAll(s.extras);
+        }
         int n = 0;
         for (VillageRecord rec : ledger.all()) {
             if (rec.hywRoster == null) {
                 continue;
+            }
+            for (RosterEntry e : rec.hywRoster.entries()) {
+                if (!e.extra.isEmpty() && !e.state().terminal() && !extras.contains(e.rosterId)) {
+                    MobilizationService.discharge(overworld, e, tick); // a temporary defender whose siege is gone goes home
+                    ledger.setDirty();
+                }
             }
             List<RosterEntry> lost = new ArrayList<>();
             for (RosterEntry e : rec.hywRoster.entries()) {

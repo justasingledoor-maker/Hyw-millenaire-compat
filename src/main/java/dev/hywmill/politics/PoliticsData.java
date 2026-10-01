@@ -209,7 +209,7 @@ public final class PoliticsData {
                     d(j, "chance", b.chance()), i(j, "maxHelpers", b.maxHelpers()), i(j, "minGarrison", b.minGarrison()), d(j, "shareMin", b.shareMin()),
                     d(j, "shareMax", b.shareMax()), l(j, "minTicks", b.minTicks()), l(j, "maxTicks", b.maxTicks()), d(j, "ambushChance", b.ambushChance()),
                     d(j, "ambushLossMin", b.ambushLossMin()), d(j, "ambushLossMax", b.ambushLossMax()), d(j, "routChance", b.routChance()),
-                    d(j, "lostChance", b.lostChance()), d(j, "lostMin", b.lostMin()));
+                    d(j, "lostChance", b.lostChance()), d(j, "lostMin", b.lostMin()), i(j, "minForce", b.minForce()));
             if (rl.minRelation() < -100 || rl.minRelation() > 100 || rl.chance() < 0 || rl.chance() > 1 || rl.maxHelpers() < 0 || rl.minGarrison() < 1
                     || rl.shareMin() < 0 || rl.shareMax() > 1 || rl.shareMin() > rl.shareMax() || rl.minTicks() < 0 || rl.minTicks() > rl.maxTicks()
                     || rl.ambushChance() < 0 || rl.lostChance() < 0 || rl.ambushChance() + rl.lostChance() > 1 || rl.ambushLossMin() < 0

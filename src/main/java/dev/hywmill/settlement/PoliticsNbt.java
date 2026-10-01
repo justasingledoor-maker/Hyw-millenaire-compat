@@ -342,6 +342,10 @@ public final class PoliticsNbt {
             if (g.forceUnwatched) {
                 x.putBoolean("unwatched", true);
             }
+            if (g.aidRolled) {
+                x.putBoolean("aidRolled", true);
+                x.put("extras", uuids(g.extras));
+            }
             if (g.mercRolled) {
                 x.putBoolean("mercRolled", true);
                 x.putString("mercCompany", g.mercCompany);
@@ -387,6 +391,8 @@ public final class PoliticsNbt {
                 g.summary = x.getString("summary");
                 g.forceUnwatched = x.getBoolean("unwatched");
                 g.mercRolled = x.getBoolean("mercRolled");
+                g.aidRolled = x.getBoolean("aidRolled");
+                g.extras.addAll(readUuids(x.getList("extras", Tag.TAG_INT_ARRAY)));
                 g.mercCompany = x.getString("mercCompany");
                 g.mercCount = x.getInt("mercCount");
                 g.pausedSince = x.contains("pausedSince") ? x.getLong("pausedSince") : -1;
