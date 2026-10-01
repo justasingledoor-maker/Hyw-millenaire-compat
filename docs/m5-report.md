@@ -1233,3 +1233,50 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
   * a marching host of 26 and a relief force of 10 were wiped at once, and `war sieges` showed 0;
   * the relief soldiers rejoined their garrison as their village was processed;
   * a new siege from the same village was launched at once.
+
+### 6.40 Battle reports (History tab), vassalage, war horns, period horse armour (`dist/hywmill-m5-fix40.jar`)
+
+* **Battle reports.**
+  * Every decided siege writes a report, `BattleReport` (kept in the ledger, the latest 60). It records:
+    * the day, both sides and the outcome;
+    * attackers and defenders, with how many fell;
+    * whether it was fought in sight or off-screen;
+    * who helped: mercenaries, militia, the lord's household, relief forces and vassals;
+    * the tribute.
+  * The Politics screen has Overview and History tabs. History lists the home village's vassal ties and its battles, newest
+    first; it scrolls with the arrows or the mouse wheel. Protocol 5.
+  * `/hywmill war history <village>` prints the same.
+* **Vassalage.**
+  * The loser of a siege becomes the winner's vassal for 21 Minecraft days. The two are allied (relation 90) for that
+    time and neutral (0) after.
+  * When its overlord besieges or is besieged, a vassal sends, three times in four, 10–15 soldiers drawn from its own
+    units. About half are levies (levy kit and level) and half regulars (its own level).
+  * They arrive with the mercenaries, a minute before the assault: into the host, or to the defence. They are temporary
+    and go home when the siege ends. When a vassal sends no one, that is announced too.
+  * `/hywmill war vassals` lists vassalages. `/hywmill war admin vassal <vassal> <overlord>` creates one.
+* **War horns.** The raid horn sounds, from the right direction, for players within 256 blocks when:
+  * a host marches;
+  * the battle starts;
+  * help (militia, mercenaries, household, vassals) arrives;
+  * the siege ends.
+* **Period horse armour.**
+  * When HYW equips a rider's horse it uses vanilla leather, iron and diamond. Now, when an HYW horse joins the level, and
+    about once a second after (HYW re-applies its own armour), it gets:
+    * dyed leather in the rider's colours at low levels, and for light horse below the top;
+    * Epic Knights chainmail horse armour for heavy horse at the middle level and light horse at the top;
+    * Epic Knights plate barding for heavy horse at the top, about one in three in the Addon's dark barding.
+  * Never gold or diamond. Without Epic Knights, iron stands in.
+  * The armour is set through HYW's own horse armour (`setOwnedHorseArmor` and `syncOwnedHorseArmorVisibility`, by
+    reflection, in `integration.hyw`).
+* **Tests.**
+  * JUnit 356/356. New: `VassalageTest` and `HorseArmourTest`.
+  * Harness VS 4/4 (`docs/m5-test-evidence/vassals-history-horses1.txt`):
+    * the History tab showed "Day 11: Campigny besieged Barneville - Barneville held", with 25 attackers (12 fell), 32
+      defenders (4 fell), the ronin band, the relief from Saint-Pierre (10 sent, 1 fell), and "16 or a day for 4 days";
+    * Campigny swore fealty for 21 days;
+    * as Barneville's vassal it sent 13 men to Barneville's next siege, and they went home after.
+  * Harness HA, with HYW's Epic Knights mode off (it was on in the harness before, which hid the problem):
+    * the first runs reproduced diamond and iron horse armour, and showed that setting HYW's horse armour without its
+      visibility sync did not stick;
+    * the final run had 20 horses: 12 in dyed leather, 6 in barding, 2 in dark barding, and none in diamond or iron.
+* SHA-256 of the jar: `49a22c964ce37e092f3d42a8c633762d7d0432e4cb918d39db8e6373980d8d14`.

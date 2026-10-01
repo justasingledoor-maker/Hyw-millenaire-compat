@@ -34,14 +34,18 @@ public final class HywHorseArmour {
     static final String EK = "magistuarmory", ADDON = "magistuarmoryaddon";
     static final int BROWN = 0x6B4A2A;
 
-    /** HYW's own setter for a horse's armour (protected), looked up once. */
+    /**
+     * HYW's own setter for a horse's armour and the call that puts it on the horse (both protected), looked up once. HYW keeps
+     * the horse's own armour apart from what it wears and re-applies it, so both are needed.
+     */
     private static final class Setter {
-        static final Method M = find();
+        static final Method M = find("setOwnedHorseArmor", ItemStack.class);
+        static final Method SHOW = find("syncOwnedHorseArmorVisibility");
 
         @Nullable
-        static Method find() {
+        static Method find(String name, Class<?>... args) {
             try {
-                Method m = HywHorseEntity.class.getDeclaredMethod("setOwnedHorseArmor", ItemStack.class);
+                Method m = HywHorseEntity.class.getDeclaredMethod(name, args);
                 m.setAccessible(true);
                 return m;
             } catch (ReflectiveOperationException | RuntimeException ex) {
@@ -57,6 +61,16 @@ public final class HywHorseArmour {
         }
     }
 
+    /**
+     * HYW re-applies its own horse armour after the horse joins (and when its rider's equipment changes): about once a second
+     * each HYW horse is checked again, a single comparison when it already wears the right armour.
+     */
+    public static void onTick(net.neoforged.neoforge.event.tick.EntityTickEvent.Post e) {
+        if (e.getEntity() instanceof HywHorseEntity h && h.tickCount % 20 == 7 && !h.level().isClientSide()) {
+            dress(h);
+        }
+    }
+
     /** Puts period armour on an HYW horse if it wears anything else. Returns true if it changed. */
     static boolean dress(HywHorseEntity h) {
         int level = h.getEquipmentLevel();
@@ -68,8 +82,8 @@ public final class HywHorseArmour {
         boolean light = rider != null && dev.hywmill.garrison.equip.HorseArmour.light(BuiltInRegistries.ENTITY_TYPE.getKey(rider.getType()).getPath());
         String want = dev.hywmill.garrison.equip.HorseArmour.choose(level, light, h.getUUID().getLeastSignificantBits(), ModList.get().isLoaded(EK), ModList.get().isLoaded(ADDON));
         String have = now.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(now.getItem()).toString();
-        if (want.equals(have)) {
-            return false;
+        if (want.equals(have) && (!want.equals(dev.hywmill.garrison.equip.HorseArmour.LEATHER) || now.get(DataComponents.DYED_COLOR) != null)) {
+            return false; // the right armour already (leather dyed in the rider's colours)
         }
         ResourceLocation id = ResourceLocation.parse(want);
         if (!BuiltInRegistries.ITEM.containsKey(id)) {
@@ -83,7 +97,10 @@ public final class HywHorseArmour {
         if (Setter.M != null) {
             try {
                 Setter.M.invoke(h, stack);
-                viaHyw = true;
+                if (Setter.SHOW != null) {
+                    Setter.SHOW.invoke(h);
+                }
+                viaHyw = Setter.SHOW != null;
             } catch (ReflectiveOperationException | RuntimeException ex) {
                 HmLog.warnThrottled("hyw.horsearmour", 600_000L, "HYW horse armour setter failed: {}", ex.toString());
             }
@@ -92,6 +109,8 @@ public final class HywHorseArmour {
             h.setItemSlot(EquipmentSlot.BODY, stack);
         }
         h.setDropChance(EquipmentSlot.BODY, 0.0f);
+        HmLog.infoThrottled("hyw.horsearmour.swap", 30_000L, "HYW horse {} (level {}{}): {} -> {}", h.getUUID().toString().substring(0, 8), level,
+                light ? ", light" : "", have.isEmpty() ? "none" : have, want);
         return true;
     }
 

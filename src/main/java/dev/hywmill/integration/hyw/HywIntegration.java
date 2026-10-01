@@ -27,6 +27,7 @@ public final class HywIntegration implements Integration {
         Services.registerSpikeCommands(HywM5Spike::node);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HywRangedWeaponGuard::onJoin);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HywHorseArmour::onJoin); // post-M5: period horse armour
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HywHorseArmour::onTick);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HywRangedWeaponGuard::onEquipmentChange);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HywRangedWeaponGuard::onTickPre);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(HywRangedWeaponGuard::onTickPost);
