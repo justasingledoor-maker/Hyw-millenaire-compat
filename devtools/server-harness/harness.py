@@ -6435,13 +6435,15 @@ def scenario_CL(ctx):
     m5(s, f"mill discover {cb} {P}", 0.5)
     standin_at(s, P, a[0] + 3, a[2] + 3)
     m5(s, f"mill rep {ca} {P} adjust 6000", 0.5)
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
     time.sleep(16)
     t0 = time.time()
     while time.time() - t0 < 90 and not any("at war" in l for l in war_lines(s, a, f"for {P} status")):
         time.sleep(5)
     j = " | ".join(war_lines(s, a, f"for {P} join {ca} against {cb}"))
+    gr = " | ".join(s.output(at(a, "hywmill admin grant light_lancer_rider 2"), 2))
     s.output(at(a, "hywmill admin grant spear_man 20"), 2)
-    s.output(at(a, "hywmill admin grant light_lancer_rider 2"), 2)
+    note("CL grant", gr[-200:])
     time.sleep(30)
     out = ""
     t0 = time.time()
@@ -6451,7 +6453,7 @@ def scenario_CL(ctx):
             break
         time.sleep(10)
     sg = " | ".join(s.output("hywmill war sieges", 2))
-    check("CL-1 a declared siege is announced for dawn in days and prepares (no host yet)", "before the walls at dawn" in out and "PREPARE" in sg,
+    check("CL-1 a declared siege is announced for dawn in days and prepares (no host yet)", "before the walls at dawn on the third day" in out and "PREPARE" in sg,
           f"{j[-60:]} || {out[-200:]} || {sg[-200:]}")
     s.cmd("time add 60000", 1)
     m = s.wait_for(r"the host musters \(\d+ soldiers\)", 90, since=p0)

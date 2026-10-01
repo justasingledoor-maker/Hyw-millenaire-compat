@@ -300,7 +300,7 @@ public final class SiegeService {
             ReliefService.plan(overworld, ledger, s, a, t, tick);
             s.reliefs.forEach(rl -> rl.called = false); // they come only if the besieged's messenger reaches them
             text = a.name + " declares that it will besiege " + t.name + who + ": its host of about " + host.size()
-                    + " will be before the walls at dawn in " + (s.arriveAt + Tribute.DAY / 2) / Tribute.DAY + " days";
+                    + " will be before the walls at dawn on the third day";
         }
         ledger.setDirty();
         count(C_LAUNCHED);
