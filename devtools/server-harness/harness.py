@@ -2467,7 +2467,7 @@ def scenario_ARS(ctx):
     ea2 = engines_of(s, fa)
     check("ARS-2 a destroyed engine is not replaced during the war", victim is not None and victim not in ea2 and len(ea2) == len(ea) - 1,
           f"{len(ea)} -> {len(ea2)}")
-    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2) if l.startswith("war siege"))
     check("ARS-3 A's siege takes its engines along", "siege engine" in out, out)
     sg, t_b = wait_siege(s, lambda l: l and ("BATTLE" in l[0] or "RETURN" in l[0]), 300)
     time.sleep(10)
@@ -2519,7 +2519,7 @@ def scenario_SGF(ctx):
     dip(s, a, f"admin truce {ca} {cb} 0")
     m5(s, f"mill mrel {ca} {cb} set -100")
     time.sleep(12)
-    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2) if l.startswith("war siege"))
     sg, t_b = wait_siege(s, lambda l: l and ("BATTLE" in l[0] or "RETURN" in l[0]), 300)
     kinds, wet = set(), 0
     t0 = time.time()
@@ -5557,7 +5557,7 @@ def scenario_RL(ctx):
     s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
     time.sleep(3)
     gc0 = garrison(s, c)
-    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2) if l.startswith("war siege"))
     r1 = " | ".join(l for l in s.output(f"hywmill war admin relief {cc} {cb} clean", 2) if l.startswith("war relief"))
     check("RL-1 C promises relief to the besieged B", "war siege OK" in out and "war relief OK" in r1, f"{out} || {r1}")
     t0 = time.time()
@@ -5598,7 +5598,7 @@ def scenario_RL(ctx):
     s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
     time.sleep(3)
     k0 = garrison(s, c).get("t_killed", 0)
-    s.output(f"hywmill war admin siege {ca} {cb}", 2)
+    s.output(f"hywmill war admin siege {ca} {cb} quick", 2)
     s.output(f"hywmill war admin relief {cc} {cb} routed", 2)
     routed = s.wait_for(r"relief ROUTED", 360, since=p0)
     time.sleep(5)
@@ -5612,7 +5612,7 @@ def scenario_RL(ctx):
     s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
     time.sleep(3)
     k2 = garrison(s, c).get("t_killed", 0)
-    s.output(f"hywmill war admin siege {ca} {cb}", 2)
+    s.output(f"hywmill war admin siege {ca} {cb} quick", 2)
     s.output(f"hywmill war admin relief {cc} {cb} lost", 2)
     lost = s.wait_for(r"relief LOST", 360, since=p0)
     time.sleep(5)
@@ -5696,7 +5696,7 @@ def scenario_WT(ctx):
     s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
     time.sleep(3)
     fa = garrison(s, a).get("faction")
-    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2) if l.startswith("war siege"))
     at = s.wait_for(r"main at", 360, since=p0)
     m = re.search(r"main at (-?\d+), (-?\d+), (-?\d+)", at or "")
     land = (int(m[1]), int(m[2]), int(m[3])) if m else None
@@ -5897,7 +5897,7 @@ def scenario_VL(ctx):
     check("VL-2 the garrison wears the village's colours (Epic Knights dyeable pieces)", not ek or dyed >= 1, f"EK {ek}: {dyed} of {len(rows)} dyed")
     s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
     time.sleep(15)
-    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2) if l.startswith("war siege"))
     time.sleep(3)
     merc = " | ".join(l for l in s.output(f"hywmill war admin mercs {ca}", 2) if l.startswith("war mercs"))
     check("VL-3 the host hires a mercenary company, announced", "HIRED" in merc and s.wait_for(r"hired \(\d+ soldiers", 10, since=p0) is not None,
@@ -6115,7 +6115,7 @@ def scenario_RC(ctx):
     s.wait_for(r"Siege \w+ ended", 600, since=p2)
     time.sleep(3)
     st = " | ".join(s.output("hywmill war sieges", 2))
-    again = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    again = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2) if l.startswith("war siege"))
     check("RC-3 while its last host marches home, a village is not refused as already besieging (only a host too small may stop it)",
           "RETURN" in st and again and "ALREADY_BESIEGING" not in again and "TARGET_BESIEGED" not in again,
           f"{st[-200:]} || {again[-200:]}")
@@ -6141,7 +6141,7 @@ def scenario_DA(ctx):
     time.sleep(12)
     t0 = time.time()
     while time.time() - t0 < 180:
-        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2)):
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2)):
             break
         time.sleep(10)
     fb = garrison(s, b).get("faction")
@@ -6186,7 +6186,7 @@ def scenario_DA(ctx):
     time.sleep(12)
     t0 = time.time()
     while time.time() - t0 < 180:
-        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cg}", 2)):
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cg} quick", 2)):
             break
         time.sleep(10)
     aid2 = " ".join(l for l in s.output(f"hywmill war admin aid {ca}", 3) if l.startswith("war aid"))
@@ -6231,7 +6231,7 @@ def scenario_RS(ctx):
     out4 = " | ".join(s.output("hywmill war admin recall-all stowed", 3))
     st2 = " | ".join(s.output("hywmill war sieges", 2))
     back = s.wait_for(r"brought home while it was unloaded rejoin", 120, since=p3)
-    again = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+    again = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2) if l.startswith("war siege"))
     check("RC-4 hosts marching home to unloaded villages: every record is wiped at once, the soldiers reappear when their village loads, "
           "and a new siege is not refused as already besieging",
           ("MARCH" in st or "RETURN" in st) and "war sieges: 0" in st2 and back is not None and "ALREADY_BESIEGING" not in again and "TARGET_BESIEGED" not in again,
@@ -6418,7 +6418,80 @@ def scenario_SS(ctx):
     check("SS-2 spearmen with shields still fight", h0 is not None and (h1 is None or h1 < h0 - 10), f"zombie health {h0} -> {h1}")
 
 
-SCENARIOS = {"SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_CL(ctx):
+    """Siege build-up, columns, scouts and convoys (post-M5): a declared siege prepares for two days and musters on the third;
+    scouts find columns and convoys; a column comes into the world near a player, fights and can be destroyed; a convoy camps
+    with carts full of supplies; the alarm opens the besieged's coffers; mercenaries can be bribed from the War tab."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    vb = info(s, b)
+    fb = vb.get("faction")
+    P = "33333333-4444-4555-8666-777777777777"
+    p0 = s.pos()
+    s.output("hywmill war admin recall-all", 3)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill mrel {ca} {cb} set -100")
+    m5(s, f"mill discover {ca} {P}", 0.5)
+    m5(s, f"mill discover {cb} {P}", 0.5)
+    standin_at(s, P, a[0] + 3, a[2] + 3)
+    m5(s, f"mill rep {ca} {P} adjust 6000", 0.5)
+    time.sleep(16)
+    t0 = time.time()
+    while time.time() - t0 < 90 and not any("at war" in l for l in war_lines(s, a, f"for {P} status")):
+        time.sleep(5)
+    j = " | ".join(war_lines(s, a, f"for {P} join {ca} against {cb}"))
+    s.output(at(a, "hywmill admin grant spear_man 20"), 2)
+    s.output(at(a, "hywmill admin grant light_lancer_rider 2"), 2)
+    time.sleep(30)
+    out = ""
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+        if "war siege OK" in out:
+            break
+        time.sleep(10)
+    sg = " | ".join(s.output("hywmill war sieges", 2))
+    check("CL-1 a declared siege is announced for dawn in days and prepares (no host yet)", "before the walls at dawn" in out and "PREPARE" in sg,
+          f"{j[-60:]} || {out[-200:]} || {sg[-200:]}")
+    s.cmd("time add 60000", 1)
+    m = s.wait_for(r"the host musters \(\d+ soldiers\)", 90, since=p0)
+    check("CL-2 on the third day the host musters", m is not None, (m or "")[-160:])
+    sc = " | ".join(s.output(f"hywmill war admin scout {ca}", 3))
+    found = s.wait_for(r"Scouts: scouts of .* found .* at -?\d+, -?\d+", 10, since=p0)
+    check("CL-3 a scout rides out and reports what he found with its coordinates", "war scout" in sc and found is not None, f"{sc[-160:]} || {(found or '')[-200:]}")
+    col = " | ".join(s.output(f"hywmill war admin column mercs {ca} {cb} reveal", 2))
+    mm = re.search(r"war column ([0-9a-f]{8}) MERCS", col)
+    cid = mm.group(1) if mm else "x"
+    intel = " | ".join(s.output(f"execute as {P} run hywmill war intel", 2))
+    take = " | ".join(s.output(f"execute as {P} run hywmill war intel bribe {cid}", 2))
+    check("CL-4 found mercenaries are in the player's intel (direction, distance) and can be bribed from it",
+          cid in intel and (" m " in intel or " km " in intel) and ("deniers" in take), f"{col[-160:]} || {intel[-240:]} || {take[-160:]}")
+    show = " | ".join(s.output(f"execute as {P} run hywmill war admin column-show {cid}", 3))
+    time.sleep(4)
+    men = [u for u, v in spike_info(s, "@e[type=!minecraft:player]").items() if fb and ("owner=" + fb) in v["desc"] and dist(v["pos"], (a[0] + 3, a[1], a[2] + 3)) < 80]
+    check("CL-5 a column comes into the world near the player as soldiers of its village", "OK" in show and len(men) >= 5, f"{show} || {len(men)} men")
+    for u in men:
+        s.cmd(f"kill {u}", 0.2)
+    d = s.wait_for(r"Column \w+ \(MERCS\) DESTROYED", 20, since=p0)
+    check("CL-6 cut down to the last man, the column is destroyed and never arrives", d is not None, (d or "")[-160:])
+    cv = " | ".join(s.output(f"hywmill war admin column convoy {ca} {cb} reveal", 2))
+    mm = re.search(r"war column ([0-9a-f]{8}) CONVOY", cv)
+    vid = mm.group(1) if mm else "x"
+    s.output(f"execute as {P} run hywmill war admin column-show {vid}", 3)
+    time.sleep(3)
+    carts = spike_info(s, "@e[type=astikorcartsredux:supply_cart]") or spike_info(s, "@e[type=minecraft:chest_minecart]")
+    items = " ".join(" ".join(s.output(f"data get entity {u} Items", 0.6)) for u in list(carts)[:3])
+    horses = spike_info(s, "@e[type=minecraft:horse]")
+    note("CL convoy items", items[:600])
+    check("CL-7 a convoy camps with carts (and horses) full of supplies", carts and "count" in items and horses, f"{cv[-120:]} || {len(carts)} carts, {len(horses)} horses")
+    al = " | ".join(s.output(f"hywmill war admin column alarm {cb} {cb}", 2))
+    co = s.wait_for(r"opens its coffers", 20, since=p0)
+    check("CL-8 the alarm reaching the besieged opens its coffers", co is not None, f"{al[-120:]} || {(co or '')[-160:]}")
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {P}", 0.3)
+
+
+SCENARIOS = {"CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

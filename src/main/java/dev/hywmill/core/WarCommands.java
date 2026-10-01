@@ -350,7 +350,9 @@ final class WarCommands {
         }
         ServerLevel ow = ctx.getSource().getServer().overworld();
         GarrisonLedger ledger = GarrisonLedger.get(ow);
-        var c = dev.hywmill.garrison.service.ColumnService.spawn(ow, ledger, kind, o, t, ow.getGameTime(), reveal, t.villageId);
+        // mercenaries ride to <to>, hired by it: <owner> found them; the others ride from <owner> to <to>, who found them
+        var c = dev.hywmill.garrison.service.ColumnService.spawn(ow, ledger, kind, o, t, ow.getGameTime(), reveal,
+                kind == dev.hywmill.politics.war.Column.Kind.MERCS || kind == dev.hywmill.politics.war.Column.Kind.CONVOY ? o.villageId : t.villageId);
         send(ctx.getSource(), "war column " + c.id.toString().substring(0, 8) + " " + c.kind + ": "
                 + dev.hywmill.garrison.service.ColumnService.describe(ow, ledger, c, ctx.getSource().getPlayer()));
         return 1;

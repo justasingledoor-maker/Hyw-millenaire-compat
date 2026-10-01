@@ -185,3 +185,56 @@ The garrison used to join the village's own Millénaire raids, and in play the t
     friend half its garrison.
 * **A host on its way home blocks nothing.** It no longer stops its village from launching a new siege, or its target from
   being besieged again.
+## The build-up: two days, columns on the road, scouts (post-M5, fix43)
+
+* **Timing.** A siege is announced, then prepared for two days (`Siege.Phase.PREPARE`). On the third day the host musters
+  (the old one-minute muster) and marches out by night, so that it is before the walls **at dawn** (game day time 0 of the
+  third day). Siege time counts the larger of game time and day time since the announcement, so a night slept through or
+  `/time add` moves the build-up on. The host is chosen when it musters, not at the announcement; if too few soldiers are
+  left then, the siege is called off. `war admin siege <a> <t> quick` keeps the old flow (no build-up) for tests.
+* **Columns** (`Column`, `ColumnService`). Anything that travels between villages in a war is a column on a straight road,
+  positioned by time while nobody is near. Within 96 blocks of a player it comes into the world as soldiers of its village
+  (untagged HYW units of its faction: hostile to a player on campaign against that village, and to his men). Its march is
+  held while they stand; when no player is within 144 blocks they leave the world and the column goes on with its
+  survivors. Killed to the last man it is destroyed and never arrives. Columns:
+  * **Mercenaries** hired by either side at the announcement (25% attacker, 20% defender), riding 500-900 blocks from afar
+    and arriving during the two days. They join the host when it musters, or man the defences.
+  * **Messengers**: the besieged send one to each ally the relief rules chose (a relief comes only if its messenger
+    arrives) and each side to its vassals. A vassal's messenger, if answered (75%), turns into a **vassal column** of 10-15
+    mixed men riding to the overlord. Killing envoys denies reinforcements.
+  * **The alarm**: when the host marches (50%), the besieged's scouts ride home with the news (seen by the host's pickets:
+    known to the attacker at once). If they arrive, the besieged **open their coffers**: regular recruitment four times as
+    fast for a day and 4 levy points (emergency levies are not touched).
+  * **Supply convoys**: an enemy convoy camped for the night, found by scouts at any time in a war (siege or not). One to
+    three AstikorCarts supply carts, each with a horse hitched (a chest minecart without AstikorCarts), 4-8 guards resting
+    round them (not on autonomous combat). Its carts hold the culture's food and drink, its soldiers' kit and camp supplies,
+    by theme: military, provisions, mixed, trade, siege works, armoury. Killed to the last man, the carts stay for the
+    taking; left alone, the convoy breaks camp and is gone. Recruitment (levy) points are not touched.
+* **Scouts.** Light horse (light lancers, horse archers) are commoner (composition weights up, from Guard Post) and do not
+  march with sieges: they scout. Every minute each village at war may (40%) send one out for 2-4 minutes. One in ten does
+  not come back (killed); of the rest, one in two found something: the nearest enemy column nobody found yet, else (half the
+  time) an enemy supply convoy. Players on campaign with that village, and near it, are told what was found, its
+  coordinates, its distance and direction from where they stand, and its arrival.
+* **Decisions.** A found column is listed in the **War tab** of the Politics screen (open ones first, then past ones). A
+  player on campaign against its village may **Intercept** (take the job: the council leaves it to him) or, for
+  mercenaries, **Bribe** them from the tab (48 deniers a man): the company then rides for his side. In person, mercenaries
+  are hostile and fight. If nobody takes it, after a while (an hour, or half its remaining road) the council decides: half
+  the time it acts, and then catches it six times in ten. `/hywmill war intel [take|bribe <id>]` does the same in chat.
+
+## Proposal, not implemented: siege battles in three waves (for the user's consideration)
+
+The user's idea, kept here to build on; nothing of it is in the code yet.
+
+* **Three waves, one a day.** The assault is fought over up to three days, dawn to sundown. At sundown both sides break
+  off: the attackers withdraw to their landing, the defenders behind their walls (both stowed); the next dawn they
+  reappear with whoever is fit.
+* **The injured.** A soldier killed in a wave is, by chance, only injured (say 35%, more for a side holding the field at
+  sundown, fewer for a routed one; regulars and armoured men more often than levies). The injured miss the rest of that
+  wave and come back for the next. Injured men count as alive for the victory rule and in the battle report.
+* **Victory.** The first side down to 20% of its starting strength alive or injured (80% dead) loses at once. If no side
+  is there after the third wave, it is a stalemate: the attackers go home, nobody pays tribute, no vassalage.
+* **Things to settle.** Whether relief forces and the besieged's help may arrive between waves (a messenger column could
+  still be on the road: a reason to intercept it); whether engines keep their damage overnight; whether the attackers may
+  dig in (a camp) between waves; boss bars per wave; how the off-screen (unwatched) resolution maps to waves (three
+  `SiegeMath` rolls with the injured returning); and what the History tab shows (one line per wave).
+
