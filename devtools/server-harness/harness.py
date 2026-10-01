@@ -6024,7 +6024,48 @@ def scenario_AD(ctx):
     check("AD-4 a Norman shield-wall mixes Epic Knights and Addon gear (chapel hats, chained gambesons, tunics)", "ok=true" in h and rows and ad >= 1, f"{h[-80:]}; {ad} of {len(rows)} with Addon pieces")
 
 
-SCENARIOS = {"AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_TR(ctx):
+    """Tribute (post-M5): the loser of a siege pays the full tribute every Minecraft day for 3-5 days (the first at once):
+    levy points to the winner each day; '/hywmill war tributes' lists it; the dev command makes the next day fall due now."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    P = W_UUID
+    p0 = s.pos()
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(10)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(12)
+    out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb} unwatched", 2) if l.startswith("war siege"))
+    ended = s.wait_for(r"Siege \w+ ended", 600, since=p0)
+    first = s.wait_for(r"Tribute: .* pays day 1 of", 30, since=p0)
+    m = re.search(r"pays day 1 of (\d+)", first or "")
+    days = int(m[1]) if m else 0
+    check("TR-1 the loser pays the full tribute every day for 3-5 days, the first at once", ended is not None and "a day in tribute" in (ended or "")
+          and 3 <= days <= 5, f"{out}; {(ended or '')[-200:]}; {(first or '')[-160:]}")
+    lst = " | ".join(s.output("hywmill war tributes", 2))
+    check("TR-2 the tribute is listed while it is being paid", "1/" + str(days) + " days paid" in lst, lst[-300:])
+    winner = re.search(r"of its tribute to (.+?) \(", first or "")
+    lv = [l for l in s.read_since(p0) if "Tribute:" in l]
+    s.output("hywmill war admin tribute-due", 2)
+    second = s.wait_for(r"Tribute: .* pays day 2 of", 30, since=p0)
+    lv1 = re.search(r"\(([\d.]+) levy", first or "")
+    lv2 = re.search(r"\(([\d.]+) levy", second or "")
+    check("TR-3 the next day pays the same full amount again", second is not None and lv1 and lv2 and lv1[1] == lv2[1],
+          f"{(second or '')[-160:]}; levy {lv1 and lv1[1]} then {lv2 and lv2[1]}")
+    for _ in range(days):
+        s.output("hywmill war admin tribute-due", 2)
+        time.sleep(2)
+    full = s.wait_for(r"pays day %d of %d" % (days, days), 30, since=p0)
+    lst2 = " | ".join(s.output("hywmill war tributes", 2))
+    check("TR-4 after the last day the tribute is paid in full and no longer listed", full is not None and "war tributes: 0" in lst2, lst2[-200:])
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+
+
+SCENARIOS = {"TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

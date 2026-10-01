@@ -24,6 +24,7 @@ import dev.hywmill.politics.service.RelationProjector;
 import dev.hywmill.politics.war.Campaign;
 import dev.hywmill.politics.war.Siege;
 import dev.hywmill.politics.war.SiegeMath;
+import dev.hywmill.politics.war.Tribute;
 import dev.hywmill.politics.war.WarRecord;
 import dev.hywmill.settlement.GarrisonLedger;
 import dev.hywmill.settlement.PoliticsNbt;
@@ -394,6 +395,7 @@ public final class SiegeService {
         if (tick % AI_INTERVAL == AI_OFFSET) {
             villageDecisions(overworld, ledger, tick);
         }
+        payTributes(overworld, ledger, tick);
         try {
             bars(overworld, ledger);
         } catch (RuntimeException ex) {
@@ -1002,19 +1004,20 @@ public final class SiegeService {
             VillageRecord winner = o == Siege.Outcome.WON ? a : t;
             VillageRecord loser = o == Siege.Outcome.WON ? t : a;
             int tribute = r.tribute(PoliticsTables.MilitaryTierKey.valueOf(loser.tier.name()));
-            double levy = SiegeMath.levy(tribute, r);
-            if (winner.hywRoster != null) {
-                winner.hywRoster.levyPoints += levy;
-            }
-            if (loser.hywRoster != null) {
-                loser.hywRoster.levyPoints = Math.max(0, loser.hywRoster.levyPoints - levy);
-            }
+            Set<UUID> helpers = o == Siege.Outcome.WON ? s.attackerHelpers : s.defenderHelpers;
+            // post-M5: the full tribute is paid every day for 3-5 days (the first at once): levy points to the winner, money to
+            // the helpers of the winning side
+            Tribute due = new Tribute(loser.villageId, winner.villageId, tribute, SiegeMath.levy(tribute, r),
+                    SiegeMath.helperPay(tribute, helpers.size(), r), Tribute.days(s.seed(0x545249L)), tick);
+            due.helpers.addAll(helpers);
             text.append(o == Siege.Outcome.WON ? t.name + " fell to the host of " + a.name : t.name + " held against the host of " + a.name)
                     .append(" (").append(how).append("); ").append(loser.name).append(" pays ")
-                    .append(dev.hywmill.recruit.RecruitOffers.money(tribute)).append(" in tribute to ").append(winner.name);
-            Set<UUID> helpers = o == Siege.Outcome.WON ? s.attackerHelpers : s.defenderHelpers;
-            reward(overworld, ledger, winner, helpers, SiegeMath.helperPay(tribute, helpers.size(), r), r, text.toString());
+                    .append(dev.hywmill.recruit.RecruitOffers.money(tribute)).append(" a day in tribute to ").append(winner.name)
+                    .append(" for ").append(due.days).append(" days");
+            reward(overworld, ledger, winner, helpers, due, r, text.toString());
             chronicle(overworld, a, t, tick, text.toString());
+            ledger.tributes().add(due);
+            payTribute(overworld, ledger, due, tick);
         } else {
             text.append("The host of ").append(a.name).append(" comes home: ").append(how);
         }
@@ -1029,7 +1032,7 @@ public final class SiegeService {
         }
     }
 
-    private static void reward(ServerLevel overworld, GarrisonLedger ledger, VillageRecord winner, Set<UUID> helpers, int pay,
+    private static void reward(ServerLevel overworld, GarrisonLedger ledger, VillageRecord winner, Set<UUID> helpers, Tribute due,
                                PoliticsTables.SiegeRule r, String text) {
         SettlementSource source = Services.settlements();
         PoliticsTables tables = PoliticsService.tables(winner);
@@ -1038,18 +1041,81 @@ public final class SiegeService {
             if (source != null && r.helperRep() != 0) {
                 source.adjustReputation(overworld, winner.villageId, p, r.helperRep());
             }
-            String note = "Your share of the tribute: " + dev.hywmill.recruit.RecruitOffers.money(pay) + ", and " + winner.name + " remembers your service";
+            String note = "Your share of the tribute: " + dev.hywmill.recruit.RecruitOffers.money(due.helperPay) + " a day for " + due.days
+                    + " days, and " + winner.name + " remembers your service";
             ServerPlayer online = PoliticsService.onlinePlayer(overworld, p);
             if (online != null) {
-                if (source != null && pay > 0) {
-                    source.giveMoney(online, pay);
-                }
                 online.sendSystemMessage(Component.literal("[Siege] " + note));
             } else {
-                ledger.pendingPay().add(new PoliticsNbt.PendingPay(p, source != null ? pay : 0, text + ". " + note));
+                ledger.pendingPay().add(new PoliticsNbt.PendingPay(p, 0, text + ". " + note));
             }
         }
         ledger.setDirty();
+    }
+
+    // ------------------------------------------------------------------ tribute (post-M5)
+
+    /** Pays every tribute that is due, once each Minecraft day; a tribute whose payer or payee is gone ends. */
+    static void payTributes(ServerLevel overworld, GarrisonLedger ledger, long tick) {
+        for (Tribute due : new ArrayList<>(ledger.tributes())) {
+            if (tick >= due.nextTick) {
+                payTribute(overworld, ledger, due, tick);
+            }
+        }
+    }
+
+    /** One day's tribute: the levy points from the loser to the winner, and each helper's share in money. */
+    static void payTribute(ServerLevel overworld, GarrisonLedger ledger, Tribute due, long tick) {
+        VillageRecord payer = ledger.get(due.payer), payee = ledger.get(due.payee);
+        if (payer == null || payee == null || due.done()) {
+            ledger.tributes().remove(due);
+            ledger.setDirty();
+            return;
+        }
+        double levy = due.levy; // the full tribute's levy points, every day
+        if (payee.hywRoster != null) {
+            payee.hywRoster.levyPoints += levy;
+        }
+        if (payer.hywRoster != null) {
+            payer.hywRoster.levyPoints = Math.max(0, payer.hywRoster.levyPoints - levy);
+        }
+        int share = due.helperInstallment();
+        int n = due.paid + 1;
+        String what = payer.name + " pays day " + n + " of " + due.days + " of its tribute to " + payee.name;
+        SettlementSource source = Services.settlements();
+        for (UUID p : due.helpers) {
+            String note = what + ": your share is " + dev.hywmill.recruit.RecruitOffers.money(share);
+            ServerPlayer online = PoliticsService.onlinePlayer(overworld, p);
+            if (online != null) {
+                if (source != null && share > 0) {
+                    source.giveMoney(online, share);
+                }
+                online.sendSystemMessage(Component.literal("[Tribute] " + note));
+            } else {
+                ledger.pendingPay().add(new PoliticsNbt.PendingPay(p, source != null ? share : 0, note));
+            }
+        }
+        due.paid = n;
+        due.nextTick = tick + Tribute.DAY;
+        if (due.done()) {
+            ledger.tributes().remove(due);
+            chronicle(overworld, payee, payer, tick, payer.name + " has paid its tribute to " + payee.name + " in full");
+        }
+        ledger.setDirty();
+        HmLog.info("Tribute: {} ({} levy, {} to each of {} helper(s))", what, String.format("%.2f", levy), share, due.helpers.size());
+    }
+
+    /** One line per tribute still being paid (for {@code /hywmill war tributes}). */
+    public static List<String> describeTributes(ServerLevel overworld, GarrisonLedger ledger) {
+        List<String> out = new ArrayList<>();
+        long now = overworld.getGameTime();
+        for (Tribute due : ledger.tributes()) {
+            VillageRecord payer = ledger.get(due.payer), payee = ledger.get(due.payee);
+            out.add((payer == null ? "?" : payer.name) + " -> " + (payee == null ? "?" : payee.name) + " " + due.paid + "/" + due.days + " days paid, "
+                    + dev.hywmill.recruit.RecruitOffers.money(due.total) + " a day, next in " + Math.max(0, due.nextTick - now) / 20 + " s, helpers "
+                    + due.helpers.size());
+        }
+        return out;
     }
 
     /**

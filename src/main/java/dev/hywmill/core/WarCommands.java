@@ -53,7 +53,23 @@ final class WarCommands {
             lines.forEach(l -> send(ctx.getSource(), " " + l));
             return lines.size();
         }));
+        war.then(Commands.literal("tributes").executes(ctx -> {
+            ServerLevel ow = ctx.getSource().getServer().overworld();
+            var lines = dev.hywmill.garrison.service.SiegeService.describeTributes(ow, GarrisonLedger.get(ow));
+            send(ctx.getSource(), "war tributes: " + lines.size());
+            lines.forEach(l -> send(ctx.getSource(), " " + l));
+            return lines.size();
+        }));
         war.then(Commands.literal("admin").requires(s -> s.hasPermission(3))
+                .then(Commands.literal("tribute-due").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get()).executes(ctx -> {
+                    // DEV: every tribute's next installment falls due now (instead of waiting a Minecraft day)
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    GarrisonLedger ledger = GarrisonLedger.get(ow);
+                    ledger.tributes().forEach(t -> t.nextTick = ow.getGameTime());
+                    ledger.setDirty();
+                    send(ctx.getSource(), "war tribute-due " + ledger.tributes().size());
+                    return ledger.tributes().size();
+                }))
                 .then(Commands.literal("siege-unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                         .then(Commands.argument("on", com.mojang.brigadier.arguments.BoolArgumentType.bool()).executes(ctx -> {
                             ServerLevel ow = ctx.getSource().getServer().overworld();

@@ -434,6 +434,39 @@ public final class PoliticsNbt {
         return out;
     }
 
+    public static ListTag saveTributes(List<dev.hywmill.politics.war.Tribute> tributes) {
+        ListTag l = new ListTag();
+        for (dev.hywmill.politics.war.Tribute t : tributes) {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("payer", t.payer);
+            x.putUUID("payee", t.payee);
+            x.put("helpers", uuids(t.helpers));
+            x.putInt("total", t.total);
+            x.putDouble("levy", t.levy);
+            x.putInt("helperPay", t.helperPay);
+            x.putInt("days", t.days);
+            x.putInt("paid", t.paid);
+            x.putLong("next", t.nextTick);
+            l.add(x);
+        }
+        return l;
+    }
+
+    public static List<dev.hywmill.politics.war.Tribute> loadTributes(ListTag l) {
+        List<dev.hywmill.politics.war.Tribute> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            CompoundTag x = l.getCompound(i);
+            if (x.hasUUID("payer") && x.hasUUID("payee")) {
+                dev.hywmill.politics.war.Tribute t = new dev.hywmill.politics.war.Tribute(x.getUUID("payer"), x.getUUID("payee"), x.getInt("total"),
+                        x.getDouble("levy"), x.getInt("helperPay"), x.getInt("days"), x.getLong("next"));
+                t.helpers.addAll(readUuids(x.getList("helpers", Tag.TAG_INT_ARRAY)));
+                t.paid = x.getInt("paid");
+                out.add(t);
+            }
+        }
+        return out;
+    }
+
     private static ListTag uuids(java.util.Collection<UUID> ids) {
         ListTag l = new ListTag();
         for (UUID id : ids) {

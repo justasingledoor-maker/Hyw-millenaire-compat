@@ -1140,3 +1140,25 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
       (every piece registered and in the right slot).
   * Without the addons, LK 4/4: squads unchanged, and equipcheck reports 85 optional addon pieces and 0 invalid.
 * SHA-256 of the jar: `95b9f1635ff3165bb76ea7f1fc36fff01f3e8722fd54bc3bb258bf130d4a1389`.
+
+### 6.36 Tribute paid every day for 3–5 days (`dist/hywmill-m5-fix36.jar`)
+
+* **The change.** A siege's loser now pays the full tribute every Minecraft day for 3–5 days, drawn from the siege's seed,
+  instead of once. The amount is unchanged: it is still set by the loser's tier.
+  * Each day the winner gains the tribute's levy points, taken from the loser.
+  * Each day every helper of the winning side gets their full share in money. The first day is paid at once.
+  * Offline helpers are paid at login, as before.
+  * The chronicle says "pays X a day in tribute to Y for N days", and notes when the tribute is paid in full.
+* **Storage.** `Tribute` (pure) is kept in the garrison ledger under `tributes`. Payments stop if either village is gone.
+* **Commands.** `/hywmill war tributes` lists the tributes being paid. The dev command `/hywmill war admin tribute-due`
+  makes the next day fall due now.
+* **Tests.**
+  * JUnit 349/349. New: `TributeTest`, which checks 3–5 days and the full amount every day.
+  * Harness TR 4/4 (`docs/m5-test-evidence/tribute1.txt`):
+    * an unwatched siege ended with "Barneville pays 8 or a day in tribute to Campigny for 5 days";
+    * day 1 was paid at once, and `war tributes` listed it as 1/5;
+    * day 2 moved the same 4.00 levy points;
+    * after day 5 the tribute was gone.
+  * The run had no helpers, so helper money was not exercised. It goes through the same pay-or-pend path as before,
+    once a day.
+* SHA-256 of the jar: `14be676ec74aa62a46c9af80e4d59c23a479205597ad2e53d2bedbbe3abcdc3d`.

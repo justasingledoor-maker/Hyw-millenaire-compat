@@ -51,6 +51,12 @@ The garrison used to join the village's own Millénaire raids, and in play the t
    * The loser's tier sets the tribute (in deniers). `levyShare` of it becomes levy points for the winner's recruiting,
      taken from the loser's levy.
    * `playerShare` of it is paid as Millénaire money to the winning side's helpers; an offline helper is paid at login.
+   * **Paid daily (post-M5, fix36).** The loser pays the full tribute (its levy points, and each helper's share) every
+     Minecraft day for 3–5 days, drawn from the siege's seed. The first day's payment comes at once, so a victory is a wage
+     for the days after it.
+     * Payments stop if either village is gone.
+     * `/hywmill war tributes` lists the tributes being paid. The dev command `/hywmill war admin tribute-due` makes the
+       next day's payment fall due now.
    * Helpers also gain `helperRep` reputation and SIEGE_VICTORY Favor with the winner.
    * The chronicle and the players involved are told.
 7. **RETURN.** The survivors are stowed and march home. They materialize at the home anchor once it is loaded, then take

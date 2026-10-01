@@ -70,6 +70,13 @@ public final class GarrisonLedger extends SavedData {
         return pendingPay;
     }
 
+    /** Post-M5: siege tributes still being paid in daily installments. */
+    private final java.util.List<dev.hywmill.politics.war.Tribute> tributes = new java.util.ArrayList<>();
+
+    public java.util.List<dev.hywmill.politics.war.Tribute> tributes() {
+        return tributes;
+    }
+
     /** Post-M5: each player's chosen colours for the soldiers they hire on the Muster Roll, as {first, second} dye ids. */
     private final java.util.Map<UUID, int[]> playerColours = new java.util.LinkedHashMap<>();
 
@@ -159,6 +166,7 @@ public final class GarrisonLedger extends SavedData {
         if (root.contains("pendingPay", Tag.TAG_LIST)) {
             ledger.pendingPay.addAll(PoliticsNbt.loadPending(root.getList("pendingPay", Tag.TAG_COMPOUND)));
         }
+        ledger.tributes.addAll(PoliticsNbt.loadTributes(root.getList("tributes", Tag.TAG_COMPOUND)));
         ListTag pc = root.getList("playerColours", Tag.TAG_COMPOUND);
         for (int i = 0; i < pc.size(); i++) {
             CompoundTag x = pc.getCompound(i);
@@ -199,6 +207,9 @@ public final class GarrisonLedger extends SavedData {
         }
         if (!pendingPay.isEmpty()) {
             root.put("pendingPay", PoliticsNbt.savePending(pendingPay));
+        }
+        if (!tributes.isEmpty()) {
+            root.put("tributes", PoliticsNbt.saveTributes(tributes));
         }
         if (!playerColours.isEmpty()) {
             ListTag pc = new ListTag();
