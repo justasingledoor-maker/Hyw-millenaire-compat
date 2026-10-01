@@ -1,0 +1,3 @@
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  RC-1 a marching host is called home and arrives at once, nothing decided  war recall-all: 1 |  Campigny les-pâtures: home; deployed 10 -> 0; sieges []
+  PASS  RC-2 soldiers whose siege record is lost come home too  war recall-all: 1 |  23 soldier(s) with no siege record came home; deployed 23 -> 0

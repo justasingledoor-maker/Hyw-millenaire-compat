@@ -1162,3 +1162,26 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
   * The run had no helpers, so helper money was not exercised. It goes through the same pay-or-pend path as before,
     once a day.
 * SHA-256 of the jar: `14be676ec74aa62a46c9af80e4d59c23a479205597ad2e53d2bedbbe3abcdc3d`.
+
+### 6.37 Recall every host; soldiers stranded by a lost siege record come home (`dist/hywmill-m5-fix37.jar`)
+
+* **The user's report.** After the mod jar was replaced while three hosts were away, they stayed away with no time shown.
+* **The likely cause.** A siege record that did not survive the update. Its soldiers stay on duty SIEGE, stowed, and
+  nothing brings them back. The "orphan sweep" named in a code comment had never been written.
+* **`/hywmill war admin recall-all`** (permission 3). Every host away comes home now, and nothing is decided:
+  * Sieges not yet decided are called off: no outcome, no tribute, no losses.
+  * The march home is skipped. A host arrives at once if its village is loaded, else as soon as it is.
+  * Relief forces turn back and skip their march too.
+  * Soldiers with no siege record come home.
+  * It prints one line per host.
+* **Automatic repair.** Every minute, slots on duty SIEGE that no siege or relief force holds come home when their village
+  is loaded, taking the normal return path: `returnOrphans`, sharing `homecoming` with the siege's own return.
+  Mercenaries in such a group are paid off.
+* **Dev command.** `/hywmill war admin siege-forget` drops siege records without bringing anyone home, to reproduce the
+  case.
+* **Tests.**
+  * JUnit 349/349.
+  * Harness RC 2/2 (`docs/m5-test-evidence/recall1.txt`):
+    * a host marching on Barneville, with a relief force out, was home at once (10 away to 0) and no siege was decided;
+    * after its record was dropped, a marching host's 23 soldiers came home through the repair (23 away to 0).
+* SHA-256 of the jar: `092267e37119136f74b95ae60e302653f73b12d4b226813d47170e35aaacdc72`.

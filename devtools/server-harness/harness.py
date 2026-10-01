@@ -6065,7 +6065,49 @@ def scenario_TR(ctx):
     s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
 
 
-SCENARIOS = {"TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_RC(ctx):
+    """Recall (post-M5): '/hywmill war admin recall-all' brings every host home at once without deciding its siege; soldiers
+    left on a siege with no record (a record lost to a mod update) come home too."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    P = W_UUID
+    p0 = s.pos()
+    t0 = time.time()
+    while time.time() - t0 < 300 and sieges(s):
+        time.sleep(5)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(10)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(12)
+    t0 = time.time()
+    while time.time() - t0 < 180:  # after a restart the garrison needs a moment to spawn before it can spare a host
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} unwatched", 2)):
+            break
+        time.sleep(10)
+    s.wait_for(r"marching \d+ ticks", 200, since=p0)
+    g0 = garrison(s, a)
+    out = " | ".join(s.output("hywmill war admin recall-all", 3))
+    time.sleep(4)
+    g1 = garrison(s, a)
+    left = sieges(s)
+    check("RC-1 a marching host is called home and arrives at once, nothing decided", "home" in out and not left
+          and s.wait_for(r"Siege \w+ ended", 3, since=p0) is None and g1.get("deployed", 0) < g0.get("deployed", 0),
+          f"{out[-200:]}; deployed {g0.get('deployed')} -> {g1.get('deployed')}; sieges {left}")
+    p1 = s.pos()
+    s.output(f"hywmill war admin siege {ca} {cb} unwatched", 2)
+    s.wait_for(r"marching \d+ ticks", 200, since=p1)
+    g2 = garrison(s, a)
+    s.output("hywmill war admin siege-forget", 2)
+    out2 = " | ".join(s.output("hywmill war admin recall-all", 3))
+    time.sleep(4)
+    g3 = garrison(s, a)
+    check("RC-2 soldiers whose siege record is lost come home too", "no siege record came home" in out2 and g3.get("deployed", 0) < g2.get("deployed", 0),
+          f"{out2[-200:]}; deployed {g2.get('deployed')} -> {g3.get('deployed')}")
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+
+
+SCENARIOS = {"RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

@@ -61,6 +61,24 @@ final class WarCommands {
             return lines.size();
         }));
         war.then(Commands.literal("admin").requires(s -> s.hasPermission(3))
+                .then(Commands.literal("recall-all").executes(ctx -> {
+                    // every host away comes home now (sieges not yet decided are called off; nothing is decided)
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    var lines = HywMillRuntime.require().sieges().recallAll(ow, GarrisonLedger.get(ow), ow.getGameTime());
+                    send(ctx.getSource(), "war recall-all: " + lines.size());
+                    lines.forEach(l -> send(ctx.getSource(), " " + l));
+                    return lines.size();
+                }))
+                .then(Commands.literal("siege-forget").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get()).executes(ctx -> {
+                    // DEV: drops every siege record without bringing its host home (as a record lost to a mod update)
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    GarrisonLedger ledger = GarrisonLedger.get(ow);
+                    int n = ledger.sieges().size();
+                    ledger.sieges().clear();
+                    ledger.setDirty();
+                    send(ctx.getSource(), "war siege-forget " + n);
+                    return n;
+                }))
                 .then(Commands.literal("tribute-due").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get()).executes(ctx -> {
                     // DEV: every tribute's next installment falls due now (instead of waiting a Minecraft day)
                     ServerLevel ow = ctx.getSource().getServer().overworld();
