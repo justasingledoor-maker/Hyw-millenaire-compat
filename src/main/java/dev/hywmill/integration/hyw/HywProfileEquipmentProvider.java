@@ -27,6 +27,8 @@ import java.util.List;
 public final class HywProfileEquipmentProvider implements EquipmentProvider {
     public static final String ID = "hyw_profiles";
     public static final String EK = "magistuarmory";
+    /** Optional Epic Knights addons whose armour the profiles and looks use when they are installed (post-M5). */
+    public static final List<String> ADDONS = List.of("magistuarmoryaddon", "slavicarmory");
 
     public enum Verdict { OK, UNREGISTERED, WRONG_SLOT, NOT_HYW_FAMILY }
 
@@ -278,6 +280,7 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
         }
         int kitCount = 0;
         java.util.Set<String> badKits = new java.util.TreeSet<>();
+        java.util.Set<String> optional = new java.util.TreeSet<>();
         for (var c : p.rawKits().entrySet()) {
             for (var t : c.getValue().entrySet()) {
                 for (var r : t.getValue().entrySet()) {
@@ -289,16 +292,42 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                                 continue;
                             }
                             Verdict v = check("", slot, id);
-                            if (v == Verdict.UNREGISTERED || v == Verdict.WRONG_SLOT) {
-                                badKits.add((c.getKey().isEmpty() ? "defaults" : c.getKey()) + " " + t.getKey() + " " + r.getKey() + " kit " + id
-                                        + " as " + slot + ": " + v);
+                            String where = (c.getKey().isEmpty() ? "defaults" : c.getKey()) + " " + t.getKey() + " " + r.getKey() + " kit " + id;
+                            if (v == Verdict.UNREGISTERED && addonAbsent(id)) {
+                                optional.add(id);
+                            } else if (v == Verdict.UNREGISTERED || v == Verdict.WRONG_SLOT) {
+                                badKits.add(where + " as " + slot + ": " + v);
                             }
                         }
                     }
                 }
             }
         }
+        // squad looks (post-M5): the same check on every look's kits
+        for (var l : p.looks().entrySet()) {
+            for (EquipmentProfiles.Kit k : l.getValue().kits()) {
+                kitCount++;
+                for (String slot : EquipmentProfiles.ARMOUR) {
+                    String id = k.piece(slot);
+                    if (id.equals(EquipmentProfiles.NONE)) {
+                        continue;
+                    }
+                    Verdict v = check("", slot, id);
+                    if (v == Verdict.UNREGISTERED && addonAbsent(id)) {
+                        optional.add(id);
+                    } else if (v == Verdict.UNREGISTERED || v == Verdict.WRONG_SLOT) {
+                        badKits.add("look " + l.getKey() + " kit " + id + " as " + slot + ": " + v);
+                    }
+                }
+            }
+        }
         badKits.forEach(x -> out.add("INVALID KIT " + x + " (the kit is skipped)"));
+        for (String a : ADDONS) {
+            out.add("addon " + a + ": " + (ModList.get().isLoaded(a) ? "loaded" : "not installed (its kits are skipped)"));
+        }
+        if (!optional.isEmpty()) {
+            out.add("optional: " + optional.size() + " addon piece(s) not installed; kits using them are skipped");
+        }
         out.add("kits: " + kitCount + " armour kit(s), " + badKits.size() + " invalid piece(s); heraldry " + (p.heraldry() ? "on" : "off")
                 + "; profile revision " + p.revision());
         itemVerdict.forEach((k, v) -> out.add("INVALID " + k + ": " + v));
@@ -308,6 +337,13 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                 + " incompatible item/unit pairs, " + fallback.size() + " list/unit fallbacks; Epic Knights "
                 + (ModList.get().isLoaded(EK) ? "loaded" : "NOT loaded (profiles inactive: every unit keeps HYW's equipment)"));
         return out;
+    }
+
+    /** An item of an optional Epic Knights addon that is not installed (its kits are skipped, not an error). */
+    static boolean addonAbsent(String itemId) {
+        int i = itemId.indexOf(':');
+        String ns = i < 0 ? "minecraft" : itemId.substring(0, i);
+        return ADDONS.contains(ns) && !ModList.get().isLoaded(ns);
     }
 
     /** Class roles apply to units of that class; duty roles and "all" to every unit. */

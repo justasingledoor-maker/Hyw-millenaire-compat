@@ -81,15 +81,23 @@ class EquipmentProfilesTest {
         for (var c : p.rawKits().entrySet()) {
             for (var t : c.getValue().entrySet()) {
                 for (var r : t.getValue().entrySet()) {
+                    boolean plainEk = false, addon = false;
                     for (EquipmentProfiles.Kit k : r.getValue()) {
                         kits++;
+                        boolean usesAddon = false;
                         for (String slot : EquipmentProfiles.ARMOUR) {
                             String id = k.piece(slot);
-                            assertTrue(id.equals(EquipmentProfiles.NONE) || id.startsWith("magistuarmory:"), id);
+                            assertTrue(id.equals(EquipmentProfiles.NONE) || id.startsWith("magistuarmory:") || id.startsWith("magistuarmoryaddon:")
+                                    || id.startsWith("slavicarmory:"), id);
+                            usesAddon |= id.startsWith("magistuarmoryaddon:") || id.startsWith("slavicarmory:");
                         }
+                        plainEk |= !usesAddon;
+                        addon |= usesAddon;
                         assertFalse(plate.contains(k.piece("head")) && cloth.contains(k.piece("chest")),
                                 "no plate helmet over cloth: " + c.getKey() + " " + t.getKey() + " " + r.getKey() + " " + k);
                     }
+                    // post-M5 addons: a list with addon kits keeps a plain Epic Knights kit, or (a culture's levy) falls back to the defaults'
+                    assertTrue(!addon || plainEk || r.getKey().equals("levy"), "Epic Knights fallback in " + c.getKey() + " " + t.getKey() + " " + r.getKey());
                 }
             }
         }

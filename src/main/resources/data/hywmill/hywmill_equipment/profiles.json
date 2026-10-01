@@ -1,5 +1,5 @@
 {
- "_comment": "HywMill optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded: ARMOUR comes from one whole kit ('kits': head/chest/legs/feet, 'none' = empty slot), chosen from the first matching kit list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all' - so pieces never mix across lists. WEAPONS and OFFHAND take an item from the first matching slot list in the same order; an item is used only if it is registered and belongs to an item family HYW itself gives that unit, else HYW's own item stays. Dyeable pieces (the minecraft:dyeable tag: gambeson, coif, pantyhose, brigandine, crusader, norman helmet, ...) are dyed in two colours per unit from 'dye.palette'; shields carry random arms (vanilla geometric patterns and Epic Knights emblems, rule of tincture) unless 'heraldry' is false. Choices are deterministic per unit; units re-equip once when this data changes. Validate with /hywmill dev equipcheck. Post-M5 role 'levy': mobilized wartime soldiers wear these light kits (gambeson, kettle hat or coif, cheap shields), at the tier of their own equipment level (1 = GUARD_POST: iron weapons from the class lists), not their village's tier. Post-M5 'heraldry' (defaults and per culture): the village livery's preferred dye colours (best first) and the banner patterns its shields use (ordinaries: geometric; charges: emblems). Each village takes two colours, chosen away from its neighbours' (3000 blocks); its soldiers wear them and bear assorted arms in them.",
+ "_comment": "HywMill optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded: ARMOUR comes from one whole kit ('kits': head/chest/legs/feet, 'none' = empty slot), chosen from the first matching kit list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all' - so pieces never mix across lists. WEAPONS and OFFHAND take an item from the first matching slot list in the same order; an item is used only if it is registered and belongs to an item family HYW itself gives that unit, else HYW's own item stays. Dyeable pieces (the minecraft:dyeable tag: gambeson, coif, pantyhose, brigandine, crusader, norman helmet, ...) are dyed in two colours per unit from 'dye.palette'; shields carry random arms (vanilla geometric patterns and Epic Knights emblems, rule of tincture) unless 'heraldry' is false. Choices are deterministic per unit; units re-equip once when this data changes. Validate with /hywmill dev equipcheck. Post-M5 role 'levy': mobilized wartime soldiers wear these light kits (gambeson, kettle hat or coif, cheap shields), at the tier of their own equipment level (1 = GUARD_POST: iron weapons from the class lists), not their village's tier. Post-M5 'heraldry' (defaults and per culture): the village livery's preferred dye colours (best first) and the banner patterns its shields use (ordinaries: geometric; charges: emblems). Each village takes two colours, chosen away from its neighbours' (3000 blocks); its soldiers wear them and bear assorted arms in them. Post-M5 Epic Knights addons: kits may use pieces of Epic Knights: Addon (magistuarmoryaddon) and Epic Knights: Slavic Armory (slavicarmory); a kit with a piece of an addon that is not installed is skipped (equipcheck lists such pieces as optional), so without the addons every unit wears the Epic Knights kits. Byzantines take Slavic Armory's Byzantine lamellar and scale, Phrygian and Varangian helmets; Seljuks and Indians the Addon's saracen, mirror and kulah khud pieces and Slavic bahteretz and yushman; Japanese the Addon's straw hats, splint armour and grotesque face helmets; Normans its chapel hats, coats of plates, early great helms and XIII-century knight harness.",
  "defaults": {
   "tiers": {
    "WATCH": {
@@ -560,6 +560,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:chapel",
+        "chest": "magistuarmoryaddon:chained_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:chained_gambeson_boots"
        }
       ]
      },
@@ -570,6 +576,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:cervelliere",
+        "chest": "magistuarmoryaddon:chained_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:chained_gambeson_boots"
        }
       ]
      },
@@ -580,6 +592,28 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:linen_coif",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:chapel",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:linen_coif",
+        "chest": "magistuarmoryaddon:chained_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:chained_gambeson_boots"
        }
       ]
      }
@@ -601,6 +635,18 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:chapel",
+        "chest": "magistuarmoryaddon:coat_of_plates_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmoryaddon:coat_of_plates_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:cervelliere",
+        "chest": "magistuarmoryaddon:chained_gambeson",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmoryaddon:chained_gambeson_boots"
        }
       ]
      },
@@ -617,6 +663,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:chapel",
+        "chest": "magistuarmoryaddon:chained_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:chained_gambeson_boots"
        }
       ]
      },
@@ -627,6 +679,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:chapel",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:linen_coif",
+        "chest": "magistuarmoryaddon:chained_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:chained_gambeson_boots"
        }
       ]
      }
@@ -649,6 +717,18 @@
         "chest": "magistuarmory:crusader_chestplate",
         "legs": "magistuarmory:chainmail_leggings",
         "feet": "magistuarmory:chainmail_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:early_greathelm",
+        "chest": "magistuarmoryaddon:xiii_century_knight_chestplate",
+        "legs": "magistuarmoryaddon:xiii_century_knight_leggings",
+        "feet": "magistuarmoryaddon:xiii_century_knight_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:klappvisor_bascinet",
+        "chest": "magistuarmoryaddon:coat_of_plates_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmoryaddon:coat_of_plates_boots"
        }
       ]
      },
@@ -665,6 +745,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:visored_kettlehat",
+        "chest": "magistuarmoryaddon:heavy_brigandine_chestplate",
+        "legs": "magistuarmoryaddon:heavy_brigandine_leggings",
+        "feet": "magistuarmoryaddon:heavy_brigandine_boots"
        }
       ]
      },
@@ -681,6 +767,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:chapel",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:linen_coif",
+        "chest": "magistuarmoryaddon:chained_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:chained_gambeson_boots"
        }
       ]
      }
@@ -708,6 +810,24 @@
         "chest": "magistuarmory:crusader_chestplate",
         "legs": "magistuarmory:crusader_leggings",
         "feet": "magistuarmory:crusader_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:late_greathelm",
+        "chest": "magistuarmoryaddon:xiii_century_knight_chestplate",
+        "legs": "magistuarmoryaddon:xiii_century_knight_leggings",
+        "feet": "magistuarmoryaddon:xiii_century_knight_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:dark_crusader_helmet",
+        "chest": "magistuarmoryaddon:dark_crusader_chestplate",
+        "legs": "magistuarmoryaddon:dark_crusader_leggings",
+        "feet": "magistuarmoryaddon:dark_crusader_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:klappvisor_bascinet",
+        "chest": "magistuarmoryaddon:heavy_brigandine_chestplate",
+        "legs": "magistuarmoryaddon:heavy_brigandine_leggings",
+        "feet": "magistuarmoryaddon:heavy_brigandine_boots"
        }
       ]
      },
@@ -724,6 +844,12 @@
         "chest": "magistuarmory:chainmail_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:visored_kettlehat",
+        "chest": "magistuarmoryaddon:heavy_brigandine_chestplate",
+        "legs": "magistuarmoryaddon:heavy_brigandine_leggings",
+        "feet": "magistuarmoryaddon:heavy_brigandine_boots"
        }
       ]
      },
@@ -740,6 +866,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:chapel",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:linen_coif",
+        "chest": "magistuarmoryaddon:chained_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:chained_gambeson_boots"
        }
       ]
      }
@@ -802,6 +944,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "slavicarmory:rus_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:rus_gambeson_boots"
        }
       ]
      },
@@ -818,6 +966,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "slavicarmory:shapka",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
        }
       ]
      },
@@ -828,6 +982,28 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "slavicarmory:shapka",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "slavicarmory:rus_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:rus_gambeson_boots"
+       },
+       {
+        "head": "slavicarmory:shapka",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
        }
       ]
      }
@@ -844,6 +1020,18 @@
         "chest": "magistuarmory:chainmail_chestplate",
         "legs": "magistuarmory:chainmail_leggings",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "slavicarmory:late_phrygian_helmet",
+        "chest": "slavicarmory:byzantine_scale_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "slavicarmory:rus_scale_boots"
+       },
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "slavicarmory:lamellar_mail_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:lamellar_mail_boots"
        }
       ]
      },
@@ -860,6 +1048,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "slavicarmory:rus_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:rus_gambeson_boots"
        }
       ]
      },
@@ -870,6 +1064,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "slavicarmory:rus_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:rus_gambeson_boots"
+       },
+       {
+        "head": "slavicarmory:shapka",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
        }
       ]
      }
@@ -894,6 +1104,24 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:chainmail_leggings",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "slavicarmory:late_phrygian_helmet",
+        "chest": "slavicarmory:byzantine_lamellar_chestplate",
+        "legs": "slavicarmory:rus_chainmail_leggings",
+        "feet": "slavicarmory:rus_heavy_lamellar_boots"
+       },
+       {
+        "head": "slavicarmory:varangian_guard_helmet",
+        "chest": "slavicarmory:byzantine_scale_chestplate",
+        "legs": "slavicarmory:rus_chainmail_leggings",
+        "feet": "slavicarmory:rus_scale_boots"
+       },
+       {
+        "head": "slavicarmory:nikolskoe_helmet",
+        "chest": "slavicarmory:rus_heavy_lamellar_chestplate",
+        "legs": "slavicarmory:rus_chainmail_leggings",
+        "feet": "slavicarmory:rus_heavy_lamellar_boots"
        }
       ]
      },
@@ -910,6 +1138,12 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "slavicarmory:lamellar_mail_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:lamellar_mail_boots"
        }
       ]
      },
@@ -920,6 +1154,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "slavicarmory:rus_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:rus_gambeson_boots"
+       },
+       {
+        "head": "slavicarmory:shapka",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
        }
       ]
      }
@@ -942,6 +1192,24 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:chainmail_leggings",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "slavicarmory:gilded_late_phrygian_helmet",
+        "chest": "slavicarmory:gilded_byzantine_lamellar_chestplate",
+        "legs": "slavicarmory:rus_chainmail_leggings",
+        "feet": "slavicarmory:gilded_rus_heavy_lamellar_boots"
+       },
+       {
+        "head": "slavicarmory:varangian_guard_helmet",
+        "chest": "slavicarmory:gilded_byzantine_scale_chestplate",
+        "legs": "slavicarmory:rus_chainmail_leggings",
+        "feet": "slavicarmory:gilded_rus_scale_boots"
+       },
+       {
+        "head": "slavicarmory:gilded_nikolskoe_helmet",
+        "chest": "slavicarmory:gilded_rus_heavy_lamellar_chestplate",
+        "legs": "slavicarmory:rus_chainmail_leggings",
+        "feet": "slavicarmory:gilded_rus_heavy_lamellar_boots"
        }
       ]
      },
@@ -958,6 +1226,12 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "slavicarmory:gilded_eastern_kettlehat",
+        "chest": "slavicarmory:byzantine_scale_chestplate",
+        "legs": "slavicarmory:rus_chainmail_leggings",
+        "feet": "slavicarmory:rus_scale_boots"
        }
       ]
      },
@@ -968,6 +1242,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "slavicarmory:rus_gambeson",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:rus_gambeson_boots"
+       },
+       {
+        "head": "slavicarmory:shapka",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
        }
       ]
      }
@@ -1014,6 +1304,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      },
@@ -1036,6 +1332,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:light_cuman_helmet",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
        }
       ]
      },
@@ -1046,6 +1348,28 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:light_cuman_helmet",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      }
@@ -1068,6 +1392,18 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:cuman_helmet",
+        "chest": "slavicarmory:kuyak_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
+       },
+       {
+        "head": "slavicarmory:bulgar_helmet",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      },
@@ -1086,6 +1422,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:light_cuman_helmet",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      },
@@ -1096,6 +1438,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:light_cuman_helmet",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      }
@@ -1120,6 +1478,18 @@
         "chest": "magistuarmory:chainmail_chestplate",
         "legs": "magistuarmory:chainmail_leggings",
         "feet": "magistuarmory:chainmail_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:kulah_khud",
+        "chest": "slavicarmory:bahteretz_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "slavicarmory:bahteretz_boots"
+       },
+       {
+        "head": "slavicarmory:erikhonka",
+        "chest": "slavicarmory:yushman_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "slavicarmory:bahteretz_boots"
        }
       ]
      },
@@ -1148,6 +1518,12 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:mamluk_helmet",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      },
@@ -1158,6 +1534,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:light_cuman_helmet",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      }
@@ -1174,6 +1566,24 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:chainmail_leggings",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:kulah_khud",
+        "chest": "slavicarmory:gilded_bahteretz_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "slavicarmory:bahteretz_boots"
+       },
+       {
+        "head": "slavicarmory:gilded_erikhonka",
+        "chest": "slavicarmory:gilded_yushman_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "slavicarmory:bahteretz_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:cuman_captain_helmet",
+        "chest": "magistuarmoryaddon:mirror_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmoryaddon:mirror_boots"
        }
       ]
      },
@@ -1198,6 +1608,12 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:mamluk_helmet",
+        "chest": "slavicarmory:kuyak_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      },
@@ -1208,6 +1624,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "slavicarmory:kaftan",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "slavicarmory:kaftan_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:light_cuman_helmet",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      }
@@ -1255,6 +1687,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      },
@@ -1265,6 +1703,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "none",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      },
@@ -1275,6 +1719,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "none",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      }
@@ -1291,6 +1751,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:kulah_khud",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      },
@@ -1301,6 +1767,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      },
@@ -1311,6 +1783,16 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      }
@@ -1335,6 +1817,18 @@
         "chest": "magistuarmory:chainmail_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:kulah_khud",
+        "chest": "magistuarmoryaddon:mirror_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmoryaddon:mirror_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:kulah_khud",
+        "chest": "slavicarmory:kuyak_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      },
@@ -1345,6 +1839,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:kulah_khud",
+        "chest": "magistuarmoryaddon:saracen_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:saracen_boots"
        }
       ]
      },
@@ -1355,6 +1855,16 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      }
@@ -1377,6 +1887,18 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:chainmail_leggings",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:kulah_khud",
+        "chest": "magistuarmoryaddon:mirror_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmoryaddon:mirror_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:mamluk_helmet",
+        "chest": "slavicarmory:gilded_yushman_chestplate",
+        "legs": "magistuarmory:chainmail_leggings",
+        "feet": "magistuarmoryaddon:mirror_boots"
        }
       ]
      },
@@ -1387,6 +1909,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:kulah_khud",
+        "chest": "magistuarmoryaddon:mirror_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:mirror_boots"
        }
       ]
      },
@@ -1397,6 +1925,16 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:saracen_helmet",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      }
@@ -1448,6 +1986,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:straw_hat",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      },
@@ -1458,6 +2002,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:straw_hat",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      },
@@ -1468,6 +2018,28 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:straw_hat",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:straw_hat",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       },
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      }
@@ -1487,6 +2059,18 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:splint_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:straw_hat",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmoryaddon:splint_leggings",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      },
@@ -1497,6 +2081,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:straw_hat",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      },
@@ -1507,6 +2097,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:straw_hat",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       },
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      }
@@ -1529,6 +2135,18 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:chainmail_leggings",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:scale_helmet",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmoryaddon:splint_leggings",
+        "feet": "magistuarmoryaddon:splint_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:lobster_tailed_helmet",
+        "chest": "slavicarmory:lamellar_mail_chestplate",
+        "legs": "magistuarmoryaddon:splint_leggings",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      },
@@ -1539,6 +2157,12 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmoryaddon:splint_leggings",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      },
@@ -1549,6 +2173,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:straw_hat",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       },
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      }
@@ -1568,6 +2208,24 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:chainmail_leggings",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:facial_grotesque_maximilian_helmet",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmoryaddon:splint_leggings",
+        "feet": "magistuarmoryaddon:splint_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:devilish_grotesque_maximilian_helmet",
+        "chest": "slavicarmory:rus_heavy_lamellar_chestplate",
+        "legs": "magistuarmoryaddon:splint_leggings",
+        "feet": "slavicarmory:rus_heavy_lamellar_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:lobster_tailed_helmet",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmoryaddon:splint_leggings",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      },
@@ -1578,6 +2236,12 @@
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:lamellar_boots"
+       },
+       {
+        "head": "magistuarmoryaddon:scale_helmet",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmoryaddon:splint_leggings",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      },
@@ -1588,6 +2252,22 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
+     },
+     "levy": {
+      "kits": [
+       {
+        "head": "magistuarmoryaddon:straw_hat",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
+       },
+       {
+        "head": "slavicarmory:eastern_kettlehat",
+        "chest": "magistuarmoryaddon:splint_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
      }
@@ -1630,6 +2310,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "none",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      },
@@ -1664,6 +2350,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "none",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      }
@@ -1680,6 +2372,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "none",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      },
@@ -1712,6 +2410,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "none",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      }
@@ -1728,6 +2432,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "none",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      },
@@ -1762,6 +2472,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "none",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      }
@@ -1777,6 +2493,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "none",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      },
@@ -1809,6 +2531,12 @@
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "none",
+        "chest": "magistuarmoryaddon:tunic",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmoryaddon:tunic_boots"
        }
       ]
      }

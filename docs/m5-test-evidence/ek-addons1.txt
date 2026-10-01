@@ -1,0 +1,16 @@
+  NOTE  AD excubitors  Shieldman has the following entity data: {count: 1, id: "magistuarmory:lamellar_chestplate"} Shieldman has the following entity data: {count: 1, id: "magistuarmory:chainmail_helmet"} || Shieldman has the following entity data: {count: 1, id: "magistuarmory:lamellar_chestplate"} Shieldman has the following entity data: {count: 1, id: "magistuarmory:chainmail_helmet"} || Shieldman has the following entity data: {count: 1, id: "magistuarmory:lamellar_chestplate"} Shieldman has the following entity data: {count: 1, id: "magistuarmory:chainmail_helmet"}
+  NOTE  AD samurai  
+  NOTE  AD shield-wall  Shieldman has the following entity data: {components: {"minecraft:dyed_color": {show_in_tooltip: 0b, rgb: 6192150}}, count: 1, id: "magistuarmory:gambeson_chestplate"} Shieldman has the following entity data: {components: {"minecraft:dyed_color": {show_in_tool || Shieldman has the following entity data: {components: {"minecraft:dyed_color": {show_in_tooltip: 0b, rgb: 6192150}}, count: 1, id: "magistuarmoryaddon:tunic"} Shieldman has the following entity data: {} || Shieldman has the following entity data: {components: {"minecraft:dyed_color": {show_in_tooltip: 0b, rgb: 6192150}}, count: 1, id: "magistuarmory:gambeson_chestplate"} Shieldman has the following entity data: {count: 1, id: "magistuarmory:kettlehat"}
+  NOTE  AD villages  (647, 80, 624): norman | (847, 87, 624): norman | (656, 69, 976): norman | (420, 70, 470): byz | (1074, 84, 652): norman
+  PASS  AD-0 both addons load and every kit is valid  addon magistuarmoryaddon: loaded | addon slavicarmory: loaded; invalid kits 0: 
+  PASS  AD-1 Byzantine Excubitors wear Slavic Armory pieces  7777777777 msg=Excubitors (10 soldiers) mustered for 12 or 27 argent 13 deniers.; 5 of 10 with Slavic Armory
+  PASS  AD-2 a Byzantine garrison wears Slavic Armory pieces  2 of 12 garrison soldiers
+  PASS  AD-3 Japanese samurai wear the Addon's splint armour and helmets  no Japanese village; 0 of 0 with Addon pieces
+  PASS  AD-4 a Norman shield-wall mixes Epic Knights and Addon gear (chapel hats, chained gambesons, tunics)  77 msg=Village Shield-Wall (10 soldiers) mustered for 8 or 17 argent 38 deniers.; 6 of 10 with Addon pieces
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+--- without the addons (Epic Knights 10.15 only):
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+  PASS  LK-0 Epic Knights is loaded  
+  PASS  LK-1 the Crusader Band wears crusader surcoats in its colours and bears crosses on its shields  r=33333333-4444-4555-8666-777777777777 msg=Crusader Band (12 soldiers) mustered for 15 or 12 argent.; 4 shieldmen: surcoat 4, dyed 4, cross shields 4
+  PASS  LK-2 Byzantine Excubitors wear lamellar and bear the two-headed eagle  33-4444-4555-8666-777777777777 msg=Excubitors (10 soldiers) mustered for 12 or 27 argent 13 deniers.; 3 shieldmen: lamellar 3, eagle 3
+  PASS  LK-3 Norman knights ride in surcoats  8666-777777777777 msg=Knights of the Household (8 soldiers) mustered for 17 or 17 argent 38 deniers.; 4 knights, surcoats 4

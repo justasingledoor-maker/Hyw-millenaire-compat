@@ -1086,3 +1086,57 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
   * Harness VL 8/8 with Epic Knights (`docs/m5-test-evidence/siege-field2.txt`). The target recruited nothing during
     the battle, and VL-3 now passes with its corrected check (the Turki horse archers, 19 hired).
 * SHA-256 of the jar: `fcfbcc399a2d237b9acc1ebf0e2911eccebc72b606d00551bc6664a2269bf236`.
+
+### 6.35 Epic Knights addons: Epic Knights: Addon and Slavic Armory (`dist/hywmill-m5-fix35.jar`)
+
+* **Supported** (both optional):
+  * Epic Knights: Addon 2.5 (`magistuarmoryaddon`, 421 items).
+  * Epic Knights: Slavic Armory 2.3 (`slavicarmory`, 61 items).
+* **How it works.**
+  * Kits may use addon pieces. A kit with a piece from an addon that is not installed is skipped, so without the addons
+    every unit and squad wears exactly what it did before.
+  * `/hywmill admin equipcheck` says whether each addon is loaded. It lists missing addon pieces as optional, not
+    invalid, and now also checks every squad look's kits.
+* **Garrisons** (`profiles.json`, +108 kits; regenerated with `add_addon_kits.py`, additive):
+  * **Byzantines** (Slavic Armory):
+    * Byzantine lamellar and scale, Rus heavy lamellar.
+    * Phrygian, Nikolskoe and Varangian Guard helmets; gilded sets at Stronghold.
+    * Levies in kaftans or Rus gambesons with eastern kettle hats or shapkas.
+  * **Seljuks:**
+    * Saracen sets.
+    * Cuman, Bulgar and mamluk helmets, and the kulah khud.
+    * Kuyak, bahteretz and yushman armour; mirror armour at Stronghold.
+  * **Indians:** tunics, saracen pieces, kulah khud and mirror armour.
+  * **Japanese:**
+    * Splint armour, straw hats and eastern kettle hats for ashigaru.
+    * Scale and lobster-tail helmets for samurai.
+    * Grotesque and devilish face helmets at Stronghold.
+    * Neither addon has real Japanese armour; these are the nearest pieces.
+  * **Normans:**
+    * Chapel hats, linen coifs, chained gambesons and tunics.
+    * Coats of plates; early and late great helms with XIII-century knight harness.
+    * Dark crusader sets, klappvisor bascinets, and heavy brigandine with visored kettle hats.
+  * **Maya:** tunics.
+  * **Inuit:** unchanged; nothing in either addon fits.
+* **Squads** (`squad_looks.json`): 96 of the 112 looks get addon kits matched to their culture and armour.
+  * Varangians get Varangian Guard helmets and Rus mail.
+  * Excubitors and the Tagma get gilded Byzantine lamellar.
+  * Samurai get splint armour; the daimyo's guard gets face helmets.
+  * Mamluks get mamluk helmets.
+  * Every look keeps a plain Epic Knights kit.
+* **Bug fixed.** `magistuarmory:brigandine_boots` does not exist in Epic Knights: there is no such item. The four
+  brigandine looks (Brabançons, Genoese, Dhal, imperial archers) now wear chainmail boots. Before, those kits were
+  silently skipped.
+* **Tests.**
+  * JUnit 347/347. The profile and look tests allow the addon namespaces and require a plain Epic Knights fallback in
+    every list.
+  * Harness AD with Epic Knights 10.15 + Addon 2.5 + Slavic Armory 2.3 (`docs/m5-test-evidence/ek-addons1.txt`):
+    * **AD-0:** both addons loaded, 0 invalid kits.
+    * **AD-1:** Excubitors 5 of 10 in Slavic Armory (gilded Rus heavy lamellar with Andreevski helmets, Byzantine scale
+      with Phrygian helmets).
+    * **AD-2:** the Byzantine garrison re-dressed in part, 2 of 12 sampled.
+    * **AD-4:** a Norman shield-wall 6 of 10 in Addon tunics, chapel hats and chained gambesons.
+    * **AD-3:** the harness world has no Japanese village, so it was not seen on soldiers. Its kits are covered by AD-0
+      (every piece registered and in the right slot).
+  * Without the addons, LK 4/4: squads unchanged, and equipcheck reports 85 optional addon pieces and 0 invalid.
+* SHA-256 of the jar: `95b9f1635ff3165bb76ea7f1fc36fff01f3e8722fd54bc3bb258bf130d4a1389`.

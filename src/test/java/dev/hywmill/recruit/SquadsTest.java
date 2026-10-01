@@ -158,7 +158,16 @@ class SquadsTest {
         assertEquals(112, seen.size(), "one look per squad");
         // crusader squads: white surcoats with red crosses on their shields
         var crus = p.lookFor("look:norman.crusader_band");
-        assertTrue(crus.kits().stream().allMatch(k -> k.piece("chest").equals("magistuarmory:crusader_chestplate")));
+        assertTrue(crus.kits().stream().allMatch(k -> java.util.Set.of("magistuarmory:crusader_chestplate", "magistuarmoryaddon:dark_crusader_chestplate",
+                "magistuarmoryaddon:xiii_century_knight_chestplate").contains(k.piece("chest"))));
+        // post-M5 addons: every look keeps a plain Epic Knights kit (worn when the addons are not installed); the Byzantines and
+        // the Japanese take Slavic Armory and Addon armour when they are
+        for (var l : p.looks().entrySet()) {
+            assertTrue(l.getValue().kits().stream().anyMatch(k -> java.util.Arrays.stream(new String[]{"head", "chest", "legs", "feet"})
+                    .map(k::piece).allMatch(x -> x.equals("none") || x.startsWith("magistuarmory:"))), "plain kit in " + l.getKey());
+        }
+        assertTrue(p.lookFor("look:byz.excubitors").kits().stream().anyMatch(k -> k.piece("chest").startsWith("slavicarmory:")));
+        assertTrue(p.lookFor("look:jp.samurai").kits().stream().anyMatch(k -> k.piece("chest").equals("magistuarmoryaddon:splint_chestplate")));
         assertTrue(crus.arms().stream().anyMatch(a -> a.base() == net.minecraft.world.item.DyeColor.WHITE
                 && a.layers().stream().anyMatch(l -> l.pattern().equals("magistuarmory:crusader_cross") && l.color() == net.minecraft.world.item.DyeColor.RED)));
         var excub = p.lookFor("look:byz.excubitors");

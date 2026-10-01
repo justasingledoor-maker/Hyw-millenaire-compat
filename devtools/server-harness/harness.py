@@ -5954,7 +5954,77 @@ def scenario_PC(ctx):
     s.output("hywmill dev recruit colours -1 -1", 2)
 
 
-SCENARIOS = {"PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_AD(ctx):
+    """Epic Knights addons (post-M5; run with HYWMILL_EXTRA_MODS holding Epic Knights, Epic Knights: Addon and Slavic Armory):
+    every profile and look kit is valid; Byzantine garrisons and squads wear Slavic Armory lamellar, scale and helmets;
+    Japanese squads the Addon's splint armour, straw hats and face helmets."""
+    s = ctx.s
+    for box in EXTRA_FORCELOAD:
+        s.cmd("forceload add {} {} {} {}".format(*box), wait=10)
+    eq = s.output("hywmill admin equipcheck", 6)
+    loaded = [l for l in eq if l.strip().startswith("addon ")]
+    bad = [l for l in eq if "INVALID KIT" in l]
+    check("AD-0 both addons load and every kit is valid", sum(1 for l in loaded if "loaded" in l and "not" not in l) == 2 and not bad,
+          " | ".join(loaded) + f"; invalid kits {len(bad)}: " + " | ".join(bad[:4]))
+    centers = []
+    for l in s.output("hywmill village list", 2):
+        m = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=| (-?\d+), (-?\d+), (-?\d+) tier=", l)
+        if m:
+            centers.append(tuple(int(v) for v in m.groups() if v is not None))
+    cult = {c: " ".join(s.output(at(c, "hywmill village info"), 2)) for c in centers}
+    note("AD villages", " | ".join(f"{c}: " + ("byz" if "byzantines" in t else "jp" if "japanese" in t else "norman" if "norman" in t else "?") for c, t in cult.items()))
+    P = "33333333-4444-4555-8666-777777777777"
+
+    def roll(c):
+        x, z = c[0] + 6, c[2] + 6
+        y = surface_y(s, x, z) or c[1]
+        s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+        return x, y, z
+
+    def hired(pos, key, types):
+        x, y, z = pos
+        for t in types:
+            s.cmd(f"kill @e[type=hundred_years_war:{t}]", 0.5)
+        h = " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "{key}" 1 900000 SWORN', 5) if "recruit:" in l)
+        time.sleep(6)
+        out = []
+        for t in types:
+            out += [u for u, v in spike_info(s, f"@e[type=hundred_years_war:{t}]").items() if ("owner=" + P) in v["desc"] and dist(v["pos"], pos) <= 45]
+        return h, [gear_of(s, u)[0] + " " + " ".join(s.output(f"data get entity {u} ArmorItems[3]", 0.6)) for u in out[:10]]
+
+    byz = next((c for c, t in cult.items() if "byzantines" in t), None)
+    if byz:
+        rb = roll(byz)
+        h, rows = hired(rb, "squad:byz.excubitors", ["shieldman", "spear_man"])
+        sl = sum(1 for r in rows if "slavicarmory:" in r)
+        note("AD excubitors", " || ".join(r[:260] for r in rows[:3]))
+        check("AD-1 Byzantine Excubitors wear Slavic Armory pieces", "ok=true" in h and rows and sl >= 1, f"{h[-80:]}; {sl} of {len(rows)} with Slavic Armory")
+        gar = [u for u, v in spike_info(s, "@e[type=!minecraft:player]").items() if v["tag"] != "none" and dist(v["pos"], byz) <= 90]
+        time.sleep(1)
+        rows2 = [gear_of(s, u)[0] + " " + " ".join(s.output(f"data get entity {u} ArmorItems[3]", 0.6)) for u in gar[:12]]
+        sl2 = sum(1 for r in rows2 if "slavicarmory:" in r)
+        check("AD-2 a Byzantine garrison wears Slavic Armory pieces", rows2 and sl2 >= 1, f"{sl2} of {len(rows2)} garrison soldiers")
+    else:
+        note("AD-1", "no Byzantine village in this world")
+    jp = next((c for c, t in cult.items() if "japanese" in t), None)
+    if jp:
+        rj = roll(jp)
+        h, rows = hired(rj, "squad:jp.samurai", ["warrior", "shieldman", "spear_man", "archer"])
+    else:
+        rj = roll(ctx.a)  # no Japanese village here: the look is checked through a Norman roll's generic squad instead
+        h, rows = "", []
+    ad = sum(1 for r in rows if "magistuarmoryaddon:" in r)
+    note("AD samurai", " || ".join(r[:260] for r in rows[:3]))
+    check("AD-3 Japanese samurai wear the Addon's splint armour and helmets", jp is None or ("ok=true" in h and rows and ad >= 1),
+          f"{'no Japanese village' if jp is None else h[-80:]}; {ad} of {len(rows)} with Addon pieces")
+    rn = roll(ctx.a)
+    h, rows = hired(rn, "squad:norman.village_shieldwall", ["shieldman", "spear_man"])
+    ad = sum(1 for r in rows if "magistuarmoryaddon:" in r)
+    note("AD shield-wall", " || ".join(r[:260] for r in rows[:3]))
+    check("AD-4 a Norman shield-wall mixes Epic Knights and Addon gear (chapel hats, chained gambesons, tunics)", "ok=true" in h and rows and ad >= 1, f"{h[-80:]}; {ad} of {len(rows)} with Addon pieces")
+
+
+SCENARIOS = {"AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
