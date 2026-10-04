@@ -1496,6 +1496,7 @@ public final class SiegeService {
                 d[0] += x[0];
                 d[1] += x[1];
                 d[2] += x[2];
+                d[3] += x[3];
                 rl.killed += x[0];
             }
         }
@@ -1503,10 +1504,12 @@ public final class SiegeService {
         s.hostHurt -= h[0];
         s.defDead += d[0];
         s.defHurt -= d[0];
-        if (h[0] + d[0] + h[1] + d[1] + h[2] > 0) {
+        if (h[0] + d[0] + h[1] + d[1] + h[2] + d[2] + h[3] + d[3] > 0) {
             String text = "In the night " + (h[1] + d[1]) + " wounded rose to fight again"
-                    + (h[0] + d[0] > 0 ? "; " + h[0] + " of " + a.name + "'s and " + d[0] + " of " + t.name + "'s wounded died of their wounds" : "")
-                    + (h[2] > 0 ? "; " + h[2] + " of " + a.name + "'s engines were repaired" : "") + (h[3] > 0 ? ", " + h[3] + " are beyond repair" : "");
+                    + (h[0] + d[0] > 0 ? "; " + h[0] + " wounded attacker" + (h[0] == 1 ? "" : "s") + " and " + d[0] + " wounded defender"
+                    + (d[0] == 1 ? "" : "s") + " died of their wounds" : "")
+                    + (h[2] + d[2] > 0 ? "; " + (h[2] + d[2]) + " damaged engine" + (h[2] + d[2] == 1 ? " was" : "s were") + " repaired" : "")
+                    + (h[3] + d[3] > 0 ? "; " + (h[3] + d[3]) + " engine" + (h[3] + d[3] == 1 ? " is" : "s are") + " beyond repair" : "");
             s.notes.add("Night " + s.wave + ": " + text.substring("In the night ".length()));
             announce(overworld, ledger, s, a, t, text);
             HmLog.info("Siege {}: night {}: {}", s.id.toString().substring(0, 8), s.wave, text);

@@ -1363,3 +1363,34 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
   * Two earlier runs failed on harness setup: no declared war, and too short a time skip. The second run also found that
     Guard Post villages could not field light horse; that was fixed.
 * SHA-256 of the jar: `a01a53d871f633b791469796c4bd9146a694e32afb131cc805b7f1be4625c607`.
+
+### 6.44 Sieges in three waves (`dist/hywmill-m5-fix44.jar`)
+
+* **The change.** A siege is fought over up to three days, one wave a day (`SiegeWaves`; design in
+  `docs/siege-design.md`).
+  * Each wave runs from dawn to sundown. At sundown the host withdraws and leaves the world; at the next dawn it forms up
+    again.
+  * The first side down to 20% of its starting strength (alive or wounded) loses at once.
+  * If neither side breaks by the third sundown, the siege is a **stalemate**: the attackers go home, with no tribute, no
+    peace and no vassalage.
+* **Wounds.**
+  * A fallen soldier of the siege (host, the target's garrison and help, relief forces) is wounded instead of killed 35% of
+    the time as an attacker, 45% as a defender. A wounded soldier is carried off the field and counts as alive.
+  * In the night, one in ten wounded dies; the rest fight again at dawn.
+  * Engines follow the same rules: knocked out, then repaired or beyond repair.
+* **Unwatched waves** are drawn on paper at sundown: the side that holds the field loses 8-18% of its men, the other 22-38%.
+  Each loss is dead or wounded at that side's chance. A player who arrives brings the wave into the world.
+* **Help only before the first assault.** Columns and relief forces still on the road when it begins turn back. No
+  recruiting or levies at the target during waves and nights.
+* **News.** Dawn and sundown announcements with each day's dead and wounded, the night's recoveries and deaths, and a
+  boss bar showing the day. The battle report gets a line per day and totals; the History tab shows "stalemate".
+* **Tests.**
+  * JUnit 370/370. New: `SiegeWavesTest`.
+  * Harness W3 6/6 (`docs/m5-test-evidence/siege-waves1.txt`):
+    * wave 1 in the world; of 17 soldiers killed by command, 11 were wounded and carried off and 8 died (fallen on both
+      sides; each death is rolled separately);
+    * at sundown the host left the world; at dawn wave 2 began, with 6 wounded back and 2 dead of their wounds;
+    * an unwatched siege was fought on paper for three waves and ended in a stalemate (11 of 21 attackers, 34 of 41
+      defenders).
+  * The first run failed W3-4 only because the night's news was not written to the server log; that is fixed.
+* SHA-256 of the jar: `6eaa1e53b717b0fe5cd47c1e8ad8dedebf3a59e3dbd50fdb4b6c09472b2b98a1`.
