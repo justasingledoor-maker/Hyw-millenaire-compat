@@ -1509,6 +1509,7 @@ public final class SiegeService {
                     + (h[2] > 0 ? "; " + h[2] + " of " + a.name + "'s engines were repaired" : "") + (h[3] > 0 ? ", " + h[3] + " are beyond repair" : "");
             s.notes.add("Night " + s.wave + ": " + text.substring("In the night ".length()));
             announce(overworld, ledger, s, a, t, text);
+            HmLog.info("Siege {}: night {}: {}", s.id.toString().substring(0, 8), s.wave, text);
         }
         int host = soldiers(a, entries(a, s.host)).size(), def = defenderCount(overworld, ledger, s, t, false);
         Siege.Outcome o = SiegeWaves.verdict(host, s.hostStart, def, s.defendersStart, s.wave, false);
