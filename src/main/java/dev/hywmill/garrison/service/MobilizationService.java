@@ -176,7 +176,7 @@ public final class MobilizationService {
     /** A siege is being fought at the village right now (its battle phase; the muster, march and wait before it do not count). */
     public static boolean inSiegeBattle(GarrisonLedger ledger, VillageRecord rec) {
         dev.hywmill.politics.war.Siege s = SiegeService.against(ledger, rec.villageId);
-        return s != null && s.phase == dev.hywmill.politics.war.Siege.Phase.BATTLE;
+        return s != null && s.fighting(); // a wave, or the night between two
     }
 
     private static int target(VillageRecord rec, GarrisonTable table) {

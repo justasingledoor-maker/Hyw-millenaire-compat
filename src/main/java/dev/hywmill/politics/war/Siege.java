@@ -14,9 +14,11 @@ import java.util.UUID;
  */
 public final class Siege {
     /** PREPARE (post-M5): the build-up of two days after the siege is announced; the host musters on the third and arrives at dawn. */
-    public enum Phase { PREPARE, MUSTER, MARCH, WAIT, BATTLE, RETURN }
+    /** NIGHT (post-M5): between two waves; the host has withdrawn, the wounded are tended. */
+    public enum Phase { PREPARE, MUSTER, MARCH, WAIT, BATTLE, NIGHT, RETURN }
 
-    public enum Outcome { NONE, WON, LOST }
+    /** STALEMATE (post-M5): three waves and neither side broke; the attackers go home, nothing is paid. */
+    public enum Outcome { NONE, WON, LOST, STALEMATE }
 
     public final UUID id;
     public final UUID attacker;
@@ -67,6 +69,22 @@ public final class Siege {
     /** Defenders fallen, set as the siege is decided (for its report; not persisted). -1: unknown. */
     public int defLost = -1;
     public final List<UUID> extras = new ArrayList<>();
+    /**
+     * Post-M5 waves ({@link SiegeWaves}): the wave being fought (0: none yet; 1-3); whether this wave is fought in the world
+     * (else on paper, far from any witness); the target's Millénaire fighters at the first dawn (they are not on any roster);
+     * this wave's toll so far (dead and wounded, each side), and the whole siege's.
+     */
+    public int wave;
+    public boolean field;
+    public int milStart;
+    public int hostDeadW, hostHurtW, defDeadW, defHurtW;
+    public int hostDead, hostHurt, defDead, defHurt;
+
+    /** A wave is being fought or the night between two (no help may join any more; no recruiting at the target). */
+    public boolean fighting() {
+        return phase == Phase.BATTLE || phase == Phase.NIGHT;
+    }
+
     /** One line on how it ended (for the chronicle, status and the report). */
     public String summary = "";
 

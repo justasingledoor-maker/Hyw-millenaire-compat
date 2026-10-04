@@ -450,6 +450,11 @@ public final class ColumnService {
             end(overworld, ledger, c, Column.State.FAILED, "it came too late", tick);
             return;
         }
+        if (s.wave > 0 && c.kind != Column.Kind.ALARM) {
+            // post-M5: help joins only before the first assault; once the siege is fought it comes too late
+            end(overworld, ledger, c, Column.State.FAILED, "it came too late: the siege had begun", tick);
+            return;
+        }
         VillageRecord a = ledger.get(s.attacker), t = ledger.get(s.target);
         String text;
         switch (c.kind) {
@@ -457,10 +462,6 @@ public final class ColumnService {
                 String kind = c.kind == Column.Kind.MERCS ? "merc" : "vassal";
                 int n;
                 if (dest.villageId.equals(s.attacker)) {
-                    if (s.phase == Siege.Phase.BATTLE) {
-                        end(overworld, ledger, c, Column.State.FAILED, "the assault had begun without them", tick);
-                        return;
-                    }
                     for (int i = 0; i < c.units.size() && i < c.survivors; i++) {
                         s.pendingUnits.add(c.units.get(i));
                         s.pendingRegular.add(i < c.regular.size() && c.regular.get(i));

@@ -165,6 +165,17 @@ public final class CoreEvents {
         if (HywMillRuntime.get() == null || !(event.getEntity().level() instanceof ServerLevel level)) {
             return;
         }
+        if (GarrisonAttachments.get(event.getEntity()) != null) {
+            // post-M5 sieges: a soldier who falls in a wave may only be wounded (carried off the field until the next dawn)
+            guarded("siege wounds", () -> {
+                if (dev.hywmill.garrison.service.SiegeService.onFall(event.getEntity(), level)) {
+                    event.setCanceled(true);
+                }
+            });
+            if (event.isCanceled()) {
+                return;
+            }
+        }
         guarded("defense statistics", () -> DefenseStatsRecorder.onDeath(level, event.getEntity(), event.getSource().getEntity()));
         guarded("politics grievance", () -> HywMillRuntime.require().politics().onDeath(level, event.getEntity(), event.getSource().getEntity()));
         if (GarrisonAttachments.get(event.getEntity()) != null) {

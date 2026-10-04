@@ -356,6 +356,9 @@ public final class GarrisonRoster {
         if (e.mobilized) {
             c.putBoolean("mobilized", true);
         }
+        if (e.wounded) {
+            c.putBoolean("wounded", true);
+        }
         if (!e.mercLook.isEmpty()) {
             c.putString("merc", e.mercLook);
         }
@@ -430,6 +433,7 @@ public final class GarrisonRoster {
         }
         e.mobilized = c.getBoolean("mobilized");
         e.mercLook = c.getString("merc");
+        e.wounded = c.getBoolean("wounded");
         e.extra = c.getString("extra");
         return e;
     }

@@ -359,6 +359,13 @@ public final class PoliticsNbt {
             if (g.vassalRolled) {
                 x.putBoolean("vassalRolled", true);
             }
+            if (g.wave > 0) {
+                // post-M5 waves: the wave, whether it is fought in the world, the Millénaire fighters at the first dawn, the toll
+                x.putInt("wave", g.wave);
+                x.putBoolean("field", g.field);
+                x.putInt("milStart", g.milStart);
+                x.putIntArray("toll", new int[]{g.hostDeadW, g.hostHurtW, g.defDeadW, g.defHurtW, g.hostDead, g.hostHurt, g.defDead, g.defHurt});
+            }
             if (!g.notes.isEmpty()) {
                 ListTag nl = new ListTag();
                 g.notes.forEach(n -> nl.add(net.minecraft.nbt.StringTag.valueOf(n)));
@@ -416,6 +423,20 @@ public final class PoliticsNbt {
                 g.mercRolled = x.getBoolean("mercRolled");
                 g.aidRolled = x.getBoolean("aidRolled");
                 g.vassalRolled = x.getBoolean("vassalRolled");
+                g.wave = x.getInt("wave");
+                g.field = x.getBoolean("field");
+                g.milStart = x.getInt("milStart");
+                int[] toll = x.getIntArray("toll");
+                if (toll.length == 8) {
+                    g.hostDeadW = toll[0];
+                    g.hostHurtW = toll[1];
+                    g.defDeadW = toll[2];
+                    g.defHurtW = toll[3];
+                    g.hostDead = toll[4];
+                    g.hostHurt = toll[5];
+                    g.defDead = toll[6];
+                    g.defHurt = toll[7];
+                }
                 g.startDay = x.getLong("startDay");
                 g.arriveAt = x.getLong("arriveAt");
                 g.march = x.getLong("march");

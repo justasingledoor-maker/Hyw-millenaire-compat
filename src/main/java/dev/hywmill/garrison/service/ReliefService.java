@@ -121,6 +121,8 @@ public final class ReliefService {
                 case PENDING -> {
                     if (over) {
                         rl.phase = Relief.Phase.DONE; // the siege ended before the attackers marched: nobody set out
+                    } else if (s.wave > 0) {
+                        rl.phase = Relief.Phase.DONE; // post-M5: the siege is being fought; help sent now would come too late
                     } else if (rl.called && s.phase != Siege.Phase.MUSTER && s.phase != Siege.Phase.PREPARE) {
                         // post-M5: only once the besieged's messenger has reached the helper (a quick siege calls at once)
                         dispatch(overworld, ledger, s, rl, h, a, t, tick);
@@ -129,6 +131,8 @@ public final class ReliefService {
                 case MARCH -> {
                     if (over) {
                         turnBack(overworld, ledger, s, rl, h, t, tick, "the siege is over before they arrive");
+                    } else if (s.wave > 0) {
+                        turnBack(overworld, ledger, s, rl, h, t, tick, "they came too late: the siege had begun"); // post-M5: help only before the first assault
                     } else if (tick >= rl.phaseEnd) {
                         arrive(overworld, ledger, s, rl, h, a, t, tick);
                     }
@@ -258,9 +262,6 @@ public final class ReliefService {
             }
         }
         if (placed > 0) {
-            if (s.phase == Siege.Phase.BATTLE) {
-                s.defendersStart += placed; // they joined a battle under way
-            }
             ledger.setDirty();
         }
     }

@@ -15,7 +15,7 @@ public final class BattleReport {
     public final long tick;
     public final UUID attackerId, targetId;
     public final String attacker, target;
-    /** WON (the attacker took the village) or LOST (it held). */
+    /** WON (the attacker took the village), LOST (it held) or STALEMATE (three days, neither broke). */
     public final String outcome;
     public final int hostStart, hostLost, defStart, defLost;
     /** Fought in sight of a player (else decided far from any witness). */
@@ -46,7 +46,7 @@ public final class BattleReport {
     public List<String> lines() {
         List<String> out = new ArrayList<>();
         out.add("Day " + (tick / Tribute.DAY + 1) + ": " + attacker + " besieged " + target + " - "
-                + (outcome.equals("WON") ? target + " fell" : target + " held"));
+                + (outcome.equals("WON") ? target + " fell" : outcome.equals("STALEMATE") ? "stalemate: neither broke, the attackers went home" : target + " held"));
         out.add("  Attackers " + hostStart + " (" + Math.max(0, hostLost) + " fell), defenders " + (defStart < 0 ? "?" : defStart)
                 + " (" + (defLost < 0 ? "?" : defLost) + " fell); " + (watched ? "fought in sight" : "far from any witness"));
         for (String n : notes) {

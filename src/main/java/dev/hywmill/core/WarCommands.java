@@ -168,7 +168,7 @@ final class WarCommands {
                     GarrisonLedger ledger = GarrisonLedger.get(ow);
                     var s = dev.hywmill.garrison.service.SiegeService.byAttacker(ledger, a.villageId);
                     VillageRecord t = s == null ? null : ledger.get(s.target);
-                    if (s == null || t == null || s.phase == dev.hywmill.politics.war.Siege.Phase.BATTLE || s.phase == dev.hywmill.politics.war.Siege.Phase.RETURN) {
+                    if (s == null || t == null || s.fighting() || s.phase == dev.hywmill.politics.war.Siege.Phase.RETURN) {
                         send(ctx.getSource(), "war aid NONE: " + a.name + " has no host on the way to a siege");
                         return 0;
                     }
@@ -391,7 +391,7 @@ final class WarCommands {
         GarrisonLedger ledger = GarrisonLedger.get(ow);
         var s = dev.hywmill.garrison.service.SiegeService.byAttacker(ledger, a.villageId);
         VillageRecord t = s == null ? null : ledger.get(s.target);
-        if (s == null || t == null || s.phase == dev.hywmill.politics.war.Siege.Phase.BATTLE || s.phase == dev.hywmill.politics.war.Siege.Phase.RETURN) {
+        if (s == null || t == null || s.fighting() || s.phase == dev.hywmill.politics.war.Siege.Phase.RETURN) {
             send(ctx.getSource(), "war mercs NONE: " + a.name + " has no host on the way to a siege");
             return 0;
         }

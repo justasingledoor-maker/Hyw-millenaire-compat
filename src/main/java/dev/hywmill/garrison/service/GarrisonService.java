@@ -374,8 +374,8 @@ public final class GarrisonService {
      */
     public static boolean materialize(ServerLevel overworld, VillageRecord rec, RosterEntry e, Vec3 pos, BlockPos home, long tick) {
         UnitProvider units = Services.units();
-        if (units == null || e.entityUuid != null || e.state().terminal() || !units.isValidUnitType(e.entityType)) {
-            return false;
+        if (units == null || e.entityUuid != null || e.state().terminal() || e.wounded || !units.isValidUnitType(e.entityType)) {
+            return false; // post-M5: a wounded soldier stays off the field until the next dawn
         }
         GarrisonTables tables = GarrisonTables.current();
         GarrisonTable table = tables.forCulture(rec.culture);

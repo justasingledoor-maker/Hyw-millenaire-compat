@@ -30,6 +30,8 @@ public final class RosterEntry {
     /** Post-M5: a hired siege mercenary, wearing this company look ({@code look:<id>}); "" = not a mercenary. Mercenaries are
      *  also {@link #mobilized}, and leave when their siege ends. */
     public String mercLook = "";
+    /** Post-M5 sieges: wounded in a wave (or an engine knocked out): off the field until the next dawn; never placed in the world meanwhile. */
+    public boolean wounded;
     /**
      * Post-M5 help for the besieged: "militia", "merc" or "household" for a temporary defender raised by chance for one siege
      * (it defends at home, takes no standing duty, is not counted in the garrison and leaves when the siege ends); "" = a
