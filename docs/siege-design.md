@@ -221,20 +221,33 @@ The garrison used to join the village's own Millénaire raids, and in play the t
   are hostile and fight. If nobody takes it, after a while (an hour, or half its remaining road) the council decides: half
   the time it acts, and then catches it six times in ten. `/hywmill war intel [take|bribe <id>]` does the same in chat.
 
-## Proposal, not implemented: siege battles in three waves (for the user's consideration)
+## Siege battles in three waves (post-M5, fix44)
 
-The user's idea, kept here to build on; nothing of it is in the code yet.
+The user's decisions: help (mercenaries, vassals, relief, the besieged's militia and household) joins only before the first
+assault; wounded soldiers of every kind (help included) come back; defenders are wounded more often (45%) than attackers
+(35%), being at home; the first side down to 20% alive or wounded loses; no camp is built in the world; engines are
+treated like soldiers ("repairable" or "beyond repair"). The rest (`SiegeWaves`, `SiegeService`):
 
-* **Three waves, one a day.** The assault is fought over up to three days, dawn to sundown. At sundown both sides break
-  off: the attackers withdraw to their landing, the defenders behind their walls (both stowed); the next dawn they
-  reappear with whoever is fit.
-* **The injured.** A soldier killed in a wave is, by chance, only injured (say 35%, more for a side holding the field at
-  sundown, fewer for a routed one; regulars and armoured men more often than levies). The injured miss the rest of that
-  wave and come back for the next. Injured men count as alive for the victory rule and in the battle report.
-* **Victory.** The first side down to 20% of its starting strength alive or injured (80% dead) loses at once. If no side
-  is there after the third wave, it is a stalemate: the attackers go home, nobody pays tribute, no vassalage.
-* **Things to settle.** Whether relief forces and the besieged's help may arrive between waves (a messenger column could
-  still be on the road: a reason to intercept it); whether engines keep their damage overnight; whether the attackers may
-  dig in (a camp) between waves; boss bars per wave; how the off-screen (unwatched) resolution maps to waves (three
-  `SiegeMath` rolls with the injured returning); and what the History tab shows (one line per wave).
-
+* **Days.** The host arrives at dawn and the first wave begins. A wave runs until sundown (at least 2 minutes, at most half a
+  day without a daylight cycle). At sundown the host withdraws to its lines (it leaves the world) and the defenders stand
+  down: `Siege.Phase.NIGHT`. At the next dawn the second wave begins, then the third. Sleeping moves it on.
+* **Wounds.** When a soldier of a siege (the host, the target's garrison and temporary help, a relief force) falls in a
+  wave, his death is cancelled at his side's chance (35% attackers, 45% defenders): he is carried off the field (stowed,
+  `RosterEntry.wounded`), never placed in the world until dawn, and counts as alive for the victory rule. In the night each
+  wounded man dies of his wounds one time in ten, else stands again at dawn. An engine knocked out is repaired overnight, or
+  found beyond repair at the same chance.
+* **Victory.** Checked all the time during a wave and again at dawn: the first side down to a fifth of the strength it
+  brought to the walls (alive or wounded) loses at once (if both, the attackers: a host that cannot hold the field gives
+  up). Strength: the host's soldiers; the defenders' garrison, temporary help, relief at the village and Millénaire
+  fighters (counted in the world during a wave fought there, else as at the first dawn).
+* **Stalemate.** After the third wave, neither side beaten: the attackers give up and go home. No tribute, no peace, no
+  vassalage; the war goes on. The History tab says "stalemate".
+* **Unwatched waves.** A wave nobody watches is drawn at sundown: the side that holds the field (by the strength odds of the
+  off-screen rule) loses 8-18% of the men it put in, the other 22-38%, each who falls dead or wounded at his side's chance.
+  A player who comes during a wave brings it into the world from then on.
+* **No help mid-siege.** Columns (mercenaries, vassals, messengers) and relief forces still on the road when the first wave
+  begins come too late and turn back. No recruiting or levies at the target during waves and nights.
+* **News.** Horns and announcements at each dawn ("Dawn of the second day ... forms up again (n of m)") and sundown (the
+  day's dead and wounded each side, who can still fight, days left), the night's news (who rose to fight again, who died
+  of wounds, engines repaired). The boss bar shows the day (1-3) and night. The battle report adds one line per day and the
+  totals of dead and wounded.
