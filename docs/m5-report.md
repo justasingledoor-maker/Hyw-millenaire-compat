@@ -1394,3 +1394,17 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
       defenders).
   * The first run failed W3-4 only because the night's news was not written to the server log; that is fixed.
 * SHA-256 of the jar: `6eaa1e53b717b0fe5cd47c1e8ad8dedebf3a59e3dbd50fdb4b6c09472b2b98a1`.
+
+### 6.45 Defenders away from home no longer count for a siege (`dist/hywmill-m5-fix45.jar`)
+
+* **The bug** (user report): 15 soldiers of a besieged village who were deployed elsewhere were counted among its
+  defenders: in the defender total, the 20% victory rule, the boss bar and unwatched waves.
+* **The fix.** A besieged village's defenders (`SiegeService.homeDefenders`) are now only soldiers who are actually there.
+  It excludes:
+  * soldiers on an errand, a raid or another siege, as before;
+  * scouts out on a ride;
+  * soldiers deployed on anything but the village's own defence;
+  * soldiers in the world whose last known position is beyond the village's radius plus 80 blocks.
+  Stowed soldiers at home still count.
+* **Tests.** JUnit 370/370. No harness run for this fix.
+* SHA-256 of the jar: `2b1b9ec5d30653472c368bc5bb5dc1e2c53d8aa5a54527692b89a432020ca969`.

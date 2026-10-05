@@ -191,10 +191,23 @@ public final class SiegeService {
         if (target.hywRoster == null) {
             return out;
         }
+        // post-M5: only soldiers who are there: not on an errand, a raid or another siege, not out scouting, not deployed against
+        // something else, and (if in the world) within reach of the village
+        int reach = (target.villageRadius > 0 ? target.villageRadius : DEFAULT_RADIUS) + STAGING_MARGIN + 64;
         for (RosterEntry e : target.hywRoster.entries()) {
-            if (e.state().bound() && !e.duty.away()) {
-                out.add(e);
+            if (!e.state().bound() || e.duty.away() || DutyMotion.scoutAway(e)) {
+                continue;
             }
+            if (e.state() == UnitState.DEPLOYED && e.duty != Duty.DEFENSE) {
+                continue;
+            }
+            if (e.entityUuid != null && e.lastSeenTick > 0) {
+                long dx = e.lastSeenX - target.center.getX(), dz = e.lastSeenZ - target.center.getZ();
+                if (dx * dx + dz * dz > (long) reach * reach) {
+                    continue; // somewhere else in the world
+                }
+            }
+            out.add(e);
         }
         return out;
     }
