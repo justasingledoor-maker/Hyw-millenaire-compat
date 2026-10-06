@@ -1,0 +1,104 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624), (656, 69, 976), (420, 70, 470), (1074, 84, 652)]
+[harness] --- scenario AL
+[harness] PASS AL-0 a third village (656, 69, 976)
+[harness] PASS AL-1 a friend of both sides stays out of their war 02:04:43] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Alliance: Saint-Pierre le-fort, friend of both Barneville les-pâtures and Campigny les-pâtures, stays out of their war and will help neither
+[harness] PASS AL-2 an ally of the attacked joins the war on the attacker, or breaks the alliance [02:04:57] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Alliance: Saint-Pierre le-fort honours its alliance with Barneville les-pâtures and declares war on Campigny les-pâtures
+[harness] PASS AL-3 the ally that joined is now at war with the attacker hywmill] War: Campigny les-pâtures <-> Barneville les-pâtures started (declared) ||  [hywmill] War: Saint-Pierre le-fort <-> Campigny les-pâtures started (declared)
+[harness] PASS AL-4 a village nobody is near rests its garrison out of the world [02:04:19] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village 'Vieux-Bourg la-forge' rests: 8 soldier(s) out of the world while nobody is near
+[harness] PASS AL-5 a player coming near wakes it [02:05:11] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Village 'Saint-Pierre le-fort' wakes: 24 soldier(s) back in the world (a player is near)
+[harness] server stopped
+[harness] RESULT 7/7 checks passed
+[harness] NOTE PF before idle: arsenal.tick: n=12 mean=93.2us max=222.5us p99=222.5us total=1.1ms
+[harness] NOTE PF before idle: defense.update: n=300 mean=42.9us max=4624.9us p99=323.0us total=12.9ms
+[harness] NOTE PF before idle: duty.layout: n=5 mean=284.4us max=361.4us p99=361.4us total=1.4ms
+[harness] NOTE PF before idle: duty.tick: n=147 mean=381.0us max=4800.2us p99=2198.2us total=56.0ms
+[harness] NOTE PF before idle: garrison.deploy: n=124 mean=131.2us max=1077.9us p99=604.4us total=16.3ms
+[harness] NOTE PF before idle: garrison.event: n=5 mean=22.3us max=33.8us p99=33.8us total=0.1ms
+[harness] NOTE PF before idle: garrison.slot: n=29 mean=431.7us max=998.0us p99=998.0us total=12.5ms
+[harness] NOTE PF before idle: garrison.spawn: n=5 mean=793.0us max=1173.5us p99=1173.5us total=4.0ms
+[harness] NOTE PF before idle: mobilization.tick: n=12 mean=309.5us max=1054.8us p99=1054.8us total=3.7ms
+[harness] NOTE PF before idle: raid.tick: n=147 mean=46.5us max=129.6us p99=123.7us total=6.8ms
+[harness] NOTE PF before idle: scan.village: n=300 mean=190.5us max=2157.6us p99=649.4us total=57.2ms
+[harness] NOTE PF before idle: siege.tick: n=59 mean=251.8us max=5383.1us p99=5383.1us total=14.9ms
+[harness] NOTE PF before idle: tick.arsenal: n=1175 mean=4.8us max=232.5us p99=40.8us total=5.7ms
+[harness] NOTE PF before idle: tick.envoys: n=1175 mean=6.0us max=88.6us p99=35.4us total=7.1ms
+[harness] NOTE PF before idle: tick.escalation: n=1175 mean=15.7us max=193.0us p99=78.2us total=18.4ms
+[harness] NOTE PF before idle: tick.ledger: n=1175 mean=113.7us max=4817.2us p99=1429.9us total=133.7ms
+[harness] NOTE PF before idle: tick.mobilization: n=1175 mean=6.7us max=1059.8us p99=73.5us total=7.8ms
+[harness] NOTE PF before idle: tick.politics: n=1175 mean=26.8us max=226.4us p99=142.4us total=31.5ms
+[harness] NOTE PF before idle: tick.relations: n=1175 mean=6.4us max=296.7us p99=35.2us total=7.5ms
+[harness] NOTE PF before idle: tick.sieges: n=1175 mean=17.3us max=5390.6us p99=107.8us total=20.3ms
+[harness] NOTE PF before idle: tick.threats: n=1175 mean=88.4us max=7898.0us p99=888.9us total=103.9ms
+[harness] NOTE PF before idle: tick.total: n=1175 mean=299.2us max=8249.3us p99=2233.0us total=351.5ms
+[harness] NOTE PF before idle: garrison: 5 roster(s), 252 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] NOTE PF before idle tick: The game is running, but can't keep up with the target tick rate | Target tick rate: 20.0 per second. | Percentiles: P50: 51.3ms P95: 71.9ms P99: 97.0ms, sample: 100
+[harness] NOTE PF before battle: arsenal.tick: n=7 mean=73.5us max=119.6us p99=119.6us total=0.5ms
+[harness] NOTE PF before battle: defense.update: n=320 mean=148.6us max=2459.0us p99=599.8us total=47.6ms
+[harness] NOTE PF before battle: duty.tick: n=88 mean=313.7us max=1415.0us p99=1415.0us total=27.6ms
+[harness] NOTE PF before battle: garrison.deploy: n=249 mean=206.8us max=2310.2us p99=794.0us total=51.5ms
+[harness] NOTE PF before battle: garrison.event: n=2 mean=424.2us max=740.3us p99=740.3us total=0.8ms
+[harness] NOTE PF before battle: garrison.slot: n=17 mean=365.4us max=813.0us p99=813.0us total=6.2ms
+[harness] NOTE PF before battle: mobilization.tick: n=7 mean=88.8us max=173.6us p99=173.6us total=0.6ms
+[harness] NOTE PF before battle: raid.tick: n=88 mean=14.4us max=33.1us p99=33.1us total=1.3ms
+[harness] NOTE PF before battle: scan.village: n=320 mean=272.9us max=1202.6us p99=835.4us total=87.3ms
+[harness] NOTE PF before battle: siege.tick: n=35 mean=1449.1us max=2970.0us p99=2970.0us total=50.7ms
+[harness] NOTE PF before battle: tick.arsenal: n=704 mean=0.8us max=127.9us p99=6.3us total=0.6ms
+[harness] NOTE PF before battle: tick.envoys: n=704 mean=1.3us max=41.3us p99=24.7us total=0.9ms
+[harness] NOTE PF before battle: tick.escalation: n=704 mean=5.1us max=162.3us p99=74.7us total=3.6ms
+[harness] NOTE PF before battle: tick.ledger: n=704 mean=82.8us max=2466.5us p99=1175.8us total=58.3ms
+[harness] NOTE PF before battle: tick.mobilization: n=704 mean=1.1us max=174.3us p99=3.1us total=0.8ms
+[harness] NOTE PF before battle: tick.politics: n=704 mean=16.0us max=382.0us p99=115.3us total=11.3ms
+[harness] NOTE PF before battle: tick.relations: n=704 mean=1.0us max=243.8us p99=0.2us total=0.7ms
+[harness] NOTE PF before battle: tick.sieges: n=704 mean=72.2us max=2976.8us p99=1733.7us total=50.8ms
+[harness] NOTE PF before battle: tick.threats: n=704 mean=284.8us max=4749.2us p99=1992.4us total=200.5ms
+[harness] NOTE PF before battle: tick.total: n=704 mean=473.9us max=4781.3us p99=2800.9us total=333.6ms
+[harness] NOTE PF before battle: garrison: 5 roster(s), 266 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] NOTE PF before battle tick: The game is running, but can't keep up with the target tick rate | Target tick rate: 20.0 per second. | Percentiles: P50: 85.2ms P95: 125.0ms P99: 175.6ms, sample: 100
+[harness] NOTE PF after idle: arsenal.tick: n=11 mean=92.5us max=168.7us p99=168.7us total=1.0ms
+[harness] NOTE PF after idle: defense.update: n=283 mean=1.0us max=2.1us p99=1.6us total=0.3ms
+[harness] NOTE PF after idle: duty.layout: n=5 mean=234.0us max=294.1us p99=294.1us total=1.2ms
+[harness] NOTE PF after idle: duty.tick: n=143 mean=145.0us max=4611.9us p99=1258.5us total=20.7ms
+[harness] NOTE PF after idle: garrison.deploy: n=57 mean=17.5us max=54.0us p99=54.0us total=1.0ms
+[harness] NOTE PF after idle: garrison.event: n=1 mean=91.5us max=91.5us p99=91.5us total=0.1ms
+[harness] NOTE PF after idle: garrison.slot: n=28 mean=425.5us max=3972.9us p99=3972.9us total=11.9ms
+[harness] NOTE PF after idle: garrison.spawn: n=1 mean=1363.9us max=1363.9us p99=1363.9us total=1.4ms
+[harness] NOTE PF after idle: mobilization.tick: n=11 mean=160.2us max=573.3us p99=573.3us total=1.8ms
+[harness] NOTE PF after idle: raid.tick: n=143 mean=14.0us max=75.4us p99=69.7us total=2.0ms
+[harness] NOTE PF after idle: scan.village: n=283 mean=121.7us max=235.7us p99=230.8us total=34.4ms
+[harness] NOTE PF after idle: siege.tick: n=57 mean=84.1us max=771.2us p99=771.2us total=4.8ms
+[harness] NOTE PF after idle: tick.arsenal: n=1137 mean=2.8us max=170.4us p99=27.9us total=3.2ms
+[harness] NOTE PF after idle: tick.envoys: n=1137 mean=3.4us max=103.1us p99=29.4us total=3.8ms
+[harness] NOTE PF after idle: tick.escalation: n=1137 mean=5.8us max=185.1us p99=64.0us total=6.6ms
+[harness] NOTE PF after idle: tick.ledger: n=1137 mean=68.8us max=4631.4us p99=1231.5us total=78.3ms
+[harness] NOTE PF after idle: tick.mobilization: n=1137 mean=3.6us max=579.7us p99=25.4us total=4.1ms
+[harness] NOTE PF after idle: tick.politics: n=1137 mean=14.5us max=204.9us p99=111.9us total=16.4ms
+[harness] NOTE PF after idle: tick.relations: n=1137 mean=3.4us max=295.6us p99=10.0us total=3.8ms
+[harness] NOTE PF after idle: tick.sieges: n=1137 mean=6.4us max=772.8us p99=82.3us total=7.3ms
+[harness] NOTE PF after idle: tick.threats: n=1137 mean=43.9us max=267.4us p99=217.4us total=49.9ms
+[harness] NOTE PF after idle: tick.total: n=1137 mean=163.5us max=4659.2us p99=1499.9us total=185.9ms
+[harness] NOTE PF after idle: garrison: 5 roster(s), 186 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] NOTE PF after idle tick: The game is running normally | Target tick rate: 20.0 per second. | Percentiles: P50: 33.7ms P95: 60.0ms P99: 83.1ms, sample: 100
+[harness] NOTE PF after battle: arsenal.tick: n=12 mean=35.1us max=55.4us p99=55.4us total=0.4ms
+[harness] NOTE PF after battle: defense.update: n=486 mean=82.0us max=432.2us p99=297.3us total=39.8ms
+[harness] NOTE PF after battle: duty.layout: n=5 mean=213.1us max=317.8us p99=317.8us total=1.1ms
+[harness] NOTE PF after battle: duty.tick: n=142 mean=171.0us max=987.2us p99=724.1us total=24.3ms
+[harness] NOTE PF after battle: garrison.deploy: n=364 mean=149.4us max=1502.0us p99=581.4us total=54.4ms
+[harness] NOTE PF after battle: garrison.event: n=5 mean=182.5us max=229.1us p99=229.1us total=0.9ms
+[harness] NOTE PF after battle: garrison.slot: n=28 mean=240.9us max=526.2us p99=526.2us total=6.7ms
+[harness] NOTE PF after battle: mobilization.tick: n=12 mean=140.8us max=645.6us p99=645.6us total=1.7ms
+[harness] NOTE PF after battle: raid.tick: n=142 mean=13.1us max=48.3us p99=43.6us total=1.9ms
+[harness] NOTE PF after battle: scan.village: n=486 mean=203.0us max=1029.7us p99=626.3us total=98.6ms
+[harness] NOTE PF after battle: siege.tick: n=57 mean=983.8us max=4940.9us p99=4940.9us total=56.1ms
+[harness] NOTE PF after battle: tick.arsenal: n=1139 mean=1.0us max=71.6us p99=22.4us total=1.1ms
+[harness] NOTE PF after battle: tick.envoys: n=1139 mean=2.4us max=42.1us p99=16.4us total=2.8ms
+[harness] NOTE PF after battle: tick.escalation: n=1139 mean=5.6us max=108.2us p99=61.7us total=6.4ms
+[harness] NOTE PF after battle: tick.ledger: n=1139 mean=54.8us max=1414.4us p99=849.2us total=62.5ms
+[harness] NOTE PF after battle: tick.mobilization: n=1139 mean=3.1us max=650.1us p99=50.3us total=3.5ms
+[harness] NOTE PF after battle: tick.politics: n=1139 mean=14.9us max=257.5us p99=111.9us total=17.0ms
+[harness] NOTE PF after battle: tick.relations: n=1139 mean=3.3us max=412.2us p99=14.5us total=3.7ms
+[harness] NOTE PF after battle: tick.sieges: n=1139 mean=51.0us max=4942.2us p99=1009.1us total=58.0ms
+[harness] NOTE PF after battle: tick.threats: n=1139 mean=181.6us max=1850.3us p99=1106.5us total=206.8ms
+[harness] NOTE PF after battle: tick.total: n=1139 mean=327.2us max=4971.9us p99=1679.7us total=372.6ms
+[harness] NOTE PF after battle: garrison: 5 roster(s), 290 live slot(s) (no server-wide cap), duplicates refused 0, adopted 0, orphans 0
+[harness] NOTE PF after battle tick: The game is running normally | Target tick rate: 20.0 per second. | Percentiles: P50: 46.3ms P95: 64.7ms P99: 79.9ms, sample: 100
