@@ -112,9 +112,13 @@ public final class ColumnService {
             if (v.over(tick)) {
                 continue;
             }
-            if (v.overlord.equals(a.villageId) && !v.vassal.equals(t.villageId) && ledger.get(v.vassal) != null) {
+            if (v.overlord.equals(a.villageId) && !v.vassal.equals(t.villageId) && ledger.get(v.vassal) != null
+                    && dev.hywmill.politics.service.AllianceService.mayHelp(ledger, v.vassal, a.villageId, t.villageId)) {
+                dev.hywmill.politics.service.AllianceService.pledge(ledger, v.vassal, a.villageId, t.villageId);
                 messenger(ledger, s, a, ledger.get(v.vassal), tick + r.nextLong(1200), r);
-            } else if (v.overlord.equals(t.villageId) && !v.vassal.equals(a.villageId) && ledger.get(v.vassal) != null) {
+            } else if (v.overlord.equals(t.villageId) && !v.vassal.equals(a.villageId) && ledger.get(v.vassal) != null
+                    && dev.hywmill.politics.service.AllianceService.mayHelp(ledger, v.vassal, t.villageId, a.villageId)) {
+                dev.hywmill.politics.service.AllianceService.pledge(ledger, v.vassal, t.villageId, a.villageId);
                 messenger(ledger, s, t, ledger.get(v.vassal), tick + r.nextLong(1200), r);
             }
         }

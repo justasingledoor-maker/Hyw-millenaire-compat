@@ -224,6 +224,11 @@ public final class PoliticsNbt {
             x.putLong("conflictSince", r.conflictSince);
             x.putLong("calmSince", r.calmSince);
             x.putLong("warSince", r.warSince);
+            if (!r.sides.isEmpty()) {
+                CompoundTag sd = new CompoundTag();
+                r.sides.forEach((k, v) -> sd.putUUID(k.toString(), v));
+                x.put("sides", sd); // post-M5: the side each third village took
+            }
             w.add(x);
         }
         if (!w.isEmpty()) {
@@ -259,6 +264,14 @@ public final class PoliticsNbt {
                 r.conflictSince = x.getLong("conflictSince");
                 r.calmSince = x.getLong("calmSince");
                 r.warSince = x.getLong("warSince");
+                CompoundTag sd = x.getCompound("sides");
+                for (String k : sd.getAllKeys()) {
+                    try {
+                        r.sides.put(java.util.UUID.fromString(k), sd.getUUID(k));
+                    } catch (IllegalArgumentException ignored) {
+                        // malformed: dropped
+                    }
+                }
                 wars.put(r.key(), r);
             }
         }

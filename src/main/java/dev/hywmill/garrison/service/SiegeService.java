@@ -1103,9 +1103,11 @@ public final class SiegeService {
                 continue;
             }
             VillageRecord lord = forAttacker ? a : t;
-            if (lord.hywRoster == null) {
-                continue;
+            if (lord.hywRoster == null || !dev.hywmill.politics.service.AllianceService.mayHelp(ledger, v.vassal, lord.villageId,
+                    (forAttacker ? t : a).villageId)) {
+                continue; // post-M5: a vassal that took the other side of this war (or stays out) sends no one
             }
+            dev.hywmill.politics.service.AllianceService.pledge(ledger, v.vassal, lord.villageId, (forAttacker ? t : a).villageId);
             List<Boolean> men = dev.hywmill.politics.war.Vassalage.levy(s.seed(v.vassal.getMostSignificantBits() ^ tick));
             if (men.isEmpty() && force) {
                 men = dev.hywmill.politics.war.Vassalage.levy(s.seed(v.vassal.getMostSignificantBits() ^ tick) ^ 0x1L);

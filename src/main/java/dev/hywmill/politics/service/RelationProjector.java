@@ -139,6 +139,7 @@ public final class RelationProjector {
                     PoliticsService.chronicle(overworld, source, x, now, text);
                     PoliticsService.chronicle(overworld, source, y, now, text);
                     HmLog.info("War: {} <-> {} started", x.name, y.name);
+                    AllianceService.warStarted(overworld, ledger, x, y, false, now); // nobody declared it: both sides call their allies
                 } else if (c == WarRecord.Change.ENDED) {
                     String text = "The war between " + x.name + " and " + y.name + " is over" + (truce ? " (truce)" : !auto ? " (autoWar off)" : "");
                     PoliticsService.chronicle(overworld, source, x, now, text);

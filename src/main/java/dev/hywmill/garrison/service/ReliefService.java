@@ -72,6 +72,9 @@ public final class ReliefService {
         for (VillageRecord v : ledger.all()) {
             int rel = source.villageRelation(overworld, v.villageId, t.villageId).orElse(Integer.MIN_VALUE);
             boolean party = v.villageId.equals(a.villageId) || v.villageId.equals(t.villageId);
+            if (!party && !dev.hywmill.politics.service.AllianceService.mayHelp(ledger, v.villageId, t.villageId, a.villageId)) {
+                continue; // post-M5: it took the other side of this war, or stays out of it
+            }
             if (Relief.eligible(rel, RelationProjector.atWar(ledger, v.villageId, t.villageId), party, v.loneBuilding, available(v).size(), r)) {
                 friends.add(v);
             }
@@ -84,6 +87,7 @@ public final class ReliefService {
             }
             if (rnd.nextDouble() < r.chance()) {
                 s.reliefs.add(new Relief(v.villageId));
+                dev.hywmill.politics.service.AllianceService.pledge(ledger, v.villageId, t.villageId, a.villageId);
                 HmLog.info("Siege {}: {} will send relief to {}", s.id.toString().substring(0, 8), v.name, t.name);
             }
         }

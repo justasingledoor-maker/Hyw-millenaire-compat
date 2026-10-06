@@ -18,6 +18,18 @@ public final class WarRecord {
     public long calmSince = -1;
     /** Tick the war started (-1: not at war). */
     public long warSince = -1;
+    /**
+     * Post-M5: the side each third village took in this war (the village it supports; {@link #NEUTRAL}: neither). A village
+     * helps one side of a war at most: relief and the like go only to the side it took.
+     */
+    public final java.util.Map<UUID, UUID> sides = new java.util.LinkedHashMap<>();
+    public static final UUID NEUTRAL = new UUID(0, 0);
+
+    /** Whether {@code helper} may help {@code side} in this war (it took no side yet, or that one). */
+    public boolean mayHelp(UUID helper, UUID side) {
+        UUID took = sides.get(helper);
+        return took == null || took.equals(side);
+    }
 
     public enum Change { NONE, STARTED, ENDED }
 
@@ -95,6 +107,7 @@ public final class WarRecord {
             return Change.NONE;
         }
         warSince = -1;
+        sides.clear();
         return Change.ENDED;
     }
 

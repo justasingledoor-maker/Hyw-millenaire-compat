@@ -6587,7 +6587,46 @@ def scenario_W3(ctx):
     check("W3-6 a stalemate only after the third wave", end is not None and ("STALEMATE" not in end or waves == 3), (end or "")[-120:])
 
 
-SCENARIOS = {"W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_PF(ctx):
+    """Performance (post-M5): the mod's own tick cost per part, idle with a player in a village and during a siege battle
+    fought in the world; and the server's tick time."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    P = "33333333-4444-4555-8666-777777777777"
+    s.output("hywmill war admin recall-all", 3)
+    standin_at(s, P, b[0] + 2, b[2] + 2)
+    time.sleep(20)
+    s.output("hywmill perf reset", 1)
+    time.sleep(60)
+    idle = [l for l in s.output("hywmill perf", 2) if l.strip().startswith(("tick.", "siege", "garrison", "duty", "defense", "scan", "raid", "mobil", "arsenal"))]
+    tq = " | ".join(s.output("tick query", 2))
+    for l in idle:
+        note("PF idle", l.strip())
+    note("PF idle tick", tq[-300:])
+    p0 = s.pos()
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    s.output(at(a, "hywmill admin grant spear_man 20"), 2)
+    s.cmd("time set 1000", 1)
+    time.sleep(30)
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2)):
+            break
+        time.sleep(10)
+    dep = s.wait_for(r"wave 1: \d+ unit\(s\) materialized", 400, since=p0)
+    s.output("hywmill perf reset", 1)
+    time.sleep(60)
+    battle = [l for l in s.output("hywmill perf", 2) if l.strip().startswith(("tick.", "siege", "garrison", "duty", "defense", "scan", "raid", "mobil", "arsenal"))]
+    tq2 = " | ".join(s.output("tick query", 2))
+    for l in battle:
+        note("PF battle", l.strip())
+    note("PF battle tick", tq2[-300:])
+    check("PF-1 measured idle and in battle", dep is not None and battle, (dep or "")[-100:])
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {P}", 0.3)
+
+
+SCENARIOS = {"PF": scenario_PF, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
