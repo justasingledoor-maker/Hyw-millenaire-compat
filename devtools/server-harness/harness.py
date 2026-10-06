@@ -6646,6 +6646,7 @@ def scenario_AL(ctx):
     if third is None:
         return
     cc = f"{third[0]} {third[1]} {third[2]}"
+    pal = s.pos()
     s.output("hywmill war admin recall-all", 3)
     for x, y in ((ca, cb), (ca, cc), (cb, cc)):
         s.output(f"hywmill war for {P} peace {x} with {y} force", 2)
@@ -6674,14 +6675,15 @@ def scenario_AL(ctx):
         check("AL-3 the ally that joined is now at war with the attacker", len(w) >= 2, " || ".join(x[-80:] for x in w))
     s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
     s.output(f"hywmill war for {P} peace {cc} with {ca} force", 2)
-    # garrison rest: the stand-in far from village A, then at it
+    # garrison rest: with the stand-in at village B, the far third village rests; the stand-in at it wakes it
     m5(s, f"standin remove {P}", 0.3)
     standin_at(s, P, b[0] + 2, b[2] + 2)
-    p2 = s.pos()
-    rest = s.wait_for(r"Village '.*' rests: \d+ soldier", 120, since=p2)
+    name3 = next((l for l in s.output(at(third, "hywmill village info"), 2) if "name" in l.lower()), "")
+    rest = s.wait_for(r"Village '.*' rests: \d+ soldier", 120, since=pal)
     check("AL-4 a village nobody is near rests its garrison out of the world", rest is not None, (rest or "")[-160:])
+    p2 = s.pos()
     m5(s, f"standin remove {P}", 0.3)
-    standin_at(s, P, a[0] + 2, a[2] + 2)
+    standin_at(s, P, third[0] + 2, third[2] + 2)
     wake = s.wait_for(r"Village '.*' wakes: \d+ soldier", 60, since=p2)
     check("AL-5 a player coming near wakes it", wake is not None, (wake or "")[-160:])
     m5(s, f"standin remove {P}", 0.3)
