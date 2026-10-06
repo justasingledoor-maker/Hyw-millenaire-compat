@@ -21,7 +21,7 @@ class AllianceTest {
         assertEquals(0.40, base, 1e-9);
         assertTrue(Alliance.joinChance(100, 0, false, 0) > base);
         assertTrue(Alliance.joinChance(70, -50, false, 0) > base);
-        assertTrue(Alliance.joinChance(70, 0, true, 0) > Alliance.joinChance(100, 0, false, 0));
+        assertTrue(Alliance.joinChance(70, 0, true, 0) >= base + 0.4 - 1e-9, "a vassal is sworn to it");
         assertTrue(Alliance.joinChance(100, -100, true, 0) <= 0.95);
         assertTrue(Alliance.joinChance(70, 0, false, 2) < base, "the further down the chain, the less they care");
         assertTrue(Alliance.joinChance(70, 0, false, 9) >= 0.10);
