@@ -19,7 +19,7 @@ class SiegeExtrasTest {
                 assertTrue(h.company().units().containsAll(h.units()));
             }
         }
-        assertTrue(hired > 400 && hired < 600, "about a quarter of sieges: " + hired);
+        assertTrue(hired > 800 && hired < 1000, "about 45% of sieges: " + hired);
         assertNull(Mercenaries.roll(1, 0));
         assertNotNull(Mercenaries.hire(1), "an admin can always force one");
         assertEquals(Mercenaries.hire(42), Mercenaries.hire(42), "stable for a seed");

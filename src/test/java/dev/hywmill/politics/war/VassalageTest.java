@@ -25,7 +25,7 @@ class VassalageTest {
             List<Boolean> l = Vassalage.levy(seed * 7919);
             if (!l.isEmpty()) {
                 helped++;
-                assertTrue(l.size() >= 10 && l.size() <= 15, "10-15: " + l.size());
+                assertTrue(l.size() >= 25 && l.size() <= 38, "25-38: " + l.size());
                 regulars += (int) l.stream().filter(b -> b).count();
                 all += l.size();
             }

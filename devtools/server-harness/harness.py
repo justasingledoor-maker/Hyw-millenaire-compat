@@ -6519,6 +6519,9 @@ def scenario_W3(ctx):
         if "war siege OK" in out:
             break
         time.sleep(10)
+    ref = s.wait_for(r"Refugees from the countryside crowd into .*: \d+ of them take up arms", 30, since=p0)
+    check("W3-0 at the news of the siege, 15-20 refugees take up arms in the besieged village", ref is not None and 15 <= int(re.search(r": (\d+) of them", ref).group(1)) <= 20,
+          (ref or "")[-160:])
     w1 = s.wait_for(r"wave 1 begins", 400, since=p0)
     dep = s.wait_for(r"wave 1: \d+ unit\(s\) materialized", 60, since=p0)
     check("W3-1 at the walls the first wave begins, fought in the world near a player", w1 is not None and dep is not None,

@@ -30,7 +30,7 @@ class DefenderAidTest {
             }
         }
         assertTrue(militia > 1700 && militia < 2300, "about half: " + militia);
-        assertTrue(mercs > 600 && mercs < 1000, "about a fifth: " + mercs);
+        assertTrue(mercs > 1400 && mercs < 1800, "about 40%: " + mercs);
         assertTrue(household > 1000 && household < 1400, "about 30%: " + household);
         assertTrue(nothing > 0, "sometimes no help comes");
         for (long seed = 0; seed < 200; seed++) {

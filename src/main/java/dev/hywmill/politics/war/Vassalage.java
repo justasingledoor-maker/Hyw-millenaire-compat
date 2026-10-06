@@ -14,7 +14,7 @@ import java.util.UUID;
 public final class Vassalage {
     public static final int DAYS = 21;
     public static final double HELP_CHANCE = 0.75;
-    public static final int MIN = 10, MAX = 15;
+    public static final int MIN = 25, MAX = 38;
     /** Relation while sworn (allies), and after (neutral). */
     public static final int ALLIED = 90, NEUTRAL = 0;
 
@@ -43,7 +43,7 @@ public final class Vassalage {
         return Math.max(0, (until - now + Tribute.DAY - 1) / Tribute.DAY);
     }
 
-    /** What the vassal sends to one siege: nothing (25%), or 10-15 soldiers, each a regular (true) or a levy (false). */
+    /** What the vassal sends to one siege: nothing (25%), or 25-38 soldiers, each a regular (true) or a levy (false). */
     public static List<Boolean> levy(long seed) {
         SplittableRandom r = new SplittableRandom(seed ^ 0x76617373L);
         List<Boolean> out = new ArrayList<>();

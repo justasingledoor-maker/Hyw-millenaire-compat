@@ -15,8 +15,10 @@ public final class SiegeWaves {
     public static final int WAVES = 3;
     /** Chance that a fallen soldier is only wounded: defenders fight at home (shelter, surgeons, their own beds). */
     public static final double ATTACKER_WOUND = 0.35, DEFENDER_WOUND = 0.45;
-    /** Chance that a wounded soldier dies in the night. */
-    public static final double SUCCUMB = 0.1;
+    /** Walls, towers and barracks round them: up to this much more of the fallen defenders are only wounded. */
+    public static final double FORT_WOUND_MAX = 0.15, FORT_WOUND_PER_POINT = 0.0025;
+    /** Chance that a wounded soldier dies in the night: with only field dressing, or with surgeons to tend him. */
+    public static final double SUCCUMB = 0.1, SUCCUMB_SURGEONS = 0.04;
     /** A side down to this share of its starting strength (alive or wounded) is beaten. */
     public static final double BREAK = 0.2;
     public static final long DAY = 24000;
@@ -45,9 +47,30 @@ public final class SiegeWaves {
         return defender ? DEFENDER_WOUND : ATTACKER_WOUND;
     }
 
+    /**
+     * The defenders' chance, raised by their village's fortification points (walls, towers, gates, guardhouses, barracks,
+     * a fortified town hall): the wounded are dragged behind walls, and shelter is close. +0.25% a point, at most +15%.
+     */
+    public static double defenderWoundChance(int fortification) {
+        return DEFENDER_WOUND + Math.min(FORT_WOUND_MAX, Math.max(0, fortification) * FORT_WOUND_PER_POINT);
+    }
+
     /** Whether one who fell is only wounded (draw in [0, 1)). */
     public static boolean wounded(boolean defender, double draw) {
         return draw < woundChance(defender);
+    }
+
+    /**
+     * Whether a side has surgeons for its wounded: the defenders if their village keeps barracks or a fortified town hall, or
+     * is a garrison or stronghold town (a barber-surgeon); the attackers if their host comes from a garrison or stronghold
+     * (a camp surgeon marches with it). Others have only field dressing.
+     */
+    public static boolean surgeons(boolean defender, boolean barracks, boolean town) {
+        return town || (defender && barracks);
+    }
+
+    public static double succumbChance(boolean surgeons) {
+        return surgeons ? SUCCUMB_SURGEONS : SUCCUMB;
     }
 
     /** Share of a side still in the fight or able to return to it. */
@@ -87,19 +110,24 @@ public final class SiegeWaves {
      * 8-18% of the men it put in, the other 22-38%; each who falls is wounded at his side's chance.
      */
     public static Paper paper(int hostIn, int defendersIn, double pAttackers, long seed) {
+        return paper(hostIn, defendersIn, pAttackers, DEFENDER_WOUND, seed);
+    }
+
+    /** {@code defenderWound}: the defenders' wound chance (raised by their fortifications). */
+    public static Paper paper(int hostIn, int defendersIn, double pAttackers, double defenderWound, long seed) {
         SplittableRandom r = new SplittableRandom(seed);
         boolean held = r.nextDouble() < pAttackers;
         double winLoss = 0.08 + r.nextDouble() * 0.10, loseLoss = 0.22 + r.nextDouble() * 0.16;
-        Toll h = toll(hostIn, held ? winLoss : loseLoss, false, r);
-        Toll d = toll(defendersIn, held ? loseLoss : winLoss, true, r);
+        Toll h = toll(hostIn, held ? winLoss : loseLoss, ATTACKER_WOUND, r);
+        Toll d = toll(defendersIn, held ? loseLoss : winLoss, defenderWound, r);
         return new Paper(held, h, d);
     }
 
-    private static Toll toll(int n, double share, boolean defender, SplittableRandom r) {
+    private static Toll toll(int n, double share, double woundChance, SplittableRandom r) {
         int fallen = Math.min(n, (int) Math.round(n * share));
         int wounded = 0;
         for (int i = 0; i < fallen; i++) {
-            if (wounded(defender, r.nextDouble())) {
+            if (r.nextDouble() < woundChance) {
                 wounded++;
             }
         }
@@ -108,10 +136,14 @@ public final class SiegeWaves {
 
     /** How many of {@code wounded} die in the night (each at {@link #SUCCUMB}). */
     public static int succumb(int wounded, long seed) {
+        return succumb(wounded, SUCCUMB, seed);
+    }
+
+    public static int succumb(int wounded, double chance, long seed) {
         SplittableRandom r = new SplittableRandom(seed);
         int n = 0;
         for (int i = 0; i < wounded; i++) {
-            if (r.nextDouble() < SUCCUMB) {
+            if (r.nextDouble() < chance) {
                 n++;
             }
         }

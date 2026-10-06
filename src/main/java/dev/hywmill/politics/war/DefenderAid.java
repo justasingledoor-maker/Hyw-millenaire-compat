@@ -19,7 +19,7 @@ public final class DefenderAid {
     private DefenderAid() {}
 
     public static final double MILITIA_CHANCE = 0.5;
-    public static final double MERC_CHANCE = 0.2;
+    public static final double MERC_CHANCE = 0.4;
     public static final double HOUSEHOLD_CHANCE = 0.3;
     public static final int MILITIA_MIN = 5, MILITIA_MAX = 15;
     public static final int HOUSEHOLD_MIN = 6, HOUSEHOLD_MAX = 8;

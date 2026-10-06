@@ -61,7 +61,7 @@
       "levyUnits": { "spear_man": 3, "shieldman": 3 }
     },
     "relief": {
-      "enabled": true, "minRelation": 70, "chance": 0.35, "maxHelpers": 6, "minGarrison": 4, "shareMin": 0.08, "shareMax": 0.25, "minForce": 5,
+      "enabled": true, "minRelation": 70, "chance": 0.5, "maxHelpers": 6, "minGarrison": 4, "shareMin": 0.2, "shareMax": 0.6, "minForce": 12,
       "minTicks": 1200, "maxTicks": 2400, "ambushChance": 0.12, "ambushLossMin": 0.2, "ambushLossMax": 0.6, "routChance": 0.4,
       "lostChance": 0.06, "lostMin": 0.3
     }

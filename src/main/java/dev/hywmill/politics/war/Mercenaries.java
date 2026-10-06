@@ -6,7 +6,7 @@ import java.util.SplittableRandom;
 
 /**
  * Siege mercenaries (post-M5). About a minute before a host arrives, there is a small chance that its village has struck a
- * deal with a free company: 10-20 hired soldiers join the host for this siege only. They wear their company's look (see
+ * deal with a free company: 18-35 hired soldiers join the host for this siege only. They wear their company's look (see
  * {@code hywmill_equipment/squad_looks.json}), are equipped a step below a garrison's regulars and leave when the siege ends.
  * Pure: every draw comes from the siege's seed.
  */
@@ -14,8 +14,8 @@ public final class Mercenaries {
     private Mercenaries() {}
 
     /** Chance per siege that a company is hired. */
-    public static final double CHANCE = 0.25;
-    public static final int MIN = 10, MAX = 20;
+    public static final double CHANCE = 0.45;
+    public static final int MIN = 18, MAX = 35;
     /** The roll is made this long (ticks) before the host arrives. */
     public static final long LEAD = 1200;
     /** Salt of the siege seed for the mercenary draws. */

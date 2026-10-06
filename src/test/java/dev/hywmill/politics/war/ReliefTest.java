@@ -24,10 +24,11 @@ class ReliefTest {
     }
 
     @Test
-    void forceIsEightToTwentyFivePercentAtLeastFiveAndArrivesInOneToTwoMinutes() {
-        assertEquals(5, Relief.size(40, 0, R), "8% of 40 is 3: at least five");
-        assertEquals(10, Relief.size(40, 1, R), "25% of 40");
-        assertEquals(15, Relief.size(60, 1, R), "25% of 60");
+    void forceIsTwentyToSixtyPercentAtLeastTwelveAndArrivesInOneToTwoMinutes() {
+        // post-M5: allies send two to three times as much as before
+        assertEquals(12, Relief.size(40, 0, R), "20% of 40 is 8: at least twelve");
+        assertEquals(24, Relief.size(40, 1, R), "60% of 40");
+        assertEquals(36, Relief.size(60, 1, R), "60% of 60");
         assertEquals(3, Relief.size(6, 0, R), "a small garrison sends half, not all");
         assertEquals(1, Relief.size(1, 0, R), "at least one soldier");
         assertEquals(0, Relief.size(0, 0.5, R));

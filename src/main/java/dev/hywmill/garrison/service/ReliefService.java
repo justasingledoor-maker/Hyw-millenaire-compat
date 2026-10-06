@@ -266,7 +266,7 @@ public final class ReliefService {
         }
     }
 
-    private static void turnBack(ServerLevel overworld, GarrisonLedger ledger, Siege s, Relief rl, VillageRecord h, @Nullable VillageRecord t,
+    static void turnBack(ServerLevel overworld, GarrisonLedger ledger, Siege s, Relief rl, VillageRecord h, @Nullable VillageRecord t,
                                  long tick, String why) {
         for (UUID id : rl.units) {
             RosterEntry e = h.hywRoster.entry(id);

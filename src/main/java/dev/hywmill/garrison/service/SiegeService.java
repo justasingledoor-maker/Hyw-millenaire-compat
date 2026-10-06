@@ -323,6 +323,8 @@ public final class SiegeService {
         horn(overworld, t.center);
         HmLog.info("Siege {} launched: {} -> {} ({}, arrives in {} ticks){}", s.id.toString().substring(0, 8), a.name, t.name, quick ? "quick" : "prepared",
                 s.arriveAt, who);
+        recallHome(overworld, ledger, s, a, t, tick);
+        refugees(overworld, ledger, s, a, t, tick);
         if (!quick) {
             ColumnService.announced(overworld, ledger, s, a, t, tick);
         }
@@ -1499,13 +1501,14 @@ public final class SiegeService {
         if (!SiegeWaves.nightOver(tick - s.phaseSince, overworld.getDayTime())) {
             return;
         }
-        int[] h = tend(overworld, a, entries(a, s.host), s.seed(0x6E6967L ^ s.wave), tick);
+        boolean hostSurgeons = SiegeWaves.surgeons(false, false, town(a)), defSurgeons = SiegeWaves.surgeons(true, barracks(t), town(t));
+        int[] h = tend(overworld, a, entries(a, s.host), SiegeWaves.succumbChance(hostSurgeons), s.seed(0x6E6967L ^ s.wave), tick);
         List<RosterEntry> defenders = new ArrayList<>(homeDefenders(t));
-        int[] d = tend(overworld, t, defenders, s.seed(0x6E6968L ^ s.wave), tick);
+        int[] d = tend(overworld, t, defenders, SiegeWaves.succumbChance(defSurgeons), s.seed(0x6E6968L ^ s.wave), tick);
         for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
             VillageRecord hv = ledger.get(rl.helper);
             if (hv != null && hv.hywRoster != null) {
-                int[] x = tend(overworld, hv, ReliefService.present(ledger, s, rl.helper), s.seed(0x6E6969L ^ s.wave ^ rl.helper.getLeastSignificantBits()), tick);
+                int[] x = tend(overworld, hv, ReliefService.present(ledger, s, rl.helper), SiegeWaves.succumbChance(defSurgeons), s.seed(0x6E6969L ^ s.wave ^ rl.helper.getLeastSignificantBits()), tick);
                 d[0] += x[0];
                 d[1] += x[1];
                 d[2] += x[2];
@@ -1519,6 +1522,8 @@ public final class SiegeService {
         s.defHurt -= d[0];
         if (h[0] + d[0] + h[1] + d[1] + h[2] + d[2] + h[3] + d[3] > 0) {
             String text = "In the night " + (h[1] + d[1]) + " wounded rose to fight again"
+                    + (defSurgeons ? " (" + t.name + "'s surgeons tend its wounded" + (hostSurgeons ? ", and the host's camp surgeons its own)" : ")")
+                    : hostSurgeons ? " (the host's camp surgeons tend its wounded)" : "")
                     + (h[0] + d[0] > 0 ? "; " + h[0] + " wounded attacker" + (h[0] == 1 ? "" : "s") + " and " + d[0] + " wounded defender"
                     + (d[0] == 1 ? "" : "s") + " died of their wounds" : "")
                     + (h[2] + d[2] > 0 ? "; " + (h[2] + d[2]) + " damaged engine" + (h[2] + d[2] == 1 ? " was" : "s were") + " repaired" : "")
@@ -1543,7 +1548,7 @@ public final class SiegeService {
      * again; a damaged engine is repaired, or found beyond repair at the same chance. Returns {died, recovered, engines
      * repaired, engines lost}.
      */
-    private static int[] tend(ServerLevel overworld, VillageRecord v, List<RosterEntry> list, long seed, long tick) {
+    private static int[] tend(ServerLevel overworld, VillageRecord v, List<RosterEntry> list, double succumb, long seed, long tick) {
         java.util.SplittableRandom rnd = new java.util.SplittableRandom(seed);
         int[] out = new int[4];
         for (RosterEntry e : list) {
@@ -1551,7 +1556,7 @@ public final class SiegeService {
                 continue;
             }
             boolean engine = v.hywRoster != null && v.hywRoster.isArsenal(e);
-            if (rnd.nextDouble() < SiegeWaves.SUCCUMB) {
+            if (rnd.nextDouble() < succumb) {
                 kill(overworld, v, e.rosterId, tick);
                 e.wounded = false;
                 out[engine ? 3 : 0]++;
@@ -1583,7 +1588,7 @@ public final class SiegeService {
             }
         }
         double p = SiegeMath.winChance(hostStrength(a, host), d, r);
-        SiegeWaves.Paper w = SiegeWaves.paper(host.size(), defs.size(), p, s.seed(0x7761L ^ s.wave));
+        SiegeWaves.Paper w = SiegeWaves.paper(host.size(), defs.size(), p, SiegeWaves.defenderWoundChance(t.fortification), s.seed(0x7761L ^ s.wave));
         List<RosterEntry> hs = new ArrayList<>(host);
         hs.sort(java.util.Comparator.comparing(e -> e.rosterId));
         java.util.Collections.shuffle(hs, new java.util.Random(s.seed(0x7762L ^ s.wave)));
@@ -1655,7 +1660,8 @@ public final class SiegeService {
             }
             long tick = overworld.getGameTime();
             double draw = new java.util.SplittableRandom(s.seed(e.rosterId.getLeastSignificantBits() ^ tick)).nextDouble();
-            boolean wounded = SiegeWaves.wounded(defender, draw);
+            VillageRecord t = ledger.get(s.target);
+            boolean wounded = draw < (defender ? SiegeWaves.defenderWoundChance(t == null ? 0 : t.fortification) : SiegeWaves.ATTACKER_WOUND);
             if (attacker) {
                 if (wounded) {
                     s.hostHurtW++;
@@ -1738,6 +1744,88 @@ public final class SiegeService {
             }
         }
         ledger.setDirty();
+    }
+
+    /** A garrison or stronghold town: it keeps a barber-surgeon (and sends a camp surgeon with its host). */
+    static boolean town(VillageRecord v) {
+        return v.tier == dev.hywmill.military.MilitaryTier.GARRISON || v.tier == dev.hywmill.military.MilitaryTier.STRONGHOLD;
+    }
+
+    /** Barracks or a fortified town hall: soldiers' quarters, with their own surgeons. */
+    static boolean barracks(VillageRecord v) {
+        return v.buildingRoles.getOrDefault(dev.hywmill.military.classify.BuildingRole.BARRACKS, 0) > 0
+                || v.buildingRoles.getOrDefault(dev.hywmill.military.classify.BuildingRole.FORT_TOWNHALL, 0) > 0;
+    }
+
+    public static final int REFUGEES_MIN = 15, REFUGEES_MAX = 20;
+
+    /**
+     * Post-M5: at the news of a siege the countryside flees inside the walls: 15-20 peasants and herdsmen take up whatever
+     * arms there are (militia, a few spearmen, in levy kit). Temporary defenders of this siege, like the militia.
+     */
+    int refugees(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        if (t.hywRoster == null || t.loneBuilding) {
+            return 0;
+        }
+        java.util.SplittableRandom r = new java.util.SplittableRandom(s.seed(0x726566L));
+        int n = REFUGEES_MIN + r.nextInt(REFUGEES_MAX - REFUGEES_MIN + 1);
+        List<String> pool = List.of("militia", "militia", "militia", "spear_man");
+        int raised = raiseExtras(t, s, dev.hywmill.politics.war.DefenderAid.draw(pool, n, s.seed(0x726567L)), "refugee", "", true,
+                ColumnService.levyLevel(t), tick);
+        if (raised > 0) {
+            s.notes.add(raised + " refugees from the countryside took up arms in " + t.name);
+            aidNews(overworld, ledger, s, a, t, tick, "Refugees from the countryside crowd into " + t.name + " before the host of " + a.name
+                    + ": " + raised + " of them take up arms");
+            if (overworld.isPositionEntityTicking(GarrisonService.anchorOf(t))) {
+                musterExtras(overworld, s, t, tick);
+            }
+        }
+        return raised;
+    }
+
+    /**
+     * Post-M5: a village about to be besieged calls home everyone it has away, but its scouts (they are its eyes): soldiers
+     * lent to players, relief it sent to other villages, and its own host if it marches on someone else (unless already
+     * fighting). Returns how many were called home.
+     */
+    int recallHome(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        int n = 0;
+        UnitProvider units = Services.units();
+        if (t.hywRoster == null) {
+            return 0;
+        }
+        String why = t.name + " is about to be besieged";
+        for (RosterEntry e : new ArrayList<>(t.hywRoster.entries())) {
+            if (e.duty == Duty.DETACHED && units != null && ErrandService.end(overworld, t, e, units, tick, why)) {
+                n++;
+            }
+        }
+        for (Siege o : new ArrayList<>(ledger.sieges())) {
+            if (o == s) {
+                continue;
+            }
+            for (dev.hywmill.politics.war.Relief rl : o.reliefs) {
+                if (rl.helper.equals(t.villageId) && (rl.phase == dev.hywmill.politics.war.Relief.Phase.MARCH
+                        || rl.phase == dev.hywmill.politics.war.Relief.Phase.PRESENT)) {
+                    n += rl.units.size();
+                    ReliefService.turnBack(overworld, ledger, o, rl, t, ledger.get(o.target), tick, "called home: " + why);
+                }
+            }
+            if (o.attacker.equals(t.villageId) && o.outcome == Siege.Outcome.NONE && o.phase != Siege.Phase.RETURN && !o.fighting()) {
+                VillageRecord ot = ledger.get(o.target);
+                int host = entries(t, o.host).size();
+                o.summary = "The host of " + t.name + " is called home" + (ot != null ? " from the road to " + ot.name : "") + ": " + why;
+                announce(overworld, ledger, o, t, ot, o.summary);
+                chronicle(overworld, t, ot, tick, o.summary);
+                goHome(overworld, ledger, o, t, entries(t, o.host), tick, rule(t), false);
+                n += host;
+            }
+        }
+        if (n > 0) {
+            s.notes.add(t.name + " called home " + n + " soldiers from afar");
+            aidNews(overworld, ledger, s, a, t, tick, t.name + " calls home every soldier it has away (" + n + "), all but its scouts");
+        }
+        return n;
     }
 
     /** "Day 2: attackers 3 dead, 4 wounded; defenders 6 dead, 5 wounded". */

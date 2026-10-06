@@ -101,13 +101,13 @@ class RecruitmentTest {
                 BuildingRole.GUARDHOUSE, 2, BuildingRole.WATCHTOWER, 2, BuildingRole.ARMOURY, 1, BuildingRole.FORT_TOWNHALL, 1);
         Map<BuildingRole, Integer> barbery = Map.of(BuildingRole.WALL, 49, BuildingRole.TOWER, 8, BuildingRole.BORDER_MARKER, 14,
                 BuildingRole.GUARDHOUSE, 2, BuildingRole.WATCHTOWER, 2, BuildingRole.ARMOURY, 1, BuildingRole.FORT_TOWNHALL, 1);
-        assertEquals(47, Recruitment.target(in(16, 36, 3, Map.of(BuildingRole.BORDER_MARKER, 16, BuildingRole.GUARDHOUSE, 1)),
+        assertEquals(90, Recruitment.target(in(16, 36, 3, Map.of(BuildingRole.BORDER_MARKER, 16, BuildingRole.GUARDHOUSE, 1)),
                 MilitaryTier.GUARD_POST, false, dflt)); // Sainte-Marguerite
-        assertEquals(14, Recruitment.target(in(6, 15, 0, Map.of(BuildingRole.BORDER_MARKER, 13)), MilitaryTier.WATCH, false, dflt)); // Isigny
+        assertEquals(29, Recruitment.target(in(6, 15, 0, Map.of(BuildingRole.BORDER_MARKER, 13)), MilitaryTier.WATCH, false, dflt)); // Isigny
         assertEquals(90, Recruitment.target(in(11, 22, 55, militaire), MilitaryTier.STRONGHOLD, false, norman)); // Crèvecoeur
-        assertEquals(48, Recruitment.target(in(14, 32, 9, Map.of(BuildingRole.BORDER_MARKER, 9, BuildingRole.BARRACKS, 1,
+        assertEquals(96, Recruitment.target(in(14, 32, 9, Map.of(BuildingRole.BORDER_MARKER, 9, BuildingRole.BARRACKS, 1,
                 BuildingRole.ARMOURY, 1, BuildingRole.FORT_TOWNHALL, 1)), MilitaryTier.GUARD_POST, false, tables.forCulture("millenaire:byzantines"))); // Phaistos
-        assertEquals(24, Recruitment.target(in(8, 16, 44, Map.of(BuildingRole.WALL, 29, BuildingRole.TOWER, 5, BuildingRole.BORDER_MARKER, 3)),
+        assertEquals(48, Recruitment.target(in(8, 16, 44, Map.of(BuildingRole.WALL, 29, BuildingRole.TOWER, 5, BuildingRole.BORDER_MARKER, 3)),
                 MilitaryTier.WATCH, false, norman)); // Grainville
         assertEquals(110, Recruitment.target(in(11, 22, 90, barbery), MilitaryTier.STRONGHOLD, false, norman)); // Barbery
     }
@@ -115,9 +115,9 @@ class RecruitmentTest {
     @Test
     void c3NeverExceedsTheLockedCaps() {
         Map<BuildingRole, Integer> huge = Map.of(BuildingRole.BARRACKS, 10, BuildingRole.FORT_TOWNHALL, 3, BuildingRole.TOWER, 40);
-        assertEquals(24, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.WATCH, false, dflt));
-        assertEquals(48, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.GUARD_POST, false, dflt));
-        assertEquals(72, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.GARRISON, false, dflt));
+        assertEquals(48, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.WATCH, false, dflt));
+        assertEquals(96, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.GUARD_POST, false, dflt));
+        assertEquals(115, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.GARRISON, false, dflt));
         assertEquals(128, Recruitment.target(in(500, 500, 1000, huge), MilitaryTier.STRONGHOLD, false, dflt));
         // fortification adds at most fortCap (30): 4 slots * 3 + 30
         assertEquals(42, Recruitment.target(in(4, 0, 100000, Map.of()), MilitaryTier.STRONGHOLD, false, dflt));

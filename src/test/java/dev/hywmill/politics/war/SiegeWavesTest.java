@@ -77,4 +77,29 @@ class SiegeWavesTest {
         assertEquals(0.1, died / 20000.0, 0.01);
         assertEquals("second", SiegeWaves.ordinal(2));
     }
+
+    @Test
+    void wallsAndTowersSaveMoreDefenders() {
+        assertEquals(0.45, SiegeWaves.defenderWoundChance(0), 1e-9);
+        assertEquals(0.50, SiegeWaves.defenderWoundChance(20), 1e-9);
+        assertEquals(0.60, SiegeWaves.defenderWoundChance(60), 1e-9);
+        assertEquals(0.60, SiegeWaves.defenderWoundChance(500), 1e-9); // at most +15%
+    }
+
+    @Test
+    void surgeonsWhereThereAreSoldiersQuartersOrATown() {
+        assertTrue(SiegeWaves.surgeons(true, true, false), "barracks keep surgeons");
+        assertTrue(SiegeWaves.surgeons(true, false, true), "a town has a barber-surgeon");
+        assertFalse(SiegeWaves.surgeons(true, false, false), "a hamlet has none");
+        assertTrue(SiegeWaves.surgeons(false, false, true), "a town's host brings a camp surgeon");
+        assertFalse(SiegeWaves.surgeons(false, true, false), "barracks at home do not march with the host");
+        assertEquals(0.04, SiegeWaves.succumbChance(true));
+        assertEquals(0.1, SiegeWaves.succumbChance(false));
+        int with = 0, without = 0;
+        for (long seed = 0; seed < 1000; seed++) {
+            with += SiegeWaves.succumb(20, SiegeWaves.succumbChance(true), seed);
+            without += SiegeWaves.succumb(20, SiegeWaves.succumbChance(false), seed);
+        }
+        assertTrue(with < without / 2, with + " vs " + without);
+    }
 }
