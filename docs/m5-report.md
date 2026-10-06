@@ -1408,3 +1408,29 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
   Stowed soldiers at home still count.
 * **Tests.** JUnit 370/370. No harness run for this fix.
 * SHA-256 of the jar: `2b1b9ec5d30653472c368bc5bb5dc1e2c53d8aa5a54527692b89a432020ca969`.
+
+### 6.46 Desperate defences, larger garrisons (`dist/hywmill-m5-fix46.jar`)
+
+* **Recall.** When a siege is announced, the target calls home everyone it has away except its scouts:
+  * soldiers lent to players;
+  * relief forces it sent to other villages;
+  * its own host, if it is marching on someone else and not yet fighting.
+* **Refugees.** 15-20 peasants from the countryside flee inside the walls and take up arms: mostly militia, some
+  spearmen, in levy kit. They are temporary defenders of that siege.
+* **Fortifications.** A defender's chance of being only wounded rises with his village's fortification points, by 0.25%
+  a point, at most +15%: 45% for an open village up to 60% for a walled one.
+* **Surgeons** lower the share of wounded who die in the night from 10% to 4%.
+  * Defenders have them if their village has barracks or a fortified town hall, or is a Garrison or Stronghold town.
+  * Attackers have them if their host comes from a Garrison or Stronghold town (a camp surgeon).
+* **Bigger numbers.**
+  * Garrison targets and caps: Watch 24 to 48, Guard Post 48 to 96, Garrison 72 to 115, Stronghold 128 (unchanged).
+    Recruitment rate and levy pool are scaled the same.
+  * Relief forces: 20-60% of the helper's garrison (was 8-25%), at least 12 men, promised with 50% chance (was 35%).
+  * Vassals send 25-38 men (was 10-15).
+  * Mercenaries: 45% chance for attackers (was 25%), 40% for defenders (was 20%), 18-35 men (was 10-20).
+* **Tests.**
+  * JUnit 372/372.
+  * Harness W3 7/7 (`docs/m5-test-evidence/siege-desperate1.txt`): 16 refugees raised; 100 defenders at the first dawn;
+    waves and stalemate as before.
+  * The recall is not covered by this run: nothing of the target's was away.
+* SHA-256 of the jar: `97ba48bd32bd8a6b5438e28baddda3bd242aa84ba32ac383d0dabdc086b49fe0`.

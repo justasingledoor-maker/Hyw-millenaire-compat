@@ -251,3 +251,14 @@ treated like soldiers ("repairable" or "beyond repair"). The rest (`SiegeWaves`,
   day's dead and wounded each side, who can still fight, days left), the night's news (who rose to fight again, who died
   of wounds, engines repaired). The boss bar shows the day (1-3) and night. The battle report adds one line per day and the
   totals of dead and wounded.
+
+## Desperate defences (post-M5, fix46)
+
+* **Recall.** At the announcement the target calls home everyone away but its scouts: detachments lent to players, relief
+  it sent elsewhere, its own host if it marches on another village and is not yet fighting.
+* **Refugees.** 15-20 from the countryside take up arms (militia, some spearmen; temporary, like the militia).
+* **Fortified wounds.** Defenders' wound chance 45% + 0.25% per fortification point, at most 60%.
+* **Surgeons.** Night deaths of the wounded 10%, 4% with surgeons: defenders with barracks, a fortified town hall or a
+  Garrison/Stronghold town; attackers whose host comes from a Garrison/Stronghold town.
+* **Numbers.** Garrison caps 48 / 96 / 115 / 128 (Watch, Guard Post, Garrison, Stronghold); relief 20-60% of the helper's
+  garrison (at least 12, chance 50%); vassals 25-38; mercenaries 45% (attackers) and 40% (defenders), 18-35 men.
