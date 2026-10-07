@@ -85,7 +85,7 @@ public final class RelationProjector {
         for (dev.hywmill.politics.war.Siege g : ledger.sieges()) {
             for (dev.hywmill.politics.war.Relief rl : g.reliefs) {
                 if (rl.active()) {
-                    reliefs.add(new UUID[]{rl.helper, g.attacker});
+                    reliefs.add(new UUID[]{rl.helper, g.attacker, g.target});
                 }
             }
         }

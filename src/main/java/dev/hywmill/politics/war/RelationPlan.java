@@ -37,8 +37,9 @@ public final class RelationPlan {
     }
 
     /**
-     * @param reliefs post-M5 relief forces as {helper village, attacking village} pairs: the two factions are HOSTILE while
-     *                the relief is on its way or at the besieged village, even though the two are not at war
+     * @param reliefs post-M5 relief forces as {helper village, attacking village, besieged village}: the helper's faction is
+     *                HOSTILE to the attacker's, and to players on campaign with the attacker against the besieged, while the
+     *                relief is on its way or at the besieged village, even though they are not at war
      */
     public static Map<Edge, String> desired(Collection<WarRecord> wars, Collection<Campaign> campaigns, long now, Function<UUID, UUID> factionOf,
                                             Function<UUID, UUID> residentOf, Collection<UUID[]> reliefs) {
@@ -82,6 +83,15 @@ public final class RelationPlan {
             }
             if (ally != null) {
                 both(out, c.player(), ally, FRIENDLY);
+            }
+            // post-M5: a relief force at the besieged village is the enemy of a player campaigning with its attacker
+            for (UUID[] pair : reliefs) {
+                if (pair.length > 2 && c.ally().equals(pair[1]) && c.enemy().equals(pair[2])) {
+                    UUID fh = factionOf.apply(pair[0]);
+                    if (fh != null && !fh.equals(ally)) {
+                        both(out, c.player(), fh, HOSTILE);
+                    }
+                }
             }
         }
         return out;

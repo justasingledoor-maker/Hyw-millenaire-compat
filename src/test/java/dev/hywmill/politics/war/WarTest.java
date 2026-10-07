@@ -134,4 +134,20 @@ class WarTest {
         assertNull(plan.get(new RelationPlan.Edge(P, ra)), "never the ally's villagers");
         assertNull(plan.get(new RelationPlan.Edge(ra, rb)), "villagers are not set against villagers");
     }
+
+    @Test
+    void aReliefForceIsTheEnemyOfAPlayerCampaigningWithTheAttacker() {
+        UUID h = UUID.randomUUID(), fh = UUID.randomUUID(), other = UUID.randomUUID();
+        java.util.function.Function<UUID, UUID> f = v -> v.equals(h) ? fh : faction(v);
+        Campaign withAttacker = new Campaign(P, A, B, 0, 100);
+        Map<RelationPlan.Edge, String> plan = RelationPlan.desired(List.of(), List.of(withAttacker), 50, f, v -> null,
+                List.<UUID[]>of(new UUID[]{h, A, B}));
+        assertEquals("HOSTILE", plan.get(new RelationPlan.Edge(P, fh)));
+        assertEquals("HOSTILE", plan.get(new RelationPlan.Edge(fh, P)));
+        assertEquals("HOSTILE", plan.get(new RelationPlan.Edge(fh, FA)), "and of the attacker, as before");
+        Campaign elsewhere = new Campaign(P, A, other, 0, 100);
+        Map<RelationPlan.Edge, String> none = RelationPlan.desired(List.of(), List.of(elsewhere), 50, f, v -> null,
+                List.<UUID[]>of(new UUID[]{h, A, B}));
+        assertNull(none.get(new RelationPlan.Edge(P, fh)), "not a player campaigning against another village");
+    }
 }
