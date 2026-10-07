@@ -1218,7 +1218,8 @@ public final class SiegeService {
             int host = soldiers(a, entries(a, s.host)).size();
             int def = defenderCount(overworld, ledger, s, t, s.field && overworld.isPositionEntityTicking(t.center));
             bar.setName(Component.literal("Siege of " + t.name + ", day " + s.wave + "/" + SiegeWaves.WAVES + (s.phase == Siege.Phase.NIGHT ? " (night)" : "")
-                    + ": " + a.name + " " + host + "/" + s.hostStart + " vs " + t.name + " " + def + "/" + s.defendersStart));
+                    + ": " + a.name + " " + host + "/" + s.hostStart + " vs " + t.name + " " + def + "/" + s.defendersStart
+                    + wounded(defendersWounded(ledger, s, t))));
             bar.setProgress(s.defendersStart <= 0 ? 0f : Math.max(0f, Math.min(1f, def / (float) s.defendersStart)));
             double range = (t.villageRadius > 0 ? t.villageRadius : DEFAULT_RADIUS) + STAGING_MARGIN + 64;
             Set<ServerPlayer> near = new HashSet<>();
@@ -1241,6 +1242,10 @@ public final class SiegeService {
             }
             return false;
         });
+    }
+
+    private static String wounded(int n) {
+        return n > 0 ? " (" + n + " wounded)" : "";
     }
 
     /** The boss bar colour nearest the village's first livery colour (pink when it has none). */
@@ -1700,7 +1705,7 @@ public final class SiegeService {
      */
     static int defenderCount(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord t, boolean live) {
         if (!live) {
-            int n = homeDefenders(t).size() + s.milStart;
+            int n = homeDefenders(t).size() + Math.max(0, s.milStart - s.milKilled);
             for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
                 n += ReliefService.present(ledger, s, rl.helper).size();
             }
@@ -1724,8 +1729,42 @@ public final class SiegeService {
                 }
             }
         }
-        n += Math.max(0, Math.min(s.milStart, defenders(overworld, t).size() - garrison));
+        n += Math.max(0, Math.min(s.milStart - s.milKilled, defenders(overworld, t).size() - garrison));
         return n;
+    }
+
+    /** The defenders' wounded (the target's own and the relief forces at the village): off the field until dawn. */
+    static int defendersWounded(GarrisonLedger ledger, Siege s, VillageRecord t) {
+        int n = 0;
+        for (RosterEntry e : homeDefenders(t)) {
+            n += e.wounded ? 1 : 0;
+        }
+        for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+            for (RosterEntry e : ReliefService.present(ledger, s, rl.helper)) {
+                n += e.wounded ? 1 : 0;
+            }
+        }
+        return n;
+    }
+
+    /** A Millénaire resident of a besieged village fell while its siege is fought: one fighter fewer for the rest of the siege. */
+    public static void onResidentDeath(LivingEntity entity, ServerLevel level) {
+        SettlementSource source = Services.settlements();
+        if (source == null) {
+            return;
+        }
+        var info = source.residentInfo(entity);
+        if (info.isEmpty() || !info.get().defender() || info.get().raider()) {
+            return;
+        }
+        GarrisonLedger ledger = GarrisonLedger.get(level.getServer().overworld());
+        for (Siege s : ledger.sieges()) {
+            if (s.fighting() && s.outcome == Siege.Outcome.NONE && s.target.equals(info.get().settlementId()) && s.milKilled < s.milStart) {
+                s.milKilled++;
+                ledger.setDirty();
+                return;
+            }
+        }
     }
 
     /** The target's Millénaire fighters (its residents who take up arms by its doctrine). */

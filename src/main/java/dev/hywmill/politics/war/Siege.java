@@ -79,6 +79,8 @@ public final class Siege {
     public int milStart;
     public int hostDeadW, hostHurtW, defDeadW, defHurtW;
     public int hostDead, hostHurt, defDead, defHurt;
+    /** The target's Millénaire fighters killed in this siege: villagers Millénaire brings back do not fill the ranks again. */
+    public int milKilled;
 
     /** A wave is being fought or the night between two (no help may join any more; no recruiting at the target). */
     public boolean fighting() {

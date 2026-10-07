@@ -176,6 +176,7 @@ public final class CoreEvents {
                 return;
             }
         }
+        guarded("siege villagers", () -> dev.hywmill.garrison.service.SiegeService.onResidentDeath(event.getEntity(), level));
         guarded("defense statistics", () -> DefenseStatsRecorder.onDeath(level, event.getEntity(), event.getSource().getEntity()));
         guarded("politics grievance", () -> HywMillRuntime.require().politics().onDeath(level, event.getEntity(), event.getSource().getEntity()));
         if (GarrisonAttachments.get(event.getEntity()) != null) {

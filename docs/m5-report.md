@@ -1474,3 +1474,19 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     than the test waited. The waits are longer now.
   * Relief hostility to players was not exercised by the harness.
 * SHA-256 of the jar: `2bc572568f80caf719e0148e8afd08e68fab920197fb7631192dd7c65e7520bb`.
+
+### 6.50 Killed villagers no longer refill the defenders; wounded shown on the boss bar (`dist/hywmill-m5-fix50.jar`)
+
+* **Report** (user screenshot, fix49): 72 of 178 defenders left while the village was mostly cleared; 129 residents had
+  been killed.
+* **Causes.**
+  * The besieged village's Millénaire fighters were counted as those in the world (up to their number at the first dawn),
+    and Millénaire brings killed villagers back, so they refilled the count.
+  * Wounded defenders (off the field until dawn) count by design, but the boss bar did not say how many there were.
+* **Fixes.**
+  * Every Millénaire fighter of the besieged village killed while its siege is fought is counted (`Siege.milKilled`,
+    saved). The village's fighters are now at most its number at the first dawn minus those killed, so respawned villagers
+    do not count again.
+  * The boss bar shows the defenders' wounded, e.g. "72/178 (31 wounded)".
+* **Tests.** JUnit 373/373. No harness run for this fix.
+* SHA-256 of the jar: `5cecfe761164964b98b82cc6718f4600c91d748dba201076828920249c90af3b`.
