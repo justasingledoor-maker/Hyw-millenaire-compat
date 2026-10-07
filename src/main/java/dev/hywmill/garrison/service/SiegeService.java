@@ -136,7 +136,7 @@ public final class SiegeService {
 
     /** The host the village would send now (units at home on a standing duty, loaded or not), by the raid planner's rules. */
     public static List<UUID> planHost(VillageRecord rec) {
-        return planHost(rec, false); // post-M5: soldiers resting at home (out of the world) march too
+        return planHost(rec, true);
     }
 
     /**
@@ -336,7 +336,7 @@ public final class SiegeService {
      * its war engines, and the men who reached it before (mercenaries, vassals' men). Returns the soldiers committed.
      */
     int commitHost(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, long tick) {
-        List<UUID> host = planHost(a, false);
+        List<UUID> host = planHost(a, s.quick);
         s.host.addAll(host);
         s.hostStart = host.size();
         for (RosterEntry e : a.hywRoster.arsenal()) {
@@ -1103,11 +1103,9 @@ public final class SiegeService {
                 continue;
             }
             VillageRecord lord = forAttacker ? a : t;
-            if (lord.hywRoster == null || !dev.hywmill.politics.service.AllianceService.mayHelp(ledger, v.vassal, lord.villageId,
-                    (forAttacker ? t : a).villageId)) {
-                continue; // post-M5: a vassal that took the other side of this war (or stays out) sends no one
+            if (lord.hywRoster == null) {
+                continue;
             }
-            dev.hywmill.politics.service.AllianceService.pledge(ledger, v.vassal, lord.villageId, (forAttacker ? t : a).villageId);
             List<Boolean> men = dev.hywmill.politics.war.Vassalage.levy(s.seed(v.vassal.getMostSignificantBits() ^ tick));
             if (men.isEmpty() && force) {
                 men = dev.hywmill.politics.war.Vassalage.levy(s.seed(v.vassal.getMostSignificantBits() ^ tick) ^ 0x1L);
@@ -1218,7 +1216,7 @@ public final class SiegeService {
                         net.minecraft.world.BossEvent.BossBarOverlay.NOTCHED_10);
             });
             int host = soldiers(a, entries(a, s.host)).size();
-            int def = s.defNow >= 0 ? s.defNow : defenderCount(overworld, ledger, s, t, null); // counted by the siege's own step
+            int def = defenderCount(overworld, ledger, s, t, s.field && overworld.isPositionEntityTicking(t.center));
             bar.setName(Component.literal("Siege of " + t.name + ", day " + s.wave + "/" + SiegeWaves.WAVES + (s.phase == Siege.Phase.NIGHT ? " (night)" : "")
                     + ": " + a.name + " " + host + "/" + s.hostStart + " vs " + t.name + " " + def + "/" + s.defendersStart));
             bar.setProgress(s.defendersStart <= 0 ? 0f : Math.max(0f, Math.min(1f, def / (float) s.defendersStart)));
@@ -1323,20 +1321,17 @@ public final class SiegeService {
                 ledger.setDirty();
             }
         }
-        List<LivingEntity> home = s.field && loaded ? defenders(overworld, t) : null; // once per step: Millénaire's roster is not free
-        if (home != null) {
-            fight(overworld, ledger, s, a, t, alive, home, tick, r);
+        if (s.field && loaded) {
+            fight(overworld, ledger, s, a, t, alive, tick, r);
         }
         int host = soldiers(a, entries(a, s.host)).size();
-        int def = defenderCount(overworld, ledger, s, t, home);
-        s.defNow = def;
+        int def = defenderCount(overworld, ledger, s, t, s.field && loaded);
         Siege.Outcome o = SiegeWaves.verdict(host, s.hostStart, def, s.defendersStart, s.wave, false);
         if (o == Siege.Outcome.NONE && SiegeWaves.waveOver(since, overworld.getDayTime())) {
             if (!s.field) {
                 paperWave(overworld, ledger, s, a, t, tick, r);
                 host = soldiers(a, entries(a, s.host)).size();
-                def = defenderCount(overworld, ledger, s, t, null);
-                s.defNow = def;
+                def = defenderCount(overworld, ledger, s, t, false);
             }
             o = SiegeWaves.verdict(host, s.hostStart, def, s.defendersStart, s.wave, true);
             if (o == Siege.Outcome.NONE) {
@@ -1358,10 +1353,10 @@ public final class SiegeService {
     }
 
     /** The host in the world seeks out the defenders; players near the battle who fight for a side become its helpers. */
-    private void fight(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive,
-                       List<LivingEntity> home, long tick, PoliticsTables.SiegeRule r) {
+    private void fight(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive, long tick,
+                       PoliticsTables.SiegeRule r) {
         List<LivingEntity> relief = ReliefService.entities(overworld, ledger, s);
-        List<LivingEntity> defs = new ArrayList<>(home);
+        List<LivingEntity> defs = new ArrayList<>(defenders(overworld, t));
         defs.addAll(relief); // relief forces stand with the defenders
         List<LivingEntity> foes = new ArrayList<>(targets(overworld, t));
         foes.addAll(relief);
@@ -1701,22 +1696,12 @@ public final class SiegeService {
      * the village, and its Millénaire fighters (counted in the world during a wave fought there; else as at the first dawn).
      */
     static int defenderCount(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord t, boolean live) {
-        return defenderCount(overworld, ledger, s, t, live ? defenders(overworld, t) : null);
-    }
-
-    /** {@code live}: the defenders in the world now (already looked up), or null to count the Millénaire fighters as at dawn. */
-    static int defenderCount(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord t, @Nullable List<LivingEntity> live) {
-        List<RosterEntry> own = homeDefenders(t);
-        int n = own.size();
+        int n = homeDefenders(t).size();
         for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
             n += ReliefService.present(ledger, s, rl.helper).size();
         }
-        if (live != null) {
-            int garrisonInWorld = 0;
-            for (RosterEntry e : own) {
-                garrisonInWorld += e.entityUuid != null ? 1 : 0;
-            }
-            n += Math.max(0, Math.min(s.milStart, live.size() - garrisonInWorld));
+        if (live) {
+            n += Math.min(s.milStart, defenders(overworld, t).size() - (int) homeDefenders(t).stream().filter(e -> e.entityUuid != null).count());
         } else {
             n += s.milStart;
         }

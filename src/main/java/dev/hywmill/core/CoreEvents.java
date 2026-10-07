@@ -53,28 +53,21 @@ public final class CoreEvents {
         ServerLevel overworld = event.getServer().overworld();
         long tick = overworld.getGameTime();
         long t0 = rt.perf().start();
-        timed(rt, "tick.ledger", () -> guarded("ledger update", () -> GarrisonUpdater.tick(overworld, rt)));
-        timed(rt, "tick.escalation", () -> guarded("relation reconciliation", () -> EscalationGuard.reconcile(rt, tick)));
-        timed(rt, "tick.politics", () -> guarded("politics", () -> rt.politics().tick(overworld, rt, tick)));
-        timed(rt, "tick.envoys", () -> guarded("diplomacy", () -> rt.envoys().tick(overworld, rt, tick)));
-        timed(rt, "tick.relations", () -> guarded("relations", () -> rt.relations().tick(overworld, rt, tick)));
-        timed(rt, "tick.sieges", () -> guarded("sieges", () -> rt.sieges().tick(overworld, tick)));
-        timed(rt, "tick.arsenal", () -> guarded("war arsenal", () -> rt.arsenal().tick(overworld, tick)));
-        timed(rt, "tick.mobilization", () -> guarded("mobilization", () -> rt.mobilization().tick(overworld, tick)));
-        timed(rt, "tick.threats", () -> guarded("threat scan", () -> {
+        guarded("ledger update", () -> GarrisonUpdater.tick(overworld, rt));
+        guarded("relation reconciliation", () -> EscalationGuard.reconcile(rt, tick));
+        guarded("politics", () -> rt.politics().tick(overworld, rt, tick));
+        guarded("diplomacy", () -> rt.envoys().tick(overworld, rt, tick));
+        guarded("relations", () -> rt.relations().tick(overworld, rt, tick));
+        guarded("sieges", () -> rt.sieges().tick(overworld, tick));
+        guarded("war arsenal", () -> rt.arsenal().tick(overworld, tick));
+        guarded("mobilization", () -> rt.mobilization().tick(overworld, tick));
+        guarded("threat scan", () -> {
             rt.threats().scan(overworld);
             if (tick % HywMillConfig.THREAT_SCAN_INTERVAL.get() == 0) {
                 rt.incidents().prune(tick);
             }
-        }));
+        });
         rt.perf().stop("tick.total", t0);
-    }
-
-    /** Times one part of the server tick (the perf command shows each part's cost). */
-    private static void timed(HywMillRuntime rt, String label, Runnable r) {
-        long t = rt.perf().start();
-        r.run();
-        rt.perf().stop(label, t);
     }
 
     @SubscribeEvent

@@ -1434,38 +1434,3 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
     waves and stalemate as before.
   * The recall is not covered by this run: nothing of the target's was away.
 * SHA-256 of the jar: `97ba48bd32bd8a6b5438e28baddda3bd242aa84ba32ac383d0dabdc086b49fe0`.
-
-### 6.47 Alliances in war; garrison rest (performance) (`dist/hywmill-m5-fix47.jar`)
-
-* **Alliances** (`Alliance`, `AllianceService`). When a war starts, each ally of the attacked village is called. An ally
-  is a village with a relation of 70 or more, or its vassal, or its overlord.
-  * An ally of **both** sides stays out of that war and helps neither.
-  * Any other ally **joins** (it declares war on the attacker) or **breaks** the alliance (its relation falls to 10).
-  * The chance to join is 40%, raised by a closer friendship, by being a vassal (+40%) and by already disliking the
-    attacker (+20%). It is lowered by 15% for each link down the chain of alliances.
-  * An ally that joins is attacked in turn, so its own allies are called. This goes at most 2 links deep, with at most 8
-    joiners per war.
-  * A war that broke out by itself (relations collapsed, nobody declared it) calls both sides' allies.
-* **One side per war.** Every war records the side each third village took (`WarRecord.sides`, saved). Relief forces and
-  vassals' men go only to that side. This fixes a village sending help to both of two warring villages. The sides are
-  forgotten at the peace.
-* **Performance.**
-  * Measured on the test server with the per-part timers this fix adds:
-    * hywmill's own share of the server tick is about 0.3 ms idle and 0.5 ms in a siege battle;
-    * the server's tick is 51 ms idle and 85 ms in battle, against a 50 ms budget;
-    * so the cost is the soldiers' AI, not the mod's code.
-  * **Garrison rest.** A village with no player within 128 blocks of its edge for 30 s, calm and not besieged, takes its
-    soldiers out of the world. They still count, recruit, march on sieges and send relief.
-  * A player within 96 blocks, an alert or a siege wakes the village: up to 24 soldiers return per garrison step.
-  * A resting village's new recruits join its garrison at home.
-  * Hosts and siege counsel now count resting soldiers.
-  * A siege battle looks up the defenders once per step instead of three or four times, and the boss bar reuses that count.
-  * Result on the same server: tick P50 51 ms → 34 ms idle, 85 ms → 46 ms in battle (from "can't keep up" to "running
-    normally").
-* **Tests.**
-  * JUnit 376/376. New: `AllianceTest`.
-  * Harness AL 6/6 and PF (`docs/m5-test-evidence/alliances-rest1.txt`): a friend of both stays out; a 95-relation ally
-    joined and is at war with the attacker; a far village rested; a stand-in coming near woke it.
-  * The first AL run failed AL-4/5 because it watched two villages only 200 blocks apart, which keep each other awake by
-    design.
-* SHA-256 of the jar: `9417b8954a1ae21be81012ea50b8b5cde507cfcc856e678089d1def27b32509a`.

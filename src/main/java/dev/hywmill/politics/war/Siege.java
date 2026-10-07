@@ -79,8 +79,6 @@ public final class Siege {
     public int milStart;
     public int hostDeadW, hostHurtW, defDeadW, defHurtW;
     public int hostDead, hostHurt, defDead, defHurt;
-    /** The defenders' count at the last step (boss bar; not persisted). -1: not counted yet. */
-    public int defNow = -1;
 
     /** A wave is being fought or the night between two (no help may join any more; no recruiting at the target). */
     public boolean fighting() {

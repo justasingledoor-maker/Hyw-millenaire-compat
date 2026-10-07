@@ -119,12 +119,6 @@ public final class WarCounselService {
 
     /** The war starts now: both relations at {@code warRelation}, the war record at war. */
     public static void declareWar(ServerLevel overworld, GarrisonLedger ledger, VillageRecord a, VillageRecord b, long now, String why) {
-        declareWar(overworld, ledger, a, b, now, why, true);
-    }
-
-    /** {@code callAllies}: the attacked village's allies are called to arms (false inside a call to arms: it cascades itself). */
-    public static void declareWar(ServerLevel overworld, GarrisonLedger ledger, VillageRecord a, VillageRecord b, long now, String why,
-                                  boolean callAllies) {
         SettlementSource source = Services.settlements();
         PoliticsTables.WarCounselRule r = PoliticsService.tables(a).warCounsel();
         if (source != null) {
@@ -136,9 +130,6 @@ public final class WarCounselService {
             PoliticsService.chronicle(overworld, source, a, now, text);
             PoliticsService.chronicle(overworld, source, b, now, text);
             HmLog.info("War: {} <-> {} started (declared)", a.name, b.name);
-            if (callAllies) {
-                AllianceService.warStarted(overworld, ledger, a, b, true, now);
-            }
         }
         ledger.setDirty();
     }

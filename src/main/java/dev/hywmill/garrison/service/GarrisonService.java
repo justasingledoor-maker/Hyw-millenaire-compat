@@ -90,16 +90,7 @@ public final class GarrisonService {
         final ScalingGate gate = new ScalingGate();
         boolean authoritative;
         int computedTarget;
-        /** Post-M5 garrison rest: the village's soldiers are out of the world while nobody is near; since when it has been quiet. */
-        boolean resting;
-        long quietSince = -1;
     }
-
-    /** Post-M5 garrison rest: a player within this many blocks of a village's edge wakes it; beyond REST_RANGE for REST_DELAY it rests. */
-    public static final int WAKE_RANGE = 96, REST_RANGE = 128;
-    public static final long REST_DELAY = 600;
-    public static final int WAKE_BURST = 24;
-    public static final String C_RESTED = "garrison.rested";
 
     public GarrisonService(PerfCounters perf) {
         this.perf = perf;
@@ -206,76 +197,12 @@ public final class GarrisonService {
         ledger.setDirty();
         // the slot's own work; spawning is measured per unit as garrison.spawn
         perf.stop("garrison.slot", t0);
-        if (rest(overworld, ledger, rec, r, v, alert, tick)) {
-            return; // nobody near: the garrison rests out of the world (nothing to spawn either)
-        }
         if (s.enabled() && settled && (alert == AlertState.CALM || alert == AlertState.RECOVERY) && !MobilizationService.inSiegeBattle(ledger, rec)) {
             // wartime levies muster fast: a village raising a whole levy at once fills its ranks in a few slots, not minutes
             boolean levies = r.entries().stream().anyMatch(e -> e.mobilized && e.state() == UnitState.RECRUITED);
             spawnPending(overworld, rec, r, table, tables, units, s, tick, levies ? Math.max(s.spawnsPerSlot(), LEVY_BURST) : s.spawnsPerSlot());
             respawnStowed(overworld, rec, r, tick, LEVY_BURST);
         }
-    }
-
-    /**
-     * Post-M5 garrison rest (performance): soldiers nobody can see still cost the server their AI every tick. A village with
-     * no player within {@link #REST_RANGE} blocks of its edge for {@link #REST_DELAY} ticks, calm and not besieged, takes its
-     * garrison out of the world (stowed at home; nothing is lost: they count, recruit, march and defend as before). A player
-     * within {@link #WAKE_RANGE}, an alert or a siege brings them back, {@link #WAKE_BURST} a slot. Returns true while resting.
-     */
-    private boolean rest(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, GarrisonRoster r, VillageRt v, AlertState alert, long tick) {
-        int radius = rec.villageRadius > 0 ? rec.villageRadius : 48;
-        boolean busy = alert != AlertState.CALM || SiegeService.against(ledger, rec.villageId) != null || rec.loneBuilding;
-        double wake = radius + WAKE_RANGE, keep = radius + REST_RANGE;
-        double nearest = Double.MAX_VALUE;
-        for (net.minecraft.server.level.ServerPlayer p : overworld.players()) {
-            if (!p.isSpectator()) {
-                nearest = Math.min(nearest, Math.hypot(p.getX() - rec.center.getX(), p.getZ() - rec.center.getZ()));
-            }
-        }
-        if (busy || nearest < (v.resting ? wake : keep)) {
-            v.quietSince = -1;
-            if (v.resting) {
-                v.resting = false;
-                int n = respawnStowed(overworld, rec, r, tick, WAKE_BURST);
-                HmLog.info("Village '{}' wakes: {} soldier(s) back in the world ({})", rec.name, n, busy ? "alert or siege" : "a player is near");
-            }
-            return false;
-        }
-        if (v.quietSince < 0) {
-            v.quietSince = tick;
-        }
-        if (!v.resting && tick - v.quietSince >= REST_DELAY) {
-            int n = 0;
-            for (RosterEntry e : r.entries()) {
-                if ((e.state() == UnitState.GARRISONED || e.state() == UnitState.RECOVERED) && e.entityUuid != null && e.duty.standing()
-                        && e.extra.isEmpty() && !e.wounded && !r.isArsenal(e)) {
-                    stow(overworld, e);
-                    n++;
-                }
-            }
-            v.resting = true;
-            count(C_RESTED);
-            ledger.setDirty();
-            HmLog.info("Village '{}' rests: {} soldier(s) out of the world while nobody is near", rec.name, n);
-        }
-        if (v.resting) {
-            // recruits of a resting village join the garrison at home, out of the world like the rest (they come with it on waking)
-            for (RosterEntry e : r.entries()) {
-                if (e.state() == UnitState.RECRUITED && e.entityUuid == null) {
-                    e.transition(UnitState.SPAWNED, tick);
-                    e.transition(UnitState.GARRISONED, tick);
-                    ledger.setDirty();
-                }
-            }
-        }
-        return v.resting;
-    }
-
-    /** Whether the village's garrison is resting out of the world (nobody near). */
-    public boolean resting(UUID village) {
-        VillageRt v = villages.get(village);
-        return v != null && v.resting;
     }
 
     /**

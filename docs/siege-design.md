@@ -262,12 +262,3 @@ treated like soldiers ("repairable" or "beyond repair"). The rest (`SiegeWaves`,
   Garrison/Stronghold town; attackers whose host comes from a Garrison/Stronghold town.
 * **Numbers.** Garrison caps 48 / 96 / 115 / 128 (Watch, Guard Post, Garrison, Stronghold); relief 20-60% of the helper's
   garrison (at least 12, chance 50%); vassals 25-38; mercenaries 45% (attackers) and 40% (defenders), 18-35 men.
-
-## Alliances in war (post-M5, fix47)
-
-* When a war starts, the attacked village's allies are called: relation 70 or more, its vassals and its overlord.
-* An ally of both sides stays out and helps neither.
-* Any other ally joins (it declares war on the attacker) or breaks the alliance (relation 10). The chance is 40% at the
-  threshold, more for close friends, vassals and enemies of the attacker, less down the chain.
-* An ally that joins calls its own allies, at most 2 links deep and 8 joiners.
-* A village's side in a war is recorded (`WarRecord.sides`); relief and vassal help go to that side only.
