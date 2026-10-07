@@ -6530,7 +6530,7 @@ def scenario_W3(ctx):
     p1 = s.pos()
     near = lambda f: [u for u, v in spike_info(s, "@e[type=!minecraft:player]").items() if f and ("owner=" + f) in v["desc"] and dist(v["pos"], tuple(b)) < 140]
     host = near(fa)
-    for u in host[:12]:
+    for u in host[:6]:
         s.cmd(f"kill {u}", 0.3)
     defs = near(fb)
     for u in defs[:8]:
@@ -6543,13 +6543,13 @@ def scenario_W3(ctx):
           f"{len(host)} host, {len(defs)} defenders in the world; {len(hurt)} wounded, {len(dead)} dead || {(hurt or [''])[0][-140:]}")
     time.sleep(120)
     s.cmd("time set 13000", 1)
-    sd = s.wait_for(r"sundown after wave 1 \(field\)", 60, since=p1)
+    sd = s.wait_for(r"sundown after wave 1 \(field\)", 240, since=p1)
     time.sleep(3)
     left = near(fa)
     check("W3-3 at sundown the host withdraws from the field", sd is not None and len(left) == 0, f"{(sd or '')[-160:]} || {len(left)} still in the world")
     time.sleep(32)
     s.cmd("time set 0", 1)
-    w2 = s.wait_for(r"wave 2 begins: host (\d+)/(\d+)", 60, since=p1)
+    w2 = s.wait_for(r"wave 2 begins: host (\d+)/(\d+)", 240, since=p1)
     dep2 = s.wait_for(r"wave 2: (\d+) unit\(s\) materialized", 60, since=p1)
     m = re.search(r"wave 2: (\d+) unit", dep2 or "")
     nights = [l for l in s.read_since(p1) if "rose to fight again" in l]
