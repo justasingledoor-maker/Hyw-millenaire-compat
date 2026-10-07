@@ -1322,6 +1322,9 @@ public final class SiegeService {
             }
         }
         if (s.field && loaded) {
+            // defenders still off the field (stowed at home, temporary help not yet placed) come out to fight, a few each step
+            GarrisonService.respawnStowed(overworld, t, t.hywRoster, tick, 6);
+            musterExtras(overworld, s, t, tick);
             fight(overworld, ledger, s, a, t, alive, tick, r);
         }
         int host = soldiers(a, entries(a, s.host)).size();
@@ -1696,15 +1699,32 @@ public final class SiegeService {
      * the village, and its Millénaire fighters (counted in the world during a wave fought there; else as at the first dawn).
      */
     static int defenderCount(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord t, boolean live) {
-        int n = homeDefenders(t).size();
+        if (!live) {
+            int n = homeDefenders(t).size() + s.milStart;
+            for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+                n += ReliefService.present(ledger, s, rl.helper).size();
+            }
+            return n;
+        }
+        // a wave fought in the world: only defenders standing in it, and the wounded (they come back at dawn); a slot whose body
+        // is gone, or a soldier who never came out, does not hold the walls
+        int n = 0, garrison = 0;
+        for (RosterEntry e : homeDefenders(t)) {
+            if (e.wounded) {
+                n++;
+            } else if (e.entityUuid != null && GarrisonService.find(overworld.getServer(), e.entityUuid) instanceof LivingEntity le && le.isAlive()) {
+                n++;
+                garrison++;
+            }
+        }
         for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
-            n += ReliefService.present(ledger, s, rl.helper).size();
+            for (RosterEntry e : ReliefService.present(ledger, s, rl.helper)) {
+                if (e.wounded || (e.entityUuid != null && GarrisonService.find(overworld.getServer(), e.entityUuid) instanceof LivingEntity le && le.isAlive())) {
+                    n++;
+                }
+            }
         }
-        if (live) {
-            n += Math.min(s.milStart, defenders(overworld, t).size() - (int) homeDefenders(t).stream().filter(e -> e.entityUuid != null).count());
-        } else {
-            n += s.milStart;
-        }
+        n += Math.max(0, Math.min(s.milStart, defenders(overworld, t).size() - garrison));
         return n;
     }
 
