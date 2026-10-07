@@ -1452,3 +1452,25 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     colours: they join its host anyway, and its soldiers never take them for enemies.
 * **Tests.** JUnit 372/372. No harness run for this fix.
 * SHA-256 of the jar: `828b7eeaa11b83a05735c6773a1b4088344ebb74cac75d4fd2611279a8d54008`.
+
+### 6.49 Honest defender count; relief forces fight campaigning players (`dist/hywmill-m5-fix49.jar`)
+
+* **Bug 1** (user report, with a screenshot): the boss bar read 98 of 170 defenders while the besieged village stood
+  empty.
+  * **Cause.** The count took every roster slot at home: stowed soldiers never placed, temporary help not yet mustered,
+    and slots whose body was gone.
+  * **Fix.** During a wave fought in the world, a defender counts only if he stands alive in the world or is wounded (he
+    comes back at dawn). Defenders still off the field (stowed at home, temporary help not yet placed) come out to fight,
+    6 a step. Waves on paper count the roster as before.
+* **Bug 2** (user report): the besieged village's relief forces did not attack the player, who was on campaign with the
+  attacker.
+  * **Fix.** While a relief is on its way or at the village, its faction is now HOSTILE to players on campaign with the
+    attacker against the besieged village (`RelationPlan`), as well as to the attacker.
+* **Tests.**
+  * JUnit 373/373. New test in `WarTest`.
+  * Harness W3 1-4 and W3P (W3-5/6) pass (`docs/m5-test-evidence/siege-count-relief1.txt`): defenders 40/60 at sundown,
+    49/60 at dawn with the wounded back; an unwatched siege fought three waves on paper to a stalemate.
+  * Two earlier runs failed on harness timing only: the test server ran slower with more men, so a wave lasted longer
+    than the test waited. The waits are longer now.
+  * Relief hostility to players was not exercised by the harness.
+* SHA-256 of the jar: `2bc572568f80caf719e0148e8afd08e68fab920197fb7631192dd7c65e7520bb`.
