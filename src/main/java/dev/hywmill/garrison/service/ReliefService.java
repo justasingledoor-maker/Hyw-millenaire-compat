@@ -72,6 +72,9 @@ public final class ReliefService {
         for (VillageRecord v : ledger.all()) {
             int rel = source.villageRelation(overworld, v.villageId, t.villageId).orElse(Integer.MIN_VALUE);
             boolean party = v.villageId.equals(a.villageId) || v.villageId.equals(t.villageId);
+            if (!party && sworn(ledger, v.villageId, a.villageId, tick)) {
+                continue; // post-M5: a vassal never relieves a village against its overlord (nor an overlord against its vassal)
+            }
             if (Relief.eligible(rel, RelationProjector.atWar(ledger, v.villageId, t.villageId), party, v.loneBuilding, available(v).size(), r)) {
                 friends.add(v);
             }
@@ -87,6 +90,16 @@ public final class ReliefService {
                 HmLog.info("Siege {}: {} will send relief to {}", s.id.toString().substring(0, 8), v.name, t.name);
             }
         }
+    }
+
+    /** {@code x} is the vassal or the overlord of {@code y} (a fealty in force). */
+    static boolean sworn(GarrisonLedger ledger, UUID x, UUID y, long now) {
+        for (dev.hywmill.politics.war.Vassalage f : ledger.vassalages()) {
+            if (!f.over(now) && ((f.vassal.equals(x) && f.overlord.equals(y)) || (f.vassal.equals(y) && f.overlord.equals(x)))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Admin/dev: {@code helper} promises relief to the siege of {@code s} ({@code fate}: NONE rolls the journey, else forced). */
@@ -115,6 +128,16 @@ public final class ReliefService {
             VillageRecord h = ledger.get(rl.helper);
             if (h == null || h.hywRoster == null) {
                 rl.phase = Relief.Phase.DONE;
+                continue;
+            }
+            if (a != null && rl.phase != Relief.Phase.RETURN && rl.phase != Relief.Phase.DONE && sworn(ledger, rl.helper, a.villageId, tick)) {
+                // post-M5: a vassal (or overlord) of the attacker never stands against it: a relief promised before is called off
+                if (rl.phase == Relief.Phase.PENDING) {
+                    rl.phase = Relief.Phase.DONE;
+                } else {
+                    turnBack(overworld, ledger, s, rl, h, t, tick, h.name + " will not fight its sworn lord " + a.name);
+                }
+                ledger.setDirty();
                 continue;
             }
             switch (rl.phase) {

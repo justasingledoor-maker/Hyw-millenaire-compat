@@ -315,8 +315,11 @@ public final class ColumnService {
                 spot = base.offset((int) Math.round(-hx * row * 2.5 + hz * side * 1.5), 0, (int) Math.round(-hz * row * 2.5 - hx * side * 1.5));
             }
             spot = SiegeService.surface(overworld, spot);
-            Entity e = spawnMan(overworld, owner, c.units.get(i), i < c.regular.size() && c.regular.get(i), c.look, Vec3.atBottomCenterOf(spot),
-                    convoy ? base : spot, c.id);
+            // a vassal's men march under their overlord's banner (they join its host): its own soldiers never take them for enemies
+            VillageRecord dest = c.kind == Column.Kind.VASSAL && c.destination != null ? ledger.get(c.destination) : null;
+            UUID banner = dest != null ? dest.factionId : owner.factionId;
+            Entity e = spawnMan(overworld, owner, banner, c.units.get(i), i < c.regular.size() && c.regular.get(i), c.look,
+                    Vec3.atBottomCenterOf(spot), convoy ? base : spot, c.id);
             if (e == null) {
                 continue;
             }
@@ -346,6 +349,13 @@ public final class ColumnService {
     /** One soldier of a column: an untagged HYW unit of the owner's faction, equipped as the village's (or its company's look). */
     @Nullable
     static Entity spawnMan(ServerLevel overworld, VillageRecord owner, String unitKey, boolean regular, String look, Vec3 pos, BlockPos home, UUID column) {
+        return spawnMan(overworld, owner, owner.factionId, unitKey, regular, look, pos, home, column);
+    }
+
+    /** {@code faction}: the HYW owner the soldier fights for (his village's own, or the overlord a vassal's men serve). */
+    @Nullable
+    static Entity spawnMan(ServerLevel overworld, VillageRecord owner, UUID faction, String unitKey, boolean regular, String look, Vec3 pos,
+                           BlockPos home, UUID column) {
         UnitProvider units = Services.units();
         GarrisonTables tables = GarrisonTables.current();
         UnitSpec spec = tables.units().get(unitKey);
@@ -367,7 +377,7 @@ public final class ColumnService {
         int[] livery = merc ? null : LiveryService.of(overworld, owner);
         String role = merc ? EquipmentProfiles.LOOK_PREFIX + look : regular ? "" : EquipmentProfiles.LEVY;
         UUID id = UUID.randomUUID();
-        SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, owner.factionId, id, pos, home, level, false, null, eq,
+        SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, faction, id, pos, home, level, false, null, eq,
                 new EquipmentProvider.Context(owner.culture, EquipmentProfiles.gearTier(!regular, level, owner.tier), role,
                         EquipmentProfiles.classRole(spec.unitClass()), id).withLivery(livery)));
         if (!res.ok()) {

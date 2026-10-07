@@ -1434,3 +1434,21 @@ crusader colours, with crusade-like banner patterns on their shields. This appli
     waves and stalemate as before.
   * The recall is not covered by this run: nothing of the target's was away.
 * SHA-256 of the jar: `97ba48bd32bd8a6b5438e28baddda3bd242aa84ba32ac383d0dabdc086b49fe0`.
+
+### 6.48 A vassal's men are attacked by their own overlord (`dist/hywmill-m5-fix48.jar`)
+
+Built on fix46. The fix47 changes were withdrawn at the user's request.
+
+* **The bug** (user report): a vassal of the attacking village sent 34 men to its overlord's host; when they came into the
+  world outside the overlord's walls, before the muster, the overlord's garrison attacked them.
+* **Cause.** The same vassal also liked the besieged village (relation 70 or more), so it had promised relief to the
+  defenders. A village whose relief is on its way is projected hostile to the attacker (`RelationPlan` relief pairs), so
+  the overlord's soldiers took the vassal's banner for an enemy.
+* **Fixes.**
+  * A vassal never relieves a village against its overlord, and an overlord never relieves one against its vassal
+    (`ReliefService.plan`).
+  * A relief promised before, still pending or on its way, is called off ("will not fight its sworn lord").
+  * A vassal column's men come into the world under their overlord's banner (HYW owner), keeping their own village's kit and
+    colours: they join its host anyway, and its soldiers never take them for enemies.
+* **Tests.** JUnit 372/372. No harness run for this fix.
+* SHA-256 of the jar: `828b7eeaa11b83a05735c6773a1b4088344ebb74cac75d4fd2611279a8d54008`.
