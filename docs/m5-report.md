@@ -1534,3 +1534,34 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     to the walls ("9 soldier(s) … rejoin the garrison").
   * The ordinary three-day stalemate keeps its wording.
 * SHA-256 of the jar: `96b1862bd48c6f89cfbbf37d79d6ee9e150a54f86fc5ace4b3b3c4135daafac6`.
+
+### 6.52 Siege reserves and Resistance II: longer days of fighting (`dist/hywmill-m5-fix52.jar`)
+
+* **Request.** The fighting should last longer during the day: Resistance II for both sides, players and their troops
+  included, plus reserves.
+* **Reserves.** In a wave fought in the world:
+  * the host keeps 45% of its soldiers at its camp, and the defenders keep 35% of their garrison inside;
+  * the defenders' reserve is those nearest the centre, never one within 24 blocks of a player;
+  * a side of fewer than 8 soldiers keeps no reserve.
+  * **Going in.** A reserve goes in 8 a step while its side's front is down to 60% of its starting size, and all of it
+    from noon (6,000 ticks into the wave). The host's comes from the camp at the landing; the defenders' sally from the town
+    hall.
+  * **Counting.** The defenders' reserve counts as defenders on the boss bar and for the verdict.
+  * **Lifetime.** Reserves stand down at sundown and are picked again at the next dawn. They are saved in the siege record.
+* **Resistance.**
+  * **Who gets it.** While a wave is fought in the world, every living thing near the besieged village that is fighting
+    gets Resistance II:
+    * every player;
+    * every HYW unit, including players' own troops however often they are placed or picked up;
+    * the village's Millénaire villagers;
+    * whatever any of them is riding.
+  * **How it is applied.** It lasts 5 s and is refreshed every second. It is ambient, with no particles, but players see
+    the icon. A stronger effect is never lowered.
+  * **Setting.** `politics.siegeResistance`, from 0 to 4, default 2.
+* **Tests.**
+  * JUnit 375/375.
+  * Harness W3, all PASS (`docs/m5-test-evidence/fix52-w3.txt`). New checks:
+    * W3-1b: wave 1 had 27 of the host in the field, 22 at the camp and 7 inside;
+    * W3-1c: a host unit carried Resistance with amplifier 1, ambient, no particles;
+    * W3-2b: as the host's front thinned, its reserve went in (8, 8, then 6).
+* SHA-256 of the jar: `1b9b7655cc2ece50bb68c7fc7930013150cb6792f22bfffcaa1594fde13f0027`.
