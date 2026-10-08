@@ -357,7 +357,8 @@ public final class SiegeService {
         int marching = 0;
         List<RosterEntry> crews = new ArrayList<>();
         for (RosterEntry e : a.hywRoster.arsenal()) {
-            if (e.state() != UnitState.GARRISONED || e.duty == Duty.SIEGE) {
+            // fix53: also engines raised while the village was unloaded and never set up (they march stowed all the same)
+            if ((e.state() != UnitState.GARRISONED && e.state() != UnitState.RECRUITED) || e.duty == Duty.SIEGE) {
                 continue;
             }
             if (!dev.hywmill.politics.war.ArsenalPlan.isEngine(e.unitKey)) {
@@ -373,6 +374,10 @@ public final class SiegeService {
         BlockPos muster = GarrisonService.anchorOf(a);
         for (UUID rid : new ArrayList<>(s.host)) {
             RosterEntry e = a.hywRoster.entry(rid);
+            if (e.state() == UnitState.RECRUITED) {
+                e.transition(UnitState.SPAWNED, tick);
+                e.transition(UnitState.GARRISONED, tick);
+            }
             e.transition(UnitState.DEPLOYED, tick);
             e.duty = Duty.SIEGE;
             Entity ent = e.entityUuid != null ? GarrisonService.find(overworld.getServer(), e.entityUuid) : null;

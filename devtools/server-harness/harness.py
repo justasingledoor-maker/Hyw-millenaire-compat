@@ -2427,6 +2427,7 @@ def scenario_TB(ctx):
     fa, fb = info(s, a).get("faction"), info(s, b).get("faction")
     P = "33333333-4444-4555-8666-777777777777"
     p0 = s.pos()
+    note("TB arsenals before", " || ".join(arsenal_lines(s))[:900])
     s.output("hywmill war admin recall-all", 3)
     s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
     time.sleep(6)
