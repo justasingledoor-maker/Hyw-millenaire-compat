@@ -230,7 +230,7 @@ public final class GarrisonService {
             }
             UnitState st = e.state();
             if ((st != UnitState.GARRISONED && st != UnitState.RECOVERED) || e.entityUuid != null || e.duty.away() || !e.extra.isEmpty()
-                    || hold.contains(e.rosterId)) {
+                    || hold.contains(e.rosterId) || r.isArsenal(e)) { // fix53: engines and crews go to their batteries (ArsenalService)
                 continue;
             }
             Vec3 spot = spotNear(overworld, anchor.offset((i % 8) * 3 - 10, 0, (i / 8) * 3 + 3), e.rosterId);

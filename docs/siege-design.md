@@ -268,6 +268,20 @@ treated like soldiers ("repairable" or "beyond repair"). The rest (`SiegeWaves`,
   often they are placed or picked up), the village's Millénaire villagers, and what they ride. It is refreshed while they
   stay and wears off within five seconds of leaving or of the fighting's end. Damage taken is 40% lower, so fights last
   about 1.67 times as long.
+* **Engines (fix53).**
+  * **Trebuchets are back.** The arsenal draws trebuchets twice as often as a catapult or a springald, so about half a
+    village's engines are trebuchets.
+  * **Trebuchets stay home.** Each trebuchet marches with a siege host only one time in five; otherwise it stays behind,
+    with its engineer. Catapults and springalds always march, each with one engineer.
+  * **Batteries round the edge.** At home, the engines stand at batteries round the village's edge: one per equal sector,
+    four blocks to the side of a road (Millénaire paths) between 70% of the village's radius and just past it. Where a
+    sector has no road, the battery is on open ground at 85% of the radius.
+  * **Never in the middle.** An engine at home inside half the radius (from before) is moved out to its battery while no
+    siege is fought there. Engines coming home from a siege, or reappearing, go to their batteries too.
+  * **Attacking engines move up.** Every 10 s, a host's engine with no target and no foe within 70% of its reach moves
+    its home 12 blocks towards the village; it packs up to move and sets up again where it stops. It stops at the
+    village's edge. Reach: catapult and springald 100, nest of bees 128, trebuchet 170.
+  * **Admin.** `/hywmill war admin rearm <village>` raises a fresh arsenal for a village at war under the current rule.
 * **No help from the besieged (fix51).** While a siege against it is declared or fought, a village sends no relief, no
   vassal levy, joins no raid, lends no detachment and launches no siege of its own.
 * **Refugees.** 15-20 from the countryside take up arms (militia, some spearmen; temporary, like the militia).

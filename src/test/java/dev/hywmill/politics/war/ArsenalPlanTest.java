@@ -9,7 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Post-M5 war arsenal: engines per tier, types, and their weight against walls. */
 class ArsenalPlanTest {
-    static final PoliticsTables.ArsenalRule R = PoliticsTables.ArsenalRule.DEFAULT;
+    // through the tables, as the mod does: touching ArsenalRule.DEFAULT first would start a static-init cycle with PoliticsTables
+    static final PoliticsTables.ArsenalRule R = PoliticsTables.DEFAULTS.arsenal();
 
     @Test
     void oneToFourEnginesByTierCatapultsAndTrebuchetsOnly() {
@@ -18,7 +19,7 @@ class ArsenalPlanTest {
         assertEquals(2, ArsenalPlan.engines(PoliticsTables.MilitaryTierKey.GUARD_POST, R, 1).size());
         List<String> g = ArsenalPlan.engines(PoliticsTables.MilitaryTierKey.GARRISON, R, 1);
         assertEquals(3, g.size());
-        assertTrue(List.of("mangonels", "springald").containsAll(g), g.toString());
+        assertTrue(List.of("trebuchets", "mangonels", "springald").containsAll(g), g.toString());
     }
 
     @Test
@@ -54,5 +55,22 @@ class ArsenalPlanTest {
     void theEngineerIsNotAnEngine() {
         assertFalse(ArsenalPlan.isEngine(ArsenalPlan.ENGINEER));
         assertTrue(ArsenalPlan.isEngine("trebuchets"));
+    }
+
+    @Test
+    void trebuchetsAreCommonAtHomeButRarelyMarch() {
+        int trebuchets = 0, all = 0;
+        for (long seed = 0; seed < 200; seed++) {
+            for (String k : ArsenalPlan.engines(PoliticsTables.MilitaryTierKey.GARRISON, R, seed * 0x9E3779B97F4A7C15L)) { // spread seeds, as the hashed ones in play
+                all++;
+                trebuchets += k.equals("trebuchets") ? 1 : 0;
+            }
+        }
+        assertTrue(trebuchets > all * 0.4 && trebuchets < all * 0.6, trebuchets + " of " + all);
+        assertTrue(ArsenalPlan.marches("trebuchets", 0.1));
+        assertFalse(ArsenalPlan.marches("trebuchets", 0.5));
+        assertTrue(ArsenalPlan.marches("mangonels", 0.99));
+        assertEquals(170, ArsenalPlan.reach("trebuchets"));
+        assertEquals(100, ArsenalPlan.reach("mangonels"));
     }
 }

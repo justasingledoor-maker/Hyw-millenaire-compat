@@ -151,7 +151,7 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
      */
     public record ArsenalRule(boolean enabled, Map<MilitaryTierKey, Integer> engines, java.util.List<String> types,
                               java.util.List<String> strongholdTypes, double engineStrength, double fortCut) {
-        public static final ArsenalRule DEFAULT = new ArsenalRule(true, engineCounts(), java.util.List.of("mangonels", "springald"),
+        public static final ArsenalRule DEFAULT = new ArsenalRule(true, engineCounts(), java.util.List.of("trebuchets", "trebuchets", "mangonels", "springald"),
                 java.util.List.of("nest_of_bees"), 8, 0.25);
 
         public int engines(MilitaryTierKey tier) {

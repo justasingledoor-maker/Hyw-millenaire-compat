@@ -145,6 +145,17 @@ final class WarCommands {
                                                 .executes(ctx -> adminSiege(ctx, true, true))))
                                 .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                                         .executes(ctx -> adminSiege(ctx, true, true))))))
+                .then(Commands.literal("rearm").then(Commands.argument("village", BlockPosArgument.blockPos()).executes(ctx -> {
+                    // fix53: a village at war stands its arsenal down and raises a fresh one under the current rule (trebuchets)
+                    VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "village"));
+                    if (v == null) {
+                        return 0;
+                    }
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    int n = dev.hywmill.garrison.service.ArsenalService.rearm(ow, GarrisonLedger.get(ow), v, ow.getGameTime());
+                    send(ctx.getSource(), n < 0 ? "war rearm: " + v.name + " is not at war" : "war rearm OK: " + v.name + " raises " + n + " engine(s)");
+                    return Math.max(0, n);
+                })))
                 .then(Commands.literal("vassal").then(Commands.argument("vassal", BlockPosArgument.blockPos())
                         .then(Commands.argument("overlord", BlockPosArgument.blockPos()).executes(ctx -> {
                             // swears the first village to the second for 21 days, as if it had lost a siege to it

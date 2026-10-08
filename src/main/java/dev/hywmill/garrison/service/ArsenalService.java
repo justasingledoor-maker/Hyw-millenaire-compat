@@ -16,6 +16,7 @@ import dev.hywmill.settlement.SettlementSource;
 import dev.hywmill.settlement.VillageRecord;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import java.nio.charset.StandardCharsets;
@@ -145,34 +146,121 @@ public final class ArsenalService {
         }
     }
 
-    /** Arsenal entries not in the world yet appear at the defending position once it is loaded (engine first, then crew). */
+    /**
+     * Arsenal entries not in the world yet (new, or back from a siege) appear at their battery once the village is loaded:
+     * fix53, the engines spread round the village's edge, each covering an approach beside a road, never in the middle;
+     * each engineer next to an engine. An engine at home standing in the middle (from before) is moved out to its battery
+     * while no siege is fought there.
+     */
     private static void spawnPending(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, GarrisonRoster r, long tick) {
         BlockPos anchor = GarrisonService.anchorOf(rec);
         if (!overworld.isPositionEntityTicking(anchor)) {
             return;
         }
-        boolean changed = false;
-        int i = 0;
+        List<RosterEntry> engines = new ArrayList<>(), crews = new ArrayList<>();
         for (RosterEntry e : r.arsenal()) {
-            i++;
-            if (e.state() != UnitState.RECRUITED) {
+            if (!e.state().terminal()) {
+                (ArsenalPlan.isEngine(e.unitKey) ? engines : crews).add(e);
+            }
+        }
+        boolean fighting = MobilizationService.inSiegeBattle(ledger, rec);
+        int radius = rec.villageRadius > 0 ? rec.villageRadius : SiegeService.DEFAULT_RADIUS;
+        List<BlockPos> batteries = null;
+        boolean changed = false;
+        for (int i = 0; i < engines.size() + crews.size(); i++) {
+            boolean engine = i < engines.size();
+            RosterEntry e = engine ? engines.get(i) : crews.get(i - engines.size());
+            int slot = engine ? i : i - engines.size();
+            if (!fighting && e.entityUuid != null && e.duty != Duty.SIEGE && GarrisonService.find(overworld.getServer(), e.entityUuid) instanceof Entity ent
+                    && ent.distanceToSqr(rec.center.getX(), ent.getY(), rec.center.getZ()) < (radius / 2.0) * (radius / 2.0)) {
+                GarrisonService.stow(overworld, e); // in the middle of the village: out to its battery on this pass
+                changed = true;
+            }
+            boolean pending = e.state() == UnitState.RECRUITED
+                    || ((e.state() == UnitState.GARRISONED || e.state() == UnitState.RECOVERED) && e.entityUuid == null && e.duty != Duty.SIEGE && !e.wounded);
+            if (!pending) {
                 continue;
             }
-            // engines stand in a loose line a little behind the defending position, each crew next to its engine
-            BlockPos spot0 = anchor.offset(((i - 1) / 2) * 5 - 8, 0, 6);
-            Vec3 spot = GarrisonService.spotNear(overworld, spot0, e.rosterId);
-            if (spot == null) {
+            if (batteries == null) {
+                batteries = batteries(overworld, rec, Math.max(1, engines.size()));
+            }
+            BlockPos at = batteries.get(slot % batteries.size());
+            Vec3 spot = GarrisonService.spotNear(overworld, engine ? at : at.offset(3, 0, 2), e.rosterId);
+            if (spot == null || !overworld.isPositionEntityTicking(BlockPos.containing(spot))) {
                 continue;
             }
             if (GarrisonService.materialize(overworld, rec, e, spot, BlockPos.containing(spot), tick)) {
-                e.transition(UnitState.SPAWNED, tick);
-                e.transition(UnitState.GARRISONED, tick);
+                if (e.state() == UnitState.RECRUITED) {
+                    e.transition(UnitState.SPAWNED, tick);
+                    e.transition(UnitState.GARRISONED, tick);
+                }
+                e.duty = Duty.GARRISON;
                 changed = true;
             }
         }
         if (changed) {
             ledger.setDirty();
         }
+    }
+
+    /**
+     * Fix53: {@code n} battery positions round the village's edge, one per equal sector (turned by the village's own id):
+     * beside the first road found in the sector between 70% of the village's radius and just past it (four blocks to the
+     * side of the road, never on it), else the open edge at the sector's middle.
+     */
+    static List<BlockPos> batteries(ServerLevel level, VillageRecord rec, int n) {
+        int radius = rec.villageRadius > 0 ? rec.villageRadius : SiegeService.DEFAULT_RADIUS;
+        double sector = 2 * Math.PI / n;
+        double turn = (rec.villageId.getLeastSignificantBits() & 0xffff) / 65536.0 * 2 * Math.PI;
+        List<BlockPos> out = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            double mid = turn + i * sector;
+            BlockPos found = null;
+            for (int k = 0; k <= 6 && found == null; k++) {
+                for (int sign = 1; sign >= -1 && found == null; sign -= 2) {
+                    double th = mid + sign * k * sector / 14;
+                    for (int rr = (int) (radius * 0.7); rr <= radius + 8 && found == null; rr += 2) {
+                        BlockPos col = new BlockPos(rec.center.getX() + (int) Math.round(rr * Math.cos(th)), 0,
+                                rec.center.getZ() + (int) Math.round(rr * Math.sin(th)));
+                        if (!level.isLoaded(col)) {
+                            continue;
+                        }
+                        BlockPos top = level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, col).below();
+                        if (road(level.getBlockState(top))) {
+                            found = top.offset((int) Math.round(-Math.sin(th) * 4), 1, (int) Math.round(Math.cos(th) * 4));
+                        }
+                    }
+                    if (k == 0) {
+                        break;
+                    }
+                }
+            }
+            boolean road = found != null;
+            if (found == null) {
+                double rr = radius * 0.85;
+                found = SiegeService.surface(level, rec.center.offset((int) Math.round(rr * Math.cos(mid)), 0, (int) Math.round(rr * Math.sin(mid))));
+            }
+            out.add(found);
+            HmLog.info("War arsenal of village '{}': battery {} at {} ({} blocks out, village radius {}{})", rec.name, i + 1, found.toShortString(),
+                    (int) Math.sqrt(found.distSqr(rec.center.atY(found.getY()))), radius, road ? ", beside a road" : ", open edge");
+        }
+        return out;
+    }
+
+    /** A road block: Millénaire's paths (dirt, gravel, slabs, sandstone, tiles) and vanilla dirt paths. */
+    static boolean road(net.minecraft.world.level.block.state.BlockState state) {
+        return net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath().contains("path");
+    }
+
+    /** Admin: the village's arsenal stands down and a fresh one is raised now (a war in progress gets the current rule's engines). */
+    public static int rearm(ServerLevel overworld, GarrisonLedger ledger, VillageRecord rec, long tick) {
+        GarrisonRoster r = rec.hywRoster;
+        if (r == null || !atWar(ledger, rec.villageId)) {
+            return -1;
+        }
+        retire(overworld, ledger, rec, r);
+        grant(overworld, ledger, rec, r, tick);
+        return engines(r).size();
     }
 
     public static String label(String key) {

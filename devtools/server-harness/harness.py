@@ -2418,6 +2418,61 @@ def ars7(s, x, y, z, standin, h1, h2, h3):
           f"rams by the block {len(rams)} (owner {rams[0]['desc'].split('owner=')[1].split()[0] if rams else '-'})")
 
 
+def scenario_TB(ctx):
+    """Engines (fix53): trebuchets are back in war arsenals (common); a village's engines stand at batteries round its edge,
+    beside a road where there is one, never in the middle; a host's engines with nothing in range move up towards the
+    village. Kept world (W3's villages)."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    fa, fb = info(s, a).get("faction"), info(s, b).get("faction")
+    P = "33333333-4444-4555-8666-777777777777"
+    p0 = s.pos()
+    s.output("hywmill war admin recall-all", 3)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(6)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(8)
+    ra = " ".join(l for l in s.output(f"hywmill war admin rearm {ca}", 3) if "rearm" in l)
+    rb = " ".join(l for l in s.output(f"hywmill war admin rearm {cb}", 3) if "rearm" in l)
+    time.sleep(20)
+    rel = s.read_since(p0)
+    raised = [l for l in rel if "raises" in l and "siege engine" in l]
+    bat = [l for l in rel if "battery" in l and "War arsenal of village" in l]
+    note("TB arsenals", " || ".join(l[-140:] for l in raised)[:600])
+    rows = [(int(m[1]), int(m[2]), "road" in l) for l in bat for m in [re.search(r"\((\d+) blocks out, village radius (\d+)", l)] if m]
+    check("TB-1 the arsenals are raised (trebuchets among the types) and every engine takes a battery at the village's edge",
+          "rearm OK" in ra and "rearm OK" in rb and rows and all(o >= 0.6 * r for o, r, _ in rows),
+          f"{ra[-60:]} || {rb[-60:]} || batteries {rows} || {' '.join(raised)[-200:]}")
+    nb = (re.search(r"rearm OK: (.+) raises", rb) or [None, "?"])[1]
+    radius_b = next((int(m[1]) for l in bat if f"'{nb}'" in l for m in [re.search(r"village radius (\d+)", l)] if m), 48)
+    eb = engines_of(s, fb)
+    mid = [(r["kind"], r["pos"]) for r in eb.values() if dist(r["pos"], b) < radius_b / 2]
+    check("TB-2 none of the defenders' engines stands in the middle of the village", eb and not mid,
+          f"B engines {sorted((r['kind'], round(dist(r['pos'], b))) for r in eb.values())}; in the middle {mid}")
+    note("TB roads", f"{sum(1 for _, _, rd in rows if rd)} of {len(rows)} batteries beside a road")
+    s.cmd("time set 1000", 1)
+    standin_at(s, P, b[0] + 2, b[2] + 2)
+    time.sleep(20)
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2)):
+            break
+        time.sleep(10)
+    p1 = s.pos()
+    s.wait_for(r"wave 1: \d+ unit\(s\) materialized", 420, since=p0)
+    time.sleep(10)
+    before = {u: dist(r["pos"], b) for u, r in engines_of(s, fa).items() if dist(r["pos"], b) < 220}
+    time.sleep(45)
+    after = {u: dist(r["pos"], b) for u, r in engines_of(s, fa).items() if u in before}
+    moved = [(round(before[u]), round(after[u])) for u in after if after[u] < before[u] - 4]
+    check("TB-3 the host's engines with nothing in range move up towards the village (or already have it in range)",
+          before and (moved or all(d < 0.7 * 100 + radius_b for d in before.values())),
+          f"A engines at the siege (distance before -> after): {[(round(before[u]), round(after.get(u, -1))) for u in before]}")
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {P}", 0.3)
+
+
 def scenario_ARS7(ctx):
     """ARS-7 alone on a kept world (after ARS): Muster Roll engine sales."""
     s, a = ctx.s, ctx.a
@@ -6645,7 +6700,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

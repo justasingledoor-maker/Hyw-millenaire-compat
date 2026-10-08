@@ -352,12 +352,23 @@ public final class SiegeService {
         List<UUID> host = planHost(a, s.quick);
         s.host.addAll(host);
         s.hostStart = host.size();
+        // the village's war engines march with the host, one engineer each; fix53: a trebuchet only rarely (it is the
+        // defenders' engine, and stays at its battery with its engineer)
+        int marching = 0;
+        List<RosterEntry> crews = new ArrayList<>();
         for (RosterEntry e : a.hywRoster.arsenal()) {
-            // the village's war engines and their crews march with the host
-            if (e.state() == UnitState.GARRISONED && e.duty != Duty.SIEGE) {
+            if (e.state() != UnitState.GARRISONED || e.duty == Duty.SIEGE) {
+                continue;
+            }
+            if (!dev.hywmill.politics.war.ArsenalPlan.isEngine(e.unitKey)) {
+                crews.add(e);
+            } else if (dev.hywmill.politics.war.ArsenalPlan.marches(e.unitKey,
+                    new java.util.SplittableRandom(s.seed(e.rosterId.getLeastSignificantBits())).nextDouble())) {
                 s.host.add(e.rosterId);
+                marching++;
             }
         }
+        crews.stream().limit(marching).forEach(e -> s.host.add(e.rosterId));
         UnitProvider units = Services.units();
         BlockPos muster = GarrisonService.anchorOf(a);
         for (UUID rid : new ArrayList<>(s.host)) {
@@ -1552,6 +1563,37 @@ public final class SiegeService {
     }
 
     /** The host in the world seeks out the defenders; players near the battle who fight for a side become its helpers. */
+    /** Fix53: how often an engine with nothing in range moves up, how far each time, and the share of its reach it fires within. */
+    static final long ADVANCE_EVERY = 200;
+    static final int ADVANCE_STEP = 12;
+    static final double ENGINE_REACH_USE = 0.7;
+
+    /**
+     * Fix53: a host's engine with no target and no foe within {@link #ENGINE_REACH_USE} of its reach moves up: its HYW home
+     * steps towards the village (it packs up to move and sets up again where it stops), until a foe is in reach or it stands
+     * at the village's edge.
+     */
+    private static void advance(ServerLevel level, Entity ent, RosterEntry e, List<LivingEntity> foes, VillageRecord t, UnitProvider units) {
+        LivingEntity current = units.target(ent);
+        if (current != null && current.isAlive()) {
+            return;
+        }
+        double reach = dev.hywmill.politics.war.ArsenalPlan.reach(e.unitKey) * ENGINE_REACH_USE;
+        for (LivingEntity f : foes) {
+            if (f.distanceToSqr(ent) < reach * reach) {
+                return;
+            }
+        }
+        double dx = t.center.getX() + 0.5 - ent.getX(), dz = t.center.getZ() + 0.5 - ent.getZ();
+        double d = Math.sqrt(dx * dx + dz * dz);
+        int radius = t.villageRadius > 0 ? t.villageRadius : DEFAULT_RADIUS;
+        if (d <= radius) {
+            return; // at the village's edge: no further
+        }
+        double step = Math.min(ADVANCE_STEP, d - radius);
+        units.setHome(ent, surface(level, BlockPos.containing(ent.getX() + dx / d * step, ent.getY(), ent.getZ() + dz / d * step)));
+    }
+
     private void fight(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive, long tick,
                        PoliticsTables.SiegeRule r) {
         List<LivingEntity> relief = ReliefService.entities(overworld, ledger, s);
@@ -1567,7 +1609,11 @@ public final class SiegeService {
                     continue;
                 }
                 if (a.hywRoster.isArsenal(e)) {
-                    continue; // engines hold their ground (their HYW home is where they set up) and fire at what comes in range
+                    // engines fire at what comes in range; fix53: one with nothing in range moves up, every few seconds
+                    if (dev.hywmill.politics.war.ArsenalPlan.isEngine(e.unitKey) && (tick - s.phaseSince) % ADVANCE_EVERY < INTERVAL) {
+                        advance(level, ent, e, foes, t, units);
+                    }
+                    continue;
                 }
                 LivingEntity current = units.target(ent);
                 if (current != null && current.isAlive()) {
@@ -2347,6 +2393,16 @@ public final class SiegeService {
             }
             if (e.temporary() || (e.mobilized && !ArsenalService.atWar(ledger, a.villageId))) {
                 MobilizationService.discharge(overworld, e, tick); // the war ended while they were away: they go straight home
+                continue;
+            }
+            if (a.hywRoster.isArsenal(e) && e.entityUuid == null) {
+                // fix53: engines and crews come home stowed and take their batteries at the village's edge (ArsenalService)
+                if (e.state() == UnitState.DEPLOYED) {
+                    e.transition(UnitState.RETURNING, tick);
+                    e.transition(UnitState.GARRISONED, tick);
+                }
+                e.duty = Duty.GARRISON;
+                back++;
                 continue;
             }
             int index = slot++;

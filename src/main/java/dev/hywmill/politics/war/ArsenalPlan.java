@@ -32,6 +32,25 @@ public final class ArsenalPlan {
         return out;
     }
 
+    /**
+     * Fix53: a trebuchet is a defender's engine: it marches with its village's siege host only this often (drawn per engine
+     * and siege); other engines always march.
+     */
+    public static final double TREBUCHET_MARCH = 0.2;
+
+    public static boolean marches(String key, double draw) {
+        return !"trebuchets".equals(key) || draw < TREBUCHET_MARCH;
+    }
+
+    /** An engine's reach in blocks (HYW 0.7.1r-fix1 ATTACK_REACH): it needs a foe within it to shoot. */
+    public static double reach(String key) {
+        return switch (key) {
+            case "trebuchets" -> 170;
+            case "nest_of_bees" -> 128;
+            default -> 100; // mangonels, springald
+        };
+    }
+
     /** Whether an arsenal entry is an engine (the rest are their engineers). */
     public static boolean isEngine(String key) {
         return !ENGINEER.equals(key);
