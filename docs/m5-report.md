@@ -1490,3 +1490,47 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
   * The boss bar shows the defenders' wounded, e.g. "72/178 (31 wounded)".
 * **Tests.** JUnit 373/373. No harness run for this fix.
 * SHA-256 of the jar: `5cecfe761164964b98b82cc6718f4600c91d748dba201076828920249c90af3b`.
+
+### 6.51 Ghost "deployed" defenders come back; besieged villages keep their men home; fuller supply carts (`dist/hywmill-m5-fix51.jar`)
+
+* **Report** (user screenshot, fix50): Rocquancourt la-forge showed 63/137 defenders at the first dawn. About 80 of its
+  soldiers were marked deployed but were neither in the village nor in any other siege, and they never spawned.
+* **Cause.**
+  * A home defender deployed against a threat (`DEPLOYED`, duty `DEFENSE`) and then taken out of the world kept that
+    state with no entity. This happened to defenders wounded in a wave and carried off the field.
+  * The threat response only moves units it can see, the Reconciler skips slots with no entity, and the respawn of stowed
+    slots only took `GARRISONED` ones. So the slot counted as a defender at home but never came back. It survived the
+    siege's end and the next siege.
+  * This was also why wounded defenders did not return at dawn.
+* **Fixes.**
+  * **Stand-down repair.** `GarrisonService.standDown` runs before every respawn of stowed slots, whether or not the
+    village is loaded. Any `DEPLOYED` or `RETURNING` slot with no entity and a home duty becomes `GARRISONED` on its standing
+    duty. Away duties (siege, raid, errand, relief) and temporary men are left alone. It logs "N soldier(s) taken off the
+    field while deployed stand down at home". The respawn then brings them back as usual: 6 per step during a fought wave,
+    64 at dawn, and the garrison slot's burst when calm. Existing saves are repaired on load.
+  * **The besieged keep their men home** (user request). While a siege against a village is declared or fought
+    (`SiegeService.besieged`):
+    * it sends no relief: it is not chosen, a pending promise is dropped, and a messenger is told "besieged itself, it
+      sends no one";
+    * it sends no vassal levy (vassal help and vassal columns);
+    * it joins no raid, and a raid contingent already out comes home;
+    * it lends no detachment ("under threat");
+    * it launches no siege of its own.
+  * **Recall at the announcement**, widened. Detachments, relief marching or present elsewhere (as before), relief
+    promised but not yet sent, and vassal levies on the road are all called back. Its own host marching elsewhere goes
+    home (as before). A host already fighting another siege now breaks it off: a stalemate, no tribute, the chronicle line
+    "The host of X breaks off the siege of Y on day N and goes home (called home: …)". Scouts and supply convoys stay out.
+  * **Supply carts are loaded.** Each cart is 60-80% full (about 32-43 stacks in a 54-slot Astikor supply cart), in full
+    or near-full stacks:
+    * food is 70% of a provisions cart, 35% of a mixed one and 20% of a military, armoury or siege one;
+    * the rest is themed cargo: arms and ammunition, culture kit pieces, trade goods, or siege materials;
+    * every cart carries some camp gear.
+* **Tests.**
+  * JUnit 374/374, including the new `StandDownTest`.
+  * Harness W3 (kept world, Epic Knights and AstikorCarts), all PASS (`docs/m5-test-evidence/fix51-w3.txt`), with a new
+    check W3-4b.
+  * At load, the kept world's earlier ghost (Barneville les-pâtures) stood down and respawned.
+  * In the wave fought in the world, wounded defenders stood down when carried off. At the next dawn 9 of them came back
+    to the walls ("9 soldier(s) … rejoin the garrison").
+  * The ordinary three-day stalemate keeps its wording.
+* SHA-256 of the jar: `96b1862bd48c6f89cfbbf37d79d6ee9e150a54f86fc5ace4b3b3c4135daafac6`.
