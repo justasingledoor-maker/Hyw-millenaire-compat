@@ -2434,7 +2434,13 @@ def scenario_TB(ctx):
     dip(s, a, f"admin truce {ca} {cb} 0")
     s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
     time.sleep(8)
-    ra = " ".join(l for l in s.output(f"hywmill war admin rearm {ca}", 3) if "rearm" in l)
+    # the attacker needs an engine that marches (a catapult or a springald; a trebuchet stays home four times in five)
+    ra = ""
+    for _ in range(8):
+        pr = s.pos()
+        ra = " ".join(l for l in s.output(f"hywmill war admin rearm {ca}", 3) if "rearm" in l)
+        if any(("catapult" in l or "springald" in l) and "raises" in l for l in s.read_since(pr)):
+            break
     rb = " ".join(l for l in s.output(f"hywmill war admin rearm {cb}", 3) if "rearm" in l)
     time.sleep(20)
     rel = s.read_since(p0)
@@ -2449,7 +2455,7 @@ def scenario_TB(ctx):
     radius_b = next((int(m[1]) for l in bat if f"'{nb}'" in l for m in [re.search(r"village radius (\d+)", l)] if m), 48)
     eb = engines_of(s, fb)
     mid = [(r["kind"], r["pos"]) for r in eb.values() if dist(r["pos"], b) < radius_b / 2]
-    check("TB-2 none of the defenders' engines stands in the middle of the village", eb and not mid,
+    check("TB-2 none of the defenders' engines stands in the middle of the village", (eb or "raises 0" in rb) and not mid,
           f"B engines {sorted((r['kind'], round(dist(r['pos'], b))) for r in eb.values())}; in the middle {mid}")
     note("TB roads", f"{sum(1 for _, _, rd in rows if rd)} of {len(rows)} batteries beside a road")
     s.cmd("time set 1000", 1)
