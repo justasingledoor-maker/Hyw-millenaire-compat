@@ -159,7 +159,7 @@ public final class ArsenalService {
         }
         List<RosterEntry> engines = new ArrayList<>(), crews = new ArrayList<>();
         for (RosterEntry e : r.arsenal()) {
-            if (!e.state().terminal()) {
+            if (!e.state().terminal() && e.duty != Duty.SIEGE) { // those away on a siege need no battery
                 (ArsenalPlan.isEngine(e.unitKey) ? engines : crews).add(e);
             }
         }
