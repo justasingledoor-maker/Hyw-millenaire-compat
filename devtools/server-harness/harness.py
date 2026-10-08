@@ -2389,7 +2389,7 @@ def scenario_ENGC(ctx):
     check("ENGC-1 control recorded", True, str(results))
 
 
-ENGINE_TYPES = ("mangonels", "trebuchets", "nest_of_bees", "battering_ram")
+ENGINE_TYPES = ("mangonels", "trebuchets", "springald", "nest_of_bees", "battering_ram")
 
 
 def engines_of(s, owner):
@@ -2471,7 +2471,12 @@ def scenario_TB(ctx):
         x, y, z = r["pos"]
         dx, dz = x - b[0], z - b[2]
         dl = max(1.0, (dx * dx + dz * dz) ** 0.5)
-        fx, fz = int(x + dx / dl * 60), int(z + dz / dl * 60)
+        # the witness stands by the engine (the harness's simulation distance is 6 chunks), and the engine is drawn back 40 blocks
+        standin_at(s, P, int(x - dx / dl * 10), int(z - dz / dl * 10))
+        time.sleep(5)
+        fx, fz = int(x + dx / dl * 40), int(z + dz / dl * 40)
+        s.cmd(f"forceload add {min(fx, b[0]) - 16} {min(fz, b[2]) - 16} {max(fx, b[0]) + 16} {max(fz, b[2]) + 16}", 2)
+        time.sleep(3)
         fy = surface_y(s, fx, fz) or int(y)
         s.cmd(f"tp {u} {fx} {fy + 1} {fz}", 1)
         far = (u, dist((fx, fy, fz), b))
@@ -2493,6 +2498,8 @@ def scenario_TB(ctx):
             moved.append((round(far[1]), round(dist(now["pos"], b))))
     check("TB-3 a host engine with nothing in reach moves up towards the village", host and up and moved and moved[0][1] < moved[0][0] - 6,
           f"host engines {len(host)}; drawn back to -> after 50 s: {moved}; {len(up)} move(s) up || {(up or [''])[0][-140:]}")
+    if far:
+        s.cmd("forceload remove all", 1)
     s.output("hywmill war admin recall-all", 3)
     m5(s, f"standin remove {P}", 0.3)
 

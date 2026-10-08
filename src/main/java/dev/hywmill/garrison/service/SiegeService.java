@@ -1597,7 +1597,9 @@ public final class SiegeService {
         }
         double step = Math.min(ADVANCE_STEP, d - radius);
         units.setHome(ent, surface(level, BlockPos.containing(ent.getX() + dx / d * step, ent.getY(), ent.getZ() + dz / d * step)));
-        HmLog.info("Siege: the host's {} {} moves up ({} blocks from {}, no foe within {})", e.unitKey, e.shortId(), (int) d, t.name, (int) reach);
+        Entity crew = ent.getFirstPassenger();
+        HmLog.info("Siege: the host's {} {} moves up ({} blocks from {}, no foe within {}; crew {}, ticking {})", e.unitKey, e.shortId(), (int) d, t.name,
+                (int) reach, crew == null ? "none" : crew.getType().toShortString(), level.isPositionEntityTicking(ent.blockPosition()));
     }
 
     private void fight(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive, long tick,
