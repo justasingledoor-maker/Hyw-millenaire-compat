@@ -499,19 +499,20 @@ public final class ColumnService {
                     end(overworld, ledger, c, Column.State.FAILED, "nobody to call", tick);
                     return;
                 }
-                boolean any = false;
+                boolean any = false, besieged = SiegeService.besieged(ledger, h.villageId);
                 for (Relief rl : s.reliefs) {
                     if (rl.helper.equals(h.villageId)) {
-                        rl.called = true;
-                        any = true;
+                        rl.called = !besieged;
+                        any |= !besieged;
                     }
                 }
                 for (Vassalage v : ledger.vassalages()) {
-                    if (v.vassal.equals(h.villageId) && v.overlord.equals(owner.villageId) && !v.over(tick)) {
+                    if (!besieged && v.vassal.equals(h.villageId) && v.overlord.equals(owner.villageId) && !v.over(tick)) {
                         any |= vassalColumn(ledger, s, owner, h, tick);
                     }
                 }
-                text = "A messenger of " + owner.name + " reached " + h.name + (any ? ": it sends help" : ": it sends no one");
+                text = "A messenger of " + owner.name + " reached " + h.name + (any ? ": it sends help"
+                        : besieged ? ": besieged itself, it sends no one" : ": it sends no one");
                 s.notes.add(text);
             }
             case ALARM -> {
@@ -561,6 +562,26 @@ public final class ColumnService {
         c.survivors = c.units.size();
         ledger.columns().add(c);
         return true;
+    }
+
+    /** Post-M5: a village about to be besieged calls back its vassal levies still on the road. Returns how many men. */
+    static int recall(ServerLevel overworld, GarrisonLedger ledger, UUID village, String why, long tick) {
+        int n = 0;
+        for (Column c : ledger.columns()) {
+            if (c.kind != Column.Kind.VASSAL || !c.onRoad() || !c.owner.equals(village)) {
+                continue;
+            }
+            for (UUID id : c.materialized) {
+                Entity e = overworld.getEntity(id);
+                if (e != null) {
+                    e.discard();
+                }
+            }
+            c.materialized.clear();
+            n += c.survivors;
+            end(overworld, ledger, c, Column.State.FAILED, "called home: " + why, tick);
+        }
+        return n;
     }
 
     private static void end(ServerLevel overworld, GarrisonLedger ledger, Column c, Column.State st, String why, long tick) {

@@ -95,7 +95,7 @@ public final class RaidService {
                 r.lastRaidStart = info.get().raidStart();
                 changed = true;
             } else if (info.isPresent() && info.get().target() != null && info.get().raidStart() > 0 && info.get().raidStart() != r.lastRaidStart
-                    && enabled() && alert == AlertState.CALM) {
+                    && enabled() && alert == AlertState.CALM && !SiegeService.besieged(ledger, rec.villageId)) {
                 changed |= start(overworld, rec, r, rule, info.get(), units, plan, tick);
             } else {
                 changed |= bringHomeStale(overworld, rec, r, units, tick); // only when no raid of ours is running
@@ -103,7 +103,8 @@ public final class RaidService {
         } else {
             boolean over = info.isEmpty() || !raid.target.equals(info.get().target()) || info.get().performed() > raid.performedBase
                     || tick - raid.raidStart > MAX_RAID;
-            boolean homeAlert = alert == AlertState.ALERT || alert == AlertState.ENGAGED;
+            // post-M5: a siege declared against the village calls the contingent home too
+            boolean homeAlert = alert == AlertState.ALERT || alert == AlertState.ENGAGED || SiegeService.besieged(ledger, rec.villageId);
             if (over || homeAlert) {
                 HmLog.info("Raid of village '{}' on {} {}: bringing the contingent home", rec.name, raid.target,
                         over ? "is over" : "abandoned (home village " + alert + ")");

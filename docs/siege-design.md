@@ -254,8 +254,11 @@ treated like soldiers ("repairable" or "beyond repair"). The rest (`SiegeWaves`,
 
 ## Desperate defences (post-M5, fix46)
 
-* **Recall.** At the announcement the target calls home everyone away but its scouts: detachments lent to players, relief
-  it sent elsewhere, its own host if it marches on another village and is not yet fighting.
+* **Recall.** At the announcement the target calls home everyone away but its scouts and supply convoys: detachments lent
+  to players, relief it sent or promised elsewhere, its vassal levies on the road, raid contingents, and its own host if it
+  marches on another village (fix51: a host already fighting breaks off that siege: a stalemate, nothing paid).
+* **No help from the besieged (fix51).** While a siege against it is declared or fought, a village sends no relief, no
+  vassal levy, joins no raid, lends no detachment and launches no siege of its own.
 * **Refugees.** 15-20 from the countryside take up arms (militia, some spearmen; temporary, like the militia).
 * **Fortified wounds.** Defenders' wound chance 45% + 0.25% per fortification point, at most 60%.
 * **Surgeons.** Night deaths of the wounded 10%, 4% with surgeons: defenders with barracks, a fortified town hall or a

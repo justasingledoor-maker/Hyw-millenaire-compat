@@ -171,6 +171,16 @@ public final class SiegeService {
         return s;
     }
 
+    /** Post-M5: a siege against {@code village} is declared or being fought (it keeps every man at home and sends no help). */
+    static boolean besieged(GarrisonLedger ledger, UUID village) {
+        for (Siege s : ledger.sieges()) {
+            if (s.target.equals(village) && s.outcome == Siege.Outcome.NONE && s.phase != Siege.Phase.RETURN) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static List<RosterEntry> entries(VillageRecord rec, Collection<UUID> ids) {
         List<RosterEntry> out = new ArrayList<>();
         if (rec.hywRoster == null) {
@@ -281,6 +291,9 @@ public final class SiegeService {
         }
         if (byAttacker(ledger, attackerId) != null) {
             return new Launch(SiegeMath.Refusal.ALREADY_BESIEGING, null, a.name + "'s host is already away");
+        }
+        if (besieged(ledger, attackerId)) {
+            return new Launch(SiegeMath.Refusal.ALREADY_BESIEGING, null, a.name + " is besieged itself: its soldiers stay home");
         }
         if (against(ledger, targetId) != null) {
             return new Launch(SiegeMath.Refusal.TARGET_BESIEGED, null, t.name + " is already besieged");
@@ -428,7 +441,7 @@ public final class SiegeService {
         List<UUID> host = planHost(a);
         OptionalInt points = source.diplomacyPoints(overworld, attackerId, player);
         SiegeMath.Facts f = new SiegeMath.Facts(RelationProjector.atWar(ledger, attackerId, targetId), onCampaign, standing,
-                byAttacker(ledger, attackerId) != null, against(ledger, targetId) != null, host.size(), now,
+                byAttacker(ledger, attackerId) != null || besieged(ledger, attackerId), against(ledger, targetId) != null, host.size(), now,
                 free || pr == null ? -1 : pr.lastSiegeCounsel, free || points.isEmpty() ? -1 : points.getAsInt());
         SiegeMath.Refusal refusal = SiegeMath.check(f, r);
         if (refusal != SiegeMath.Refusal.OK) {
@@ -1104,6 +1117,12 @@ public final class SiegeService {
             }
             VillageRecord lord = forAttacker ? a : t;
             if (lord.hywRoster == null) {
+                continue;
+            }
+            if (besieged(ledger, v.vassal)) {
+                String text = vr.name + ", vassal of " + lord.name + ", is besieged itself and sends no one";
+                s.notes.add(text);
+                aidNews(overworld, ledger, s, a, t, tick, text);
                 continue;
             }
             List<Boolean> men = dev.hywmill.politics.war.Vassalage.levy(s.seed(v.vassal.getMostSignificantBits() ^ tick));
@@ -1843,9 +1862,9 @@ public final class SiegeService {
     }
 
     /**
-     * Post-M5: a village about to be besieged calls home everyone it has away, but its scouts (they are its eyes): soldiers
-     * lent to players, relief it sent to other villages, and its own host if it marches on someone else (unless already
-     * fighting). Returns how many were called home.
+     * Post-M5: a village about to be besieged calls home everyone it has away, but its scouts (they are its eyes) and its supply
+     * convoys: soldiers lent to players, relief it sent or promised to other villages, its vassal levies on the road, and its own
+     * host if it marches on someone else (a host already fighting breaks off its siege). Returns how many were called home.
      */
     int recallHome(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
         int n = 0;
@@ -1868,9 +1887,17 @@ public final class SiegeService {
                         || rl.phase == dev.hywmill.politics.war.Relief.Phase.PRESENT)) {
                     n += rl.units.size();
                     ReliefService.turnBack(overworld, ledger, o, rl, t, ledger.get(o.target), tick, "called home: " + why);
+                } else if (rl.helper.equals(t.villageId) && rl.phase == dev.hywmill.politics.war.Relief.Phase.PENDING) {
+                    rl.phase = dev.hywmill.politics.war.Relief.Phase.DONE; // a promise it can no longer keep
                 }
             }
-            if (o.attacker.equals(t.villageId) && o.outcome == Siege.Outcome.NONE && o.phase != Siege.Phase.RETURN && !o.fighting()) {
+            if (o.attacker.equals(t.villageId) && o.outcome == Siege.Outcome.NONE && o.phase != Siege.Phase.RETURN && o.fighting()) {
+                // its host is fighting a siege of its own: it breaks it off and marches home (nothing is won, nothing paid)
+                VillageRecord ot = ledger.get(o.target);
+                n += entries(t, o.host).size();
+                finish(overworld, ledger, o, t, ot, Siege.Outcome.STALEMATE, "called home: " + why, tick,
+                        ot != null && !o.forceUnwatched && overworld.isPositionEntityTicking(ot.center));
+            } else if (o.attacker.equals(t.villageId) && o.outcome == Siege.Outcome.NONE && o.phase != Siege.Phase.RETURN) {
                 VillageRecord ot = ledger.get(o.target);
                 int host = entries(t, o.host).size();
                 o.summary = "The host of " + t.name + " is called home" + (ot != null ? " from the road to " + ot.name : "") + ": " + why;
@@ -1880,6 +1907,7 @@ public final class SiegeService {
                 n += host;
             }
         }
+        n += ColumnService.recall(overworld, ledger, t.villageId, why, tick);
         if (n > 0) {
             s.notes.add(t.name + " called home " + n + " soldiers from afar");
             aidNews(overworld, ledger, s, a, t, tick, t.name + " calls home every soldier it has away (" + n + "), all but its scouts");
@@ -1922,8 +1950,13 @@ public final class SiegeService {
         StringBuilder text = new StringBuilder();
         if (t != null && o == Siege.Outcome.STALEMATE) {
             // post-M5: three days and neither side broke: the attackers give up and go home; nothing is paid, nobody swears fealty
-            text.append("After three days before ").append(t.name).append(" neither side broke: the host of ").append(a.name)
-                    .append(" gives up the siege and goes home (").append(how).append("); no tribute is paid");
+            if (s.wave < SiegeWaves.WAVES || how.startsWith("called home")) {
+                text.append("The host of ").append(a.name).append(" breaks off the siege of ").append(t.name).append(" on day ").append(s.wave)
+                        .append(" and goes home (").append(how).append("); no tribute is paid");
+            } else {
+                text.append("After three days before ").append(t.name).append(" neither side broke: the host of ").append(a.name)
+                        .append(" gives up the siege and goes home (").append(how).append("); no tribute is paid");
+            }
             chronicle(overworld, a, t, tick, text.toString());
             report(ledger, s, a, t, o, watched, tick, "none (stalemate)");
             horn(overworld, t.center);

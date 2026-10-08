@@ -95,7 +95,9 @@ public final class ErrandService {
                 || (source != null && source.raidInfo(overworld, rec.villageId).map(i -> i.target() != null).orElse(false));
         List<UUID> spare = r == null || units == null ? List.of() : spare(overworld, r, DutyTableRaid.of(rec));
         double dist = point == null ? 0 : Math.sqrt(point.distSqr(rec.center));
-        Requests.Offer offer = Requests.evaluate(kind, standing, asked, days, dist, alert == AlertState.CALM, raidPreparing, spare.size(),
+        // post-M5: a village under siege (declared or fought) keeps every man at home
+        boolean calm = alert == AlertState.CALM && !SiegeService.besieged(dev.hywmill.settlement.GarrisonLedger.get(overworld), rec.villageId);
+        Requests.Offer offer = Requests.evaluate(kind, standing, asked, days, dist, calm, raidPreparing, spare.size(),
                 recentCasualties(pr, now, t), pr.favor.points(), now, pr.lastRequestTick, t.requests());
         if (!offer.ok() || r == null || units == null || dryRun) {
             return new Grant(offer, List.of());

@@ -75,6 +75,9 @@ public final class ReliefService {
             if (!party && sworn(ledger, v.villageId, a.villageId, tick)) {
                 continue; // post-M5: a vassal never relieves a village against its overlord (nor an overlord against its vassal)
             }
+            if (!party && SiegeService.besieged(ledger, v.villageId)) {
+                continue; // post-M5: a village under siege itself keeps every man at home
+            }
             if (Relief.eligible(rel, RelationProjector.atWar(ledger, v.villageId, t.villageId), party, v.loneBuilding, available(v).size(), r)) {
                 friends.add(v);
             }
@@ -137,6 +140,11 @@ public final class ReliefService {
                 } else {
                     turnBack(overworld, ledger, s, rl, h, t, tick, h.name + " will not fight its sworn lord " + a.name);
                 }
+                ledger.setDirty();
+                continue;
+            }
+            if (rl.phase == Relief.Phase.PENDING && SiegeService.besieged(ledger, rl.helper)) {
+                rl.phase = Relief.Phase.DONE; // post-M5: besieged itself since it promised: it sends no one
                 ledger.setDirty();
                 continue;
             }

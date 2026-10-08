@@ -210,6 +210,10 @@ public final class GarrisonService {
      * spaced ranks round the anchor, up to {@code max} per slot, once it is loaded. Returns how many.
      */
     static int respawnStowed(ServerLevel overworld, VillageRecord rec, GarrisonRoster r, long tick, int max) {
+        int stood = standDown(r, tick);
+        if (stood > 0) {
+            HmLog.info("Village '{}': {} soldier(s) taken off the field while deployed stand down at home", rec.name, stood);
+        }
         BlockPos anchor = anchorOf(rec);
         if (!overworld.isPositionEntityTicking(anchor)) {
             return 0;
@@ -231,6 +235,30 @@ public final class GarrisonService {
         }
         if (n > 0) {
             HmLog.info("Village '{}': {} soldier(s) brought home while it was unloaded rejoin the garrison", rec.name, n);
+        }
+        return n;
+    }
+
+    /**
+     * Post-M5 repair: a home defender taken out of the world while deployed against a threat (wounded in a siege, carried in at
+     * sundown) kept its DEPLOYED (or RETURNING) state with no entity: the threat response only moves units it can see, and
+     * {@link #respawnStowed} only brings back garrisoned slots, so it counted as a defender but never came back. Such slots
+     * stand down to their standing duty, stowed at home. Away duties (raids, errands, sieges, relief) are left alone. Returns
+     * how many.
+     */
+    static int standDown(GarrisonRoster r, long tick) {
+        int n = 0;
+        for (RosterEntry e : r.entries()) {
+            UnitState st = e.state();
+            if ((st != UnitState.DEPLOYED && st != UnitState.RETURNING) || e.entityUuid != null || e.duty.away() || !e.extra.isEmpty()) {
+                continue;
+            }
+            if (st == UnitState.DEPLOYED) {
+                e.transition(UnitState.RETURNING, tick);
+            }
+            e.transition(UnitState.GARRISONED, tick);
+            e.duty = r.isArsenal(e) ? dev.hywmill.garrison.duty.Duty.GARRISON : e.assignedDuty;
+            n++;
         }
         return n;
     }

@@ -6555,6 +6555,9 @@ def scenario_W3(ctx):
     nights = [l for l in s.read_since(p1) if "rose to fight again" in l]
     check("W3-4 at dawn the host comes back, its wounded fit again (or dead of their wounds)", w2 is not None and m and int(m.group(1)) > 0 and nights,
           f"{(w2 or '')[-120:]} || {(dep2 or '')[-80:]} || {(nights or [''])[0][-200:]}")
+    back = [l for l in s.read_since(p1) if "stand down at home" in l or "rejoin the garrison" in l]
+    check("W3-5 the besieged's wounded, carried off while deployed, stand down and come back to the walls", back,
+          (back or [''])[0][-160:])
     s.output("hywmill war admin recall-all", 3)
     m5(s, f"standin remove {P}", 0.3)
     # far from any witness: wave by wave on paper

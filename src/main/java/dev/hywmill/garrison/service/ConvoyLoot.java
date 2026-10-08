@@ -39,56 +39,81 @@ public final class ConvoyLoot {
     static final List<String> SIEGE = List.of("minecraft:oak_log", "minecraft:stick", "minecraft:string", "minecraft:iron_ingot", "minecraft:ladder",
             "minecraft:scaffolding", "minecraft:arrow", "minecraft:flint_and_steel", "minecraft:gunpowder", "minecraft:oak_planks");
 
-    /** Fills the cart: a few stacks by theme. */
+    /**
+     * Fills the cart: a loaded wagon, 60-80% of its slots in full or near-full stacks. The theme sets the share of food (a
+     * provisions train is mostly food) and what fills the rest; every cart carries some camp gear.
+     */
     static void fill(Container box, String culture, String theme, SplittableRandom r) {
+        int size = box.getContainerSize();
+        if (size <= 0) {
+            return;
+        }
+        int stacks = Math.max(6, (int) Math.round(size * (0.6 + r.nextDouble() * 0.2)));
+        double foodShare = switch (theme) {
+            case "provisions" -> 0.7;
+            case "mixed" -> 0.35;
+            case "military", "armoury", "siege" -> 0.2;
+            default -> 0.25;
+        };
+        int foods = Math.max(2, (int) Math.round(stacks * foodShare));
+        int camp = Math.max(2, stacks / 10);
+        int cargo = Math.max(0, stacks - foods - camp);
         List<ItemStack> out = new ArrayList<>();
         List<String> food = FOOD.getOrDefault(culture, PLAIN_FOOD);
-        int foods = switch (theme) {
-            case "provisions" -> 7;
-            case "mixed" -> 4;
-            case "military", "armoury", "siege" -> 2;
-            default -> 3;
-        };
         for (int i = 0; i < foods; i++) {
-            add(out, pick(food, PLAIN_FOOD, r, 0.75), 4 + r.nextInt(12));
+            add(out, pick(food, PLAIN_FOOD, r, 0.75), 24 + r.nextInt(41));
         }
         switch (theme) {
             case "military" -> {
-                for (int i = 0; i < 4; i++) {
-                    add(out, MILITARY.get(r.nextInt(MILITARY.size())), 4 + r.nextInt(16));
+                int gear = cargo / 3;
+                for (int i = 0; i < cargo - gear; i++) {
+                    add(out, MILITARY.get(r.nextInt(MILITARY.size())), 16 + r.nextInt(49));
                 }
-                gear(out, culture, MilitaryTier.WATCH, 2, r);
+                gear(out, culture, MilitaryTier.WATCH, gear, r);
             }
-            case "armoury" -> gear(out, culture, r.nextDouble() < 0.3 ? MilitaryTier.GARRISON : MilitaryTier.GUARD_POST, 5, r);
+            case "armoury" -> {
+                int arms = cargo / 4;
+                for (int i = 0; i < arms; i++) {
+                    add(out, MILITARY.get(r.nextInt(MILITARY.size())), 16 + r.nextInt(49));
+                }
+                gear(out, culture, r.nextDouble() < 0.3 ? MilitaryTier.GARRISON : MilitaryTier.GUARD_POST, cargo - arms, r);
+            }
             case "mixed" -> {
-                add(out, MILITARY.get(r.nextInt(MILITARY.size())), 8 + r.nextInt(12));
-                gear(out, culture, MilitaryTier.WATCH, 2, r);
-                add(out, TRADE.get(r.nextInt(TRADE.size())), 2 + r.nextInt(6));
+                int third = cargo / 3;
+                for (int i = 0; i < third; i++) {
+                    add(out, MILITARY.get(r.nextInt(MILITARY.size())), 16 + r.nextInt(49));
+                    add(out, TRADE.get(r.nextInt(TRADE.size())), 8 + r.nextInt(25));
+                }
+                gear(out, culture, MilitaryTier.WATCH, cargo - 2 * third, r);
             }
             case "trade" -> {
-                for (int i = 0; i < 5; i++) {
-                    add(out, TRADE.get(r.nextInt(TRADE.size())), 2 + r.nextInt(10));
+                for (int i = 0; i < cargo; i++) {
+                    add(out, TRADE.get(r.nextInt(TRADE.size())), 8 + r.nextInt(57));
                 }
             }
             case "siege" -> {
-                for (int i = 0; i < 5; i++) {
-                    add(out, SIEGE.get(r.nextInt(SIEGE.size())), 4 + r.nextInt(20));
+                for (int i = 0; i < cargo; i++) {
+                    add(out, SIEGE.get(r.nextInt(SIEGE.size())), 24 + r.nextInt(41));
                 }
             }
-            default -> { }
+            default -> {
+                for (int i = 0; i < cargo; i++) {
+                    add(out, pick(food, PLAIN_FOOD, r, 0.75), 24 + r.nextInt(41));
+                }
+            }
         }
-        for (int i = 0, n = 2 + r.nextInt(3); i < n; i++) {
-            add(out, CAMP.get(r.nextInt(CAMP.size())), 1 + r.nextInt(8));
+        for (int i = 0; i < camp; i++) {
+            add(out, CAMP.get(r.nextInt(CAMP.size())), 4 + r.nextInt(29));
         }
-        int size = box.getContainerSize();
-        for (int i = 0; i < out.size() && size > 0; i++) {
+        for (int i = 0; i < out.size(); i++) {
             int slot = r.nextInt(size);
             for (int k = 0; k < size && !box.getItem(slot).isEmpty(); k++) {
                 slot = (slot + 1) % size;
             }
-            if (box.getItem(slot).isEmpty()) {
-                box.setItem(slot, out.get(i));
+            if (!box.getItem(slot).isEmpty()) {
+                break; // the cart is full
             }
+            box.setItem(slot, out.get(i));
         }
     }
 
