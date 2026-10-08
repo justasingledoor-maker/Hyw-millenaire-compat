@@ -723,6 +723,20 @@ public final class SiegeService {
     private int deploy(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive,
                        BlockPos landing, long tick, PoliticsTables.SiegeRule r) {
         alive = alive.stream().filter(e -> !e.wounded && !e.state().terminal()).toList();
+        if (s.reserveWave != s.wave) {
+            // fix52: a new wave in the world: part of the host stays at the camp as its reserve
+            s.reserveWave = s.wave;
+            s.hostReserve.clear();
+            s.defReserve.clear();
+            s.hostFront = 0;
+            s.defFront = 0;
+            List<RosterEntry> idle = new ArrayList<>(alive.stream().filter(e -> !a.hywRoster.isArsenal(e) && e.entityUuid == null).toList());
+            java.util.Collections.shuffle(idle, new java.util.Random(s.seed(0x726573L ^ s.wave)));
+            int keep = SiegeWaves.reserve(idle.size(), SiegeWaves.HOST_RESERVE);
+            idle.subList(0, keep).forEach(e -> s.hostReserve.add(e.rosterId));
+        }
+        Set<UUID> held = s.hostReserve;
+        alive = alive.stream().filter(e -> !held.contains(e.rosterId)).toList();
         int n = 0;
         // "behind" is away from the target (the landing may be on any side of the village, not only towards home)
         BlockPos away = landing.offset(landing.getX() - t.center.getX(), 0, landing.getZ() - t.center.getZ());
@@ -765,15 +779,170 @@ public final class SiegeService {
         if (n == 0) {
             return 0; // nobody could be placed on dry ground yet: the next step tries again
         }
-        GarrisonService.respawnStowed(overworld, t, t.hywRoster, tick, 64); // the besieged who were carried in at sundown man the walls again
+        GarrisonService.respawnStowed(overworld, t, t.hywRoster, tick, 64, s.defReserve); // the besieged who were carried in at sundown man the walls again
         musterExtras(overworld, s, t, tick); // the besieged's temporary help stands with them before the fight
+        if (s.hostFront == 0) {
+            s.hostFront = n;
+        }
+        if (s.defFront == 0) {
+            holdInside(overworld, s, t);
+        }
         List<LivingEntity> defs = new ArrayList<>(defenders(overworld, t));
         defs.addAll(ReliefService.entities(overworld, ledger, s));
         stance(defs, true);
         ledger.setDirty();
-        HmLog.info("Siege {}: wave {}: {} unit(s) materialized in {} group(s) round {} (main at {}); {} defender(s) in the world",
-                s.id.toString().substring(0, 8), s.wave, n, groups.length, t.name, landing.toShortString(), defs.size());
+        HmLog.info("Siege {}: wave {}: {} unit(s) materialized in {} group(s) round {} (main at {}); {} defender(s) in the world; reserves: {} at the camp, {} inside",
+                s.id.toString().substring(0, 8), s.wave, n, groups.length, t.name, landing.toShortString(), defs.size(), s.hostReserve.size(),
+                s.defReserve.size());
         return n;
+    }
+
+    /**
+     * Fix52: the besieged hold part of their garrison inside as a reserve (stowed): those nearest the centre, but none a player
+     * stands close to (nobody vanishes before his eyes). Sets the defenders' front.
+     */
+    private static void holdInside(ServerLevel overworld, Siege s, VillageRecord t) {
+        List<LivingEntity> front = new ArrayList<>();
+        List<RosterEntry> candidates = new ArrayList<>();
+        java.util.Map<UUID, Double> dist = new java.util.HashMap<>();
+        for (RosterEntry e : homeDefenders(t)) {
+            if (e.wounded || e.entityUuid == null || !(GarrisonService.find(overworld.getServer(), e.entityUuid) instanceof LivingEntity le) || !le.isAlive()) {
+                continue;
+            }
+            front.add(le);
+            if (t.hywRoster.isArsenal(e) || s.extras.contains(e.rosterId) || !e.mercLook.isEmpty() || !e.extra.isEmpty()) {
+                continue;
+            }
+            boolean seen = overworld.players().stream().anyMatch(p -> !p.isSpectator() && p.distanceToSqr(le) < 24 * 24);
+            if (!seen) {
+                candidates.add(e);
+                dist.put(e.rosterId, le.distanceToSqr(t.center.getX() + 0.5, le.getY(), t.center.getZ() + 0.5));
+            }
+        }
+        int want = Math.min(candidates.size(), SiegeWaves.reserve(front.size(), SiegeWaves.DEFENDER_RESERVE));
+        candidates.sort(java.util.Comparator.comparingDouble(e -> dist.get(e.rosterId)));
+        for (RosterEntry e : candidates.subList(0, want)) {
+            GarrisonService.stow(overworld, e);
+            s.defReserve.add(e.rosterId);
+        }
+        s.defFront = Math.max(1, front.size() - want);
+    }
+
+    /**
+     * Fix52: while a wave is fought in the world, each side's reserve goes in a few at a time once its front has thinned to
+     * {@link SiegeWaves#THIN}, and all of it from noon: the host's from its camp at the landing, the defenders' in a sally
+     * from the town hall.
+     */
+    private void reinforce(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long since, long tick) {
+        UnitProvider units = Services.units();
+        if (!s.hostReserve.isEmpty()) {
+            int inWorld = 0;
+            for (RosterEntry e : soldiers(a, entries(a, s.host))) {
+                if (e.entityUuid != null && GarrisonService.find(overworld.getServer(), e.entityUuid) instanceof LivingEntity le && le.isAlive()) {
+                    inWorld++;
+                }
+            }
+            int go = SiegeWaves.feed(s.hostReserve.size(), inWorld, s.hostFront, since);
+            if (go > 0) {
+                BlockPos landing = landing(overworld, a, t);
+                BlockPos away = landing.offset(landing.getX() - t.center.getX(), 0, landing.getZ() - t.center.getZ());
+                int placed = 0, i = 0;
+                for (UUID id : new ArrayList<>(s.hostReserve)) {
+                    RosterEntry e = a.hywRoster.entry(id);
+                    if (e == null || e.state().terminal() || e.wounded || e.entityUuid != null) {
+                        s.hostReserve.remove(id);
+                        continue;
+                    }
+                    if (placed >= go) {
+                        break;
+                    }
+                    Vec3 spot = dryGround(overworld, formation(landing, away, i++, 4, 3), away, t.center, e.rosterId);
+                    if (spot != null && GarrisonService.materialize(overworld, a, e, spot, BlockPos.containing(spot), tick)) {
+                        s.hostReserve.remove(id);
+                        placed++;
+                        Entity ent = GarrisonService.find(overworld.getServer(), e.entityUuid);
+                        if (ent != null && units != null) {
+                            units.setAutonomous(ent, true);
+                        }
+                    }
+                }
+                if (placed > 0) {
+                    HmLog.info("Siege {}: {} of the host's reserve go in ({} left at the camp)", s.id.toString().substring(0, 8), placed, s.hostReserve.size());
+                    ledger.setDirty();
+                }
+            }
+        }
+        if (!s.defReserve.isEmpty()) {
+            int inWorld = 0;
+            for (RosterEntry e : homeDefenders(t)) {
+                if (e.entityUuid != null && GarrisonService.find(overworld.getServer(), e.entityUuid) instanceof LivingEntity le && le.isAlive()) {
+                    inWorld++;
+                }
+            }
+            int go = SiegeWaves.feed(s.defReserve.size(), inWorld, s.defFront, since);
+            if (go > 0) {
+                BlockPos anchor = GarrisonService.anchorOf(t);
+                int placed = 0, i = 0;
+                for (UUID id : new ArrayList<>(s.defReserve)) {
+                    RosterEntry e = t.hywRoster.entry(id);
+                    if (e == null || e.state().terminal() || e.wounded || e.entityUuid != null) {
+                        s.defReserve.remove(id);
+                        continue;
+                    }
+                    if (placed >= go) {
+                        break;
+                    }
+                    Vec3 spot = GarrisonService.spotNear(overworld, formation(anchor, t.center.offset(1, 0, 0), i++, 6, 3), e.rosterId);
+                    if (spot != null && GarrisonService.materialize(overworld, t, e, spot, anchor, tick)) {
+                        s.defReserve.remove(id);
+                        placed++;
+                        Entity ent = GarrisonService.find(overworld.getServer(), e.entityUuid);
+                        if (ent != null && units != null) {
+                            units.setAutonomous(ent, true);
+                        }
+                    }
+                }
+                if (placed > 0) {
+                    HmLog.info("Siege {}: {} of the defenders' reserve sally out ({} left inside)", s.id.toString().substring(0, 8), placed, s.defReserve.size());
+                    ledger.setDirty();
+                }
+            }
+        }
+    }
+
+    /**
+     * Fix52: everyone fighting near the besieged village while a wave is fought in the world (players, their troops and every
+     * HYW unit, the village's Millénaire villagers, and what they ride) holds out longer: Resistance at the configured level,
+     * refreshed while they stay; it wears off within seconds of leaving or of the fighting's end.
+     */
+    static void steel(ServerLevel overworld, VillageRecord t) {
+        int level = dev.hywmill.config.HywMillConfig.SIEGE_RESISTANCE.get();
+        if (level <= 0) {
+            return;
+        }
+        int reach = (t.villageRadius > 0 ? t.villageRadius : DEFAULT_RADIUS) + STAGING_MARGIN + 64;
+        UnitProvider units = Services.units();
+        SettlementSource source = Services.settlements();
+        net.minecraft.world.phys.AABB box = new net.minecraft.world.phys.AABB(t.center).inflate(reach, 48, reach);
+        for (LivingEntity le : overworld.getEntitiesOfClass(LivingEntity.class, box, LivingEntity::isAlive)) {
+            boolean fighter = le instanceof net.minecraft.world.entity.player.Player p ? !p.isSpectator()
+                    : (units != null && units.isUnit(le)) || (source != null && source.residentInfo(le).isPresent());
+            if (fighter) {
+                brace(le, level);
+                if (le.getVehicle() instanceof LivingEntity mount) {
+                    brace(mount, level);
+                }
+            }
+        }
+    }
+
+    private static void brace(LivingEntity le, int level) {
+        var resistance = net.minecraft.world.effect.MobEffects.DAMAGE_RESISTANCE;
+        net.minecraft.world.effect.MobEffectInstance cur = le.getEffect(resistance);
+        if (cur != null && (cur.getAmplifier() > level - 1 || (cur.getAmplifier() == level - 1 && cur.getDuration() > 40))) {
+            return; // stronger already, or still fresh
+        }
+        le.addEffect(new net.minecraft.world.effect.MobEffectInstance(resistance, 100, level - 1, true, false, true));
     }
 
     /**
@@ -1346,9 +1515,12 @@ public final class SiegeService {
             }
         }
         if (s.field && loaded) {
-            // defenders still off the field (stowed at home, temporary help not yet placed) come out to fight, a few each step
-            GarrisonService.respawnStowed(overworld, t, t.hywRoster, tick, 6);
+            // defenders still off the field (stowed at home, temporary help not yet placed) come out to fight, a few each step;
+            // the reserve inside waits for its moment
+            GarrisonService.respawnStowed(overworld, t, t.hywRoster, tick, 6, s.defReserve);
             musterExtras(overworld, s, t, tick);
+            reinforce(overworld, ledger, s, a, t, since, tick);
+            steel(overworld, t);
             fight(overworld, ledger, s, a, t, alive, tick, r);
         }
         int host = soldiers(a, entries(a, s.host)).size();
@@ -1500,6 +1672,8 @@ public final class SiegeService {
 
     /** Sundown with neither side beaten: the host withdraws to its lines for the night; the defenders stand down. */
     private void sundown(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, int host, int def) {
+        s.hostReserve.clear(); // fix52: the reserves stand down with the rest (the defenders' come out again at dawn)
+        s.defReserve.clear();
         for (RosterEntry e : entries(a, s.host)) {
             if (e.entityUuid != null) {
                 GarrisonService.stow(overworld, e); // back to the camp lines, out of the world until dawn
@@ -1734,8 +1908,8 @@ public final class SiegeService {
         // is gone, or a soldier who never came out, does not hold the walls
         int n = 0, garrison = 0;
         for (RosterEntry e : homeDefenders(t)) {
-            if (e.wounded) {
-                n++;
+            if (e.wounded || s.defReserve.contains(e.rosterId)) {
+                n++; // off the field until dawn, or held inside as the reserve
             } else if (e.entityUuid != null && GarrisonService.find(overworld.getServer(), e.entityUuid) instanceof LivingEntity le && le.isAlive()) {
                 n++;
                 garrison++;
@@ -1940,6 +2114,8 @@ public final class SiegeService {
                         long tick, boolean watched) {
         s.outcome = o;
         heal(ledger, s); // post-M5: the siege is over; its wounded go home with the rest
+        s.hostReserve.clear();
+        s.defReserve.clear();
         PoliticsTables.SiegeRule r = rule(a);
         if (t != null && watched) {
             List<LivingEntity> defs = new ArrayList<>(defenders(overworld, t));

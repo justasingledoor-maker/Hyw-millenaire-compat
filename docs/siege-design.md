@@ -257,6 +257,17 @@ treated like soldiers ("repairable" or "beyond repair"). The rest (`SiegeWaves`,
 * **Recall.** At the announcement the target calls home everyone away but its scouts and supply convoys: detachments lent
   to players, relief it sent or promised elsewhere, its vassal levies on the road, raid contingents, and its own host if it
   marches on another village (fix51: a host already fighting breaks off that siege: a stalemate, nothing paid).
+* **Reserves (fix52).** In a wave fought in the world, the host holds back 45% of its soldiers at its camp. The defenders
+  hold back 35% of their garrison inside: those nearest the centre, but never one a player stands within 24 blocks of.
+  Sides of fewer than 8 keep no reserve. A reserve goes in, 8 a step, whenever its side's front is down to 60% of what it
+  was, and all of it from noon (6,000 ticks into the wave): the host's from its camp at the landing, the defenders' in a
+  sally from the town hall. The defenders' reserve counts as defenders. Reserves stand down at sundown and are picked again
+  at the next dawn.
+* **Resistance (fix52).** While a wave is fought in the world, everyone near the besieged village has Resistance II
+  (config `politics.siegeResistance`, 0-4; 0 is off). That means players, every HYW unit (players' own troops however
+  often they are placed or picked up), the village's Millénaire villagers, and what they ride. It is refreshed while they
+  stay and wears off within five seconds of leaving or of the fighting's end. Damage taken is 40% lower, so fights last
+  about 1.67 times as long.
 * **No help from the besieged (fix51).** While a siege against it is declared or fought, a village sends no relief, no
   vassal levy, joins no raid, lends no detachment and launches no siege of its own.
 * **Refugees.** 15-20 from the countryside take up arms (militia, some spearmen; temporary, like the militia).

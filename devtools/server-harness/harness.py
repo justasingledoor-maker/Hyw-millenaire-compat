@@ -6529,7 +6529,12 @@ def scenario_W3(ctx):
     time.sleep(8)
     p1 = s.pos()
     near = lambda f: [u for u, v in spike_info(s, "@e[type=!minecraft:player]").items() if f and ("owner=" + f) in v["desc"] and dist(v["pos"], tuple(b)) < 140]
+    rm = re.search(r"reserves: (\d+) at the camp, (\d+) inside", dep or "")
+    check("W3-1b part of each side is held back as a reserve (the host at its camp, the defenders inside)", rm and int(rm.group(1)) > 0 and int(rm.group(2)) > 0,
+          (dep or "")[-160:])
     host = near(fa)
+    eff = " ".join(s.output(f"data get entity {host[0]} active_effects", 2)) if host else ""
+    check("W3-1c everyone fighting in the wave has Resistance II", "minecraft:resistance" in eff and "amplifier: 1b" in eff, eff[-200:])
     for u in host[:6]:
         s.cmd(f"kill {u}", 0.3)
     defs = near(fb)
@@ -6541,6 +6546,11 @@ def scenario_W3(ctx):
     dead = [l for l in rel if "killed:" in l and "Garrison unit" in l]
     check("W3-2 some who fall are only wounded and carried off the field, the others die", hurt and dead,
           f"{len(host)} host, {len(defs)} defenders in the world; {len(hurt)} wounded, {len(dead)} dead || {(hurt or [''])[0][-140:]}")
+    # the host's front thins: its reserve goes in from the camp
+    for u in near(fa)[:14]:
+        s.cmd(f"kill {u}", 0.3)
+    fed = s.wait_for(r"of the host's reserve go in", 30, since=p1)
+    check("W3-2b as the host's front thins, its reserve goes in from the camp", fed is not None, (fed or "")[-140:])
     time.sleep(120)
     s.cmd("time set 13000", 1)
     sd = s.wait_for(r"sundown after wave 1 \(field\)", 240, since=p1)

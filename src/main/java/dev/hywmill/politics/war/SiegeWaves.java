@@ -27,6 +27,28 @@ public final class SiegeWaves {
     /** A night lasts until dawn; at least NIGHT_MIN, at most NIGHT_MAX ticks. */
     public static final long NIGHT_MIN = 600, NIGHT_MAX = 12000;
 
+    /**
+     * Reserves (fix52) of a wave fought in the world: the host holds back this share of its soldiers at its camp, the defenders
+     * this share of their garrison inside (none for a side of fewer than {@link #RESERVE_MIN}). A reserve goes in, at most
+     * {@link #FEED} a step, while its side's front is down to {@link #THIN} of what it was, and all of it from {@link #NOON}.
+     */
+    public static final double HOST_RESERVE = 0.45, DEFENDER_RESERVE = 0.35, THIN = 0.6;
+    public static final int RESERVE_MIN = 8, FEED = 8;
+    public static final long NOON = WAVE_MAX / 2;
+
+    /** How many of {@code soldiers} are held back. */
+    public static int reserve(int soldiers, double share) {
+        return soldiers < RESERVE_MIN ? 0 : (int) Math.round(soldiers * share);
+    }
+
+    /** How many of the {@code reserve} go in now: the front ({@code inWorld} of {@code front}) has thinned, or it is past noon. */
+    public static int feed(int reserve, int inWorld, int front, long sinceDawn) {
+        if (reserve <= 0) {
+            return 0;
+        }
+        return sinceDawn >= NOON || inWorld < front * THIN ? Math.min(FEED, reserve) : 0;
+    }
+
     /** Night: from sundown (12,500) to dawn (23,500) in day time. */
     public static boolean night(long dayTime) {
         long t = Math.floorMod(dayTime, DAY);

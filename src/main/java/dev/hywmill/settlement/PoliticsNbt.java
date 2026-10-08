@@ -365,6 +365,11 @@ public final class PoliticsNbt {
                 x.putBoolean("field", g.field);
                 x.putInt("milStart", g.milStart);
                 x.putInt("milKilled", g.milKilled);
+                if (g.reserveWave > 0) {
+                    x.putIntArray("reserve", new int[]{g.reserveWave, g.hostFront, g.defFront});
+                    x.put("hostReserve", uuids(g.hostReserve));
+                    x.put("defReserve", uuids(g.defReserve));
+                }
                 x.putIntArray("toll", new int[]{g.hostDeadW, g.hostHurtW, g.defDeadW, g.defHurtW, g.hostDead, g.hostHurt, g.defDead, g.defHurt});
             }
             if (!g.notes.isEmpty()) {
@@ -428,6 +433,14 @@ public final class PoliticsNbt {
                 g.field = x.getBoolean("field");
                 g.milStart = x.getInt("milStart");
                 g.milKilled = x.getInt("milKilled");
+                int[] reserve = x.getIntArray("reserve");
+                if (reserve.length == 3) {
+                    g.reserveWave = reserve[0];
+                    g.hostFront = reserve[1];
+                    g.defFront = reserve[2];
+                    g.hostReserve.addAll(readUuids(x.getList("hostReserve", Tag.TAG_INT_ARRAY)));
+                    g.defReserve.addAll(readUuids(x.getList("defReserve", Tag.TAG_INT_ARRAY)));
+                }
                 int[] toll = x.getIntArray("toll");
                 if (toll.length == 8) {
                     g.hostDeadW = toll[0];

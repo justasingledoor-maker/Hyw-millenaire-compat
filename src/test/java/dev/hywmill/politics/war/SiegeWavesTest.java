@@ -102,4 +102,19 @@ class SiegeWavesTest {
         }
         assertTrue(with < without / 2, with + " vs " + without);
     }
+
+    @Test
+    void reservesAreHeldBackAndFedInAsTheFrontThins() {
+        assertEquals(0, SiegeWaves.reserve(7, SiegeWaves.HOST_RESERVE), "a small side keeps no reserve");
+        assertEquals(29, SiegeWaves.reserve(65, SiegeWaves.HOST_RESERVE));
+        assertEquals(49, SiegeWaves.reserve(141, SiegeWaves.DEFENDER_RESERVE));
+        // the front holds: the reserve waits
+        assertEquals(0, SiegeWaves.feed(29, 30, 36, 1000));
+        // the front is down to 60% of what it was: a few go in each step
+        assertEquals(SiegeWaves.FEED, SiegeWaves.feed(29, 21, 36, 1000));
+        assertEquals(3, SiegeWaves.feed(3, 10, 36, 1000));
+        // from noon all of it goes in, however the front stands
+        assertEquals(SiegeWaves.FEED, SiegeWaves.feed(29, 36, 36, SiegeWaves.NOON));
+        assertEquals(0, SiegeWaves.feed(0, 0, 36, SiegeWaves.NOON));
+    }
 }

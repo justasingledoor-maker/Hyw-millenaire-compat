@@ -44,6 +44,7 @@ public final class HywMillConfig {
     public static final ModConfigSpec.BooleanValue RAIDS_ENABLED;
     public static final ModConfigSpec.BooleanValue AUTO_WAR;
     public static final ModConfigSpec.IntValue WAR_MIN_CONFLICT_TICKS;
+    public static final ModConfigSpec.IntValue SIEGE_RESISTANCE;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -149,6 +150,10 @@ public final class HywMillConfig {
                 .define("autoWar", true);
         WAR_MIN_CONFLICT_TICKS = b.comment("M5: how long a relation must stay at open conflict before it becomes a war (no flapping on nightly drift).")
                 .defineInRange("warMinConflictTicks", 24000, 0, 24000 * 30);
+        SIEGE_RESISTANCE = b.comment("Post-M5: level of Resistance given to everyone fighting in a siege wave fought in the world (players, their",
+                        "troops and every HYW unit near the besieged village, its Millénaire villagers, their mounts), refreshed every second:",
+                        "each level takes 20% off the damage taken, so fights last longer. 0: none.")
+                .defineInRange("siegeResistance", 2, 0, 4);
         b.pop();
 
         SPEC = b.build();

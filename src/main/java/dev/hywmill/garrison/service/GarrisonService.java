@@ -210,6 +210,11 @@ public final class GarrisonService {
      * spaced ranks round the anchor, up to {@code max} per slot, once it is loaded. Returns how many.
      */
     static int respawnStowed(ServerLevel overworld, VillageRecord rec, GarrisonRoster r, long tick, int max) {
+        return respawnStowed(overworld, rec, r, tick, max, java.util.Set.of());
+    }
+
+    /** As above, but the slots in {@code hold} (a siege's reserve kept inside) stay stowed. */
+    static int respawnStowed(ServerLevel overworld, VillageRecord rec, GarrisonRoster r, long tick, int max, java.util.Set<UUID> hold) {
         int stood = standDown(r, tick);
         if (stood > 0) {
             HmLog.info("Village '{}': {} soldier(s) taken off the field while deployed stand down at home", rec.name, stood);
@@ -224,7 +229,8 @@ public final class GarrisonService {
                 break;
             }
             UnitState st = e.state();
-            if ((st != UnitState.GARRISONED && st != UnitState.RECOVERED) || e.entityUuid != null || e.duty.away() || !e.extra.isEmpty()) {
+            if ((st != UnitState.GARRISONED && st != UnitState.RECOVERED) || e.entityUuid != null || e.duty.away() || !e.extra.isEmpty()
+                    || hold.contains(e.rosterId)) {
                 continue;
             }
             Vec3 spot = spotNear(overworld, anchor.offset((i % 8) * 3 - 10, 0, (i / 8) * 3 + 3), e.rosterId);

@@ -81,6 +81,12 @@ public final class Siege {
     public int hostDead, hostHurt, defDead, defHurt;
     /** The target's Millénaire fighters killed in this siege: villagers Millénaire brings back do not fill the ranks again. */
     public int milKilled;
+    /**
+     * Reserves (fix52) of a wave fought in the world: the host's men held back at its camp and the defenders' held inside (both
+     * stowed), fed in as their side's front thins and all by noon; the wave they were picked for; each front's size when it did.
+     */
+    public final java.util.Set<UUID> hostReserve = new java.util.LinkedHashSet<>(), defReserve = new java.util.LinkedHashSet<>();
+    public int reserveWave, hostFront, defFront;
 
     /** A wave is being fought or the night between two (no help may join any more; no recruiting at the target). */
     public boolean fighting() {
