@@ -2477,7 +2477,15 @@ def scenario_TB(ctx):
         far = (u, dist((fx, fy, fz), b))
         break
     pt = s.pos()
-    time.sleep(50)
+    trace = []
+    for k in range(6):
+        time.sleep(9)
+        if far:
+            d = " ".join(s.output(f"data get entity {far[0]} Passengers[0].id", 0.4)) + " " + " ".join(
+                s.output(f"data get entity {far[0]} HomePosX", 0.4)) + " " + " ".join(s.output(f"data get entity {far[0]} HomePosZ", 0.4)) + " " + " ".join(
+                s.output(f"data get entity {far[0]} SiegeMode", 0.4)) + " " + " ".join(s.output(f"data get entity {far[0]} Pos", 0.4))
+            trace.append(re.sub(r"[^ ]+ has the following entity data: ", "", d)[-200:])
+    note("TB-3 trace", " || ".join(trace)[:1500])
     up = [l for l in s.read_since(pt) if "moves up" in l]
     if far:
         now = engines_of(s, fa).get(far[0])
