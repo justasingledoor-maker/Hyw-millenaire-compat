@@ -2463,13 +2463,28 @@ def scenario_TB(ctx):
     p1 = s.pos()
     s.wait_for(r"wave 1: \d+ unit\(s\) materialized", 420, since=p0)
     time.sleep(10)
-    before = {u: dist(r["pos"], b) for u, r in engines_of(s, fa).items() if dist(r["pos"], b) < 220}
-    time.sleep(45)
-    after = {u: dist(r["pos"], b) for u, r in engines_of(s, fa).items() if u in before}
-    moved = [(round(before[u]), round(after[u])) for u in after if after[u] < before[u] - 4]
-    check("TB-3 the host's engines with nothing in range move up towards the village (or already have it in range)",
-          before and (moved or all(d < 0.7 * 100 + radius_b for d in before.values())),
-          f"A engines at the siege (distance before -> after): {[(round(before[u]), round(after.get(u, -1))) for u in before]}")
+    # the host's engines (its village's own batteries are some 200 blocks off): one is drawn back out of reach and must move up
+    host = {u: r for u, r in engines_of(s, fa).items() if dist(r["pos"], b) < 170}
+    note("TB host engines", str(sorted((r["kind"], round(dist(r["pos"], b))) for r in host.values())))
+    moved, far = [], None
+    for u, r in host.items():
+        x, y, z = r["pos"]
+        dx, dz = x - b[0], z - b[2]
+        dl = max(1.0, (dx * dx + dz * dz) ** 0.5)
+        fx, fz = int(x + dx / dl * 60), int(z + dz / dl * 60)
+        fy = surface_y(s, fx, fz) or int(y)
+        s.cmd(f"tp {u} {fx} {fy + 1} {fz}", 1)
+        far = (u, dist((fx, fy, fz), b))
+        break
+    pt = s.pos()
+    time.sleep(50)
+    up = [l for l in s.read_since(pt) if "moves up" in l]
+    if far:
+        now = engines_of(s, fa).get(far[0])
+        if now:
+            moved.append((round(far[1]), round(dist(now["pos"], b))))
+    check("TB-3 a host engine with nothing in reach moves up towards the village", host and up and moved and moved[0][1] < moved[0][0] - 6,
+          f"host engines {len(host)}; drawn back to -> after 50 s: {moved}; {len(up)} move(s) up || {(up or [''])[0][-140:]}")
     s.output("hywmill war admin recall-all", 3)
     m5(s, f"standin remove {P}", 0.3)
 
