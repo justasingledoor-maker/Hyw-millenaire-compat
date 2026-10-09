@@ -2164,6 +2164,19 @@ public final class SiegeService {
         }
     }
 
+    /** Dev: ends a siege under way with {@code o} at once (its tribute, fealty, amnesty and homecoming as ever). */
+    public boolean decide(ServerLevel overworld, Siege s, Siege.Outcome o) {
+        GarrisonLedger ledger = GarrisonLedger.get(overworld);
+        VillageRecord a = ledger.get(s.attacker), t = ledger.get(s.target);
+        if (a == null || s.outcome != Siege.Outcome.NONE || o == Siege.Outcome.NONE) {
+            return false;
+        }
+        finish(overworld, ledger, s, a, t, o, "decided by an admin", overworld.getGameTime(),
+                t != null && !s.forceUnwatched && overworld.isPositionEntityTicking(t.center));
+        ledger.setDirty();
+        return true;
+    }
+
     private void finish(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, @Nullable VillageRecord t, Siege.Outcome o, String how,
                         long tick, boolean watched) {
         s.outcome = o;
@@ -2205,6 +2218,10 @@ public final class SiegeService {
                     .append(dev.hywmill.recruit.RecruitOffers.money(tribute)).append(" a day in tribute to ").append(winner.name)
                     .append(" for ").append(due.days).append(" days");
             reward(overworld, ledger, winner, helpers, due, r, text.toString());
+            for (UUID p : helpers) {
+                // post-M5: the loser's terms forgive those who helped the winners (whatever they did in the war)
+                PoliticsService.amnesty(overworld, loser, p, tick, "amnesty: " + loser.name + " submitted to " + winner.name);
+            }
             chronicle(overworld, a, t, tick, text.toString());
             ledger.tributes().add(due);
             payTribute(overworld, ledger, due, tick);

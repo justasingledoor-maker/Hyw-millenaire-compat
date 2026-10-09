@@ -145,6 +145,23 @@ final class WarCommands {
                                                 .executes(ctx -> adminSiege(ctx, true, true))))
                                 .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                                         .executes(ctx -> adminSiege(ctx, true, true))))))
+                .then(Commands.literal("siege-decide").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
+                        .then(Commands.argument("attacker", BlockPosArgument.blockPos())
+                                .then(Commands.argument("outcome", com.mojang.brigadier.arguments.StringArgumentType.word()).executes(ctx -> {
+                                    // DEV: the attacker's siege ends now with WON, LOST or STALEMATE
+                                    VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
+                                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                                    var s = a == null ? null : dev.hywmill.garrison.service.SiegeService.byAttacker(GarrisonLedger.get(ow), a.villageId);
+                                    dev.hywmill.politics.war.Siege.Outcome o;
+                                    try {
+                                        o = dev.hywmill.politics.war.Siege.Outcome.valueOf(com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "outcome"));
+                                    } catch (IllegalArgumentException e) {
+                                        o = dev.hywmill.politics.war.Siege.Outcome.NONE;
+                                    }
+                                    boolean ok = s != null && HywMillRuntime.require().sieges().decide(ow, s, o);
+                                    send(ctx.getSource(), "war siege-decide " + (ok ? "OK " + o : "refused"));
+                                    return ok ? 1 : 0;
+                                }))))
                 .then(Commands.literal("rearm").then(Commands.argument("village", BlockPosArgument.blockPos()).executes(ctx -> {
                     // fix53: a village at war stands its arsenal down and raises a fresh one under the current rule (trebuchets)
                     VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "village"));

@@ -402,6 +402,35 @@ public final class PoliticsService {
         return new PardonResult(q, true, r.status, after.getAsInt());
     }
 
+    // ------------------------------------------------------------------ amnesty (post-M5)
+
+    /**
+     * A village that lost a siege forgives a player who helped the winners ({@link dev.hywmill.politics.Amnesty}): grievances
+     * wiped, reputation raised to the Trusted line, standing re-evaluated (an outlaw is pardoned; the announce clears the HYW
+     * HOSTILE). Returns the standing afterwards.
+     */
+    public static Standing amnesty(ServerLevel overworld, VillageRecord rec, UUID player, long tick, String why) {
+        SettlementSource source = Services.settlements();
+        PoliticsTables t = tables(rec);
+        PoliticsRecord r = rec.politics.get(player);
+        int rep = source != null ? source.playerReputation(overworld, rec.villageId, player) : 0;
+        int raise = dev.hywmill.politics.Amnesty.raise(rep, t);
+        if (raise > 0 && source != null) {
+            // Millénaire moves the combined reputation by 1.1 x the village delta (culture +10%): round the village delta up
+            java.util.OptionalInt after = source.adjustReputation(overworld, rec.villageId, player, (int) Math.ceil(raise * 10.0 / 11.0));
+            rep = after.isPresent() ? after.getAsInt() : source.playerReputation(overworld, rec.villageId, player);
+        }
+        Standing before = r.status;
+        dev.hywmill.politics.Amnesty.apply(r, tick, rep, t);
+        if (r.status != before) {
+            announce(overworld, source, rec, player, before, r.status, tick, why);
+        }
+        GarrisonLedger.get(overworld).setDirty();
+        HmLog.info("Politics: amnesty of village '{}' for {}: reputation raised by {}, {} -> {}", rec.name, playerName(overworld, player), raise,
+                before, r.status);
+        return r.status;
+    }
+
     // ------------------------------------------------------------------ apology (post-M5)
 
     /** Result of an apology; {@code status} is the standing afterwards, {@code moneyLeft} the payer's deniers (-1 unknown). */
@@ -434,7 +463,7 @@ public final class PoliticsService {
 
     // ------------------------------------------------------------------ chronicle
 
-    private void announce(ServerLevel overworld, @Nullable SettlementSource source, VillageRecord rec, UUID player,
+    private static void announce(ServerLevel overworld, @Nullable SettlementSource source, VillageRecord rec, UUID player,
                           Standing before, Standing after, long tick, String why) {
         HywMillRuntime rt = HywMillRuntime.get();
         if (rt != null && (before == Standing.OUTLAW) != (after == Standing.OUTLAW)) {

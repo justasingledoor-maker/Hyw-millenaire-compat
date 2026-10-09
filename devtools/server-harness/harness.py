@@ -2500,6 +2500,50 @@ def scenario_TB(ctx):
     m5(s, f"standin remove {P}", 0.3)
 
 
+def scenario_AM(ctx):
+    """Amnesty (post-M5): a player who helped the winners of a siege, outlawed by the loser for killing its people in the
+    war, is pardoned and Trusted by the loser when it submits. Kept world (W3's villages; [general] devCommands = true)."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    U = U_UUID
+    p0 = s.pos()
+    s.output("hywmill war admin recall-all", 3)
+    s.output(f"hywmill war for {U} peace {ca} with {cb} force", 2)
+    time.sleep(6)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill discover {ca} {U}", 0.5)
+    m5(s, f"mill discover {cb} {U}", 0.5)
+    s.output(f"hywmill war for {U} declare {ca} on {cb} force", 2)
+    time.sleep(8)
+    j = " | ".join(war_lines(s, a, f"for {U} join {ca} against {cb}"))
+    m5(s, f"mill rep {cb} {U} adjust -6000", 0.5)
+    for _ in range(3):
+        s.output(at(b, f"hywmill politics admin grievance {U} KILL_RESIDENT true true false"), 1)
+    pb0 = pshow(s, b, U)
+    check("AM-1 on campaign against B, the player who killed B's people is its outlaw", "join OK" in j and pb0.get("status") == "OUTLAW", f"{j} || {pb0}")
+    s.cmd("time set 1000", 1)
+    standin_at(s, U, b[0] + 6, b[2] + 6)
+    time.sleep(10)
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2)):
+            break
+        time.sleep(10)
+    w1 = s.wait_for(r"wave 1 begins", 420, since=p0)
+    time.sleep(20)
+    d = " ".join(l for l in s.output(f"hywmill war admin siege-decide {ca} WON", 3) if "siege-decide" in l)
+    time.sleep(5)
+    rel = s.read_since(p0)
+    am = [l for l in rel if "amnesty of village" in l]
+    pb1 = pshow(s, b, U)
+    check("AM-2 when B falls, its terms pardon the winners' helper: grievances gone, Trusted with B",
+          w1 is not None and "OK WON" in d and am and pb1.get("status") == "TRUSTED" and pb1.get("grievance", 1) == 0,
+          f"{d} || {(am or [''])[0][-160:]} || {pb1}")
+    war_lines(s, a, f"for {U} leave")
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {U}", 0.3)
+
+
 def scenario_ARS7(ctx):
     """ARS-7 alone on a kept world (after ARS): Muster Roll engine sales."""
     s, a = ctx.s, ctx.a
@@ -6727,7 +6771,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
