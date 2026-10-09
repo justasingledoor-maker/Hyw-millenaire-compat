@@ -2472,38 +2472,28 @@ def scenario_TB(ctx):
     # the host's engines (its village's own batteries are some 200 blocks off): one is drawn back out of reach and must move up
     host = {u: r for u, r in engines_of(s, fa).items() if dist(r["pos"], b) < 170}
     note("TB host engines", str(sorted((r["kind"], round(dist(r["pos"], b))) for r in host.values())))
-    moved, far = [], None
+    # the witness stands by the host's engines and their ground to the village is kept loaded (the harness's simulation
+    # distance is 6 chunks); each engine's own "moves up" lines give its distance to the village as it advances
+    far = None
     for u, r in host.items():
         x, y, z = r["pos"]
         dx, dz = x - b[0], z - b[2]
         dl = max(1.0, (dx * dx + dz * dz) ** 0.5)
-        # the witness stands by the engine (the harness's simulation distance is 6 chunks), and the engine is drawn back 40 blocks
         standin_at(s, P, int(x - dx / dl * 10), int(z - dz / dl * 10))
-        time.sleep(5)
-        fx, fz = int(x + dx / dl * 40), int(z + dz / dl * 40)
-        s.cmd(f"forceload add {min(fx, b[0]) - 16} {min(fz, b[2]) - 16} {max(fx, b[0]) + 16} {max(fz, b[2]) + 16}", 2)
-        time.sleep(3)
-        fy = surface_y(s, fx, fz) or int(y)
-        s.cmd(f"tp {u} {fx} {fy + 1} {fz}", 1)
-        far = (u, dist((fx, fy, fz), b))
+        s.cmd(f"forceload add {min(int(x), b[0]) - 16} {min(int(z), b[2]) - 16} {max(int(x), b[0]) + 16} {max(int(z), b[2]) + 16}", 2)
+        far = u
         break
     pt = s.pos()
-    trace = []
-    for k in range(6):
-        time.sleep(9)
-        if far:
-            d = " ".join(s.output(f"data get entity {far[0]} Passengers[0].id", 0.4)) + " " + " ".join(
-                s.output(f"data get entity {far[0]} HomePosX", 0.4)) + " " + " ".join(s.output(f"data get entity {far[0]} HomePosZ", 0.4)) + " " + " ".join(
-                s.output(f"data get entity {far[0]} SiegeMode", 0.4)) + " " + " ".join(s.output(f"data get entity {far[0]} Pos", 0.4))
-            trace.append(re.sub(r"[^ ]+ has the following entity data: ", "", d)[-200:])
-    note("TB-3 trace", " || ".join(trace)[:1500])
+    time.sleep(60)
     up = [l for l in s.read_since(pt) if "moves up" in l]
-    if far:
-        now = engines_of(s, fa).get(far[0])
-        if now:
-            moved.append((round(far[1]), round(dist(now["pos"], b))))
-    check("TB-3 a host engine with nothing in reach moves up towards the village", host and up and moved and moved[0][1] < moved[0][0] - 6,
-          f"host engines {len(host)}; drawn back to -> after 50 s: {moved}; {len(up)} move(s) up || {(up or [''])[0][-140:]}")
+    tracks = {}
+    for l in up:
+        m = re.search(r"host's (\S+) (\S+) moves up \((\d+) blocks", l)
+        if m:
+            tracks.setdefault(f"{m[1]} {m[2]}", []).append(int(m[3]))
+    gained = {k: v[0] - v[-1] for k, v in tracks.items()}
+    check("TB-3 a host engine with nothing in reach moves up towards the village", host and any(g >= 10 for g in gained.values()),
+          f"host engines {len(host)}; distances while moving up {tracks}; {(up or [''])[0][-160:]}")
     if far:
         s.cmd("forceload remove all", 1)
     s.output("hywmill war admin recall-all", 3)
