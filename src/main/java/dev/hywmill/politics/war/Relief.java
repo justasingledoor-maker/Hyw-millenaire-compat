@@ -31,6 +31,8 @@ public final class Relief {
     /** Post-M5: the helper was reached by the besieged's messenger (only then does it set out); quick sieges call at once. */
     public boolean called = true;
     public int killed;
+    /** Post-M5 realms: sent because it must (a defensive pact, a military alliance, the same realm): always comes, at {@link #boundSize}. */
+    public boolean bound;
 
     public Relief(UUID helper) {
         this.helper = helper;
@@ -52,6 +54,14 @@ public final class Relief {
      * The force's size: shareMin..shareMax of the garrison at home (drawn), but at least {@code minForce} soldiers (post-M5;
      * a force of one is no relief) as long as that leaves the helper half its garrison; at least one soldier.
      */
+    /** Post-M5 realms: an obliged helper sends 30-50% of its free garrison (at least one). */
+    public static int boundSize(int available, double draw) {
+        if (available <= 0) {
+            return 0;
+        }
+        return Math.max(1, Math.min(available, (int) Math.round(available * (0.3 + 0.2 * Math.max(0, Math.min(1, draw))))));
+    }
+
     public static int size(int available, double draw, PoliticsTables.ReliefRule r) {
         if (available <= 0) {
             return 0;

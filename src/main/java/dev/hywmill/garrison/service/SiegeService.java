@@ -276,6 +276,12 @@ public final class SiegeService {
      * and messengers take the road (see {@link ColumnService}). The host is chosen when it musters.
      */
     public Launch launch(ServerLevel overworld, UUID attackerId, UUID targetId, @Nullable UUID counsel, long tick, boolean requireWar, boolean quick) {
+        return launch(overworld, attackerId, targetId, counsel, tick, requireWar, quick, null);
+    }
+
+    /** {@code aim} (admin): the siege's aim, else the attacker's village chooses it (post-M5 realms). */
+    public Launch launch(ServerLevel overworld, UUID attackerId, UUID targetId, @Nullable UUID counsel, long tick, boolean requireWar, boolean quick,
+                         @Nullable dev.hywmill.politics.realm.SiegeAims.Aim aim) {
         GarrisonLedger ledger = GarrisonLedger.get(overworld);
         VillageRecord a = ledger.get(attackerId);
         VillageRecord t = ledger.get(targetId);
@@ -295,6 +301,14 @@ public final class SiegeService {
         if (besieged(ledger, attackerId)) {
             return new Launch(SiegeMath.Refusal.ALREADY_BESIEGING, null, a.name + " is besieged itself: its soldiers stay home");
         }
+        if (dev.hywmill.politics.service.RealmService.enabled() && dev.hywmill.politics.service.RealmService.isProvince(ledger, attackerId, tick)) {
+            VillageRecord sov = ledger.get(dev.hywmill.politics.service.RealmService.sovereignOf(ledger, attackerId, tick));
+            return new Launch(SiegeMath.Refusal.DISABLED, null, a.name + " is a province" + (sov != null ? " of " + sov.name : "")
+                    + ": its sovereign makes its wars");
+        }
+        if (dev.hywmill.politics.service.RealmService.sameRealm(ledger, attackerId, targetId, tick)) {
+            return new Launch(SiegeMath.Refusal.DISABLED, null, a.name + " and " + t.name + " belong to one realm");
+        }
         if (against(ledger, targetId) != null) {
             return new Launch(SiegeMath.Refusal.TARGET_BESIEGED, null, t.name + " is already besieged");
         }
@@ -305,6 +319,7 @@ public final class SiegeService {
         }
         UUID id = UUID.nameUUIDFromBytes((attackerId + ">" + targetId + ">siege>" + tick).getBytes(StandardCharsets.UTF_8));
         Siege s = new Siege(id, attackerId, targetId, counsel, tick);
+        s.aim = aim != null ? aim : dev.hywmill.politics.service.RealmService.chooseAim(ledger, a, t, tick, s.seed(0x41494dL));
         long day = overworld.getDayTime();
         s.startDay = day;
         s.march = SiegeMath.marchTicks(Math.sqrt(a.center.distSqr(t.center)), r);
@@ -318,15 +333,15 @@ public final class SiegeService {
             int n = commitHost(overworld, ledger, s, a, tick);
             s.enter(Siege.Phase.MUSTER, tick, tick + r.musterTicks());
             ReliefService.plan(overworld, ledger, s, a, t, tick);
-            text = a.name + " musters " + n + " soldiers to besiege " + t.name + who + "; they march in about " + r.musterTicks() / 1200 + " min";
+            text = a.name + " musters " + n + " soldiers to besiege " + t.name + who + aimText(s) + "; they march in about " + r.musterTicks() / 1200 + " min";
         } else {
             // the host arrives at the dawn of the third day: two days of preparation, then the muster and the march by night
             long dawn = (Math.floorDiv(day, Tribute.DAY) + 3) * Tribute.DAY;
             s.arriveAt = dawn - day;
             s.enter(Siege.Phase.PREPARE, tick, tick + Math.max(0, s.arriveAt - s.march - r.musterTicks()));
             ReliefService.plan(overworld, ledger, s, a, t, tick);
-            s.reliefs.forEach(rl -> rl.called = false); // they come only if the besieged's messenger reaches them
-            text = a.name + " declares that it will besiege " + t.name + who + ": its host of about " + host.size()
+            s.reliefs.forEach(rl -> rl.called = rl.bound); // they come only if the besieged's messenger reaches them (the obliged need none)
+            text = a.name + " declares that it will besiege " + t.name + who + aimText(s) + ": its host of about " + host.size()
                     + " will be before the walls at dawn on the third day";
         }
         ledger.setDirty();
@@ -342,6 +357,11 @@ public final class SiegeService {
             ColumnService.announced(overworld, ledger, s, a, t, tick);
         }
         return new Launch(SiegeMath.Refusal.OK, s, text);
+    }
+
+    /** Post-M5 realms: " to annex it" etc. (nothing for the plain subjugation when realms are off). */
+    static String aimText(Siege s) {
+        return dev.hywmill.politics.service.RealmService.enabled() ? " " + s.aim.verb() : "";
     }
 
     /**
@@ -525,6 +545,12 @@ public final class SiegeService {
         }
         if (tick % AI_INTERVAL == AI_OFFSET) {
             villageDecisions(overworld, ledger, tick);
+            try {
+                dev.hywmill.politics.service.RealmService.treaties(overworld, ledger, tick, AI_INTERVAL); // post-M5 realms
+                dev.hywmill.politics.service.RealmService.sueForPeace(overworld, ledger, tick, AI_INTERVAL);
+            } catch (RuntimeException ex) {
+                HmLog.warn("Realm treaties failed: {}", ex.toString());
+            }
         }
         payTributes(overworld, ledger, tick);
         endVassalages(overworld, ledger, tick);
@@ -1249,14 +1275,30 @@ public final class SiegeService {
 
     /** The loser of a siege swears fealty to the winner for 21 days: allies for that time (a vassalage it had ends). */
     public static void swearFealty(ServerLevel overworld, GarrisonLedger ledger, VillageRecord vassal, VillageRecord overlord, long tick) {
-        ledger.vassalages().removeIf(v -> v.vassal.equals(vassal.villageId) || (v.vassal.equals(overlord.villageId) && v.overlord.equals(vassal.villageId)));
-        ledger.vassalages().add(dev.hywmill.politics.war.Vassalage.sworn(vassal.villageId, overlord.villageId, tick));
+        boolean realms = dev.hywmill.politics.service.RealmService.enabled();
+        // post-M5 realms: the oath is to the head of the realm, and the vassal's own subjects pass to it
+        VillageRecord head = realms ? ledger.get(dev.hywmill.politics.service.RealmService.sovereignOf(ledger, overlord.villageId, tick)) : overlord;
+        VillageRecord lord = head != null && head != vassal ? head : overlord;
+        if (realms) {
+            for (dev.hywmill.politics.war.Vassalage t : dev.hywmill.politics.service.RealmService.subjectsOf(ledger, vassal.villageId, tick)) {
+                ledger.vassalages().remove(t);
+                dev.hywmill.politics.war.Vassalage moved = dev.hywmill.politics.war.Vassalage.subject(t.vassal, lord.villageId, tick, t.province);
+                moved.loyalty = t.loyalty;
+                ledger.vassalages().add(moved);
+            }
+            ledger.treaties().values().removeIf(t -> t.involves(vassal.villageId));
+        }
+        ledger.vassalages().removeIf(v -> v.vassal.equals(vassal.villageId) || (v.vassal.equals(lord.villageId) && v.overlord.equals(vassal.villageId)));
+        ledger.vassalages().add(realms ? dev.hywmill.politics.war.Vassalage.subject(vassal.villageId, lord.villageId, tick, false)
+                : dev.hywmill.politics.war.Vassalage.sworn(vassal.villageId, lord.villageId, tick));
         SettlementSource source = Services.settlements();
         if (source != null) {
-            source.setVillageRelation(overworld, vassal.villageId, overlord.villageId, dev.hywmill.politics.war.Vassalage.ALLIED);
+            source.setVillageRelation(overworld, vassal.villageId, lord.villageId, dev.hywmill.politics.war.Vassalage.ALLIED);
         }
         ledger.setDirty();
-        String text = vassal.name + " swears fealty to " + overlord.name + " for " + dev.hywmill.politics.war.Vassalage.DAYS
+        String text = realms ? vassal.name + " swears fealty to " + lord.name + ": its vassal until it rebels; they are allies, and "
+                + vassal.name + " owes its overlord men in war"
+                : vassal.name + " swears fealty to " + lord.name + " for " + dev.hywmill.politics.war.Vassalage.DAYS
                 + " days: they are allies, and " + vassal.name + " owes its overlord men in war";
         chronicle(overworld, vassal, overlord, tick, text);
         HmLog.info("Vassalage: {}", text);
@@ -2208,25 +2250,57 @@ public final class SiegeService {
             VillageRecord loser = o == Siege.Outcome.WON ? t : a;
             int tribute = r.tribute(PoliticsTables.MilitaryTierKey.valueOf(loser.tier.name()));
             Set<UUID> helpers = o == Siege.Outcome.WON ? s.attackerHelpers : s.defenderHelpers;
-            // post-M5: the full tribute is paid every day for 3-5 days (the first at once): levy points to the winner, money to
-            // the helpers of the winning side
-            Tribute due = new Tribute(loser.villageId, winner.villageId, tribute, SiegeMath.levy(tribute, r),
-                    SiegeMath.helperPay(tribute, helpers.size(), r), Tribute.days(s.seed(0x545249L)), tick);
-            due.helpers.addAll(helpers);
+            int share = SiegeMath.helperPay(tribute, helpers.size(), r);
+            // post-M5 realms: a won siege ends by its aim; the defenders' victory is always paid in tribute
+            dev.hywmill.politics.realm.SiegeAims.Aim aim = o == Siege.Outcome.WON && dev.hywmill.politics.service.RealmService.enabled()
+                    ? s.aim : dev.hywmill.politics.realm.SiegeAims.Aim.SUBJUGATE;
             text.append(o == Siege.Outcome.WON ? t.name + " fell to the host of " + a.name : t.name + " held against the host of " + a.name)
-                    .append(" (").append(how).append("); ").append(loser.name).append(" pays ")
-                    .append(dev.hywmill.recruit.RecruitOffers.money(tribute)).append(" a day in tribute to ").append(winner.name)
-                    .append(" for ").append(due.days).append(" days");
-            reward(overworld, ledger, winner, helpers, due, r, text.toString());
-            for (UUID p : helpers) {
-                // post-M5: the loser's terms forgive those who helped the winners (whatever they did in the war)
-                PoliticsService.amnesty(overworld, loser, p, tick, "amnesty: " + loser.name + " submitted to " + winner.name);
+                    .append(" (").append(how).append(")");
+            switch (aim) {
+                case ANNEX -> {
+                    text.append("; ").append(a.name).append(" annexes it: ").append(t.name).append(" is a province of its realm now");
+                    rewardOnce(overworld, ledger, winner, helpers, share * 2, r, text.toString(), "your share of the spoils");
+                    report(ledger, s, a, t, o, watched, tick, "annexed by " + a.name);
+                }
+                case PUNISH -> {
+                    if (winner.hywRoster != null) {
+                        winner.hywRoster.levyPoints += SiegeMath.levy(tribute, r) * 3;
+                    }
+                    if (loser.hywRoster != null) {
+                        loser.hywRoster.levyPoints = 0;
+                    }
+                    text.append("; ").append(a.name).append(" punishes it: an indemnity of ").append(dev.hywmill.recruit.RecruitOffers.money(tribute * 3))
+                            .append(", and its levies are spent");
+                    rewardOnce(overworld, ledger, winner, helpers, share * 3, r, text.toString(), "your share of the indemnity");
+                    report(ledger, s, a, t, o, watched, tick, "indemnity of " + dev.hywmill.recruit.RecruitOffers.money(tribute * 3) + ", " + t.name + " to " + a.name);
+                }
+                case RAZE -> {
+                    text.append("; ").append(a.name).append(" razes it");
+                    rewardOnce(overworld, ledger, winner, helpers, share * 2, r, text.toString(), "your share of the plunder");
+                    report(ledger, s, a, t, o, watched, tick, "razed by " + a.name);
+                }
+                default -> {
+                    // post-M5: the full tribute is paid every day for 3-5 days (the first at once): levy points to the winner, money to
+                    // the helpers of the winning side
+                    Tribute due = new Tribute(loser.villageId, winner.villageId, tribute, SiegeMath.levy(tribute, r), share,
+                            Tribute.days(s.seed(0x545249L)), tick);
+                    due.helpers.addAll(helpers);
+                    text.append("; ").append(loser.name).append(" pays ").append(dev.hywmill.recruit.RecruitOffers.money(tribute))
+                            .append(" a day in tribute to ").append(winner.name).append(" for ").append(due.days).append(" days");
+                    reward(overworld, ledger, winner, helpers, due, r, text.toString());
+                    ledger.tributes().add(due);
+                    payTribute(overworld, ledger, due, tick);
+                    report(ledger, s, a, t, o, watched, tick, dev.hywmill.recruit.RecruitOffers.money(tribute) + " a day for " + due.days + " days, "
+                            + loser.name + " to " + winner.name);
+                }
+            }
+            if (aim != dev.hywmill.politics.realm.SiegeAims.Aim.RAZE) {
+                for (UUID p : helpers) {
+                    // post-M5: the loser's terms forgive those who helped the winners (whatever they did in the war)
+                    PoliticsService.amnesty(overworld, loser, p, tick, "amnesty: " + loser.name + " submitted to " + winner.name);
+                }
             }
             chronicle(overworld, a, t, tick, text.toString());
-            ledger.tributes().add(due);
-            payTribute(overworld, ledger, due, tick);
-            report(ledger, s, a, t, o, watched, tick, dev.hywmill.recruit.RecruitOffers.money(tribute) + " a day for " + due.days + " days, " + loser.name
-                    + " to " + winner.name);
             horn(overworld, t.center);
         } else {
             text.append("The host of ").append(a.name).append(" comes home: ").append(how);
@@ -2235,14 +2309,56 @@ public final class SiegeService {
         announce(overworld, ledger, s, a, t, s.summary);
         HmLog.info("Siege {} ended {}: {}", s.id.toString().substring(0, 8), o, s.summary);
         goHome(overworld, ledger, s, a, entries(a, s.host), tick, r, watched);
-        if (t != null && o != Siege.Outcome.STALEMATE && PoliticsService.tables(a).warCounsel().peaceAfterSiege()) {
-            // the loser sues for peace: the war ends and the relation rises above open conflict
-            dev.hywmill.politics.service.WarCounselService.makePeace(overworld, ledger, a, t, tick,
-                    (o == Siege.Outcome.WON ? t.name : a.name) + " lost a siege and sued for peace");
+        if (t == null || o == Siege.Outcome.STALEMATE) {
+            return;
         }
-        if (t != null && o != Siege.Outcome.STALEMATE && !a.loneBuilding && !t.loneBuilding) {
-            swearFealty(overworld, ledger, o == Siege.Outcome.WON ? t : a, o == Siege.Outcome.WON ? a : t, tick);
+        boolean realms = dev.hywmill.politics.service.RealmService.enabled();
+        dev.hywmill.politics.realm.SiegeAims.Aim aim = o == Siege.Outcome.WON && realms ? s.aim : dev.hywmill.politics.realm.SiegeAims.Aim.SUBJUGATE;
+        switch (aim) {
+            case ANNEX -> {
+                dev.hywmill.politics.service.WarCounselService.makePeace(overworld, ledger, a, t, tick, t.name + " was conquered");
+                dev.hywmill.politics.service.RealmService.annex(overworld, ledger, t, a, tick);
+            }
+            case PUNISH -> dev.hywmill.politics.service.RealmService.punished(ledger, t, a, tick); // no peace: broken, it will sue for it
+            case RAZE -> dev.hywmill.politics.service.RealmService.raze(overworld, ledger, t, a, tick);
+            default -> {
+                if (PoliticsService.tables(a).warCounsel().peaceAfterSiege()) {
+                    // the loser sues for peace: the war ends and the relation rises above open conflict
+                    dev.hywmill.politics.service.WarCounselService.makePeace(overworld, ledger, a, t, tick,
+                            (o == Siege.Outcome.WON ? t.name : a.name) + " lost a siege and sued for peace");
+                }
+                // post-M5 realms: a beaten attacker swears fealty only to a defender two tiers above it
+                boolean fealty = o == Siege.Outcome.WON || !realms || a.tier.ordinal() <= t.tier.ordinal() - 2;
+                if (fealty && !a.loneBuilding && !t.loneBuilding) {
+                    swearFealty(overworld, ledger, o == Siege.Outcome.WON ? t : a, o == Siege.Outcome.WON ? a : t, tick);
+                }
+            }
         }
+    }
+
+    /** Post-M5 realms: the winners' helpers are paid once (an annexation, an indemnity, a razing), and remembered. */
+    private static void rewardOnce(ServerLevel overworld, GarrisonLedger ledger, VillageRecord winner, Set<UUID> helpers, int deniers,
+                                   PoliticsTables.SiegeRule r, String text, String what) {
+        SettlementSource source = Services.settlements();
+        PoliticsTables tables = PoliticsService.tables(winner);
+        for (UUID p : helpers) {
+            winner.politics.get(p).favor.earn(FavorSource.SIEGE_VICTORY, tables.favor());
+            if (source != null && r.helperRep() != 0) {
+                source.adjustReputation(overworld, winner.villageId, p, r.helperRep());
+            }
+            String note = what.substring(0, 1).toUpperCase() + what.substring(1) + ": " + dev.hywmill.recruit.RecruitOffers.money(deniers)
+                    + ", and " + winner.name + " remembers your service";
+            ServerPlayer online = PoliticsService.onlinePlayer(overworld, p);
+            if (online != null) {
+                if (source != null && deniers > 0) {
+                    source.giveMoney(online, deniers);
+                }
+                online.sendSystemMessage(Component.literal("[Siege] " + note));
+            } else {
+                ledger.pendingPay().add(new PoliticsNbt.PendingPay(p, source != null ? deniers : 0, text + ". " + note));
+            }
+        }
+        ledger.setDirty();
     }
 
     private static void reward(ServerLevel overworld, GarrisonLedger ledger, VillageRecord winner, Set<UUID> helpers, Tribute due,
@@ -2658,7 +2774,11 @@ public final class SiegeService {
                 PoliticsTables.SiegeRule r = rule(a);
                 if (!r.enabled() || !r.aiEnabled() || a.politics.truceWith(t.villageId, tick) || t.politics.truceWith(a.villageId, tick)
                         || byAttacker(ledger, a.villageId) != null || against(ledger, t.villageId) != null
-                        || (a.hywRoster.lastSiegeTick >= 0 && tick - a.hywRoster.lastSiegeTick < r.aiCooldown())) {
+                        || (a.hywRoster.lastSiegeTick >= 0 && tick - a.hywRoster.lastSiegeTick < r.aiCooldown())
+                        // post-M5 realms: a province's sovereign makes its wars; a village broken by a punishment only sues for peace
+                        || (dev.hywmill.politics.service.RealmService.enabled() && (dev.hywmill.politics.service.RealmService.isProvince(ledger, a.villageId, tick)
+                        || dev.hywmill.politics.service.RealmService.broken(ledger, a.villageId, tick)
+                        || dev.hywmill.politics.service.RealmService.sameRealm(ledger, a.villageId, t.villageId, tick)))) {
                     continue;
                 }
                 List<UUID> host = planHost(a);

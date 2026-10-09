@@ -18,6 +18,16 @@ public final class WarRecord {
     public long calmSince = -1;
     /** Tick the war started (-1: not at war). */
     public long warSince = -1;
+    /**
+     * Post-M5 realms (docs/realm-design.md §2): a war joined for an ally or a sovereign: {@code joiner} took {@code joinedFor}'s
+     * side against the other village of this pair. When {@code joinedFor} makes peace with that village, so does the joiner.
+     * Null: the joiner's own war.
+     */
+    @javax.annotation.Nullable public UUID joiner;
+    @javax.annotation.Nullable public UUID joinedFor;
+    /** Post-M5 realms: the side that lost a punitive siege in this war, and when; broken, it sues for peace (within a day). */
+    @javax.annotation.Nullable public UUID punished;
+    public long punishedAt = -1;
 
     public enum Change { NONE, STARTED, ENDED }
 
@@ -95,6 +105,8 @@ public final class WarRecord {
             return Change.NONE;
         }
         warSince = -1;
+        joiner = null; // a war joined for someone is over with it
+        joinedFor = null;
         return Change.ENDED;
     }
 
@@ -113,11 +125,13 @@ public final class WarRecord {
     public Change makePeace() {
         conflictSince = -1;
         calmSince = -1;
+        joiner = null;
+        joinedFor = null;
         return end();
     }
 
-    /** Nothing worth keeping (not at war, not counting towards one). */
+    /** Nothing worth keeping (not at war, not counting towards one, and not joined for anyone). */
     public boolean idle() {
-        return !atWar() && conflictSince < 0;
+        return !atWar() && conflictSince < 0 && joinedFor == null;
     }
 }

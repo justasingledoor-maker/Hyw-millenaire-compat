@@ -509,6 +509,49 @@ final class MillenaireSettlementSource implements SettlementSource {
         return java.util.OptionalInt.of(v.getCombinedReputation(level, playerId));
     }
 
+    /** The negation wand's {@code performDeletion}, without the player's advancement (post-M5 realms: a siege that razes). */
+    @Override
+    public int raze(ServerLevel level, UUID settlementId) {
+        VillageId id = new VillageId(settlementId);
+        VillageSavedData data = VillageSavedData.get(level);
+        Village village = data.getVillageManager().getVillage(id);
+        if (village == null) {
+            return -1;
+        }
+        for (BuildingInstance building : village.getBuildings()) {
+            for (BlockPos chest : building.getChestPositions()) {
+                if (level.getBlockEntity(chest) instanceof org.millenaire.block.LockedChestBlockEntity c) {
+                    c.setBuildingId(null);
+                }
+            }
+        }
+        int removed = 0;
+        for (UUID uuid : village.getVillagerUuids()) {
+            if (level.getEntity(uuid) instanceof MillVillager v) {
+                v.discard();
+                removed++;
+            }
+        }
+        if (!village.getLoadedChunks().isEmpty()) {
+            org.millenaire.village.VillageChunkLoader.releaseVillageChunks(level, village.getCenter(), village.getLoadedChunks());
+            village.setLoadedChunks(java.util.Set.of());
+            village.setChunksForceLoaded(false);
+        }
+        data.getVillageManager().removeVillage(id);
+        for (Village other : data.getVillageManager().getAllVillages()) {
+            other.removeRelation(id);
+            if (id.equals(other.getParentVillageId())) {
+                other.setParentVillageId(null);
+            }
+            if (id.equals(other.getRaidTarget())) {
+                RaidManager.abortRaidForAttacker(other, level);
+            }
+        }
+        data.removeLoneBuilding(village.getCenter());
+        data.setDirty();
+        return removed;
+    }
+
     /** Millénaire's own deletion path (negation wand) ends in {@code VillageManager.removeVillage}; no event is fired. */
     @Override
     public boolean devRemove(ServerLevel level, UUID settlementId) {

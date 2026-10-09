@@ -53,6 +53,15 @@ public interface SettlementSource {
         return false;
     }
 
+    /**
+     * Post-M5 realms: razes the village with the negation wand's mechanics (its villagers removed, its record deleted, other
+     * villages' relations, parent links and raids on it cleared, its chests unlocked); the buildings stay. Returns how many
+     * villagers were removed (-1: no such village).
+     */
+    default int raze(ServerLevel level, UUID settlementId) {
+        return devRemove(level, settlementId) ? 0 : -1;
+    }
+
     record SettlementRef(UUID id, String name, BlockPos center, boolean active) {}
 
     /**

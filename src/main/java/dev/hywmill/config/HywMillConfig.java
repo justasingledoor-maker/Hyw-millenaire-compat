@@ -45,6 +45,8 @@ public final class HywMillConfig {
     public static final ModConfigSpec.BooleanValue AUTO_WAR;
     public static final ModConfigSpec.IntValue WAR_MIN_CONFLICT_TICKS;
     public static final ModConfigSpec.IntValue SIEGE_RESISTANCE;
+    public static final ModConfigSpec.BooleanValue REALMS_ENABLED;
+    public static final ModConfigSpec.BooleanValue RAZE_ENABLED;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -154,6 +156,13 @@ public final class HywMillConfig {
                         "troops and every HYW unit near the besieged village, its Millénaire villagers, their mounts), refreshed every second:",
                         "each level takes 20% off the damage taken, so fights last longer. 0: none.")
                 .defineInRange("siegeResistance", 3, 0, 4);
+        REALMS_ENABLED = b.comment("Post-M5 realms (docs/realm-design.md): treaties signed by relation (25 pact, 50 defensive, 75 military alliance),",
+                        "allies and subjects taking sides in wars, siege aims other than subjugation (annex, punish, raze), provinces, loyalty",
+                        "and rebellion. false: sieges only subjugate, as before.")
+                .define("realmsEnabled", true);
+        RAZE_ENABLED = b.comment("Post-M5 realms: a village may besiege another to raze it (the negation wand's mechanics: its villagers and",
+                        "record are gone, its buildings stay as ruins). Rare; never a player-controlled village.")
+                .define("razeEnabled", true);
         b.pop();
 
         SPEC = b.build();

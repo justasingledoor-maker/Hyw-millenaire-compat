@@ -72,8 +72,7 @@ final class WarCommands {
             send(ctx.getSource(), "war vassals: " + ledger.vassalages().size());
             for (var v : ledger.vassalages()) {
                 VillageRecord vr = ledger.get(v.vassal), or = ledger.get(v.overlord);
-                send(ctx.getSource(), " " + (vr == null ? "?" : vr.name) + " is the vassal of " + (or == null ? "?" : or.name) + ", "
-                        + v.daysLeft(ow.getGameTime()) + " day(s) left");
+                send(ctx.getSource(), " " + (vr == null ? "?" : vr.name) + " is " + v.describe(or == null ? "?" : or.name, ow.getGameTime()));
             }
             return ledger.vassalages().size();
         }));
@@ -140,7 +139,11 @@ final class WarCommands {
                         })))
                 .then(Commands.literal("siege").then(Commands.argument("attacker", BlockPosArgument.blockPos())
                         .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminSiege(ctx, false, false))
+                                .then(Commands.literal("aim").then(Commands.argument("aim", com.mojang.brigadier.arguments.StringArgumentType.word())
+                                        .executes(ctx -> adminSiege(ctx, false, false))))
                                 .then(Commands.literal("quick").executes(ctx -> adminSiege(ctx, false, true))
+                                        .then(Commands.literal("aim").then(Commands.argument("aim", com.mojang.brigadier.arguments.StringArgumentType.word())
+                                                .executes(ctx -> adminSiege(ctx, false, true))))
                                         .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                                                 .executes(ctx -> adminSiege(ctx, true, true))))
                                 .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
@@ -323,7 +326,13 @@ final class WarCommands {
             return 0;
         }
         ServerLevel ow = ctx.getSource().getServer().overworld();
-        var l = HywMillRuntime.require().sieges().launch(ow, a.villageId, t.villageId, null, ow.getGameTime(), false, quick);
+        dev.hywmill.politics.realm.SiegeAims.Aim aim = null;
+        try {
+            aim = dev.hywmill.politics.realm.SiegeAims.Aim.valueOf(com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "aim").toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            // no aim given (or not one): the attacker's village chooses
+        }
+        var l = HywMillRuntime.require().sieges().launch(ow, a.villageId, t.villageId, null, ow.getGameTime(), false, quick, aim);
         if (l.ok() && unwatched) {
             l.siege().forceUnwatched = true;
             GarrisonLedger.get(ow).setDirty();

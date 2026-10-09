@@ -224,6 +224,14 @@ public final class PoliticsNbt {
             x.putLong("conflictSince", r.conflictSince);
             x.putLong("calmSince", r.calmSince);
             x.putLong("warSince", r.warSince);
+            if (r.joiner != null && r.joinedFor != null) {
+                x.putUUID("joiner", r.joiner);
+                x.putUUID("joinedFor", r.joinedFor);
+            }
+            if (r.punished != null) {
+                x.putUUID("punished", r.punished);
+                x.putLong("punishedAt", r.punishedAt);
+            }
             w.add(x);
         }
         if (!w.isEmpty()) {
@@ -259,6 +267,14 @@ public final class PoliticsNbt {
                 r.conflictSince = x.getLong("conflictSince");
                 r.calmSince = x.getLong("calmSince");
                 r.warSince = x.getLong("warSince");
+                if (x.hasUUID("joiner") && x.hasUUID("joinedFor")) {
+                    r.joiner = x.getUUID("joiner");
+                    r.joinedFor = x.getUUID("joinedFor");
+                }
+                if (x.hasUUID("punished")) {
+                    r.punished = x.getUUID("punished");
+                    r.punishedAt = x.getLong("punishedAt");
+                }
                 wars.put(r.key(), r);
             }
         }
@@ -342,6 +358,7 @@ public final class PoliticsNbt {
             if (g.forceUnwatched) {
                 x.putBoolean("unwatched", true);
             }
+            x.putString("aim", g.aim.name());
             x.putLong("startDay", g.startDay);
             x.putLong("arriveAt", g.arriveAt);
             x.putLong("march", g.march);
@@ -399,6 +416,9 @@ public final class PoliticsNbt {
                     y.putInt("sent", r.sent);
                     y.putInt("killed", r.killed);
                     y.putBoolean("called", r.called);
+                    if (r.bound) {
+                        y.putBoolean("bound", true);
+                    }
                     rl.add(y);
                 }
                 x.put("reliefs", rl);
@@ -426,6 +446,11 @@ public final class PoliticsNbt {
                 g.defenderHelpers.addAll(readUuids(x.getList("defenderHelpers", Tag.TAG_INT_ARRAY)));
                 g.summary = x.getString("summary");
                 g.forceUnwatched = x.getBoolean("unwatched");
+                try {
+                    g.aim = x.contains("aim") ? dev.hywmill.politics.realm.SiegeAims.Aim.valueOf(x.getString("aim")) : g.aim;
+                } catch (IllegalArgumentException ex) {
+                    g.aim = dev.hywmill.politics.realm.SiegeAims.Aim.SUBJUGATE;
+                }
                 g.mercRolled = x.getBoolean("mercRolled");
                 g.aidRolled = x.getBoolean("aidRolled");
                 g.vassalRolled = x.getBoolean("vassalRolled");
@@ -482,6 +507,7 @@ public final class PoliticsNbt {
                     r.sent = y.getInt("sent");
                     r.killed = y.getInt("killed");
                     r.called = !y.contains("called") || y.getBoolean("called");
+                    r.bound = y.getBoolean("bound");
                     g.reliefs.add(r);
                 }
                 out.add(g);
@@ -643,6 +669,35 @@ public final class PoliticsNbt {
         return out;
     }
 
+    public static ListTag saveTreaties(java.util.Collection<dev.hywmill.politics.realm.Treaty> list) {
+        ListTag l = new ListTag();
+        for (dev.hywmill.politics.realm.Treaty t : list) {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("a", t.a);
+            x.putUUID("b", t.b);
+            x.putString("kind", t.kind.name());
+            x.putLong("since", t.since);
+            l.add(x);
+        }
+        return l;
+    }
+
+    public static List<dev.hywmill.politics.realm.Treaty> loadTreaties(ListTag l) {
+        List<dev.hywmill.politics.realm.Treaty> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            CompoundTag x = l.getCompound(i);
+            try {
+                if (x.hasUUID("a") && x.hasUUID("b")) {
+                    out.add(new dev.hywmill.politics.realm.Treaty(x.getUUID("a"), x.getUUID("b"),
+                            dev.hywmill.politics.realm.Treaty.Kind.valueOf(x.getString("kind")), x.getLong("since")));
+                }
+            } catch (IllegalArgumentException ex) {
+                // an unknown treaty kind from a later version: dropped
+            }
+        }
+        return out;
+    }
+
     public static ListTag saveVassalages(List<dev.hywmill.politics.war.Vassalage> list) {
         ListTag l = new ListTag();
         for (dev.hywmill.politics.war.Vassalage v : list) {
@@ -651,6 +706,11 @@ public final class PoliticsNbt {
             x.putUUID("overlord", v.overlord);
             x.putLong("since", v.since);
             x.putLong("until", v.until);
+            if (v.province) {
+                x.putBoolean("province", true);
+            }
+            x.putDouble("loyalty", v.loyalty);
+            x.putLong("loyaltyDay", v.loyaltyDay);
             l.add(x);
         }
         return l;
@@ -661,7 +721,14 @@ public final class PoliticsNbt {
         for (int i = 0; i < l.size(); i++) {
             CompoundTag x = l.getCompound(i);
             if (x.hasUUID("vassal") && x.hasUUID("overlord")) {
-                out.add(new dev.hywmill.politics.war.Vassalage(x.getUUID("vassal"), x.getUUID("overlord"), x.getLong("since"), x.getLong("until")));
+                dev.hywmill.politics.war.Vassalage v = new dev.hywmill.politics.war.Vassalage(x.getUUID("vassal"), x.getUUID("overlord"),
+                        x.getLong("since"), x.getLong("until"));
+                v.province = x.getBoolean("province");
+                if (x.contains("loyalty")) {
+                    v.loyalty = x.getDouble("loyalty");
+                    v.loyaltyDay = x.getLong("loyaltyDay");
+                }
+                out.add(v);
             }
         }
         return out;

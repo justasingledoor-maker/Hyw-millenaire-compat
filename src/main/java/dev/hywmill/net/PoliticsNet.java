@@ -208,8 +208,7 @@ public final class PoliticsNet {
                 continue;
             }
             VillageRecord vr = ledger.get(v.vassal), or = ledger.get(v.overlord);
-            out.add("Vassalage: " + (vr == null ? "?" : vr.name) + " is the vassal of " + (or == null ? "?" : or.name) + " (" + v.daysLeft(now)
-                    + " day(s) left)");
+            out.add((v.province ? "Province: " : "Vassalage: ") + (vr == null ? "?" : vr.name) + " is " + v.describe(or == null ? "?" : or.name, now));
         }
         List<dev.hywmill.politics.war.BattleReport> rs = ledger.battles();
         int shown = 0;

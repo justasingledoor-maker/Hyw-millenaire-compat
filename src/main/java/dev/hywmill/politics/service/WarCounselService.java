@@ -130,6 +130,7 @@ public final class WarCounselService {
             PoliticsService.chronicle(overworld, source, a, now, text);
             PoliticsService.chronicle(overworld, source, b, now, text);
             HmLog.info("War: {} <-> {} started (declared)", a.name, b.name);
+            RealmService.onWarStarted(overworld, ledger, a, b, now); // post-M5: allies and subjects take sides
         }
         ledger.setDirty();
     }
@@ -155,6 +156,7 @@ public final class WarCounselService {
             PoliticsService.chronicle(overworld, source, a, now, text);
             PoliticsService.chronicle(overworld, source, b, now, text);
             HmLog.info("War: {} <-> {} ended (peace: {})", a.name, b.name, why);
+            RealmService.onPeace(overworld, ledger, a, b, now); // post-M5: those who joined for them make peace too
         }
         ledger.setDirty();
     }

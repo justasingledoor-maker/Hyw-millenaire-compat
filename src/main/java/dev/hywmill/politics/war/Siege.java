@@ -40,6 +40,8 @@ public final class Siege {
     public long pausedSince = -1;
     /** DEV/admin test switch: treat the target as unwatched (unloaded) even when it is loaded. */
     public boolean forceUnwatched;
+    /** Post-M5 realms: what the attackers fight for (docs/realm-design.md §3); SUBJUGATE before realms. */
+    public dev.hywmill.politics.realm.SiegeAims.Aim aim = dev.hywmill.politics.realm.SiegeAims.Aim.SUBJUGATE;
     /** Post-M5: relief forces sent to the target by villages on great terms with it. */
     public final List<Relief> reliefs = new ArrayList<>();
     /**

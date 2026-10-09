@@ -90,12 +90,40 @@ public final class RelationProjector {
             }
         }
         Map<RelationPlan.Edge, String> desired = RelationPlan.desired(ledger.wars().values(), ledger.campaigns(), now, factionOf::get,
-                v -> ledger.get(v) != null ? dev.hywmill.faction.FactionIds.residentsOf(v) : null, reliefs);
+                v -> ledger.get(v) != null ? dev.hywmill.faction.FactionIds.residentsOf(v) : null, reliefs, friends(ledger, now));
         plan = Map.copyOf(desired);
         dirty |= apply(rt, factions, ledger, desired);
         if (dirty) {
             ledger.setDirty();
         }
+    }
+
+    /** Post-M5 realms: pairs bound together, FRIENDLY in HYW: realm members among themselves, defensive pacts and alliances. */
+    static List<UUID[]> friends(GarrisonLedger ledger, long now) {
+        List<UUID[]> out = new ArrayList<>();
+        if (!RealmService.enabled()) {
+            return out;
+        }
+        for (dev.hywmill.politics.realm.Treaty t : ledger.treaties().values()) {
+            if (t.obligesRelief()) {
+                out.add(new UUID[]{t.a, t.b});
+            }
+        }
+        List<dev.hywmill.politics.war.Vassalage> ties = new ArrayList<>();
+        for (dev.hywmill.politics.war.Vassalage v : ledger.vassalages()) {
+            if (!v.over(now)) {
+                ties.add(v);
+                out.add(new UUID[]{v.vassal, v.overlord});
+            }
+        }
+        for (int i = 0; i < ties.size(); i++) {
+            for (int j = i + 1; j < ties.size(); j++) {
+                if (ties.get(i).overlord.equals(ties.get(j).overlord)) {
+                    out.add(new UUID[]{ties.get(i).vassal, ties.get(j).vassal});
+                }
+            }
+        }
+        return out;
     }
 
     // ------------------------------------------------------------------ wars
@@ -139,11 +167,13 @@ public final class RelationProjector {
                     PoliticsService.chronicle(overworld, source, x, now, text);
                     PoliticsService.chronicle(overworld, source, y, now, text);
                     HmLog.info("War: {} <-> {} started", x.name, y.name);
+                    RealmService.onWarStarted(overworld, ledger, x, y, now); // post-M5: allies and subjects take sides
                 } else if (c == WarRecord.Change.ENDED) {
                     String text = "The war between " + x.name + " and " + y.name + " is over" + (truce ? " (truce)" : !auto ? " (autoWar off)" : "");
                     PoliticsService.chronicle(overworld, source, x, now, text);
                     PoliticsService.chronicle(overworld, source, y, now, text);
                     HmLog.info("War: {} <-> {} ended", x.name, y.name);
+                    RealmService.onPeace(overworld, ledger, x, y, now);
                 }
                 if (w.idle()) {
                     ledger.wars().remove(key);

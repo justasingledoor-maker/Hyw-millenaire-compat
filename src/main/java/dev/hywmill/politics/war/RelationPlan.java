@@ -43,6 +43,15 @@ public final class RelationPlan {
      */
     public static Map<Edge, String> desired(Collection<WarRecord> wars, Collection<Campaign> campaigns, long now, Function<UUID, UUID> factionOf,
                                             Function<UUID, UUID> residentOf, Collection<UUID[]> reliefs) {
+        return desired(wars, campaigns, now, factionOf, residentOf, reliefs, java.util.List.of());
+    }
+
+    /**
+     * @param friends post-M5 realms: village pairs bound together (the same realm, a defensive pact, a military alliance):
+     *                their factions are FRIENDLY both ways (a war between them still wins: HOSTILE over FRIENDLY)
+     */
+    public static Map<Edge, String> desired(Collection<WarRecord> wars, Collection<Campaign> campaigns, long now, Function<UUID, UUID> factionOf,
+                                            Function<UUID, UUID> residentOf, Collection<UUID[]> reliefs, Collection<UUID[]> friends) {
         Map<Edge, String> out = new LinkedHashMap<>();
         for (UUID[] pair : reliefs) {
             UUID fh = factionOf.apply(pair[0]);
@@ -92,6 +101,13 @@ public final class RelationPlan {
                         both(out, c.player(), fh, HOSTILE);
                     }
                 }
+            }
+        }
+        for (UUID[] pair : friends) {
+            UUID fx = factionOf.apply(pair[0]);
+            UUID fy = factionOf.apply(pair[1]);
+            if (fx != null && fy != null && !fx.equals(fy)) {
+                both(out, fx, fy, FRIENDLY);
             }
         }
         return out;

@@ -79,6 +79,26 @@ public final class GarrisonLedger extends SavedData {
 
     /** Post-M5: vassalages in force, and the reports of finished sieges (newest last, at most BattleReport.KEEP). */
     private final java.util.List<dev.hywmill.politics.war.Vassalage> vassalages = new java.util.ArrayList<>();
+    /** Post-M5 realms: official treaties, one per pair (key {@link dev.hywmill.politics.realm.Treaty#key}). */
+    private final java.util.Map<String, dev.hywmill.politics.realm.Treaty> treaties = new java.util.LinkedHashMap<>();
+
+    public java.util.Map<String, dev.hywmill.politics.realm.Treaty> treaties() {
+        return treaties;
+    }
+
+    /** Post-M5 realms: villages that rebelled, and the sovereign they threw off (a grudge the AI director remembers). */
+    private final java.util.Map<UUID, UUID> rebels = new java.util.LinkedHashMap<>();
+
+    public java.util.Map<UUID, UUID> rebels() {
+        return rebels;
+    }
+
+    /** Post-M5 realms: a razed village's record goes for good. */
+    public void remove(UUID villageId) {
+        if (records.remove(villageId) != null) {
+            setDirty();
+        }
+    }
     private final java.util.List<dev.hywmill.politics.war.BattleReport> battles = new java.util.ArrayList<>();
 
     public java.util.List<dev.hywmill.politics.war.Vassalage> vassalages() {
@@ -192,6 +212,14 @@ public final class GarrisonLedger extends SavedData {
         }
         ledger.tributes.addAll(PoliticsNbt.loadTributes(root.getList("tributes", Tag.TAG_COMPOUND)));
         ledger.vassalages.addAll(PoliticsNbt.loadVassalages(root.getList("vassalages", Tag.TAG_COMPOUND)));
+        PoliticsNbt.loadTreaties(root.getList("treaties", Tag.TAG_COMPOUND)).forEach(t -> ledger.treaties.put(t.key(), t));
+        ListTag rb = root.getList("rebels", Tag.TAG_COMPOUND);
+        for (int i = 0; i < rb.size(); i++) {
+            CompoundTag x = rb.getCompound(i);
+            if (x.hasUUID("rebel") && x.hasUUID("against")) {
+                ledger.rebels.put(x.getUUID("rebel"), x.getUUID("against"));
+            }
+        }
         ledger.battles.addAll(PoliticsNbt.loadBattles(root.getList("battles", Tag.TAG_COMPOUND)));
         ledger.columns.addAll(PoliticsNbt.loadColumns(root.getList("columns", Tag.TAG_COMPOUND)));
         ledger.scoutRides.addAll(PoliticsNbt.loadRides(root.getList("scoutRides", Tag.TAG_COMPOUND)));
@@ -241,6 +269,19 @@ public final class GarrisonLedger extends SavedData {
         }
         if (!vassalages.isEmpty()) {
             root.put("vassalages", PoliticsNbt.saveVassalages(vassalages));
+        }
+        if (!treaties.isEmpty()) {
+            root.put("treaties", PoliticsNbt.saveTreaties(treaties.values()));
+        }
+        if (!rebels.isEmpty()) {
+            ListTag rb = new ListTag();
+            rebels.forEach((k, v) -> {
+                CompoundTag x = new CompoundTag();
+                x.putUUID("rebel", k);
+                x.putUUID("against", v);
+                rb.add(x);
+            });
+            root.put("rebels", rb);
         }
         if (!battles.isEmpty()) {
             root.put("battles", PoliticsNbt.saveBattles(battles));

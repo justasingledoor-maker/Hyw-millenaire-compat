@@ -22,6 +22,13 @@ public final class Vassalage {
     public final UUID overlord;
     public final long since;
     public final long until;
+    /**
+     * Post-M5 realms (docs/realm-design.md §4-5): a province (conquered: its army is the overlord's) rather than a vassal (its
+     * own army); its loyalty (0-100); the last day loyalty was updated.
+     */
+    public boolean province;
+    public double loyalty = dev.hywmill.politics.realm.Loyalty.START_VASSAL;
+    public long loyaltyDay = -1;
 
     public Vassalage(UUID vassal, UUID overlord, long since, long until) {
         this.vassal = vassal;
@@ -30,16 +37,42 @@ public final class Vassalage {
         this.until = until;
     }
 
+    /** The legacy 21-day fealty (realms off). */
     public static Vassalage sworn(UUID vassal, UUID overlord, long now) {
         return new Vassalage(vassal, overlord, now, now + DAYS * Tribute.DAY);
+    }
+
+    /** Post-M5 realms: a subject tie with no end but rebellion; a province, or a vassal. */
+    public static Vassalage subject(UUID subject, UUID sovereign, long now, boolean province) {
+        Vassalage v = new Vassalage(subject, sovereign, now, Long.MAX_VALUE);
+        v.province = province;
+        v.loyalty = province ? dev.hywmill.politics.realm.Loyalty.START_PROVINCE : dev.hywmill.politics.realm.Loyalty.START_VASSAL;
+        v.loyaltyDay = now / Tribute.DAY;
+        return v;
+    }
+
+    public boolean indefinite() {
+        return until == Long.MAX_VALUE;
+    }
+
+    /** "the province of X (loyalty 52)" / "the vassal of X (3 day(s) left)". */
+    public String describe(String overlordName, long now) {
+        return "the " + kindLabel() + " of " + overlordName + " (" + (indefinite() ? "loyalty " + Math.round(loyalty) : daysLeft(now) + " day(s) left") + ")";
+    }
+
+    public String kindLabel() {
+        return province ? "province" : "vassal";
     }
 
     public boolean over(long now) {
         return now >= until;
     }
 
-    /** Days left (rounded up). */
+    /** Days left (rounded up; a subject tie with no end: Long.MAX_VALUE). */
     public long daysLeft(long now) {
+        if (indefinite()) {
+            return Long.MAX_VALUE;
+        }
         return Math.max(0, (until - now + Tribute.DAY - 1) / Tribute.DAY);
     }
 

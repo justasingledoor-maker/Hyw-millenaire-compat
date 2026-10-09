@@ -269,6 +269,28 @@ public final class GarrisonService {
         return n;
     }
 
+    /**
+     * Post-M5 realms: the village's garrison is disbanded (conquered and annexed, or razed): every living slot but the war
+     * engines leaves the world and the roster (LOST, DISCHARGED), and the starting grant is due again, so a new garrison is
+     * raised at the next slot. Returns how many were disbanded.
+     */
+    public static int disband(ServerLevel overworld, VillageRecord rec, long tick) {
+        GarrisonRoster r = rec.hywRoster;
+        if (r == null) {
+            return 0;
+        }
+        int n = 0;
+        for (RosterEntry e : new ArrayList<>(r.entries())) {
+            if (!e.state().terminal()) {
+                MobilizationService.discharge(overworld, e, tick);
+                n++;
+            }
+        }
+        r.startingGranted = false;
+        GarrisonLedger.get(overworld).setDirty();
+        return n;
+    }
+
     /** The garrison target of a village from its record (M5-G formula; the scaling gate is applied by the slot). */
     public static int target(VillageRecord rec, GarrisonTable table) {
         return Recruitment.target(new Recruitment.TargetInputs(rec.capacity, rec.adults, rec.population, rec.buildingRoles,

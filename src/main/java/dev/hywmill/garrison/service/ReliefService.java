@@ -68,8 +68,38 @@ public final class ReliefService {
         if (source == null || !r.enabled() || r.maxHelpers() <= 0) {
             return;
         }
+        // post-M5 realms: those bound to the besieged (its realm, a defensive pact or a military alliance) always come
+        long now = tick;
+        java.util.Set<UUID> bound = new java.util.LinkedHashSet<>();
+        if (dev.hywmill.politics.service.RealmService.enabled()) {
+            for (VillageRecord v : ledger.all()) {
+                if (v == a || v == t || v.loneBuilding || v.hywRoster == null || available(v).isEmpty()
+                        || RelationProjector.atWar(ledger, v.villageId, t.villageId) || SiegeService.besieged(ledger, v.villageId)
+                        || dev.hywmill.politics.service.RealmService.sameRealm(ledger, v.villageId, a.villageId, now)) {
+                    continue;
+                }
+                boolean realm = dev.hywmill.politics.service.RealmService.sameRealm(ledger, v.villageId, t.villageId, now)
+                        && !(dev.hywmill.politics.service.RealmService.tieOf(ledger, v.villageId, now) != null
+                        && !dev.hywmill.politics.service.RealmService.tieOf(ledger, v.villageId, now).province); // a vassal sends its levy instead
+                dev.hywmill.politics.realm.Treaty pact = dev.hywmill.politics.service.RealmService.realmTreaty(ledger, v.villageId, t.villageId, now);
+                dev.hywmill.politics.realm.Treaty withA = dev.hywmill.politics.service.RealmService.realmTreaty(ledger, v.villageId, a.villageId, now);
+                boolean treaty = pact != null && pact.obligesRelief() && (withA == null || withA.kind.ordinal() < pact.kind.ordinal())
+                        && dev.hywmill.politics.service.RealmService.tieOf(ledger, v.villageId, now) == null;
+                if (realm || treaty) {
+                    Relief rl = new Relief(v.villageId);
+                    rl.bound = true;
+                    s.reliefs.add(rl);
+                    bound.add(v.villageId);
+                    HmLog.info("Siege {}: {} is bound to relieve {} ({})", s.id.toString().substring(0, 8), v.name, t.name,
+                            realm ? "same realm" : pact.kind.label());
+                }
+            }
+        }
         List<VillageRecord> friends = new ArrayList<>();
         for (VillageRecord v : ledger.all()) {
+            if (bound.contains(v.villageId)) {
+                continue;
+            }
             int rel = source.villageRelation(overworld, v.villageId, t.villageId).orElse(Integer.MIN_VALUE);
             boolean party = v.villageId.equals(a.villageId) || v.villageId.equals(t.villageId);
             if (!party && sworn(ledger, v.villageId, a.villageId, tick)) {
@@ -85,7 +115,7 @@ public final class ReliefService {
         friends.sort(Comparator.comparing(v -> v.villageId));
         SplittableRandom rnd = new SplittableRandom(s.seed(0x7e11efL));
         for (VillageRecord v : friends) {
-            if (s.reliefs.size() >= r.maxHelpers()) {
+            if (s.reliefs.size() - bound.size() >= r.maxHelpers()) {
                 break;
             }
             if (rnd.nextDouble() < r.chance()) {
@@ -199,7 +229,7 @@ public final class ReliefService {
         PoliticsTables.ReliefRule r = rule(h);
         List<RosterEntry> pool = available(h);
         SplittableRandom rnd = new SplittableRandom(s.seed(h.villageId.getLeastSignificantBits()));
-        int n = Relief.size(pool.size(), rnd.nextDouble(), r);
+        int n = rl.bound ? Relief.boundSize(pool.size(), rnd.nextDouble()) : Relief.size(pool.size(), rnd.nextDouble(), r);
         if (n <= 0) {
             rl.phase = Relief.Phase.DONE;
             return;
