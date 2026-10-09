@@ -1565,3 +1565,46 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     * W3-1c: a host unit carried Resistance with amplifier 1, ambient, no particles;
     * W3-2b: as the host's front thinned, its reserve went in (8, 8, then 6).
 * SHA-256 of the jar: `1b9b7655cc2ece50bb68c7fc7930013150cb6792f22bfffcaa1594fde13f0027`.
+
+### 6.53 Trebuchets back; engines at batteries round the village; attacking engines move up into range (`dist/hywmill-m5-fix53.jar`)
+
+* **Request.**
+  * Bring trebuchets back: rare for armies on the attack, common in defence.
+  * Defensive trebuchets should be spread out by the roads, not in the middle where they block things and look ugly.
+  * Catapults on a siege should push up until a target is in range.
+* **Arsenal.**
+  * The types are now `trebuchets, trebuchets, mangonels, springald`, so about half of a village's engines are trebuchets.
+  * A trebuchet marches with a siege host one time in five (drawn per engine and siege); otherwise it stays at its battery
+    with its engineer.
+  * Catapults and springalds always march, each with one engineer.
+  * Engines raised while their village was unloaded, and never set up, now march too. Before, an unloaded attacker's new
+    arsenal stayed home.
+* **Batteries.**
+  * At home the engines stand round the village's edge, one per equal sector (turned by the village's id).
+  * In each sector the battery is four blocks to the side of the first road (any Millénaire path or vanilla dirt path) found
+    between 70% of the village's radius and just past it. Without a road, it is on open ground at 85% of the radius.
+  * Engineers stand by their engine.
+  * Engines coming home from a siege, or reappearing, go to their batteries, not to the ranks at the town hall.
+  * An engine at home inside half the radius (from before) is moved out to its battery when no siege is fought there.
+  * Engines away on a siege get no battery.
+* **Moving up.**
+  * In a wave fought in the world, every 10 s, a host engine with no target and no foe within 70% of its reach moves its
+    HYW home 12 blocks towards the village. It packs up to move and sets up where it stops, and it goes no further than
+    the village's edge.
+  * Reach (HYW): catapult and springald 100, nest of bees 128, trebuchet 170.
+  * Engines move only while they are ticked, i.e. within simulation distance of a player.
+* **Admin.** `/hywmill war admin rearm <village>` gives a village at war a fresh arsenal under the current rule, so wars
+  already under way get trebuchets.
+* **Tests.**
+  * JUnit 376/376: `ArsenalPlanTest` checks the trebuchet share and the march rule. It now reaches the rule through
+    `PoliticsTables`, because touching `ArsenalRule.DEFAULT` first starts a static-initialisation cycle; Gradle running a
+    previously failed class first exposed it.
+  * Harness TB (`docs/m5-test-evidence/fix53-tb.txt`), all PASS:
+    * TB-1: every battery was 61-88 blocks out in a village of radius 90; 20 of 24 were beside a road in the first run,
+      all of them in the later runs.
+    * TB-2: Barneville's two trebuchets stood 66 and 72 blocks out, none in the middle.
+    * TB-3: a crewed, ticking catapult moved up from 127 to 116 blocks. In an earlier run a springald went 130, 121, 110
+      and 101.
+* **Not covered.** An engine pathing over rough ground can stall: a catapult teleported onto a hill in a test run did not
+  move. Its HYW home kept moving forward, so it moves on if HYW finds a path.
+* SHA-256 of the jar: `74b71db84e1ccc9744707892b8345c3dd5c62f87988f4f9814101d41985ad74c`.
