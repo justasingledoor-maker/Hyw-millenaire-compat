@@ -1618,3 +1618,25 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
   `config/hywmill-common.toml`.
 * **Tests.** JUnit 376/376. No harness run: only the default value changed.
 * SHA-256 of the jar: `209132c51db8a37392ce30bc8b953ba076f5e018644b33a1336f5ccfc7889a57`.
+
+### 6.55 Amnesty: a village that loses a siege forgives the winners' helpers (`dist/hywmill-m5-fix55.jar`)
+
+* **Request.** A player who helped a village win a siege was still outlawed by the defeated village, for civilians killed
+  in the war, with too little reputation to make up for it. Helping win should give normal or high status with the
+  defeated village.
+* **Change.** When a siege ends WON or LOST (not a stalemate), the loser's terms forgive every player who helped the
+  winners. A helper is a player near the battle who is on campaign with the winners, or who struck their foes.
+  * Their grievances with the loser are wiped, including a peacetime killing.
+  * Their combined reputation with it is raised to at least the Trusted line (4096). Millénaire moves the combined value by
+    1.1 times the village change, so the village change is rounded up.
+  * The standing is re-evaluated: an outlaw is pardoned, the HYW hostility is cleared, and the chronicle and the player
+    are told ("You are now Trusted (pardoned): amnesty: X submitted to Y").
+  * A better standing is kept.
+* **Dev.** `/hywmill war admin siege-decide <attacker> <WON|LOST|STALEMATE>` ends a siege now, with its usual
+  consequences.
+* **Tests.**
+  * JUnit 378/378 (`AmnestyTest`).
+  * Harness AM (`docs/m5-test-evidence/fix55-am.txt`), all PASS. The stand-in, on campaign with A, was outlawed by B for
+    three killings inside B (grievance 400). When A's siege of B was decided WON, B's amnesty raised the reputation by
+    28284 and took the stand-in from OUTLAW to TRUSTED, with grievance 0.
+* SHA-256 of the jar: `f2ccc9ba09ea334577cd68549f01eae4d6b36d28534e64a6be78c2fcef667bcd`.
