@@ -1699,3 +1699,27 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     `war admin loyalty <subject> <0-100>`, `war admin rebel <subject>`.
   * `war admin siege <a> <t> [quick] aim <subjugate|annex|punish|raze>`.
   * `politics.realmsEnabled` (default true) turns treaties, the other aims, provinces and rebellion off.
+* **Tests.**
+  * JUnit 385/385 (`RealmRulesTest`: treaty tiers and lapses, war sides, siege aims and their draw, loyalty, levies and
+    the 7-in-10 draw).
+  * Harness RLM (`docs/m5-test-evidence/fix56-rlm.txt`), kept W3 world, all PASS:
+    * Saint-Pierre le-fort (Norman, STRONGHOLD) annexed Oleros (Byzantine). Oleros's garrison of 54 was disbanded, and
+      a new one of 53 was raised at once, 35 of them Norman (66%; 74% on run 2).
+    * The headless Politics screen tagged Oleros "province of Saint-Pierre le-fort", and its Realm tab listed it with
+      loyalty 50 and 53 soldiers.
+    * Campigny, at war with Vieux-Bourg, let Vieux-Bourg's men riding to Saint-Pierre pass; its scout reported a convoy
+      instead. It found the war band Vieux-Bourg hired for itself.
+    * On the punitive siege, Oleros sent its levy with the host. Vieux-Bourg, Saint-Pierre's military ally, held
+      Oleros at −70 and "will not march beside Oleros". The punishment left an indemnity and Campigny's levies at 0.
+    * Oleros, at loyalty 0, rose against its sovereign and took its own colours again.
+  * Razing: run 1 razed Barneville (37 villagers removed; gone from Millénaire and the ledger). The later runs deferred
+    that check, because the world had no fifth village left.
+  * Not covered by the harness:
+    * treaties signed by relation over days;
+    * a broken village suing for peace within a day;
+    * daily loyalty drift.
+
+    These run once per Minecraft day; the pure rules are in JUnit.
+* **Upgrading a world.** Fealties sworn before this version keep going, with no end date and loyalty 40. Existing high
+  relations sign treaties over the following days.
+* SHA-256 of the jar: `bba5b7cd4016957bcb139bf4b4caa319dd1ef5e76655cd6339165a5ea6076940`.

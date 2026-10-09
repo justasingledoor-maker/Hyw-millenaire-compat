@@ -2579,16 +2579,27 @@ def scenario_RLM(ctx):
     V = next((r for r in rest if r[2] != "NONE"), None)          # punished
     X = next((r for r in rest if r is not V and r[2] != "NONE"), None)  # S's ally (and the road)
     Z = next((r for r in rest if r not in (V, X)), None)          # razed
-    check("RLM-0 five villages: a sovereign, a province of another culture, an ally, a target and one to raze",
-          all((S, P, V, X, Z)), str([(r[0], r[2], r[3]) for r in rows]))
-    if not all((S, P, V, X, Z)):
+    check("RLM-0 four villages: a sovereign, a province of another culture, an ally and a target (a fifth to raze, if there is one)",
+          all((S, P, V, X)), str([(r[0], r[2], r[3]) for r in rows]))
+    if not all((S, P, V, X)):
         return
-    c = {k: f"{r[1][0]} {r[1][1]} {r[1][2]}" for k, r in (("S", S), ("P", P), ("V", V), ("X", X), ("Z", Z))}
-    note("RLM villages", " | ".join(f"{k}={r[0]} {r[2]} {r[3]}" for k, r in (("S", S), ("P", P), ("V", V), ("X", X), ("Z", Z))))
-    for k in ("P", "V", "X", "Z"):
-        s.output(f"hywmill war admin rebel {c[k]}", 1)  # free of earlier ties
-        s.output(f"hywmill war admin treaty {c['S']} {c[k]} none", 1)
-        dip(s, S[1], f"admin truce {c['S']} {c[k]} 0")
+    named = [(k, r) for k, r in (("S", S), ("P", P), ("V", V), ("X", X), ("Z", Z)) if r]
+    c = {k: f"{r[1][0]} {r[1][1]} {r[1][2]}" for k, r in named}
+    note("RLM villages", " | ".join(f"{k}={r[0]} {r[2]} {r[3]}" for k, r in named))
+    # a clean slate: no ties, treaties, wars or truces among them (earlier scenarios leave some)
+    keys = [k for k, _ in named]
+    for k in keys:
+        s.output(f"hywmill war admin rebel {c[k]}", 1)
+    pairs = [(x, y) for i, x in enumerate(keys) for y in keys[i + 1:]]
+    for x, y in pairs:
+        s.output(f"hywmill war admin treaty {c[x]} {c[y]} none", 0.5)
+        dip(s, S[1], f"admin truce {c[x]} {c[y]} 1", 0.5)  # a truce ends any war between them
+    for x, y in pairs:
+        m5(s, f"mill mrel {c[x]} {c[y]} set 0", 0.5)
+        m5(s, f"mill mrel {c[y]} {c[x]} set 0", 0.5)
+    time.sleep(8)
+    for x, y in pairs:
+        dip(s, S[1], f"admin truce {c[x]} {c[y]} 0", 0.5)
     p0 = s.pos()
 
     # 1. annexation
@@ -2603,8 +2614,7 @@ def scenario_RLM(ctx):
     t0 = time.time()
     entries, cult = [], []
     while time.time() - t0 < 240:
-        g = garrison(s, P[1])
-        entries = [l for l in g["lines"] if re.search(r" lvl\d+ (RECRUITED|SPAWNED|GARRISONED|DEPLOYED)", l)]
+        entries = [l for l in s.output(at(P[1], "hywmill village garrison units"), 2) if re.search(r" lvl\d+ (RECRUITED|SPAWNED|GARRISONED|DEPLOYED)", l)]
         cult = [l for l in entries if "culture=" + S[3] in l]
         if len(entries) >= 6:
             break
@@ -2625,9 +2635,13 @@ def scenario_RLM(ctx):
     p1 = s.pos()
     for x, y, v in (("V", "S", 0), ("S", "V", 0), ("V", "X", -100), ("X", "V", -100)):
         m5(s, f"mill mrel {c[x]} {c[y]} set {v}")
+    m5(s, f"mill discover {c['V']} {U}", 0.5)
+    m5(s, f"mill discover {c['X']} {U}", 0.5)
+    dec = " | ".join(s.output(f"hywmill war for {U} declare {c['V']} on {c['X']} force", 2))
+    note("RLM declare", dec[-160:])
     war = None
     t0 = time.time()
-    while time.time() - t0 < 90 and war is None:
+    while time.time() - t0 < 60 and war is None:
         war = next((l for l in s.read_since(p1) if re.search(r"War: .* started", l) and V[0] in l and X[0] in l), None)
         time.sleep(3)
     col = " | ".join(s.output(f"hywmill war admin column vassal {c['X']} {c['S']}", 2))
@@ -2641,7 +2655,7 @@ def scenario_RLM(ctx):
 
     # 3. an ally that despises the province stays home; the province always sends its levy
     t0 = time.time()
-    while time.time() - t0 < 180 and sum(1 for l in garrison(s, P[1])["lines"] if " GARRISONED " in l) < 4:
+    while time.time() - t0 < 180 and sum(1 for l in s.output(at(P[1], "hywmill village garrison units"), 2) if " GARRISONED " in l) < 4:
         time.sleep(10)
     m5(s, f"mill mrel {c['S']} {c['X']} set 90")
     m5(s, f"mill mrel {c['X']} {c['S']} set 90")
@@ -2662,8 +2676,18 @@ def scenario_RLM(ctx):
     check("RLM-6 a punitive siege won: an indemnity, the loser's levies spent, no vassalage", "OK WON" in d2 and pun is not None and gv1 is not None
           and gv1 < 1 and V[0] not in " ".join(war_lines(s, S[1], "realms")), f"{(pun or '')[-200:]} || levy {gv0} -> {gv1}")
 
-    # 5. razing
+    # 5. razing (it destroys the village for good: only with a fifth village to spare)
     s.output("hywmill war admin recall-all", 3)
+    if Z is None:
+        deferred("RLM-7 a siege to raze, won: the village leaves Millénaire and the ledger", "no fifth village left in this world")
+    else:
+        raze_step(s, S, Z, c, p1)
+    rebel_step(s, S, P, c, p1)
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {U}", 0.3)
+
+
+def raze_step(s, S, Z, c, p1):
     time.sleep(3)
     rz = " | ".join(l for l in s.output(f"hywmill war admin siege {c['S']} {c['Z']} quick aim raze", 3) if l.startswith("war siege"))
     time.sleep(3)
@@ -2674,15 +2698,15 @@ def scenario_RLM(ctx):
     check("RLM-7 a siege to raze, won: the village leaves Millénaire and the ledger", "OK WON" in d3 and razed is not None and gone,
           f"{rz[-120:]} || {(razed or '')[-200:]} || gone {gone}")
 
-    # 6. rebellion
+
+
+def rebel_step(s, S, P, c, p1):
     s.output(f"hywmill war admin loyalty {c['P']} 0", 1)
     rb = " | ".join(s.output(f"hywmill war admin rebel {c['P']}", 2))
     rise = s.wait_for(r"rises against", 20, since=p1)
     realms2 = " | ".join(war_lines(s, S[1], "realms"))
     check("RLM-8 a disloyal province rebels: free, at enmity with its old sovereign", "rebel OK" in rb and rise is not None and P[0] not in realms2,
           f"{(rise or '')[-200:]} || {realms2[-160:]}")
-    s.output("hywmill war admin recall-all", 3)
-    m5(s, f"standin remove {U}", 0.3)
 
 
 def scenario_ARS7(ctx):
