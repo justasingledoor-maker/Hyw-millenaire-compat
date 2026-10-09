@@ -36,6 +36,19 @@ military alliance or a subject tie (vassal, province, sovereign) must act, if th
   not all at once. A war joined for an ally remembers it (`joinedFor`). When the ally makes peace with that enemy, so
   does the joiner.
 
+## 2b. Keeping the peace on one side
+
+Villages that send men to one side of a siege must not fight each other.
+
+* **No fighting beside a foe.** An independent village (a vassal, an ally, a friend sending relief) will not send relief,
+  a vassal levy or an ally's contingent to a side where a village it is at war with, or holds at −50 or worse, already
+  has men. The chronicle says so ("X will not march beside Y"). First come, first served: the later helper stays home.
+* **Provinces mind no one.** A province always comes. It has no wars of its own: once a day, any war it is in that its
+  sovereign is not in ends in peace, so it never fights its sovereign's friends.
+* **The road.** Scouts and councils go after a column (mercenaries, a vassal's men, a messenger) only if its men are their
+  village's enemies and ride for an enemy, and their own village has no men on that side of the siege. A company hired by
+  a friend, or a vassal's men riding to a friend, are let pass.
+
 ## 3. War aims: the AI director chooses
 
 Each siege now has an aim, chosen by the attacker when it is launched (counsel or AI) and announced with it:
@@ -63,8 +76,8 @@ vassal.
 
 * **Autonomy.** The Millénaire village goes on as before: its villagers, culture, buildings and trade.
 * **Its army is the realm's.** Its old garrison is disbanded at the conquest, and a new one is raised at once and kept up
-  as before. 70% of its recruits are of the sovereign's culture (its unit table and kit), 30% of its own culture. All of
-  them wear the sovereign's colours. A Norman village that takes a Seljuk one fields a Seljuk garrison of mostly Norman
+  as before. 70% of its recruits are of the sovereign's culture (drawn from the sovereign's unit table, in its kit), 30%
+  of its own culture. All of them wear the sovereign's colours. A Norman village that takes a Seljuk one fields a Seljuk garrison of mostly Norman
   troops in Norman colours.
 * **Foreign policy is the sovereign's.** A province launches no sieges, signs no treaties, and is at war with its
   sovereign's enemies (relation −100) and at peace with everyone else. Relation with the sovereign: 100. Its faction is
@@ -79,6 +92,10 @@ vassal.
 
 **Vassals** keep their army and colours: they answer the call with their usual levy (75%) and their own relief. They are
 bound to their lord's wars like military allies.
+
+**Military allies** send 20-35% of their free garrison with each other's siege hosts (within 2,500 blocks of the target,
+and not against a village they have a stronger treaty with). Those men march with the host as stand-ins in their own
+colours and kit; their own slots are away meanwhile and share the stand-ins' fate (dead with them, or home again).
 
 ## 5. Loyalty and rebellion
 

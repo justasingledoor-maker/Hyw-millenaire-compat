@@ -153,6 +153,7 @@ public final class RosterEntry {
     public String toString() {
         return shortId() + " " + unitKey + " lvl" + equipmentLevel + " " + state + (lossReason != null ? "(" + lossReason + ")" : "")
                 + " gen" + generation + (entityUuid != null ? " entity=" + entityUuid.toString().substring(0, 8) : "")
-                + " duty=" + duty + (duty != assignedDuty ? "/" + assignedDuty : "") + (dutyIndex >= 0 ? "#" + dutyIndex : "");
+                + " duty=" + duty + (duty != assignedDuty ? "/" + assignedDuty : "") + (dutyIndex >= 0 ? "#" + dutyIndex : "")
+                + (culture.isEmpty() ? "" : " culture=" + culture);
     }
 }

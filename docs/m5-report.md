@@ -1640,3 +1640,62 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     three killings inside B (grievance 400). When A's siege of B was decided WON, B's amnesty raised the reputation by
     28284 and took the stand-in from OUTLAW to TRUSTED, with grievance 0.
 * SHA-256 of the jar: `f2ccc9ba09ea334577cd68549f01eae4d6b36d28534e64a6be78c2fcef667bcd`.
+
+### 6.56 Realms: treaties, war aims, provinces, loyalty and rebellion; allies keep the peace on the road (`dist/hywmill-m5-fix56.jar`)
+
+* **Request.** Territorial control: villages that annex, punish or raze, chosen by the village AI; official alliances
+  opened by relation (75+ military, 50+ defensive, and so on); allies taking sides in a war by their strongest bond;
+  conquered villages that keep their autonomy but field the conqueror's troops in its colours and send 30-50% of their
+  garrison to its sieges and defence; vassals that keep their own army; rebellion, much rarer for conquered villages; the
+  Politics screen to match. Also, mid-way: allies helping one side fought each other on the road (a hired company was
+  cut down off-screen by another helper's riders).
+* **Design.** `docs/realm-design.md`.
+* **Treaties** (§1). Pact at 25, defensive pact at 50, military alliance at 75. Villages within 2,500 blocks sign the
+  tier their relation opens, one time in four per day. A treaty lapses 10 points below its threshold, or at war.
+  * Defensive pacts and alliances oblige relief: 30-50% of the free garrison, always.
+  * Allies also send 20-35% with each other's siege hosts.
+  * Bound villages are FRIENDLY in HYW.
+* **War obligations** (§2). When a war starts, every village bound to one side by an alliance or a subject tie joins it
+  (relation −100 with the enemy, so its war follows a day later). One bound to both sides weighs its bonds (province 6,
+  vassal 5, sovereign 4, alliance 3, plus relation/100, plus 0.3 for the same culture), joins the stronger side and
+  breaks the other: the treaty ends, or a subject tie becomes a rebellion. A war joined for an ally ends when that ally
+  makes peace.
+* **War aims** (§3). Each siege has an aim, drawn by the attacker from the situation and announced with it:
+  * subjugate: tribute, and the loser becomes a vassal with no end date;
+  * annex: the loser becomes a province;
+  * punish: an indemnity of 3× the tribute, the loser's levies spent, no vassalage; broken, it sues for peace;
+  * raze: the negation wand's mechanics remove the village from Millénaire; its buildings stay as ruins
+    (`politics.razeEnabled`).
+* **Provinces** (§4). At annexation, the old garrison is disbanded and a new one raised at once:
+  * 7 recruits in 10 are drawn from the sovereign's unit table and kit, the rest from the province's own;
+  * all wear the sovereign's colours;
+  * they march with the sovereign's sieges (30-50%) and relieve the realm, always;
+  * a province launches no sieges, signs no treaties, and has no wars but its sovereign's.
+
+  Vassals keep their army and colours.
+* **Loyalty** (§5). Provinces start at 50 and vassals at 40. Each day loyalty drifts towards 60 or 50, less for a
+  foreign culture or more than 1,000 blocks from the sovereign. It also moves with events:
+  * −0.5 per soldier lost in the sovereign's sieges, at most −15 a siege;
+  * −20 for falling to a siege, +10 for holding one;
+  * +3 when the sovereign wins a siege the subject sent men to.
+
+  Below 30 the subject may rebel. The daily chance is up to 25% for a vassal and 6% for a province, doubled under a
+  weaker sovereign. A rebel takes its own colours again, and war follows. A weak village at war may swear fealty to a
+  much stronger ally. Fealties sworn before realms keep going, now with no end date.
+* **Keeping the peace on one side** (§2b, the mid-way report).
+  * **The cause.** Scouts and councils went after every column whose men belonged to a village their own was at war
+    with. That included men riding to help a village they were helping too.
+  * **The road.** They now hunt a column only if its men are enemies, it rides for an enemy, and their own village has
+    no men on that side.
+  * **Refusals.** An independent village will not send relief, a vassal levy or an ally's contingent to a side where a
+    village it is at war with, or holds at −50 or worse, already has men. Provinces always come.
+* **Politics screen** (protocol 7).
+  * The village list tags each village: province of X, vassal of X, ally, defensive, pact, realm.
+  * A new **Realm** tab shows, for the selected village: its realm (sovereign, provinces and vassals with loyalty and
+    soldiers), its treaties, its wars with why ("joined for X"), and the realms of the known world.
+* **Commands.**
+  * `/hywmill war treaties` and `/hywmill war realms`.
+  * Admin: `war admin treaty <a> <b> <pact|defensive|alliance|none>`, `war admin annex <province> <sovereign>`,
+    `war admin loyalty <subject> <0-100>`, `war admin rebel <subject>`.
+  * `war admin siege <a> <t> [quick] aim <subjugate|annex|punish|raze>`.
+  * `politics.realmsEnabled` (default true) turns treaties, the other aims, provinces and rebellion off.

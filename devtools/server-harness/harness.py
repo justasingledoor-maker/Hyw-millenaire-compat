@@ -2549,6 +2549,142 @@ def scenario_AM(ctx):
     m5(s, f"standin remove {U}", 0.3)
 
 
+def village_rows(s):
+    """[(name, (x, y, z), tier, culture)] from /hywmill village list."""
+    out = []
+    for l in s.output("hywmill village list", 2):
+        m = re.search(r" - (.+?) (-?\d+), (-?\d+), (-?\d+) tier=(\w+) .* culture=(\S+)", l)
+        if m:
+            out.append((m[1], (int(m[2]), int(m[3]), int(m[4])), m[5], m[6]))
+    return out
+
+
+def scenario_RLM(ctx):
+    """Realms (post-M5, fix56; kept W3 world with the extra villages, [general] devCommands = true): a strong village S annexes
+    a village P of another culture (its garrison disbanded and raised again, mostly of S's culture, in S's colours; the
+    Politics screen shows the realm); S's ally will not march beside a village it despises, while the province always sends
+    its levy; scouts let men riding to a friend pass and hunt the enemy's; a punitive siege empties the loser's levies;
+    a razed village leaves Millénaire; a disloyal province rebels."""
+    s = ctx.s
+    U = U_UUID
+    for box in EXTRA_FORCELOAD:
+        s.cmd("forceload add {} {} {} {}".format(*box), wait=10)
+    s.output("hywmill war admin recall-all", 3)
+    rows = village_rows(s)
+    order = {"STRONGHOLD": 4, "GARRISON": 3, "GUARD_POST": 2, "WATCH": 1, "NONE": 0}
+    rows.sort(key=lambda r: -order.get(r[2], 0))
+    S = rows[0] if rows else None
+    P = next((r for r in rows[1:] if S and r[3] != S[3] and r[2] != "NONE"), None) or next((r for r in rows[1:] if r[2] != "NONE"), None)
+    rest = [r for r in rows if r not in (S, P)]
+    V = next((r for r in rest if r[2] != "NONE"), None)          # punished
+    X = next((r for r in rest if r is not V and r[2] != "NONE"), None)  # S's ally (and the road)
+    Z = next((r for r in rest if r not in (V, X)), None)          # razed
+    check("RLM-0 five villages: a sovereign, a province of another culture, an ally, a target and one to raze",
+          all((S, P, V, X, Z)), str([(r[0], r[2], r[3]) for r in rows]))
+    if not all((S, P, V, X, Z)):
+        return
+    c = {k: f"{r[1][0]} {r[1][1]} {r[1][2]}" for k, r in (("S", S), ("P", P), ("V", V), ("X", X), ("Z", Z))}
+    note("RLM villages", " | ".join(f"{k}={r[0]} {r[2]} {r[3]}" for k, r in (("S", S), ("P", P), ("V", V), ("X", X), ("Z", Z))))
+    for k in ("P", "V", "X", "Z"):
+        s.output(f"hywmill war admin rebel {c[k]}", 1)  # free of earlier ties
+        s.output(f"hywmill war admin treaty {c['S']} {c[k]} none", 1)
+        dip(s, S[1], f"admin truce {c['S']} {c[k]} 0")
+    p0 = s.pos()
+
+    # 1. annexation
+    an = " | ".join(l for l in s.output(f"hywmill war admin siege {c['S']} {c['P']} quick aim annex", 3) if l.startswith("war siege"))
+    time.sleep(3)
+    d = " ".join(l for l in s.output(f"hywmill war admin siege-decide {c['S']} WON", 3) if "siege-decide" in l)
+    ann = s.wait_for(r"is annexed to the realm of", 30, since=p0)
+    realms = " | ".join(war_lines(s, S[1], "realms"))
+    check("RLM-1 a siege to annex, won: P is a province of S's realm and its old garrison is disbanded",
+          "OK WON" in d and ann is not None and "disbanded" in ann and P[0] in realms and "province" in realms,
+          f"{an[-160:]} || {d} || {(ann or '')[-200:]} || {realms[-200:]}")
+    t0 = time.time()
+    entries, cult = [], []
+    while time.time() - t0 < 240:
+        g = garrison(s, P[1])
+        entries = [l for l in g["lines"] if re.search(r" lvl\d+ (RECRUITED|SPAWNED|GARRISONED|DEPLOYED)", l)]
+        cult = [l for l in entries if "culture=" + S[3] in l]
+        if len(entries) >= 6:
+            break
+        time.sleep(10)
+    share = len(cult) / max(1, len(entries))
+    same = P[3] == S[3]
+    check("RLM-2 P's new garrison is raised at once, about 7 in 10 of S's culture",
+          len(entries) >= 6 and (same or 0.45 <= share <= 0.95), f"{len(entries)} entries, {len(cult)} of {S[3]} ({share:.0%}){' (same culture)' if same else ''}")
+    standin_at(s, U, S[1][0] + 3, S[1][2] + 3)
+    m5(s, f"mill discover {c['S']} {U}", 0.5)
+    m5(s, f"mill discover {c['P']} {U}", 0.5)
+    time.sleep(3)
+    ui = " | ".join(m5(s, f"ui select {U} {c['S']}", 3))
+    check("RLM-3 the Politics screen: P tagged as S's province, the Realm tab lists it with its loyalty",
+          f"tag {P[0]}: province of {S[0]}" in ui and f"Province {P[0]}: loyalty" in ui and "Realms of the known world" in ui, ui[-500:])
+
+    # 2. the road: V, at war with X but not with S, lets X's men riding to S pass, and hunts the company X hired
+    p1 = s.pos()
+    for x, y, v in (("V", "S", 0), ("S", "V", 0), ("V", "X", -100), ("X", "V", -100)):
+        m5(s, f"mill mrel {c[x]} {c[y]} set {v}")
+    war = None
+    t0 = time.time()
+    while time.time() - t0 < 90 and war is None:
+        war = next((l for l in s.read_since(p1) if re.search(r"War: .* started", l) and V[0] in l and X[0] in l), None)
+        time.sleep(3)
+    col = " | ".join(s.output(f"hywmill war admin column vassal {c['X']} {c['S']}", 2))
+    sc1 = " | ".join(s.output(f"hywmill war admin scout {c['V']}", 3))
+    mc = " | ".join(s.output(f"hywmill war admin column mercs {c['X']} {c['X']}", 2))
+    sc2 = " | ".join(s.output(f"hywmill war admin scout {c['V']}", 3))
+    check("RLM-4 scouts let men riding to a friend pass, and hunt the enemy's own",
+          war is not None and "vassal" not in sc1 and "found" in sc2 and "convoy" not in sc2 and "vassal" not in sc2,
+          f"{(war or '')[-80:]} || {col[-80:]} || {sc1[-120:]} || {mc[-80:]} || {sc2[-120:]}")
+    s.output("hywmill war admin recall-all", 3)
+
+    # 3. an ally that despises the province stays home; the province always sends its levy
+    t0 = time.time()
+    while time.time() - t0 < 180 and sum(1 for l in garrison(s, P[1])["lines"] if " GARRISONED " in l) < 4:
+        time.sleep(10)
+    m5(s, f"mill mrel {c['S']} {c['X']} set 90")
+    m5(s, f"mill mrel {c['X']} {c['S']} set 90")
+    s.output(f"hywmill war admin treaty {c['S']} {c['X']} alliance", 1)
+    m5(s, f"mill mrel {c['X']} {c['P']} set -70")
+    p2 = s.pos()
+    lv = " | ".join(l for l in s.output(f"hywmill war admin siege {c['S']} {c['V']} quick aim punish", 3) if l.startswith("war siege"))
+    sent = s.wait_for(r"sends \d+ soldiers? with the host of", 30, since=p2)
+    refused = s.wait_for(r"will not march beside", 5, since=p2)
+    check("RLM-5 the province sends 30-50% of its garrison with its sovereign's host; the ally that despises it stays home",
+          sent is not None and P[0] in sent and refused is not None and X[0] in refused, f"{lv[-120:]} || {(sent or '')[-160:]} || {(refused or '')[-160:]}")
+
+    # 4. punishment
+    gv0 = garrison(s, V[1]).get("levy")
+    d2 = " ".join(l for l in s.output(f"hywmill war admin siege-decide {c['S']} WON", 3) if "siege-decide" in l)
+    pun = s.wait_for(r"punishes it: an indemnity of", 20, since=p2)
+    gv1 = garrison(s, V[1]).get("levy")
+    check("RLM-6 a punitive siege won: an indemnity, the loser's levies spent, no vassalage", "OK WON" in d2 and pun is not None and gv1 is not None
+          and gv1 < 1 and V[0] not in " ".join(war_lines(s, S[1], "realms")), f"{(pun or '')[-200:]} || levy {gv0} -> {gv1}")
+
+    # 5. razing
+    s.output("hywmill war admin recall-all", 3)
+    time.sleep(3)
+    rz = " | ".join(l for l in s.output(f"hywmill war admin siege {c['S']} {c['Z']} quick aim raze", 3) if l.startswith("war siege"))
+    time.sleep(3)
+    d3 = " ".join(l for l in s.output(f"hywmill war admin siege-decide {c['S']} WON", 3) if "siege-decide" in l)
+    razed = s.wait_for(r"is razed by", 30, since=p1)
+    time.sleep(3)
+    gone = Z[0] not in " ".join(r[0] for r in village_rows(s))
+    check("RLM-7 a siege to raze, won: the village leaves Millénaire and the ledger", "OK WON" in d3 and razed is not None and gone,
+          f"{rz[-120:]} || {(razed or '')[-200:]} || gone {gone}")
+
+    # 6. rebellion
+    s.output(f"hywmill war admin loyalty {c['P']} 0", 1)
+    rb = " | ".join(s.output(f"hywmill war admin rebel {c['P']}", 2))
+    rise = s.wait_for(r"rises against", 20, since=p1)
+    realms2 = " | ".join(war_lines(s, S[1], "realms"))
+    check("RLM-8 a disloyal province rebels: free, at enmity with its old sovereign", "rebel OK" in rb and rise is not None and P[0] not in realms2,
+          f"{(rise or '')[-200:]} || {realms2[-160:]}")
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {U}", 0.3)
+
+
 def scenario_ARS7(ctx):
     """ARS-7 alone on a kept world (after ARS): Muster Roll engine sales."""
     s, a = ctx.s, ctx.a
@@ -6776,7 +6912,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

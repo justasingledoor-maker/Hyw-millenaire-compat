@@ -243,6 +243,13 @@ final class M5SpikeCommands {
             HywMillCommands.send(ctx.getSource(), "m5 ui action " + a.action() + " available=" + a.available() + " outcome=" + a.outcome()
                     + " | " + a.requirement());
         }
+        // post-M5 realms: the village tags and the Realm tab
+        for (dev.hywmill.net.PoliticsSnapshot.VillageRow v : s.villages()) {
+            if (!v.tag().isEmpty()) {
+                HywMillCommands.send(ctx.getSource(), "m5 ui tag " + v.name() + ": " + v.tag());
+            }
+        }
+        s.realm().forEach(l -> HywMillCommands.send(ctx.getSource(), "m5 ui realm " + l));
         // the wire format round-trips (what a client would receive)
         net.minecraft.network.RegistryFriendlyByteBuf buf = new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(),
                 level.registryAccess());
