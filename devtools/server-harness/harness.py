@@ -2514,8 +2514,11 @@ def scenario_AM(ctx):
     m5(s, f"mill discover {ca} {U}", 0.5)
     m5(s, f"mill discover {cb} {U}", 0.5)
     s.output(f"hywmill war for {U} declare {ca} on {cb} force", 2)
-    m5(s, f"mill rep {ca} {U} adjust 5000", 0.5)  # a campaigner must be trusted by the village it fights for
+    # a campaigner must be trusted by the village it fights for (earlier scenarios may have left grievances with A)
+    s.output(at(a, f"hywmill politics admin clear {U}"), 1)
+    m5(s, f"mill rep {ca} {U} adjust 8000", 0.5)
     time.sleep(14)
+    note("AM standing with A", str(pshow(s, a, U)))
     j = " | ".join(war_lines(s, a, f"for {U} join {ca} against {cb}"))
     m5(s, f"mill rep {cb} {U} adjust -6000", 0.5)
     for _ in range(3):
