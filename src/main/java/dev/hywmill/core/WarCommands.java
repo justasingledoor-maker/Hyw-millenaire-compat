@@ -66,6 +66,25 @@ final class WarCommands {
             lines.forEach(l -> send(ctx.getSource(), " " + l));
             return lines.size();
         })));
+        war.then(Commands.literal("treaties").executes(ctx -> {
+            // post-M5 realms: every treaty in force
+            ServerLevel ow = ctx.getSource().getServer().overworld();
+            GarrisonLedger ledger = GarrisonLedger.get(ow);
+            send(ctx.getSource(), "war treaties: " + ledger.treaties().size());
+            for (var t : ledger.treaties().values()) {
+                VillageRecord x = ledger.get(t.a), y = ledger.get(t.b);
+                send(ctx.getSource(), " " + (x == null ? "?" : x.name) + " - " + (y == null ? "?" : y.name) + ": " + t.kind.label());
+            }
+            return ledger.treaties().size();
+        }));
+        war.then(Commands.literal("realms").executes(ctx -> {
+            // post-M5 realms: every sovereign with subjects, and its subjects with their loyalty
+            ServerLevel ow = ctx.getSource().getServer().overworld();
+            var lines = dev.hywmill.net.PoliticsNet.realms(ow, GarrisonLedger.get(ow));
+            send(ctx.getSource(), "war realms: " + lines.size() + " line(s)");
+            lines.forEach(l -> send(ctx.getSource(), " " + l));
+            return lines.size();
+        }));
         war.then(Commands.literal("vassals").executes(ctx -> {
             ServerLevel ow = ctx.getSource().getServer().overworld();
             GarrisonLedger ledger = GarrisonLedger.get(ow);
@@ -165,6 +184,77 @@ final class WarCommands {
                                     send(ctx.getSource(), "war siege-decide " + (ok ? "OK " + o : "refused"));
                                     return ok ? 1 : 0;
                                 }))))
+                .then(Commands.literal("treaty").then(Commands.argument("a", BlockPosArgument.blockPos()).then(Commands.argument("b", BlockPosArgument.blockPos())
+                        .then(Commands.argument("kind", com.mojang.brigadier.arguments.StringArgumentType.word()).executes(ctx -> {
+                            // post-M5 realms: signs (or dissolves, "none") a treaty between two villages at once
+                            VillageRecord x = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "a"));
+                            VillageRecord y = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "b"));
+                            if (x == null || y == null || x == y) {
+                                return 0;
+                            }
+                            ServerLevel ow = ctx.getSource().getServer().overworld();
+                            String k = com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "kind").toUpperCase();
+                            if (k.equals("NONE")) {
+                                boolean ok = dev.hywmill.politics.service.RealmService.dissolve(ow, GarrisonLedger.get(ow), x, y, ow.getGameTime());
+                                send(ctx.getSource(), "war treaty " + (ok ? "dissolved" : "none to dissolve"));
+                                return ok ? 1 : 0;
+                            }
+                            try {
+                                var kind = dev.hywmill.politics.realm.Treaty.Kind.valueOf(k);
+                                dev.hywmill.politics.service.RealmService.sign(ow, GarrisonLedger.get(ow), x, y, kind, ow.getGameTime());
+                                send(ctx.getSource(), "war treaty OK: " + x.name + " and " + y.name + " sign a " + kind.label());
+                                return 1;
+                            } catch (IllegalArgumentException ex) {
+                                ctx.getSource().sendFailure(Component.literal("Kinds: pact, defensive, alliance, none"));
+                                return 0;
+                            }
+                        })))))
+                .then(Commands.literal("annex").then(Commands.argument("province", BlockPosArgument.blockPos())
+                        .then(Commands.argument("sovereign", BlockPosArgument.blockPos()).executes(ctx -> {
+                            // post-M5 realms: the first village becomes a province of the second's realm, as if conquered
+                            VillageRecord p = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "province"));
+                            VillageRecord s = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "sovereign"));
+                            if (p == null || s == null || p == s) {
+                                return 0;
+                            }
+                            ServerLevel ow = ctx.getSource().getServer().overworld();
+                            GarrisonLedger ledger = GarrisonLedger.get(ow);
+                            dev.hywmill.politics.service.WarCounselService.makePeace(ow, ledger, p, s, ow.getGameTime(), "annexed by an admin");
+                            dev.hywmill.politics.service.RealmService.annex(ow, ledger, p, s, ow.getGameTime());
+                            send(ctx.getSource(), "war annex OK: " + p.name + " is a province of " + s.name);
+                            return 1;
+                        }))))
+                .then(Commands.literal("loyalty").then(Commands.argument("subject", BlockPosArgument.blockPos())
+                        .then(Commands.argument("value", com.mojang.brigadier.arguments.IntegerArgumentType.integer(0, 100)).executes(ctx -> {
+                            // post-M5 realms: sets a subject's loyalty
+                            VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "subject"));
+                            ServerLevel ow = ctx.getSource().getServer().overworld();
+                            GarrisonLedger ledger = GarrisonLedger.get(ow);
+                            var t = v == null ? null : dev.hywmill.politics.service.RealmService.tieOf(ledger, v.villageId, ow.getGameTime());
+                            if (t == null) {
+                                ctx.getSource().sendFailure(Component.literal("Not a vassal or a province."));
+                                return 0;
+                            }
+                            t.loyalty = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "value");
+                            t.loyaltyDay = -1; // re-evaluated (and a rebellion rolled) at the next village decision
+                            ledger.setDirty();
+                            send(ctx.getSource(), "war loyalty OK: " + v.name + " " + Math.round(t.loyalty));
+                            return 1;
+                        }))))
+                .then(Commands.literal("rebel").then(Commands.argument("subject", BlockPosArgument.blockPos()).executes(ctx -> {
+                    // post-M5 realms: the subject rebels now
+                    VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "subject"));
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    GarrisonLedger ledger = GarrisonLedger.get(ow);
+                    var t = v == null ? null : dev.hywmill.politics.service.RealmService.tieOf(ledger, v.villageId, ow.getGameTime());
+                    if (t == null) {
+                        ctx.getSource().sendFailure(Component.literal("Not a vassal or a province."));
+                        return 0;
+                    }
+                    dev.hywmill.politics.service.RealmService.rebel(ow, ledger, t, ow.getGameTime());
+                    send(ctx.getSource(), "war rebel OK: " + v.name);
+                    return 1;
+                })))
                 .then(Commands.literal("rearm").then(Commands.argument("village", BlockPosArgument.blockPos()).executes(ctx -> {
                     // fix53: a village at war stands its arsenal down and raises a fresh one under the current rule (trebuchets)
                     VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "village"));

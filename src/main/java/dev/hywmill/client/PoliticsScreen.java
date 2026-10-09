@@ -30,6 +30,8 @@ public final class PoliticsScreen extends Screen {
     /** Post-M5: the War tab (scout reports: columns on the road, convoys), and its scroll (rows). */
     private boolean war;
     private int warScroll;
+    /** Post-M5 realms: the Realm tab (the selected village's realm, treaties and wars; the known realms); it scrolls like History. */
+    private boolean realm;
     private static final int WAR_ROW = 34;
     private String lastResult = "";
     private boolean lastOk = true;
@@ -58,10 +60,12 @@ public final class PoliticsScreen extends Screen {
             PoliticsSnapshot.VillageRow v = vs.get(scroll + i);
             String rel = v.relation() == PoliticsSnapshot.VillageRow.NO_RELATION ? "" : " " + v.relation();
             String dist = v.distance() < 0 ? "" : " " + (v.distance() >= 1000 ? String.format("%.1f km", v.distance() / 1000.0) : v.distance() + " m");
-            Button b = Button.builder(Component.literal((v.id().equals(snap.selected()) ? "> " : "") + v.name() + rel + (v.truce() ? " [truce]" : "")),
+            String place = v.tag().isEmpty() ? "" : " [" + v.tag().split("[ ,]")[0] + "]";
+            Button b = Button.builder(Component.literal((v.id().equals(snap.selected()) ? "> " : "") + v.name() + rel + place + (v.truce() ? " [truce]" : "")),
                             btn -> select(v.id()))
                     .bounds(left + 12, top + i * 20, 138, 18)
                     .tooltip(Tooltip.create(Component.literal("Your standing: " + v.standing().toLowerCase()
+                            + (v.tag().isEmpty() ? "" : "\n" + Character.toUpperCase(v.tag().charAt(0)) + v.tag().substring(1))
                             + (v.distance() < 0 ? "" : "\nDistance from " + snap.homeName() + ":" + dist)))).build();
             addRenderableWidget(b);
         }
@@ -81,13 +85,15 @@ public final class PoliticsScreen extends Screen {
             i++;
         }
         int x0 = 190;
-        addRenderableWidget(Button.builder(Component.literal((history || war ? "" : "> ") + "Overview"), b -> { history = false; war = false; rebuildWidgets(); })
+        addRenderableWidget(Button.builder(Component.literal((history || war || realm ? "" : "> ") + "Overview"), b -> tab(false, false, false))
                 .bounds(x0, 12, 70, 16).build());
-        addRenderableWidget(Button.builder(Component.literal((history ? "> " : "") + "History"), b -> { history = true; war = false; rebuildWidgets(); })
+        addRenderableWidget(Button.builder(Component.literal((history ? "> " : "") + "History"), b -> tab(true, false, false))
                 .bounds(x0 + 74, 12, 70, 16).build());
         long openCount = snap.intel().stream().filter(PoliticsSnapshot.IntelRow::open).count();
         addRenderableWidget(Button.builder(Component.literal((war ? "> " : "") + "War" + (openCount > 0 ? " (" + openCount + ")" : "")),
-                b -> { war = true; history = false; rebuildWidgets(); }).bounds(x0 + 148, 12, 70, 16).build());
+                b -> tab(false, true, false)).bounds(x0 + 148, 12, 70, 16).build());
+        addRenderableWidget(Button.builder(Component.literal((realm ? "> " : "") + "Realm"), b -> tab(false, false, true))
+                .bounds(x0 + 222, 12, 70, 16).tooltip(Tooltip.create(Component.literal("The selected village's realm, treaties and wars"))).build());
         if (war) {
             List<PoliticsSnapshot.IntelRow> rows = snap.intel();
             int fit = Math.max(1, (height - 44 - 34) / WAR_ROW);
@@ -114,7 +120,7 @@ public final class PoliticsScreen extends Screen {
                         .bounds(width - 190 - 36, 12, 16, 16).build());
             }
         }
-        if (history) {
+        if (history || realm) {
             addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { historyScroll = Math.max(0, historyScroll - 5); })
                     .bounds(width - 190 - 18, 12, 16, 16).build());
             addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { historyScroll += 5; })
@@ -125,17 +131,30 @@ public final class PoliticsScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mx, double my, double dx, double dy) {
-        if (history && mx >= 190 && mx <= width - 190) {
+        if ((history || realm) && mx >= 190 && mx <= width - 190) {
             historyScroll = Math.max(0, historyScroll - (int) Math.signum(dy) * 2);
             return true;
         }
         return super.mouseScrolled(mx, my, dx, dy);
     }
 
-    /** Post-M5: the History tab: vassal ties and battle reports, wrapped, from the scroll position. */
+    private void tab(boolean history, boolean war, boolean realm) {
+        if (history != this.history || realm != this.realm) {
+            historyScroll = 0;
+        }
+        this.history = history;
+        this.war = war;
+        this.realm = realm;
+        rebuildWidgets();
+    }
+
+    /**
+     * Post-M5: the History tab (vassal ties and battle reports) or the Realm tab (realm lines; unindented lines are headings),
+     * wrapped, from the scroll position.
+     */
     private void renderHistory(GuiGraphics g, int x0, int x1) {
         List<String> lines = new java.util.ArrayList<>();
-        for (String h : snap.history()) {
+        for (String h : realm ? snap.realm() : snap.history()) {
             if (h.isEmpty()) {
                 lines.add("");
                 continue;
@@ -143,7 +162,8 @@ public final class PoliticsScreen extends Screen {
             for (var l : font.split(Component.literal(h), x1 - x0)) {
                 StringBuilder sb = new StringBuilder();
                 l.accept((i, style, cp) -> { sb.appendCodePoint(cp); return true; });
-                lines.add((h.startsWith("Day ") || h.startsWith("Vassalage") ? "\u0001" : "") + sb);
+                boolean head = realm ? !h.startsWith(" ") : h.startsWith("Day ") || h.startsWith("Vassalage") || h.startsWith("Province");
+                lines.add((head ? "\u0001" : "") + sb);
             }
         }
         historyScroll = Math.min(historyScroll, Math.max(0, lines.size() - 1));
@@ -223,7 +243,7 @@ public final class PoliticsScreen extends Screen {
             }
             return;
         }
-        if (history) {
+        if (history || realm) {
             renderHistory(g, x0, x1);
             if (!lastResult.isEmpty()) {
                 wrap(g, lastResult, x0, height - 58, x1 - x0, lastOk ? 0xFF2E5E1E : 0xFF8A1E1E);

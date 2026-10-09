@@ -215,6 +215,16 @@ public final class Recruitment {
      */
     public static List<RosterEntry> grantStarting(GarrisonRoster r, UUID villageId, int target, MilitaryTier tier, GarrisonTable table,
                                                   Map<String, UnitSpec> units, int equipmentLevel, long tick) {
+        return grantStarting(r, villageId, target, tier, table, units, equipmentLevel, tick, null, "");
+    }
+
+    /**
+     * Post-M5 realms: a province's grant draws each recruit from its sovereign's table ({@code alt}, culture {@code altCulture})
+     * when {@link dev.hywmill.politics.realm.Provinces#sovereignPick} says so, and marks it with that culture.
+     */
+    public static List<RosterEntry> grantStarting(GarrisonRoster r, UUID villageId, int target, MilitaryTier tier, GarrisonTable table,
+                                                  Map<String, UnitSpec> units, int equipmentLevel, long tick, @Nullable GarrisonTable alt,
+                                                  String altCulture) {
         if (r.startingGranted || target <= 0) {
             return List.of();
         }
@@ -222,14 +232,21 @@ public final class Recruitment {
         if (eligible.isEmpty()) {
             return List.of();
         }
+        List<UnitSpec> altEligible = alt == null ? List.of() : eligibleUnits(tier, alt, units);
         int n = Math.min(startingGrant(target, table.startingFraction()), Math.max(0, target - r.live()));
         List<RosterEntry> out = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            UnitSpec u = chooseUnit(villageId, r.nextSeq, eligible, table.composition(), liveCounts(r));
+            boolean sov = !altEligible.isEmpty() && dev.hywmill.politics.realm.Provinces.sovereignPick(villageId, r.nextSeq);
+            UnitSpec u = sov ? chooseUnit(villageId, r.nextSeq, altEligible, alt.composition(), liveCounts(r))
+                    : chooseUnit(villageId, r.nextSeq, eligible, table.composition(), liveCounts(r));
             if (u == null) {
                 break;
             }
-            out.add(r.recruit(villageId, u.key(), u.entityType(), equipmentLevel, tick, false));
+            RosterEntry e = r.recruit(villageId, u.key(), u.entityType(), equipmentLevel, tick, false);
+            if (sov) {
+                e.culture = altCulture;
+            }
+            out.add(e);
         }
         r.startingGranted = true;
         return out;

@@ -39,6 +39,13 @@ public final class RosterEntry {
      */
     public String extra = "";
 
+    /**
+     * Post-M5 realms: the culture whose kit this soldier wears ("": its village's; a province's recruits are mostly of its
+     * sovereign's culture), and, for a levy marching in another village's host, the village it really belongs to (its colours).
+     */
+    public String culture = "";
+    @Nullable public UUID origin;
+
     public boolean temporary() {
         return !mercLook.isEmpty() || !extra.isEmpty();
     }

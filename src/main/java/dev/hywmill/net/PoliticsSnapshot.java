@@ -21,12 +21,22 @@ import java.util.UUID;
 public record PoliticsSnapshot(@Nullable UUID home, String homeName, String culture, String standing, String effective, int reputation,
                                double grievance, int favor, int diplomacyPoints, List<String> notes, List<String> chronicle,
                                List<VillageRow> villages, @Nullable UUID selected, List<ActionRow> actions, List<String> envoys,
-                               List<String> lent, List<String> honours, List<String> history, List<IntelRow> intel) implements CustomPacketPayload {
+                               List<String> lent, List<String> honours, List<String> history, List<IntelRow> intel,
+                               List<String> realm) implements CustomPacketPayload {
 
     /** Post-M5: the War tab: columns the player's side found ({@code id}: the column; the verdicts are the server's). */
     public record IntelRow(UUID id, String text, boolean open, boolean canTake, boolean canBribe, int price) {}
 
     public static final int MAX_INTEL = 40;
+
+    /** Post-M5 realms: {@code realm} holds the Realm tab: the selected village's realm, treaties and wars, then the known realms. */
+    public PoliticsSnapshot(@Nullable UUID home, String homeName, String culture, String standing, String effective, int reputation,
+                            double grievance, int favor, int diplomacyPoints, List<String> notes, List<String> chronicle,
+                            List<VillageRow> villages, @Nullable UUID selected, List<ActionRow> actions, List<String> envoys,
+                            List<String> lent, List<String> honours, List<String> history, List<IntelRow> intel) {
+        this(home, homeName, culture, standing, effective, reputation, grievance, favor, diplomacyPoints, notes, chronicle, villages, selected,
+                actions, envoys, lent, honours, history, intel, List.of());
+    }
 
     public PoliticsSnapshot(@Nullable UUID home, String homeName, String culture, String standing, String effective, int reputation,
                             double grievance, int favor, int diplomacyPoints, List<String> notes, List<String> chronicle,
@@ -49,10 +59,16 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
 
     /**
      * A discovered village: its name, the player's standing there, and home's relation towards it. Post-M5: its livery
-     * colours (RGB, -1: none) and its distance in metres (blocks) from the home village (-1: unknown, or it is home).
+     * colours (RGB, -1: none) and its distance in metres (blocks) from the home village (-1: unknown, or it is home). Post-M5
+     * realms: its place ({@code tag}: "province of X", "vassal of X", "ally", "defensive", "pact"; empty: none).
      */
-    public record VillageRow(UUID id, String name, String standing, int relation, boolean truce, int colour1, int colour2, int distance) {
+    public record VillageRow(UUID id, String name, String standing, int relation, boolean truce, int colour1, int colour2, int distance,
+                             String tag) {
         public static final int NO_RELATION = Integer.MIN_VALUE;
+
+        public VillageRow(UUID id, String name, String standing, int relation, boolean truce, int colour1, int colour2, int distance) {
+            this(id, name, standing, relation, truce, colour1, colour2, distance, "");
+        }
 
         public VillageRow(UUID id, String name, String standing, int relation, boolean truce) {
             this(id, name, standing, relation, truce, -1, -1, -1);
@@ -92,6 +108,7 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
             buf.writeInt(v.colour1());
             buf.writeInt(v.colour2());
             buf.writeVarInt(v.distance() + 1);
+            buf.writeUtf(v.tag(), 128);
         }
         writeUuid(buf, s.selected);
         buf.writeVarInt(Math.min(MAX_ROWS, s.actions.size()));
@@ -120,6 +137,11 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
             buf.writeBoolean(r.canBribe());
             buf.writeVarInt(r.price());
         }
+        int nr = Math.min(MAX_HISTORY, s.realm.size());
+        buf.writeVarInt(nr);
+        for (String l : s.realm.subList(0, nr)) {
+            buf.writeUtf(l, 512);
+        }
     }, buf -> {
         UUID home = readUuid(buf);
         String homeName = buf.readUtf(), culture = buf.readUtf(), standing = buf.readUtf(), effective = buf.readUtf();
@@ -131,7 +153,7 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
         List<VillageRow> villages = new ArrayList<>();
         for (int i = 0; i < nv; i++) {
             villages.add(new VillageRow(buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readBoolean(), buf.readInt(), buf.readInt(),
-                    buf.readVarInt() - 1));
+                    buf.readVarInt() - 1, buf.readUtf(128)));
         }
         UUID selected = readUuid(buf);
         int na = Math.min(MAX_ROWS, buf.readVarInt());
@@ -150,8 +172,13 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
         for (int i = 0; i < ni; i++) {
             intel.add(new IntelRow(buf.readUUID(), buf.readUtf(512), buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readVarInt()));
         }
+        int nr = Math.min(MAX_HISTORY, buf.readVarInt());
+        List<String> realm = new ArrayList<>();
+        for (int i = 0; i < nr; i++) {
+            realm.add(buf.readUtf(512));
+        }
         return new PoliticsSnapshot(home, homeName, culture, standing, effective, rep, g, favor, dp, notes, chronicle, villages, selected,
-                actions, envoys, lent, honours, history, intel);
+                actions, envoys, lent, honours, history, intel, realm);
     });
 
     static void writeUuid(RegistryFriendlyByteBuf buf, @Nullable UUID u) {

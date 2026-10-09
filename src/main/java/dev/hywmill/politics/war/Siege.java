@@ -88,6 +88,11 @@ public final class Siege {
      * stowed), fed in as their side's front thins and all by noon; the wave they were picked for; each front's size when it did.
      */
     public final java.util.Set<UUID> hostReserve = new java.util.LinkedHashSet<>(), defReserve = new java.util.LinkedHashSet<>();
+    /**
+     * Post-M5 realms: levies of provinces and military allies marching in the host: the stand-in's slot in the attacker's roster
+     * → {its own village, its own slot there} (away on SIEGE duty while the host is out; who falls as the stand-in falls).
+     */
+    public final java.util.Map<UUID, UUID[]> levies = new java.util.LinkedHashMap<>();
     public int reserveWave, hostFront, defFront;
 
     /** A wave is being fought or the night between two (no help may join any more; no recruiting at the target). */

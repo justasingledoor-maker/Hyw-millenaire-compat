@@ -20,7 +20,8 @@ class PoliticsWireTest {
     static PoliticsSnapshot sample(int villages, int lines) {
         List<PoliticsSnapshot.VillageRow> vs = new ArrayList<>();
         for (int i = 0; i < villages; i++) {
-            vs.add(new PoliticsSnapshot.VillageRow(UUID.randomUUID(), "Village " + i, "STRANGER", i % 3 == 0 ? PoliticsSnapshot.VillageRow.NO_RELATION : -i, i % 2 == 0));
+            vs.add(new PoliticsSnapshot.VillageRow(UUID.randomUUID(), "Village " + i, "STRANGER", i % 3 == 0 ? PoliticsSnapshot.VillageRow.NO_RELATION : -i, i % 2 == 0,
+                    -1, -1, i * 100, i % 4 == 0 ? "province of Home" : ""));
         }
         List<String> ls = new ArrayList<>();
         for (int i = 0; i < lines; i++) {
@@ -28,7 +29,8 @@ class PoliticsWireTest {
         }
         return new PoliticsSnapshot(UUID.randomUUID(), "Home", "millenaire:norman", "TRUSTED", "UNWELCOME", 5000, 12.5, 7, 3, ls, ls, vs,
                 null, List.of(new PoliticsSnapshot.ActionRow("RECONCILE", "Envoy: reconciliation", true, "needs trusted", "likely")),
-                List.of(), List.of("spear_man (detached, 100 s left)"), List.of("a trusted friend of Home"));
+                List.of(), List.of("spear_man (detached, 100 s left)"), List.of("a trusted friend of Home"), List.of(), List.of(),
+                List.of("Home, 40 soldiers", " Province Village 0: loyalty 50"));
     }
 
     @Test
@@ -64,7 +66,7 @@ class PoliticsWireTest {
         var r = new PoliticsPayloads.ActionResult(false, "PAIR_COOLDOWN", "you proposed this recently");
         PoliticsPayloads.ActionResult.CODEC.encode(b, r);
         assertEquals(r, PoliticsPayloads.ActionResult.CODEC.decode(b));
-        assertEquals("6", PoliticsNet.VERSION); // 4: player colours; 5: History tab; 6: War tab
+        assertEquals("7", PoliticsNet.VERSION); // 4: player colours; 5: History tab; 6: War tab; 7: Realm tab
     }
 
     @Test

@@ -407,8 +407,119 @@ public final class SiegeService {
             }
         }
         joinPending(ledger, s, a, tick);
+        realmLevies(overworld, ledger, s, a, tick);
         ledger.setDirty();
         return s.hostStart;
+    }
+
+    /**
+     * Post-M5 realms (docs/realm-design.md §1, §4): the attacker's provinces send 30-50% of their free garrison with its host,
+     * always, and its military allies within reach 20-35%. Each marches as a stand-in in the host (in its own colours and kit);
+     * its own slot is away on SIEGE duty meanwhile, and shares the stand-in's fate ({@link #resolveLevies}). Returns how many.
+     */
+    static int realmLevies(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, long tick) {
+        VillageRecord t = ledger.get(s.target);
+        if (!dev.hywmill.politics.service.RealmService.enabled() || t == null || a.hywRoster == null) {
+            return 0;
+        }
+        List<VillageRecord> from = new ArrayList<>();
+        java.util.Map<UUID, Boolean> province = new java.util.HashMap<>();
+        for (dev.hywmill.politics.war.Vassalage v : dev.hywmill.politics.service.RealmService.subjectsOf(ledger, a.villageId, tick)) {
+            VillageRecord c = ledger.get(v.vassal);
+            if (v.province && c != null && !c.villageId.equals(t.villageId)) {
+                from.add(c);
+                province.put(c.villageId, true);
+            }
+        }
+        for (dev.hywmill.politics.realm.Treaty tr : ledger.treaties().values()) {
+            if (!tr.military() || !tr.involves(a.villageId)) {
+                continue;
+            }
+            VillageRecord c = ledger.get(tr.other(a.villageId));
+            dev.hywmill.politics.realm.Treaty withT = c == null ? null : dev.hywmill.politics.service.RealmService.realmTreaty(ledger, c.villageId, t.villageId, tick);
+            if (c != null && !c.villageId.equals(t.villageId) && (withT == null || withT.kind.ordinal() < tr.kind.ordinal())
+                    && !dev.hywmill.politics.service.RealmService.sameRealm(ledger, c.villageId, t.villageId, tick)
+                    && c.center.distSqr(t.center) <= (double) dev.hywmill.politics.realm.Treaty.REACH * dev.hywmill.politics.realm.Treaty.REACH) {
+                from.add(c);
+                province.put(c.villageId, false);
+            }
+        }
+        int total = 0;
+        for (VillageRecord c : from) {
+            if (c.hywRoster == null || besieged(ledger, c.villageId)) {
+                continue;
+            }
+            List<RosterEntry> pool = new ArrayList<>(ReliefService.available(c));
+            java.util.SplittableRandom rnd = new java.util.SplittableRandom(s.seed(c.villageId.getLeastSignificantBits() ^ 0x4c45L));
+            int n = dev.hywmill.politics.realm.Provinces.levy(pool.size(), rnd.nextDouble(), province.get(c.villageId));
+            pool.sort(java.util.Comparator.comparing(e -> e.rosterId));
+            java.util.Collections.shuffle(pool, new Random(rnd.nextLong()));
+            for (RosterEntry src : pool.subList(0, n)) {
+                RosterEntry stand = a.hywRoster.recruit(a.villageId, src.unitKey, src.entityType, src.equipmentLevel, tick, false);
+                stand.extra = "levy";
+                stand.origin = c.villageId;
+                stand.culture = GarrisonService.cultureOf(c, src);
+                stand.mobilized = src.mobilized;
+                stand.transition(UnitState.SPAWNED, tick);
+                stand.transition(UnitState.GARRISONED, tick);
+                stand.transition(UnitState.DEPLOYED, tick);
+                stand.duty = Duty.SIEGE;
+                s.host.add(stand.rosterId);
+                s.hostStart++;
+                src.transition(UnitState.DEPLOYED, tick);
+                src.duty = Duty.SIEGE;
+                GarrisonService.stow(overworld, src);
+                s.levies.put(stand.rosterId, new UUID[]{c.villageId, src.rosterId});
+            }
+            if (n > 0) {
+                total += n;
+                String text = c.name + " sends " + n + " soldier" + (n == 1 ? "" : "s") + " with the host of " + a.name
+                        + (province.get(c.villageId) ? " (its province)" : " (its military ally)");
+                s.notes.add(text);
+                chronicle(overworld, c, a, tick, text);
+                HmLog.info("Siege {}: {}", s.id.toString().substring(0, 8), text);
+            }
+        }
+        if (total > 0) {
+            ledger.setDirty();
+        }
+        return total;
+    }
+
+    /**
+     * Post-M5 realms: the host is going home: each levy's own slot shares its stand-in's fate: dead with it, else back home
+     * (stowed until its village is loaded). Provinces lose loyalty for their dead. The stand-ins themselves are discharged
+     * with the host's other temporary men.
+     */
+    static void resolveLevies(ServerLevel overworld, GarrisonLedger ledger, Siege s, long tick) {
+        if (s.levies.isEmpty()) {
+            return;
+        }
+        VillageRecord a = ledger.get(s.attacker);
+        java.util.Map<UUID, Integer> dead = new java.util.HashMap<>();
+        for (java.util.Map.Entry<UUID, UUID[]> en : s.levies.entrySet()) {
+            RosterEntry stand = a == null || a.hywRoster == null ? null : a.hywRoster.entry(en.getKey());
+            VillageRecord c = ledger.get(en.getValue()[0]);
+            RosterEntry src = c == null || c.hywRoster == null ? null : c.hywRoster.entry(en.getValue()[1]);
+            if (src == null || src.state().terminal()) {
+                continue;
+            }
+            boolean fell = stand == null || stand.state() == UnitState.DEAD || stand.state() == UnitState.LOST && stand.lossReason() != LossReason.DISCHARGED;
+            if (fell) {
+                kill(overworld, c, src.rosterId, tick);
+                dead.merge(c.villageId, 1, Integer::sum);
+            } else {
+                stowHome(overworld, ledger, c, src, tick);
+            }
+        }
+        s.levies.clear();
+        for (java.util.Map.Entry<UUID, Integer> d : dead.entrySet()) {
+            dev.hywmill.politics.war.Vassalage tie = dev.hywmill.politics.service.RealmService.tieOf(ledger, d.getKey(), tick);
+            if (tie != null) {
+                tie.loyalty = dev.hywmill.politics.realm.Loyalty.clamp(tie.loyalty + dev.hywmill.politics.realm.Loyalty.losses(d.getValue()));
+            }
+        }
+        ledger.setDirty();
     }
 
     /** Men who reached the attacker before its muster (mercenaries, vassals' men) join its host, stowed with it. */
@@ -2308,6 +2419,15 @@ public final class SiegeService {
         s.summary = text.toString();
         announce(overworld, ledger, s, a, t, s.summary);
         HmLog.info("Siege {} ended {}: {}", s.id.toString().substring(0, 8), o, s.summary);
+        if (dev.hywmill.politics.service.RealmService.enabled() && t != null && o != Siege.Outcome.STALEMATE) {
+            // post-M5 realms: provinces that sent men share the victory; a besieged subject remembers whether it held
+            if (o == Siege.Outcome.WON) {
+                s.levies.values().stream().map(v -> v[0]).distinct().forEach(v -> dev.hywmill.politics.service.RealmService.loyaltyEvent(ledger, v,
+                        dev.hywmill.politics.realm.Loyalty.VICTORY, tick));
+            }
+            dev.hywmill.politics.service.RealmService.loyaltyEvent(ledger, t.villageId,
+                    o == Siege.Outcome.WON ? dev.hywmill.politics.realm.Loyalty.FELL : dev.hywmill.politics.realm.Loyalty.HELD, tick);
+        }
         goHome(overworld, ledger, s, a, entries(a, s.host), tick, r, watched);
         if (t == null || o == Siege.Outcome.STALEMATE) {
             return;
@@ -2475,6 +2595,7 @@ public final class SiegeService {
     /** Survivors leave the target (stowed) and march home. */
     private static void goHome(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, List<RosterEntry> alive, long tick,
                                PoliticsTables.SiegeRule r, boolean watched) {
+        resolveLevies(overworld, ledger, s, tick); // post-M5 realms: the levies' own slots share their stand-ins' fate
         alive.forEach(e -> GarrisonService.stow(overworld, e));
         List<RosterEntry> going = new ArrayList<>();
         for (RosterEntry e : alive) {
@@ -2589,6 +2710,7 @@ public final class SiegeService {
         Set<UUID> held = new HashSet<>();
         for (Siege s : ledger.sieges()) {
             held.addAll(s.host);
+            s.levies.values().forEach(v -> held.add(v[1])); // post-M5 realms: provinces' and allies' men out with a host
             for (dev.hywmill.politics.war.Relief r : s.reliefs) {
                 held.addAll(r.units); // relief forces are on duty SIEGE too: they have their own way home
                 held.addAll(r.strays);

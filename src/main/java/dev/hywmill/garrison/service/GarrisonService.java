@@ -171,7 +171,9 @@ public final class GarrisonService {
 
         int equipmentLevel = Recruitment.equipmentLevel(tier, table);
         if (s.enabled() && !r.startingGranted && rec.updateCount > 0 && !rec.needsRecompute && target > 0) {
-            List<RosterEntry> granted = Recruitment.grantStarting(r, rec.villageId, target, tier, table, tables.units(), equipmentLevel, tick);
+            VillageRecord sov = foreignSovereign(ledger, rec, tick);
+            List<RosterEntry> granted = Recruitment.grantStarting(r, rec.villageId, target, tier, table, tables.units(), equipmentLevel, tick,
+                    sov == null ? null : tables.forCulture(sov.culture), sov == null ? "" : sov.culture);
             if (r.startingGranted) {
                 HmLog.info("Starting garrison granted to village '{}' ({} {}, capacity {}, target {}): {}", rec.name, rec.culture, tier,
                         rec.capacity, target, granted.stream().map(e -> e.unitKey).toList());
@@ -179,8 +181,12 @@ public final class GarrisonService {
         }
 
         AlertState alert = alertState(rec.villageId);
-        List<UnitSpec> eligible = Recruitment.eligibleUnits(tier, table, tables.units());
-        UnitSpec next = Recruitment.chooseUnit(rec.villageId, r.nextSeq, eligible, table.composition(), Recruitment.liveCounts(r));
+        // post-M5 realms: a province recruits from its sovereign's table seven times in ten (those recruits are the sovereign's people)
+        VillageRecord sovereign = foreignSovereign(ledger, rec, tick);
+        boolean sovPick = sovereign != null && dev.hywmill.politics.realm.Provinces.sovereignPick(rec.villageId, r.nextSeq);
+        GarrisonTable pick = sovPick ? tables.forCulture(sovereign.culture) : table;
+        List<UnitSpec> eligible = Recruitment.eligibleUnits(tier, pick, tables.units());
+        UnitSpec next = Recruitment.chooseUnit(rec.villageId, r.nextSeq, eligible, pick.composition(), Recruitment.liveCounts(r));
         // post-M5: the alarm of a coming siege opened the coffers: regular recruitment four times as fast for a while
         long interval = tick < r.coffersUntil ? Math.max(20, s.recruitInterval() / 4) : s.recruitInterval();
         Recruitment.Blocker blocker = Recruitment.blocker(r, s.enabled(), alert == AlertState.CALM, target, tierMax, tick, interval, next);
@@ -189,6 +195,9 @@ public final class GarrisonService {
         }
         if (blocker == Recruitment.Blocker.NONE) {
             RosterEntry e = Recruitment.recruitPaid(r, rec.villageId, next, equipmentLevel, tick);
+            if (sovPick) {
+                e.culture = sovereign.culture;
+            }
             HmLog.info("Village '{}' recruits {} ({} levy left, {}/{} target)", rec.name, e, String.format("%.2f", r.levyPoints), r.live(), target);
         }
         v.lastBlocker = blocker.name();
@@ -267,6 +276,34 @@ public final class GarrisonService {
             n++;
         }
         return n;
+    }
+
+    /** Post-M5 realms: the culture whose kit a soldier wears (a province's recruits are mostly of its sovereign's culture). */
+    public static String cultureOf(VillageRecord rec, RosterEntry e) {
+        return e.culture.isEmpty() ? rec.culture : e.culture;
+    }
+
+    /** Post-M5 realms: the colours a soldier wears: a levy's own village's, else its village's (a province: its sovereign's). */
+    @javax.annotation.Nullable
+    public static int[] liveryOf(ServerLevel overworld, VillageRecord rec, RosterEntry e) {
+        if (e.origin != null) {
+            VillageRecord o = GarrisonLedger.get(overworld).get(e.origin);
+            if (o != null) {
+                return LiveryService.of(overworld, o);
+            }
+        }
+        return LiveryService.of(overworld, rec);
+    }
+
+    /** Post-M5 realms: the sovereign of a province of another culture (null: not a province, realms off, or the same culture). */
+    @javax.annotation.Nullable
+    static VillageRecord foreignSovereign(GarrisonLedger ledger, VillageRecord rec, long tick) {
+        if (!dev.hywmill.politics.service.RealmService.enabled()) {
+            return null;
+        }
+        dev.hywmill.politics.war.Vassalage t = dev.hywmill.politics.service.RealmService.tieOf(ledger, rec.villageId, tick);
+        VillageRecord sov = t != null && t.province ? ledger.get(t.overlord) : null;
+        return sov == null || sov.culture.equals(rec.culture) ? null : sov;
     }
 
     /**
@@ -378,10 +415,10 @@ public final class GarrisonService {
                     new UnitSpec(e.unitKey, e.entityType, UnitClass.LINE, 1, MilitaryTier.WATCH, true));
             long t0 = perf.start();
             GarrisonTag tag = r.beginSpawn(rec.villageId, e, tick);
-            int[] livery = LiveryService.of(overworld, rec); // post-M5: the village's colours
+            int[] livery = liveryOf(overworld, rec, e); // post-M5: the village's colours (a province: its sovereign's)
             e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "", livery); // equipped below with the current data
             SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, rec.factionId, e.entityUuid, pos, anchor, e.equipmentLevel,
-                    s.equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture,
+                    s.equipmentDrops(), tag, eq, new EquipmentProvider.Context(cultureOf(rec, e),
                     dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier),
                     e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "",
                     dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId).withLivery(livery)));
@@ -454,12 +491,12 @@ public final class GarrisonService {
         GarrisonTag tag = new GarrisonTag(rec.villageId, e.rosterId, e.generation);
         boolean merc = !e.mercLook.isEmpty();
         // garrison soldiers wear the village's colours; engines and hired mercenaries (their company's look) do not
-        int[] livery = known != null && (!merc || e.extra.equals("household")) ? LiveryService.of(overworld, rec) : null; // the lord's guard wears his colours
+        int[] livery = known != null && (!merc || e.extra.equals("household")) ? liveryOf(overworld, rec, e) : null; // the lord's guard wears his colours
         String role = merc ? dev.hywmill.garrison.equip.EquipmentProfiles.LOOK_PREFIX + e.mercLook
                 : e.mobilized ? dev.hywmill.garrison.equip.EquipmentProfiles.LEVY : "";
         e.equipRole = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(role, livery);
         SpawnResult res = units.spawn(overworld, new SpawnRequest(spec, rec.factionId, e.entityUuid, pos, home, e.equipmentLevel,
-                HywMillConfig.garrison().equipmentDrops(), tag, eq, new EquipmentProvider.Context(rec.culture,
+                HywMillConfig.garrison().equipmentDrops(), tag, eq, new EquipmentProvider.Context(cultureOf(rec, e),
                 dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier), // mercenaries are mobilized: a levy's tier
                 role, dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId).withLivery(livery)));
         if (!res.ok()) {

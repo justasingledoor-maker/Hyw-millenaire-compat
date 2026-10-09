@@ -382,6 +382,17 @@ public final class PoliticsNbt {
                 x.putBoolean("field", g.field);
                 x.putInt("milStart", g.milStart);
                 x.putInt("milKilled", g.milKilled);
+                if (!g.levies.isEmpty()) {
+                    ListTag lv = new ListTag();
+                    g.levies.forEach((k, v) -> {
+                        CompoundTag y = new CompoundTag();
+                        y.putUUID("stand", k);
+                        y.putUUID("village", v[0]);
+                        y.putUUID("slot", v[1]);
+                        lv.add(y);
+                    });
+                    x.put("levies", lv);
+                }
                 if (g.reserveWave > 0) {
                     x.putIntArray("reserve", new int[]{g.reserveWave, g.hostFront, g.defFront});
                     x.put("hostReserve", uuids(g.hostReserve));
@@ -458,6 +469,13 @@ public final class PoliticsNbt {
                 g.field = x.getBoolean("field");
                 g.milStart = x.getInt("milStart");
                 g.milKilled = x.getInt("milKilled");
+                ListTag lv = x.getList("levies", Tag.TAG_COMPOUND);
+                for (int k = 0; k < lv.size(); k++) {
+                    CompoundTag y = lv.getCompound(k);
+                    if (y.hasUUID("stand") && y.hasUUID("village") && y.hasUUID("slot")) {
+                        g.levies.put(y.getUUID("stand"), new UUID[]{y.getUUID("village"), y.getUUID("slot")});
+                    }
+                }
                 int[] reserve = x.getIntArray("reserve");
                 if (reserve.length == 3) {
                     g.reserveWave = reserve[0];

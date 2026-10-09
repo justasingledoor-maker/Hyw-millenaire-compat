@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The same {@link #snapshot}/{@link #submit} are driven headless by {@code /hywmill dev ui}.
  */
 public final class PoliticsNet {
-    public static final String VERSION = "6"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab; 6: War tab
+    public static final String VERSION = "7"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab; 6: War tab; 7: Realm tab
     /** At most one request per player per this many ticks. */
     public static final long RATE_TICKS = 5;
     /** Local requests (pardon, apology) and the home view need the player near the home village. */
@@ -155,7 +155,7 @@ public final class PoliticsNet {
                     rel.isPresent() ? rel.getAsInt() : PoliticsSnapshot.VillageRow.NO_RELATION,
                     hr != null && hr.politics.truceWith(v.village(), ow.getGameTime()),
                     liv == null ? -1 : dev.hywmill.garrison.equip.VillageLivery.rgb(liv[0]), liv == null ? -1 : dev.hywmill.garrison.equip.VillageLivery.rgb(liv[1]),
-                    dist));
+                    dist, tag(ledger, home, v.village(), ow.getGameTime())));
         }
         List<String> envoys = new ArrayList<>();
         PoliticsView.envoys(ow, me).forEach(e -> envoys.add(e.kind().name().toLowerCase() + " " + e.from() + " -> " + e.to() + ", about "
@@ -163,7 +163,7 @@ public final class PoliticsNet {
         List<String> honours = PoliticsView.honours(ow, me);
         if (home == null) {
             return new PoliticsSnapshot(null, "", "", "", "", 0, 0, 0, 0, List.of("No village nearby. Select a village you know."), List.of(),
-                    rows, null, List.of(), envoys, List.of(), honours, history(ow, ledger, null), intel(player, ledger));
+                    rows, null, List.of(), envoys, List.of(), honours, history(ow, ledger, null), intel(player, ledger), realm(ow, ledger, selected));
         }
         PoliticsView.Home h = PoliticsView.home(ow, me, home).orElseThrow();
         List<String> chron = new ArrayList<>();
@@ -175,7 +175,139 @@ public final class PoliticsNet {
         OptionalInt dp = source.diplomacyPoints(ow, home, me);
         return new PoliticsSnapshot(home, h.name(), h.culture(), h.status().name(), h.effective().name(), h.reputation(), h.grievance(),
                 h.favor(), dp.isPresent() ? dp.getAsInt() : -1, h.wordTravels(), chron, rows, selected, actions, envoys,
-                PoliticsView.lent(ow, me, home), honours, history(ow, ledger, home), intel(player, ledger));
+                PoliticsView.lent(ow, me, home), honours, history(ow, ledger, home), intel(player, ledger), realm(ow, ledger, selected));
+    }
+
+    /** Post-M5 realms: a village's place in the list: its subject tie, else home's treaty with it, else its realm's size. */
+    static String tag(GarrisonLedger ledger, @Nullable UUID home, UUID v, long now) {
+        dev.hywmill.politics.war.Vassalage t = dev.hywmill.politics.service.RealmService.tieOf(ledger, v, now);
+        if (t != null && t.indefinite()) {
+            return t.kindLabel() + " of " + name(ledger, t.overlord);
+        }
+        if (home != null && !home.equals(v)) {
+            dev.hywmill.politics.realm.Treaty tr = dev.hywmill.politics.service.RealmService.realmTreaty(ledger, home, v, now);
+            if (tr != null) {
+                return switch (tr.kind) {
+                    case ALLIANCE -> "ally";
+                    case DEFENSIVE -> "defensive";
+                    case PACT -> "pact";
+                };
+            }
+        }
+        int n = dev.hywmill.politics.service.RealmService.subjectsOf(ledger, v, now).size();
+        return n > 0 ? "realm, " + n + " subject" + (n == 1 ? "" : "s") : "";
+    }
+
+    static String name(GarrisonLedger ledger, UUID v) {
+        VillageRecord r = ledger.get(v);
+        return r == null ? "?" : r.name;
+    }
+
+    /**
+     * Post-M5 realms, the Realm tab: the selected village's realm (its sovereign, or its subjects with their loyalty), its
+     * treaties (a subject's are its sovereign's), its wars and why it fights them; then the realms of the known world.
+     */
+    public static List<String> realm(ServerLevel ow, GarrisonLedger ledger, @Nullable UUID village) {
+        List<String> out = new ArrayList<>();
+        long now = ow.getGameTime();
+        VillageRecord v = village == null ? null : ledger.get(village);
+        if (v != null) {
+            dev.hywmill.politics.war.Vassalage tie = dev.hywmill.politics.service.RealmService.tieOf(ledger, village, now);
+            UUID head = dev.hywmill.politics.service.RealmService.sovereignOf(ledger, village, now);
+            out.add(v.name + (v.hywRoster == null ? "" : ", " + v.hywRoster.live() + " soldiers"));
+            if (tie != null) {
+                out.add(" Is " + tie.describe(name(ledger, tie.overlord), now) + ".");
+                out.add(tie.province ? " Its army is its sovereign's: 70% of its recruits are the sovereign's people, in the sovereign's colours."
+                        : " It keeps its own army and colours, and answers its lord's call.");
+            }
+            List<dev.hywmill.politics.war.Vassalage> subs = dev.hywmill.politics.service.RealmService.subjectsOf(ledger, village, now);
+            for (dev.hywmill.politics.war.Vassalage s : subs) {
+                VillageRecord sr = ledger.get(s.vassal);
+                out.add(" " + (s.province ? "Province " : "Vassal ") + name(ledger, s.vassal) + ": "
+                        + (s.indefinite() ? "loyalty " + Math.round(s.loyalty) : s.daysLeft(now) + " day(s) left")
+                        + (sr == null || sr.hywRoster == null ? "" : ", " + sr.hywRoster.live() + " soldiers"));
+            }
+            if (tie == null && subs.isEmpty()) {
+                out.add(" Independent, with no subjects.");
+            }
+            out.add("");
+            out.add("Treaties" + (head.equals(village) ? "" : " (its sovereign " + name(ledger, head) + "'s)") + ":");
+            int nt = 0;
+            for (dev.hywmill.politics.realm.Treaty t : ledger.treaties().values()) {
+                if (t.a.equals(head) || t.b.equals(head)) {
+                    out.add(" " + capital(t.kind.label()) + " with " + name(ledger, t.a.equals(head) ? t.b : t.a)
+                            + ", since day " + t.since / dev.hywmill.politics.PoliticsTables.DAY);
+                    nt++;
+                }
+            }
+            if (nt == 0) {
+                out.add(" None.");
+            }
+            out.add("");
+            out.add("Wars:");
+            int nw = 0;
+            for (dev.hywmill.politics.war.WarRecord w : ledger.wars().values()) {
+                if (!w.atWar() || !w.involves(village)) {
+                    continue;
+                }
+                UUID enemy = w.other(village);
+                String why = "";
+                if (w.joinedFor != null && village.equals(w.joiner)) {
+                    why = ", joined for " + name(ledger, w.joinedFor);
+                } else if (w.joinedFor != null && enemy.equals(w.joiner)) {
+                    why = ", who joined for " + name(ledger, w.joinedFor);
+                }
+                out.add(" At war with " + name(ledger, enemy) + why + ", since day " + w.warSince / dev.hywmill.politics.PoliticsTables.DAY);
+                nw++;
+            }
+            if (nw == 0) {
+                out.add(" At peace.");
+            }
+            out.add("");
+        }
+        out.addAll(realms(ow, ledger));
+        return out;
+    }
+
+    /** Post-M5 realms: every village with subjects, the largest first, and its subjects with their loyalty. */
+    public static List<String> realms(ServerLevel ow, GarrisonLedger ledger) {
+        long now = ow.getGameTime();
+        Map<UUID, List<dev.hywmill.politics.war.Vassalage>> by = new java.util.LinkedHashMap<>();
+        for (dev.hywmill.politics.war.Vassalage t : ledger.vassalages()) {
+            if (!t.over(now)) {
+                by.computeIfAbsent(t.overlord, k -> new ArrayList<>()).add(t);
+            }
+        }
+        List<String> out = new ArrayList<>();
+        out.add("Realms of the known world:");
+        if (by.isEmpty()) {
+            out.add(" None: every village stands alone.");
+            return out;
+        }
+        List<UUID> heads = new ArrayList<>(by.keySet());
+        heads.sort((x, y) -> Integer.compare(by.get(y).size(), by.get(x).size()));
+        for (UUID h : heads) {
+            List<dev.hywmill.politics.war.Vassalage> subs = by.get(h);
+            subs.sort((p, q) -> Boolean.compare(q.province, p.province));
+            int men = live(ledger, h);
+            StringBuilder b = new StringBuilder();
+            for (dev.hywmill.politics.war.Vassalage s : subs) {
+                men += live(ledger, s.vassal);
+                b.append(b.isEmpty() ? "" : ", ").append(name(ledger, s.vassal)).append(" (").append(s.kindLabel())
+                        .append(s.indefinite() ? ", loyalty " + Math.round(s.loyalty) : ", " + s.daysLeft(now) + " d").append(")");
+            }
+            out.add(" " + name(ledger, h) + ", " + men + " soldiers: " + b);
+        }
+        return out;
+    }
+
+    static int live(GarrisonLedger ledger, UUID v) {
+        VillageRecord r = ledger.get(v);
+        return r == null || r.hywRoster == null ? 0 : r.hywRoster.live();
+    }
+
+    static String capital(String s) {
+        return s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
     /** Post-M5, the War tab: what the player's side found on the roads, the open ones first. */

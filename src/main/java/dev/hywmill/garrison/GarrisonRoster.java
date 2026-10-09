@@ -365,6 +365,12 @@ public final class GarrisonRoster {
         if (!e.extra.isEmpty()) {
             c.putString("extra", e.extra);
         }
+        if (!e.culture.isEmpty()) {
+            c.putString("culture", e.culture);
+        }
+        if (e.origin != null) {
+            c.putUUID("origin", e.origin);
+        }
         if (e.assignedDuty != dev.hywmill.garrison.duty.Duty.GARRISON || e.duty != dev.hywmill.garrison.duty.Duty.GARRISON || e.dutyIndex >= 0
                 || !e.equipRole.isEmpty() || e.errandPlayer != null) {
             CompoundTag d = new CompoundTag();
@@ -435,6 +441,8 @@ public final class GarrisonRoster {
         e.mercLook = c.getString("merc");
         e.wounded = c.getBoolean("wounded");
         e.extra = c.getString("extra");
+        e.culture = c.getString("culture");
+        e.origin = c.hasUUID("origin") ? c.getUUID("origin") : null;
         return e;
     }
 }

@@ -26,6 +26,15 @@ public final class LiveryService {
         if (rec.loneBuilding) {
             return null;
         }
+        if (dev.hywmill.politics.service.RealmService.enabled()) {
+            // post-M5 realms: a province's soldiers wear its sovereign's colours (its own are kept for the day it rebels)
+            GarrisonLedger ledger = GarrisonLedger.get(overworld);
+            dev.hywmill.politics.war.Vassalage t = dev.hywmill.politics.service.RealmService.tieOf(ledger, rec.villageId, overworld.getGameTime());
+            VillageRecord sov = t != null && t.province ? ledger.get(t.overlord) : null;
+            if (sov != null && sov != rec && !sov.loneBuilding) {
+                return of(overworld, sov);
+            }
+        }
         if (rec.liveryPrimary < 0 || rec.liverySecondary < 0) {
             GarrisonLedger ledger = GarrisonLedger.get(overworld);
             List<int[]> near = new ArrayList<>();

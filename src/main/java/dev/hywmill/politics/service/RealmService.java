@@ -111,6 +111,7 @@ public final class RealmService {
         if (source == null || !enabled()) {
             return;
         }
+        loyalty(overworld, ledger, now);
         for (Treaty t : new ArrayList<>(ledger.treaties().values())) {
             VillageRecord a = ledger.get(t.a), b = ledger.get(t.b);
             Integer rel = a == null || b == null ? null : relation(overworld, source, t.a, t.b);
@@ -144,6 +145,7 @@ public final class RealmService {
                 recs.add(r);
             }
         }
+        seekProtection(overworld, ledger, now, interval);
         double p = Treaty.SIGN_CHANCE * interval / (double) PoliticsTables.DAY;
         SplittableRandom rnd = new SplittableRandom(now * 31 + ledger.treaties().size());
         for (int i = 0; i < recs.size(); i++) {
@@ -159,6 +161,30 @@ public final class RealmService {
                     continue;
                 }
                 sign(overworld, ledger, x, y, open, now);
+            }
+        }
+    }
+
+    /**
+     * Vassalage by choice (docs/realm-design.md §1): a village at war, bound by a military alliance to one at least three times
+     * its garrison, may swear fealty to it for protection (one time in ten per day).
+     */
+    static void seekProtection(ServerLevel overworld, GarrisonLedger ledger, long now, long interval) {
+        double p = 0.1 * interval / (double) PoliticsTables.DAY;
+        for (Treaty t : new ArrayList<>(ledger.treaties().values())) {
+            if (!t.military()) {
+                continue;
+            }
+            VillageRecord x = ledger.get(t.a), y = ledger.get(t.b);
+            if (x == null || y == null || x.hywRoster == null || y.hywRoster == null) {
+                continue;
+            }
+            VillageRecord weak = x.hywRoster.live() <= y.hywRoster.live() ? x : y, strong = weak == x ? y : x;
+            boolean atWar = ledger.wars().values().stream().anyMatch(w -> w.atWar() && w.involves(weak.villageId));
+            if (atWar && strong.hywRoster.live() >= 3 * Math.max(1, weak.hywRoster.live()) && tieOf(ledger, strong.villageId, now) == null
+                    && new SplittableRandom(now ^ weak.villageId.getMostSignificantBits()).nextDouble() < p) {
+                news(overworld, Services.settlements(), weak, strong, now, weak.name + ", hard pressed in war, seeks the protection of its ally " + strong.name);
+                dev.hywmill.garrison.service.SiegeService.swearFealty(overworld, ledger, weak, strong, now);
             }
         }
     }
@@ -254,6 +280,10 @@ public final class RealmService {
     /** {@code c} breaks every bond with {@code other}: their treaty ends, a subject tie between them is thrown off. */
     static void breakWith(ServerLevel overworld, GarrisonLedger ledger, VillageRecord c, VillageRecord other, long now) {
         ledger.treaties().remove(Treaty.key(c.villageId, other.villageId));
+        Vassalage own = tieOf(ledger, c.villageId, now);
+        if (own != null && own.overlord.equals(other.villageId)) {
+            ledger.rebels().put(c.villageId, other.villageId);
+        }
         ledger.vassalages().removeIf(t -> !t.over(now) && ((t.vassal.equals(c.villageId) && t.overlord.equals(other.villageId))
                 || (t.vassal.equals(other.villageId) && t.overlord.equals(c.villageId))));
         ledger.setDirty();
@@ -302,6 +332,75 @@ public final class RealmService {
                     WarCounselService.makePeace(overworld, ledger, j, f, now, "its war for " + (w.joinedFor.equals(x.villageId) ? x.name : y.name) + " is over");
                 }
             }
+        }
+    }
+
+    // ------------------------------------------------------------------ loyalty and rebellion
+
+    /** A loyalty event for {@code subject} (if it is a subject): {@code delta} points. */
+    public static void loyaltyEvent(GarrisonLedger ledger, UUID subject, double delta, long now) {
+        Vassalage t = tieOf(ledger, subject, now);
+        if (t != null && t.indefinite()) {
+            t.loyalty = dev.hywmill.politics.realm.Loyalty.clamp(t.loyalty + delta);
+            ledger.setDirty();
+        }
+    }
+
+    /**
+     * Each village AI interval (docs/realm-design.md §5): every subject's loyalty drifts once per Minecraft day (towards its
+     * resting point, less for a foreign culture and for distance), and a disloyal subject may rebel that day.
+     */
+    public static void loyalty(ServerLevel overworld, GarrisonLedger ledger, long now) {
+        if (!enabled()) {
+            return;
+        }
+        long day = now / PoliticsTables.DAY;
+        for (Vassalage legacy : new ArrayList<>(ledger.vassalages())) {
+            if (!legacy.indefinite() && !legacy.over(now)) {
+                // a 21-day fealty from before realms: it lasts until it rebels now
+                ledger.vassalages().remove(legacy);
+                ledger.vassalages().add(Vassalage.subject(legacy.vassal, legacy.overlord, now, false));
+                ledger.setDirty();
+            }
+        }
+        for (Vassalage t : new ArrayList<>(ledger.vassalages())) {
+            if (!t.indefinite() || t.loyaltyDay >= day) {
+                continue;
+            }
+            VillageRecord sub = ledger.get(t.vassal), sov = ledger.get(t.overlord);
+            if (sub == null || sov == null) {
+                ledger.vassalages().remove(t);
+                ledger.setDirty();
+                continue;
+            }
+            long days = Math.min(5, day - Math.max(t.loyaltyDay, day - 5));
+            double dist = Math.sqrt(sub.center.distSqr(sov.center));
+            for (long i = 0; i < days; i++) {
+                t.loyalty = dev.hywmill.politics.realm.Loyalty.daily(t.loyalty, t.province, sub.culture.equals(sov.culture), dist);
+            }
+            t.loyaltyDay = day;
+            ledger.setDirty();
+            int subLive = sub.hywRoster == null ? 0 : sub.hywRoster.live(), sovLive = sov.hywRoster == null ? 0 : sov.hywRoster.live();
+            double p = dev.hywmill.politics.realm.Loyalty.rebelChance(t.loyalty, t.province, sovLive < subLive);
+            if (p > 0 && new SplittableRandom(day * 31 + t.vassal.getLeastSignificantBits()).nextDouble() < p) {
+                rebel(overworld, ledger, t, now);
+            }
+        }
+    }
+
+    /** {@code t}'s subject rebels: it is free, its relation with its old sovereign falls to −100 and a war follows. */
+    public static void rebel(ServerLevel overworld, GarrisonLedger ledger, Vassalage t, long now) {
+        SettlementSource source = Services.settlements();
+        VillageRecord sub = ledger.get(t.vassal), sov = ledger.get(t.overlord);
+        ledger.vassalages().remove(t);
+        ledger.rebels().put(t.vassal, t.overlord);
+        if (source != null) {
+            source.setVillageRelation(overworld, t.vassal, t.overlord, -100);
+        }
+        ledger.setDirty();
+        if (sub != null && sov != null) {
+            news(overworld, source, sub, sov, now, sub.name + " rises against " + sov.name + " (loyalty " + Math.round(t.loyalty) + "): the "
+                    + t.kindLabel() + " throws off its sovereign" + (t.province ? ", and its garrison takes its own colours again" : ""));
         }
     }
 

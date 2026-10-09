@@ -273,7 +273,7 @@ public final class DutyService {
             return; // a hired mercenary keeps its company's look
         }
         String role = dev.hywmill.garrison.equip.EquipmentProfiles.role(e.mobilized, e.assignedDuty);
-        int[] livery = ent.level() instanceof net.minecraft.server.level.ServerLevel sl ? LiveryService.of(sl.getServer().overworld(), rec) : null;
+        int[] livery = ent.level() instanceof net.minecraft.server.level.ServerLevel sl ? GarrisonService.liveryOf(sl.getServer().overworld(), rec, e) : null;
         String stamp = dev.hywmill.garrison.equip.EquipmentProfiles.stamp(role, livery); // role + profile revision + livery: new data re-equips once
         if (stamp.equals(e.equipRole)) {
             return;
@@ -285,7 +285,7 @@ public final class DutyService {
             e.equipRole = stamp;
             return;
         }
-        eq.apply(ent, spec, e.equipmentLevel, new dev.hywmill.garrison.spi.EquipmentProvider.Context(rec.culture,
+        eq.apply(ent, spec, e.equipmentLevel, new dev.hywmill.garrison.spi.EquipmentProvider.Context(GarrisonService.cultureOf(rec, e),
                 dev.hywmill.garrison.equip.EquipmentProfiles.gearTier(e.mobilized, e.equipmentLevel, rec.tier), role,
                 dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.rosterId).withLivery(livery));
         e.equipRole = stamp;
