@@ -282,6 +282,10 @@ treated like soldiers ("repairable" or "beyond repair"). The rest (`SiegeWaves`,
     its home 12 blocks towards the village; it packs up to move and sets up again where it stops. It stops at the
     village's edge. Reach: catapult and springald 100, nest of bees 128, trebuchet 170.
   * **Admin.** `/hywmill war admin rearm <village>` raises a fresh arsenal for a village at war under the current rule.
+* **Amnesty (fix55).** When a siege is won or lost (not a stalemate), the loser's terms forgive every player who helped the
+  winners: on campaign with them near the battle, or striking their foes. Their grievances with the loser are wiped,
+  including a peacetime killing, so an outlaw is pardoned. Their combined reputation with it is raised to at least the
+  Trusted line, so they are Trusted at least. A better standing is kept.
 * **No help from the besieged (fix51).** While a siege against it is declared or fought, a village sends no relief, no
   vassal levy, joins no raid, lends no detachment and launches no siege of its own.
 * **Refugees.** 15-20 from the countryside take up arms (militia, some spearmen; temporary, like the militia).
