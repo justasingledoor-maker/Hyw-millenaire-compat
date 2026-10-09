@@ -2514,7 +2514,8 @@ def scenario_AM(ctx):
     m5(s, f"mill discover {ca} {U}", 0.5)
     m5(s, f"mill discover {cb} {U}", 0.5)
     s.output(f"hywmill war for {U} declare {ca} on {cb} force", 2)
-    time.sleep(8)
+    m5(s, f"mill rep {ca} {U} adjust 5000", 0.5)  # a campaigner must be trusted by the village it fights for
+    time.sleep(14)
     j = " | ".join(war_lines(s, a, f"for {U} join {ca} against {cb}"))
     m5(s, f"mill rep {cb} {U} adjust -6000", 0.5)
     for _ in range(3):
