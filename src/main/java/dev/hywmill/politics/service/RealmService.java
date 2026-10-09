@@ -380,6 +380,16 @@ public final class RealmService {
             }
             t.loyaltyDay = day;
             ledger.setDirty();
+            if (t.province) {
+                // a province has no wars of its own: only its sovereign's (so it never fights its sovereign's friends)
+                for (WarRecord w : new ArrayList<>(ledger.wars().values())) {
+                    UUID other = w.atWar() && w.involves(sub.villageId) ? w.other(sub.villageId) : null;
+                    VillageRecord o = other == null ? null : ledger.get(other);
+                    if (o != null && !other.equals(sov.villageId) && !RelationProjector.atWar(ledger, sov.villageId, other)) {
+                        WarCounselService.makePeace(overworld, ledger, sub, o, now, sub.name + " is a province of " + sov.name + " and has no wars of its own");
+                    }
+                }
+            }
             int subLive = sub.hywRoster == null ? 0 : sub.hywRoster.live(), sovLive = sov.hywRoster == null ? 0 : sov.hywRoster.live();
             double p = dev.hywmill.politics.realm.Loyalty.rebelChance(t.loyalty, t.province, sovLive < subLive);
             if (p > 0 && new SplittableRandom(day * 31 + t.vassal.getLeastSignificantBits()).nextDouble() < p) {

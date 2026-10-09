@@ -500,19 +500,25 @@ public final class ColumnService {
                     return;
                 }
                 boolean any = false, besieged = SiegeService.besieged(ledger, h.villageId);
+                // post-M5: it will not fight beside a village it is at war with or despises (a province minds no one)
+                VillageRecord foe = besieged ? null : SiegeService.wontFightBeside(overworld, ledger, s, owner.villageId.equals(s.attacker), h.villageId, tick);
                 for (Relief rl : s.reliefs) {
                     if (rl.helper.equals(h.villageId)) {
-                        rl.called = !besieged;
-                        any |= !besieged;
+                        rl.called = !besieged && foe == null;
+                        any |= rl.called;
+                        if (foe != null && rl.sent == 0) {
+                            rl.phase = Relief.Phase.DONE;
+                        }
                     }
                 }
                 for (Vassalage v : ledger.vassalages()) {
-                    if (!besieged && v.vassal.equals(h.villageId) && v.overlord.equals(owner.villageId) && !v.over(tick)) {
+                    if (!besieged && foe == null && v.vassal.equals(h.villageId) && v.overlord.equals(owner.villageId) && !v.over(tick)) {
                         any |= vassalColumn(ledger, s, owner, h, tick);
                     }
                 }
                 text = "A messenger of " + owner.name + " reached " + h.name + (any ? ": it sends help"
-                        : besieged ? ": besieged itself, it sends no one" : ": it sends no one");
+                        : besieged ? ": besieged itself, it sends no one"
+                        : foe != null ? ": it will not fight beside " + foe.name + " and sends no one" : ": it sends no one");
                 s.notes.add(text);
             }
             case ALARM -> {
@@ -634,6 +640,10 @@ public final class ColumnService {
             return;
         }
         SplittableRandom r = new SplittableRandom(c.id.getMostSignificantBits() ^ 0x636F756EL);
+        if (!hunts(ledger, v.villageId, c)) {
+            tell(overworld, ledger, c, v.name + "'s council lets " + c.label() + " pass: they ride for a friend");
+            return;
+        }
         if (r.nextDouble() >= COUNCIL_ACTS) {
             tell(overworld, ledger, c, v.name + "'s council lets " + c.label() + " pass");
             return;
@@ -644,6 +654,20 @@ public final class ColumnService {
         } else {
             tell(overworld, ledger, c, "riders of " + v.name + " went after " + c.label() + " but it slipped through");
         }
+    }
+
+    /**
+     * Post-M5: {@code v}'s scouts and council go after a column only if its men are {@code v}'s enemies and ride for an enemy
+     * of {@code v}, and {@code v} has no men of its own on that side of the siege. Men riding to help a friend (or a village
+     * {@code v} itself fights beside) are let pass, whoever they are.
+     */
+    static boolean hunts(GarrisonLedger ledger, UUID v, Column c) {
+        UUID serves = c.kind == Column.Kind.MESSENGER || c.kind == Column.Kind.CONVOY || c.destination == null ? c.owner : c.destination;
+        if (!RelationProjector.atWar(ledger, v, c.owner) || !RelationProjector.atWar(ledger, v, serves)) {
+            return false;
+        }
+        Siege s = siegeOf(ledger, c);
+        return s == null || !SiegeService.side(ledger, s, serves.equals(s.attacker)).contains(v);
     }
 
     /** A player takes the job of intercepting a found column (on campaign with the village that found it). */
@@ -906,8 +930,7 @@ public final class ColumnService {
         Column found = null;
         double best = Double.MAX_VALUE;
         for (Column c : ledger.columns()) {
-            if (!c.onRoad() || c.revealedBy != null || c.owner.equals(v.villageId) || !RelationProjector.atWar(ledger, v.villageId, c.owner)
-                    || tick < c.depart) {
+            if (!c.onRoad() || c.revealedBy != null || c.owner.equals(v.villageId) || !hunts(ledger, v.villageId, c) || tick < c.depart) {
                 continue;
             }
             double[] p = c.position(tick);

@@ -72,7 +72,11 @@ public final class ReliefService {
         long now = tick;
         java.util.Set<UUID> bound = new java.util.LinkedHashSet<>();
         if (dev.hywmill.politics.service.RealmService.enabled()) {
-            for (VillageRecord v : ledger.all()) {
+            // the realm's own first (they come whoever else does), then treaty partners
+            List<VillageRecord> order = new ArrayList<>(ledger.all());
+            order.sort(Comparator.comparing((VillageRecord v) -> !dev.hywmill.politics.service.RealmService.sameRealm(ledger, v.villageId, t.villageId, now))
+                    .thenComparing(v -> v.villageId));
+            for (VillageRecord v : order) {
                 if (v == a || v == t || v.loneBuilding || v.hywRoster == null || available(v).isEmpty()
                         || RelationProjector.atWar(ledger, v.villageId, t.villageId) || SiegeService.besieged(ledger, v.villageId)
                         || dev.hywmill.politics.service.RealmService.sameRealm(ledger, v.villageId, a.villageId, now)) {
@@ -85,6 +89,12 @@ public final class ReliefService {
                 dev.hywmill.politics.realm.Treaty withA = dev.hywmill.politics.service.RealmService.realmTreaty(ledger, v.villageId, a.villageId, now);
                 boolean treaty = pact != null && pact.obligesRelief() && (withA == null || withA.kind.ordinal() < pact.kind.ordinal())
                         && dev.hywmill.politics.service.RealmService.tieOf(ledger, v.villageId, now) == null;
+                VillageRecord foe = realm || treaty ? SiegeService.wontFightBeside(overworld, ledger, s, false, v.villageId, tick) : null;
+                if (foe != null) {
+                    s.notes.add(v.name + " will not fight beside " + foe.name + " and sends no relief");
+                    HmLog.info("Siege {}: {} will not fight beside {} and sends no relief to {}", s.id.toString().substring(0, 8), v.name, foe.name, t.name);
+                    continue;
+                }
                 if (realm || treaty) {
                     Relief rl = new Relief(v.villageId);
                     rl.bound = true;
@@ -119,6 +129,12 @@ public final class ReliefService {
                 break;
             }
             if (rnd.nextDouble() < r.chance()) {
+                VillageRecord foe = SiegeService.wontFightBeside(overworld, ledger, s, false, v.villageId, tick);
+                if (foe != null) {
+                    s.notes.add(v.name + " will not fight beside " + foe.name + " and sends no relief");
+                    HmLog.info("Siege {}: {} will not fight beside {} and sends no relief to {}", s.id.toString().substring(0, 8), v.name, foe.name, t.name);
+                    continue;
+                }
                 s.reliefs.add(new Relief(v.villageId));
                 HmLog.info("Siege {}: {} will send relief to {}", s.id.toString().substring(0, 8), v.name, t.name);
             }

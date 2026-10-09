@@ -181,6 +181,59 @@ public final class SiegeService {
         return false;
     }
 
+    /** Post-M5: a village will not fight beside one it holds at or below this relation (nor beside one it is at war with). */
+    public static final int CONTEMPT = -50;
+
+    /**
+     * Post-M5: the villages with men on one side of {@code s}: its principal, the relief still coming to the defence, the
+     * provinces' and allies' levies in the host, and its vassals' men on the road or arrived.
+     */
+    public static Set<UUID> side(GarrisonLedger ledger, Siege s, boolean attackers) {
+        Set<UUID> out = new java.util.LinkedHashSet<>();
+        UUID head = attackers ? s.attacker : s.target;
+        out.add(head);
+        if (attackers) {
+            s.levies.values().forEach(v -> out.add(v[0]));
+        } else {
+            for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+                if (rl.phase != dev.hywmill.politics.war.Relief.Phase.DONE || rl.sent > 0) {
+                    out.add(rl.helper);
+                }
+            }
+        }
+        for (dev.hywmill.politics.war.Column c : ledger.columns()) {
+            if (c.kind == dev.hywmill.politics.war.Column.Kind.VASSAL && s.id.equals(c.siege) && head.equals(c.destination)
+                    && (c.state == dev.hywmill.politics.war.Column.State.ROAD || c.state == dev.hywmill.politics.war.Column.State.ARRIVED)) {
+                out.add(c.owner);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Post-M5: the village with men on that side of {@code s} that {@code helper} will not fight beside: one it is at war with,
+     * or holds in contempt (relation at or below {@link #CONTEMPT}). Null: none. A province minds no one: it is not
+     * independent, and its army is its sovereign's.
+     */
+    @Nullable
+    public static VillageRecord wontFightBeside(ServerLevel overworld, GarrisonLedger ledger, Siege s, boolean attackers, UUID helper, long tick) {
+        if (dev.hywmill.politics.service.RealmService.isProvince(ledger, helper, tick)) {
+            return null;
+        }
+        SettlementSource source = Services.settlements();
+        UUID head = attackers ? s.attacker : s.target;
+        for (UUID x : side(ledger, s, attackers)) {
+            if (x.equals(helper) || x.equals(head)) {
+                continue;
+            }
+            boolean contempt = source != null && source.villageRelation(overworld, helper, x).orElse(0) <= CONTEMPT;
+            if (RelationProjector.atWar(ledger, helper, x) || contempt) {
+                return ledger.get(x);
+            }
+        }
+        return null;
+    }
+
     static List<RosterEntry> entries(VillageRecord rec, Collection<UUID> ids) {
         List<RosterEntry> out = new ArrayList<>();
         if (rec.hywRoster == null) {
@@ -447,6 +500,13 @@ public final class SiegeService {
         int total = 0;
         for (VillageRecord c : from) {
             if (c.hywRoster == null || besieged(ledger, c.villageId)) {
+                continue;
+            }
+            VillageRecord foe = wontFightBeside(overworld, ledger, s, true, c.villageId, tick);
+            if (foe != null) {
+                String text = c.name + " will not march beside " + foe.name + " and sends no one with the host of " + a.name;
+                s.notes.add(text);
+                HmLog.info("Siege {}: {}", s.id.toString().substring(0, 8), text);
                 continue;
             }
             List<RosterEntry> pool = new ArrayList<>(ReliefService.available(c));
@@ -1459,6 +1519,13 @@ public final class SiegeService {
             }
             if (besieged(ledger, v.vassal)) {
                 String text = vr.name + ", vassal of " + lord.name + ", is besieged itself and sends no one";
+                s.notes.add(text);
+                aidNews(overworld, ledger, s, a, t, tick, text);
+                continue;
+            }
+            VillageRecord foe = wontFightBeside(overworld, ledger, s, forAttacker, v.vassal, tick);
+            if (foe != null) {
+                String text = vr.name + ", vassal of " + lord.name + ", will not fight beside " + foe.name + " and sends no one";
                 s.notes.add(text);
                 aidNews(overworld, ledger, s, a, t, tick, text);
                 continue;
