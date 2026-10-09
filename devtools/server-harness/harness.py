@@ -2516,8 +2516,9 @@ def scenario_AM(ctx):
     s.output(f"hywmill war for {U} declare {ca} on {cb} force", 2)
     # a campaigner must be trusted by the village it fights for (earlier scenarios may have left grievances with A)
     s.output(at(a, f"hywmill politics admin clear {U}"), 1)
+    standin_at(s, U, a[0] + 3, a[2] + 3)  # standing is refreshed while the player is near the village
     m5(s, f"mill rep {ca} {U} adjust 8000", 0.5)
-    time.sleep(14)
+    time.sleep(16)
     note("AM standing with A", str(pshow(s, a, U)))
     j = " | ".join(war_lines(s, a, f"for {U} join {ca} against {cb}"))
     m5(s, f"mill rep {cb} {U} adjust -6000", 0.5)
