@@ -263,8 +263,8 @@ treated like soldiers ("repairable" or "beyond repair"). The rest (`SiegeWaves`,
   was, and all of it from noon (6,000 ticks into the wave): the host's from its camp at the landing, the defenders' in a
   sally from the town hall. The defenders' reserve counts as defenders. Reserves stand down at sundown and are picked again
   at the next dawn.
-* **Resistance (fix52).** While a wave is fought in the world, everyone near the besieged village has Resistance II
-  (config `politics.siegeResistance`, 0-4; 0 is off). That means players, every HYW unit (players' own troops however
+* **Resistance (fix52).** While a wave is fought in the world, everyone near the besieged village has Resistance (III since fix54)
+  (config `politics.siegeResistance`, 0-4, default 3 since fix54; 0 is off). That means players, every HYW unit (players' own troops however
   often they are placed or picked up), the village's Millénaire villagers, and what they ride. It is refreshed while they
   stay and wears off within five seconds of leaving or of the fighting's end. Damage taken is 40% lower, so fights last
   about 1.67 times as long.

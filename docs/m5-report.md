@@ -1608,3 +1608,13 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
 * **Not covered.** An engine pathing over rough ground can stall: a catapult teleported onto a hill in a test run did not
   move. Its HYW home kept moving forward, so it moves on if HYW finds a path.
 * SHA-256 of the jar: `74b71db84e1ccc9744707892b8345c3dd5c62f87988f4f9814101d41985ad74c`.
+
+### 6.54 Siege Resistance III by default (`dist/hywmill-m5-fix54.jar`)
+
+* **Request.** Raise the siege Resistance to level 3.
+* **Change.** The default of `politics.siegeResistance` is 3: 60% less damage taken, so fights last about 2.5 times as
+  long.
+* **Existing installs.** A config file that already exists keeps its saved value (2), so set `siegeResistance = 3` in
+  `config/hywmill-common.toml`.
+* **Tests.** JUnit 376/376. No harness run: only the default value changed.
+* SHA-256 of the jar: `209132c51db8a37392ce30bc8b953ba076f5e018644b33a1336f5ccfc7889a57`.

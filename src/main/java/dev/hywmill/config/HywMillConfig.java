@@ -153,7 +153,7 @@ public final class HywMillConfig {
         SIEGE_RESISTANCE = b.comment("Post-M5: level of Resistance given to everyone fighting in a siege wave fought in the world (players, their",
                         "troops and every HYW unit near the besieged village, its Millénaire villagers, their mounts), refreshed every second:",
                         "each level takes 20% off the damage taken, so fights last longer. 0: none.")
-                .defineInRange("siegeResistance", 2, 0, 4);
+                .defineInRange("siegeResistance", 3, 0, 4);
         b.pop();
 
         SPEC = b.build();
