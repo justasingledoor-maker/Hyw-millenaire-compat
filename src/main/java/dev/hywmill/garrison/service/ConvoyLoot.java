@@ -12,7 +12,8 @@ import java.util.SplittableRandom;
 
 /**
  * What a supply convoy carries (post-M5): by theme, the culture's own food and drink, its soldiers' gear (from the equipment
- * profiles' levy and watch kits), and the odds and ends of an army on the move. Items of mods that are not installed are skipped.
+ * profiles' levy and watch kits) and weapons (the garrison's lists: Cultures Armory's when it is installed), and the odds and
+ * ends of an army on the move. Items of mods that are not installed are skipped.
  */
 public final class ConvoyLoot {
     private ConvoyLoot() {}
@@ -69,14 +70,19 @@ public final class ConvoyLoot {
                 for (int i = 0; i < cargo - gear; i++) {
                     add(out, MILITARY.get(r.nextInt(MILITARY.size())), 16 + r.nextInt(49));
                 }
-                gear(out, culture, MilitaryTier.WATCH, gear, r);
+                int blades = gear / 2;
+                gear(out, culture, MilitaryTier.WATCH, gear - blades, r);
+                weapons(out, culture, MilitaryTier.GUARD_POST, blades, r);
             }
             case "armoury" -> {
                 int arms = cargo / 4;
                 for (int i = 0; i < arms; i++) {
                     add(out, MILITARY.get(r.nextInt(MILITARY.size())), 16 + r.nextInt(49));
                 }
-                gear(out, culture, r.nextDouble() < 0.3 ? MilitaryTier.GARRISON : MilitaryTier.GUARD_POST, cargo - arms, r);
+                MilitaryTier tier = r.nextDouble() < 0.3 ? MilitaryTier.GARRISON : MilitaryTier.GUARD_POST;
+                int blades = (cargo - arms) / 3;
+                gear(out, culture, tier, cargo - arms - blades, r);
+                weapons(out, culture, tier, blades, r);
             }
             case "mixed" -> {
                 int third = cargo / 3;
@@ -138,6 +144,35 @@ public final class ConvoyLoot {
         for (int i = 0; i < n; i++) {
             add(out, pieces.get(r.nextInt(pieces.size())), 1);
         }
+    }
+
+    /** {@code n} of the culture's soldiers' weapons (one each), from {@link #weaponPool}. */
+    private static void weapons(List<ItemStack> out, String culture, MilitaryTier tier, int n, SplittableRandom r) {
+        List<String> pool = weaponPool(EquipmentProfiles.current(), culture, tier, id -> !ColumnService.stack(id, 1).isEmpty());
+        for (int i = 0; i < n && !pool.isEmpty(); i++) {
+            add(out, pool.get(r.nextInt(pool.size())), 1);
+        }
+    }
+
+    /**
+     * The weapons a culture's soldiers carry at a tier: the first list with a usable item for the line, the archers and the
+     * militia, as the garrison draws them. Like the garrison, the culture's own (Cultures Armory) weapons are taken over the
+     * Epic Knights stand-ins beside them when the armory is installed.
+     */
+    static List<String> weaponPool(EquipmentProfiles p, String culture, MilitaryTier tier, java.util.function.Predicate<String> usable) {
+        List<String> pool = new ArrayList<>();
+        for (String role : List.of("line", "ranged", "militia")) {
+            for (List<String> list : p.candidates(culture, tier, "", role, "mainhand")) {
+                List<String> ok = list.stream().filter(usable).toList();
+                if (ok.isEmpty()) {
+                    continue;
+                }
+                List<String> own = ok.stream().filter(id -> id.startsWith(EquipmentProfiles.ARMORY + ":")).toList();
+                pool.addAll(own.isEmpty() ? ok : own);
+                break;
+            }
+        }
+        return pool;
     }
 
     private static String pick(List<String> own, List<String> plain, SplittableRandom r, double ownShare) {

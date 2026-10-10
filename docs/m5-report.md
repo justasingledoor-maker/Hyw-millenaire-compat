@@ -1876,3 +1876,21 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     stands.
 * SHA-256 of the jar: `21dc96d304a18fb938632e6e76c537528e58b92855da787563c13cf57efdfa43`; Cultures Armory 1.2.0:
   `025db995077bfe3675da03333795aedbb257a56b05a81add39a2feeda9102d5d`.
+
+### 6.60 Supply convoys carry the culture's weapons (`dist/hywmill-m5-fix60.jar`)
+
+* **Request.** Supply convoys should carry the Cultures Armory weapons too.
+* **Change.** Military and armoury convoys now carry weapons as well as armour.
+  * Military convoys: half of their soldiers' gear is now weapons.
+  * Armoury convoys: a third.
+  * The weapons are the garrison's own, drawn the way a garrison draws them: the first usable list for the line, the
+    archers and the militia, at GUARD_POST (armoury convoys: GUARD_POST or GARRISON).
+  * With Cultures Armory installed, a Japanese, Seljuk or Inuit cart carries the culture's own weapons: katana and yumi;
+    kilij, mızrak and Turkic bow; harpoon, bone club, savik and sinew-backed bow.
+  * Without it, the cart carries the Epic Knights weapons beside them. Other cultures' carts never carry armory items.
+  * The armour in the carts already came from the same profile kits, so it was already the armory's.
+* **Tests.**
+  * JUnit: all pass, including `ConvoyLootTest`. With everything installed, the shipped profiles give the Seljuk,
+    Inuit and Japanese carts their armory weapons only; without the armory, Epic Knights ones; the Norman never.
+  * Not run on a server: the harness world has only Norman villages, whose carts carry no armory items.
+* SHA-256 of the jar: `4b3be48701ced845cab7ae0ae44c760d0677289724e583c72983efdc378bc786`.
