@@ -6418,7 +6418,7 @@ def scenario_CA(ctx):
         ("CA-4 Japanese archers (GARRISON) shoot the yumi", "archer", "GARRISON", "-", {A + "yumi"}),
         ("CA-5 Japanese militia (WATCH) in hachigane or jingasa, tatami-do, hakama and kyahan", "militia", "WATCH", "-", None),
         ("CA-6 the Sohei squad: hooded, with naginata", "warrior", "GARRISON", "look:jp.sohei", {A + "steel_naginata"}),
-        ("CA-7 the Kiba-musha squad: mounted archers in o-yoroi", "archer_rider", "STRONGHOLD", "look:jp.kiba_musha", None),
+        ("CA-7 the Kiba-musha squad: mounted archers in o-yoroi", "mounted_archer_rider", "STRONGHOLD", "look:jp.kiba_musha", None),
     ]
     for name, unit, tier, role, weapons in cases:
         rows = outfit(unit, tier, role)
