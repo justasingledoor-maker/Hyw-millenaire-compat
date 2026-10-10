@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/ashigaru_hachigane",
+    "layer1": "culturesarmory:item/ashigaru_hachigane_overlay"
+  }
+}

@@ -16,6 +16,16 @@ public class ArmoryItems extends ModItemsProvider {
     public static final RegistrySupplier<DyeableMedievalArmorItem> SAMURAI_SUNEATE_ITEM = INSTANCE.addDyeableMedievalArmorItem("samurai_suneate", ArmoryArmorTypes.SAMURAI_SUNEATE, ArmorItem.Type.BOOTS, new Item.Properties(), 0xB0302A);
     public static final RegistrySupplier<DyeableMedievalArmorItem> JINGASA_ITEM = INSTANCE.addDyeableMedievalArmorItem("jingasa", ArmoryArmorTypes.JINGASA, ArmorItem.Type.HELMET, new Item.Properties(), 0x34343C);
     public static final RegistrySupplier<DyeableMedievalArmorItem> OKEGAWA_DO_ITEM = INSTANCE.addDyeableMedievalArmorItem("okegawa_do", ArmoryArmorTypes.OKEGAWA_DO, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x34343C);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> ASHIGARU_HACHIGANE_ITEM = INSTANCE.addDyeableMedievalArmorItem("ashigaru_hachigane", ArmoryArmorTypes.ASHIGARU_HACHIGANE, ArmorItem.Type.HELMET, new Item.Properties(), 0xE6E1D3);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> TATAMI_DO_ITEM = INSTANCE.addDyeableMedievalArmorItem("tatami_do", ArmoryArmorTypes.TATAMI_DO, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x34343C);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> ASHIGARU_HAKAMA_ITEM = INSTANCE.addDyeableMedievalArmorItem("ashigaru_hakama", ArmoryArmorTypes.ASHIGARU_HAKAMA, ArmorItem.Type.LEGGINGS, new Item.Properties(), 0x3A4668);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> ASHIGARU_KYAHAN_ITEM = INSTANCE.addDyeableMedievalArmorItem("ashigaru_kyahan", ArmoryArmorTypes.ASHIGARU_KYAHAN, ArmorItem.Type.BOOTS, new Item.Properties(), 0x3A4668);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> ZUNARI_KABUTO_ITEM = INSTANCE.addDyeableMedievalArmorItem("zunari_kabuto", ArmoryArmorTypes.ZUNARI_KABUTO, ArmorItem.Type.HELMET, new Item.Properties(), 0x2C3E78);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> DO_MARU_ITEM = INSTANCE.addDyeableMedievalArmorItem("do_maru", ArmoryArmorTypes.DO_MARU, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x2C3E78);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> HOSHI_KABUTO_ITEM = INSTANCE.addDyeableMedievalArmorItem("hoshi_kabuto", ArmoryArmorTypes.HOSHI_KABUTO, ArmorItem.Type.HELMET, new Item.Properties(), 0x5B3C88);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> O_YOROI_ITEM = INSTANCE.addDyeableMedievalArmorItem("o_yoroi", ArmoryArmorTypes.O_YOROI, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x5B3C88);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> MIKAZUKI_KABUTO_ITEM = INSTANCE.addDyeableMedievalArmorItem("mikazuki_kabuto", ArmoryArmorTypes.MIKAZUKI_KABUTO, ArmorItem.Type.HELMET, new Item.Properties(), 0x2E2E34);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SOHEI_ZUKIN_ITEM = INSTANCE.addDyeableMedievalArmorItem("sohei_zukin", ArmoryArmorTypes.SOHEI_ZUKIN, ArmorItem.Type.HELMET, new Item.Properties(), 0xE6E1D3);
 
     public ArmoryItems() {
         super(CulturesArmory.ID);

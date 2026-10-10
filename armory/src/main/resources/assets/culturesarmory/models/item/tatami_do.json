@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/tatami_do",
+    "layer1": "culturesarmory:item/tatami_do_overlay"
+  }
+}

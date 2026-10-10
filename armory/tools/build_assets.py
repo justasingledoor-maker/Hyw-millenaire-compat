@@ -30,6 +30,16 @@ NAMES = {
     "samurai_suneate": "Samurai Suneate",
     "jingasa": "Ashigaru Jingasa",
     "okegawa_do": "Ashigaru Okegawa-dō",
+    "ashigaru_hachigane": "Ashigaru Hachigane",
+    "tatami_do": "Ashigaru Tatami-dō",
+    "ashigaru_hakama": "Ashigaru Hakama",
+    "ashigaru_kyahan": "Ashigaru Kyahan",
+    "zunari_kabuto": "Zunari Kabuto",
+    "do_maru": "Samurai Dō-maru",
+    "hoshi_kabuto": "Hoshi Kabuto",
+    "o_yoroi": "Ō-yoroi",
+    "mikazuki_kabuto": "Mikazuki Kabuto",
+    "sohei_zukin": "Sōhei Zukin",
 }
 
 # Epic Knights' parts: steel plates and ingots, lamellar rows, leather strips, woolen fabric; silk is string.
@@ -45,6 +55,17 @@ RECIPES = {
                                                  "l": "#magistuarmory:leather_strips"}),
     "jingasa": ([" p ", "pip", "s s"], {"p": "#c:plates/steel", "i": "#c:ingots/steel", "s": "minecraft:string"}),
     "okegawa_do": (["p p", "ppp", "lsl"], {"p": "#c:plates/steel", "s": "minecraft:string", "l": "#magistuarmory:leather_strips"}),
+    "ashigaru_hachigane": (["fpf"], {"f": "#magistuarmory:woolen_fabrics", "p": "#c:plates/steel"}),
+    "tatami_do": (["l l", "cpc", "plp"], {"l": "#magistuarmory:leather_strips", "c": "#magistuarmory:chainmails/steel", "p": "#c:plates/steel"}),
+    "ashigaru_hakama": (["fff", "f f", "f f"], {"f": "#magistuarmory:woolen_fabrics"}),
+    "ashigaru_kyahan": (["f f", "w w"], {"f": "#magistuarmory:woolen_fabrics", "w": "minecraft:wheat"}),
+    "zunari_kabuto": (["ppp", "p p", "rsr"], {"p": "#c:plates/steel", "r": "#magistuarmory:lamellar_rows/steel", "s": "minecraft:string"}),
+    "do_maru": (["rsr", "rrr", "rwr"], {"r": "#magistuarmory:lamellar_rows/steel", "s": "minecraft:string", "w": "minecraft:white_wool"}),
+    "hoshi_kabuto": (["ngn", "pfp", "rsr"], {"n": "#c:nuggets/iron", "g": "minecraft:gold_ingot", "p": "#c:plates/steel",
+                                             "f": "#magistuarmory:woolen_fabrics", "r": "#magistuarmory:lamellar_rows/steel", "s": "minecraft:string"}),
+    "o_yoroi": (["rlr", "rrr", "rgr"], {"r": "#magistuarmory:lamellar_rows/steel", "l": "minecraft:leather", "g": "minecraft:gold_ingot"}),
+    "mikazuki_kabuto": (["ggg", " k ", "   "], {"g": "minecraft:gold_ingot", "k": "culturesarmory:kabuto"}),
+    "sohei_zukin": (["fff", "f f"], {"f": "minecraft:white_wool"}),
 }
 
 

@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/o_yoroi",
+    "layer1": "culturesarmory:item/o_yoroi_overlay"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "fff",
+    "f f"
+  ],
+  "key": {
+    "f": {
+      "item": "minecraft:white_wool"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:sohei_zukin",
+    "count": 1
+  }
+}

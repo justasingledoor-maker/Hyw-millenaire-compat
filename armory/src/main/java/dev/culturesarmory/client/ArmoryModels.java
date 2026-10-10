@@ -14,6 +14,16 @@ public class ArmoryModels extends ModModelsProvider {
     public static final ModelLayerLocation SAMURAI_SUNEATE = INSTANCE.addArmorModel("samurai_suneate", SuneateModel::createLayer);
     public static final ModelLayerLocation JINGASA = INSTANCE.addArmorModel("jingasa", JingasaModel::createLayer);
     public static final ModelLayerLocation OKEGAWA_DO = INSTANCE.addArmorModel("okegawa_do", OkegawaDoModel::createLayer);
+    public static final ModelLayerLocation ASHIGARU_HACHIGANE = INSTANCE.addArmorModel("ashigaru_hachigane", HachiganeModel::createLayer);
+    public static final ModelLayerLocation TATAMI_DO = INSTANCE.addArmorModel("tatami_do", TatamiDoModel::createLayer);
+    public static final ModelLayerLocation ASHIGARU_HAKAMA = INSTANCE.addArmorModel("ashigaru_hakama", AshigaruHakamaModel::createLayer);
+    public static final ModelLayerLocation ASHIGARU_KYAHAN = INSTANCE.addArmorModel("ashigaru_kyahan", KyahanModel::createLayer);
+    public static final ModelLayerLocation ZUNARI_KABUTO = INSTANCE.addArmorModel("zunari_kabuto", ZunariKabutoModel::createLayer);
+    public static final ModelLayerLocation DO_MARU = INSTANCE.addArmorModel("do_maru", DoMaruModel::createLayer);
+    public static final ModelLayerLocation HOSHI_KABUTO = INSTANCE.addArmorModel("hoshi_kabuto", HoshiKabutoModel::createLayer);
+    public static final ModelLayerLocation O_YOROI = INSTANCE.addArmorModel("o_yoroi", OYoroiModel::createLayer);
+    public static final ModelLayerLocation MIKAZUKI_KABUTO = INSTANCE.addArmorModel("mikazuki_kabuto", MikazukiKabutoModel::createLayer);
+    public static final ModelLayerLocation SOHEI_ZUKIN = INSTANCE.addArmorModel("sohei_zukin", SoheiZukinModel::createLayer);
 
     public ArmoryModels() {
         super("culturesarmory");

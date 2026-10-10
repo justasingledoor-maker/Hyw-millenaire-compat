@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "ngn",
+    "pfp",
+    "rsr"
+  ],
+  "key": {
+    "n": {
+      "tag": "c:nuggets/iron"
+    },
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "p": {
+      "tag": "c:plates/steel"
+    },
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "r": {
+      "tag": "magistuarmory:lamellar_rows/steel"
+    },
+    "s": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:hoshi_kabuto",
+    "count": 1
+  }
+}

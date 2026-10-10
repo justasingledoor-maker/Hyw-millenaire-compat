@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/mikazuki_kabuto",
+    "layer1": "culturesarmory:item/mikazuki_kabuto_overlay"
+  }
+}

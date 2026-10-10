@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "l l",
+    "cpc",
+    "plp"
+  ],
+  "key": {
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    },
+    "c": {
+      "tag": "magistuarmory:chainmails/steel"
+    },
+    "p": {
+      "tag": "c:plates/steel"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:tatami_do",
+    "count": 1
+  }
+}

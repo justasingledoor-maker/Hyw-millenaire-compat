@@ -25,6 +25,26 @@ public final class ArmoryArmorTypes {
             new Integer[]{0, 0, 0, 190}, new Integer[]{0, 0, 0, 2}, 9, SoundEvents.ARMOR_EQUIP_IRON, true, true, "c:ingots/steel");
     public static final ArmorType OKEGAWA_DO = new ArmorType(ARMOR_MATERIALS, id("okegawa_do"), id("okegawa_do"), 0.25F, 0.0F,
             new Integer[]{0, 0, 250, 0}, new Integer[]{0, 0, 5, 0}, 9, SoundEvents.ARMOR_EQUIP_IRON, true, true, "c:ingots/steel");
+    public static final ArmorType ASHIGARU_HACHIGANE = new ArmorType(ARMOR_MATERIALS, id("ashigaru_hachigane"), id("ashigaru_hachigane"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 0, 120}, new Integer[]{0, 0, 0, 1}, 8, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType TATAMI_DO = new ArmorType(ARMOR_MATERIALS, id("tatami_do"), id("tatami_do"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 200, 0}, new Integer[]{0, 0, 4, 0}, 9, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType ASHIGARU_HAKAMA = new ArmorType(ARMOR_MATERIALS, id("ashigaru_hakama"), id("ashigaru_hakama"), 0.0F, 0.0F,
+            new Integer[]{0, 120, 0, 0}, new Integer[]{0, 2, 0, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType ASHIGARU_KYAHAN = new ArmorType(ARMOR_MATERIALS, id("ashigaru_kyahan"), id("ashigaru_kyahan"), 0.0F, 0.0F,
+            new Integer[]{110, 0, 0, 0}, new Integer[]{1, 0, 0, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType ZUNARI_KABUTO = new ArmorType(ARMOR_MATERIALS, id("zunari_kabuto"), id("zunari_kabuto"), 0.5F, 0.0F,
+            new Integer[]{0, 0, 0, 230}, new Integer[]{0, 0, 0, 2}, 9, SoundEvents.ARMOR_EQUIP_IRON, true, true, "c:ingots/steel");
+    public static final ArmorType DO_MARU = new ArmorType(ARMOR_MATERIALS, id("do_maru"), id("do_maru"), 0.5F, 0.0F,
+            new Integer[]{0, 0, 290, 0}, new Integer[]{0, 0, 6, 0}, 10, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType HOSHI_KABUTO = new ArmorType(ARMOR_MATERIALS, id("hoshi_kabuto"), id("hoshi_kabuto"), 1.0F, 0.0F,
+            new Integer[]{0, 0, 0, 270}, new Integer[]{0, 0, 0, 3}, 10, SoundEvents.ARMOR_EQUIP_IRON, true, true, "c:ingots/steel");
+    public static final ArmorType O_YOROI = new ArmorType(ARMOR_MATERIALS, id("o_yoroi"), id("o_yoroi"), 1.25F, 0.25F,
+            new Integer[]{0, 0, 340, 0}, new Integer[]{0, 0, 8, 0}, 10, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType MIKAZUKI_KABUTO = new ArmorType(ARMOR_MATERIALS, id("mikazuki_kabuto"), id("mikazuki_kabuto"), 1.25F, 0.0F,
+            new Integer[]{0, 0, 0, 280}, new Integer[]{0, 0, 0, 3}, 12, SoundEvents.ARMOR_EQUIP_IRON, true, true, "c:ingots/steel");
+    public static final ArmorType SOHEI_ZUKIN = new ArmorType(ARMOR_MATERIALS, id("sohei_zukin"), id("sohei_zukin"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 0, 100}, new Integer[]{0, 0, 0, 1}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
 
     private ArmoryArmorTypes() {}
 
