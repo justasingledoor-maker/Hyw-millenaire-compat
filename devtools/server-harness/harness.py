@@ -6405,8 +6405,8 @@ def scenario_CA(ctx):
         return m[1] if m else "?"
 
     def armoury(rows):
-        return sum(1 for r in rows if all(slot(r, sl).startswith("culturesarmory:") or slot(r, sl) == "none" for sl in ("head", "chest", "legs", "feet"))
-                   and any(slot(r, sl).startswith("culturesarmory:") for sl in ("head", "chest", "legs", "feet")))
+        # a whole kit from one list: any armory piece means an armory kit (the militia's mixes in Epic Knights' gambeson)
+        return sum(1 for r in rows if any(slot(r, sl).startswith("culturesarmory:") for sl in ("head", "chest", "legs", "feet")))
 
     A = "culturesarmory:"
     cases = [
