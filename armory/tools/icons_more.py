@@ -442,4 +442,230 @@ INUIT = {
                            if r == "shaft" else ("C" if y == 12 and x % 2 else "T")),
 }
 
+# ---------------------------------------------------------------------- Byzantine (1.3)
+
+def scale(x, y, gilt=False):
+    c = (x + (y // 2) % 2) % 2
+    if gilt:
+        return ("h" if c == 0 else "G") if y % 2 == 0 else ("G" if c == 0 else "y")
+    return ("p" if c == 0 else "J") if y % 2 == 0 else ("J" if c == 0 else "j")
+
+
+def strips(x):
+    return "r" if x % 2 == 0 else "."
+
+
+KASSIS_TOP = [
+    "................",
+    "................",
+    ".......oo.......",
+    ".....oojjoo.....",
+    "....oJjyJjjo....",
+    "...oJJjyjjjjo...",
+    "..oJjjjyjjjjjo..",
+    "..oJyjjyjjyjjo..",
+    "..ogGgGgGgGgGo..",
+]
+PADDED_GUARD = [
+    ".odcdo....odcdo.",
+    ".ocdco....ocdco.",
+    ".odcdo....odcdo.",
+    ".ocdco....ocdco.",
+    "..oooo....oooo..",
+    "................",
+    "................",
+]
+
+
+def klibanion(x, y, region):
+    if region == "sleeve":
+        if y <= 2:
+            return strips(x) if y == 2 else "r"
+        return "H" if False else cloth(x, y, 2)
+    if region == "body":
+        return "c" if y == 2 else ("G" if x % 3 == 1 else "l") if y == 8 else lamellae(x, y)
+    return strips(x) if y <= 11 else "."
+
+
+def kataphract(x, y, region):
+    if region == "sleeve":
+        return lamellae(x, y) if y <= 3 else ("J" if x % 2 == 0 else "j") if y >= 6 else cloth(x, y)
+    if region == "body":
+        return "c" if y == 2 else ("G" if x % 3 == 1 else "l") if y == 8 else lamellae(x, y)
+    return lamellae(x, y + 1)
+
+
+def epilorikion(x, y, region):
+    if region == "sleeve":
+        return mail(x, y)
+    if region == "body":
+        return "I" if y == 2 else ("G" if x % 3 == 1 else "l") if y == 8 else ("b" if (x + y) % 3 == 0 else "c")
+    return "d" if y == 14 else cloth(x, y)
+
+
+def lorikion(x, y, region):
+    if region == "sleeve":
+        return mail(x, y) if y <= 4 else cloth(x, y)
+    if region == "body":
+        return "c" if y == 2 else ("G" if x % 3 == 1 else "l") if y == 8 else mail(x, y)
+    return mail(x, y) if y <= 12 else "."
+
+
+def scale_coat(x, y, region):
+    if region == "sleeve":
+        return ("r" if y == 2 else "r") if y <= 2 else cloth(x, y, 2)
+    if region == "body":
+        return "c" if y == 2 else ("G" if x % 3 == 1 else "l") if y == 8 else scale(x, y)
+    return strips(x) if y <= 11 else "."
+
+
+def kabadion(x, y, region):
+    if region == "body" and y == 8:
+        return "l"
+    if region == "body" and x in (7, 8):
+        return "a" if x == 7 else "c"
+    return "d" if y == 14 else ("b" if x % 2 == 0 else "c")
+
+
+def varangian(x, y, region):
+    if region == "sleeve":
+        return mail(x, y)
+    if region == "body":
+        return ("G" if x % 3 == 1 else "l") if y == 8 else "c" if x in (5, 6) else mail(x, y)
+    return mail(x, y)
+
+
+def strategos(x, y, region):
+    if region == "sleeve":
+        return lamellae(x, y, True) if y <= 3 else "c"
+    if region == "body":
+        if y in (4, 5):
+            return "d" if y == 4 else "b"
+        return ("G" if x % 3 == 1 else "y") if y == 8 else "c" if y == 2 else lamellae(x, y, True)
+    return strips(x) if y <= 11 else "."
+
+
+HORSE = [
+    "..........oooo..",
+    ".........oXXXXo.",
+    "........oXXXXXo.",
+    ".......oXXXXoo..",
+    "......oXXXXo....",
+    "..oooooXXXXo....",
+    ".oXXXXXXXXXo....",
+    "oXXXXXXXXXXXo...",
+    "oXXXXXXXXXXXo...",
+    "oXXXXXXXXXXXo...",
+    "oXXXXXXXXXXXo...",
+    ".oXXoooooXXo....",
+    ".oXXo...oXXo....",
+    ".oXXo...oXXo....",
+    "..oo.....oo.....",
+    "................",
+]
+
+
+def horse_icon(fn):
+    out = []
+    for y, row in enumerate(HORSE):
+        out.append("".join(fn(x, y) if ch == "X" else ch for x, ch in enumerate(row)))
+    return out
+
+
+BYZANTINE = {
+    "kassis": KASSIS_TOP + PADDED_GUARD,
+    "kataphract_helmet": [
+        "......dcd.......",
+        "......ocdo......",
+        ".....oojjoo.....",
+        "....oJjyJjjo....",
+        "...oJJjyjjjjo...",
+        "..oJjjjyjjjjjo..",
+        "..oJyjjyjjyjjo..",
+        "..ogGgGgGgGgGo..",
+    ] + VEIL + [
+        "................",
+    ],
+    "varangian_helmet": [
+        ".......oo.......",
+        "......oJjo......",
+        "......oJjo......",
+        ".....oJJjjo.....",
+        ".....oJjjjo.....",
+        "....oJJjjjjo....",
+        "...oJJJjjjjjo...",
+        "..oJJjjjjjjjjo..",
+        "..ojJjJjJjJjJo..",
+    ] + AVENTAIL,
+    "strategos_helmet": [
+        "................",
+        "...occcccccco...",
+        "......oooo......",
+        "....ooGyGgoo....",
+        "...oGGgygggGo...",
+        "..oGgggygggggo..",
+        "..oGyggyggyggo..",
+        "..oGgyGgyGgyGo..",
+        "..ohGhGhGhGhGo..",
+    ] + PADDED_GUARD,
+    "phakeolion": [
+        "................",
+        "................",
+        "................",
+        "................",
+        "......oooo......",
+        "....oodccdoo....",
+        "...odcddccddo...",
+        "..odccddccddco..",
+        "..occddccddcco..",
+        "..odccddccddco..",
+        "..oooooooooooo..",
+        "...ocdo.........",
+        "...odco.........",
+        "...oooo.........",
+        "................",
+        "................",
+    ],
+    "pilos": [
+        "................",
+        "................",
+        "................",
+        "......oooo......",
+        "....oodddcoo....",
+        "...odddcccbbo...",
+        "...oddccccbbo...",
+        "..odccccccccbo..",
+        "..occccccccbbo..",
+        ".obbbbbbbbbbbbo.",
+        ".odddddddddddco.",
+        "..oooooooooooo..",
+        "................",
+        "................",
+        "................",
+        "................",
+    ],
+    "klibanion": coat(klibanion),
+    "kataphract_armour": coat(kataphract),
+    "epilorikion": coat(epilorikion),
+    "lorikion": coat(lorikion),
+    "scale_armour": coat(scale_coat),
+    "kabadion": coat(kabadion),
+    "varangian_hauberk": coat(varangian, {(4, 9): "c", (4, 10): "c", (3, 11): "c", (3, 12): "c"}),
+    "strategos_klibanion": coat(strategos),
+    "kremasmata": trousers(lambda x, y, r: ("d" if y == 1 else "b") if r == "waist" else ("b" if x % 2 == 0 else "c") if y <= 7
+                           else "a" if y == 13 else cloth(x, y)),
+    "lamellar_kremasmata": trousers(lambda x, y, r: ("d" if y == 1 else "b") if r == "waist" else lamellae(x, y) if y <= 9
+                                    else cloth(x, y)),
+    "byzantine_hose": trousers(lambda x, y, r: ("d" if y == 1 else "b") if r == "waist" else "a" if y == 13 else cloth(x, y, 4)),
+    "mail_chausses": trousers(lambda x, y, r: ("d" if y == 1 else "b") if r == "waist" else mail(x, y)),
+    "tzangia": boots(lambda x, y, r: "c" if y == 2 else ("L" if x == 4 and y % 2 else "3" if x % 3 else "4") if r == "shaft" else "2"),
+    "podopsella": boots(lambda x, y, r: ("l" if y in (2, 9) else "J" if x % 2 == 0 else "j") if r == "shaft" else "2"),
+    "cataphract_barding": horse_icon(lambda x, y: ("J" if x % 2 == 0 else "j") if y <= 4 else "r" if y == 10 else lamellae(x, y)),
+    "cataphract_half_barding": horse_icon(lambda x, y: ("J" if x % 2 == 0 else "j") if y <= 4 else scale(x, y) if (y <= 6 or x >= 8)
+                                          else "r" if y == 10 and x >= 8 else "."),
+    "felt_barding": horse_icon(lambda x, y: "." if y <= 2 else ("d" if x % 2 else "a") if y == 10 else
+                               "b" if (x + y) % 4 == 0 or (x - y) % 4 == 0 else "c"),
+}
+
 MORE = dict(SELJUK, **INUIT)
+MORE.update(BYZANTINE)

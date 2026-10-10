@@ -12,6 +12,10 @@
     {
       "id": "culturesarmory:sinew_bow",
       "required": false
+    },
+    {
+      "id": "culturesarmory:toxarion",
+      "required": false
     }
   ]
 }

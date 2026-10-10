@@ -34,6 +34,9 @@ public final class CulturesArmory {
                 CreativeTabRegistry.append(EK_ARMOR_TAB, item);
             }
         }
+        for (RegistrySupplier<? extends Item> item : ArmoryItems.BARDINGS) {
+            CreativeTabRegistry.append(EK_ARMOR_TAB, item);
+        }
         for (RegistrySupplier<? extends Item> item : ArmoryItems.INSTANCE.weaponItems) {
             if (item != null) {
                 CreativeTabRegistry.append(EK_WEAPONS_TAB, item);
@@ -46,6 +49,7 @@ public final class CulturesArmory {
         }
         if (Platform.getEnv() == Dist.CLIENT) {
             ArmoryModels.INSTANCE.init(ArmoryItems.INSTANCE);
+            dev.culturesarmory.client.BardingColours.register();
         }
     }
 }

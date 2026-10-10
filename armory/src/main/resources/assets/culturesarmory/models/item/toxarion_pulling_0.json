@@ -1,0 +1,6 @@
+{
+  "parent": "magistuarmory:item/longbow",
+  "textures": {
+    "layer0": "culturesarmory:item/toxarion_pulling_0"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "r r",
+    "rlr",
+    "rfr"
+  ],
+  "key": {
+    "r": {
+      "tag": "magistuarmory:lamellar_rows/steel"
+    },
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    },
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:klibanion",
+    "count": 1
+  }
+}

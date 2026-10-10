@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  m",
+    " m ",
+    "g  "
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "g": {
+      "item": "minecraft:gold_nugget"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_spathion",
+    "count": 1
+  }
+}

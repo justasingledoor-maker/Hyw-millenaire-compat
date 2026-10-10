@@ -68,6 +68,38 @@
     {
       "id": "culturesarmory:walrus_hide_armour",
       "required": false
+    },
+    {
+      "id": "culturesarmory:klibanion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kataphract_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:epilorikion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:lorikion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:scale_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kabadion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:varangian_hauberk",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:strategos_klibanion",
+      "required": false
     }
   ]
 }

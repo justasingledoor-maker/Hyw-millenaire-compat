@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "g g",
+    "gkg",
+    "gpg"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "k": {
+      "item": "culturesarmory:klibanion"
+    },
+    "p": {
+      "item": "minecraft:purple_wool"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:strategos_klibanion",
+    "count": 1
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "rpr",
+    "rkr",
+    "rrr"
+  ],
+  "key": {
+    "r": {
+      "tag": "magistuarmory:lamellar_rows/steel"
+    },
+    "p": {
+      "tag": "c:plates/steel"
+    },
+    "k": {
+      "item": "culturesarmory:klibanion"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:kataphract_armour",
+    "count": 1
+  }
+}

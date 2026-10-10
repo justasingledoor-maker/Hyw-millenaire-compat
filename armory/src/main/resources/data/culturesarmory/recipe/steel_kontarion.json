@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  m",
+    " g ",
+    "p  "
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "g": {
+      "item": "minecraft:gold_nugget"
+    },
+    "p": {
+      "tag": "magistuarmory:poles"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_kontarion",
+    "count": 1
+  }
+}

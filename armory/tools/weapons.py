@@ -495,6 +495,116 @@ def savik():
     return s
 
 
+# ------------------------------------------------------------------ Byzantine weapons
+
+WOODS = [(73, 54, 21), (137, 103, 39), (104, 78, 30), (40, 30, 11)]
+
+
+def kontarion():
+    """The kontarion: a long wooden spear, a leaf-shaped head on a socket with a gilt ring."""
+    s = Sprite(48)
+    butt_cap(s, 0, 2)
+    shaft(s, 2, 36, WOODS)
+    collar(s, 36)
+    for k in range(37, 46):
+        i = k - 37
+        s.run(k, [SA, ST["g"], ST["m"], SB] if 1 <= i <= 5 else [SA, ST["g"], SB], 1)
+    s.run(46, [SA], 0)
+    return s
+
+
+def menavlion():
+    """The menavlion: a thick, short-hafted heavy spear (of a young tree, the Praecepta says) with a long broad blade."""
+    s = Sprite(48)
+    for k in range(0, 31):
+        s.run(k, [WOODS[0], WOODS[1] if k % 2 else WOODS[2], WOODS[2] if k % 2 else WOODS[1], WOODS[3]], 1)
+    s.run(31, [SA, G[2], G[3], SB], 1)
+    s.run(32, [SA, G[3], G[2], SB], 1)
+    for k in range(33, 45):
+        i = k - 33
+        if 1 <= i <= 8:
+            s.run(k, [SA, ST["w"], ST["g"], ST["m"], SB], 2)
+        else:
+            s.run(k, [SA, ST["g"], ST["m"], SB], 1)
+    s.run(45, [SA, ST["g"], SB], 1)
+    s.run(46, [SA], 0)
+    return s
+
+
+def spathion():
+    """The spathion: the straight double-edged sword, a fuller, a straight guard, a gilt round pommel."""
+    return sabre(32, grip=4, blade=19, straight=True, yelman=False, guard_r=2.9)
+
+
+def paramerion():
+    """The paramerion: the slightly curved, single-edged long sword of the cavalry."""
+    return sabre(32, grip=6, blade=20, curve=1.2, yelman=False, guard_r=3.2)
+
+
+def pelekys():
+    """The Varangian's two-handed axe (pelekys, the Dane axe): a long haft, a broad thin bearded blade."""
+    s = Sprite(48)
+    butt_cap(s, 0, 2)
+    shaft(s, 2, 45, WOODS)
+    for k in (12, 13, 24, 25):
+        s.run(k, [SB, LEATH[1], SB], 1)
+    s.run(45, [SA, ST["l"], SB], 1)
+    b0, b1 = 32.0, 45.5
+
+    def colour(u, w):
+        if u < b0 or u > b1:
+            return None
+        t = (u - b0) / (b1 - b0)
+        # the bearded blade: narrow at the haft, sweeping down (toward the butt) to a long edge
+        ext = 1.0 + 7.0 * (math.sin(math.pi * t) ** 0.45) * (0.55 + 0.45 * t)
+        if 0.8 < w <= ext:
+            if w > ext - 0.75:
+                return ST["w"] if 0.15 < t < 0.95 else SB
+            return ST["m"] if w < 1.8 else ST["l"]
+        return None
+    field(s, colour)
+    return s
+
+
+def siderorabdion():
+    """The siderorabdion: the all-iron mace, a round head studded with knobs."""
+    s = Sprite(32)
+    s.run(0, [SA, ST["l"], ST["m"], SB], 1)
+    for k in range(1, 9):
+        s.run(k, [SB, LEATH[1] if k % 2 else LEATH[2], SB], 1)
+    for k in range(9, 19):
+        s.run(k, [SA, ST["l"] if k % 2 else ST["g"], SB], 1)
+
+    def colour(u, w):
+        cu, r = 22.0, 3.3
+        d = math.hypot((u - cu) * math.sqrt(2) * 0.72, w)
+        knob = (u - cu, w) in ((0, 3.5), (0, -3.5)) or abs(u - (cu + 3.0)) < 0.3 and abs(w) < 0.4 or abs(u - (cu - 3.0)) < 0.3 and abs(w) < 0.4
+        if d > r and not knob:
+            return None
+        if d > r - 0.75:
+            return SA if w < 0 else SB
+        return ST["w"] if (u < cu and w < 0) else ST["g"] if w < 0.7 else ST["m"]
+    field(s, colour)
+    return s
+
+
+def toxarion(pull=None):
+    """The Byzantine composite bow: recurved, with bone ear-laths, the limbs covered in dark leather and red-bound."""
+    def bulge(t):
+        body = math.sin(math.pi * t)
+        ear = max(0.0, 0.14 - min(t, 1 - t)) / 0.14
+        return body - 0.9 * ear ** 1.6
+    def colour(t):
+        if 0.45 <= t <= 0.55:
+            return LEATH[2] if int(t * 100) % 2 else LEATH[1]
+        if min(t, 1 - t) < 0.12:
+            return (220, 212, 184) if int(t * 200) % 3 else (180, 168, 136)
+        if any(abs(t - w) < 0.012 for w in (0.18, 0.3, 0.7, 0.82)):
+            return R[3]
+        return (60, 40, 30) if int(t * 60) % 2 else (78, 54, 38)
+    return draw_bow(pull, bulge, colour, (0.45, 0.55), 6.0)
+
+
 # id: (sprite factory, EK model it borrows the display from, blocks, WeaponType.of(...) args, Better Combat preset,
 #      Better Combat range, recipe)
 STEEL = "#c:ingots/steel"
@@ -543,6 +653,21 @@ WEAPONS.update({
               "dagger", None, ([" i", "b "], {"i": _IRON, "b": "minecraft:bone"})),
 })
 # the weapons' Epic Knights material tier (attack bonus, durability): steel unless named here
+# 1.3: Byzantine weapons
+WEAPONS.update({
+    "steel_kontarion": (kontarion, "iron_pike", False, "3.0F, 1.2F, 2.5F, 0.0F, 2.2F, 2, true, 2, 0.0F, false, false, false",
+                        "spear", 4.0, (["  m", " g ", "p  "], {"m": STEEL, "g": "minecraft:gold_nugget", "p": _P})),
+    "steel_menavlion": (menavlion, "iron_ahlspiess", True, "3.6F, 1.1F, 1.5F, 0.04F, 3.0F, 6, true, 2, 4.0F, true, false, false",
+                        "spear", 3.4, ([" mm", " mm", "l  "], {"m": STEEL, "l": "#minecraft:logs"})),
+    "steel_spathion": (spathion, "messer_sword", False, "3.3F, 1.6F, 0.0F, 0.0F, 1.2F, 0, true",
+                       "sword", None, (["  m", " m ", "g  "], {"m": STEEL, "g": "minecraft:gold_nugget"})),
+    "steel_paramerion": (paramerion, "iron_bastardsword", True, "4.1F, 1.45F, 0.0F, 0.02F, 1.5F, 0, true, 1, 4.0F, true, false, false",
+                         "sword", None, (["m", "s"], {"m": STEEL, "s": "culturesarmory:steel_spathion"})),
+    "steel_pelekys": (pelekys, "iron_lochaberaxe", True, "6.8F, 0.95F, 1.0F, 0.06F, 3.2F, 3, true, 2, 3.0F, true, false, false",
+                      "halberd", 3.0, (["mm ", "mp ", " p "], {"m": STEEL, "p": _P})),
+    "steel_siderorabdion": (siderorabdion, "iron_bastardsword", False, "4.8F, 1.1F, 0.0F, 0.06F, 2.4F, 6, true",
+                            "mace", None, (["mn ", "nm ", "  h"], {"m": STEEL, "n": "#c:nuggets/iron", "h": _H})),
+})
 TIERS = {"harpoon": "IRON", "ivory_lance": "IRON", "bone_club": "IRON", "savik": "IRON"}
 
 # id, sprite (pull None or 0-2), RangedWeaponType.of(durability, pull time, power, enabled), recipe
@@ -551,6 +676,8 @@ BOWS = [
     ("turkic_bow", turkic_bow, "380, 30, 4.5F, true", (["rhs", "l s", "rhs"], {"r": "#c:rods/wooden", "h": "minecraft:bone",
                                                                               "s": "minecraft:string", "l": _LS})),
     ("sinew_bow", sinew_bow, "320, 30, 3.9F, true", ([" ts", "l s", " ts"], {"t": "minecraft:stick", "s": "minecraft:string", "l": _LS})),
+    ("toxarion", toxarion, "390, 32, 4.4F, true", (["rbs", "l s", "rbs"], {"r": "#c:rods/wooden", "b": "minecraft:bone", "s": "minecraft:string",
+                                                                           "l": "minecraft:leather"})),
 ]
 
 WEAPON_NAMES = {
@@ -573,4 +700,11 @@ WEAPON_NAMES = {
     "bone_club": "Bone War Club",
     "savik": "Savik",
     "sinew_bow": "Sinew-Backed Bow",
+    "steel_kontarion": "Kontarion",
+    "steel_menavlion": "Menavlion",
+    "steel_spathion": "Spathion",
+    "steel_paramerion": "Paramerion",
+    "steel_pelekys": "Varangian Pelekys",
+    "steel_siderorabdion": "Siderorabdion",
+    "toxarion": "Byzantine Composite Bow",
 }

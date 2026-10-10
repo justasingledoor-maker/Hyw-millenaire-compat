@@ -6435,6 +6435,14 @@ def scenario_CA(ctx):
         ("CA-17 Inuit militia (GUARD_POST) carry the savik", "militia", "GUARD_POST", "-", {A + "savik"}, "millenaire:inuits"),
         ("CA-18 the shaman's band: ceremonial parkas", "warrior", "STRONGHOLD", "look:inuit.shaman_band", {A + "bone_club"},
          "millenaire:inuits"),
+        # 1.3: Byzantium
+        ("CA-19 Byzantine spearmen (GARRISON) carry kontarion or menavlion", "spear_man", "GARRISON", "-",
+         {A + "steel_kontarion", A + "steel_menavlion"}, "millenaire:byzantines"),
+        ("CA-20 Byzantine shieldmen (STRONGHOLD) carry the spathion, in klibanion or scale", "shieldman", "STRONGHOLD", "-",
+         {A + "steel_spathion"}, "millenaire:byzantines"),
+        ("CA-21 the Varangians: hauberks and the pelekys", "warrior", "STRONGHOLD", "look:byz.varangians", {A + "steel_pelekys"},
+         "millenaire:byzantines"),
+        ("CA-22 Byzantine archers (GARRISON) shoot the composite bow", "archer", "GARRISON", "-", {A + "toxarion"}, "millenaire:byzantines"),
     ]
     for name, unit, tier, role, weapons, *cult in cases:
         rows = outfit(unit, tier, role, culture=cult[0] if cult else "millenaire:japanese")
@@ -6450,8 +6458,29 @@ def scenario_CA(ctx):
             extra = all(slot(r, "chest") == A + "gilded_jawshan" for r in rows)
         if "shaman" in name:
             extra = all(slot(r, "chest") == A + "ceremonial_parka" for r in rows)
+        if "Varangians" in name:
+            extra = all(slot(r, "chest") == A + "varangian_hauberk" for r in rows)
         note(name.split(" ")[0], " || ".join(r[r.find(":") + 1:][:220] for r in rows[:2]))
         check(name, rows and arm == len(rows) and wpn == len(rows) and extra, f"{arm}/{len(rows)} in armory armour, {wpn} with its weapon")
+    # the kataphraktoi: riders in kataphraktos armour, their horses in the full lamellar barding
+    riders, horses = [], []
+    for i in range(4):
+        tag = f"ca_kat_{i}"
+        s.cmd(f'summon hundred_years_war:mounted_lancer_rider {x + 3 * i} {y} {z + 6} {{Tags:["{tag}"]}}', 0.8)
+        riders.append(" ".join(l for l in s.output(f'hywmill dev outfit @e[tag={tag},limit=1] "millenaire:byzantines" STRONGHOLD '
+                                                     f'"look:byz.kataphraktoi"', 1) if "outfit " in l))
+    time.sleep(4)
+    for i in range(4):
+        horses.append(" ".join(s.output(f"execute as @e[tag=ca_kat_{i},limit=1] at @s run data get entity "
+                                        f"@e[type=hundred_years_war:hyw_horse,limit=1,sort=nearest] body_armor_item", 0.8)))
+    note("CA-23", " || ".join(h[-120:] for h in horses[:2]))
+    kat = sum(1 for r in riders if slot(r, "chest") == A + "kataphract_armour")
+    barded = sum(1 for h in horses if A + "cataphract_barding" in h)
+    check("CA-23 the kataphraktoi: veiled in lamellar, their horses in the kataphraktos barding", riders and kat == len(riders)
+          and barded == len(riders), f"{kat}/{len(riders)} riders in kataphraktos armour, {barded} horses barded")
+    for i in range(4):
+        s.cmd(f"execute as @e[tag=ca_kat_{i}] at @s run kill @e[type=hundred_years_war:hyw_horse,distance=..3]", 0.3)
+        s.cmd(f"kill @e[tag=ca_kat_{i}]", 0.3)
     rows = outfit("spear_man", "GARRISON", "-", culture="millenaire:norman")
     leak = sum(1 for r in rows if A in r)
     check("CA-8 other cultures never get the armory's gear", rows and leak == 0, f"{leak} of {len(rows)} Norman spearmen with armory items")

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "m",
+    "s"
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "s": {
+      "item": "culturesarmory:steel_spathion"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_paramerion",
+    "count": 1
+  }
+}

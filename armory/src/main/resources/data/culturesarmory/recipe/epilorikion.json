@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "fkf",
+    "fff"
+  ],
+  "key": {
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "k": {
+      "item": "culturesarmory:klibanion"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:epilorikion",
+    "count": 1
+  }
+}

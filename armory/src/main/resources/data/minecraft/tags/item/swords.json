@@ -64,6 +64,30 @@
     {
       "id": "culturesarmory:savik",
       "required": false
+    },
+    {
+      "id": "culturesarmory:steel_kontarion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_menavlion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_spathion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_paramerion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_pelekys",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_siderorabdion",
+      "required": false
     }
   ]
 }

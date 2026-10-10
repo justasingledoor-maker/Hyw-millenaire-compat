@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " mm",
+    " mm",
+    "l  "
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "l": {
+      "tag": "minecraft:logs"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_menavlion",
+    "count": 1
+  }
+}

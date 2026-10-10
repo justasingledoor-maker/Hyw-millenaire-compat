@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  p",
+    "ppp",
+    "l l"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:plates/steel"
+    },
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:cataphract_half_barding",
+    "count": 1
+  }
+}

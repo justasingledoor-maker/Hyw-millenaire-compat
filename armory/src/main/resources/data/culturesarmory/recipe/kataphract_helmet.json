@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "k",
+    "c",
+    "c"
+  ],
+  "key": {
+    "k": {
+      "item": "culturesarmory:kassis"
+    },
+    "c": {
+      "tag": "magistuarmory:chainmails/steel"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:kataphract_helmet",
+    "count": 1
+  }
+}

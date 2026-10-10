@@ -169,6 +169,13 @@ class EquipmentProfilesTest {
         assertEquals("heavymace", EquipmentProfiles.family("culturesarmory:bone_club"));
         assertEquals("shortsword", EquipmentProfiles.family("culturesarmory:savik"));
         assertEquals("longbow", EquipmentProfiles.family("culturesarmory:sinew_bow"));
+        assertEquals("pike", EquipmentProfiles.family("culturesarmory:steel_kontarion"));
+        assertEquals("ahlspiess", EquipmentProfiles.family("culturesarmory:steel_menavlion"));
+        assertEquals("katzbalger", EquipmentProfiles.family("culturesarmory:steel_spathion"));
+        assertEquals("bastardsword", EquipmentProfiles.family("culturesarmory:steel_paramerion"));
+        assertEquals("lochaberaxe", EquipmentProfiles.family("culturesarmory:steel_pelekys"));
+        assertEquals("heavymace", EquipmentProfiles.family("culturesarmory:steel_siderorabdion"));
+        assertEquals("longbow", EquipmentProfiles.family("culturesarmory:toxarion"));
     }
 
     @Test

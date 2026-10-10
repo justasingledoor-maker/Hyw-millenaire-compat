@@ -204,6 +204,90 @@
     {
       "id": "culturesarmory:caribou_kamik",
       "required": false
+    },
+    {
+      "id": "culturesarmory:kassis",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kataphract_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:varangian_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:strategos_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:phakeolion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:pilos",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:klibanion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kataphract_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:epilorikion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:lorikion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:scale_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kabadion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:varangian_hauberk",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:strategos_klibanion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kremasmata",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:lamellar_kremasmata",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:byzantine_hose",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mail_chausses",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:tzangia",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:podopsella",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:felt_barding",
+      "required": false
     }
   ]
 }

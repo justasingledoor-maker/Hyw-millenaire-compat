@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "frf",
+    "r r",
+    "r r"
+  ],
+  "key": {
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "r": {
+      "tag": "magistuarmory:lamellar_rows/steel"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:lamellar_kremasmata",
+    "count": 1
+  }
+}

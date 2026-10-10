@@ -24,6 +24,14 @@
     {
       "id": "culturesarmory:caribou_kamik",
       "required": false
+    },
+    {
+      "id": "culturesarmory:tzangia",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:podopsella",
+      "required": false
     }
   ]
 }

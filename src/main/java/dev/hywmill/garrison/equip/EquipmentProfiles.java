@@ -502,7 +502,11 @@ public final class EquipmentProfiles {
             Map.entry("tabarzin", "lochaberaxe"), Map.entry("mizrak", "pike"), Map.entry("turkic_bow", "longbow"),
             // the Inuit
             Map.entry("harpoon", "pike"), Map.entry("ivory_lance", "ahlspiess"), Map.entry("bone_club", "heavymace"),
-            Map.entry("savik", "shortsword"), Map.entry("sinew_bow", "longbow"));
+            Map.entry("savik", "shortsword"), Map.entry("sinew_bow", "longbow"),
+            // Byzantium
+            Map.entry("kontarion", "pike"), Map.entry("menavlion", "ahlspiess"), Map.entry("spathion", "katzbalger"),
+            Map.entry("paramerion", "bastardsword"), Map.entry("pelekys", "lochaberaxe"), Map.entry("siderorabdion", "heavymace"),
+            Map.entry("toxarion", "longbow"));
 
     public static final List<String> MATERIALS = List.of("wood", "wooden", "stone", "iron", "gold", "golden", "diamond", "netherite", "copper",
             "steel", "bronze", "silver", "tin");

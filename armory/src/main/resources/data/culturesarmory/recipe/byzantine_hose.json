@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "fwf",
+    "f f",
+    "f f"
+  ],
+  "key": {
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "w": {
+      "item": "minecraft:red_wool"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:byzantine_hose",
+    "count": 1
+  }
+}

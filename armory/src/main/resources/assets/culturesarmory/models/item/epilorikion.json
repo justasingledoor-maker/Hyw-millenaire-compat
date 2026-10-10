@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/epilorikion",
+    "layer1": "culturesarmory:item/epilorikion_overlay"
+  }
+}

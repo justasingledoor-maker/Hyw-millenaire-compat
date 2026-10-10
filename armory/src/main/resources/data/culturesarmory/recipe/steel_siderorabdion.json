@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "mn ",
+    "nm ",
+    "  h"
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "n": {
+      "tag": "c:nuggets/iron"
+    },
+    "h": {
+      "tag": "magistuarmory:hilts"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_siderorabdion",
+    "count": 1
+  }
+}

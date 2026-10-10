@@ -27,4 +27,21 @@ class HorseArmourTest {
             }
         }
     }
+
+    @Test
+    void byzantineRidersRideByzantineHorses() {
+        String kat = "culturesarmory:kataphract_armour", kli = "culturesarmory:klibanion";
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.CATAPHRACT, dev.hywmill.garrison.equip.HorseArmour.choose(kat, 3, false, 0, true, false));
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.HALF, dev.hywmill.garrison.equip.HorseArmour.choose(kli, 3, false, 0, true, false),
+                "a klibanion rider's heavy horse: the scale peytral");
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.HALF, dev.hywmill.garrison.equip.HorseArmour.choose(kat, 2, false, 0, true, false));
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.FELT, dev.hywmill.garrison.equip.HorseArmour.choose(kli, 2, true, 0, true, false),
+                "light horse: quilted felt");
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.FELT, dev.hywmill.garrison.equip.HorseArmour.choose(kat, 1, false, 0, true, false));
+        assertTrue(dev.hywmill.garrison.equip.HorseArmour.dyed(dev.hywmill.garrison.equip.HorseArmour.FELT));
+        assertEquals("magistuarmory:barding", dev.hywmill.garrison.equip.HorseArmour.choose("magistuarmory:crusader_chestplate", 3, false, 1, true, false),
+                "any other rider: the ladder as before");
+        assertEquals(choose(0, false, 0, true, false), dev.hywmill.garrison.equip.HorseArmour.choose(kat, 0, false, 0, true, false),
+                "level 0: as before");
+    }
 }

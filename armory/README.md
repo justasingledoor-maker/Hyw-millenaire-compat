@@ -4,7 +4,8 @@ The armour of other cultures, made the Epic Knights way. Each piece is an Epic K
 dyeable like Epic Knights' cloth armour. The pieces sit in Epic Knights' armour tab and repair with steel ingots.
 Separate from HywMill: it needs only NeoForge 1.21.1, Epic Knights (10.12 or later) and Architectury.
 
-1.2: 51 armour pieces and 19 weapons: Japan (17 + 8), the Seljuks (18 + 6), the Inuit (16 + 5).
+1.3: 71 armour pieces, 3 horse armours and 26 weapons: Japan (17 + 8), the Seljuks (18 + 6), the Inuit (16 + 5),
+Byzantium (20 + 3 bardings + 7).
 
 ## Japan
 
@@ -135,6 +136,56 @@ The decorative trim strips, the lacing of the bone armour (rawhide, sinew) and t
 | Savik | Shortsword | Iron knife in an antler handle (iron) |
 | Sinew-Backed Bow | Longbow | The short sinew-backed bow (320 uses, draw 30, power 3.9) |
 
+## Byzantium (1.3)
+
+The Middle Byzantine army of the 10th-12th centuries (the Praecepta Militaria of Nikephoros Phokas, the tagmata, the
+Varangian Guard): levies and psiloi, skoutatoi and menavlatoi, toxotai, the Varangians, the strategos, and the
+kataphraktoi with their barded horses.
+
+| Item | Slot | Defence | Toughness | Durability | What it is |
+|---|---|---|---|---|---|
+| Byzantine Kassis | head | 2 | 0.5 | 230 | Segmented helmet with a gilt brow band and a padded neck guard (the skoutatos') |
+| Kataphraktos Helmet | head | 3 | 1.0 | 270 | Tall helmet, its mail veil over the face to the eyes, a dyed tuft (touphion) on top |
+| Varangian Helmet | head | 3 | 0.5 | 250 | Tall nasal helmet with a mail aventail |
+| Strategos' Helmet | head | 3 | 1.0 | 270 | Gilded, crested helmet with a padded guard (officers, the guard) |
+| Phakeolion | head | 1 | 0.0 | 90 | The head cloth wound like a turban (light infantry, archers) |
+| Pilos | head | 1 | 0.0 | 100 | Felt cap with a turned-up brim (levies) |
+| Klibanion | chest | 6 | 0.75 | 300 | Lamellar cuirass over the dyed kabadion, leather pteruges at shoulders and waist |
+| Kataphraktos Armour | chest | 8 | 1.25 | 340 | Klibanion with lamellar shoulders, splinted arm guards (manikelia) and a long lamellar skirt |
+| Klibanion with Epilorikion | chest | 6 | 0.75 | 300 | Klibanion under a dyed, quilted surcoat, mail sleeves |
+| Lorikion | chest | 5 | 0.5 | 280 | Mail to below the hips over a dyed tunic |
+| Scale Armour (Folidoton) | chest | 6 | 1.0 | 300 | Scale armour (folidoton) with pteruges |
+| Kabadion | chest | 3 | 0.0 | 180 | The thick padded coat, closed down the front |
+| Varangian Hauberk | chest | 6 | 0.75 | 300 | Long mail with a dyed cloak pinned at the shoulder |
+| Strategos' Klibanion | chest | 7 | 1.25 | 330 | Gilded lamellar, a dyed sash knotted at the chest, a cloak (chlamys), pteruges |
+| Kremasmata | legs | 3 | 0.25 | 200 | Padded skirt over hose |
+| Lamellar Kremasmata | legs | 5 | 0.75 | 270 | Lamellar thigh guards over hose (the kataphraktos') |
+| Byzantine Hose | legs | 1 | 0.0 | 110 | Dyed hose with a sash |
+| Mail Chausses | legs | 4 | 0.25 | 260 | Mail chausses |
+| Tzangia | feet | 1 | 0.0 | 140 | Tall black leather boots, laced |
+| Podopsella | feet | 2 | 0.5 | 230 | Splinted greaves with knee cops over the boots |
+
+The kataphraktos (helmet, armour, lamellar kremasmata, podopsella) gives 18 armour and the most toughness of the armory.
+Cloth, padding, cloaks, sashes and plumes are dyeable (crimson, blue, green, ochre, scarlet and imperial purple by default).
+
+**Horse armour**, Epic Knights' way (a texture on the horse; put it on a horse like any horse armour):
+
+| Horse armour | Horse armour value | What it is |
+|---|---|---|
+| Kataphraktos Barding | 11 (as Epic Knights' barding) | Lamellar over head, neck, body and legs to the knees, a steel chamfron, red leather edging |
+| Scale Peytral and Chamfron | 5 (as mail) | A steel chamfron, a scale crinet and a scale peytral over chest and shoulders |
+| Quilted Felt Barding | 3 (as leather) | Quilted felt trappers over body, neck and upper legs; dyeable like leather horse armour |
+
+| Weapon | Counts as (Epic Knights) | What it is |
+|---|---|---|
+| Kontarion | Pike | The long infantry spear |
+| Menavlion | Ahlspiess | The thick heavy spear of the menavlatoi; blocks |
+| Spathion | Katzbalger | The straight double-edged sword |
+| Paramerion | Bastard sword | The curved single-edged cavalry sword; blocks |
+| Varangian Pelekys | Lochaber axe | The Varangian's two-handed axe; blocks |
+| Siderorabdion | Heavy mace | The all-iron mace; armour piercing |
+| Byzantine Composite Bow | Longbow | The composite bow (390 uses, draw 32, power 4.4) |
+
 ## Building
 
 ```
@@ -144,7 +195,7 @@ The decorative trim strips, the lacing of the bone armour (rawhide, sinew) and t
 `libs/` must hold the Epic Knights and Architectury jars (compile-only).
 
 The models (Java), armour textures, icons, item models, recipes, tags and translations are generated from
-`tools/japan.py`, `tools/seljuk.py`, `tools/inuit.py` (the armour), `tools/weapons.py` (the weapon sprites and stats) and `tools/icons.py` with `tools/icons_more.py` (the 16x16 icons):
+`tools/japan.py`, `tools/seljuk.py`, `tools/inuit.py`, `tools/byzantine.py` (the armour), `tools/horse.py` (the horse armour), `tools/weapons.py` (the weapon sprites and stats) and `tools/icons.py` with `tools/icons_more.py` (the 16x16 icons):
 
 ```
 python3 tools/build_assets.py      # needs Pillow

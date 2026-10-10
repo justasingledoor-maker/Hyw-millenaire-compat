@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/byzantine_hose",
+    "layer1": "culturesarmory:item/byzantine_hose_overlay"
+  }
+}

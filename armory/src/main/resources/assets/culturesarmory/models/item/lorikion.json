@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/lorikion",
+    "layer1": "culturesarmory:item/lorikion_overlay"
+  }
+}

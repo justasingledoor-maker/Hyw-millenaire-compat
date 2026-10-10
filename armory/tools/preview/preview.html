@@ -32,6 +32,8 @@ async function preload(url) {
 }
 function tex(url) { return cache[url]; }
 await preload('skin.png');
+const horseIds = items.filter(id => models[id] && models[id].slot === 'HORSE');
+if (horseIds.length) await preload('horse.png');
 for (const id of items) await preload('out/' + models[id].texture);
 
 // Minecraft's ModelPart.Cube: vertices, and per face (DOWN, UP, WEST, NORTH, EAST, SOUTH) its four vertices and UV rect.
@@ -80,7 +82,24 @@ const POSES = {
   walk: { right_arm: [0.5, 0, 0.05], left_arm: [-0.5, 0, -0.05], right_leg: [-0.55, 0, 0], left_leg: [0.55, 0, 0] },
 };
 
+function horseFigure() {
+  // the vanilla horse (its own texture) and the barding over it (the armour layer's model, inflated)
+  const root = new THREE.Group();
+  root.rotation.x = Math.PI;
+  const m = models[horseIds[0]];
+  const base = new THREE.MeshLambertMaterial({ map: tex('horse.png'), side: THREE.DoubleSide, alphaTest: 0.1 });
+  const strip = (p) => ({ ...p, cubes: p.cubes.map(c => ({ ...c, inflate: 0 })), children: p.children.map(strip) });
+  for (const p of m.parts) root.add(buildPart(strip(p), base, 64, 64, null));
+  for (const id of horseIds) {
+    const mat = new THREE.MeshLambertMaterial({ map: tex('out/' + models[id].texture), side: THREE.DoubleSide, alphaTest: 0.1 });
+    for (const p of models[id].parts) root.add(buildPart(p, mat, 64, 64, null));
+  }
+  root.scale.set(0.8, 0.8, 0.8);
+  return root;
+}
+
 function figure() {
+  if (horseIds.length) return horseFigure();
   const root = new THREE.Group();
   root.rotation.x = Math.PI; // model space (y down, front -z) to world (y up, front +z)
   const skinMat = new THREE.MeshLambertMaterial({ map: tex('skin.png'), side: THREE.DoubleSide, alphaTest: 0.1 });

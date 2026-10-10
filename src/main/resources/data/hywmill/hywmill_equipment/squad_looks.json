@@ -1,5 +1,5 @@
 {
- "_comment": "Post-M5 squad looks (Epic Knights only): each Muster Roll squad wears its own armour kits, carries its own shields, is dyed in its own colours (repeat a colour to weight it) and bears its own arms on its shields. A squad names its look in hywmill_squads. Kits and items that Epic Knights lacks or HYW cannot use are skipped (the culture's gear is used instead). Kits from the Epic Knights addons (Epic Knights: Addon, magistuarmoryaddon; Slavic Armory, slavicarmory) are used when those are installed and skipped otherwise. Cultures Armory (culturesarmory): the Japanese squads wear its armour and carry its weapons when it is installed (ashigaru in jingasa and tatami-do with yari and yumi, sohei in hoods with naginata, samurai in kabuto and laced do with katana and nodachi, mounted archers in o-yoroi, the daimyo's guard under the crescent crest); the Epic Knights kits are their fallback. Cultures Armory 1.2: the Seljuk and Inuit squads too (Turkmen in bork and quilted kaftans, Daylamites in segmented helmets and mail, ghulams in kazaghands and jawshans, the hassa and the atabeg's retinue gilded; Inuit harpooners in sealskin, hunters in snow goggles and bentwood visors, warriors in bone, slat and walrus-hide armour, the shaman's band in ceremonial parkas).",
+ "_comment": "Post-M5 squad looks (Epic Knights only): each Muster Roll squad wears its own armour kits, carries its own shields, is dyed in its own colours (repeat a colour to weight it) and bears its own arms on its shields. A squad names its look in hywmill_squads. Kits and items that Epic Knights lacks or HYW cannot use are skipped (the culture's gear is used instead). Kits from the Epic Knights addons (Epic Knights: Addon, magistuarmoryaddon; Slavic Armory, slavicarmory) are used when those are installed and skipped otherwise. Cultures Armory (culturesarmory): the Japanese squads wear its armour and carry its weapons when it is installed (ashigaru in jingasa and tatami-do with yari and yumi, sohei in hoods with naginata, samurai in kabuto and laced do with katana and nodachi, mounted archers in o-yoroi, the daimyo's guard under the crescent crest); the Epic Knights kits are their fallback. Cultures Armory 1.2: the Seljuk and Inuit squads too (Turkmen in bork and quilted kaftans, Daylamites in segmented helmets and mail, ghulams in kazaghands and jawshans, the hassa and the atabeg's retinue gilded; Inuit harpooners in sealskin, hunters in snow goggles and bentwood visors, warriors in bone, slat and walrus-hide armour, the shaman's band in ceremonial parkas). Cultures Armory 1.3: the Byzantine squads (not the Latinikon, Latin mercenaries) wear its armour: levies in pilos and kabadion, skoutatoi in kassis and klibanion or scale, the Varangians in their hauberks with the pelekys, the kataphraktoi veiled in lamellar on barded horses, the tagma under the strategos.",
  "looks": {
   "norman.fyrd_spearmen": {
    "kits": [
@@ -1066,6 +1066,18 @@
   "byz.thematic_levy": {
    "kits": [
     {
+     "head": "culturesarmory:pilos",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
      "head": "magistuarmory:kettlehat",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -1101,6 +1113,9 @@
      "legs": "magistuarmory:pantyhose",
      "feet": "slavicarmory:lamellar_mail_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_kontarion"
    ],
    "offhand": [
     "magistuarmory:wood_roundshield"
@@ -1134,6 +1149,24 @@
   "byz.akritai": {
    "kits": [
     {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:pilos",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
      "head": "magistuarmory:kettlehat",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -1176,6 +1209,10 @@
      "feet": "slavicarmory:lamellar_mail_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:steel_kontarion",
+    "culturesarmory:steel_spathion"
+   ],
    "offhand": [
     "magistuarmory:wood_ellipticalshield"
    ],
@@ -1198,6 +1235,18 @@
   },
   "byz.skoutatoi": {
    "kits": [
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:klibanion",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:scale_armour",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
     {
      "head": "magistuarmory:norman_helmet",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -1228,6 +1277,10 @@
      "legs": "slavicarmory:rus_chainmail_leggings",
      "feet": "slavicarmory:rus_heavy_lamellar_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_spathion",
+    "culturesarmory:steel_kontarion"
    ],
    "offhand": [
     "magistuarmory:iron_ellipticalshield"
@@ -1261,6 +1314,18 @@
   "byz.menavlatoi": {
    "kits": [
     {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:klibanion",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:scale_armour",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
      "head": "magistuarmory:norman_helmet",
      "chest": "magistuarmory:lamellar_chestplate",
      "legs": "magistuarmory:chainmail_leggings",
@@ -1291,6 +1356,10 @@
      "feet": "slavicarmory:rus_heavy_lamellar_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:steel_menavlion",
+    "culturesarmory:steel_spathion"
+   ],
    "offhand": [
     "magistuarmory:iron_roundshield"
    ],
@@ -1312,6 +1381,12 @@
   },
   "byz.varangians": {
    "kits": [
+    {
+     "head": "culturesarmory:varangian_helmet",
+     "chest": "culturesarmory:varangian_hauberk",
+     "legs": "culturesarmory:mail_chausses",
+     "feet": "culturesarmory:tzangia"
+    },
     {
      "head": "magistuarmory:norman_helmet",
      "chest": "magistuarmory:chainmail_chestplate",
@@ -1342,6 +1417,9 @@
      "legs": "slavicarmory:rus_chainmail_leggings",
      "feet": "slavicarmory:rus_chainmail_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_pelekys"
    ],
    "offhand": [
     "magistuarmory:steel_roundshield"
@@ -1374,6 +1452,18 @@
   },
   "byz.excubitors": {
    "kits": [
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:scale_armour",
+     "legs": "culturesarmory:lamellar_kremasmata",
+     "feet": "culturesarmory:podopsella"
+    },
+    {
+     "head": "culturesarmory:strategos_helmet",
+     "chest": "culturesarmory:scale_armour",
+     "legs": "culturesarmory:lamellar_kremasmata",
+     "feet": "culturesarmory:podopsella"
+    },
     {
      "head": "magistuarmory:norman_helmet",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -1423,6 +1513,10 @@
      "feet": "slavicarmory:gilded_rus_heavy_lamellar_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:steel_spathion",
+    "culturesarmory:steel_kontarion"
+   ],
    "offhand": [
     "magistuarmory:steel_ellipticalshield"
    ],
@@ -1446,6 +1540,18 @@
   "byz.toxotai": {
    "kits": [
     {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:lamellar_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -1464,6 +1570,9 @@
      "feet": "slavicarmory:rus_gambeson_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:toxarion"
+   ],
    "palette": [
     "#9E1B1B",
     "#B08A5A"
@@ -1471,6 +1580,18 @@
   },
   "byz.tzangratores": {
    "kits": [
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
     {
      "head": "magistuarmory:kettlehat",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -1516,6 +1637,18 @@
   "byz.psiloi": {
    "kits": [
     {
+     "head": "culturesarmory:phakeolion",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:pilos",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -1546,6 +1679,9 @@
      "feet": "slavicarmory:lamellar_mail_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:toxarion"
+   ],
    "palette": [
     "#6B4A2A",
     "#B08A5A",
@@ -1554,6 +1690,18 @@
   },
   "byz.harbour_crossbows": {
    "kits": [
+    {
+     "head": "culturesarmory:phakeolion",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:pilos",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -1587,6 +1735,12 @@
   },
   "byz.kataphraktoi": {
    "kits": [
+    {
+     "head": "culturesarmory:kataphract_helmet",
+     "chest": "culturesarmory:kataphract_armour",
+     "legs": "culturesarmory:lamellar_kremasmata",
+     "feet": "culturesarmory:podopsella"
+    },
     {
      "head": "magistuarmory:face_helmet",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -1649,6 +1803,18 @@
   "byz.kavallarioi": {
    "kits": [
     {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:epilorikion",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
      "head": "magistuarmory:norman_helmet",
      "chest": "magistuarmory:lamellar_chestplate",
      "legs": "magistuarmory:chainmail_leggings",
@@ -1700,6 +1866,18 @@
   },
   "byz.prokoursatores": {
    "kits": [
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:pilos",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
     {
      "head": "magistuarmory:kettlehat",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -1759,6 +1937,18 @@
   "byz.hippotoxotai": {
    "kits": [
     {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:phakeolion",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:lamellar_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -1784,6 +1974,18 @@
   },
   "byz.tagma": {
    "kits": [
+    {
+     "head": "culturesarmory:strategos_helmet",
+     "chest": "culturesarmory:strategos_klibanion",
+     "legs": "culturesarmory:lamellar_kremasmata",
+     "feet": "culturesarmory:podopsella"
+    },
+    {
+     "head": "culturesarmory:kataphract_helmet",
+     "chest": "culturesarmory:kataphract_armour",
+     "legs": "culturesarmory:lamellar_kremasmata",
+     "feet": "culturesarmory:podopsella"
+    },
     {
      "head": "magistuarmory:face_helmet",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -1844,6 +2046,11 @@
      "legs": "slavicarmory:rus_chainmail_leggings",
      "feet": "slavicarmory:gilded_rus_heavy_lamellar_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_paramerion",
+    "culturesarmory:steel_siderorabdion",
+    "culturesarmory:toxarion"
    ],
    "offhand": [
     "magistuarmory:steel_ellipticalshield"

@@ -58,6 +58,26 @@ public class ArmoryModels extends ModModelsProvider {
     public static final ModelLayerLocation BONE_PLATE_LEGGINGS = INSTANCE.addArmorModel("bone_plate_leggings", BonePlateLeggingsModel::createLayer);
     public static final ModelLayerLocation SEALSKIN_KAMIK = INSTANCE.addArmorModel("sealskin_kamik", SealskinKamikModel::createLayer);
     public static final ModelLayerLocation CARIBOU_KAMIK = INSTANCE.addArmorModel("caribou_kamik", CaribouKamikModel::createLayer);
+    public static final ModelLayerLocation KASSIS = INSTANCE.addArmorModel("kassis", KassisModel::createLayer);
+    public static final ModelLayerLocation KATAPHRACT_HELMET = INSTANCE.addArmorModel("kataphract_helmet", KataphractHelmetModel::createLayer);
+    public static final ModelLayerLocation VARANGIAN_HELMET = INSTANCE.addArmorModel("varangian_helmet", VarangianHelmetModel::createLayer);
+    public static final ModelLayerLocation STRATEGOS_HELMET = INSTANCE.addArmorModel("strategos_helmet", StrategosHelmetModel::createLayer);
+    public static final ModelLayerLocation PHAKEOLION = INSTANCE.addArmorModel("phakeolion", PhakeolionModel::createLayer);
+    public static final ModelLayerLocation PILOS = INSTANCE.addArmorModel("pilos", PilosModel::createLayer);
+    public static final ModelLayerLocation KLIBANION = INSTANCE.addArmorModel("klibanion", KlibanionModel::createLayer);
+    public static final ModelLayerLocation KATAPHRACT_ARMOUR = INSTANCE.addArmorModel("kataphract_armour", KataphractArmourModel::createLayer);
+    public static final ModelLayerLocation EPILORIKION = INSTANCE.addArmorModel("epilorikion", EpilorikionModel::createLayer);
+    public static final ModelLayerLocation LORIKION = INSTANCE.addArmorModel("lorikion", LorikionModel::createLayer);
+    public static final ModelLayerLocation SCALE_ARMOUR = INSTANCE.addArmorModel("scale_armour", ScaleArmourModel::createLayer);
+    public static final ModelLayerLocation KABADION = INSTANCE.addArmorModel("kabadion", KabadionModel::createLayer);
+    public static final ModelLayerLocation VARANGIAN_HAUBERK = INSTANCE.addArmorModel("varangian_hauberk", VarangianHauberkModel::createLayer);
+    public static final ModelLayerLocation STRATEGOS_KLIBANION = INSTANCE.addArmorModel("strategos_klibanion", StrategosKlibanionModel::createLayer);
+    public static final ModelLayerLocation KREMASMATA = INSTANCE.addArmorModel("kremasmata", KremasmataModel::createLayer);
+    public static final ModelLayerLocation LAMELLAR_KREMASMATA = INSTANCE.addArmorModel("lamellar_kremasmata", LamellarKremasmataModel::createLayer);
+    public static final ModelLayerLocation BYZANTINE_HOSE = INSTANCE.addArmorModel("byzantine_hose", ByzantineHoseModel::createLayer);
+    public static final ModelLayerLocation MAIL_CHAUSSES = INSTANCE.addArmorModel("mail_chausses", MailChaussesModel::createLayer);
+    public static final ModelLayerLocation TZANGIA = INSTANCE.addArmorModel("tzangia", TzangiaModel::createLayer);
+    public static final ModelLayerLocation PODOPSELLA = INSTANCE.addArmorModel("podopsella", PodopsellaModel::createLayer);
 
     public ArmoryModels() {
         super("culturesarmory");

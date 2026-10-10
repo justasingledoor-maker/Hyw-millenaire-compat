@@ -1,0 +1,14 @@
+{
+  "parent": "magistuarmory:item/iron_lochaberaxe",
+  "textures": {
+    "layer0": "culturesarmory:item/steel_pelekys"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "blocking": 1
+      },
+      "model": "culturesarmory:item/steel_pelekys_blocking"
+    }
+  ]
+}

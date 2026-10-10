@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "rbs",
+    "l s",
+    "rbs"
+  ],
+  "key": {
+    "r": {
+      "tag": "c:rods/wooden"
+    },
+    "b": {
+      "item": "minecraft:bone"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "l": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:toxarion",
+    "count": 1
+  }
+}

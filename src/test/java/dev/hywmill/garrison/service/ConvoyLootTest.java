@@ -34,6 +34,9 @@ class ConvoyLootTest {
         List<String> inuit = ConvoyLoot.weaponPool(p, "millenaire:inuits", MilitaryTier.GARRISON, id -> true);
         assertTrue(inuit.containsAll(List.of("culturesarmory:harpoon", "culturesarmory:bone_club", "culturesarmory:savik", "culturesarmory:sinew_bow")),
                 inuit.toString());
+        List<String> byz = ConvoyLoot.weaponPool(p, "millenaire:byzantines", MilitaryTier.GARRISON, id -> true);
+        assertTrue(byz.containsAll(List.of("culturesarmory:steel_kontarion", "culturesarmory:steel_spathion", "culturesarmory:toxarion")),
+                byz.toString());
         List<String> japan = ConvoyLoot.weaponPool(p, "millenaire:japanese", MilitaryTier.GARRISON, id -> true);
         assertTrue(japan.containsAll(List.of("culturesarmory:steel_katana", "culturesarmory:yumi")), japan.toString());
     }

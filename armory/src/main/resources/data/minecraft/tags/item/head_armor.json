@@ -80,6 +80,30 @@
     {
       "id": "culturesarmory:ivory_lamellar_helmet",
       "required": false
+    },
+    {
+      "id": "culturesarmory:kassis",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kataphract_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:varangian_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:strategos_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:phakeolion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:pilos",
+      "required": false
     }
   ]
 }

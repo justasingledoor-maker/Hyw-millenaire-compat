@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/podopsella",
+    "layer1": "culturesarmory:item/podopsella_overlay"
+  }
+}

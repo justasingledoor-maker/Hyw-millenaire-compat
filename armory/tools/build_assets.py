@@ -12,6 +12,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from armorgen import paint_model, write_json, write_png, write_text  # noqa: E402
 import icons  # noqa: E402
+import byzantine  # noqa: E402
+import horse  # noqa: E402
 import inuit  # noqa: E402
 import japan  # noqa: E402
 import seljuk  # noqa: E402
@@ -72,11 +74,10 @@ RECIPES = {
 }
 
 # the cultures: Japan (above), the Seljuks, the Inuit
-ARMOURS = japan.ARMOURS + seljuk.ARMOURS + inuit.ARMOURS
-NAMES.update(seljuk.NAMES)
-NAMES.update(inuit.NAMES)
-RECIPES.update(seljuk.RECIPES)
-RECIPES.update(inuit.RECIPES)
+ARMOURS = japan.ARMOURS + seljuk.ARMOURS + inuit.ARMOURS + byzantine.ARMOURS
+for _m in (seljuk, inuit, byzantine, horse):
+    NAMES.update(_m.NAMES)
+    RECIPES.update(_m.RECIPES)
 
 
 def ingredient(ref):
@@ -100,12 +101,52 @@ def write_tags():
     def tag(name, ids):
         write_json({"replace": False, "values": [{"id": f"{MODID}:{i}", "required": False} for i in ids]},
                    os.path.join(ROOT, "src/main/resources/data/minecraft/tags/item", f"{name}.json"))
-    tag("dyeable", [a[0] for a in ARMOURS])
+    tag("dyeable", [a[0] for a in ARMOURS] + [b[0] for b in horse.BARDINGS if b[3]])
     for name, slot in (("head_armor", "HELMET"), ("chest_armor", "CHESTPLATE"), ("leg_armor", "LEGGINGS"), ("foot_armor", "BOOTS")):
         tag(name, [a[0] for a in ARMOURS if a[2] == slot])
     tag("swords", list(weapons.WEAPONS))
     tag("bows", [b[0] for b in weapons.BOWS])
     tag("enchantable/bow", [b[0] for b in weapons.BOWS])
+
+
+def build_bardings(lang, preview):
+    """Horse armour: the texture on the vanilla horse model, the item (an Epic Knights MedievalHorseArmorItem), its recipe."""
+    lines = []
+    for bid, paints, material, dyeable, dye in horse.BARDINGS:
+        model = horse.HorseModel(paints)
+        canvas = model.paint()
+        base, over = canvas.layers(dyeable=False)
+        write_png(over, os.path.join(ASSETS, f"textures/entity/horse/armor/{bid}.png"))
+        tint = ((dye >> 16) & 255, (dye >> 8) & 255, dye & 255) if dyeable else None
+        write_png(canvas.composite(tint) if tint else over, os.path.join(PREVIEW, f"{bid}.png"))
+        if tint:
+            # the game tints the whole texture: the preview shows it tinted too
+            img = over.copy()
+            px = img.load()
+            for x in range(img.size[0]):
+                for y in range(img.size[1]):
+                    r, g, b, a = px[x, y]
+                    if a:
+                        px[x, y] = (r * tint[0] // 255, g * tint[1] // 255, b * tint[2] // 255, a)
+            write_png(img, os.path.join(PREVIEW, f"{bid}.png"))
+        preview[bid] = dict(model.preview_json(), slot="HORSE", texture=f"{bid}.png")
+        textures = {"layer0": f"{MODID}:item/{bid}", "layer1": f"{MODID}:item/{bid}_overlay"}
+        write_json({"parent": "item/generated", "textures": textures}, os.path.join(ASSETS, f"models/item/{bid}.json"))
+        lang[f"item.{MODID}.{bid}"] = NAMES[bid]
+        pattern, keys = RECIPES[bid]
+        recipe(bid, pattern, keys)
+        props = "new Item.Properties().stacksTo(1)"
+        if dyeable:
+            props += f".component(DataComponents.DYED_COLOR, new DyedItemColor(0x{dye:06X}, false))"
+        lines.append(f"    public static final RegistrySupplier<Item> {bid.upper()} = INSTANCE.items.register(\"{bid}\", () -> new MedievalHorseArmorItem(\n"
+                     f"            ArmorMaterials.{material}, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "
+                     f"\"textures/entity/horse/armor/{bid}.png\"), false, {props}));")
+    lines.append("    /** The horse armour (listed in Epic Knights' armour tab; the felt barding's icon is tinted by its dye). */")
+    lines.append("    public static final java.util.List<RegistrySupplier<Item>> BARDINGS = java.util.List.of("
+                 + ", ".join(b[0].upper() for b in horse.BARDINGS) + ");")
+    lines.append("    public static final java.util.List<RegistrySupplier<Item>> DYED_BARDINGS = java.util.List.of("
+                 + ", ".join(b[0].upper() for b in horse.BARDINGS if b[3]) + ");")
+    return lines
 
 
 def build_weapons(lang):
@@ -189,11 +230,12 @@ def main():
                     "result": {"id": f"{MODID}:{item_id}", "count": 1}},
                    os.path.join(DATA, f"recipe/{item_id}.json"))
 
-    weapon_lines = build_weapons(lang)
+    weapon_lines = build_weapons(lang) + build_bardings(lang, preview)
     write_tags()
     write_text(json.dumps(lang, indent=2, ensure_ascii=False) + "\n", os.path.join(ASSETS, "lang/en_us.json"))
     write_json(preview, os.path.join(PREVIEW, "models.json"))
-    icons.write_all(os.path.join(ASSETS, "textures/item"), PREVIEW, ARMOURS)
+    icons.write_all(os.path.join(ASSETS, "textures/item"), PREVIEW,
+                    ARMOURS + [(b[0], None, None, None, b[4] if b[3] else 0xFFFFFF, None) for b in horse.BARDINGS])
 
     write_text("\n".join([
         "package dev.culturesarmory.client;", "",
@@ -239,6 +281,11 @@ def main():
         "import com.magistuarmory.item.RangedWeaponType;",
         "import com.magistuarmory.item.WeaponType;",
         "import com.magistuarmory.item.armor.DyeableMedievalArmorItem;",
+        "import com.magistuarmory.item.armor.MedievalHorseArmorItem;",
+        "import net.minecraft.core.component.DataComponents;",
+        "import net.minecraft.resources.ResourceLocation;",
+        "import net.minecraft.world.item.ArmorMaterials;",
+        "import net.minecraft.world.item.component.DyedItemColor;",
         "import dev.architectury.registry.registries.RegistrySupplier;",
         "import net.minecraft.world.item.ArmorItem;",
         "import net.minecraft.world.item.Item;", "",

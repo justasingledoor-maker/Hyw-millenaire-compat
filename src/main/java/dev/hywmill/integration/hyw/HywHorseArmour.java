@@ -25,7 +25,9 @@ import java.lang.reflect.Method;
  *   <li>heavy horse at the middle level, light horse at the top: Epic Knights' chainmail horse armour;</li>
  *   <li>heavy horse at the top: Epic Knights' plate barding (now and then the Addon's dark barding).</li>
  * </ul>
- * Never gold or diamond; without Epic Knights, iron stands in for mail and plate. Chosen by the horse (stable across reloads),
+ * Never gold or diamond; without Epic Knights, iron stands in for mail and plate. A rider in Cultures Armory's Byzantine armour
+ * rides a Byzantine horse: quilted felt, the scale peytral and chamfron, or (under a kataphraktos) the full lamellar barding.
+ * Chosen by the horse (stable across reloads),
  * set through HYW's own horse armour so it keeps tracking and maintaining it. A horse without armour (level 0) keeps none.
  */
 public final class HywHorseArmour {
@@ -80,17 +82,20 @@ public final class HywHorseArmour {
         }
         BaseCombatEntity rider = h.getRiderEntity();
         boolean light = rider != null && dev.hywmill.garrison.equip.HorseArmour.light(BuiltInRegistries.ENTITY_TYPE.getKey(rider.getType()).getPath());
-        String want = dev.hywmill.garrison.equip.HorseArmour.choose(level, light, h.getUUID().getLeastSignificantBits(), ModList.get().isLoaded(EK), ModList.get().isLoaded(ADDON));
+        ItemStack coat = rider == null ? ItemStack.EMPTY : rider.getItemBySlot(EquipmentSlot.CHEST);
+        String riderCoat = coat.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(coat.getItem()).toString();
+        String want = dev.hywmill.garrison.equip.HorseArmour.choose(riderCoat, level, light, h.getUUID().getLeastSignificantBits(),
+                ModList.get().isLoaded(EK), ModList.get().isLoaded(ADDON));
         String have = now.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(now.getItem()).toString();
-        if (want.equals(have) && (!want.equals(dev.hywmill.garrison.equip.HorseArmour.LEATHER) || now.get(DataComponents.DYED_COLOR) != null)) {
-            return false; // the right armour already (leather dyed in the rider's colours)
+        if (want.equals(have) && (!dev.hywmill.garrison.equip.HorseArmour.dyed(want) || now.get(DataComponents.DYED_COLOR) != null)) {
+            return false; // the right armour already (leather or felt dyed in the rider's colours)
         }
         ResourceLocation id = ResourceLocation.parse(want);
         if (!BuiltInRegistries.ITEM.containsKey(id)) {
             return false;
         }
         ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(id));
-        if (want.equals(dev.hywmill.garrison.equip.HorseArmour.LEATHER)) {
+        if (dev.hywmill.garrison.equip.HorseArmour.dyed(want)) {
             stack.set(DataComponents.DYED_COLOR, new DyedItemColor(colour(rider), false));
         }
         boolean viaHyw = false;

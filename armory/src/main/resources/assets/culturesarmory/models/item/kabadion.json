@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/kabadion",
+    "layer1": "culturesarmory:item/kabadion_overlay"
+  }
+}

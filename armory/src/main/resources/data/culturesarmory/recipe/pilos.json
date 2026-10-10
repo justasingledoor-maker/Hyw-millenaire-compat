@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "fwf",
+    "f f"
+  ],
+  "key": {
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "w": {
+      "item": "minecraft:brown_wool"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:pilos",
+    "count": 1
+  }
+}

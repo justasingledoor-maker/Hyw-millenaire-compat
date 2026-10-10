@@ -32,6 +32,22 @@
     {
       "id": "culturesarmory:bone_plate_leggings",
       "required": false
+    },
+    {
+      "id": "culturesarmory:kremasmata",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:lamellar_kremasmata",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:byzantine_hose",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mail_chausses",
+      "required": false
     }
   ]
 }
