@@ -6363,9 +6363,9 @@ def scenario_AD(ctx):
     else:
         rj = roll(ctx.a)  # no Japanese village here: the look is checked through a Norman roll's generic squad instead
         h, rows = "", []
-    ad = sum(1 for r in rows if "magistuarmoryaddon:" in r)
+    ad = sum(1 for r in rows if "magistuarmoryaddon:" in r or "culturesarmory:" in r)
     note("AD samurai", " || ".join(r[:260] for r in rows[:3]))
-    check("AD-3 Japanese samurai wear the Addon's splint armour and helmets", jp is None or ("ok=true" in h and rows and ad >= 1),
+    check("AD-3 Japanese samurai wear the Addon's splint armour and helmets (Cultures Armory's samurai armour when it is installed)", jp is None or ("ok=true" in h and rows and ad >= 1),
           f"{'no Japanese village' if jp is None else h[-80:]}; {ad} of {len(rows)} with Addon pieces")
     rn = roll(ctx.a)
     h, rows = hired(rn, "squad:norman.village_shieldwall", ["shieldman", "spear_man"])
