@@ -22,6 +22,9 @@ public final class CulturesArmory {
     /** Epic Knights' armour tab: the pieces are listed there, after its own. */
     static final ResourceKey<CreativeModeTab> EK_ARMOR_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
             ResourceLocation.fromNamespaceAndPath("magistuarmory", "armor"));
+    /** Epic Knights' weapons tab: the weapons and the bow. */
+    static final ResourceKey<CreativeModeTab> EK_WEAPONS_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            ResourceLocation.fromNamespaceAndPath("magistuarmory", "weapons"));
 
     public CulturesArmory() {
         ArmoryItems.INSTANCE.init();
@@ -29,6 +32,16 @@ public final class CulturesArmory {
         for (RegistrySupplier<? extends Item> item : ArmoryItems.INSTANCE.armorItems) {
             if (item != null) {
                 CreativeTabRegistry.append(EK_ARMOR_TAB, item);
+            }
+        }
+        for (RegistrySupplier<? extends Item> item : ArmoryItems.INSTANCE.weaponItems) {
+            if (item != null) {
+                CreativeTabRegistry.append(EK_WEAPONS_TAB, item);
+            }
+        }
+        for (RegistrySupplier<? extends Item> item : ArmoryItems.INSTANCE.rangedWeaponItems) {
+            if (item != null) {
+                CreativeTabRegistry.append(EK_WEAPONS_TAB, item);
             }
         }
         if (Platform.getEnv() == Dist.CLIENT) {

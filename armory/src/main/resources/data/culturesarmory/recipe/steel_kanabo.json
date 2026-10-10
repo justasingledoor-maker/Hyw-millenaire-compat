@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " ni",
+    " wn",
+    "h  "
+  ],
+  "key": {
+    "n": {
+      "tag": "c:nuggets/iron"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "w": {
+      "tag": "minecraft:logs"
+    },
+    "h": {
+      "tag": "magistuarmory:hilts"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_kanabo",
+    "count": 1
+  }
+}

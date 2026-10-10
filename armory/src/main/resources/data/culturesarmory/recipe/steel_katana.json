@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "m",
+    "w"
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "w": {
+      "item": "culturesarmory:steel_wakizashi"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_katana",
+    "count": 1
+  }
+}

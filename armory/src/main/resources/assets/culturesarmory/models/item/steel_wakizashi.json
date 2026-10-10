@@ -1,0 +1,6 @@
+{
+  "parent": "magistuarmory:item/iron_shortsword",
+  "textures": {
+    "layer0": "culturesarmory:item/steel_wakizashi"
+  }
+}

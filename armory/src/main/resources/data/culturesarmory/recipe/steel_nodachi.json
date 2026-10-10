@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "mk"
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "k": {
+      "item": "culturesarmory:steel_katana"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_nodachi",
+    "count": 1
+  }
+}

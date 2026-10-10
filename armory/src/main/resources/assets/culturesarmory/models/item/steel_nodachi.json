@@ -1,0 +1,14 @@
+{
+  "parent": "magistuarmory:item/iron_claymore",
+  "textures": {
+    "layer0": "culturesarmory:item/steel_nodachi"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "blocking": 1
+      },
+      "model": "culturesarmory:item/steel_nodachi_blocking"
+    }
+  ]
+}
