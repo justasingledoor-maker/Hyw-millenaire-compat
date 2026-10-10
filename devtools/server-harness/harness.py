@@ -2756,9 +2756,9 @@ def scenario_CMR(ctx):
     r2 = " | ".join(l for l in s.output(f"hywmill war admin relief {c['H2']} {c['T']} clean", 2) if l.startswith("war relief"))
     time.sleep(15)  # a projector interval
     h12, h1t, h2t, h1a = rel(s, f["H1"], f["H2"]), rel(s, f["H1"], f["T"]), rel(s, f["H2"], f["T"]), rel(s, f["H1"], f["A"])
-    check("CMR-1 two relievers at war with each other are FRIENDLY while the siege lasts (and with the besieged), HOSTILE to the attacker",
+    check("CMR-1 two relievers at war with each other are FRIENDLY while the siege lasts (and with the besieged), never with the attacker",
           war is not None and feud == ("HOSTILE", "HOSTILE") and "war siege OK" in sg and "OK" in r1 and "OK" in r2
-          and h12 == ("FRIENDLY", "FRIENDLY") and h1t == ("FRIENDLY", "FRIENDLY") and h2t == ("FRIENDLY", "FRIENDLY") and h1a == ("HOSTILE", "HOSTILE"),
+          and h12 == ("FRIENDLY", "FRIENDLY") and h1t == ("FRIENDLY", "FRIENDLY") and h2t == ("FRIENDLY", "FRIENDLY") and "FRIENDLY" not in h1a,
           f"feud {feud} | {sg[-80:]} | {r1[-60:]} | {r2[-60:]} | H1-H2 {h12} H1-T {h1t} H2-T {h2t} H1-A {h1a}")
     d = " ".join(l for l in s.output(f"hywmill war admin siege-decide {c['A']} LOST", 3) if "siege-decide" in l)
     time.sleep(15)

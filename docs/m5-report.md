@@ -1723,3 +1723,33 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
 * **Upgrading a world.** Fealties sworn before this version keep going, with no end date and loyalty 40. Existing high
   relations sign treaties over the following days.
 * SHA-256 of the jar: `bba5b7cd4016957bcb139bf4b4caa319dd1ef5e76655cd6339165a5ea6076940`.
+
+### 6.57 Siege comrades: villages on one side of a siege no longer fight each other (`dist/hywmill-m5-fix57.jar`)
+
+* **Report.**
+  * On fix56, a village came to help, and another village helping the same side killed all its men.
+  * They were peaceful during the build-up and fought once the assault began.
+* **Cause.** Villages relieving the same besieged village, and the besieged itself, were NEUTRAL to each other in HYW.
+  * Once the assault began, a stray arrow or engine shot hit an ally.
+  * HYW then set its 600-tick retaliation on the shooter, spread through the victim's nearby comrades, and turned a
+    pair HOSTILE after three hits.
+  * The refusal rule of fix56 only acts when a helper commits; it could not stop this, or a feud that began after both
+    had committed.
+* **Change.** While a siege is undecided, the relation projector makes every village with men on one side of it FRIENDLY
+  with the others on that side, and with their villagers, both ways.
+  * One side is the besieged and every relief force promised to it, or the attacker with its provinces', allies' and
+    vassals' men.
+  * This overrides any feud of their own. HYW treats FRIENDLY as protected: it cancels the friendly-fire damage and
+    never targets or retaliates between them.
+  * A pair on opposite sides of any siege is never made comrades.
+  * When the siege is decided, the projector restores their own relations, a war's HOSTILE included.
+  * The fix56 refusals stay: an independent village still will not come where a village it is at war with, or despises,
+    already has men.
+* **Tests.**
+  * JUnit 386/386; `WarTest` checks that comrades are FRIENDLY over their own war, with each other's villagers, and never
+    across sides.
+  * Harness CMR (`docs/m5-test-evidence/fix57-cmr.txt`), all PASS. Campigny and Vieux-Bourg, at war with each other
+    (HOSTILE), both relieved Oleros against Saint-Pierre. While the siege lasted they were FRIENDLY with each other and
+    with Oleros, and not with Saint-Pierre. Once it was decided, Campigny and Vieux-Bourg were HOSTILE again.
+  * RLM on the same build: all PASS (raze deferred: no fifth village left).
+* SHA-256 of the jar: `58f44d335d66ee4d2498acd725d799bcffe94d70c537d3cacea62b0b3168842a`.
