@@ -6314,7 +6314,7 @@ def scenario_AD(ctx):
     eq = s.output("hywmill admin equipcheck", 6)
     loaded = [l for l in eq if l.strip().startswith("addon ")]
     bad = [l for l in eq if "INVALID KIT" in l]
-    check("AD-0 both addons load and every kit is valid", sum(1 for l in loaded if "loaded" in l and "not" not in l) == 2 and not bad,
+    check("AD-0 both addons load and every kit is valid", sum(1 for l in loaded if "loaded" in l and "not" not in l) >= 2 and not bad,
           " | ".join(loaded) + f"; invalid kits {len(bad)}: " + " | ".join(bad[:4]))
     centers = []
     for l in s.output("hywmill village list", 2):
@@ -6372,6 +6372,69 @@ def scenario_AD(ctx):
     ad = sum(1 for r in rows if "magistuarmoryaddon:" in r)
     note("AD shield-wall", " || ".join(r[:260] for r in rows[:3]))
     check("AD-4 a Norman shield-wall mixes Epic Knights and Addon gear (chapel hats, chained gambesons, tunics)", "ok=true" in h and rows and ad >= 1, f"{h[-80:]}; {ad} of {len(rows)} with Addon pieces")
+
+
+def scenario_CA(ctx):
+    """Cultures Armory (post-M5; run with HYWMILL_EXTRA_MODS holding Epic Knights, its addons and Cultures Armory 1.1): the armory
+    loads and every kit and item is valid; Japanese soldiers dressed by the profiles (as a garrison or a squad dresses them, through
+    '/hywmill dev outfit') wear its armour and carry its weapons, each in a family HYW gives the unit; other cultures do not."""
+    s = ctx.s
+    eq = s.output("hywmill admin equipcheck", 6)
+    loaded = [l for l in eq if l.strip().startswith("addon ")]
+    bad = [l for l in eq if "INVALID" in l]
+    armory = any("culturesarmory" in l and "loaded" in l and "not" not in l.lower() for l in loaded)
+    check("CA-0 Cultures Armory loads and every profile and look kit and item is valid", armory and not bad,
+          " | ".join(loaded) + f"; invalid {len(bad)}: " + " | ".join(bad[:4]))
+    c = ctx.a
+    x, z = c[0] + 8, c[2] + 8
+    y = surface_y(s, x, z) or c[1]
+    s.cmd(f"forceload add {x - 16} {z - 16} {x + 16} {z + 16}", 3)
+
+    def outfit(unit, tier, role, culture="millenaire:japanese", n=6):
+        rows = []
+        for i in range(n):
+            tag = f"ca_{unit}_{i}"
+            s.cmd(f'summon hundred_years_war:{unit} {x + i} {y} {z} {{Tags:["{tag}"],NoAI:1b}}', 0.6)
+            rows.append(" ".join(l for l in s.output(f'hywmill dev outfit @e[tag={tag},limit=1] "{culture}" {tier} "{role}"', 1)
+                                 if "outfit " in l))
+            s.cmd(f"kill @e[tag={tag}]", 0.3)
+        return rows
+
+    def slot(row, name):
+        m = re.search(name + r"=(\S+)", row)
+        return m[1] if m else "?"
+
+    def armoury(rows):
+        return sum(1 for r in rows if all(slot(r, sl).startswith("culturesarmory:") or slot(r, sl) == "none" for sl in ("head", "chest", "legs", "feet"))
+                   and any(slot(r, sl).startswith("culturesarmory:") for sl in ("head", "chest", "legs", "feet")))
+
+    A = "culturesarmory:"
+    cases = [
+        ("CA-1 Japanese spearmen (GARRISON) carry yari or jumonji yari, in the armory's armour", "spear_man", "GARRISON", "-",
+         {A + "steel_yari", A + "steel_jumonji_yari"}),
+        ("CA-2 Japanese warriors (STRONGHOLD) carry katana, nodachi, naginata or kanabo, in kabuto and laced do", "warrior", "STRONGHOLD", "-",
+         {A + "steel_katana", A + "steel_nodachi", A + "steel_naginata", A + "steel_kanabo"}),
+        ("CA-3 Japanese shieldmen (GUARD_POST) carry the wakizashi", "shieldman", "GUARD_POST", "-", {A + "steel_wakizashi"}),
+        ("CA-4 Japanese archers (GARRISON) shoot the yumi", "archer", "GARRISON", "-", {A + "yumi"}),
+        ("CA-5 Japanese militia (WATCH) in hachigane or jingasa, tatami-do, hakama and kyahan", "militia", "WATCH", "-", None),
+        ("CA-6 the Sohei squad: hooded, with naginata", "warrior", "GARRISON", "look:jp.sohei", {A + "steel_naginata"}),
+        ("CA-7 the Kiba-musha squad: mounted archers in o-yoroi", "archer_rider", "STRONGHOLD", "look:jp.kiba_musha", None),
+    ]
+    for name, unit, tier, role, weapons in cases:
+        rows = outfit(unit, tier, role)
+        arm = armoury(rows)
+        wpn = sum(1 for r in rows if weapons is None or slot(r, "mainhand") in weapons)
+        extra = True
+        if "Sohei" in name:
+            extra = all(slot(r, "head") == A + "sohei_zukin" for r in rows)
+        if "Kiba" in name:
+            extra = all(slot(r, "chest") == A + "o_yoroi" for r in rows)
+        note(name.split(" ")[0], " || ".join(r[r.find(":") + 1:][:220] for r in rows[:2]))
+        check(name, rows and arm == len(rows) and wpn == len(rows) and extra, f"{arm}/{len(rows)} in armory armour, {wpn} with its weapon")
+    rows = outfit("spear_man", "GARRISON", "-", culture="millenaire:norman")
+    leak = sum(1 for r in rows if A in r)
+    check("CA-8 other cultures never get the armory's gear", rows and leak == 0, f"{leak} of {len(rows)} Norman spearmen with armory items")
+    s.cmd(f"forceload remove {x - 16} {z - 16} {x + 16} {z + 16}", 1)
 
 
 def scenario_TR(ctx):
@@ -6995,7 +7058,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

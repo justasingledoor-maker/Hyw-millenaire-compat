@@ -1,5 +1,5 @@
 {
- "_comment": "HywMill optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded: ARMOUR comes from one whole kit ('kits': head/chest/legs/feet, 'none' = empty slot), chosen from the first matching kit list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all' - so pieces never mix across lists. WEAPONS and OFFHAND take an item from the first matching slot list in the same order; an item is used only if it is registered and belongs to an item family HYW itself gives that unit, else HYW's own item stays. Dyeable pieces (the minecraft:dyeable tag: gambeson, coif, pantyhose, brigandine, crusader, norman helmet, ...) are dyed in two colours per unit from 'dye.palette'; shields carry random arms (vanilla geometric patterns and Epic Knights emblems, rule of tincture) unless 'heraldry' is false. Choices are deterministic per unit; units re-equip once when this data changes. Validate with /hywmill dev equipcheck. Post-M5 role 'levy': mobilized wartime soldiers wear these light kits (gambeson, kettle hat or coif, cheap shields), at the tier of their own equipment level (1 = GUARD_POST: iron weapons from the class lists), not their village's tier. Post-M5 'heraldry' (defaults and per culture): the village livery's preferred dye colours (best first) and the banner patterns its shields use (ordinaries: geometric; charges: emblems). Each village takes two colours, chosen away from its neighbours' (3000 blocks); its soldiers wear them and bear assorted arms in them. Post-M5 Epic Knights addons: kits may use pieces of Epic Knights: Addon (magistuarmoryaddon) and Epic Knights: Slavic Armory (slavicarmory); a kit with a piece of an addon that is not installed is skipped (equipcheck lists such pieces as optional), so without the addons every unit wears the Epic Knights kits. Byzantines take Slavic Armory's Byzantine lamellar and scale, Phrygian and Varangian helmets; Seljuks and Indians the Addon's saracen, mirror and kulah khud pieces and Slavic bahteretz and yushman; Japanese the Addon's straw hats, splint armour and grotesque face helmets; Normans its chapel hats, coats of plates, early great helms and XIII-century knight harness.",
+ "_comment": "HywMill optional Epic Knights equipment profiles, used by the 'hyw_profiles' equipment provider. HYW's own equipment for the unit's level is applied first; then, only if Epic Knights (magistuarmory) is loaded: ARMOUR comes from one whole kit ('kits': head/chest/legs/feet, 'none' = empty slot), chosen from the first matching kit list: duty role (culture, then defaults), the culture's class role and 'all', then the defaults' class role and 'all' - so pieces never mix across lists. WEAPONS and OFFHAND take an item from the first matching slot list in the same order; an item is used only if it is registered and belongs to an item family HYW itself gives that unit, else HYW's own item stays. Dyeable pieces (the minecraft:dyeable tag: gambeson, coif, pantyhose, brigandine, crusader, norman helmet, ...) are dyed in two colours per unit from 'dye.palette'; shields carry random arms (vanilla geometric patterns and Epic Knights emblems, rule of tincture) unless 'heraldry' is false. Choices are deterministic per unit; units re-equip once when this data changes. Validate with /hywmill dev equipcheck. Post-M5 role 'levy': mobilized wartime soldiers wear these light kits (gambeson, kettle hat or coif, cheap shields), at the tier of their own equipment level (1 = GUARD_POST: iron weapons from the class lists), not their village's tier. Post-M5 'heraldry' (defaults and per culture): the village livery's preferred dye colours (best first) and the banner patterns its shields use (ordinaries: geometric; charges: emblems). Each village takes two colours, chosen away from its neighbours' (3000 blocks); its soldiers wear them and bear assorted arms in them. Post-M5 Epic Knights addons: kits may use pieces of Epic Knights: Addon (magistuarmoryaddon) and Epic Knights: Slavic Armory (slavicarmory); a kit with a piece of an addon that is not installed is skipped (equipcheck lists such pieces as optional), so without the addons every unit wears the Epic Knights kits. Byzantines take Slavic Armory's Byzantine lamellar and scale, Phrygian and Varangian helmets; Seljuks and Indians the Addon's saracen, mirror and kulah khud pieces and Slavic bahteretz and yushman; Japanese the Addon's straw hats, splint armour and grotesque face helmets; Normans its chapel hats, coats of plates, early great helms and XIII-century knight harness. Post-M5 Cultures Armory (culturesarmory, optional): the Japanese wear its armour (ashigaru jingasa, hachigane, tatami-do and okegawa-do; samurai zunari, kabuto, menpo, do-maru, samurai do, haidate, suneate; the mounted archer's hoshi kabuto and o-yoroi) and carry its weapons from GUARD_POST up (yari, jumonji yari, wakizashi, katana, naginata, nodachi, kanabo; the yumi at every tier). Its weapons count as the Epic Knights families HYW gives (yari = pike, jumonji yari = ahlspiess, katana = bastardsword, nodachi = claymore, naginata = lochaberaxe, kanabo = heavymace, wakizashi = shortsword, yumi = longbow). When a list offers armory pieces and the armory is installed, they are chosen over the Epic Knights stand-ins beside them; without it those are worn.",
  "defaults": {
   "tiers": {
    "WATCH": {
@@ -1982,6 +1982,18 @@
      "all": {
       "kits": [
        {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
@@ -1998,6 +2010,18 @@
      "ranged": {
       "kits": [
        {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
@@ -2009,10 +2033,27 @@
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmoryaddon:tunic_boots"
        }
+      ],
+      "mainhand": [
+       "culturesarmory:yumi",
+       "magistuarmory:longbow",
+       "magistuarmory:heavy_crossbow"
       ]
      },
      "militia": {
       "kits": [
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
        {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:gambeson_chestplate",
@@ -2030,6 +2071,18 @@
      "levy": {
       "kits": [
        {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
         "head": "magistuarmoryaddon:straw_hat",
         "chest": "magistuarmoryaddon:tunic",
         "legs": "magistuarmory:pantyhose",
@@ -2042,11 +2095,31 @@
         "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
+     },
+     "scout": {
+      "kits": [
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "GUARD_POST": {
      "line": {
       "mainhand": [
+       "culturesarmory:steel_yari",
+       "culturesarmory:steel_jumonji_yari",
+       "culturesarmory:steel_wakizashi",
+       "culturesarmory:steel_katana",
        "magistuarmory:iron_pike",
        "magistuarmory:iron_ahlspiess",
        "magistuarmory:iron_katzbalger"
@@ -2054,6 +2127,24 @@
      },
      "all": {
       "kits": [
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:okegawa_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:zunari_kabuto",
+        "chest": "culturesarmory:okegawa_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
        {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:lamellar_chestplate",
@@ -2077,6 +2168,24 @@
      "ranged": {
       "kits": [
        {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:okegawa_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
@@ -2088,20 +2197,54 @@
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmoryaddon:splint_boots"
        }
+      ],
+      "mainhand": [
+       "culturesarmory:yumi",
+       "magistuarmory:longbow",
+       "magistuarmory:heavy_crossbow"
       ]
      },
      "militia": {
       "kits": [
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
        {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
        }
+      ],
+      "mainhand": [
+       "culturesarmory:steel_wakizashi",
+       "magistuarmory:iron_shortsword",
+       "magistuarmory:iron_katzbalger"
       ]
      },
      "levy": {
       "kits": [
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
        {
         "head": "magistuarmoryaddon:straw_hat",
         "chest": "magistuarmoryaddon:tunic",
@@ -2115,11 +2258,39 @@
         "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
+     },
+     "scout": {
+      "kits": [
+       {
+        "head": "culturesarmory:zunari_kabuto",
+        "chest": "culturesarmory:okegawa_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:okegawa_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "GARRISON": {
      "line": {
       "mainhand": [
+       "culturesarmory:steel_yari",
+       "culturesarmory:steel_jumonji_yari",
+       "culturesarmory:steel_wakizashi",
+       "culturesarmory:steel_katana",
+       "culturesarmory:steel_naginata",
+       "culturesarmory:steel_nodachi",
        "magistuarmory:steel_pike",
        "magistuarmory:steel_ahlspiess",
        "magistuarmory:steel_katzbalger",
@@ -2130,6 +2301,24 @@
      },
      "all": {
       "kits": [
+       {
+        "head": "culturesarmory:zunari_kabuto",
+        "chest": "culturesarmory:do_maru",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
+       {
+        "head": "culturesarmory:zunari_kabuto",
+        "chest": "culturesarmory:okegawa_do",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:okegawa_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
        {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:lamellar_chestplate",
@@ -2153,6 +2342,18 @@
      "ranged": {
       "kits": [
        {
+        "head": "culturesarmory:zunari_kabuto",
+        "chest": "culturesarmory:do_maru",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:okegawa_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:pantyhose",
@@ -2164,20 +2365,56 @@
         "legs": "magistuarmoryaddon:splint_leggings",
         "feet": "magistuarmoryaddon:splint_boots"
        }
+      ],
+      "mainhand": [
+       "culturesarmory:yumi",
+       "magistuarmory:longbow",
+       "magistuarmory:heavy_crossbow"
       ]
      },
      "militia": {
       "kits": [
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
        {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
        }
+      ],
+      "mainhand": [
+       "culturesarmory:steel_wakizashi",
+       "magistuarmory:steel_shortsword",
+       "magistuarmory:steel_katzbalger",
+       "magistuarmory:iron_shortsword",
+       "magistuarmory:iron_katzbalger"
       ]
      },
      "levy": {
       "kits": [
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
        {
         "head": "magistuarmoryaddon:straw_hat",
         "chest": "magistuarmoryaddon:tunic",
@@ -2191,11 +2428,46 @@
         "feet": "magistuarmoryaddon:splint_boots"
        }
       ]
+     },
+     "scout": {
+      "kits": [
+       {
+        "head": "culturesarmory:zunari_kabuto",
+        "chest": "culturesarmory:do_maru",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
+       {
+        "head": "culturesarmory:zunari_kabuto",
+        "chest": "culturesarmory:do_maru",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:gambeson_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:coif",
+        "chest": "magistuarmory:chainmail_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       }
+      ]
      }
     },
     "STRONGHOLD": {
      "line": {
       "mainhand": [
+       "culturesarmory:steel_yari",
+       "culturesarmory:steel_jumonji_yari",
+       "culturesarmory:steel_wakizashi",
+       "culturesarmory:steel_katana",
+       "culturesarmory:steel_naginata",
+       "culturesarmory:steel_nodachi",
+       "culturesarmory:steel_kanabo",
        "magistuarmory:steel_pike",
        "magistuarmory:steel_ahlspiess",
        "magistuarmory:steel_katzbalger"
@@ -2203,6 +2475,24 @@
      },
      "all": {
       "kits": [
+       {
+        "head": "culturesarmory:kabuto",
+        "chest": "culturesarmory:samurai_do",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
+       {
+        "head": "culturesarmory:menpo_kabuto",
+        "chest": "culturesarmory:samurai_do",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
+       {
+        "head": "culturesarmory:zunari_kabuto",
+        "chest": "culturesarmory:do_maru",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
        {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:lamellar_chestplate",
@@ -2232,6 +2522,18 @@
      "ranged": {
       "kits": [
        {
+        "head": "culturesarmory:zunari_kabuto",
+        "chest": "culturesarmory:do_maru",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
+       {
+        "head": "culturesarmory:hoshi_kabuto",
+        "chest": "culturesarmory:do_maru",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
+       {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:lamellar_chestplate",
         "legs": "magistuarmory:pantyhose",
@@ -2243,20 +2545,54 @@
         "legs": "magistuarmoryaddon:splint_leggings",
         "feet": "magistuarmoryaddon:splint_boots"
        }
+      ],
+      "mainhand": [
+       "culturesarmory:yumi",
+       "magistuarmory:longbow",
+       "magistuarmory:heavy_crossbow"
       ]
      },
      "militia": {
       "kits": [
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:okegawa_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
        {
         "head": "magistuarmory:kettlehat",
         "chest": "magistuarmory:gambeson_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmory:gambeson_boots"
        }
+      ],
+      "mainhand": [
+       "culturesarmory:steel_wakizashi",
+       "magistuarmory:steel_shortsword",
+       "magistuarmory:steel_katzbalger"
       ]
      },
      "levy": {
       "kits": [
+       {
+        "head": "culturesarmory:jingasa",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
+       {
+        "head": "culturesarmory:ashigaru_hachigane",
+        "chest": "culturesarmory:tatami_do",
+        "legs": "culturesarmory:ashigaru_hakama",
+        "feet": "culturesarmory:ashigaru_kyahan"
+       },
        {
         "head": "magistuarmoryaddon:straw_hat",
         "chest": "magistuarmoryaddon:tunic",
@@ -2268,6 +2604,40 @@
         "chest": "magistuarmoryaddon:splint_chestplate",
         "legs": "magistuarmory:pantyhose",
         "feet": "magistuarmoryaddon:splint_boots"
+       }
+      ]
+     },
+     "scout": {
+      "kits": [
+       {
+        "head": "culturesarmory:hoshi_kabuto",
+        "chest": "culturesarmory:o_yoroi",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
+       {
+        "head": "culturesarmory:zunari_kabuto",
+        "chest": "culturesarmory:do_maru",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
+       {
+        "head": "culturesarmory:menpo_kabuto",
+        "chest": "culturesarmory:samurai_do",
+        "legs": "culturesarmory:samurai_haidate",
+        "feet": "culturesarmory:samurai_suneate"
+       },
+       {
+        "head": "magistuarmory:kettlehat",
+        "chest": "magistuarmory:brigandine_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
+       },
+       {
+        "head": "magistuarmory:sallet",
+        "chest": "magistuarmory:brigandine_chestplate",
+        "legs": "magistuarmory:pantyhose",
+        "feet": "magistuarmory:gambeson_boots"
        }
       ]
      }

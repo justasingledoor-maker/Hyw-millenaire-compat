@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "culturesarmory:steel_wakizashi",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_katana",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_nodachi",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_naginata",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_yari",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_jumonji_yari",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_kanabo",
+      "required": false
+    }
+  ]
+}

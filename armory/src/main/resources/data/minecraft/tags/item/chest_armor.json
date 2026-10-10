@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "culturesarmory:samurai_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:okegawa_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:tatami_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:do_maru",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:o_yoroi",
+      "required": false
+    }
+  ]
+}

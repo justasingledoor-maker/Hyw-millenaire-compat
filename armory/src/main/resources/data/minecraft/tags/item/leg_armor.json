@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "culturesarmory:samurai_haidate",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ashigaru_hakama",
+      "required": false
+    }
+  ]
+}

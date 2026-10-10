@@ -1,0 +1,73 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "culturesarmory:kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:menpo_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:samurai_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:samurai_haidate",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:samurai_suneate",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jingasa",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:okegawa_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ashigaru_hachigane",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:tatami_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ashigaru_hakama",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ashigaru_kyahan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:zunari_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:do_maru",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:hoshi_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:o_yoroi",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mikazuki_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sohei_zukin",
+      "required": false
+    }
+  ]
+}

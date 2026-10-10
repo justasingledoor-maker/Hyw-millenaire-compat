@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "culturesarmory:yumi",
+      "required": false
+    }
+  ]
+}

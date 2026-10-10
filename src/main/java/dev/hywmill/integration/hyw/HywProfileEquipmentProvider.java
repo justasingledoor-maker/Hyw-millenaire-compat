@@ -28,7 +28,7 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
     public static final String ID = "hyw_profiles";
     public static final String EK = "magistuarmory";
     /** Optional Epic Knights addons whose armour the profiles and looks use when they are installed (post-M5). */
-    public static final List<String> ADDONS = List.of("magistuarmoryaddon", "slavicarmory");
+    public static final List<String> ADDONS = List.of("magistuarmoryaddon", "slavicarmory", EquipmentProfiles.ARMORY);
 
     public enum Verdict { OK, UNREGISTERED, WRONG_SLOT, NOT_HYW_FAMILY }
 
@@ -137,6 +137,7 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                 valid.add(k);
             }
         }
+        valid = preferArmory(valid, HywProfileEquipmentProvider::armoryKit);
         if (valid.isEmpty()) {
             return null;
         }
@@ -156,6 +157,7 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                 valid.add(id);
             }
         }
+        valid = preferArmory(valid, HywProfileEquipmentProvider::armoryItem);
         if (valid.isEmpty()) {
             return null;
         }
@@ -173,6 +175,7 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                     valid.add(k);
                 }
             }
+            valid = preferArmory(valid, HywProfileEquipmentProvider::armoryKit);
             if (!valid.isEmpty()) {
                 long h = ctx.rosterId().getLeastSignificantBits() * 31 + ctx.rosterId().getMostSignificantBits() + 0x4B17L;
                 return valid.get((int) Math.floorMod(h, (long) valid.size()));
@@ -371,6 +374,28 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
         return out;
     }
 
+    /**
+     * Post-M5 Cultures Armory: when a list offers its pieces and they are usable (it is installed), the culture's own armour and
+     * weapons are worn instead of the Epic Knights stand-ins beside them.
+     */
+    static <T> List<T> preferArmory(List<T> valid, java.util.function.Predicate<T> armory) {
+        List<T> own = valid.stream().filter(armory).toList();
+        return own.isEmpty() ? valid : own;
+    }
+
+    static boolean armoryItem(String id) {
+        return id.startsWith(EquipmentProfiles.ARMORY + ":");
+    }
+
+    static boolean armoryKit(EquipmentProfiles.Kit k) {
+        for (String slot : EquipmentProfiles.ARMOUR) {
+            if (armoryItem(k.piece(slot))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** An item of an optional Epic Knights addon that is not installed (its kits are skipped, not an error). */
     static boolean addonAbsent(String itemId) {
         int i = itemId.indexOf(':');
@@ -395,6 +420,7 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                     valid.add(id);
                 }
             }
+            valid = preferArmory(valid, HywProfileEquipmentProvider::armoryItem);
             if (!valid.isEmpty()) {
                 long h = ctx.rosterId().getLeastSignificantBits() * 31 + ctx.rosterId().getMostSignificantBits() + slot.hashCode() * 17L;
                 return valid.get((int) Math.floorMod(h, (long) valid.size()));

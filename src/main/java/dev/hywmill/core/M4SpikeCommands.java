@@ -56,6 +56,51 @@ final class M4SpikeCommands {
                         .then(Commands.argument("item", StringArgumentType.greedyString()).executes(M4SpikeCommands::equipCmd))));
     }
 
+    /**
+     * Post-M5 validation tool: dresses a HYW unit by the equipment profiles as a soldier of {@code culture} at {@code tier} in
+     * {@code role} (a duty or class role, or {@code look:<squad look>}), as a garrison would, and reports what it wears.
+     */
+    static LiteralArgumentBuilder<CommandSourceStack> outfit() {
+        return Commands.literal("outfit").then(Commands.argument("unit", EntityArgument.entity())
+                .then(Commands.argument("culture", StringArgumentType.string())
+                        .then(Commands.argument("tier", StringArgumentType.word())
+                                .then(Commands.argument("role", StringArgumentType.string()).executes(M4SpikeCommands::outfitCmd)))));
+    }
+
+    private static int outfitCmd(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSourceStack src = ctx.getSource();
+        if (!HywMillCommands.devEnabled(src)) {
+            return 0;
+        }
+        Entity e = EntityArgument.getEntity(ctx, "unit");
+        String type = BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).toString();
+        dev.hywmill.garrison.tables.UnitSpec spec = dev.hywmill.garrison.tables.GarrisonTables.current().units().values().stream()
+                .filter(u -> u.entityType().equals(type)).findFirst().orElse(null);
+        dev.hywmill.garrison.spi.EquipmentProvider p = Services.equipment("hyw_profiles");
+        dev.hywmill.military.MilitaryTier tier;
+        try {
+            tier = dev.hywmill.military.MilitaryTier.valueOf(StringArgumentType.getString(ctx, "tier"));
+        } catch (IllegalArgumentException ex) {
+            tier = null;
+        }
+        if (spec == null || p == null || tier == null || !(e instanceof LivingEntity unit)) {
+            src.sendFailure(Component.literal("outfit: needs a HYW garrison unit, the 'hyw_profiles' provider and a tier (WATCH..STRONGHOLD)"));
+            return 0;
+        }
+        String role = StringArgumentType.getString(ctx, "role");
+        int applied = p.apply(e, spec, Math.max(0, tier.ordinal() - 1), new dev.hywmill.garrison.spi.EquipmentProvider.Context(
+                StringArgumentType.getString(ctx, "culture"), tier, role,
+                dev.hywmill.garrison.equip.EquipmentProfiles.classRole(spec.unitClass()), e.getUUID()));
+        StringBuilder sb = new StringBuilder("outfit " + spec.key() + " " + tier + " " + role + " applied=" + applied + ":");
+        for (EquipmentSlot sl : new EquipmentSlot[]{EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND, EquipmentSlot.HEAD, EquipmentSlot.CHEST,
+                EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+            ItemStack st = unit.getItemBySlot(sl);
+            sb.append(" ").append(sl.getName()).append("=").append(st.isEmpty() ? "none" : BuiltInRegistries.ITEM.getKey(st.getItem()));
+        }
+        HywMillCommands.send(src, sb.toString());
+        return 1;
+    }
+
     /** M4 validation tool ({@code /hywmill admin equipcheck}, op 3): checks the equipment profiles against every garrison unit type (log + chat summary). */
     static LiteralArgumentBuilder<CommandSourceStack> equipCheck() {
         return Commands.literal("equipcheck").executes(ctx -> {

@@ -86,6 +86,7 @@ public final class HywMillCommands {
                         .then(M4SpikeCommands.home())
                         .then(M4SpikeCommands.duties())
                         .then(M4SpikeCommands.equip())
+                        .then(M4SpikeCommands.outfit())
                         .then(M5SpikeCommands.node())
                         .then(dev.hywmill.recruit.RecruitCommands.node())
                         .then(Commands.literal("inspect")

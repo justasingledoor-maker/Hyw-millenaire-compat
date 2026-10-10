@@ -482,11 +482,18 @@ public final class EquipmentProfiles {
         String p = itemId.substring(itemId.indexOf(':') + 1);
         for (String m : MATERIALS) {
             if (p.startsWith(m + "_") && p.length() > m.length() + 1) {
-                return p.substring(m.length() + 1);
+                p = p.substring(m.length() + 1);
+                break;
             }
         }
-        return p;
+        return itemId.startsWith(ARMORY + ":") ? ARMORY_FAMILIES.getOrDefault(p, p) : p;
     }
+
+    /** Post-M5: Cultures Armory, an optional Epic Knights add-on with the armour and weapons of other cultures. */
+    public static final String ARMORY = "culturesarmory";
+    /** Its weapons stand in for the Epic Knights families HYW gives its units (a yari is a pike to a spearman). */
+    static final Map<String, String> ARMORY_FAMILIES = Map.of("wakizashi", "shortsword", "katana", "bastardsword", "nodachi", "claymore",
+            "naginata", "lochaberaxe", "yari", "pike", "jumonji_yari", "ahlspiess", "kanabo", "heavymace", "yumi", "longbow");
 
     public static final List<String> MATERIALS = List.of("wood", "wooden", "stone", "iron", "gold", "golden", "diamond", "netherite", "copper",
             "steel", "bronze", "silver", "tin");

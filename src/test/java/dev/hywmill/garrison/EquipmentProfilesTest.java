@@ -37,8 +37,10 @@ class EquipmentProfilesTest {
                 for (var r : t.values()) {
                     for (List<String> items : r.values()) {
                         for (String i : items) {
-                            assertTrue(i.startsWith("magistuarmory:"), "profiles are Epic Knights only: " + i);
+                            assertTrue(i.startsWith("magistuarmory:") || i.startsWith("culturesarmory:"), "profiles are Epic Knights (and its add-ons): " + i);
                         }
+                        // post-M5 Cultures Armory: its weapons always stand beside Epic Knights ones (worn when it is absent)
+                        assertTrue(items.stream().anyMatch(i -> i.startsWith("magistuarmory:")), "Epic Knights fallback in " + items);
                     }
                 }
             }
@@ -88,8 +90,8 @@ class EquipmentProfilesTest {
                         for (String slot : EquipmentProfiles.ARMOUR) {
                             String id = k.piece(slot);
                             assertTrue(id.equals(EquipmentProfiles.NONE) || id.startsWith("magistuarmory:") || id.startsWith("magistuarmoryaddon:")
-                                    || id.startsWith("slavicarmory:"), id);
-                            usesAddon |= id.startsWith("magistuarmoryaddon:") || id.startsWith("slavicarmory:");
+                                    || id.startsWith("slavicarmory:") || id.startsWith("culturesarmory:"), id);
+                            usesAddon |= id.startsWith("magistuarmoryaddon:") || id.startsWith("slavicarmory:") || id.startsWith("culturesarmory:");
                         }
                         plainEk |= !usesAddon;
                         addon |= usesAddon;
@@ -143,6 +145,19 @@ class EquipmentProfilesTest {
         assertEquals("longbow", EquipmentProfiles.family("magistuarmory:longbow"));
         assertEquals("heavy_crossbow", EquipmentProfiles.family("magistuarmory:heavy_crossbow"));
         assertEquals("lance", EquipmentProfiles.family("hundred_years_war:iron_lance"));
+    }
+
+    @Test
+    void armoryWeaponsStandInForTheFamiliesHywGives() {
+        assertEquals("pike", EquipmentProfiles.family("culturesarmory:steel_yari"));
+        assertEquals("ahlspiess", EquipmentProfiles.family("culturesarmory:steel_jumonji_yari"));
+        assertEquals("bastardsword", EquipmentProfiles.family("culturesarmory:steel_katana"));
+        assertEquals("claymore", EquipmentProfiles.family("culturesarmory:steel_nodachi"));
+        assertEquals("lochaberaxe", EquipmentProfiles.family("culturesarmory:steel_naginata"));
+        assertEquals("heavymace", EquipmentProfiles.family("culturesarmory:steel_kanabo"));
+        assertEquals("shortsword", EquipmentProfiles.family("culturesarmory:steel_wakizashi"));
+        assertEquals("longbow", EquipmentProfiles.family("culturesarmory:yumi"));
+        assertEquals("katana", EquipmentProfiles.family("othermod:steel_katana"), "only the armory's own items are aliased");
     }
 
     @Test

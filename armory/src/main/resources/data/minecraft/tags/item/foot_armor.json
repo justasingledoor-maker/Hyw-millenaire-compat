@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "culturesarmory:samurai_suneate",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ashigaru_kyahan",
+      "required": false
+    }
+  ]
+}

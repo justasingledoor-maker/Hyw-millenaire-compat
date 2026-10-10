@@ -1,0 +1,37 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "culturesarmory:kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:menpo_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jingasa",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ashigaru_hachigane",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:zunari_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:hoshi_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mikazuki_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sohei_zukin",
+      "required": false
+    }
+  ]
+}

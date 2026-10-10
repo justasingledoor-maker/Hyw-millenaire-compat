@@ -1753,3 +1753,36 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     with Oleros, and not with Saint-Pierre. Once it was decided, Campigny and Vieux-Bourg were HOSTILE again.
   * RLM on the same build: all PASS (raze deferred: no fifth village left).
 * SHA-256 of the jar: `58f44d335d66ee4d2498acd725d799bcffe94d70c537d3cacea62b0b3168842a`.
+
+### 6.58 Japanese garrisons and squads wear Cultures Armory (`dist/hywmill-m5-fix58.jar`)
+
+* **Request.** More Japanese sets for every class of HYW soldier, some variants, and weapons. They were made in Cultures
+  Armory 1.1 (`dist/cultures-armory-1.1.0.jar`, separate from HywMill), and HywMill now dresses the Japanese in them.
+* **Cultures Armory 1.1** (an Epic Knights add-on; see `armory/README.md`):
+  * Seventeen armour pieces, ten of them new:
+    * ashigaru: hachigane, tatami-dō, hakama, kyahan (besides the jingasa and okegawa-dō);
+    * samurai: zunari kabuto and dō-maru (middle rank), hoshi kabuto and ō-yoroi (the mounted archer's great armour),
+      mikazuki kabuto (a commander's crescent crest);
+    * the sōhei's hood.
+  * Eight weapons: wakizashi, katana, nodachi, naginata, yari, jūmonji yari, kanabō (steel Epic Knights weapons with
+    its display, blocking and two-handed rules) and the yumi (an Epic Knights bow).
+  * Every piece is in Minecraft's `dyeable` tag, so the village livery dyes its lacing and cloth. The weapons are
+    tagged as swords and bows for enchanting.
+* **HywMill.**
+  * The armory's weapons count as the Epic Knights families HYW gives each unit: yari = pike, jūmonji yari = ahlspiess,
+    katana = bastard sword, nodachi = claymore, naginata = Lochaber axe, kanabō = heavy mace, wakizashi = shortsword,
+    yumi = longbow. So spearmen take yari, warriors katana, nodachi, naginata or kanabō, shieldmen and militia the
+    wakizashi, archers the yumi; crossbowmen, gunners and riders' weapons are unchanged.
+  * The Japanese profiles have armory kits at every tier and role:
+    * militia and levies: hachigane or jingasa, tatami-dō, hakama, kyahan;
+    * line: ashigaru kits at WATCH and GUARD_POST, zunari and dō-maru with haidate and suneate at GARRISON, kabuto or
+      menpō with the samurai dō at STRONGHOLD;
+    * archers: ashigaru kits, then dō-maru, then the hoshi kabuto;
+    * cavalry: their own scout kits, up to the hoshi kabuto and ō-yoroi.
+  * Armory weapons from GUARD_POST up; the yumi at every tier.
+  * The sixteen Japanese squads have armory looks, e.g. sōhei hooded with naginata, samurai in kabuto with katana and
+    nodachi, kiba-musha in ō-yoroi, the daimyō's guard under the crescent crest.
+  * When a list offers armory pieces and the armory is installed, they are chosen over the Epic Knights stand-ins
+    beside them. Without it, every list keeps its Epic Knights kits and weapons, and equipcheck lists the armory's
+    pieces as optional.
+  * `/hywmill dev outfit <unit> <culture> <tier> <role>` (dev): dresses a HYW unit as a garrison or squad would.

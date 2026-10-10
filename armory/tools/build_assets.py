@@ -85,6 +85,20 @@ def recipe(item_id, pattern, keys):
                os.path.join(DATA, f"recipe/{item_id}.json"))
 
 
+def write_tags():
+    """Vanilla item tags, as Epic Knights tags its own: dyeable (dyeing; HywMill's livery), the armour slots (enchanting),
+    swords and bows (enchanting)."""
+    def tag(name, ids):
+        write_json({"replace": False, "values": [{"id": f"{MODID}:{i}", "required": False} for i in ids]},
+                   os.path.join(ROOT, "src/main/resources/data/minecraft/tags/item", f"{name}.json"))
+    tag("dyeable", [a[0] for a in japan.ARMOURS])
+    for name, slot in (("head_armor", "HELMET"), ("chest_armor", "CHESTPLATE"), ("leg_armor", "LEGGINGS"), ("foot_armor", "BOOTS")):
+        tag(name, [a[0] for a in japan.ARMOURS if a[2] == slot])
+    tag("swords", list(weapons.WEAPONS))
+    tag("bows", [weapons.BOW[0]])
+    tag("enchantable/bow", [weapons.BOW[0]])
+
+
 def build_weapons(lang):
     """The weapons: sprites, item models (Epic Knights' display transforms and blocking poses), recipes, Better Combat
     presets; returns the Java lines registering them."""
@@ -167,6 +181,7 @@ def main():
                    os.path.join(DATA, f"recipe/{item_id}.json"))
 
     weapon_lines = build_weapons(lang)
+    write_tags()
     write_text(json.dumps(lang, indent=2, ensure_ascii=False) + "\n", os.path.join(ASSETS, "lang/en_us.json"))
     write_json(preview, os.path.join(PREVIEW, "models.json"))
     icons.write_all(os.path.join(ASSETS, "textures/item"), PREVIEW)
