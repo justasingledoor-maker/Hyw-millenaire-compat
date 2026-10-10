@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/parka_hood",
+    "layer1": "culturesarmory:item/parka_hood_overlay"
+  }
+}

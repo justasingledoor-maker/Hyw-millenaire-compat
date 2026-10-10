@@ -158,6 +158,17 @@ class EquipmentProfilesTest {
         assertEquals("shortsword", EquipmentProfiles.family("culturesarmory:steel_wakizashi"));
         assertEquals("longbow", EquipmentProfiles.family("culturesarmory:yumi"));
         assertEquals("katana", EquipmentProfiles.family("othermod:steel_katana"), "only the armory's own items are aliased");
+        assertEquals("katzbalger", EquipmentProfiles.family("culturesarmory:steel_kilij"));
+        assertEquals("bastardsword", EquipmentProfiles.family("culturesarmory:steel_sayf"));
+        assertEquals("heavymace", EquipmentProfiles.family("culturesarmory:steel_shishpar"));
+        assertEquals("lochaberaxe", EquipmentProfiles.family("culturesarmory:steel_tabarzin"));
+        assertEquals("pike", EquipmentProfiles.family("culturesarmory:steel_mizrak"));
+        assertEquals("longbow", EquipmentProfiles.family("culturesarmory:turkic_bow"));
+        assertEquals("pike", EquipmentProfiles.family("culturesarmory:harpoon"));
+        assertEquals("ahlspiess", EquipmentProfiles.family("culturesarmory:ivory_lance"));
+        assertEquals("heavymace", EquipmentProfiles.family("culturesarmory:bone_club"));
+        assertEquals("shortsword", EquipmentProfiles.family("culturesarmory:savik"));
+        assertEquals("longbow", EquipmentProfiles.family("culturesarmory:sinew_bow"));
     }
 
     @Test

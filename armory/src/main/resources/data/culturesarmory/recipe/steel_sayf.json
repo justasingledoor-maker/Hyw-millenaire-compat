@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "m ",
+    "m ",
+    "hl"
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "h": {
+      "tag": "magistuarmory:hilts"
+    },
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_sayf",
+    "count": 1
+  }
+}

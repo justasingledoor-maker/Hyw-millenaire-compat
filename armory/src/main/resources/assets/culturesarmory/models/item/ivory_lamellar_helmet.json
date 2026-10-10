@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/ivory_lamellar_helmet",
+    "layer1": "culturesarmory:item/ivory_lamellar_helmet_overlay"
+  }
+}

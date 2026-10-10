@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/ceremonial_parka",
+    "layer1": "culturesarmory:item/ceremonial_parka_overlay"
+  }
+}

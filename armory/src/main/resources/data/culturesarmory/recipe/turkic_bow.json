@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "rhs",
+    "l s",
+    "rhs"
+  ],
+  "key": {
+    "r": {
+      "tag": "c:rods/wooden"
+    },
+    "h": {
+      "item": "minecraft:bone"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:turkic_bow",
+    "count": 1
+  }
+}

@@ -492,8 +492,17 @@ public final class EquipmentProfiles {
     /** Post-M5: Cultures Armory, an optional Epic Knights add-on with the armour and weapons of other cultures. */
     public static final String ARMORY = "culturesarmory";
     /** Its weapons stand in for the Epic Knights families HYW gives its units (a yari is a pike to a spearman). */
-    static final Map<String, String> ARMORY_FAMILIES = Map.of("wakizashi", "shortsword", "katana", "bastardsword", "nodachi", "claymore",
-            "naginata", "lochaberaxe", "yari", "pike", "jumonji_yari", "ahlspiess", "kanabo", "heavymace", "yumi", "longbow");
+    static final Map<String, String> ARMORY_FAMILIES = Map.ofEntries(
+            // Japan
+            Map.entry("wakizashi", "shortsword"), Map.entry("katana", "bastardsword"), Map.entry("nodachi", "claymore"),
+            Map.entry("naginata", "lochaberaxe"), Map.entry("yari", "pike"), Map.entry("jumonji_yari", "ahlspiess"),
+            Map.entry("kanabo", "heavymace"), Map.entry("yumi", "longbow"),
+            // the Seljuks
+            Map.entry("kilij", "katzbalger"), Map.entry("sayf", "bastardsword"), Map.entry("shishpar", "heavymace"),
+            Map.entry("tabarzin", "lochaberaxe"), Map.entry("mizrak", "pike"), Map.entry("turkic_bow", "longbow"),
+            // the Inuit
+            Map.entry("harpoon", "pike"), Map.entry("ivory_lance", "ahlspiess"), Map.entry("bone_club", "heavymace"),
+            Map.entry("savik", "shortsword"), Map.entry("sinew_bow", "longbow"));
 
     public static final List<String> MATERIALS = List.of("wood", "wooden", "stone", "iron", "gold", "golden", "diamond", "netherite", "copper",
             "steel", "bronze", "silver", "tin");

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "g g",
+    "gjg",
+    "ggg"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_nugget"
+    },
+    "j": {
+      "item": "culturesarmory:jawshan"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:gilded_jawshan",
+    "count": 1
+  }
+}

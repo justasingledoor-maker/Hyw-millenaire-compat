@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "mmm",
+    " m ",
+    " h "
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "h": {
+      "tag": "magistuarmory:hilts"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_shishpar",
+    "count": 1
+  }
+}

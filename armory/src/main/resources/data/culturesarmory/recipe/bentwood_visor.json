@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "ppp",
+    "bsb"
+  ],
+  "key": {
+    "p": {
+      "tag": "minecraft:planks"
+    },
+    "b": {
+      "item": "minecraft:bone"
+    },
+    "s": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:bentwood_visor",
+    "count": 1
+  }
+}

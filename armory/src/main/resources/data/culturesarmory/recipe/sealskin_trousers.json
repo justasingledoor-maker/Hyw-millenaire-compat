@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "lkl",
+    "l l",
+    "l l"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "k": {
+      "item": "minecraft:cod"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:sealskin_trousers",
+    "count": 1
+  }
+}

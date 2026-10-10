@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "l l",
+    "lpl",
+    "lll"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "p": {
+      "item": "culturesarmory:caribou_parka"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:walrus_hide_armour",
+    "count": 1
+  }
+}

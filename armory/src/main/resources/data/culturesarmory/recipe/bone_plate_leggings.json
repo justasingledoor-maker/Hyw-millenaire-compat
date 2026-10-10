@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "b b",
+    "btb",
+    "b b"
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bone"
+    },
+    "t": {
+      "item": "culturesarmory:caribou_trousers"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:bone_plate_leggings",
+    "count": 1
+  }
+}

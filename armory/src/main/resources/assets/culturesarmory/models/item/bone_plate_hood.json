@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/bone_plate_hood",
+    "layer1": "culturesarmory:item/bone_plate_hood_overlay"
+  }
+}

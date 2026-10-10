@@ -1,0 +1,6 @@
+{
+  "parent": "magistuarmory:item/longbow",
+  "textures": {
+    "layer0": "culturesarmory:item/turkic_bow_pulling_1"
+  }
+}

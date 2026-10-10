@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/seljuk_spangenhelm",
+    "layer1": "culturesarmory:item/seljuk_spangenhelm_overlay"
+  }
+}

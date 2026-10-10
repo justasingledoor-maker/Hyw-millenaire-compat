@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "f",
+    "k"
+  ],
+  "key": {
+    "k": {
+      "item": "culturesarmory:seljuk_conical_helmet"
+    },
+    "f": {
+      "item": "culturesarmory:turban"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:seljuk_turbaned_helmet",
+    "count": 1
+  }
+}

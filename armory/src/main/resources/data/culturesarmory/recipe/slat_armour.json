@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "b b",
+    "sps",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bone"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "p": {
+      "item": "culturesarmory:caribou_parka"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:slat_armour",
+    "count": 1
+  }
+}

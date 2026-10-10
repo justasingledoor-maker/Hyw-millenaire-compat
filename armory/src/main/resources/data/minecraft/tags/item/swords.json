@@ -28,6 +28,42 @@
     {
       "id": "culturesarmory:steel_kanabo",
       "required": false
+    },
+    {
+      "id": "culturesarmory:steel_kilij",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_sayf",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_shishpar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_tabarzin",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_mizrak",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:harpoon",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ivory_lance",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bone_club",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:savik",
+      "required": false
     }
   ]
 }

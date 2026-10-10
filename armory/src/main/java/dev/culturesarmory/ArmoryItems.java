@@ -30,6 +30,40 @@ public class ArmoryItems extends ModItemsProvider {
     public static final RegistrySupplier<DyeableMedievalArmorItem> O_YOROI_ITEM = INSTANCE.addDyeableMedievalArmorItem("o_yoroi", ArmoryArmorTypes.O_YOROI, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x5B3C88);
     public static final RegistrySupplier<DyeableMedievalArmorItem> MIKAZUKI_KABUTO_ITEM = INSTANCE.addDyeableMedievalArmorItem("mikazuki_kabuto", ArmoryArmorTypes.MIKAZUKI_KABUTO, ArmorItem.Type.HELMET, new Item.Properties(), 0x2E2E34);
     public static final RegistrySupplier<DyeableMedievalArmorItem> SOHEI_ZUKIN_ITEM = INSTANCE.addDyeableMedievalArmorItem("sohei_zukin", ArmoryArmorTypes.SOHEI_ZUKIN, ArmorItem.Type.HELMET, new Item.Properties(), 0xE6E1D3);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SELJUK_CONICAL_HELMET_ITEM = INSTANCE.addDyeableMedievalArmorItem("seljuk_conical_helmet", ArmoryArmorTypes.SELJUK_CONICAL_HELMET, ArmorItem.Type.HELMET, new Item.Properties(), 0x8E2A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SELJUK_VEILED_HELMET_ITEM = INSTANCE.addDyeableMedievalArmorItem("seljuk_veiled_helmet", ArmoryArmorTypes.SELJUK_VEILED_HELMET, ArmorItem.Type.HELMET, new Item.Properties(), 0x8E2A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SELJUK_TURBANED_HELMET_ITEM = INSTANCE.addDyeableMedievalArmorItem("seljuk_turbaned_helmet", ArmoryArmorTypes.SELJUK_TURBANED_HELMET, ArmorItem.Type.HELMET, new Item.Properties(), 0xE8E4D8);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> ATABEG_HELMET_ITEM = INSTANCE.addDyeableMedievalArmorItem("atabeg_helmet", ArmoryArmorTypes.ATABEG_HELMET, ArmorItem.Type.HELMET, new Item.Properties(), 0x8E2A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SELJUK_SPANGENHELM_ITEM = INSTANCE.addDyeableMedievalArmorItem("seljuk_spangenhelm", ArmoryArmorTypes.SELJUK_SPANGENHELM, ArmorItem.Type.HELMET, new Item.Properties(), 0x8E2A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> BORK_ITEM = INSTANCE.addDyeableMedievalArmorItem("bork", ArmoryArmorTypes.BORK, ArmorItem.Type.HELMET, new Item.Properties(), 0xA0402E);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> TURBAN_ITEM = INSTANCE.addDyeableMedievalArmorItem("turban", ArmoryArmorTypes.TURBAN, ArmorItem.Type.HELMET, new Item.Properties(), 0xE8E4D8);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> KAZAGHAND_ITEM = INSTANCE.addDyeableMedievalArmorItem("kazaghand", ArmoryArmorTypes.KAZAGHAND, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x8E2A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> JAWSHAN_ITEM = INSTANCE.addDyeableMedievalArmorItem("jawshan", ArmoryArmorTypes.JAWSHAN, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x2F3E6E);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> GILDED_JAWSHAN_ITEM = INSTANCE.addDyeableMedievalArmorItem("gilded_jawshan", ArmoryArmorTypes.GILDED_JAWSHAN, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x2F6B3A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> MAIL_KAFTAN_ITEM = INSTANCE.addDyeableMedievalArmorItem("mail_kaftan", ArmoryArmorTypes.MAIL_KAFTAN, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x2E7D7A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> QUILTED_KAFTAN_ITEM = INSTANCE.addDyeableMedievalArmorItem("quilted_kaftan", ArmoryArmorTypes.QUILTED_KAFTAN, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0xC08A2E);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> KAFTAN_ITEM = INSTANCE.addDyeableMedievalArmorItem("kaftan", ArmoryArmorTypes.KAFTAN, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x2E7D7A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SHALWAR_ITEM = INSTANCE.addDyeableMedievalArmorItem("shalwar", ArmoryArmorTypes.SHALWAR, ArmorItem.Type.LEGGINGS, new Item.Properties(), 0xE8E4D8);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> LAMELLAR_THIGH_GUARDS_ITEM = INSTANCE.addDyeableMedievalArmorItem("lamellar_thigh_guards", ArmoryArmorTypes.LAMELLAR_THIGH_GUARDS, ArmorItem.Type.LEGGINGS, new Item.Properties(), 0x2F3E6E);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> MAIL_LEGGINGS_ITEM = INSTANCE.addDyeableMedievalArmorItem("mail_leggings", ArmoryArmorTypes.MAIL_LEGGINGS, ArmorItem.Type.LEGGINGS, new Item.Properties(), 0x8E2A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> TURKIC_RIDING_BOOTS_ITEM = INSTANCE.addDyeableMedievalArmorItem("turkic_riding_boots", ArmoryArmorTypes.TURKIC_RIDING_BOOTS, ArmorItem.Type.BOOTS, new Item.Properties(), 0x8A2C24);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SPLINTED_GREAVES_ITEM = INSTANCE.addDyeableMedievalArmorItem("splinted_greaves", ArmoryArmorTypes.SPLINTED_GREAVES, ArmorItem.Type.BOOTS, new Item.Properties(), 0x8A2C24);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> PARKA_HOOD_ITEM = INSTANCE.addDyeableMedievalArmorItem("parka_hood", ArmoryArmorTypes.PARKA_HOOD, ArmorItem.Type.HELMET, new Item.Properties(), 0x8B3A22);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SNOW_GOGGLE_HOOD_ITEM = INSTANCE.addDyeableMedievalArmorItem("snow_goggle_hood", ArmoryArmorTypes.SNOW_GOGGLE_HOOD, ArmorItem.Type.HELMET, new Item.Properties(), 0x8B3A22);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> BENTWOOD_VISOR_ITEM = INSTANCE.addDyeableMedievalArmorItem("bentwood_visor", ArmoryArmorTypes.BENTWOOD_VISOR, ArmorItem.Type.HELMET, new Item.Properties(), 0x9C3B2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> BONE_PLATE_HOOD_ITEM = INSTANCE.addDyeableMedievalArmorItem("bone_plate_hood", ArmoryArmorTypes.BONE_PLATE_HOOD, ArmorItem.Type.HELMET, new Item.Properties(), 0x6E4A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> IVORY_LAMELLAR_HELMET_ITEM = INSTANCE.addDyeableMedievalArmorItem("ivory_lamellar_helmet", ArmoryArmorTypes.IVORY_LAMELLAR_HELMET, ArmorItem.Type.HELMET, new Item.Properties(), 0x6E4A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> CARIBOU_PARKA_ITEM = INSTANCE.addDyeableMedievalArmorItem("caribou_parka", ArmoryArmorTypes.CARIBOU_PARKA, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x8B3A22);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SEALSKIN_PARKA_ITEM = INSTANCE.addDyeableMedievalArmorItem("sealskin_parka", ArmoryArmorTypes.SEALSKIN_PARKA, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0xD8D0BE);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> CEREMONIAL_PARKA_ITEM = INSTANCE.addDyeableMedievalArmorItem("ceremonial_parka", ArmoryArmorTypes.CEREMONIAL_PARKA, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x2E5B8A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> BONE_PLATE_ARMOUR_ITEM = INSTANCE.addDyeableMedievalArmorItem("bone_plate_armour", ArmoryArmorTypes.BONE_PLATE_ARMOUR, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x6E4A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SLAT_ARMOUR_ITEM = INSTANCE.addDyeableMedievalArmorItem("slat_armour", ArmoryArmorTypes.SLAT_ARMOUR, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x6E4A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> WALRUS_HIDE_ARMOUR_ITEM = INSTANCE.addDyeableMedievalArmorItem("walrus_hide_armour", ArmoryArmorTypes.WALRUS_HIDE_ARMOUR, ArmorItem.Type.CHESTPLATE, new Item.Properties(), 0x6E4A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> CARIBOU_TROUSERS_ITEM = INSTANCE.addDyeableMedievalArmorItem("caribou_trousers", ArmoryArmorTypes.CARIBOU_TROUSERS, ArmorItem.Type.LEGGINGS, new Item.Properties(), 0x8B3A22);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SEALSKIN_TROUSERS_ITEM = INSTANCE.addDyeableMedievalArmorItem("sealskin_trousers", ArmoryArmorTypes.SEALSKIN_TROUSERS, ArmorItem.Type.LEGGINGS, new Item.Properties(), 0xD8D0BE);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> BONE_PLATE_LEGGINGS_ITEM = INSTANCE.addDyeableMedievalArmorItem("bone_plate_leggings", ArmoryArmorTypes.BONE_PLATE_LEGGINGS, ArmorItem.Type.LEGGINGS, new Item.Properties(), 0x6E4A2A);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> SEALSKIN_KAMIK_ITEM = INSTANCE.addDyeableMedievalArmorItem("sealskin_kamik", ArmoryArmorTypes.SEALSKIN_KAMIK, ArmorItem.Type.BOOTS, new Item.Properties(), 0xD8D0BE);
+    public static final RegistrySupplier<DyeableMedievalArmorItem> CARIBOU_KAMIK_ITEM = INSTANCE.addDyeableMedievalArmorItem("caribou_kamik", ArmoryArmorTypes.CARIBOU_KAMIK, ArmorItem.Type.BOOTS, new Item.Properties(), 0x8B3A22);
 
     public static final RegistrySupplier<MedievalWeaponItem> STEEL_WAKIZASHI = INSTANCE.addMedievalWeaponItem("steel_wakizashi", new Item.Properties(), ModItemTier.STEEL,
             WeaponType.of(3.0F, 1.65F, 0.0F, 0.0F, 1.0F, 0, true));
@@ -45,7 +79,27 @@ public class ArmoryItems extends ModItemsProvider {
             WeaponType.of(3.2F, 1.15F, 2.0F, 0.02F, 2.8F, 8, true, 2, 3.0F, true, false, false));
     public static final RegistrySupplier<MedievalWeaponItem> STEEL_KANABO = INSTANCE.addMedievalWeaponItem("steel_kanabo", new Item.Properties(), ModItemTier.STEEL,
             WeaponType.of(5.0F, 1.0F, 0.0F, 0.08F, 3.4F, 6, true, 2, 0.0F, false, false, false));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_KILIJ = INSTANCE.addMedievalWeaponItem("steel_kilij", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(3.4F, 1.6F, 0.0F, 0.0F, 1.2F, 0, true));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_SAYF = INSTANCE.addMedievalWeaponItem("steel_sayf", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(4.1F, 1.45F, 0.0F, 0.02F, 1.5F, 0, true, 1, 4.0F, true, false, false));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_SHISHPAR = INSTANCE.addMedievalWeaponItem("steel_shishpar", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(4.6F, 1.15F, 0.0F, 0.05F, 2.2F, 5, true));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_TABARZIN = INSTANCE.addMedievalWeaponItem("steel_tabarzin", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(6.2F, 1.0F, 1.0F, 0.05F, 3.0F, 2, true, 2, 3.0F, true, false, false));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_MIZRAK = INSTANCE.addMedievalWeaponItem("steel_mizrak", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(3.0F, 1.2F, 2.5F, 0.0F, 2.2F, 2, true, 2, 0.0F, false, false, false));
+    public static final RegistrySupplier<MedievalWeaponItem> HARPOON = INSTANCE.addMedievalWeaponItem("harpoon", new Item.Properties(), ModItemTier.IRON,
+            WeaponType.of(3.0F, 1.2F, 2.5F, 0.0F, 2.0F, 2, true, 2, 0.0F, false, false, false));
+    public static final RegistrySupplier<MedievalWeaponItem> IVORY_LANCE = INSTANCE.addMedievalWeaponItem("ivory_lance", new Item.Properties(), ModItemTier.IRON,
+            WeaponType.of(3.0F, 1.2F, 2.0F, 0.02F, 2.4F, 6, true, 2, 3.0F, true, false, false));
+    public static final RegistrySupplier<MedievalWeaponItem> BONE_CLUB = INSTANCE.addMedievalWeaponItem("bone_club", new Item.Properties(), ModItemTier.IRON,
+            WeaponType.of(4.6F, 1.1F, 0.0F, 0.06F, 2.6F, 3, true, 2, 0.0F, false, false, false));
+    public static final RegistrySupplier<MedievalWeaponItem> SAVIK = INSTANCE.addMedievalWeaponItem("savik", new Item.Properties(), ModItemTier.IRON,
+            WeaponType.of(2.8F, 1.7F, 0.0F, 0.0F, 0.8F, 0, true));
     public static final RegistrySupplier<Item> YUMI = INSTANCE.addMedievalBowItem("yumi", RangedWeaponType.of(400, 34, 4.4F, true));
+    public static final RegistrySupplier<Item> TURKIC_BOW = INSTANCE.addMedievalBowItem("turkic_bow", RangedWeaponType.of(380, 30, 4.5F, true));
+    public static final RegistrySupplier<Item> SINEW_BOW = INSTANCE.addMedievalBowItem("sinew_bow", RangedWeaponType.of(320, 30, 3.9F, true));
 
     public ArmoryItems() {
         super(CulturesArmory.ID);

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "b b",
+    "bpb",
+    "bbb"
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bone_block"
+    },
+    "p": {
+      "item": "culturesarmory:caribou_parka"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:bone_plate_armour",
+    "count": 1
+  }
+}

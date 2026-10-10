@@ -8,6 +8,30 @@
     {
       "id": "culturesarmory:ashigaru_hakama",
       "required": false
+    },
+    {
+      "id": "culturesarmory:shalwar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:lamellar_thigh_guards",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mail_leggings",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:caribou_trousers",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sealskin_trousers",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bone_plate_leggings",
+      "required": false
     }
   ]
 }

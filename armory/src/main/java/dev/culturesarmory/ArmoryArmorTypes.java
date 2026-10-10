@@ -45,6 +45,74 @@ public final class ArmoryArmorTypes {
             new Integer[]{0, 0, 0, 280}, new Integer[]{0, 0, 0, 3}, 12, SoundEvents.ARMOR_EQUIP_IRON, true, true, "c:ingots/steel");
     public static final ArmorType SOHEI_ZUKIN = new ArmorType(ARMOR_MATERIALS, id("sohei_zukin"), id("sohei_zukin"), 0.0F, 0.0F,
             new Integer[]{0, 0, 0, 100}, new Integer[]{0, 0, 0, 1}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType SELJUK_CONICAL_HELMET = new ArmorType(ARMOR_MATERIALS, id("seljuk_conical_helmet"), id("seljuk_conical_helmet"), 0.5F, 0.0F,
+            new Integer[]{0, 0, 0, 240}, new Integer[]{0, 0, 0, 3}, 10, SoundEvents.ARMOR_EQUIP_IRON, true, true, "c:ingots/steel");
+    public static final ArmorType SELJUK_VEILED_HELMET = new ArmorType(ARMOR_MATERIALS, id("seljuk_veiled_helmet"), id("seljuk_veiled_helmet"), 1.0F, 0.0F,
+            new Integer[]{0, 0, 0, 260}, new Integer[]{0, 0, 0, 3}, 10, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType SELJUK_TURBANED_HELMET = new ArmorType(ARMOR_MATERIALS, id("seljuk_turbaned_helmet"), id("seljuk_turbaned_helmet"), 0.5F, 0.0F,
+            new Integer[]{0, 0, 0, 240}, new Integer[]{0, 0, 0, 3}, 10, SoundEvents.ARMOR_EQUIP_IRON, true, true, "c:ingots/steel");
+    public static final ArmorType ATABEG_HELMET = new ArmorType(ARMOR_MATERIALS, id("atabeg_helmet"), id("atabeg_helmet"), 1.0F, 0.0F,
+            new Integer[]{0, 0, 0, 270}, new Integer[]{0, 0, 0, 3}, 14, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType SELJUK_SPANGENHELM = new ArmorType(ARMOR_MATERIALS, id("seljuk_spangenhelm"), id("seljuk_spangenhelm"), 0.5F, 0.0F,
+            new Integer[]{0, 0, 0, 220}, new Integer[]{0, 0, 0, 2}, 10, SoundEvents.ARMOR_EQUIP_IRON, true, true, "c:ingots/steel");
+    public static final ArmorType BORK = new ArmorType(ARMOR_MATERIALS, id("bork"), id("bork"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 0, 100}, new Integer[]{0, 0, 0, 1}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType TURBAN = new ArmorType(ARMOR_MATERIALS, id("turban"), id("turban"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 0, 90}, new Integer[]{0, 0, 0, 1}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType KAZAGHAND = new ArmorType(ARMOR_MATERIALS, id("kazaghand"), id("kazaghand"), 0.5F, 0.0F,
+            new Integer[]{0, 0, 300, 0}, new Integer[]{0, 0, 6, 0}, 10, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType JAWSHAN = new ArmorType(ARMOR_MATERIALS, id("jawshan"), id("jawshan"), 1.0F, 0.0F,
+            new Integer[]{0, 0, 320, 0}, new Integer[]{0, 0, 7, 0}, 10, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType GILDED_JAWSHAN = new ArmorType(ARMOR_MATERIALS, id("gilded_jawshan"), id("gilded_jawshan"), 1.25F, 0.0F,
+            new Integer[]{0, 0, 330, 0}, new Integer[]{0, 0, 7, 0}, 14, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType MAIL_KAFTAN = new ArmorType(ARMOR_MATERIALS, id("mail_kaftan"), id("mail_kaftan"), 0.25F, 0.0F,
+            new Integer[]{0, 0, 280, 0}, new Integer[]{0, 0, 5, 0}, 10, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType QUILTED_KAFTAN = new ArmorType(ARMOR_MATERIALS, id("quilted_kaftan"), id("quilted_kaftan"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 180, 0}, new Integer[]{0, 0, 3, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType KAFTAN = new ArmorType(ARMOR_MATERIALS, id("kaftan"), id("kaftan"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 120, 0}, new Integer[]{0, 0, 2, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType SHALWAR = new ArmorType(ARMOR_MATERIALS, id("shalwar"), id("shalwar"), 0.0F, 0.0F,
+            new Integer[]{0, 120, 0, 0}, new Integer[]{0, 2, 0, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType LAMELLAR_THIGH_GUARDS = new ArmorType(ARMOR_MATERIALS, id("lamellar_thigh_guards"), id("lamellar_thigh_guards"), 0.5F, 0.0F,
+            new Integer[]{0, 260, 0, 0}, new Integer[]{0, 4, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType MAIL_LEGGINGS = new ArmorType(ARMOR_MATERIALS, id("mail_leggings"), id("mail_leggings"), 0.25F, 0.0F,
+            new Integer[]{0, 260, 0, 0}, new Integer[]{0, 4, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType TURKIC_RIDING_BOOTS = new ArmorType(ARMOR_MATERIALS, id("turkic_riding_boots"), id("turkic_riding_boots"), 0.0F, 0.0F,
+            new Integer[]{130, 0, 0, 0}, new Integer[]{1, 0, 0, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType SPLINTED_GREAVES = new ArmorType(ARMOR_MATERIALS, id("splinted_greaves"), id("splinted_greaves"), 0.5F, 0.0F,
+            new Integer[]{220, 0, 0, 0}, new Integer[]{2, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_IRON, true, true, "c:ingots/steel");
+    public static final ArmorType PARKA_HOOD = new ArmorType(ARMOR_MATERIALS, id("parka_hood"), id("parka_hood"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 0, 100}, new Integer[]{0, 0, 0, 1}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType SNOW_GOGGLE_HOOD = new ArmorType(ARMOR_MATERIALS, id("snow_goggle_hood"), id("snow_goggle_hood"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 0, 110}, new Integer[]{0, 0, 0, 1}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType BENTWOOD_VISOR = new ArmorType(ARMOR_MATERIALS, id("bentwood_visor"), id("bentwood_visor"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 0, 120}, new Integer[]{0, 0, 0, 1}, 10, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType BONE_PLATE_HOOD = new ArmorType(ARMOR_MATERIALS, id("bone_plate_hood"), id("bone_plate_hood"), 0.25F, 0.0F,
+            new Integer[]{0, 0, 0, 180}, new Integer[]{0, 0, 0, 2}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType IVORY_LAMELLAR_HELMET = new ArmorType(ARMOR_MATERIALS, id("ivory_lamellar_helmet"), id("ivory_lamellar_helmet"), 0.5F, 0.0F,
+            new Integer[]{0, 0, 0, 200}, new Integer[]{0, 0, 0, 2}, 10, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType CARIBOU_PARKA = new ArmorType(ARMOR_MATERIALS, id("caribou_parka"), id("caribou_parka"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 140, 0}, new Integer[]{0, 0, 2, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType SEALSKIN_PARKA = new ArmorType(ARMOR_MATERIALS, id("sealskin_parka"), id("sealskin_parka"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 150, 0}, new Integer[]{0, 0, 2, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType CEREMONIAL_PARKA = new ArmorType(ARMOR_MATERIALS, id("ceremonial_parka"), id("ceremonial_parka"), 0.0F, 0.0F,
+            new Integer[]{0, 0, 150, 0}, new Integer[]{0, 0, 2, 0}, 12, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType BONE_PLATE_ARMOUR = new ArmorType(ARMOR_MATERIALS, id("bone_plate_armour"), id("bone_plate_armour"), 0.25F, 0.0F,
+            new Integer[]{0, 0, 220, 0}, new Integer[]{0, 0, 5, 0}, 9, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType SLAT_ARMOUR = new ArmorType(ARMOR_MATERIALS, id("slat_armour"), id("slat_armour"), 0.5F, 0.0F,
+            new Integer[]{0, 0, 240, 0}, new Integer[]{0, 0, 5, 0}, 9, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType WALRUS_HIDE_ARMOUR = new ArmorType(ARMOR_MATERIALS, id("walrus_hide_armour"), id("walrus_hide_armour"), 0.25F, 0.0F,
+            new Integer[]{0, 0, 200, 0}, new Integer[]{0, 0, 4, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType CARIBOU_TROUSERS = new ArmorType(ARMOR_MATERIALS, id("caribou_trousers"), id("caribou_trousers"), 0.0F, 0.0F,
+            new Integer[]{0, 120, 0, 0}, new Integer[]{0, 2, 0, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType SEALSKIN_TROUSERS = new ArmorType(ARMOR_MATERIALS, id("sealskin_trousers"), id("sealskin_trousers"), 0.0F, 0.0F,
+            new Integer[]{0, 130, 0, 0}, new Integer[]{0, 2, 0, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType BONE_PLATE_LEGGINGS = new ArmorType(ARMOR_MATERIALS, id("bone_plate_leggings"), id("bone_plate_leggings"), 0.25F, 0.0F,
+            new Integer[]{0, 180, 0, 0}, new Integer[]{0, 3, 0, 0}, 9, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
+    public static final ArmorType SEALSKIN_KAMIK = new ArmorType(ARMOR_MATERIALS, id("sealskin_kamik"), id("sealskin_kamik"), 0.0F, 0.0F,
+            new Integer[]{110, 0, 0, 0}, new Integer[]{1, 0, 0, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType CARIBOU_KAMIK = new ArmorType(ARMOR_MATERIALS, id("caribou_kamik"), id("caribou_kamik"), 0.0F, 0.0F,
+            new Integer[]{120, 0, 0, 0}, new Integer[]{1, 0, 0, 0}, 9, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
 
     private ArmoryArmorTypes() {}
 

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "bbb",
+    "bkb"
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bone"
+    },
+    "k": {
+      "item": "culturesarmory:parka_hood"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:bone_plate_hood",
+    "count": 1
+  }
+}

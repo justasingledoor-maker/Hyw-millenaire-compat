@@ -1,5 +1,5 @@
 {
- "_comment": "Post-M5 squad looks (Epic Knights only): each Muster Roll squad wears its own armour kits, carries its own shields, is dyed in its own colours (repeat a colour to weight it) and bears its own arms on its shields. A squad names its look in hywmill_squads. Kits and items that Epic Knights lacks or HYW cannot use are skipped (the culture's gear is used instead). Kits from the Epic Knights addons (Epic Knights: Addon, magistuarmoryaddon; Slavic Armory, slavicarmory) are used when those are installed and skipped otherwise. Cultures Armory (culturesarmory): the Japanese squads wear its armour and carry its weapons when it is installed (ashigaru in jingasa and tatami-do with yari and yumi, sohei in hoods with naginata, samurai in kabuto and laced do with katana and nodachi, mounted archers in o-yoroi, the daimyo's guard under the crescent crest); the Epic Knights kits are their fallback.",
+ "_comment": "Post-M5 squad looks (Epic Knights only): each Muster Roll squad wears its own armour kits, carries its own shields, is dyed in its own colours (repeat a colour to weight it) and bears its own arms on its shields. A squad names its look in hywmill_squads. Kits and items that Epic Knights lacks or HYW cannot use are skipped (the culture's gear is used instead). Kits from the Epic Knights addons (Epic Knights: Addon, magistuarmoryaddon; Slavic Armory, slavicarmory) are used when those are installed and skipped otherwise. Cultures Armory (culturesarmory): the Japanese squads wear its armour and carry its weapons when it is installed (ashigaru in jingasa and tatami-do with yari and yumi, sohei in hoods with naginata, samurai in kabuto and laced do with katana and nodachi, mounted archers in o-yoroi, the daimyo's guard under the crescent crest); the Epic Knights kits are their fallback. Cultures Armory 1.2: the Seljuk and Inuit squads too (Turkmen in bork and quilted kaftans, Daylamites in segmented helmets and mail, ghulams in kazaghands and jawshans, the hassa and the atabeg's retinue gilded; Inuit harpooners in sealskin, hunters in snow goggles and bentwood visors, warriors in bone, slat and walrus-hide armour, the shaman's band in ceremonial parkas).",
  "looks": {
   "norman.fyrd_spearmen": {
    "kits": [
@@ -1946,6 +1946,18 @@
   "seljuk.ahdath": {
    "kits": [
     {
+     "head": "culturesarmory:turban",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:turban",
+     "chest": "culturesarmory:kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -1970,6 +1982,10 @@
      "feet": "magistuarmoryaddon:saracen_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:steel_mizrak",
+    "culturesarmory:steel_shishpar"
+   ],
    "offhand": [
     "magistuarmory:wood_roundshield"
    ],
@@ -1992,6 +2008,18 @@
   },
   "seljuk.tribal_foot": {
    "kits": [
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -2023,6 +2051,10 @@
      "feet": "magistuarmoryaddon:saracen_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:steel_tabarzin",
+    "culturesarmory:steel_kilij"
+   ],
    "offhand": [
     "magistuarmory:wood_roundshield"
    ],
@@ -2045,6 +2077,18 @@
   },
   "seljuk.daylamites": {
    "kits": [
+    {
+     "head": "culturesarmory:seljuk_spangenhelm",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:seljuk_spangenhelm",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -2112,6 +2156,10 @@
      "feet": "slavicarmory:bahteretz_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:steel_kilij",
+    "culturesarmory:steel_mizrak"
+   ],
    "offhand": [
     "magistuarmory:iron_pavese"
    ],
@@ -2133,6 +2181,18 @@
   },
   "seljuk.ghulam_foot": {
    "kits": [
+    {
+     "head": "culturesarmory:seljuk_conical_helmet",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:mail_leggings",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:seljuk_conical_helmet",
+     "chest": "culturesarmory:kazaghand",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -2169,6 +2229,11 @@
      "legs": "magistuarmory:chainmail_leggings",
      "feet": "slavicarmory:bahteretz_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_sayf",
+    "culturesarmory:steel_shishpar",
+    "culturesarmory:steel_kilij"
    ],
    "offhand": [
     "magistuarmory:iron_roundshield"
@@ -2192,6 +2257,18 @@
   "seljuk.hassa": {
    "kits": [
     {
+     "head": "culturesarmory:seljuk_veiled_helmet",
+     "chest": "culturesarmory:gilded_jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
+    {
+     "head": "culturesarmory:atabeg_helmet",
+     "chest": "culturesarmory:gilded_jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
+    {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:lamellar_chestplate",
      "legs": "magistuarmory:chainmail_leggings",
@@ -2227,6 +2304,11 @@
      "legs": "magistuarmory:chainmail_leggings",
      "feet": "slavicarmory:bahteretz_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_sayf",
+    "culturesarmory:steel_kilij",
+    "culturesarmory:steel_shishpar"
    ],
    "offhand": [
     "magistuarmory:steel_roundshield"
@@ -2251,6 +2333,18 @@
   "seljuk.mamluk_foot": {
    "kits": [
     {
+     "head": "culturesarmory:seljuk_veiled_helmet",
+     "chest": "culturesarmory:jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
+    {
+     "head": "culturesarmory:seljuk_turbaned_helmet",
+     "chest": "culturesarmory:jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
+    {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:chainmail_chestplate",
      "legs": "magistuarmory:chainmail_leggings",
@@ -2268,6 +2362,11 @@
      "legs": "magistuarmory:chainmail_leggings",
      "feet": "magistuarmoryaddon:saracen_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_tabarzin",
+    "culturesarmory:steel_shishpar",
+    "culturesarmory:steel_kilij"
    ],
    "offhand": [
     "magistuarmory:steel_roundshield"
@@ -2300,6 +2399,18 @@
   "seljuk.foot_archers": {
    "kits": [
     {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:seljuk_conical_helmet",
+     "chest": "culturesarmory:kazaghand",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -2318,6 +2429,9 @@
      "feet": "magistuarmoryaddon:saracen_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:turkic_bow"
+   ],
    "palette": [
     "#3F6B35",
     "#B08A5A"
@@ -2325,6 +2439,18 @@
   },
   "seljuk.citadel_crossbows": {
    "kits": [
+    {
+     "head": "culturesarmory:seljuk_spangenhelm",
+     "chest": "culturesarmory:kazaghand",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:seljuk_spangenhelm",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
     {
      "head": "magistuarmory:kettlehat",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -2364,6 +2490,18 @@
   "seljuk.tribal_bows": {
    "kits": [
     {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -2388,6 +2526,9 @@
      "feet": "magistuarmoryaddon:saracen_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:turkic_bow"
+   ],
    "palette": [
     "#6B4A2A",
     "#B08A5A",
@@ -2396,6 +2537,18 @@
   },
   "seljuk.garrison_crossbows": {
    "kits": [
+    {
+     "head": "culturesarmory:turban",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:turban",
+     "chest": "culturesarmory:kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -2423,6 +2576,18 @@
   "seljuk.turkmen_horse_archers": {
    "kits": [
     {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -2449,6 +2614,18 @@
   },
   "seljuk.ghulam_horse_archers": {
    "kits": [
+    {
+     "head": "culturesarmory:seljuk_conical_helmet",
+     "chest": "culturesarmory:kazaghand",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:seljuk_conical_helmet",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:mail_leggings",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -2493,6 +2670,12 @@
   },
   "seljuk.cataphracts": {
    "kits": [
+    {
+     "head": "culturesarmory:seljuk_veiled_helmet",
+     "chest": "culturesarmory:jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
     {
      "head": "magistuarmory:face_helmet",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -2558,6 +2741,18 @@
   "seljuk.iqta_cavalry": {
    "kits": [
     {
+     "head": "culturesarmory:seljuk_turbaned_helmet",
+     "chest": "culturesarmory:kazaghand",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:seljuk_conical_helmet",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:mail_leggings",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:chainmail_chestplate",
      "legs": "magistuarmory:chainmail_leggings",
@@ -2597,6 +2792,18 @@
   },
   "seljuk.mamluk_horse": {
    "kits": [
+    {
+     "head": "culturesarmory:seljuk_conical_helmet",
+     "chest": "culturesarmory:jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:seljuk_turbaned_helmet",
+     "chest": "culturesarmory:jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -2668,6 +2875,18 @@
   "seljuk.atabeg_retinue": {
    "kits": [
     {
+     "head": "culturesarmory:atabeg_helmet",
+     "chest": "culturesarmory:gilded_jawshan",
+     "legs": "culturesarmory:mail_leggings",
+     "feet": "culturesarmory:splinted_greaves"
+    },
+    {
+     "head": "culturesarmory:seljuk_veiled_helmet",
+     "chest": "culturesarmory:gilded_jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
+    {
      "head": "magistuarmory:face_helmet",
      "chest": "magistuarmory:lamellar_chestplate",
      "legs": "magistuarmory:chainmail_leggings",
@@ -2715,6 +2934,10 @@
      "legs": "magistuarmory:chainmail_leggings",
      "feet": "slavicarmory:bahteretz_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_sayf",
+    "culturesarmory:steel_tabarzin"
    ],
    "offhand": [
     "magistuarmory:steel_roundshield"
@@ -5055,11 +5278,26 @@
   "inuit.harpooners": {
    "kits": [
     {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:harpoon"
    ],
    "palette": [
     "#9C7A52",
@@ -5070,11 +5308,28 @@
   "inuit.camp_defenders": {
    "kits": [
     {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club",
+    "culturesarmory:harpoon",
+    "culturesarmory:savik"
    ],
    "palette": [
     "#9C7A52",
@@ -5083,6 +5338,18 @@
   },
   "inuit.bone_armour": {
    "kits": [
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:bone_plate_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:ivory_lamellar_helmet",
+     "chest": "culturesarmory:bone_plate_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:caribou_kamik"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -5095,6 +5362,10 @@
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club",
+    "culturesarmory:savik"
    ],
    "offhand": [
     "magistuarmory:wood_target"
@@ -5118,11 +5389,26 @@
   "inuit.lancers": {
    "kits": [
     {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:walrus_hide_armour",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:bone_plate_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:ivory_lance"
    ],
    "palette": [
     "#6B4A2A",
@@ -5132,6 +5418,18 @@
   "inuit.champions": {
    "kits": [
     {
+     "head": "culturesarmory:ivory_lamellar_helmet",
+     "chest": "culturesarmory:slat_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:ivory_lamellar_helmet",
+     "chest": "culturesarmory:bone_plate_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:lamellar_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -5144,6 +5442,9 @@
      "feet": "magistuarmory:gambeson_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:bone_club"
+   ],
    "palette": [
     "#DCD2B8",
     "#707070"
@@ -5151,6 +5452,18 @@
   },
   "inuit.ice_wall": {
    "kits": [
+    {
+     "head": "culturesarmory:ivory_lamellar_helmet",
+     "chest": "culturesarmory:slat_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:walrus_hide_armour",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -5163,6 +5476,10 @@
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:savik",
+    "culturesarmory:ivory_lance"
    ],
    "offhand": [
     "magistuarmory:wood_roundshield"
@@ -5186,11 +5503,26 @@
   "inuit.master_bows": {
    "kits": [
     {
+     "head": "culturesarmory:bentwood_visor",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:walrus_hide_armour",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:sinew_bow"
    ],
    "palette": [
     "#DCD2B8",
@@ -5200,11 +5532,26 @@
   "inuit.sinew_bows": {
    "kits": [
     {
+     "head": "culturesarmory:snow_goggle_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:bentwood_visor",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:sinew_bow"
    ],
    "palette": [
     "#6B4A2A",
@@ -5214,11 +5561,26 @@
   "inuit.caribou_hunters": {
    "kits": [
     {
+     "head": "culturesarmory:snow_goggle_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:sinew_bow"
    ],
    "palette": [
     "#9C7A52",
@@ -5228,11 +5590,27 @@
   "inuit.snow_skirmishers": {
    "kits": [
     {
+     "head": "culturesarmory:snow_goggle_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:sinew_bow",
+    "culturesarmory:harpoon"
    ],
    "palette": [
     "#E9E4D4",
@@ -5242,11 +5620,27 @@
   "inuit.kayak_raiders": {
    "kits": [
     {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:bentwood_visor",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club",
+    "culturesarmory:sinew_bow"
    ],
    "palette": [
     "#6B4A2A",
@@ -5256,11 +5650,27 @@
   "inuit.tundra_scouts": {
    "kits": [
     {
+     "head": "culturesarmory:snow_goggle_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:sinew_bow",
+    "culturesarmory:bone_club"
    ],
    "palette": [
     "#E9E4D4",
@@ -5270,6 +5680,24 @@
   "inuit.whale_hunt": {
    "kits": [
     {
+     "head": "culturesarmory:bentwood_visor",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:walrus_hide_armour",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:lamellar_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -5282,6 +5710,10 @@
      "feet": "magistuarmory:gambeson_boots"
     }
    ],
+   "mainhand": [
+    "culturesarmory:harpoon",
+    "culturesarmory:sinew_bow"
+   ],
    "palette": [
     "#707070",
     "#222222"
@@ -5289,6 +5721,18 @@
   },
   "inuit.winter_warband": {
    "kits": [
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:walrus_hide_armour",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:bone_plate_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:caribou_kamik"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -5307,6 +5751,10 @@
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club",
+    "culturesarmory:savik"
    ],
    "offhand": [
     "magistuarmory:wood_roundshield"
@@ -5330,6 +5778,18 @@
   "inuit.shaman_band": {
    "kits": [
     {
+     "head": "culturesarmory:bentwood_visor",
+     "chest": "culturesarmory:ceremonial_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:ceremonial_parka",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:lamellar_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -5341,6 +5801,11 @@
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club",
+    "culturesarmory:sinew_bow",
+    "culturesarmory:savik"
    ],
    "offhand": [
     "magistuarmory:wood_roundshield"
@@ -5364,11 +5829,27 @@
   "inuit.feud_party": {
    "kits": [
     {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:bone_plate_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:walrus_hide_armour",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
      "feet": "magistuarmory:gambeson_boots"
     }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club",
+    "culturesarmory:ivory_lance"
    ],
    "palette": [
     "#5A1A1A",

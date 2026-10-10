@@ -8,6 +8,22 @@
     {
       "id": "culturesarmory:ashigaru_kyahan",
       "required": false
+    },
+    {
+      "id": "culturesarmory:turkic_riding_boots",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:splinted_greaves",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sealskin_kamik",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:caribou_kamik",
+      "required": false
     }
   ]
 }

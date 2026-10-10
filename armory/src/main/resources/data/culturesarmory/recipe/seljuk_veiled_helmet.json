@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "k",
+    "c"
+  ],
+  "key": {
+    "k": {
+      "item": "culturesarmory:seljuk_conical_helmet"
+    },
+    "c": {
+      "tag": "magistuarmory:chainmails/steel"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:seljuk_veiled_helmet",
+    "count": 1
+  }
+}

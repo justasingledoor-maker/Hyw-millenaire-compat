@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/lamellar_thigh_guards",
+    "layer1": "culturesarmory:item/lamellar_thigh_guards_overlay"
+  }
+}

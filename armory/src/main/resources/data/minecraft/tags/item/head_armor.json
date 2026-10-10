@@ -32,6 +32,54 @@
     {
       "id": "culturesarmory:sohei_zukin",
       "required": false
+    },
+    {
+      "id": "culturesarmory:seljuk_conical_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:seljuk_veiled_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:seljuk_turbaned_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:atabeg_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:seljuk_spangenhelm",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bork",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:turban",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:parka_hood",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:snow_goggle_hood",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bentwood_visor",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bone_plate_hood",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ivory_lamellar_helmet",
+      "required": false
     }
   ]
 }

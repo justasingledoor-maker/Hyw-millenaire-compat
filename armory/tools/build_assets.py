@@ -12,7 +12,9 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from armorgen import paint_model, write_json, write_png, write_text  # noqa: E402
 import icons  # noqa: E402
+import inuit  # noqa: E402
 import japan  # noqa: E402
+import seljuk  # noqa: E402
 import weapons  # noqa: E402
 
 MODID = "culturesarmory"
@@ -58,7 +60,7 @@ RECIPES = {
     "okegawa_do": (["p p", "ppp", "lsl"], {"p": "#c:plates/steel", "s": "minecraft:string", "l": "#magistuarmory:leather_strips"}),
     "ashigaru_hachigane": (["fpf"], {"f": "#magistuarmory:woolen_fabrics", "p": "#c:plates/steel"}),
     "tatami_do": (["l l", "cpc", "plp"], {"l": "#magistuarmory:leather_strips", "c": "#magistuarmory:chainmails/steel", "p": "#c:plates/steel"}),
-    "ashigaru_hakama": (["fff", "f f", "f f"], {"f": "#magistuarmory:woolen_fabrics"}),
+    "ashigaru_hakama": (["fsf", "f f", "f f"], {"f": "#magistuarmory:woolen_fabrics", "s": "minecraft:string"}),
     "ashigaru_kyahan": (["f f", "w w"], {"f": "#magistuarmory:woolen_fabrics", "w": "minecraft:wheat"}),
     "zunari_kabuto": (["ppp", "p p", "rsr"], {"p": "#c:plates/steel", "r": "#magistuarmory:lamellar_rows/steel", "s": "minecraft:string"}),
     "do_maru": (["rsr", "rrr", "rwr"], {"r": "#magistuarmory:lamellar_rows/steel", "s": "minecraft:string", "w": "minecraft:white_wool"}),
@@ -68,6 +70,13 @@ RECIPES = {
     "mikazuki_kabuto": (["ggg", " k ", "   "], {"g": "minecraft:gold_ingot", "k": "culturesarmory:kabuto"}),
     "sohei_zukin": (["fff", "f f"], {"f": "minecraft:white_wool"}),
 }
+
+# the cultures: Japan (above), the Seljuks, the Inuit
+ARMOURS = japan.ARMOURS + seljuk.ARMOURS + inuit.ARMOURS
+NAMES.update(seljuk.NAMES)
+NAMES.update(inuit.NAMES)
+RECIPES.update(seljuk.RECIPES)
+RECIPES.update(inuit.RECIPES)
 
 
 def ingredient(ref):
@@ -91,12 +100,12 @@ def write_tags():
     def tag(name, ids):
         write_json({"replace": False, "values": [{"id": f"{MODID}:{i}", "required": False} for i in ids]},
                    os.path.join(ROOT, "src/main/resources/data/minecraft/tags/item", f"{name}.json"))
-    tag("dyeable", [a[0] for a in japan.ARMOURS])
+    tag("dyeable", [a[0] for a in ARMOURS])
     for name, slot in (("head_armor", "HELMET"), ("chest_armor", "CHESTPLATE"), ("leg_armor", "LEGGINGS"), ("foot_armor", "BOOTS")):
-        tag(name, [a[0] for a in japan.ARMOURS if a[2] == slot])
+        tag(name, [a[0] for a in ARMOURS if a[2] == slot])
     tag("swords", list(weapons.WEAPONS))
-    tag("bows", [weapons.BOW[0]])
-    tag("enchantable/bow", [weapons.BOW[0]])
+    tag("bows", [b[0] for b in weapons.BOWS])
+    tag("enchantable/bow", [b[0] for b in weapons.BOWS])
 
 
 def build_weapons(lang):
@@ -118,22 +127,22 @@ def build_weapons(lang):
         recipe(item_id, pattern, keys)
         lang[f"item.{MODID}.{item_id}"] = weapons.WEAPON_NAMES[item_id]
         lines.append(f"    public static final RegistrySupplier<MedievalWeaponItem> {item_id.upper()} = INSTANCE.addMedievalWeaponItem("
-                     f"\"{item_id}\", new Item.Properties(), ModItemTier.STEEL,\n            WeaponType.of({stats}));")
-    bow_id, bow_stats, (pattern, keys) = weapons.BOW
-    weapons.yumi().image().save(os.path.join(ASSETS, f"textures/item/{bow_id}.png"))
-    overrides = [{"predicate": {"pulling": 1}, "model": f"{MODID}:item/{bow_id}_pulling_0"},
-                 {"predicate": {"pulling": 1, "pull": 0.65}, "model": f"{MODID}:item/{bow_id}_pulling_1"},
-                 {"predicate": {"pulling": 1, "pull": 0.9}, "model": f"{MODID}:item/{bow_id}_pulling_2"}]
-    write_json({"parent": "magistuarmory:item/longbow", "textures": {"layer0": f"{MODID}:item/{bow_id}"}, "overrides": overrides},
-               os.path.join(ASSETS, f"models/item/{bow_id}.json"))
-    for k in range(3):
-        weapons.yumi(k).image().save(os.path.join(ASSETS, f"textures/item/{bow_id}_pulling_{k}.png"))
-        write_json({"parent": "magistuarmory:item/longbow", "textures": {"layer0": f"{MODID}:item/{bow_id}_pulling_{k}"}},
-                   os.path.join(ASSETS, f"models/item/{bow_id}_pulling_{k}.json"))
-    recipe(bow_id, pattern, keys)
-    lang[f"item.{MODID}.{bow_id}"] = weapons.WEAPON_NAMES[bow_id]
-    lines.append(f"    public static final RegistrySupplier<Item> {bow_id.upper()} = INSTANCE.addMedievalBowItem(\"{bow_id}\", "
-                 f"RangedWeaponType.of({bow_stats}));")
+                     f"\"{item_id}\", new Item.Properties(), ModItemTier.{weapons.TIERS.get(item_id, 'STEEL')},\n            WeaponType.of({stats}));")
+    for bow_id, sprite, bow_stats, (pattern, keys) in weapons.BOWS:
+        sprite().image().save(os.path.join(ASSETS, f"textures/item/{bow_id}.png"))
+        overrides = [{"predicate": {"pulling": 1}, "model": f"{MODID}:item/{bow_id}_pulling_0"},
+                     {"predicate": {"pulling": 1, "pull": 0.65}, "model": f"{MODID}:item/{bow_id}_pulling_1"},
+                     {"predicate": {"pulling": 1, "pull": 0.9}, "model": f"{MODID}:item/{bow_id}_pulling_2"}]
+        write_json({"parent": "magistuarmory:item/longbow", "textures": {"layer0": f"{MODID}:item/{bow_id}"}, "overrides": overrides},
+                   os.path.join(ASSETS, f"models/item/{bow_id}.json"))
+        for k in range(3):
+            sprite(k).image().save(os.path.join(ASSETS, f"textures/item/{bow_id}_pulling_{k}.png"))
+            write_json({"parent": "magistuarmory:item/longbow", "textures": {"layer0": f"{MODID}:item/{bow_id}_pulling_{k}"}},
+                       os.path.join(ASSETS, f"models/item/{bow_id}_pulling_{k}.json"))
+        recipe(bow_id, pattern, keys)
+        lang[f"item.{MODID}.{bow_id}"] = weapons.WEAPON_NAMES[bow_id]
+        lines.append(f"    public static final RegistrySupplier<Item> {bow_id.upper()} = INSTANCE.addMedievalBowItem(\"{bow_id}\", "
+                     f"RangedWeaponType.of({bow_stats}));")
     return lines
 
 
@@ -141,7 +150,7 @@ def main():
     lang = {"itemGroup.culturesarmory": "Cultures Armory"}
     preview = {}
     model_lines, type_lines, item_lines = [], [], []
-    for item_id, factory, slot, (tough, kb, dur, defense, ench), dye, sound in japan.ARMOURS:
+    for item_id, factory, slot, (tough, kb, dur, defense, ench), dye, sound in ARMOURS:
         model = factory()
         model.pack()
         canvas = paint_model(model)
@@ -184,7 +193,7 @@ def main():
     write_tags()
     write_text(json.dumps(lang, indent=2, ensure_ascii=False) + "\n", os.path.join(ASSETS, "lang/en_us.json"))
     write_json(preview, os.path.join(PREVIEW, "models.json"))
-    icons.write_all(os.path.join(ASSETS, "textures/item"), PREVIEW)
+    icons.write_all(os.path.join(ASSETS, "textures/item"), PREVIEW, ARMOURS)
 
     write_text("\n".join([
         "package dev.culturesarmory.client;", "",
@@ -242,7 +251,7 @@ def main():
         "        super(CulturesArmory.ID);",
         "    }",
         "}", ""]), os.path.join(JAVA, "ArmoryItems.java"))
-    print("generated", len(japan.ARMOURS), "armours,", len(weapons.WEAPONS) + 1, "weapons")
+    print("generated", len(ARMOURS), "armours,", len(weapons.WEAPONS) + len(weapons.BOWS), "weapons")
 
 
 if __name__ == "__main__":

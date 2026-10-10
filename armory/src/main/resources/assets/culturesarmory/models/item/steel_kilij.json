@@ -1,0 +1,6 @@
+{
+  "parent": "magistuarmory:item/messer_sword",
+  "textures": {
+    "layer0": "culturesarmory:item/steel_kilij"
+  }
+}

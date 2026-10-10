@@ -4,6 +4,8 @@ The armour of other cultures, made the Epic Knights way. Each piece is an Epic K
 dyeable like Epic Knights' cloth armour. The pieces sit in Epic Knights' armour tab and repair with steel ingots.
 Separate from HywMill: it needs only NeoForge 1.21.1, Epic Knights (10.12 or later) and Architectury.
 
+1.2: 51 armour pieces and 19 weapons: Japan (17 + 8), the Seljuks (18 + 6), the Inuit (16 + 5).
+
 ## Japan
 
 The Sengoku period's *tōsei gusoku* (the samurai's "modern equipment") and the ashigaru's munitions armour.
@@ -60,6 +62,79 @@ With Better Combat, the weapons use its katana, sword, claymore, glaive, spear a
 see `src/main/resources/data/culturesarmory/recipe`. The menpō and mikazuki kabuto are made from a kabuto; the katana
 from a wakizashi, the nodachi from a katana, the naginata from a wakizashi on a pole; the yumi from bamboo.
 
+## The Seljuks (1.2)
+
+The Great Seljuks and the Sultanate of Rum, 11th-13th centuries: the ghulams' helmets, kazaghands and jawshans, the
+Turkmen horse archers' felt and kaftans, the Daylamite foot.
+
+| Item | Slot | Defence | Toughness | Durability | What it is |
+|---|---|---|---|---|---|
+| Seljuk Conical Helmet | head | 3 | 0.5 | 240 | Tall Turkic cone with a gilt rim, a nasal and a mail aventail |
+| Seljuk Helmet with Mail Veil | head | 3 | 1.0 | 260 | The same with a mail veil over the face (the ghulam's heavy helmet) |
+| Turbaned Helmet | head | 3 | 0.5 | 240 | A conical helmet wound round with a turban, aventail at the back |
+| Atabeg's Gilded Helmet | head | 3 | 1.0 | 270 | Gilded conical helmet with a plume, for an atabeg or a sultan's guard |
+| Seljuk Segmented Helmet | head | 2 | 0.5 | 220 | Segmented helmet of riveted plates, cheek guards, mail neck guard (Daylamite foot) |
+| Turkmen Börk | head | 1 | 0.0 | 100 | The Turkmen's tall felt cap with an upturned fur brim |
+| Turban | head | 1 | 0.0 | 90 | Cloth turban over a red felt cap, its tail down the back |
+| Kazaghand | chest | 6 | 0.5 | 300 | Mail between layers of cloth: the outer layer dyed and quilted, gilt tiraz bands on the sleeves, mail at the cuffs and hem |
+| Jawshan | chest | 7 | 1.0 | 320 | Lamellar cuirass with lamellar shoulders and skirt over a dyed kaftan |
+| Gilded Jawshan | chest | 7 | 1.25 | 330 | Lamellar in gilt and steel rows with a gilt breast disc, mail sleeves |
+| Mail Shirt over Kaftan | chest | 5 | 0.25 | 280 | Mail shirt (zirh) over a long dyed kaftan |
+| Quilted Kaftan | chest | 3 | 0.0 | 180 | Diamond-quilted riding coat, crossed over, belted, tiraz on the sleeves |
+| Kaftan | chest | 2 | 0.0 | 120 | Crossed-over robe with a gilt-edged front and a sash |
+| Shalwar | legs | 2 | 0.0 | 120 | Baggy trousers gathered at the ankle, with a sash |
+| Lamellar Thigh Guards | legs | 4 | 0.5 | 260 | Lamellar thigh guards over shalwar |
+| Mail Leggings | legs | 4 | 0.25 | 260 | Mail leggings with a dyed waist sash |
+| Turkic Riding Boots | feet | 1 | 0.0 | 130 | Tall soft riding boots of dyed leather |
+| Splinted Greaves | feet | 2 | 0.5 | 220 | Steel splints riveted over the riding boots, with knee cops |
+
+The heavy ghulam (veiled helmet, jawshan, lamellar thigh guards, splinted greaves) gives 16 armour; the gilded set of the
+sultan's guard a little more toughness. Kaftans, kazaghands, shalwar and the boots' leather are dyeable (crimson, saffron,
+turquoise, indigo and white by default), as are the aventails' silk edging and the atabeg's plume.
+
+| Weapon | Counts as (Epic Knights) | What it is |
+|---|---|---|
+| Kilij | Katzbalger | The curved Turkic sabre, widening toward the point (yelman) |
+| Sayf | Bastard sword | The straight broad sword with a fuller; blocks |
+| Shishpar | Heavy mace | The flanged mace; armour piercing |
+| Tabarzin | Lochaber axe | The long-hafted 'saddle axe'; blocks |
+| Mızrak | Pike | The Turkic lance with a red pennon |
+| Turkic Composite Bow | Longbow | The short, deeply recurved composite bow with horn ears (380 uses, draw 30, power 4.5) |
+
+## The Inuit (1.2)
+
+The clothing and war gear of the Arctic: caribou and sealskin parkas, kamiks and hoods, the Yup'ik bentwood visor, and
+the bone, slat and walrus-hide armour of the Bering Strait feuds.
+
+| Item | Slot | Defence | Toughness | Durability | What it is |
+|---|---|---|---|---|---|
+| Parka Hood | head | 1 | 0.0 | 100 | The caribou parka's hood, open on the face, with a wolf-fur ruff |
+| Hood with Snow Goggles | head | 1 | 0.0 | 110 | The same with wooden snow goggles slit against the glare |
+| Bentwood Hunting Visor | head | 1 | 0.0 | 120 | Yup'ik bentwood hunting visor: a long painted peak, ivory plaques, whiskers with beads |
+| Bone-Plated Hood | head | 2 | 0.25 | 180 | Hide hood sewn over with rows of bone plates |
+| Ivory Lamellar Helmet | head | 2 | 0.5 | 200 | Helmet of walrus-ivory lamellae with neck guard and cheek flaps, fur at the rim |
+| Caribou Parka | chest | 2 | 0.0 | 140 | Caribou-fur atigi with trim strips, pale cuffs and the long back flap |
+| Sealskin Parka | chest | 2 | 0.0 | 150 | Ringed-seal skin parka |
+| Ceremonial Parka | chest | 2 | 0.0 | 150 | Fur mosaic of pale and dark caribou in zigzags, beaded trim, ivory pendants |
+| Bone Plate Armour | chest | 5 | 0.25 | 220 | Bone lamellae laced over the parka, shoulder and skirt plates |
+| Slat Armour | chest | 5 | 0.5 | 240 | Bone slats lashed with sinew, with the high board over the left shoulder that guards the head (Bering Strait) |
+| Walrus-Hide Armour | chest | 4 | 0.25 | 200 | Overlapping bands of thick walrus hide, lashed with rawhide |
+| Caribou Trousers | legs | 2 | 0.0 | 120 | Trousers sewn of light and dark caribou strips |
+| Sealskin Trousers | legs | 2 | 0.0 | 130 | Sealskin trousers |
+| Bone-Plated Leggings | legs | 3 | 0.25 | 180 | Caribou trousers with bone lamellar thigh guards |
+| Sealskin Kamik | feet | 1 | 0.0 | 110 | Sealskin boots with crimped soles |
+| Caribou Kamik | feet | 1 | 0.0 | 120 | Caribou-fur boots with a fur cuff |
+
+The decorative trim strips, the lacing of the bone armour (rawhide, sinew) and the visor's painted bands are dyeable.
+
+| Weapon | Counts as (Epic Knights) | What it is |
+|---|---|---|
+| Harpoon | Pike | Driftwood shaft, ivory foreshaft, toggling head with an iron blade (iron) |
+| Ivory-Socketed Lance | Ahlspiess | Long ivory socket and broad iron blade; blocks (iron) |
+| Bone War Club | Heavy mace | War club of walrus bone (iron tier) |
+| Savik | Shortsword | Iron knife in an antler handle (iron) |
+| Sinew-Backed Bow | Longbow | The short sinew-backed bow (320 uses, draw 30, power 3.9) |
+
 ## Building
 
 ```
@@ -69,7 +144,7 @@ from a wakizashi, the nodachi from a katana, the naginata from a wakizashi on a 
 `libs/` must hold the Epic Knights and Architectury jars (compile-only).
 
 The models (Java), armour textures, icons, item models, recipes, tags and translations are generated from
-`tools/japan.py` (the armour), `tools/weapons.py` (the weapon sprites and stats) and `tools/icons.py` (the 16x16 icons):
+`tools/japan.py`, `tools/seljuk.py`, `tools/inuit.py` (the armour), `tools/weapons.py` (the weapon sprites and stats) and `tools/icons.py` with `tools/icons_more.py` (the 16x16 icons):
 
 ```
 python3 tools/build_assets.py      # needs Pillow

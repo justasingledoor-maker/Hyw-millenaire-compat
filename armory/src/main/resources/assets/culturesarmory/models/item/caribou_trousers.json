@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/caribou_trousers",
+    "layer1": "culturesarmory:item/caribou_trousers_overlay"
+  }
+}

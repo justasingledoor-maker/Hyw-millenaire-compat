@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  m",
+    " f ",
+    "p  "
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "p": {
+      "tag": "magistuarmory:poles"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_mizrak",
+    "count": 1
+  }
+}

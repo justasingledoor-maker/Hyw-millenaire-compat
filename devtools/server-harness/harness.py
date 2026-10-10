@@ -6419,9 +6419,25 @@ def scenario_CA(ctx):
         ("CA-5 Japanese militia (WATCH) in hachigane or jingasa, tatami-do, hakama and kyahan", "militia", "WATCH", "-", None),
         ("CA-6 the Sohei squad: hooded, with naginata", "warrior", "GARRISON", "look:jp.sohei", {A + "steel_naginata"}),
         ("CA-7 the Kiba-musha squad: mounted archers in o-yoroi", "mounted_archer_rider", "STRONGHOLD", "look:jp.kiba_musha", None),
+        # 1.2: the Seljuks and the Inuit
+        ("CA-9 Seljuk spearmen (GARRISON) carry the mizrak", "spear_man", "GARRISON", "-", {A + "steel_mizrak"}, "millenaire:seljuk"),
+        ("CA-10 Seljuk warriors (STRONGHOLD) carry sayf, shishpar or tabarzin, in jawshans", "warrior", "STRONGHOLD", "-",
+         {A + "steel_sayf", A + "steel_shishpar", A + "steel_tabarzin"}, "millenaire:seljuk"),
+        ("CA-11 Seljuk shieldmen (GUARD_POST) carry the kilij", "shieldman", "GUARD_POST", "-", {A + "steel_kilij"}, "millenaire:seljuk"),
+        ("CA-12 Seljuk archers (GARRISON) shoot the Turkic bow", "archer", "GARRISON", "-", {A + "turkic_bow"}, "millenaire:seljuk"),
+        ("CA-13 the Hassa squad: the Sultan's guard in gilded jawshans", "warrior", "STRONGHOLD", "look:seljuk.hassa",
+         {A + "steel_sayf", A + "steel_shishpar"}, "millenaire:seljuk"),
+        ("CA-14 Inuit spearmen (GARRISON) carry harpoon or ivory lance", "spear_man", "GARRISON", "-",
+         {A + "harpoon", A + "ivory_lance"}, "millenaire:inuits"),
+        ("CA-15 Inuit warriors (STRONGHOLD) carry the bone club, in slat or bone armour", "warrior", "STRONGHOLD", "-",
+         {A + "bone_club"}, "millenaire:inuits"),
+        ("CA-16 Inuit archers (GARRISON) shoot the sinew-backed bow", "archer", "GARRISON", "-", {A + "sinew_bow"}, "millenaire:inuits"),
+        ("CA-17 Inuit militia (GUARD_POST) carry the savik", "militia", "GUARD_POST", "-", {A + "savik"}, "millenaire:inuits"),
+        ("CA-18 the shaman's band: ceremonial parkas", "warrior", "STRONGHOLD", "look:inuit.shaman_band", {A + "bone_club"},
+         "millenaire:inuits"),
     ]
-    for name, unit, tier, role, weapons in cases:
-        rows = outfit(unit, tier, role)
+    for name, unit, tier, role, weapons, *cult in cases:
+        rows = outfit(unit, tier, role, culture=cult[0] if cult else "millenaire:japanese")
         arm = armoury(rows)
         wpn = sum(1 for r in rows if weapons is None or slot(r, "mainhand") in weapons)
         extra = True
@@ -6429,6 +6445,10 @@ def scenario_CA(ctx):
             extra = all(slot(r, "head") == A + "sohei_zukin" for r in rows)
         if "Kiba" in name:
             extra = all(slot(r, "chest") == A + "o_yoroi" for r in rows)
+        if "Hassa" in name:
+            extra = all(slot(r, "chest") == A + "gilded_jawshan" for r in rows)
+        if "shaman" in name:
+            extra = all(slot(r, "chest") == A + "ceremonial_parka" for r in rows)
         note(name.split(" ")[0], " || ".join(r[r.find(":") + 1:][:220] for r in rows[:2]))
         check(name, rows and arm == len(rows) and wpn == len(rows) and extra, f"{arm}/{len(rows)} in armory armour, {wpn} with its weapon")
     rows = outfit("spear_man", "GARRISON", "-", culture="millenaire:norman")

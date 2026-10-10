@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " bb",
+    " bb",
+    "l  "
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bone_block"
+    },
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:bone_club",
+    "count": 1
+  }
+}

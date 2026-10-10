@@ -68,6 +68,142 @@
     {
       "id": "culturesarmory:sohei_zukin",
       "required": false
+    },
+    {
+      "id": "culturesarmory:seljuk_conical_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:seljuk_veiled_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:seljuk_turbaned_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:atabeg_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:seljuk_spangenhelm",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bork",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:turban",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kazaghand",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jawshan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:gilded_jawshan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mail_kaftan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:quilted_kaftan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kaftan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:shalwar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:lamellar_thigh_guards",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mail_leggings",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:turkic_riding_boots",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:splinted_greaves",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:parka_hood",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:snow_goggle_hood",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bentwood_visor",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bone_plate_hood",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ivory_lamellar_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:caribou_parka",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sealskin_parka",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ceremonial_parka",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bone_plate_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:slat_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:walrus_hide_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:caribou_trousers",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sealskin_trousers",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bone_plate_leggings",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sealskin_kamik",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:caribou_kamik",
+      "required": false
     }
   ]
 }

@@ -20,6 +20,54 @@
     {
       "id": "culturesarmory:o_yoroi",
       "required": false
+    },
+    {
+      "id": "culturesarmory:kazaghand",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jawshan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:gilded_jawshan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mail_kaftan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:quilted_kaftan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kaftan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:caribou_parka",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sealskin_parka",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ceremonial_parka",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bone_plate_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:slat_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:walrus_hide_armour",
+      "required": false
     }
   ]
 }

@@ -6,7 +6,7 @@ import os
 
 from PIL import Image
 
-from japan import B, C, D, G, L, LEATHER, M, R, S, W, WHITE_CORD, ARMOURS
+from japan import B, C, D, G, L, LEATHER, M, R, S, W, WHITE_CORD
 
 OUT = (24, 21, 26)
 KEY = {
@@ -23,6 +23,17 @@ KEY = {
     "z": (S[4], False), "Z": (S[1], False),
     "k": (LEATHER[0], False), "K": (LEATHER[2], False),
     "f": ((196, 144, 112), False),
+    # 1.2: Seljuk and Inuit
+    "i": ((70, 70, 74), False), "I": ((128, 128, 132), False),          # mail
+    "j": ((116, 118, 120), False), "J": ((184, 186, 188), False), "p": ((214, 216, 218), False),   # steel
+    "u": ((74, 54, 36), False), "U": ((132, 104, 74), False),          # sable fur
+    "t": ((116, 88, 58), False), "T": ((178, 148, 106), False), "H": ((200, 192, 176), False),   # caribou, pale fur
+    "A": ((64, 60, 54), False), "B": ((118, 110, 96), False),          # sealskin
+    "C": ((180, 168, 136), False), "F": ((230, 222, 196), False),      # ivory, bone
+    "M": ((108, 74, 42), False), "O": ((166, 124, 78), False),         # wood
+    "P": ((102, 96, 88), False), "V": ((186, 180, 170), False),        # wolf fur
+    "Y": ((84, 62, 46), False), "5": ((138, 108, 80), False),          # walrus hide
+    "6": ((54, 92, 140), False), "7": ((150, 60, 40), False),          # blue bead, red ochre
 }
 
 ICONS = {
@@ -334,6 +345,10 @@ ICONS = {
     ],
 }
 
+from icons_more import MORE  # noqa: E402
+
+ICONS.update(MORE)
+
 
 def layers(grid):
     base = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
@@ -365,7 +380,7 @@ def composite(grid, tint):
     return img
 
 
-def write_all(item_dir, preview_dir):
+def write_all(item_dir, preview_dir, ARMOURS):
     os.makedirs(item_dir, exist_ok=True)
     os.makedirs(preview_dir, exist_ok=True)
     sheet = Image.new("RGBA", (len(ARMOURS) * 136, 136), (96, 110, 96, 255))

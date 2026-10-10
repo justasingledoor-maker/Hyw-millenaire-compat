@@ -4,6 +4,14 @@
     {
       "id": "culturesarmory:yumi",
       "required": false
+    },
+    {
+      "id": "culturesarmory:turkic_bow",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sinew_bow",
+      "required": false
     }
   ]
 }

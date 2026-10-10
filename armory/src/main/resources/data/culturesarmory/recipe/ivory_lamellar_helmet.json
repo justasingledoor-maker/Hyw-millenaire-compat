@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "bbb",
+    "bsb",
+    "h h"
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bone_block"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "h": {
+      "item": "minecraft:rabbit_hide"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:ivory_lamellar_helmet",
+    "count": 1
+  }
+}
