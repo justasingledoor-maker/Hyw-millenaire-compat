@@ -1786,3 +1786,26 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     beside them. Without it, every list keeps its Epic Knights kits and weapons, and equipcheck lists the armory's
     pieces as optional.
   * `/hywmill dev outfit <unit> <culture> <tier> <role>` (dev): dresses a HYW unit as a garrison or squad would.
+* **Tests.**
+  * JUnit: all pass. `EquipmentProfilesTest` checks the weapon families of the armory's weapons and that only its own
+    items are aliased; the profile tests allow the armory's namespace and require an Epic Knights fallback in every
+    list (kits and weapons).
+  * Harness CA with Epic Knights 10.15, Addon 2.5, Slavic Armory 2.3 and Cultures Armory 1.1
+    (`docs/m5-test-evidence/fix58-ca2.txt`), 10/10 PASS. Six soldiers each, dressed by `/hywmill dev outfit`:
+    * CA-0: three addons loaded, 0 invalid kits or items.
+    * CA-1: GARRISON spearmen, yari or jūmonji yari in zunari and dō-maru or okegawa-dō.
+    * CA-2: STRONGHOLD warriors, katana, nodachi, naginata or kanabō in kabuto and samurai dō.
+    * CA-3: GUARD_POST shieldmen, wakizashi.
+    * CA-4: archers, the yumi.
+    * CA-5: WATCH militia, hachigane, hakama and kyahan.
+    * CA-6: the Sōhei squad, hood and naginata.
+    * CA-7: the Kiba-musha squad, hoshi kabuto and ō-yoroi.
+    * CA-8: Norman spearmen get none of it.
+  * The first run (`fix58-ca-ad.txt`) failed CA-5 and CA-7 on harness mistakes:
+    * CA-5 counted the militia kit with Epic Knights' gambeson as not armory;
+    * CA-7 summoned the rider by its unit key.
+  * AD on the same build: PASS, no Japanese village in the world.
+  * Real client: the armory 1.1 loads with no model or texture errors. Its armour and weapons render on armour stands
+    and in the hand.
+* SHA-256 of the jar: `61b3ac87991b9bcdcf29320af92001ec8431c7ebded73200679b49434a0a37d6`; Cultures Armory 1.1.0:
+  `368b5cf8b0e4035d0aed0c3e0180b686c22146decff4a357288d070d73d20958`.
