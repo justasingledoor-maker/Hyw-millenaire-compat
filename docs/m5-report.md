@@ -1809,3 +1809,43 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     and in the hand.
 * SHA-256 of the jar: `61b3ac87991b9bcdcf29320af92001ec8431c7ebded73200679b49434a0a37d6`; Cultures Armory 1.1.0:
   `368b5cf8b0e4035d0aed0c3e0180b686c22146decff4a357288d070d73d20958`.
+
+### 6.59 Seljuk and Inuit garrisons and squads wear Cultures Armory 1.2 (`dist/hywmill-m5-fix59.jar`)
+
+* **Request.** Seljuk and Inuit armour sets, as many as Japan's or more, accurate and consistent with Epic Knights. They
+  are in Cultures Armory 1.2 (`dist/cultures-armory-1.2.0.jar`; tables in `armory/README.md`).
+* **Cultures Armory 1.2:** 51 armour pieces and 19 weapons.
+  * The Seljuks (11th–13th centuries), 18 pieces:
+    * helmets: conical helmet with aventail, the same with a mail veil, turbaned helmet, the atabeg's gilded helmet,
+      segmented helmet, Turkmen börk, turban;
+    * coats: kazaghand, jawshan, gilded jawshan, mail shirt over kaftan, quilted kaftan, kaftan;
+    * legs: shalwar, lamellar thigh guards, mail leggings;
+    * feet: riding boots, splinted greaves.
+    * Weapons: kilij, sayf, shishpar, tabarzin, mızrak and the Turkic composite bow.
+  * The Inuit, 16 pieces:
+    * hoods and helmets: parka hood with wolf ruff, hood with snow goggles, Yup'ik bentwood visor, bone-plated hood,
+      ivory lamellar helmet;
+    * coats: caribou, sealskin and ceremonial parkas, bone plate armour, slat armour with the head board, walrus-hide
+      armour;
+    * legs: caribou, sealskin and bone-plated trousers;
+    * feet: sealskin and caribou kamiks.
+    * Weapons: harpoon, ivory lance, bone club, savik and the sinew-backed bow. They are iron tier: meteoric and traded
+      iron.
+  * Armour values sit in Epic Knights' range. The Seljuk heavy ghulam set is 16 armour; the Inuit bone and slat sets
+    are 11–12. Cloth, leather, trim and lacing are dyeable, so village liveries apply.
+  * Recipes are checked against Epic Knights, its add-ons and vanilla. A clash already shipped in 1.1 was fixed: the
+    ashigaru hakama had Epic Knights' gambeson leggings recipe.
+* **HywMill.**
+  * The new weapons count as the Epic Knights families HYW gives:
+    * kilij = katzbalger, sayf = bastard sword;
+    * shishpar and bone club = heavy mace, tabarzin = Lochaber axe;
+    * mızrak and harpoon = pike, ivory lance = ahlspiess;
+    * savik = shortsword, Turkic and sinew bows = longbow.
+  * The Seljuk and Inuit profiles have armory kits at every tier and role, cavalry scout kits included:
+    * Seljuk levies and Turkmen in börk, turban and kaftans;
+    * Daylamite foot in segmented helmets and mail;
+    * ghulams in conical helmets with kazaghands and jawshans, at Stronghold in veiled helmets.
+    * Inuit in parkas and kamiks, bone-plated hoods with walrus-hide, bone and slat armour as the tier rises.
+  * Weapons are used from GUARD_POST up; the bows at every tier.
+  * All 32 Seljuk and Inuit squad looks use the armory, e.g. the Hassa and the atabeg's retinue gilded, and the shaman's
+    band in ceremonial parkas. Epic Knights kits stay as the fallback.

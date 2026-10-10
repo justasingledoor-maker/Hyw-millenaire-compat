@@ -6418,7 +6418,7 @@ def scenario_CA(ctx):
         ("CA-4 Japanese archers (GARRISON) shoot the yumi", "archer", "GARRISON", "-", {A + "yumi"}),
         ("CA-5 Japanese militia (WATCH) in hachigane or jingasa, tatami-do, hakama and kyahan", "militia", "WATCH", "-", None),
         ("CA-6 the Sohei squad: hooded, with naginata", "warrior", "GARRISON", "look:jp.sohei", {A + "steel_naginata"}),
-        ("CA-7 the Kiba-musha squad: mounted archers in o-yoroi", "mounted_archer_rider", "STRONGHOLD", "look:jp.kiba_musha", None),
+        ("CA-7 the Kiba-musha squad: mounted archers in the hoshi kabuto, with o-yoroi or do-maru", "mounted_archer_rider", "STRONGHOLD", "look:jp.kiba_musha", None),
         # 1.2: the Seljuks and the Inuit
         ("CA-9 Seljuk spearmen (GARRISON) carry the mizrak", "spear_man", "GARRISON", "-", {A + "steel_mizrak"}, "millenaire:seljuk"),
         ("CA-10 Seljuk warriors (STRONGHOLD) carry sayf, shishpar or tabarzin, in jawshans", "warrior", "STRONGHOLD", "-",
@@ -6444,7 +6444,8 @@ def scenario_CA(ctx):
         if "Sohei" in name:
             extra = all(slot(r, "head") == A + "sohei_zukin" for r in rows)
         if "Kiba" in name:
-            extra = all(slot(r, "chest") == A + "o_yoroi" for r in rows)
+            # the look's two kits: the hoshi kabuto with the o-yoroi or with the do-maru
+            extra = all(slot(r, "head") == A + "hoshi_kabuto" and slot(r, "chest") in (A + "o_yoroi", A + "do_maru") for r in rows)
         if "Hassa" in name:
             extra = all(slot(r, "chest") == A + "gilded_jawshan" for r in rows)
         if "shaman" in name:
