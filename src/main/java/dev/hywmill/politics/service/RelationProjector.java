@@ -89,12 +89,42 @@ public final class RelationProjector {
                 }
             }
         }
+        List<UUID[]> comrades = new ArrayList<>(), opposed = new ArrayList<>();
+        sides(ledger, comrades, opposed);
         Map<RelationPlan.Edge, String> desired = RelationPlan.desired(ledger.wars().values(), ledger.campaigns(), now, factionOf::get,
-                v -> ledger.get(v) != null ? dev.hywmill.faction.FactionIds.residentsOf(v) : null, reliefs, friends(ledger, now));
+                v -> ledger.get(v) != null ? dev.hywmill.faction.FactionIds.residentsOf(v) : null, reliefs, friends(ledger, now), comrades, opposed);
         plan = Map.copyOf(desired);
         dirty |= apply(rt, factions, ledger, desired);
         if (dirty) {
             ledger.setDirty();
+        }
+    }
+
+    /**
+     * Post-M5: the villages with men on each side of every siege not yet decided: pairs on one side are comrades (FRIENDLY
+     * while it lasts, whatever their own feuds), pairs on opposite sides are opposed.
+     */
+    static void sides(GarrisonLedger ledger, List<UUID[]> comrades, List<UUID[]> opposed) {
+        for (dev.hywmill.politics.war.Siege g : ledger.sieges()) {
+            if (g.outcome != dev.hywmill.politics.war.Siege.Outcome.NONE) {
+                continue;
+            }
+            List<UUID> att = new ArrayList<>(dev.hywmill.garrison.service.SiegeService.side(ledger, g, true));
+            List<UUID> def = new ArrayList<>(dev.hywmill.garrison.service.SiegeService.side(ledger, g, false));
+            for (List<UUID> side : List.of(att, def)) {
+                for (int i = 0; i < side.size(); i++) {
+                    for (int j = i + 1; j < side.size(); j++) {
+                        comrades.add(new UUID[]{side.get(i), side.get(j)});
+                    }
+                }
+            }
+            for (UUID x : att) {
+                for (UUID y : def) {
+                    if (!x.equals(y)) {
+                        opposed.add(new UUID[]{x, y});
+                    }
+                }
+            }
         }
     }
 

@@ -45,6 +45,11 @@ Villages that send men to one side of a siege must not fight each other.
   has men. The chronicle says so ("X will not march beside Y"). First come, first served: the later helper stays home.
 * **Provinces mind no one.** A province always comes. It has no wars of its own: once a day, any war it is in that its
   sovereign is not in ends in peace, so it never fights its sovereign's friends.
+* **Comrades in arms.** While a siege is undecided, every village with men on one side of it (the besieged and its
+  relief, or the attacker and its provinces', allies' and vassals' men) is FRIENDLY in HYW with the others on that side,
+  and with their villagers, over any feud of their own. HYW then cancels their friendly fire and never retaliates between
+  them. A pair on opposite sides of any siege is never made comrades. When the siege is decided, their own relations
+  (a war's HOSTILE) come back.
 * **The road.** Scouts and councils go after a column (mercenaries, a vassal's men, a messenger) only if its men are their
   village's enemies and ride for an enemy, and their own village has no men on that side of the siege. A company hired by
   a friend, or a vassal's men riding to a friend, are let pass.

@@ -62,6 +62,28 @@ class WarTest {
     }
 
     @Test
+    void siegeComradesAreFriendlyOverTheirOwnFeudButNeverAcrossSides() {
+        UUID c = UUID.fromString("00000000-0000-4000-8000-00000000000c"), fc = UUID.fromString("00000000-0000-4000-8000-0000000000fc");
+        UUID ra = UUID.fromString("00000000-0000-4000-8000-0000000000ea"), rb = UUID.fromString("00000000-0000-4000-8000-0000000000eb");
+        java.util.function.Function<UUID, UUID> fac = v -> v.equals(A) ? FA : v.equals(B) ? FB : v.equals(c) ? fc : null;
+        java.util.function.Function<UUID, UUID> res = v -> v.equals(A) ? ra : v.equals(B) ? rb : null;
+        WarRecord w = new WarRecord(A, B); // A and B have a feud of their own, but both relieve the same village
+        w.update(0, false, true, false, true, MIN, PEACE);
+        List<UUID[]> none = List.of();
+        Map<RelationPlan.Edge, String> plan = RelationPlan.desired(List.of(w), List.of(), 0, fac, res, none, none,
+                List.<UUID[]>of(new UUID[]{A, B}), List.<UUID[]>of(new UUID[]{A, c}));
+        assertEquals("FRIENDLY", plan.get(new RelationPlan.Edge(FA, FB)));
+        assertEquals("FRIENDLY", plan.get(new RelationPlan.Edge(FB, FA)));
+        assertEquals("FRIENDLY", plan.get(new RelationPlan.Edge(FA, rb)), "and with each other's villagers");
+        assertEquals("FRIENDLY", plan.get(new RelationPlan.Edge(rb, FA)));
+        assertEquals("FRIENDLY", plan.get(new RelationPlan.Edge(FB, ra)));
+        // a pair on opposite sides of some siege is never made comrades
+        Map<RelationPlan.Edge, String> split = RelationPlan.desired(List.of(w), List.of(), 0, fac, res, none, none,
+                List.<UUID[]>of(new UUID[]{A, B}), List.<UUID[]>of(new UUID[]{B, A}));
+        assertEquals("HOSTILE", split.get(new RelationPlan.Edge(FA, FB)));
+    }
+
+    @Test
     void planIsSymmetricFactionOnlyAndHostileWins() {
         WarRecord w = new WarRecord(A, B);
         w.update(0, false, true, false, true, MIN, PEACE);

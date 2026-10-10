@@ -52,6 +52,46 @@ public final class RelationPlan {
      */
     public static Map<Edge, String> desired(Collection<WarRecord> wars, Collection<Campaign> campaigns, long now, Function<UUID, UUID> factionOf,
                                             Function<UUID, UUID> residentOf, Collection<UUID[]> reliefs, Collection<UUID[]> friends) {
+        return desired(wars, campaigns, now, factionOf, residentOf, reliefs, friends, java.util.List.of(), java.util.List.of());
+    }
+
+    /**
+     * @param comrades post-M5: village pairs with men on the same side of a siege: while it lasts their factions are FRIENDLY
+     *                 with each other and with each other's residents, both ways, over any feud of their own (HYW then cancels
+     *                 their friendly fire and never retaliates between them)
+     * @param opposed  village pairs on opposite sides of some siege: never made comrades
+     */
+    public static Map<Edge, String> desired(Collection<WarRecord> wars, Collection<Campaign> campaigns, long now, Function<UUID, UUID> factionOf,
+                                            Function<UUID, UUID> residentOf, Collection<UUID[]> reliefs, Collection<UUID[]> friends,
+                                            Collection<UUID[]> comrades, Collection<UUID[]> opposed) {
+        Map<Edge, String> out = base(wars, campaigns, now, factionOf, residentOf, reliefs, friends);
+        java.util.Set<String> against = new java.util.HashSet<>();
+        for (UUID[] pair : opposed) {
+            against.add(pair[0] + ">" + pair[1]);
+            against.add(pair[1] + ">" + pair[0]);
+        }
+        for (UUID[] pair : comrades) {
+            UUID fx = factionOf.apply(pair[0]), fy = factionOf.apply(pair[1]);
+            if (fx == null || fy == null || fx.equals(fy) || against.contains(pair[0] + ">" + pair[1])) {
+                continue;
+            }
+            UUID rx = residentOf.apply(pair[0]), ry = residentOf.apply(pair[1]);
+            out.put(new Edge(fx, fy), FRIENDLY);
+            out.put(new Edge(fy, fx), FRIENDLY);
+            if (ry != null) {
+                out.put(new Edge(fx, ry), FRIENDLY);
+                out.put(new Edge(ry, fx), FRIENDLY);
+            }
+            if (rx != null) {
+                out.put(new Edge(fy, rx), FRIENDLY);
+                out.put(new Edge(rx, fy), FRIENDLY);
+            }
+        }
+        return out;
+    }
+
+    private static Map<Edge, String> base(Collection<WarRecord> wars, Collection<Campaign> campaigns, long now, Function<UUID, UUID> factionOf,
+                                          Function<UUID, UUID> residentOf, Collection<UUID[]> reliefs, Collection<UUID[]> friends) {
         Map<Edge, String> out = new LinkedHashMap<>();
         for (UUID[] pair : reliefs) {
             UUID fh = factionOf.apply(pair[0]);

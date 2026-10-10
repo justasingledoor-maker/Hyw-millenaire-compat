@@ -2709,6 +2709,65 @@ def rebel_step(s, S, P, c, p1):
           f"{(rise or '')[-200:]} || {realms2[-160:]}")
 
 
+def scenario_CMR(ctx):
+    """Siege comrades (fix57; kept W3 world): two villages at war with each other both relieve one besieged village. While the
+    siege lasts their factions are FRIENDLY (with each other, and with the besieged), so HYW cancels their friendly fire and
+    never retaliates between them; once it is decided, their own war is HOSTILE again."""
+    s = ctx.s
+    U = U_UUID
+    for box in EXTRA_FORCELOAD:
+        s.cmd("forceload add {} {} {} {}".format(*box), wait=10)
+    s.output("hywmill war admin recall-all", 3)
+    order = {"STRONGHOLD": 4, "GARRISON": 3, "GUARD_POST": 2, "WATCH": 1, "NONE": 0}
+    rows = sorted(village_rows(s), key=lambda r: -order.get(r[2], 0))
+    if not check("CMR-0 four villages: an attacker, a besieged village and two relievers", len(rows) >= 4, str([r[0] for r in rows])):
+        return
+    A, T, H1, H2 = rows[0], rows[1], rows[2], rows[3]
+    c = {k: f"{r[1][0]} {r[1][1]} {r[1][2]}" for k, r in (("A", A), ("T", T), ("H1", H1), ("H2", H2))}
+    note("CMR villages", f"A={A[0]} T={T[0]} H1={H1[0]} H2={H2[0]}")
+    keys = list(c)
+    for k in keys:
+        s.output(f"hywmill war admin rebel {c[k]}", 1)
+    pairs = [(x, y) for i, x in enumerate(keys) for y in keys[i + 1:]]
+    for x, y in pairs:
+        s.output(f"hywmill war admin treaty {c[x]} {c[y]} none", 0.5)
+        dip(s, A[1], f"admin truce {c[x]} {c[y]} 1", 0.5)
+    for x, y in pairs:
+        m5(s, f"mill mrel {c[x]} {c[y]} set 0", 0.5)
+        m5(s, f"mill mrel {c[y]} {c[x]} set 0", 0.5)
+    time.sleep(8)
+    for x, y in pairs:
+        dip(s, A[1], f"admin truce {c[x]} {c[y]} 0", 0.5)
+    p0 = s.pos()
+    standin_at(s, U, H1[1][0] + 3, H1[1][2] + 3)
+    m5(s, f"mill discover {c['H1']} {U}", 0.5)
+    m5(s, f"mill discover {c['H2']} {U}", 0.5)
+    s.output(f"hywmill war for {U} declare {c['H1']} on {c['H2']} force", 2)
+    war = None
+    t0 = time.time()
+    while time.time() - t0 < 60 and war is None:
+        war = next((l for l in s.read_since(p0) if re.search(r"War: .* started", l) and H1[0] in l and H2[0] in l), None)
+        time.sleep(3)
+    f = {k: info(s, r[1]).get("faction") for k, r in (("A", A), ("T", T), ("H1", H1), ("H2", H2))}
+    time.sleep(12)
+    feud = rel(s, f["H1"], f["H2"])
+    sg = " | ".join(l for l in s.output(f"hywmill war admin siege {c['A']} {c['T']} quick", 3) if l.startswith("war siege"))
+    r1 = " | ".join(l for l in s.output(f"hywmill war admin relief {c['H1']} {c['T']} clean", 2) if l.startswith("war relief"))
+    r2 = " | ".join(l for l in s.output(f"hywmill war admin relief {c['H2']} {c['T']} clean", 2) if l.startswith("war relief"))
+    time.sleep(15)  # a projector interval
+    h12, h1t, h2t, h1a = rel(s, f["H1"], f["H2"]), rel(s, f["H1"], f["T"]), rel(s, f["H2"], f["T"]), rel(s, f["H1"], f["A"])
+    check("CMR-1 two relievers at war with each other are FRIENDLY while the siege lasts (and with the besieged), HOSTILE to the attacker",
+          war is not None and feud == ("HOSTILE", "HOSTILE") and "war siege OK" in sg and "OK" in r1 and "OK" in r2
+          and h12 == ("FRIENDLY", "FRIENDLY") and h1t == ("FRIENDLY", "FRIENDLY") and h2t == ("FRIENDLY", "FRIENDLY") and h1a == ("HOSTILE", "HOSTILE"),
+          f"feud {feud} | {sg[-80:]} | {r1[-60:]} | {r2[-60:]} | H1-H2 {h12} H1-T {h1t} H2-T {h2t} H1-A {h1a}")
+    d = " ".join(l for l in s.output(f"hywmill war admin siege-decide {c['A']} LOST", 3) if "siege-decide" in l)
+    time.sleep(15)
+    after = rel(s, f["H1"], f["H2"])
+    check("CMR-2 once the siege is decided their own war is HOSTILE again", "OK LOST" in d and after == ("HOSTILE", "HOSTILE"), f"{d} | H1-H2 {after}")
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {U}", 0.3)
+
+
 def scenario_ARS7(ctx):
     """ARS-7 alone on a kept world (after ARS): Muster Roll engine sales."""
     s, a = ctx.s, ctx.a
@@ -6936,7 +6995,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
