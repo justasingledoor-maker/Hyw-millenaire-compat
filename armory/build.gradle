@@ -1,0 +1,69 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.147'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = 'cultures-armory'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+// Epic Knights and Architectury: supplied locally in libs/, compile-only (the game loads the real mods).
+def ekJar = file(project.ek_jar)
+def archJar = file(project.architectury_jar)
+[ekJar, archJar].each { f ->
+    if (!f.exists()) {
+        throw new GradleException("Missing ${f}: copy the Epic Knights and Architectury jars there.")
+    }
+}
+
+neoForge {
+    version = project.neo_version
+    runs {
+        // dev only: a client that opens the preview world (tools/client-test), Epic Knights in run/mods
+        client {
+            client()
+            gameDirectory = project.file('run')
+            programArguments.addAll('--quickPlaySingleplayer', 'armorytest', '--width', '1280', '--height', '720')
+        }
+    }
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+dependencies {
+    compileOnly files(ekJar, archJar)
+}
+
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version_range   : minecraft_version_range,
+            neo_version_range         : neo_version_range,
+            loader_version_range      : loader_version_range,
+            mod_id                    : mod_id,
+            mod_name                  : mod_name,
+            mod_license               : mod_license,
+            mod_version               : mod_version,
+            mod_authors               : mod_authors,
+            mod_description           : mod_description,
+            ek_version_range          : ek_version_range,
+            architectury_version_range: architectury_version_range,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}

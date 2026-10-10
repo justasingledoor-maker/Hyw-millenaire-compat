@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "p p",
+    "f f",
+    "l l"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:plates/steel"
+    },
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:samurai_suneate",
+    "count": 1
+  }
+}

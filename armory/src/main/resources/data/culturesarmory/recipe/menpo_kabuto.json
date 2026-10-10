@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "dkd",
+    " p ",
+    "   "
+  ],
+  "key": {
+    "k": {
+      "item": "culturesarmory:kabuto"
+    },
+    "p": {
+      "tag": "c:plates/steel"
+    },
+    "d": {
+      "item": "minecraft:red_dye"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:menpo_kabuto",
+    "count": 1
+  }
+}

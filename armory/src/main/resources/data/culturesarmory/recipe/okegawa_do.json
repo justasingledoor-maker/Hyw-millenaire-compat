@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "p p",
+    "ppp",
+    "lsl"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:plates/steel"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:okegawa_do",
+    "count": 1
+  }
+}

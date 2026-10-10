@@ -9,3 +9,10 @@ out/
 .idea/
 logs/
 __pycache__/
+
+# armory add-on: third-party jars (supplied locally)
+armory/libs/*.jar
+armory/.gradle/
+armory/tools/preview/three.module.js
+armory/tools/preview/out/
+armory/run/

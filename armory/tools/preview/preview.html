@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Armour preview</title>
+<style>
+  html, body { margin: 0; background: #7a8a9a; }
+  canvas { display: block; }
+  #labels { position: absolute; top: 0; left: 0; font: 13px sans-serif; color: #fff; }
+  #labels div { position: absolute; text-shadow: 0 1px 2px #000; }
+</style>
+</head>
+<body>
+<div id="labels"></div>
+<script type="module">
+import * as THREE from './three.module.js';
+
+// Usage: preview.html?items=kabuto,samurai_do,samurai_haidate,samurai_suneate&pose=walk&w=1500&h=900
+const q = new URLSearchParams(location.search);
+const items = (q.get('items') || '').split(',').filter(Boolean);
+const pose = q.get('pose') || 'stand';
+const W = +(q.get('w') || 1500), H = +(q.get('h') || 900);
+
+const models = await (await fetch('out/models.json')).json();
+const loader = new THREE.TextureLoader();
+const cache = {};
+async function preload(url) {
+  const t = await loader.loadAsync(url);
+  t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.flipY = false;
+  t.colorSpace = THREE.SRGBColorSpace;
+  cache[url] = t;
+}
+function tex(url) { return cache[url]; }
+await preload('skin.png');
+for (const id of items) await preload('out/' + models[id].texture);
+
+// Minecraft's ModelPart.Cube: vertices, and per face (DOWN, UP, WEST, NORTH, EAST, SOUTH) its four vertices and UV rect.
+function cubeGeometry(c, tw, th) {
+  const [ox, oy, oz] = c.origin, [w, h, d] = c.size, g = c.inflate, [u, v] = c.uv;
+  const x0 = ox - g, y0 = oy - g, z0 = oz - g, x1 = ox + w + g, y1 = oy + h + g, z1 = oz + d + g;
+  const V = { v7: [x0, y0, z0], v: [x1, y0, z0], v1: [x1, y1, z0], v2: [x0, y1, z0],
+              v3: [x0, y0, z1], v4: [x1, y0, z1], v5: [x1, y1, z1], v6: [x0, y1, z1] };
+  const f4 = u, f5 = u + d, f6 = u + d + w, f7 = u + d + w + w, f8 = u + d + w + d, f9 = u + d + w + d + w;
+  const f10 = v, f11 = v + d, f12 = v + d + h;
+  const faces = [
+    [['v4', 'v3', 'v7', 'v'], f5, f10, f6, f11],
+    [['v1', 'v2', 'v6', 'v5'], f6, f11, f7, f10],
+    [['v7', 'v3', 'v6', 'v2'], f4, f11, f5, f12],
+    [['v', 'v7', 'v2', 'v1'], f5, f11, f6, f12],
+    [['v4', 'v', 'v1', 'v5'], f6, f11, f8, f12],
+    [['v3', 'v4', 'v5', 'v6'], f8, f11, f9, f12],
+  ];
+  const pos = [], uvs = [], idx = [];
+  for (const [vs, u1, v1, u2, v2] of faces) {
+    const base = pos.length / 3;
+    const uv = [[u2, v1], [u1, v1], [u1, v2], [u2, v2]];
+    vs.forEach((k, i) => { pos.push(...V[k]); uvs.push(uv[i][0] / tw, uv[i][1] / th); });
+    idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function buildPart(p, mat, tw, th, poseRot) {
+  const grp = new THREE.Group();
+  grp.position.set(...p.pivot);
+  const r = poseRot && poseRot[p.name] ? poseRot[p.name] : p.rot;
+  grp.rotation.set(r[0], r[1], r[2], 'ZYX');
+  for (const c of p.cubes) grp.add(new THREE.Mesh(cubeGeometry(c, tw, th), mat));
+  for (const ch of p.children) grp.add(buildPart(ch, mat, tw, th, null));
+  return grp;
+}
+
+const POSES = {
+  stand: {},
+  walk: { right_arm: [0.5, 0, 0.05], left_arm: [-0.5, 0, -0.05], right_leg: [-0.55, 0, 0], left_leg: [0.55, 0, 0] },
+};
+
+function figure() {
+  const root = new THREE.Group();
+  root.rotation.x = Math.PI; // model space (y down, front -z) to world (y up, front +z)
+  const skinMat = new THREE.MeshLambertMaterial({ map: tex('skin.png'), side: THREE.DoubleSide, alphaTest: 0.1 });
+  const skin = { tex: [64, 64], parts: [
+    { name: 'head', pivot: [0, 0, 0], rot: [0, 0, 0], cubes: [{ origin: [-4, -8, -4], size: [8, 8, 8], inflate: 0, uv: [0, 0] }], children: [] },
+    { name: 'body', pivot: [0, 0, 0], rot: [0, 0, 0], cubes: [{ origin: [-4, 0, -2], size: [8, 12, 4], inflate: 0, uv: [16, 16] }], children: [] },
+    { name: 'right_arm', pivot: [-5, 2, 0], rot: [0, 0, 0], cubes: [{ origin: [-3, -2, -2], size: [4, 12, 4], inflate: 0, uv: [40, 16] }], children: [] },
+    { name: 'left_arm', pivot: [5, 2, 0], rot: [0, 0, 0], cubes: [{ origin: [-1, -2, -2], size: [4, 12, 4], inflate: 0, uv: [32, 48] }], children: [] },
+    { name: 'right_leg', pivot: [-1.9, 12, 0], rot: [0, 0, 0], cubes: [{ origin: [-2, 0, -2], size: [4, 12, 4], inflate: 0, uv: [0, 16] }], children: [] },
+    { name: 'left_leg', pivot: [1.9, 12, 0], rot: [0, 0, 0], cubes: [{ origin: [-2, 0, -2], size: [4, 12, 4], inflate: 0, uv: [16, 48] }], children: [] },
+  ]};
+  const poseRot = POSES[pose];
+  for (const p of skin.parts) root.add(buildPart(p, skinMat, 64, 64, poseRot));
+  // which parts each slot shows (HumanoidArmorLayer.setPartVisibility)
+  const shows = { HELMET: ['head', 'hat'], CHESTPLATE: ['body', 'right_arm', 'left_arm'],
+                  LEGGINGS: ['body', 'right_leg', 'left_leg'], BOOTS: ['right_leg', 'left_leg'] };
+  for (const id of items) {
+    const m = models[id];
+    const mat = new THREE.MeshLambertMaterial({ map: tex('out/' + m.texture), side: THREE.DoubleSide, alphaTest: 0.1 });
+    for (const p of m.parts) {
+      if (!shows[m.slot].includes(p.name)) continue;
+      root.add(buildPart(p, mat, m.tex[0], m.tex[1], poseRot));
+    }
+  }
+  return root;
+}
+
+const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
+renderer.setSize(W, H);
+renderer.setScissorTest(true);
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.add(new THREE.AmbientLight(0xffffff, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(-20, 40, 40); scene.add(sun);
+const back = new THREE.DirectionalLight(0xffffff, 0.6); back.position.set(30, 10, -40); scene.add(back);
+const fig = figure();
+fig.position.y = 0;
+scene.add(fig);
+
+// views: yaw (degrees round the figure, 0 = front), elevation, distance, target height, label
+const views = [
+  [0, 4, 70, -7, 'front'], [38, 10, 70, -7, 'front 3/4'], [90, 4, 70, -7, 'side'],
+  [145, 10, 70, -7, 'back 3/4'], [180, 4, 70, -7, 'back'], [28, 12, 40, 1, 'head 3/4'],
+];
+const cols = 3, rows = 2, vw = W / cols, vh = H / rows;
+const labels = document.getElementById('labels');
+views.forEach(([yaw, el, dist, ty, name], k) => {
+  const cam = new THREE.PerspectiveCamera(32, vw / vh, 1, 500);
+  const a = yaw * Math.PI / 180, e = el * Math.PI / 180;
+  cam.position.set(Math.sin(a) * Math.cos(e) * dist, ty + Math.sin(e) * dist, Math.cos(a) * Math.cos(e) * dist);
+  cam.lookAt(0, ty, 0);
+  const x = (k % cols) * vw, y = Math.floor(k / cols) * vh;
+  renderer.setViewport(x, H - y - vh, vw, vh);
+  renderer.setScissor(x, H - y - vh, vw, vh);
+  renderer.setClearColor(k % 2 ? 0x7f8f9f : 0x8797a7);
+  renderer.render(scene, cam);
+  const l = document.createElement('div'); l.textContent = name; l.style.left = (x + 8) + 'px'; l.style.top = (y + 6) + 'px';
+  labels.appendChild(l);
+});
+document.title = 'ready';
+</script>
+</body>
+</html>

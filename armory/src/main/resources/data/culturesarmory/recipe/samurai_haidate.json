@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "fsf",
+    "r r",
+    "r r"
+  ],
+  "key": {
+    "r": {
+      "tag": "magistuarmory:lamellar_rows/steel"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:samurai_haidate",
+    "count": 1
+  }
+}

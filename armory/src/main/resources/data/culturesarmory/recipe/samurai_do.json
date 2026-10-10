@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "rsr",
+    "rrr",
+    "rlr"
+  ],
+  "key": {
+    "r": {
+      "tag": "magistuarmory:lamellar_rows/steel"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:samurai_do",
+    "count": 1
+  }
+}

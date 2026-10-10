@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/jingasa",
+    "layer1": "culturesarmory:item/jingasa_overlay"
+  }
+}
