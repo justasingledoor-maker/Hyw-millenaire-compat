@@ -1849,3 +1849,30 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
   * Weapons are used from GUARD_POST up; the bows at every tier.
   * All 32 Seljuk and Inuit squad looks use the armory, e.g. the Hassa and the atabeg's retinue gilded, and the shaman's
     band in ceremonial parkas. Epic Knights kits stay as the fallback.
+* **Tests.**
+  * JUnit: all pass. `EquipmentProfilesTest` checks the families of all 19 armory weapons; the profile tests require an
+    Epic Knights fallback beside every armory list.
+  * Harness CA with Epic Knights 10.15, Addon 2.5, Slavic Armory 2.3 and Cultures Armory 1.2
+    (`docs/m5-test-evidence/fix59-ca2.txt`): 20/20 PASS, six soldiers each.
+    * CA-0: no invalid kit or item among all three cultures' kits.
+    * Seljuks:
+      * CA-9: spearmen carry the mızrak;
+      * CA-10: Stronghold warriors carry sayf, shishpar or tabarzin in veiled helmets and jawshans;
+      * CA-11: shieldmen carry the kilij;
+      * CA-12: archers shoot the Turkic bow;
+      * CA-13: the Hassa wear gilded jawshans.
+    * Inuit:
+      * CA-14: spearmen carry harpoon or ivory lance;
+      * CA-15: Stronghold warriors carry the bone club in slat or bone armour;
+      * CA-16: archers shoot the sinew-backed bow;
+      * CA-17: militia carry the savik;
+      * CA-18: the shaman's band wear ceremonial parkas.
+    * The Japanese checks CA-1 to CA-8 still pass, and CA-8 confirms Norman soldiers get no armory gear.
+  * The first run (`fix59-ca1.txt`) was 19/20. CA-7 expected the ō-yoroi on every Kiba-musha, but that look offers the
+    hoshi kabuto with ō-yoroi or with dō-maru. The check was corrected; the gear was right.
+  * Previews of all 34 new pieces were reviewed. Fixed: gold rings on every tier of the conical helmet, a flat turban,
+    a checkered ruff, a spear-like shishpar, a thick savik.
+  * Real client: the armory 1.2 loads with no model or texture errors; the Seljuk and Inuit lines render on armour
+    stands.
+* SHA-256 of the jar: `21dc96d304a18fb938632e6e76c537528e58b92855da787563c13cf57efdfa43`; Cultures Armory 1.2.0:
+  `025db995077bfe3675da03333795aedbb257a56b05a81add39a2feeda9102d5d`.
