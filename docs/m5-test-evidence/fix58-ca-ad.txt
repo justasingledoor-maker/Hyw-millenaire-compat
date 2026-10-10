@@ -1,0 +1,27 @@
+[harness] RESULT 13/15 checks passed
+  PASS  setup: village A spawned  (630, 82, 612)
+  PASS  setup: village B spawned  (830, 80, 612)
+  PASS  setup: A has defenders and civilians  36 residents
+  PASS  CA-0 Cultures Armory loads and every profile and look kit and item is valid  addon magistuarmoryaddon: loaded | addon slavicarmory: loaded | addon culturesarmory: loaded; invalid 0: 
+  PASS  CA-1 Japanese spearmen (GARRISON) carry yari or jumonji yari, in the armory's armour  6/6 in armory armour, 6 with its weapon
+  PASS  CA-2 Japanese warriors (STRONGHOLD) carry katana, nodachi, naginata or kanabo, in kabuto and laced do  6/6 in armory armour, 6 with its weapon
+  PASS  CA-3 Japanese shieldmen (GUARD_POST) carry the wakizashi  6/6 in armory armour, 6 with its weapon
+  PASS  CA-4 Japanese archers (GARRISON) shoot the yumi  6/6 in armory armour, 6 with its weapon
+  FAIL  CA-5 Japanese militia (WATCH) in hachigane or jingasa, tatami-do, hakama and kyahan  1/6 in armory armour, 6 with its weapon
+  PASS  CA-6 the Sohei squad: hooded, with naginata  6/6 in armory armour, 6 with its weapon
+  FAIL  CA-7 the Kiba-musha squad: mounted archers in o-yoroi  0/6 in armory armour, 6 with its weapon
+  PASS  CA-8 other cultures never get the armory's gear  0 of 6 Norman spearmen with armory items
+  PASS  AD-0 both addons load and every kit is valid  addon magistuarmoryaddon: loaded | addon slavicarmory: loaded | addon culturesarmory: loaded; invalid kits 0: 
+  PASS  AD-3 Japanese samurai wear the Addon's splint armour and helmets  no Japanese village; 0 of 0 with Addon pieces
+  PASS  AD-4 a Norman shield-wall mixes Epic Knights and Addon gear (chapel hats, chained gambesons, tunics)   mustered for 4 or 8 argent 51 deniers; 5 could not be placed and were refunded.; 2 of 5 with Addon pieces
+  NOTE  CA-1   mainhand=culturesarmory:steel_yari offhand=none head=culturesarmory:zunari_kabuto chest=culturesarmory:okegawa_do legs=culturesarmory:samurai_haidate feet=culturesarmory:samurai_suneate ||  mainhand=culturesarmory:steel_yari offhand=none head=culturesarmory:zunari_kabuto chest=culturesarmory:do_maru legs=culturesarmory:samurai_haidate feet=culturesarmory:samurai_suneate
+  NOTE  CA-2   mainhand=culturesarmory:steel_naginata offhand=none head=culturesarmory:zunari_kabuto chest=culturesarmory:do_maru legs=culturesarmory:samurai_haidate feet=culturesarmory:samurai_suneate ||  mainhand=culturesarmory:steel_naginata offhand=none head=culturesarmory:kabuto chest=culturesarmory:samurai_do legs=culturesarmory:samurai_haidate feet=culturesarmory:samurai_suneate
+  NOTE  CA-3   mainhand=culturesarmory:steel_wakizashi offhand=minecraft:shield head=culturesarmory:zunari_kabuto chest=culturesarmory:okegawa_do legs=culturesarmory:ashigaru_hakama feet=culturesarmory:ashigaru_kyahan ||  mainhand=culturesarmory:steel_wakizashi offhand=minecraft:shield head=culturesarmory:zunari_kabuto chest=culturesarmory:okegawa_do legs=culturesarmory:ashigaru_hakama feet=culturesarmory:ashigaru_kyahan
+  NOTE  CA-4   mainhand=culturesarmory:yumi offhand=none head=culturesarmory:zunari_kabuto chest=culturesarmory:do_maru legs=culturesarmory:ashigaru_hakama feet=culturesarmory:ashigaru_kyahan ||  mainhand=culturesarmory:yumi offhand=none head=culturesarmory:jingasa chest=culturesarmory:okegawa_do legs=culturesarmory:ashigaru_hakama feet=culturesarmory:ashigaru_kyahan
+  NOTE  CA-5   mainhand=magistuarmory:barbedclub offhand=none head=culturesarmory:ashigaru_hachigane chest=magistuarmory:gambeson_chestplate legs=culturesarmory:ashigaru_hakama feet=culturesarmory:ashigaru_kyahan ||  mainhand=magistuarmory:barbedclub offhand=none head=culturesarmory:ashigaru_hachigane chest=magistuarmory:gambeson_chestplate legs=culturesarmory:ashigaru_hakama feet=culturesarmory:ashigaru_kyahan
+  NOTE  CA-6  jp.sohei applied=2: mainhand=culturesarmory:steel_naginata offhand=none head=culturesarmory:sohei_zukin chest=culturesarmory:tatami_do legs=culturesarmory:ashigaru_hakama feet=culturesarmory:ashigaru_kyahan || jp.sohei applied=2: mainhand=culturesarmory:steel_naginata offhand=none head=culturesarmory:sohei_zukin chest=culturesarmory:do_maru legs=culturesarmory:ashigaru_hakama feet=culturesarmory:ashigaru_kyahan
+  NOTE  CA-7   || 
+  NOTE  AD villages  (647, 80, 624): norman | (847, 87, 624): norman
+  NOTE  AD-1  no Byzantine village in this world
+  NOTE  AD samurai  
+  NOTE  AD shield-wall  Shieldman has the following entity data: {components: {"minecraft:dyed_color": {show_in_tooltip: 0b, rgb: 11546150}}, count: 1, id: "magistuarmory:gambeson_chestplate"} Shieldman has the following entity data: {count: 1, id: "magistuarmory:kettlehat"} || Shieldman has the following entity data: {components: {"minecraft:dyed_color": {show_in_tooltip: 0b, rgb: 11546150}}, count: 1, id: "magistuarmory:gambeson_chestplate"} Shieldman has the following entity data: {} || Spear Man has the following entity data: {components: {"minecraft:dyed_color": {show_in_tooltip: 0b, rgb: 11546150}}, count: 1, id: "magistuarmoryaddon:tunic"} Spear Man has the following entity data: {components: {"minecraft:dyed_color": {show_in_tooltip: 0b,
