@@ -1,0 +1,671 @@
+{
+ "_comment": "HywMill 1.6 mercenary companies, hired at a Muster Roll set down outside any village (in the overworld). A company is found by the land where the block stands ('regions', from its biome: ARCTIC, DESERT, JUNGLE, SAVANNA, SWAMP, COAST, MOUNTAIN, TAIGA, GRASSLAND, WOODLAND), by the people of the nearest village within 1500 blocks ('near', its culture), or anywhere ('everywhere'). Its soldiers are equipped as its 'culture' at each member's gear tier, in its look, and are the hiring player's own. No standing is needed: the price is the members' squad price times 'companyPremium'. Members, quality and category as in defaults.json. Written by devtools/squads_gen.py.",
+ "companyPremium": 1.25,
+ "companies": [
+  {
+   "id": "merc.routiers",
+   "name": "Brabançon Routiers",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "look": "merc.routiers",
+   "description": "Routiers of Brabant, who sold their swords to kings and robbed the land between wars.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "crossbowman",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:norman",
+   "regions": [
+    "WOODLAND",
+    "GRASSLAND"
+   ],
+   "near": [
+    "millenaire:norman"
+   ]
+  },
+  {
+   "id": "merc.free_lances",
+   "name": "Free Lances",
+   "category": "CAVALRY",
+   "quality": "MEDIUM",
+   "look": "merc.free_lances",
+   "description": "Landless knights and serjeants riding from lord to lord for pay.",
+   "members": [
+    {
+     "unit": "light_lancer_rider",
+     "count": 8,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "lancer_rider",
+     "count": 2,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:norman",
+   "regions": [
+    "WOODLAND",
+    "GRASSLAND"
+   ],
+   "near": [
+    "millenaire:norman"
+   ]
+  },
+  {
+   "id": "merc.welsh_archers",
+   "name": "Welsh Archers",
+   "category": "RANGED",
+   "quality": "LOW",
+   "look": "merc.welsh_archers",
+   "description": "Bowmen down from the Welsh hills for a season's pay.",
+   "members": [
+    {
+     "unit": "archer",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:norman",
+   "regions": [
+    "WOODLAND",
+    "MOUNTAIN"
+   ],
+   "near": []
+  },
+  {
+   "id": "merc.fenmen",
+   "name": "Fenmen of the Wake",
+   "category": "RANGED",
+   "quality": "LOW",
+   "look": "merc.fenmen",
+   "description": "Men of the fens who held out with Hereward on the Isle of Ely, bow and spear.",
+   "members": [
+    {
+     "unit": "archer",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "spear_man",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:norman",
+   "regions": [
+    "SWAMP"
+   ],
+   "near": []
+  },
+  {
+   "id": "merc.genoese_marines",
+   "name": "Genoese Marines",
+   "category": "RANGED",
+   "quality": "MEDIUM",
+   "look": "merc.genoese_marines",
+   "description": "Crossbowmen of the Genoese galleys, the best that money could hire.",
+   "members": [
+    {
+     "unit": "crossbowman",
+     "count": 8,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "shieldman",
+     "count": 2,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:norman",
+   "regions": [
+    "COAST"
+   ],
+   "near": []
+  },
+  {
+   "id": "merc.gallowglass",
+   "name": "Gallowglass",
+   "category": "INFANTRY",
+   "quality": "HIGH",
+   "look": "merc.gallowglass",
+   "description": "Hebridean axemen in mail shirts and padded coats, hired by Irish kings.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 10,
+     "gear": "STRONGHOLD"
+    }
+   ],
+   "culture": "millenaire:norman",
+   "regions": [
+    "COAST",
+    "MOUNTAIN"
+   ],
+   "near": []
+  },
+  {
+   "id": "merc.free_company",
+   "name": "Free Company",
+   "category": "INFANTRY",
+   "quality": "LOW",
+   "look": "merc.free_company",
+   "description": "A band of masterless men, spears and crossbows, who will march for anyone who pays.",
+   "members": [
+    {
+     "unit": "spear_man",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "crossbowman",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:norman",
+   "regions": [],
+   "near": [],
+   "everywhere": true
+  },
+  {
+   "id": "merc.varangian_exiles",
+   "name": "Varangian Exiles",
+   "category": "INFANTRY",
+   "quality": "HIGH",
+   "look": "merc.varangian_exiles",
+   "description": "Northmen and English bound for Miklagard, axe on shoulder.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 10,
+     "gear": "STRONGHOLD"
+    }
+   ],
+   "culture": "millenaire:byzantines",
+   "regions": [
+    "TAIGA",
+    "COAST"
+   ],
+   "near": [
+    "millenaire:byzantines"
+   ]
+  },
+  {
+   "id": "merc.rus_druzhina",
+   "name": "Rus Druzhina",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "look": "merc.rus_druzhina",
+   "description": "A prince's war band from the river lands, in mail and pointed helmets.",
+   "members": [
+    {
+     "unit": "shieldman",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "spear_man",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:norman",
+   "regions": [
+    "TAIGA"
+   ],
+   "near": []
+  },
+  {
+   "id": "merc.pechenegs",
+   "name": "Pecheneg Horse",
+   "category": "CAVALRY",
+   "quality": "MEDIUM",
+   "look": "merc.pechenegs",
+   "description": "Horse archers of the Pontic steppe, as ready to raid the empire as to serve it.",
+   "members": [
+    {
+     "unit": "archer_rider",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:byzantines",
+   "regions": [
+    "GRASSLAND"
+   ],
+   "near": [
+    "millenaire:byzantines"
+   ]
+  },
+  {
+   "id": "merc.cumans",
+   "name": "Cuman Horde",
+   "category": "CAVALRY",
+   "quality": "MEDIUM",
+   "look": "merc.cumans",
+   "description": "Cuman riders under their khan, bows and light lances.",
+   "members": [
+    {
+     "unit": "archer_rider",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "light_lancer_rider",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:seljuk",
+   "regions": [
+    "GRASSLAND",
+    "SAVANNA"
+   ],
+   "near": []
+  },
+  {
+   "id": "merc.turkmen",
+   "name": "Turkmen Free Band",
+   "category": "CAVALRY",
+   "quality": "LOW",
+   "look": "merc.turkmen",
+   "description": "A Turkmen clan with its horses and bows, following the grass and the pay.",
+   "members": [
+    {
+     "unit": "archer_rider",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:seljuk",
+   "regions": [
+    "GRASSLAND",
+    "DESERT"
+   ],
+   "near": [
+    "millenaire:seljuk"
+   ]
+  },
+  {
+   "id": "merc.bedouin_raiders",
+   "name": "Bedouin Raiders",
+   "category": "CAVALRY",
+   "quality": "LOW",
+   "look": "merc.bedouin_raiders",
+   "description": "Tribesmen of the desert, lance and swift horse.",
+   "members": [
+    {
+     "unit": "light_lancer_rider",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:seljuk",
+   "regions": [
+    "DESERT"
+   ],
+   "near": []
+  },
+  {
+   "id": "merc.caravan_guards",
+   "name": "Caravan Guards",
+   "category": "INFANTRY",
+   "quality": "LOW",
+   "look": "merc.caravan_guards",
+   "description": "Hired swords and bows of the caravan roads.",
+   "members": [
+    {
+     "unit": "shieldman",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "archer",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:seljuk",
+   "regions": [
+    "DESERT"
+   ],
+   "near": []
+  },
+  {
+   "id": "merc.daylamites",
+   "name": "Daylamite Mercenaries",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "look": "merc.daylamites",
+   "description": "Hillmen of Daylam, the hired infantry of half the Islamic world, with spear and painted shield.",
+   "members": [
+    {
+     "unit": "shieldman",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "spear_man",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:seljuk",
+   "regions": [
+    "MOUNTAIN"
+   ],
+   "near": [
+    "millenaire:seljuk"
+   ]
+  },
+  {
+   "id": "merc.kurds",
+   "name": "Kurdish Horsemen",
+   "category": "CAVALRY",
+   "quality": "MEDIUM",
+   "look": "merc.kurds",
+   "description": "Mountain horsemen of the Kurdish tribes.",
+   "members": [
+    {
+     "unit": "light_lancer_rider",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:seljuk",
+   "regions": [
+    "MOUNTAIN"
+   ],
+   "near": [
+    "millenaire:seljuk"
+   ]
+  },
+  {
+   "id": "merc.yamabushi",
+   "name": "Mountain Sōhei",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "look": "merc.yamabushi",
+   "description": "Warrior monks of the mountain temples, hired out with their naginata.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:japanese",
+   "regions": [
+    "MOUNTAIN"
+   ],
+   "near": [
+    "millenaire:japanese"
+   ]
+  },
+  {
+   "id": "merc.wokou",
+   "name": "Wokou",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "look": "merc.wokou",
+   "description": "Sea raiders of the Japanese and Chinese coasts, with long swords and bows.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "archer",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:japanese",
+   "regions": [
+    "COAST"
+   ],
+   "near": [
+    "millenaire:japanese"
+   ]
+  },
+  {
+   "id": "merc.ronin",
+   "name": "Rōnin Band",
+   "category": "UNIQUE",
+   "quality": "MEDIUM",
+   "look": "merc.ronin",
+   "description": "Samurai without a lord, selling the only trade they know.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 4,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "archer",
+     "count": 4,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "spear_man",
+     "count": 2,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:japanese",
+   "regions": [
+    "WOODLAND"
+   ],
+   "near": [
+    "millenaire:japanese"
+   ]
+  },
+  {
+   "id": "merc.pindari",
+   "name": "Pindari Riders",
+   "category": "CAVALRY",
+   "quality": "LOW",
+   "look": "merc.pindari",
+   "description": "Irregular horse who served for plunder, not pay.",
+   "members": [
+    {
+     "unit": "light_lancer_rider",
+     "count": 12,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:indian",
+   "regions": [
+    "SAVANNA",
+    "GRASSLAND"
+   ],
+   "near": [
+    "millenaire:indian"
+   ]
+  },
+  {
+   "id": "merc.purbiya",
+   "name": "Purbiya Rajputs",
+   "category": "INFANTRY",
+   "quality": "HIGH",
+   "look": "merc.purbiya",
+   "description": "Rajput soldiers of fortune from the east, who served any throne that paid.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 6,
+     "gear": "STRONGHOLD"
+    },
+    {
+     "unit": "shieldman",
+     "count": 4,
+     "gear": "STRONGHOLD"
+    }
+   ],
+   "culture": "millenaire:indian",
+   "regions": [
+    "SAVANNA"
+   ],
+   "near": [
+    "millenaire:indian"
+   ]
+  },
+  {
+   "id": "merc.gosains",
+   "name": "Gosain Ascetics",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "look": "merc.gosains",
+   "description": "Warrior-ascetics, ash-smeared, who fought as hired bands for many a prince.",
+   "members": [
+    {
+     "unit": "shieldman",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:indian",
+   "regions": [
+    "SAVANNA",
+    "MOUNTAIN"
+   ],
+   "near": []
+  },
+  {
+   "id": "merc.canul",
+   "name": "Canul Mercenaries",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "look": "merc.canul",
+   "description": "Warriors from the Gulf coast whom the lords of Mayapán hired to keep their city.",
+   "members": [
+    {
+     "unit": "shieldman",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "spear_man",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:mayan",
+   "regions": [
+    "JUNGLE"
+   ],
+   "near": [
+    "millenaire:mayan"
+   ]
+  },
+  {
+   "id": "merc.jungle_hunters",
+   "name": "Jungle Hunters",
+   "category": "RANGED",
+   "quality": "LOW",
+   "look": "merc.jungle_hunters",
+   "description": "Hunters of deer and jaguar, bows strung for war.",
+   "members": [
+    {
+     "unit": "archer",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:mayan",
+   "regions": [
+    "JUNGLE"
+   ],
+   "near": []
+  },
+  {
+   "id": "merc.jaguar_band",
+   "name": "Jaguar Band",
+   "category": "UNIQUE",
+   "quality": "HIGH",
+   "look": "merc.jaguar_band",
+   "description": "Jaguar warriors who left a fallen city's service.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 6,
+     "gear": "STRONGHOLD"
+    },
+    {
+     "unit": "shieldman",
+     "count": 4,
+     "gear": "STRONGHOLD"
+    }
+   ],
+   "culture": "millenaire:mayan",
+   "regions": [
+    "JUNGLE",
+    "SWAMP"
+   ],
+   "near": [
+    "millenaire:mayan"
+   ]
+  },
+  {
+   "id": "merc.feud_exiles",
+   "name": "Feud Exiles",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "look": "merc.feud_exiles",
+   "description": "Men driven from their camp by a blood feud, looking for a new one.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "spear_man",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:inuits",
+   "regions": [
+    "ARCTIC"
+   ],
+   "near": [
+    "millenaire:inuits"
+   ]
+  },
+  {
+   "id": "merc.sled_hunters",
+   "name": "Sled Hunters",
+   "category": "RANGED",
+   "quality": "LOW",
+   "look": "merc.sled_hunters",
+   "description": "Hunters with dogs and sinew bows, at home on the ice.",
+   "members": [
+    {
+     "unit": "archer",
+     "count": 8,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "spear_man",
+     "count": 2,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "culture": "millenaire:inuits",
+   "regions": [
+    "ARCTIC",
+    "TAIGA"
+   ],
+   "near": []
+  }
+ ]
+}

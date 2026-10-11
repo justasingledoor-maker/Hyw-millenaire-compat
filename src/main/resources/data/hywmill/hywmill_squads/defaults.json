@@ -1,5 +1,5 @@
 {
- "_comment": "HywMill culture squads (post-M5), sold on the Muster Roll's Squads tab. Per culture 16 squads: 6 infantry (2 LOW, 2 MEDIUM, 2 HIGH), 4 ranged, 4 cavalry (cultures without horses get fast foot bands instead), 2 unique; 8-12 soldiers each. A member is a unit key from hywmill_garrison/units.json (plus lancer_rider), a count, a gear tier (the profile tier and HYW equipment level it is equipped at) and an optional kit ('levy': light gambeson kits). Quality sets the default requirements: LOW Trusted, MEDIUM Patron and a Guard Post village, HIGH Sworn and a Garrison village ('standing' and 'village' override). The price is the sum of the members' Muster Roll prices less 'squadDiscount', then the standing discount. No siege engines. Cultures are replaced whole by later files; 'defaults' serves unknown cultures. 'look' names the squad's look (hywmill_equipment/squad_looks.json); 'livery': 'village' marks a generic squad, raised from the village itself: it keeps its look's armour but wears the hiring village's colours and arms.",
+ "_comment": "HywMill culture squads (post-M5), sold on the Muster Roll's Squads tab. Per culture 21-26 squads: infantry (every quality), ranged, cavalry (cultures without horses get fast foot bands instead) and unique ones; 8-12 soldiers each. A member is a unit key from hywmill_garrison/units.json (plus lancer_rider), a count, a gear tier (the profile tier and HYW equipment level it is equipped at) and an optional kit ('levy': light gambeson kits). Quality sets the default requirements: LOW Trusted, MEDIUM Patron and a Guard Post village, HIGH Sworn and a Garrison village ('standing' and 'village' override). The price is the sum of the members' Muster Roll prices less 'squadDiscount', then the standing discount. No siege engines. Cultures are replaced whole by later files; 'defaults' serves unknown cultures. 'look' names the squad's look (hywmill_equipment/squad_looks.json); 'livery': 'village' marks a generic squad, raised from the village itself: it keeps its look's armour but wears the hiring village's colours and arms. Cultures Armory 1.6: more squads per culture (the armory's 1.5 armour), written by devtools/squads_gen.py; the Muster Roll lists them by Foot, Missile, Horse (Raiders for peoples without horses) and Special, in subgroups by what most of their soldiers are. Mercenary companies are in mercenaries.json.",
  "squadDiscount": 0.1,
  "cultures": {
   "millenaire:norman": [
@@ -301,6 +301,162 @@
       "gear": "GARRISON"
      }
     ]
+   },
+   {
+    "id": "norman.castle_serjeants",
+    "name": "Castle Serjeants",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "look": "norman.castle_serjeants",
+    "description": "The castle's paid serjeants: spear, shield and a nasal helmet.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "spear_man",
+      "count": 6,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "norman.flemish_spearmen",
+    "name": "Flemish Spearmen",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "norman.flemish_spearmen",
+    "description": "Flemings in Anglo-Norman pay, close-packed spearmen who held the line in the Anarchy.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "norman.templar_serjeants",
+    "name": "Templar Serjeants",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "norman.templar_serjeants",
+    "description": "Serjeant-brothers of the Temple in black and brown, the order's footmen and squires.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "norman.huscarls",
+    "name": "Huscarls",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "look": "norman.huscarls",
+    "description": "English household men who kept the great Dane axe after the Conquest; some sailed to Constantinople.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 10,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "norman.welsh_bowmen",
+    "name": "Welsh Bowmen",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "look": "norman.welsh_bowmen",
+    "description": "Bowmen of the March of Wales, whose arrows Gerald of Wales saw pierce an oak door.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "norman.sicilian_saracens",
+    "name": "Saracen Archers of Sicily",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "look": "norman.sicilian_saracens",
+    "description": "Muslim archers in the pay of the Norman kings of Sicily, from Roger II to Lucera.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "norman.breton_horse",
+    "name": "Breton Horse",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "look": "norman.breton_horse",
+    "description": "Breton horsemen, who held the left at Hastings and feigned flight.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "norman.hospitaller_knights",
+    "name": "Hospitaller Knights",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "look": "norman.hospitaller_knights",
+    "description": "Knights of the Hospital of St John, in black surcoats with the white cross.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "norman.apulian_adventurers",
+    "name": "Adventurers of Apulia",
+    "category": "UNIQUE",
+    "quality": "MEDIUM",
+    "look": "norman.apulian_adventurers",
+    "description": "Norman fortune-seekers of the south, sons of Tancred's house: knights and their serjeants.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 4,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "crossbowman",
+      "count": 2,
+      "gear": "GUARD_POST"
+     }
+    ]
    }
   ],
   "millenaire:byzantines": [
@@ -593,6 +749,180 @@
       "unit": "crossbowman",
       "count": 6,
       "gear": "GARRISON"
+     }
+    ]
+   },
+   {
+    "id": "byz.ploimoi",
+    "name": "Ploïmoi Marines",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "look": "byz.ploimoi",
+    "description": "The fleet's fighting men, in tunics and padded coats, spear and shield.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 6,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "byz.kontaratoi",
+    "name": "Kontaratoi",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "byz.kontaratoi",
+    "description": "The heavy spearmen of the Praecepta's front rank, in scale and Phrygian helmets.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "byz.armenian_foot",
+    "name": "Armenian Foot",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "byz.armenian_foot",
+    "description": "Armenian infantry, the best of the themes' foot in Leo VI's eyes.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "byz.hetaireia",
+    "name": "Hetaireia",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "look": "byz.hetaireia",
+    "description": "The emperor's companions of the palace, in gilt scale under the strategos' crest.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "byz.solenarioi",
+    "name": "Solenarioi",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "look": "byz.solenarioi",
+    "description": "Archers with the solenarion, the arrow-guide that shot short darts far.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "byz.armenian_archers",
+    "name": "Armenian Archers",
+    "category": "RANGED",
+    "quality": "LOW",
+    "look": "byz.armenian_archers",
+    "description": "Archers of the eastern themes, in head cloths and padded coats.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "byz.trapezitai",
+    "name": "Trapezitai",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "look": "byz.trapezitai",
+    "description": "Light horse of the frontier, raiders and scouts in leather lamellar.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "byz.vardariotai",
+    "name": "Vardariotai",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "look": "byz.vardariotai",
+    "description": "The palace's Magyar horse archers of the Vardar, in Turkic gear.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "byz.scholai",
+    "name": "Scholai",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "look": "byz.scholai",
+    "description": "The first of the imperial tagmata, heavy horse of the capital.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "byz.pechenegs",
+    "name": "Pecheneg Federates",
+    "category": "UNIQUE",
+    "quality": "MEDIUM",
+    "look": "byz.pechenegs",
+    "description": "Steppe horse archers settled in the Balkans as the empire's allies.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 8,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "light_lancer_rider",
+      "count": 2,
+      "gear": "GUARD_POST"
      }
     ]
    }
@@ -894,6 +1224,181 @@
       "gear": "STRONGHOLD"
      }
     ]
+   },
+   {
+    "id": "seljuk.anatolian_levy",
+    "name": "Anatolian Levy",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "look": "seljuk.anatolian_levy",
+    "description": "Peasants of Rum in çarık and leg wraps, called out with their spears.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "seljuk.ahi_brotherhood",
+    "name": "Ahi Brotherhood",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "seljuk.ahi_brotherhood",
+    "description": "The craftsmen's brotherhoods (futuwwa) who kept Anatolia's towns.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "seljuk.ghazis",
+    "name": "Ghazi Band",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "seljuk.ghazis",
+    "description": "Frontier warriors of the uj, raiding into Byzantine lands.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.silahdars",
+    "name": "Silahdars",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "look": "seljuk.silahdars",
+    "description": "The armour-bearers of the sultan's household, in veiled helmets and jawshans.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.bedouin_bows",
+    "name": "Bedouin Bowmen",
+    "category": "RANGED",
+    "quality": "LOW",
+    "look": "seljuk.bedouin_bows",
+    "description": "Arab tribesmen of the Syrian steppe, bow in hand.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "seljuk.khorasani_archers",
+    "name": "Khorasani Archers",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "look": "seljuk.khorasani_archers",
+    "description": "Archers from the east of the sultanate, turbaned, in mail.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.bedouin_raiders",
+    "name": "Bedouin Raiders",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "look": "seljuk.bedouin_raiders",
+    "description": "Arab tribal horse, quick to raid and quick to vanish.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "seljuk.kurdish_horse",
+    "name": "Kurdish Horse",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "look": "seljuk.kurdish_horse",
+    "description": "Kurdish tribal cavalry of the mountains, Saladin's own people.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.kipchak_riders",
+    "name": "Kipchak Riders",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "look": "seljuk.kipchak_riders",
+    "description": "Kipchak horse from the steppe, the stock of the later Mamluks.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 6,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "light_lancer_rider",
+      "count": 4,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "seljuk.masked_lancers",
+    "name": "Masked Kipchak Lancers",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "look": "seljuk.masked_lancers",
+    "description": "Kipchak chiefs behind steel face masks, the heavy lance of the steppe.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
    }
   ],
   "millenaire:japanese": [
@@ -1191,6 +1696,151 @@
      {
       "unit": "warrior",
       "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "jp.ikko_ikki",
+    "name": "Ikkō-ikki",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "look": "jp.ikko_ikki",
+    "description": "Leagues of peasants and Pure Land monks who fought daimyō and held provinces.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 8,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     },
+     {
+      "unit": "warrior",
+      "count": 2,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "jp.nagae_yari",
+    "name": "Nagae Yari Ashigaru",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "jp.nagae_yari",
+    "description": "Ashigaru with the long pike, in ranks under the clan's sashimono.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 12,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "jp.jizamurai",
+    "name": "Jizamurai",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "jp.jizamurai",
+    "description": "Village samurai, half farmer, half warrior, in haramaki.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "jp.nanban_guard",
+    "name": "Nanban Hatamoto",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "look": "jp.nanban_guard",
+    "description": "A wealthy lord's bannermen in European cuirasses and helmets.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "jp.yumi_gumi",
+    "name": "Yumi-gumi",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "look": "jp.yumi_gumi",
+    "description": "A company of ashigaru archers under its banner.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "jp.bando_musha",
+    "name": "Bandō Musha",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "look": "jp.bando_musha",
+    "description": "Mounted archers of the eastern plains, the old way of the bow and horse.",
+    "members": [
+     {
+      "unit": "archer_rider",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "jp.takeda_horse",
+    "name": "Takeda Horse",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "look": "jp.takeda_horse",
+    "description": "The famed cavalry of Kai, in tōsei gusoku with the lance.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "jp.akazonae",
+    "name": "Akazonae",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "look": "jp.akazonae",
+    "description": "Ii Naomasa's 'red devils', every man's armour lacquered vermilion.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "warrior",
+      "count": 6,
       "gear": "STRONGHOLD"
      }
     ]
@@ -1498,6 +2148,157 @@
      {
       "unit": "warrior",
       "count": 2,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "in.barchhait",
+    "name": "Barchhait Spearmen",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "look": "in.barchhait",
+    "description": "Hill infantry with the bamboo spear, the barchha.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "in.mavla",
+    "name": "Mavla Swordsmen",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "look": "in.mavla",
+    "description": "Hillmen of the Western Ghats with sword and dhal, fast on broken ground.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "in.vijayanagara_guard",
+    "name": "Vijayanagara Guard",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "look": "in.vijayanagara_guard",
+    "description": "Palace guards of the southern empire in gilt-edged scale.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "in.vijayanagara_bows",
+    "name": "Vijayanagara Bowmen",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "look": "in.vijayanagara_bows",
+    "description": "Archers of the southern armies, in quilted coats.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "in.carnatic_archers",
+    "name": "Carnatic Archers",
+    "category": "RANGED",
+    "quality": "LOW",
+    "look": "in.carnatic_archers",
+    "description": "Village bowmen of the Carnatic.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "in.bargir",
+    "name": "Bargir Horse",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "look": "in.bargir",
+    "description": "Light horse riding mounts the state provided, quick raiders of the plateau.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "in.afghan_horse",
+    "name": "Afghan Horse",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "look": "in.afghan_horse",
+    "description": "Afghan cavalry of the Lodi and Sur lords, turbaned, in mail.",
+    "members": [
+     {
+      "unit": "light_lancer_rider",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "in.ahadis",
+    "name": "Ahadi Troopers",
+    "category": "CAVALRY",
+    "quality": "HIGH",
+    "look": "in.ahadis",
+    "description": "The emperor's own gentlemen troopers, paid from the treasury, in char aina.",
+    "members": [
+     {
+      "unit": "lancer_rider",
+      "count": 8,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "in.kesariya",
+    "name": "Kesariya Band",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "look": "in.kesariya",
+    "description": "Rajputs in saffron, sworn to the last charge (saka) rather than surrender.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
       "gear": "STRONGHOLD"
      }
     ]
@@ -1821,6 +2622,116 @@
       "gear": "GARRISON"
      }
     ]
+   },
+   {
+    "id": "maya.tribute_levy",
+    "name": "Tribute Levy",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "look": "maya.tribute_levy",
+    "description": "Commoners owed to the lord's war, flint spears in hand.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST",
+      "kit": "levy"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "maya.flexible_shields",
+    "name": "Flexible-Shield Wall",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "maya.flexible_shields",
+    "description": "Warriors behind the tall flexible shields of the Bonampak murals.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 8,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "spear_man",
+      "count": 2,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "maya.obsidian_clubs",
+    "name": "Obsidian Clubmen",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "maya.obsidian_clubs",
+    "description": "Holkan with obsidian-edged clubs and round shields.",
+    "members": [
+     {
+      "unit": "shieldman",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "maya.serpent_archers",
+    "name": "Serpent Archers",
+    "category": "RANGED",
+    "quality": "MEDIUM",
+    "look": "maya.serpent_archers",
+    "description": "Archers of the feathered-serpent warriors.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "maya.peten_raiders",
+    "name": "Petén Raiders",
+    "category": "CAVALRY",
+    "quality": "LOW",
+    "look": "maya.peten_raiders",
+    "description": "A fast band from the forests of the Petén, out for captives.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST"
+     }
+    ],
+    "livery": "village"
+   },
+   {
+    "id": "maya.ajaw_household",
+    "name": "Ajaw's Household",
+    "category": "UNIQUE",
+    "quality": "HIGH",
+    "look": "maya.ajaw_household",
+    "description": "The holy lord's own warriors in quetzal plumes and jade.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     }
+    ]
    }
   ],
   "millenaire:inuits": [
@@ -2141,6 +3052,96 @@
       "gear": "GARRISON"
      }
     ]
+   },
+   {
+    "id": "inuit.umiak_crew",
+    "name": "Umiak Crew",
+    "category": "INFANTRY",
+    "quality": "LOW",
+    "look": "inuit.umiak_crew",
+    "description": "The open boat's crew, harpoons and lances to hand.",
+    "members": [
+     {
+      "unit": "spear_man",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "inuit.bear_hunters",
+    "name": "Polar Bear Hunters",
+    "category": "INFANTRY",
+    "quality": "MEDIUM",
+    "look": "inuit.bear_hunters",
+    "description": "Hunters of the far north in bear-skin trousers, who face the nanuq on foot.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "spear_man",
+      "count": 4,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "inuit.bering_warriors",
+    "name": "Bering Strait Warriors",
+    "category": "INFANTRY",
+    "quality": "HIGH",
+    "look": "inuit.bering_warriors",
+    "description": "Feud warriors of the strait in slat and ivory armour.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "STRONGHOLD"
+     },
+     {
+      "unit": "shieldman",
+      "count": 4,
+      "gear": "STRONGHOLD"
+     }
+    ]
+   },
+   {
+    "id": "inuit.bird_skin_bows",
+    "name": "Bird-Skin Bowmen",
+    "category": "RANGED",
+    "quality": "LOW",
+    "look": "inuit.bird_skin_bows",
+    "description": "Archers in eider-skin parkas with the sinew-backed bow.",
+    "members": [
+     {
+      "unit": "archer",
+      "count": 10,
+      "gear": "GUARD_POST"
+     }
+    ]
+   },
+   {
+    "id": "inuit.sled_raiders",
+    "name": "Sled Raiders",
+    "category": "CAVALRY",
+    "quality": "MEDIUM",
+    "look": "inuit.sled_raiders",
+    "description": "A raiding party travelling fast over the ice behind its dogs.",
+    "members": [
+     {
+      "unit": "warrior",
+      "count": 6,
+      "gear": "GUARD_POST"
+     },
+     {
+      "unit": "archer",
+      "count": 4,
+      "gear": "GUARD_POST"
+     }
+    ]
    }
   ]
  },
@@ -2441,6 +3442,162 @@
      "unit": "crossbowman",
      "count": 4,
      "gear": "GARRISON"
+    }
+   ]
+  },
+  {
+   "id": "norman.castle_serjeants",
+   "name": "Castle Serjeants",
+   "category": "INFANTRY",
+   "quality": "LOW",
+   "look": "norman.castle_serjeants",
+   "description": "The castle's paid serjeants: spear, shield and a nasal helmet.",
+   "members": [
+    {
+     "unit": "shieldman",
+     "count": 4,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "spear_man",
+     "count": 6,
+     "gear": "GUARD_POST"
+    }
+   ],
+   "livery": "village"
+  },
+  {
+   "id": "norman.flemish_spearmen",
+   "name": "Flemish Spearmen",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "look": "norman.flemish_spearmen",
+   "description": "Flemings in Anglo-Norman pay, close-packed spearmen who held the line in the Anarchy.",
+   "members": [
+    {
+     "unit": "spear_man",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ]
+  },
+  {
+   "id": "norman.templar_serjeants",
+   "name": "Templar Serjeants",
+   "category": "INFANTRY",
+   "quality": "MEDIUM",
+   "look": "norman.templar_serjeants",
+   "description": "Serjeant-brothers of the Temple in black and brown, the order's footmen and squires.",
+   "members": [
+    {
+     "unit": "shieldman",
+     "count": 6,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "spear_man",
+     "count": 4,
+     "gear": "GUARD_POST"
+    }
+   ]
+  },
+  {
+   "id": "norman.huscarls",
+   "name": "Huscarls",
+   "category": "INFANTRY",
+   "quality": "HIGH",
+   "look": "norman.huscarls",
+   "description": "English household men who kept the great Dane axe after the Conquest; some sailed to Constantinople.",
+   "members": [
+    {
+     "unit": "warrior",
+     "count": 10,
+     "gear": "STRONGHOLD"
+    }
+   ]
+  },
+  {
+   "id": "norman.welsh_bowmen",
+   "name": "Welsh Bowmen",
+   "category": "RANGED",
+   "quality": "MEDIUM",
+   "look": "norman.welsh_bowmen",
+   "description": "Bowmen of the March of Wales, whose arrows Gerald of Wales saw pierce an oak door.",
+   "members": [
+    {
+     "unit": "archer",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ]
+  },
+  {
+   "id": "norman.sicilian_saracens",
+   "name": "Saracen Archers of Sicily",
+   "category": "RANGED",
+   "quality": "MEDIUM",
+   "look": "norman.sicilian_saracens",
+   "description": "Muslim archers in the pay of the Norman kings of Sicily, from Roger II to Lucera.",
+   "members": [
+    {
+     "unit": "archer",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ]
+  },
+  {
+   "id": "norman.breton_horse",
+   "name": "Breton Horse",
+   "category": "CAVALRY",
+   "quality": "MEDIUM",
+   "look": "norman.breton_horse",
+   "description": "Breton horsemen, who held the left at Hastings and feigned flight.",
+   "members": [
+    {
+     "unit": "light_lancer_rider",
+     "count": 10,
+     "gear": "GUARD_POST"
+    }
+   ]
+  },
+  {
+   "id": "norman.hospitaller_knights",
+   "name": "Hospitaller Knights",
+   "category": "CAVALRY",
+   "quality": "HIGH",
+   "look": "norman.hospitaller_knights",
+   "description": "Knights of the Hospital of St John, in black surcoats with the white cross.",
+   "members": [
+    {
+     "unit": "lancer_rider",
+     "count": 8,
+     "gear": "STRONGHOLD"
+    }
+   ]
+  },
+  {
+   "id": "norman.apulian_adventurers",
+   "name": "Adventurers of Apulia",
+   "category": "UNIQUE",
+   "quality": "MEDIUM",
+   "look": "norman.apulian_adventurers",
+   "description": "Norman fortune-seekers of the south, sons of Tancred's house: knights and their serjeants.",
+   "members": [
+    {
+     "unit": "lancer_rider",
+     "count": 4,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "shieldman",
+     "count": 4,
+     "gear": "GUARD_POST"
+    },
+    {
+     "unit": "crossbowman",
+     "count": 2,
+     "gear": "GUARD_POST"
     }
    ]
   }

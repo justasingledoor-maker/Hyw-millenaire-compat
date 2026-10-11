@@ -18,8 +18,14 @@ import java.util.Map;
  * optional kit ({@code levy}: light gambeson kits). Hired squads are the player's own units, like single hires.
  *
  * @param squadDiscount share taken off the sum of the members' single prices
+ * @param companies     mercenary companies (hired at a Muster Roll set down outside any village), by the land they are found in
+ * @param companyPremium a company's price over a village squad's of the same members (mercenaries come dear)
  */
-public record Squads(Map<String, List<Squad>> cultures, List<Squad> defaults, double squadDiscount) {
+public record Squads(Map<String, List<Squad>> cultures, List<Squad> defaults, double squadDiscount, List<Company> companies,
+                     double companyPremium) {
+    public Squads(Map<String, List<Squad>> cultures, List<Squad> defaults, double squadDiscount) {
+        this(cultures, defaults, squadDiscount, List.of(), 1.25);
+    }
     public static final int MIN_SIZE = 8;
     public static final int MAX_SIZE = 12;
 
@@ -69,7 +75,132 @@ public record Squads(Map<String, List<Squad>> cultures, List<Squad> defaults, do
         }
     }
 
-    public static final Squads EMPTY = new Squads(Map.of(), List.of(), 0.1);
+    public static final Squads EMPTY = new Squads(Map.of(), List.of(), 0.1, List.of(), 1.25);
+
+    // ------------------------------------------------------------------ mercenary companies
+
+    /** The lands a company is found in, from the biome where the Muster Roll stands. */
+    public enum Region {
+        ARCTIC("the frozen north"), DESERT("the desert"), JUNGLE("the jungle"), SAVANNA("the savanna"), SWAMP("the marshes"),
+        COAST("the coast"), MOUNTAIN("the mountains"), TAIGA("the taiga"), GRASSLAND("the grasslands"), WOODLAND("the woodlands");
+
+        public final String label;
+
+        Region(String label) {
+            this.label = label;
+        }
+    }
+
+    /**
+     * The region of a biome, by its id's path (works for vanilla and for most added biomes, whose names follow vanilla's) and
+     * its tags ({@code c:is_desert}, ...) as a fallback.
+     */
+    public static Region region(String biomePath, java.util.Set<String> tags) {
+        String b = biomePath.toLowerCase(java.util.Locale.ROOT);
+        if (b.contains("frozen") || b.contains("ice") || (b.contains("snowy") && !b.contains("taiga")) || tags.contains("c:is_icy")) {
+            return Region.ARCTIC;
+        }
+        if (b.contains("desert") || b.contains("badlands") || tags.contains("c:is_desert") || tags.contains("c:is_badlands")) {
+            return Region.DESERT;
+        }
+        if (b.contains("jungle") || b.contains("bamboo") || tags.contains("c:is_jungle")) {
+            return Region.JUNGLE;
+        }
+        if (b.contains("savanna") || tags.contains("c:is_savanna")) {
+            return Region.SAVANNA;
+        }
+        if (b.contains("swamp") || b.contains("mangrove") || b.contains("marsh") || tags.contains("c:is_swamp")) {
+            return Region.SWAMP;
+        }
+        if (b.contains("ocean") || b.contains("beach") || b.contains("shore") || tags.contains("c:is_beach") || tags.contains("c:is_ocean")) {
+            return Region.COAST;
+        }
+        if (b.contains("peak") || b.contains("slope") || b.contains("windswept") || b.contains("mountain") || b.contains("hill")
+                || tags.contains("c:is_mountain")) {
+            return Region.MOUNTAIN;
+        }
+        if (b.contains("taiga") || b.contains("grove") || b.contains("spruce") || b.contains("pine") || tags.contains("c:is_taiga")) {
+            return b.contains("snowy") && !b.contains("taiga") ? Region.ARCTIC : Region.TAIGA;
+        }
+        if (b.contains("plains") || b.contains("meadow") || b.contains("steppe") || tags.contains("c:is_plains")) {
+            return Region.GRASSLAND;
+        }
+        return Region.WOODLAND;
+    }
+
+    /**
+     * A mercenary company: a squad of {@code culture}'s soldiers (equipped as that culture's, in its look), found in
+     * {@code regions}, near villages of the {@code near} cultures, or anywhere ({@code everywhere}).
+     */
+    public record Company(Squad squad, String culture, List<Region> regions, List<String> near, boolean everywhere) {
+        public boolean foundIn(Region r, @Nullable String nearCulture) {
+            return everywhere || regions.contains(r) || (nearCulture != null && near.contains(nearCulture));
+        }
+    }
+
+    /** The companies to be found at a Muster Roll in region {@code r}, the nearest village being of {@code nearCulture} (or none). */
+    public List<Company> companiesIn(Region r, @Nullable String nearCulture) {
+        return companies.stream().filter(c -> c.foundIn(r, nearCulture)).toList();
+    }
+
+    @Nullable
+    public Company company(String id) {
+        return companies.stream().filter(c -> c.squad().id().equals(id)).findFirst().orElse(null);
+    }
+
+    /** A company's price: its members' squad price (no standing discount: it has no village) times the premium, whole argent. */
+    public int companyPrice(Company c, Map<String, UnitSpec> units, RecruitTables t) {
+        int base = price(c.squad(), units, t, Standing.STRANGER);
+        int argent = RecruitTables.DENIER_ARGENT;
+        return (int) Math.max(argent, Math.round(base * companyPremium / argent) * (long) argent);
+    }
+
+    // ------------------------------------------------------------------ the Muster Roll's groups
+
+    /** The list a squad sits in on the Muster Roll: foot, missile, horse, raiders (fast foot bands of the horseless) or special. */
+    public static String categoryLabel(Squad s) {
+        return switch (s.category()) {
+            case INFANTRY -> "Foot";
+            case RANGED -> "Missile";
+            case CAVALRY -> s.members().stream().anyMatch(m -> m.unit().endsWith("_rider")) ? "Horse" : "Raiders";
+            case UNIQUE -> "Special";
+        };
+    }
+
+    /** Its subgroup there, by what most of its soldiers are (a mix of near equals: combined arms). */
+    public static String group(Squad s) {
+        Map<String, Integer> n = new LinkedHashMap<>();
+        for (Member m : s.members()) {
+            n.merge(kind(m), m.count(), Integer::sum);
+        }
+        String top = "";
+        int best = 0;
+        for (Map.Entry<String, Integer> e : n.entrySet()) {
+            if (e.getValue() > best) {
+                top = e.getKey();
+                best = e.getValue();
+            }
+        }
+        return n.size() > 1 && best * 10 < s.size() * 6 ? "Combined arms" : top;
+    }
+
+    private static String kind(Member m) {
+        if ("levy".equals(m.kit()) && (m.unit().equals("spear_man") || m.unit().equals("militia"))) {
+            return "Levies";
+        }
+        return switch (m.unit()) {
+            case "militia" -> "Levies";
+            case "spear_man" -> "Spearmen";
+            case "shieldman" -> "Sword and shield";
+            case "warrior" -> "Heavy foot";
+            case "archer" -> "Archers";
+            case "crossbowman" -> "Crossbowmen";
+            case "light_lancer_rider" -> "Light horse";
+            case "archer_rider" -> "Horse archers";
+            case "lancer_rider" -> "Heavy horse";
+            default -> "Others";
+        };
+    }
 
     private static volatile Squads current = EMPTY;
 
@@ -150,6 +281,8 @@ public record Squads(Map<String, List<Squad>> cultures, List<Squad> defaults, do
         Map<String, List<Squad>> cultures = new LinkedHashMap<>();
         List<Squad> defaults = List.of();
         double discount = EMPTY.squadDiscount();
+        List<Company> companies = new ArrayList<>();
+        double premium = EMPTY.companyPremium();
         for (JsonObject f : files) {
             if (f.has("squadDiscount")) {
                 double d = f.get("squadDiscount").getAsDouble();
@@ -167,8 +300,42 @@ public record Squads(Map<String, List<Squad>> cultures, List<Squad> defaults, do
             if (f.has("defaults")) {
                 defaults = list("defaults", f.get("defaults"), units, problems);
             }
+            if (f.has("companyPremium")) {
+                double d = f.get("companyPremium").getAsDouble();
+                if (d >= 1 && d <= 5) {
+                    premium = d;
+                } else {
+                    problems.add("companyPremium out of range: " + d);
+                }
+            }
+            if (f.has("companies") && f.get("companies").isJsonArray()) {
+                for (JsonElement x : f.getAsJsonArray("companies")) {
+                    try {
+                        JsonObject j = x.getAsJsonObject();
+                        Squad sq = squad(j, units, "companies", problems);
+                        if (sq == null) {
+                            continue;
+                        }
+                        List<Region> regions = new ArrayList<>();
+                        if (j.has("regions")) {
+                            for (JsonElement r : j.getAsJsonArray("regions")) {
+                                regions.add(Region.valueOf(r.getAsString()));
+                            }
+                        }
+                        List<String> near = new ArrayList<>();
+                        if (j.has("near")) {
+                            j.getAsJsonArray("near").forEach(n -> near.add(n.getAsString()));
+                        }
+                        companies.removeIf(c -> c.squad().id().equals(sq.id())); // a later file replaces a company of the same id
+                        companies.add(new Company(sq, j.get("culture").getAsString(), List.copyOf(regions), List.copyOf(near),
+                                j.has("everywhere") && j.get("everywhere").getAsBoolean()));
+                    } catch (RuntimeException ex) {
+                        problems.add("companies: bad company " + x + " (" + ex.getMessage() + ")");
+                    }
+                }
+            }
         }
-        return new Squads(Map.copyOf(cultures), defaults, discount);
+        return new Squads(Map.copyOf(cultures), defaults, discount, List.copyOf(companies), premium);
     }
 
     private static List<Squad> list(String where, JsonElement e, Map<String, UnitSpec> units, List<String> problems) {

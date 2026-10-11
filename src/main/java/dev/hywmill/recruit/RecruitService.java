@@ -66,7 +66,8 @@ public final class RecruitService {
         ServerLevel level = player.serverLevel();
         VillageRecord rec = level == level.getServer().overworld() ? villageAt(level, pos) : null;
         be.bind(rec == null ? null : rec.villageId);
-        player.displayClientMessage(Component.literal(rec == null ? "[Muster Roll] Not within a village: it offers nothing here."
+        player.displayClientMessage(Component.literal(rec == null ? "[Muster Roll] Not within a village: the mercenary companies of these parts"
+                + " can be hired here."
                 : "[Muster Roll] Bound to " + rec.name + ". Its soldiers can be hired here."), false);
     }
 
@@ -109,8 +110,75 @@ public final class RecruitService {
         RecruitPayloads.View v = view(player, pos);
         if (v != null) {
             PacketDistributor.sendToPlayer(player, v);
-            PacketDistributor.sendToPlayer(player, new RecruitPayloads.Squads(pos, squadViews(player, pos)));
+            Wilds w = wilds(player, pos);
+            PacketDistributor.sendToPlayer(player, new RecruitPayloads.Squads(pos, squadViews(player, pos), w == null ? List.of() : companyViews(w),
+                    w == null ? "" : w.line()));
         }
+    }
+
+    // ------------------------------------------------------------------ 1.6: mercenary companies in the wilds
+
+    /** Where a Muster Roll outside any village stands: the land, and the nearest village (its culture draws its own companies). */
+    record Wilds(Squads.Region region, @Nullable VillageRecord nearest, int distance) {
+        @Nullable
+        String nearCulture() {
+            return nearest == null ? null : nearest.culture;
+        }
+
+        String line() {
+            return "Outside any village, in " + region.label + (nearest == null ? "" : "; the nearest village is " + nearest.name + " ("
+                    + nearest.culture.replace("millenaire:", "") + ", " + distance + " blocks)") + ". Mercenary companies of these parts hire out here.";
+        }
+    }
+
+    /** A company's culture draws on villages within this distance (blocks). */
+    static final int NEAR_VILLAGE = 1500;
+
+    /** The wilds at a Muster Roll that is not within a village (overworld only), or null. */
+    @Nullable
+    static Wilds wilds(ServerPlayer player, BlockPos pos) {
+        MusterRollBlockEntity be = roll(player, pos);
+        ServerLevel overworld = player.getServer().overworld();
+        if (be == null || player.level() != overworld || village(overworld, be, pos) != null) {
+            return null;
+        }
+        net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> biome = overworld.getBiome(pos);
+        String path = biome.unwrapKey().map(k -> k.location().getPath()).orElse("");
+        java.util.Set<String> tags = new java.util.HashSet<>();
+        biome.tags().forEach(t -> tags.add(t.location().toString()));
+        VillageRecord nearest = null;
+        double best = Double.MAX_VALUE;
+        for (VillageRecord rec : GarrisonLedger.get(overworld).all()) {
+            double d = Math.hypot(rec.center.getX() - pos.getX(), rec.center.getZ() - pos.getZ());
+            if (d < best) {
+                best = d;
+                nearest = rec;
+            }
+        }
+        boolean near = nearest != null && best <= NEAR_VILLAGE;
+        return new Wilds(Squads.region(path, tags), near ? nearest : null, near ? (int) Math.round(best) : 0);
+    }
+
+    static List<RecruitPayloads.SquadView> companyViews(Wilds w) {
+        Squads sq = Squads.current();
+        List<RecruitPayloads.SquadView> out = new ArrayList<>();
+        for (Squads.Company c : sq.companiesIn(w.region(), w.nearCulture())) {
+            Squads.Squad s = c.squad();
+            out.add(new RecruitPayloads.SquadView(s.id(), s.name(), Squads.categoryLabel(s), s.quality().name(), s.roster(), s.topGear().name(),
+                    s.size(), sq.companyPrice(c, GarrisonTables.current().units(), RecruitTables.current()), "", s.description(), Squads.group(s),
+                    origin(c, w)));
+        }
+        return out;
+    }
+
+    /** "Seljuk company, of the desert" / "... drawn by Konya" / "... found anywhere". */
+    static String origin(Squads.Company c, Wilds w) {
+        String culture = c.culture().replace("millenaire:", "");
+        culture = Character.toUpperCase(culture.charAt(0)) + culture.substring(1);
+        String why = c.regions().contains(w.region()) ? "of " + w.region().label
+                : w.nearCulture() != null && c.near().contains(w.nearCulture()) ? "drawn by " + w.nearest().name
+                : "found anywhere";
+        return culture + " company, " + why;
     }
 
     /** Post-M5: the village's culture squads as this player sees them (each with its price, or why it cannot be hired). */
@@ -126,9 +194,9 @@ public final class RecruitService {
         Squads sq = Squads.current();
         for (Squads.Squad s : sq.forCulture(rec.culture)) {
             String why = Squads.refusal(s, st, rec.tier);
-            out.add(new RecruitPayloads.SquadView(s.id(), s.name(), s.category().name(), s.quality().name(), s.roster(),
+            out.add(new RecruitPayloads.SquadView(s.id(), s.name(), Squads.categoryLabel(s), s.quality().name(), s.roster(),
                     s.topGear().name(), s.size(), sq.price(s, GarrisonTables.current().units(), RecruitTables.current(), st), why == null ? "" : why,
-                    s.description()));
+                    s.description(), Squads.group(s), ""));
         }
         return out;
     }
@@ -145,7 +213,10 @@ public final class RecruitService {
         boolean owner = player.getUUID().equals(be.owner());
         VillageRecord rec = player.level() == overworld ? village(overworld, be, pos) : null;
         if (rec == null) {
-            return new RecruitPayloads.View(pos, "Not within a village: this Muster Roll offers nothing here.", money, be.radius(), owner, List.of());
+            Wilds w = wilds(player, pos);
+            int[] c = colours(overworld, player.getUUID());
+            return new RecruitPayloads.View(pos, w == null ? "Not within a village or the overworld's wilds: this Muster Roll offers nothing here."
+                    : w.line(), money, be.radius(), owner, List.of(), c == null ? -1 : c[0], c == null ? -1 : c[1]);
         }
         Standing st = standing(overworld, rec, player.getUUID());
         MilitaryTier gear = RecruitOffers.gearTier(st, rec.tier, RecruitTables.current());
@@ -154,10 +225,26 @@ public final class RecruitService {
                 : gear == MilitaryTier.NONE ? " | mercenaries only" : " | soldiers up to " + gear + " gear");
         List<RecruitPayloads.OfferView> list = new ArrayList<>();
         for (RecruitOffers.Offer o : offers(overworld, rec, player.getUUID())) {
-            list.add(new RecruitPayloads.OfferView(o.key(), o.label(), o.gearTier().name(), o.price()));
+            list.add(new RecruitPayloads.OfferView(o.key(), o.label(), o.gearTier().name(), o.price(), group(o)));
         }
         int[] c = colours(overworld, player.getUUID());
         return new RecruitPayloads.View(pos, header, money, be.radius(), owner, list, c == null ? -1 : c[0], c == null ? -1 : c[1]);
+    }
+
+    /** The list a single hire sits in on the Muster Roll. */
+    static String group(RecruitOffers.Offer o) {
+        if (o.engine()) {
+            return "Engines";
+        }
+        if (o.merc()) {
+            return "Mercenaries";
+        }
+        return switch (o.unit().unitClass()) {
+            case LEVY -> "Levies";
+            case RANGED, GUNPOWDER -> "Missile";
+            case CAVALRY -> "Horse";
+            default -> "Foot";
+        };
     }
 
     /** Post-M5: the player's chosen colours for the soldiers they hire ({first, second} dye ids), or null if none are chosen. */
@@ -207,6 +294,12 @@ public final class RecruitService {
         VillageRecord rec = player.level() == overworld ? village(overworld, be, pos) : null;
         SettlementSource source = Services.settlements();
         UnitProvider units = Services.units();
+        if (key.startsWith("company:") && source != null && units != null) {
+            if (rec != null) {
+                return new Outcome(false, "Mercenary companies are hired in the wilds: set a Muster Roll down outside any village.", 0);
+            }
+            return hireCompany(player, payer, pos, be, source, units, key.substring("company:".length()));
+        }
         if (rec == null || source == null || units == null) {
             return new Outcome(false, "This Muster Roll is not within a village.", 0);
         }
@@ -338,6 +431,69 @@ public final class RecruitService {
             return new Outcome(false, "No safe ground within " + be.radius() + " blocks to muster them; you were refunded.", 0);
         }
         return new Outcome(true, s.name() + " (" + hired + " soldiers) mustered for " + RecruitOffers.money(price - refund)
+                + (refund > 0 ? "; " + (size - hired) + " could not be placed and were refunded" : "") + ".", hired);
+    }
+
+    /**
+     * 1.6: hires a whole mercenary company found where the Muster Roll stands (outside any village). Its soldiers are the player's
+     * own, equipped as the company's culture at each member's gear tier, in its look (and the player's colours, if chosen).
+     */
+    private static Outcome hireCompany(ServerPlayer player, Player payer, BlockPos pos, MusterRollBlockEntity be, SettlementSource source,
+                                       UnitProvider units, String id) {
+        ServerLevel overworld = player.getServer().overworld();
+        Wilds w = wilds(player, pos);
+        Squads sq = Squads.current();
+        Squads.Company c = sq.company(id);
+        if (w == null || c == null || !c.foundIn(w.region(), w.nearCulture())) {
+            return new Outcome(false, "No such company is to be found here.", 0);
+        }
+        GarrisonTables gt = GarrisonTables.current();
+        Squads.Squad s = c.squad();
+        int price = sq.companyPrice(c, gt.units(), RecruitTables.current());
+        int have = source.playerMoney(payer);
+        if (have < price) {
+            return new Outcome(false, "Not enough money: " + s.name() + " ask " + RecruitOffers.money(price) + ", you have "
+                    + RecruitOffers.money(Math.max(0, have)) + ".", 0);
+        }
+        if (!source.takeMoney(payer, price)) {
+            return new Outcome(false, "The payment could not be taken.", 0);
+        }
+        GarrisonTable table = gt.forCulture(c.culture());
+        EquipmentProvider eq = Services.equipment(table.equipmentProvider());
+        if (eq == null) {
+            eq = Services.equipment("hyw");
+        }
+        RandomSource rnd = overworld.getRandom();
+        int[] mine = colours(overworld, payer.getUUID());
+        int hired = 0;
+        for (Squads.Member m : s.members()) {
+            dev.hywmill.garrison.tables.UnitSpec spec = gt.units().get(m.unit());
+            int level = table.tier(m.gear()).equipmentLevel();
+            for (int i = 0; i < m.count(); i++) {
+                BlockPos spot = spot(overworld, pos, be.radius(), rnd);
+                if (spot == null || eq == null || spec == null) {
+                    continue;
+                }
+                UUID uid = UUID.randomUUID();
+                SpawnResult r = units.spawn(overworld, new SpawnRequest(spec, payer.getUUID(), uid, Vec3.atBottomCenterOf(spot), spot, level, false,
+                        null, eq, new EquipmentProvider.Context(c.culture(), m.gear(), s.role(m), EquipmentProfiles.classRole(spec.unitClass()), uid)
+                        .withLivery(mine)));
+                if (r.ok()) {
+                    hired++;
+                }
+            }
+        }
+        int size = s.size();
+        int refund = hired == size ? 0 : (int) Math.round((double) price * (size - hired) / size);
+        if (refund > 0) {
+            source.giveMoney(payer, refund);
+        }
+        HmLog.info("Muster Roll: {} hired company {} ({} of {}) in {} for {} deniers{}", payer.getName().getString(), s.id(), hired, size,
+                w.region(), price - refund, refund > 0 ? " (" + (size - hired) + " not placed, refunded)" : "");
+        if (hired == 0) {
+            return new Outcome(false, "No safe ground within " + be.radius() + " blocks to muster them; you were refunded.", 0);
+        }
+        return new Outcome(true, s.name() + " (" + hired + " soldiers) took your coin: " + RecruitOffers.money(price - refund)
                 + (refund > 0 ? "; " + (size - hired) + " could not be placed and were refunded" : "") + ".", hired);
     }
 

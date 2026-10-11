@@ -31,26 +31,29 @@ class SquadsTest {
     }
 
     static Squads shipped(List<String> problems) throws IOException {
-        JsonObject j = JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/hywmill/hywmill_squads/defaults.json")))
-                .getAsJsonObject();
-        return Squads.fromJson(List.of(j), garrison().units(), problems);
+        Path dir = Path.of("src/main/resources/data/hywmill/hywmill_squads");
+        JsonObject j = JsonParser.parseString(Files.readString(dir.resolve("defaults.json"))).getAsJsonObject();
+        JsonObject m = JsonParser.parseString(Files.readString(dir.resolve("mercenaries.json"))).getAsJsonObject();
+        return Squads.fromJson(List.of(j, m), garrison().units(), problems);
     }
 
     @Test
-    void everyCultureHasSixteenSquadsOfTheAgreedShape() throws IOException {
+    void everyCultureHasItsSquadsInEveryListAndQuality() throws IOException {
         List<String> problems = new ArrayList<>();
         Squads s = shipped(problems);
         assertEquals(List.of(), problems);
         assertEquals(CULTURES, s.cultures().keySet());
         for (String c : CULTURES) {
             List<Squads.Squad> l = s.forCulture(c);
-            assertEquals(16, l.size(), c);
+            assertTrue(l.size() >= 21, c + " " + l.size());
             Map<Squads.Category, Long> cats = l.stream().collect(Collectors.groupingBy(Squads.Squad::category, Collectors.counting()));
-            assertEquals(Map.of(Squads.Category.INFANTRY, 6L, Squads.Category.RANGED, 4L, Squads.Category.CAVALRY, 4L, Squads.Category.UNIQUE, 2L),
-                    cats, c);
+            assertTrue(cats.get(Squads.Category.INFANTRY) >= 9 && cats.get(Squads.Category.RANGED) >= 5 && cats.get(Squads.Category.CAVALRY) >= 5
+                    && cats.get(Squads.Category.UNIQUE) >= 2, c + " " + cats);
             Map<Squads.Quality, Long> inf = l.stream().filter(q -> q.category() == Squads.Category.INFANTRY)
                     .collect(Collectors.groupingBy(Squads.Squad::quality, Collectors.counting()));
-            assertEquals(Map.of(Squads.Quality.LOW, 2L, Squads.Quality.MEDIUM, 2L, Squads.Quality.HIGH, 2L), inf, c);
+            for (Squads.Quality q : Squads.Quality.values()) {
+                assertTrue(inf.getOrDefault(q, 0L) >= 2, c + " " + inf);
+            }
             for (Squads.Squad q : l) {
                 assertTrue(q.size() >= 8 && q.size() <= 12, q.id() + " " + q.size());
                 assertEquals(1, l.stream().filter(o -> o.id().equals(q.id())).count(), "unique id " + q.id());
@@ -155,7 +158,16 @@ class SquadsTest {
                 seen.add(q.look());
             }
         }
-        assertEquals(112, seen.size(), "one look per squad");
+        assertEquals(s.cultures().values().stream().mapToInt(List::size).sum(), seen.size(), "one look per squad");
+        // 1.6: every mercenary company wears its own look too
+        for (Squads.Company c : s.companies()) {
+            var look = p.lookFor(c.squad().role(c.squad().members().get(0)));
+            assertNotNull(look, "look of " + c.squad().id());
+            assertFalse(look.kits().isEmpty(), c.squad().id());
+            assertTrue(look.kits().stream().anyMatch(k -> dev.hywmill.garrison.equip.EquipmentProfiles.ARMOUR.stream()
+                    .allMatch(sl -> k.piece(sl).startsWith("magistuarmory:") || k.piece(sl).equals("none"))),
+                    c.squad().id() + " keeps a plain Epic Knights kit");
+        }
         // crusader squads: white surcoats with red crosses on their shields
         var crus = p.lookFor("look:norman.crusader_band");
         assertTrue(crus.kits().stream().allMatch(k -> java.util.Set.of("magistuarmory:crusader_chestplate", "magistuarmoryaddon:dark_crusader_chestplate",
@@ -172,5 +184,77 @@ class SquadsTest {
                 && a.layers().stream().anyMatch(l -> l.pattern().equals("magistuarmory:crusader_cross") && l.color() == net.minecraft.world.item.DyeColor.RED)));
         var excub = p.lookFor("look:byz.excubitors");
         assertTrue(excub.arms().stream().anyMatch(a -> a.layers().stream().anyMatch(l -> l.pattern().equals("magistuarmory:two_headed_eagle"))));
+    }
+
+    @Test
+    void theLandDecidesTheRegion() {
+        assertEquals(Squads.Region.ARCTIC, Squads.region("snowy_plains", Set.of()));
+        assertEquals(Squads.Region.ARCTIC, Squads.region("frozen_ocean", Set.of()), "frozen sea is the north, not the coast");
+        assertEquals(Squads.Region.TAIGA, Squads.region("snowy_taiga", Set.of()));
+        assertEquals(Squads.Region.TAIGA, Squads.region("old_growth_spruce_taiga", Set.of()));
+        assertEquals(Squads.Region.DESERT, Squads.region("eroded_badlands", Set.of()));
+        assertEquals(Squads.Region.JUNGLE, Squads.region("bamboo_jungle", Set.of()));
+        assertEquals(Squads.Region.SAVANNA, Squads.region("windswept_savanna", Set.of()), "savanna before mountain");
+        assertEquals(Squads.Region.SWAMP, Squads.region("mangrove_swamp", Set.of()));
+        assertEquals(Squads.Region.COAST, Squads.region("stony_shore", Set.of()));
+        assertEquals(Squads.Region.MOUNTAIN, Squads.region("jagged_peaks", Set.of()));
+        assertEquals(Squads.Region.GRASSLAND, Squads.region("sunflower_plains", Set.of()));
+        assertEquals(Squads.Region.WOODLAND, Squads.region("dark_forest", Set.of()));
+        assertEquals(Squads.Region.DESERT, Squads.region("some_modded_dunes", Set.of("c:is_desert")), "added biomes by their tags");
+        assertEquals(Squads.Region.WOODLAND, Squads.region("unknown", Set.of()));
+    }
+
+    @Test
+    void companiesAreFoundByTheLandAndTheNearestPeople() throws IOException {
+        Squads s = shipped(new ArrayList<>());
+        assertTrue(s.companies().size() >= 25, "companies: " + s.companies().size());
+        for (Squads.Region r : Squads.Region.values()) {
+            List<Squads.Company> here = s.companiesIn(r, null);
+            assertTrue(here.size() >= 3, r + " has a choice of companies: " + here.size());
+            assertTrue(here.stream().anyMatch(c -> c.everywhere()), "a free company is to be found anywhere");
+        }
+        Set<String> desert = s.companiesIn(Squads.Region.DESERT, null).stream().map(c -> c.squad().id()).collect(Collectors.toSet());
+        assertTrue(desert.containsAll(Set.of("merc.bedouin_raiders", "merc.caravan_guards")), desert.toString());
+        assertFalse(desert.contains("merc.canul"), "no Maya mercenaries in the desert");
+        Set<String> jungle = s.companiesIn(Squads.Region.JUNGLE, null).stream().map(c -> c.squad().id()).collect(Collectors.toSet());
+        assertTrue(jungle.contains("merc.canul") && !jungle.contains("merc.gallowglass"), jungle.toString());
+        // the nearest village's people draw their own: rōnin near the Japanese, whatever the land
+        assertFalse(s.companiesIn(Squads.Region.GRASSLAND, null).stream().anyMatch(c -> c.squad().id().equals("merc.ronin")));
+        assertTrue(s.companiesIn(Squads.Region.GRASSLAND, "millenaire:japanese").stream().anyMatch(c -> c.squad().id().equals("merc.ronin")));
+        // no horses among the horseless peoples' companies
+        Set<String> horses = Set.of("light_lancer_rider", "archer_rider", "lancer_rider");
+        for (Squads.Company c : s.companies()) {
+            if (c.culture().equals("millenaire:mayan") || c.culture().equals("millenaire:inuits")) {
+                assertTrue(c.squad().members().stream().noneMatch(m -> horses.contains(m.unit())), c.squad().id());
+            }
+            assertTrue(CULTURES.contains(c.culture()), c.squad().id());
+            assertFalse(c.squad().villageLivery(), "a company wears its own colours: " + c.squad().id());
+        }
+    }
+
+    @Test
+    void companiesCostMoreThanTheSameSquadInAVillage() throws IOException {
+        Squads s = shipped(new ArrayList<>());
+        GarrisonTables g = garrison();
+        RecruitTables t = RecruitTables.DEFAULT;
+        Squads.Company c = s.company("merc.routiers");
+        assertNotNull(c);
+        int village = s.price(c.squad(), g.units(), t, Standing.STRANGER);
+        int company = s.companyPrice(c, g.units(), t);
+        assertTrue(company > village, company + " vs " + village);
+        assertEquals(0, company % RecruitTables.DENIER_ARGENT, "whole argent");
+    }
+
+    @Test
+    void theMusterRollListsSquadsByCategoryAndGroup() throws IOException {
+        Squads s = shipped(new ArrayList<>());
+        assertEquals("Spearmen", Squads.group(s.find("millenaire:japanese", "jp.nagae_yari")));
+        assertEquals("Levies", Squads.group(s.find("millenaire:seljuk", "seljuk.anatolian_levy")));
+        assertEquals("Horse archers", Squads.group(s.find("millenaire:byzantines", "byz.vardariotai")));
+        assertEquals("Heavy horse", Squads.group(s.find("millenaire:norman", "norman.hospitaller_knights")));
+        assertEquals("Combined arms", Squads.group(s.find("millenaire:norman", "norman.apulian_adventurers")));
+        assertEquals("Horse", Squads.categoryLabel(s.find("millenaire:indian", "in.ahadis")));
+        assertEquals("Raiders", Squads.categoryLabel(s.find("millenaire:mayan", "maya.peten_raiders")), "fast foot bands of the horseless");
+        assertEquals("Special", Squads.categoryLabel(s.find("millenaire:indian", "in.kesariya")));
     }
 }

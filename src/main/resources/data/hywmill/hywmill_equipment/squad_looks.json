@@ -6840,6 +6840,3783 @@
     "#5A1A1A",
     "#9C7A52"
    ]
+  },
+  "norman.castle_serjeants": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_kiteshield",
+    "magistuarmory:wood_kiteshield"
+   ],
+   "palette": [
+    "#8E2A2A",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.flemish_spearmen": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:chapel",
+     "chest": "magistuarmoryaddon:chained_gambeson",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:chained_gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#D4A22A",
+    "#222222"
+   ],
+   "arms": [
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lion1",
+       "color": "black"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "magistuarmory:steel_pike",
+    "magistuarmory:iron_pike"
+   ]
+  },
+  "norman.templar_serjeants": {
+   "kits": [
+    {
+     "head": "magistuarmoryaddon:dark_crusader_helmet",
+     "chest": "magistuarmoryaddon:dark_crusader_chestplate",
+     "legs": "magistuarmoryaddon:dark_crusader_leggings",
+     "feet": "magistuarmoryaddon:dark_crusader_boots"
+    },
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_kiteshield"
+   ],
+   "palette": [
+    "#222222",
+    "#6A4A30"
+   ],
+   "arms": [
+    {
+     "base": "black",
+     "layers": [
+      {
+       "pattern": "magistuarmory:crusader_cross",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.huscarls": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "palette": [
+    "#2E4A7D",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "magistuarmory:dragon",
+       "color": "yellow"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "magistuarmory:steel_lochaberaxe"
+   ]
+  },
+  "norman.welsh_bowmen": {
+   "kits": [
+    {
+     "head": "magistuarmoryaddon:linen_coif",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#3F6B35",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "magistuarmory:dragon",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "magistuarmory:longbow"
+   ]
+  },
+  "norman.sicilian_saracens": {
+   "kits": [
+    {
+     "head": "magistuarmoryaddon:saracen_helmet",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "palette": [
+    "#2F6B3A",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "white"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "magistuarmory:longbow"
+   ]
+  },
+  "norman.breton_horse": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#222222"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_center",
+       "color": "black"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.hospitaller_knights": {
+   "kits": [
+    {
+     "head": "magistuarmory:greathelm",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:crusader_leggings",
+     "feet": "magistuarmory:crusader_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:early_greathelm",
+     "chest": "magistuarmoryaddon:xiii_century_knight_chestplate",
+     "legs": "magistuarmoryaddon:xiii_century_knight_leggings",
+     "feet": "magistuarmoryaddon:xiii_century_knight_boots"
+    },
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_kiteshield"
+   ],
+   "palette": [
+    "#222222",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "black",
+     "layers": [
+      {
+       "pattern": "minecraft:straight_cross",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "norman.apulian_adventurers": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_kiteshield"
+   ],
+   "palette": [
+    "#2E4A7D",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "minecraft:half_horizontal",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.ploimoi": {
+   "kits": [
+    {
+     "head": "culturesarmory:pilos",
+     "chest": "culturesarmory:chiton",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:phakeolion",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "slavicarmory:late_phrygian_helmet",
+     "chest": "slavicarmory:byzantine_scale_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "slavicarmory:rus_scale_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:aspis",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#2F4B7A",
+    "#E6E1D3"
+   ],
+   "arms": [
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "white"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_kontarion",
+    "magistuarmory:iron_pike"
+   ]
+  },
+  "byz.kontaratoi": {
+   "kits": [
+    {
+     "head": "culturesarmory:phrygian_helmet",
+     "chest": "culturesarmory:scale_armour",
+     "legs": "culturesarmory:scale_kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:klibanion",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "slavicarmory:late_phrygian_helmet",
+     "chest": "slavicarmory:byzantine_scale_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "slavicarmory:rus_scale_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:skoutarion",
+    "culturesarmory:aspis",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#8E2A2A",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:orthodox_cross",
+       "color": "yellow"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_kontarion",
+    "magistuarmory:iron_pike"
+   ]
+  },
+  "byz.armenian_foot": {
+   "kits": [
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:akrites_lamellar",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:mail_coif",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "slavicarmory:late_phrygian_helmet",
+     "chest": "slavicarmory:byzantine_scale_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "slavicarmory:rus_scale_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:aspis",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#5E2A5C",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "purple",
+     "layers": [
+      {
+       "pattern": "magistuarmory:eagle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_spathion",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "byz.hetaireia": {
+   "kits": [
+    {
+     "head": "culturesarmory:phrygian_helmet",
+     "chest": "culturesarmory:excubitor_armour",
+     "legs": "culturesarmory:scale_kremasmata",
+     "feet": "culturesarmory:kampagia"
+    },
+    {
+     "head": "culturesarmory:strategos_helmet",
+     "chest": "culturesarmory:strategos_klibanion",
+     "legs": "culturesarmory:lamellar_kremasmata",
+     "feet": "culturesarmory:kampagia"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:skoutarion",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#5E2A5C",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "purple",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_spathion",
+    "culturesarmory:steel_paramerion",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "byz.solenarioi": {
+   "kits": [
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:skiadion",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#3E6B3A",
+    "#E6E1D3"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "white"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:toxarion",
+    "magistuarmory:longbow"
+   ]
+  },
+  "byz.armenian_archers": {
+   "kits": [
+    {
+     "head": "culturesarmory:phakeolion",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:skiadion",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#A8782E",
+    "#E6E1D3"
+   ],
+   "arms": [
+    {
+     "base": "orange",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "white"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:toxarion",
+    "magistuarmory:longbow"
+   ]
+  },
+  "byz.trapezitai": {
+   "kits": [
+    {
+     "head": "culturesarmory:phrygian_helmet",
+     "chest": "culturesarmory:akrites_lamellar",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:aspis",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#2F4B7A",
+    "#A8782E"
+   ],
+   "arms": [
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "minecraft:half_horizontal",
+       "color": "orange"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.vardariotai": {
+   "kits": [
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:felt_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#8E2A2A",
+    "#2F4B7A"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "blue"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.scholai": {
+   "kits": [
+    {
+     "head": "culturesarmory:strategos_helmet",
+     "chest": "culturesarmory:strategos_klibanion",
+     "legs": "culturesarmory:lamellar_kremasmata",
+     "feet": "culturesarmory:kampagia"
+    },
+    {
+     "head": "culturesarmory:kataphract_helmet",
+     "chest": "culturesarmory:kataphract_armour",
+     "legs": "culturesarmory:lamellar_kremasmata",
+     "feet": "culturesarmory:podopsella"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:skoutarion",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#5E2A5C",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "purple",
+     "layers": [
+      {
+       "pattern": "magistuarmory:orthodox_cross",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "byz.pechenegs": {
+   "kits": [
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:felt_boots"
+    },
+    {
+     "head": "culturesarmory:kipchak_mask_helmet",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6A4A30",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "brown",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.anatolian_levy": {
+   "kits": [
+    {
+     "head": "culturesarmory:turban",
+     "chest": "culturesarmory:kaftan",
+     "legs": "culturesarmory:dolak_shalwar",
+     "feet": "culturesarmory:carik"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kepenek",
+     "legs": "culturesarmory:dolak_shalwar",
+     "feet": "culturesarmory:felt_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#E8E4D8",
+    "#8E2A2A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_mizrak",
+    "magistuarmory:iron_pike"
+   ]
+  },
+  "seljuk.ahi_brotherhood": {
+   "kits": [
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:turban",
+     "chest": "culturesarmory:kaftan",
+     "legs": "culturesarmory:dolak_shalwar",
+     "feet": "culturesarmory:carik"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#E8E4D8",
+    "#2F6B3A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "green"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_kilij",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "seljuk.ghazis": {
+   "kits": [
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:seljuk_turbaned_helmet",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#2F6B3A",
+    "#E8E4D8"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "white"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_tabarzin",
+    "culturesarmory:steel_kilij",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "seljuk.silahdars": {
+   "kits": [
+    {
+     "head": "culturesarmory:seljuk_veiled_helmet",
+     "chest": "culturesarmory:jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
+    {
+     "head": "culturesarmory:atabeg_helmet",
+     "chest": "culturesarmory:gilded_jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:kulah_khud",
+     "chest": "slavicarmory:gilded_bahteretz_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "slavicarmory:bahteretz_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:sipar",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#8E2A2A",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "yellow"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_sayf",
+    "culturesarmory:steel_shishpar",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "seljuk.bedouin_bows": {
+   "kits": [
+    {
+     "head": "culturesarmory:kufiya",
+     "chest": "culturesarmory:bedouin_robe",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:carik"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:light_cuman_helmet",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    }
+   ],
+   "palette": [
+    "#6A4A30",
+    "#E8E4D8"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:turkic_bow",
+    "magistuarmory:longbow"
+   ]
+  },
+  "seljuk.khorasani_archers": {
+   "kits": [
+    {
+     "head": "culturesarmory:seljuk_turbaned_helmet",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:light_cuman_helmet",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    }
+   ],
+   "palette": [
+    "#2E7D7A",
+    "#E8E4D8"
+   ],
+   "arms": [
+    {
+     "base": "cyan",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "white"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:turkic_bow",
+    "magistuarmory:longbow"
+   ]
+  },
+  "seljuk.bedouin_raiders": {
+   "kits": [
+    {
+     "head": "culturesarmory:kufiya",
+     "chest": "culturesarmory:bedouin_robe",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:carik"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#6A4A30",
+    "#E8E4D8"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.kurdish_horse": {
+   "kits": [
+    {
+     "head": "culturesarmory:seljuk_turbaned_helmet",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#D4A22A",
+    "#8E2A2A"
+   ],
+   "arms": [
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.kipchak_riders": {
+   "kits": [
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:felt_boots"
+    },
+    {
+     "head": "culturesarmory:kipchak_mask_helmet",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#A0402E",
+    "#222222"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_middle",
+       "color": "black"
+      }
+     ]
+    }
+   ]
+  },
+  "seljuk.masked_lancers": {
+   "kits": [
+    {
+     "head": "culturesarmory:kipchak_mask_helmet",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:sipar",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#222222",
+    "#A0402E"
+   ],
+   "arms": [
+    {
+     "base": "black",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "jp.ikko_ikki": {
+   "kits": [
+    {
+     "head": "culturesarmory:sugegasa",
+     "chest": "none",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:waraji"
+    },
+    {
+     "head": "culturesarmory:sohei_zukin",
+     "chest": "culturesarmory:haramaki",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:waraji"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "slavicarmory:eastern_kettlehat",
+     "chest": "magistuarmoryaddon:splint_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:splint_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#E6E1D3",
+    "#2E2E34"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_yari",
+    "culturesarmory:steel_naginata",
+    "magistuarmory:iron_pike"
+   ]
+  },
+  "jp.nagae_yari": {
+   "kits": [
+    {
+     "head": "culturesarmory:jingasa",
+     "chest": "culturesarmory:sashimono_do",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
+    {
+     "head": "culturesarmory:jingasa",
+     "chest": "culturesarmory:okegawa_do",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "slavicarmory:eastern_kettlehat",
+     "chest": "magistuarmoryaddon:splint_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:splint_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#B0302A",
+    "#2E2E34"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_yari",
+    "magistuarmory:iron_pike"
+   ]
+  },
+  "jp.jizamurai": {
+   "kits": [
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:haramaki",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:do_maru",
+     "legs": "culturesarmory:samurai_haidate",
+     "feet": "culturesarmory:samurai_suneate"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "slavicarmory:eastern_kettlehat",
+     "chest": "magistuarmoryaddon:splint_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:splint_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#5A7A3A",
+    "#E6E1D3"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_katana",
+    "culturesarmory:steel_yari",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "jp.nanban_guard": {
+   "kits": [
+    {
+     "head": "culturesarmory:nanban_kabuto",
+     "chest": "culturesarmory:nanban_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "culturesarmory:momonari_kabuto",
+     "chest": "culturesarmory:nimai_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:facial_grotesque_maximilian_helmet",
+     "chest": "magistuarmoryaddon:splint_chestplate",
+     "legs": "magistuarmoryaddon:splint_leggings",
+     "feet": "magistuarmoryaddon:splint_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#2A3048",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_katana",
+    "culturesarmory:steel_jumonji_yari",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "jp.yumi_gumi": {
+   "kits": [
+    {
+     "head": "culturesarmory:jingasa",
+     "chest": "culturesarmory:sashimono_do",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
+    {
+     "head": "culturesarmory:jingasa",
+     "chest": "culturesarmory:okegawa_do",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:straw_hat",
+     "chest": "magistuarmoryaddon:splint_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:splint_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#2C3E78",
+    "#E6E1D3"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:yumi",
+    "magistuarmory:longbow"
+   ]
+  },
+  "jp.bando_musha": {
+   "kits": [
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:do_maru",
+     "legs": "culturesarmory:samurai_haidate",
+     "feet": "culturesarmory:samurai_suneate"
+    },
+    {
+     "head": "culturesarmory:kabuto",
+     "chest": "culturesarmory:samurai_do",
+     "legs": "culturesarmory:samurai_haidate",
+     "feet": "culturesarmory:samurai_suneate"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#2C3E78",
+    "#B0302A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "jp.takeda_horse": {
+   "kits": [
+    {
+     "head": "culturesarmory:momonari_kabuto",
+     "chest": "culturesarmory:nimai_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:hotoke_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#B0302A",
+    "#2E2E34"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "jp.akazonae": {
+   "kits": [
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:hotoke_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "culturesarmory:eboshi_kabuto",
+     "chest": "culturesarmory:jinbaori",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:facial_grotesque_maximilian_helmet",
+     "chest": "magistuarmoryaddon:splint_chestplate",
+     "legs": "magistuarmoryaddon:splint_leggings",
+     "feet": "magistuarmoryaddon:splint_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#A8302A",
+    "#A8302A",
+    "#2E2E34"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_katana",
+    "culturesarmory:steel_nagamaki",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "in.barchhait": {
+   "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:dhoti",
+     "feet": "culturesarmory:chappal"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:kulah_khud",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#D08A28",
+    "#EAE4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_barchha",
+    "magistuarmory:iron_pike"
+   ]
+  },
+  "in.mavla": {
+   "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:dhoti",
+     "feet": "culturesarmory:chappal"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:kulah_khud",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#9E2A2A",
+    "#D08A28"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_talwar",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "in.vijayanagara_guard": {
+   "kits": [
+    {
+     "head": "culturesarmory:top_khud",
+     "chest": "culturesarmory:kavacha",
+     "legs": "culturesarmory:zanupush",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "culturesarmory:top_khud",
+     "chest": "culturesarmory:char_aina",
+     "legs": "culturesarmory:mail_paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#D08A28",
+    "#9E2A2A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_talwar",
+    "culturesarmory:steel_barchha",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "in.vijayanagara_bows": {
+   "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:saracen_helmet",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    }
+   ],
+   "palette": [
+    "#2E3E78",
+    "#EAE4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:dhanush",
+    "magistuarmory:longbow"
+   ]
+  },
+  "in.carnatic_archers": {
+   "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:dhoti",
+     "feet": "culturesarmory:chappal"
+    },
+    {
+     "head": "culturesarmory:bhil_headband",
+     "chest": "none",
+     "legs": "culturesarmory:dhoti",
+     "feet": "culturesarmory:chappal"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:saracen_helmet",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    }
+   ],
+   "palette": [
+    "#EAE4D4",
+    "#2E3E78"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:dhanush",
+    "magistuarmory:longbow"
+   ]
+  },
+  "in.bargir": {
+   "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:kulah_khud",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#D08A28",
+    "#EAE4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "in.afghan_horse": {
+   "kits": [
+    {
+     "head": "culturesarmory:turbaned_khud",
+     "chest": "culturesarmory:zirah_bagtar",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:kulah_khud",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#2F6B3A",
+    "#EAE4D4"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "in.ahadis": {
+   "kits": [
+    {
+     "head": "culturesarmory:gilded_kulah_khud",
+     "chest": "culturesarmory:char_aina",
+     "legs": "culturesarmory:zanupush",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:kulah_khud",
+     "chest": "culturesarmory:char_aina",
+     "legs": "culturesarmory:zanupush",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#7A1E3A",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "in.kesariya": {
+   "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#D08A28",
+    "#D08A28",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_khanda",
+    "culturesarmory:steel_talwar",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "maya.tribute_levy": {
+   "kits": [
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:pakal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#EDE8DA",
+    "#A8402E"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:flint_spear",
+    "magistuarmory:iron_pike"
+   ]
+  },
+  "maya.flexible_shields": {
+   "kits": [
+    {
+     "head": "culturesarmory:cotton_war_cap",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:flexible_shield",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#EDE8DA",
+    "#2E6E9E"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "maya.obsidian_clubs": {
+   "kits": [
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:cotton_war_cap",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:pakal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#A8402E",
+    "#EDE8DA"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "maya.serpent_archers": {
+   "kits": [
+    {
+     "head": "culturesarmory:serpent_headdress",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
+     "head": "culturesarmory:cotton_war_cap",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    }
+   ],
+   "palette": [
+    "#3E7A4A",
+    "#EDE8DA"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:maya_bow",
+    "magistuarmory:longbow"
+   ]
+  },
+  "maya.peten_raiders": {
+   "kits": [
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    }
+   ],
+   "palette": [
+    "#A8402E",
+    "#2C2A28"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "culturesarmory:flint_spear",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "maya.ajaw_household": {
+   "kits": [
+    {
+     "head": "culturesarmory:quetzal_headdress",
+     "chest": "culturesarmory:jade_pectoral_armour",
+     "legs": "culturesarmory:jaguar_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
+     "head": "culturesarmory:quetzal_headdress",
+     "chest": "culturesarmory:feathered_war_suit",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
+     "head": "culturesarmory:jaguar_helmet",
+     "chest": "culturesarmory:jaguar_pelt_armour",
+     "legs": "culturesarmory:jaguar_kilt",
+     "feet": "culturesarmory:jaguar_leg_wraps"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:pakal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#3E7A4A",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "culturesarmory:flint_axe",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "inuit.umiak_crew": {
+   "kits": [
+    {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#D8D0BE",
+    "#8B3A22"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:harpoon",
+    "magistuarmory:iron_pike"
+   ]
+  },
+  "inuit.bear_hunters": {
+   "kits": [
+    {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:polar_bear_trousers",
+     "feet": "culturesarmory:polar_bear_kamik"
+    },
+    {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:bird_skin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#8B3A22"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club",
+    "culturesarmory:ivory_lance",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "inuit.bering_warriors": {
+   "kits": [
+    {
+     "head": "culturesarmory:ivory_lamellar_helmet",
+     "chest": "culturesarmory:slat_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:ivory_lamellar_helmet",
+     "chest": "culturesarmory:bone_plate_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:polar_bear_kamik"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#6E4A2A",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "inuit.bird_skin_bows": {
+   "kits": [
+    {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:bird_skin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:parka_hood",
+     "chest": "culturesarmory:sealskin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#D8D0BE",
+    "#2E5B8A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:sinew_bow",
+    "magistuarmory:longbow"
+   ]
+  },
+  "inuit.sled_raiders": {
+   "kits": [
+    {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:polar_bear_trousers",
+     "feet": "culturesarmory:polar_bear_kamik"
+    },
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:walrus_hide_armour",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#8B3A22",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club",
+    "culturesarmory:sinew_bow",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "merc.routiers": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:chapel",
+     "chest": "magistuarmoryaddon:chained_gambeson",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:chained_gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_heatershield"
+   ],
+   "palette": [
+    "#222222",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "yellow",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lion1",
+       "color": "black"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "magistuarmory:steel_bastardsword",
+    "magistuarmory:heavy_crossbow"
+   ]
+  },
+  "merc.free_lances": {
+   "kits": [
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:crusader_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_kiteshield"
+   ],
+   "palette": [
+    "#2E4A7D",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "blue",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "white"
+      }
+     ]
+    }
+   ]
+  },
+  "merc.welsh_archers": {
+   "kits": [
+    {
+     "head": "magistuarmoryaddon:linen_coif",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#3F6B35",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "magistuarmory:dragon",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "magistuarmory:longbow"
+   ]
+  },
+  "merc.fenmen": {
+   "kits": [
+    {
+     "head": "magistuarmoryaddon:linen_coif",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6A4A30",
+    "#3F6B35"
+   ],
+   "arms": [
+    {
+     "base": "brown",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_middle",
+       "color": "green"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "magistuarmory:longbow",
+    "magistuarmory:iron_pike"
+   ]
+  },
+  "merc.genoese_marines": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_pavese"
+   ],
+   "palette": [
+    "#E9E4D4",
+    "#9E1B1B"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:straight_cross",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "magistuarmory:heavy_crossbow"
+   ]
+  },
+  "merc.gallowglass": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmoryaddon:gallowglass_chestplate",
+     "legs": "magistuarmoryaddon:gallowglass_leggings",
+     "feet": "magistuarmoryaddon:gallowglass_boots"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#3F6B35",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "magistuarmory:swords",
+       "color": "white"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "magistuarmory:steel_lochaberaxe"
+   ]
+  },
+  "merc.free_company": {
+   "kits": [
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:chapel",
+     "chest": "magistuarmoryaddon:chained_gambeson",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:chained_gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6A4A30",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "brown",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "white"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "magistuarmory:iron_pike",
+    "magistuarmory:heavy_crossbow"
+   ]
+  },
+  "merc.varangian_exiles": {
+   "kits": [
+    {
+     "head": "culturesarmory:varangian_helmet",
+     "chest": "culturesarmory:varangian_hauberk",
+     "legs": "culturesarmory:mail_chausses",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "palette": [
+    "#8E2A2A",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:half_vertical",
+       "color": "white"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_pelekys",
+    "magistuarmory:steel_lochaberaxe"
+   ]
+  },
+  "merc.rus_druzhina": {
+   "kits": [
+    {
+     "head": "slavicarmory:nikolskoe_helmet",
+     "chest": "slavicarmory:rus_chainmail_chestplate",
+     "legs": "slavicarmory:rus_chainmail_leggings",
+     "feet": "slavicarmory:rus_chainmail_boots"
+    },
+    {
+     "head": "slavicarmory:varangian_helmet",
+     "chest": "slavicarmory:rus_chainmail_chestplate",
+     "legs": "slavicarmory:rus_chainmail_leggings",
+     "feet": "slavicarmory:rus_chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:norman_helmet",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#8E2A2A",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:orthodox_cross",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "merc.pechenegs": {
+   "kits": [
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:felt_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:light_cuman_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#6A4A30",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "brown",
+     "layers": [
+      {
+       "pattern": "magistuarmory:sun",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "merc.cumans": {
+   "kits": [
+    {
+     "head": "culturesarmory:kipchak_mask_helmet",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:felt_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:cuman_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#A0402E",
+    "#222222"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:stripe_middle",
+       "color": "black"
+      }
+     ]
+    }
+   ]
+  },
+  "merc.turkmen": {
+   "kits": [
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "palette": [
+    "#A0402E",
+    "#E8E4D8"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "merc.bedouin_raiders": {
+   "kits": [
+    {
+     "head": "culturesarmory:kufiya",
+     "chest": "culturesarmory:bedouin_robe",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:carik"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#6A4A30",
+    "#E8E4D8"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "merc.caravan_guards": {
+   "kits": [
+    {
+     "head": "culturesarmory:kufiya",
+     "chest": "culturesarmory:bedouin_robe",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:carik"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#E8E4D8",
+    "#2E7D7A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_kilij",
+    "culturesarmory:turkic_bow",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "merc.daylamites": {
+   "kits": [
+    {
+     "head": "culturesarmory:seljuk_spangenhelm",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:carik"
+    },
+    {
+     "head": "culturesarmory:seljuk_spangenhelm",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:chainmail_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#2F6B3A",
+    "#E8E4D8"
+   ],
+   "arms": [
+    {
+     "base": "green",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "white"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_kilij",
+    "culturesarmory:steel_mizrak",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "merc.kurds": {
+   "kits": [
+    {
+     "head": "culturesarmory:seljuk_turbaned_helmet",
+     "chest": "culturesarmory:mail_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:quilted_kaftan",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:kalkan",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#D4A22A",
+    "#8E2A2A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "merc.yamabushi": {
+   "kits": [
+    {
+     "head": "culturesarmory:sohei_zukin",
+     "chest": "culturesarmory:haramaki",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:waraji"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "slavicarmory:eastern_kettlehat",
+     "chest": "magistuarmoryaddon:splint_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:splint_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#E6E1D3",
+    "#2E2E34"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_naginata",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "merc.wokou": {
+   "kits": [
+    {
+     "head": "culturesarmory:sugegasa",
+     "chest": "none",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:waraji"
+    },
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:haramaki",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "slavicarmory:eastern_kettlehat",
+     "chest": "magistuarmoryaddon:splint_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:splint_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#2E2E34",
+    "#B0302A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_nodachi",
+    "culturesarmory:steel_katana",
+    "culturesarmory:yumi",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "merc.ronin": {
+   "kits": [
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:haramaki",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:hotoke_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "culturesarmory:momonari_kabuto",
+     "chest": "culturesarmory:nimai_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "magistuarmory:kettlehat",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:lamellar_boots"
+    },
+    {
+     "head": "slavicarmory:eastern_kettlehat",
+     "chest": "magistuarmoryaddon:splint_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:splint_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#2E2E34",
+    "#E6E1D3"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_katana",
+    "culturesarmory:steel_tachi",
+    "culturesarmory:yumi",
+    "culturesarmory:steel_yari",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "merc.pindari": {
+   "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:dhoti",
+     "feet": "culturesarmory:chappal"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:kulah_khud",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#D08A28",
+    "#2E3E78"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "merc.purbiya": {
+   "kits": [
+    {
+     "head": "culturesarmory:kulah_khud",
+     "chest": "culturesarmory:zirah_bagtar",
+     "legs": "culturesarmory:mail_paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:brigandine_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:chainmail_boots"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#9E2A2A",
+    "#D08A28"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_khanda",
+    "culturesarmory:steel_talwar",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "merc.gosains": {
+   "kits": [
+    {
+     "head": "none",
+     "chest": "none",
+     "legs": "culturesarmory:dhoti",
+     "feet": "none"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "magistuarmoryaddon:kulah_khud",
+     "chest": "magistuarmoryaddon:saracen_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:saracen_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#D08A28",
+    "#EAE4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_talwar",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "merc.canul": {
+   "kits": [
+    {
+     "head": "culturesarmory:serpent_headdress",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
+     "head": "culturesarmory:cotton_war_cap",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:pakal",
+    "culturesarmory:flexible_shield",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#2E6E9E",
+    "#EDE8DA"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "culturesarmory:flint_spear",
+    "magistuarmory:iron_shortsword"
+   ]
+  },
+  "merc.jungle_hunters": {
+   "kits": [
+    {
+     "head": "culturesarmory:deer_headdress",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    }
+   ],
+   "palette": [
+    "#6A4A30",
+    "#3E7A4A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:maya_bow",
+    "magistuarmory:longbow"
+   ]
+  },
+  "merc.jaguar_band": {
+   "kits": [
+    {
+     "head": "culturesarmory:jaguar_helmet",
+     "chest": "culturesarmory:jaguar_pelt_armour",
+     "legs": "culturesarmory:jaguar_kilt",
+     "feet": "culturesarmory:jaguar_leg_wraps"
+    },
+    {
+     "head": "culturesarmory:jaguar_helmet",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:jaguar_kilt",
+     "feet": "culturesarmory:jaguar_leg_wraps"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmoryaddon:tunic",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmoryaddon:tunic_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:pakal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "palette": [
+    "#D4A22A",
+    "#222222"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:flint_axe",
+    "culturesarmory:macuahuitl",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "merc.feud_exiles": {
+   "kits": [
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:walrus_hide_armour",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:bone_plate_hood",
+     "chest": "culturesarmory:bone_plate_armour",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#6E4A2A",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club",
+    "culturesarmory:harpoon",
+    "magistuarmory:iron_heavymace"
+   ]
+  },
+  "merc.sled_hunters": {
+   "kits": [
+    {
+     "head": "culturesarmory:snow_goggle_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:caribou_trousers",
+     "feet": "culturesarmory:caribou_kamik"
+    },
+    {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:polar_bear_trousers",
+     "feet": "culturesarmory:polar_bear_kamik"
+    },
+    {
+     "head": "magistuarmory:coif",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "palette": [
+    "#8B3A22",
+    "#E9E4D4"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:sinew_bow",
+    "culturesarmory:harpoon",
+    "magistuarmory:longbow"
+   ]
   }
  }
 }

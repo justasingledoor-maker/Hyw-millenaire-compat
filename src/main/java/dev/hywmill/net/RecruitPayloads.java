@@ -12,11 +12,18 @@ import java.util.List;
 public final class RecruitPayloads {
     private RecruitPayloads() {}
 
-    /** One offer as shown: {@code key} is sent back to hire it; {@code price} in deniers per unit. */
-    public record OfferView(String key, String label, String gear, int price) {
+    /**
+     * One offer as shown: {@code key} is sent back to hire it; {@code price} in deniers per unit; {@code group} the list it sits in
+     * (Levies, Foot, Missile, Horse, Mercenaries, Engines).
+     */
+    public record OfferView(String key, String label, String gear, int price, String group) {
+        public OfferView(String key, String label, String gear, int price) {
+            this(key, label, gear, price, "");
+        }
+
         public static final StreamCodec<RegistryFriendlyByteBuf, OfferView> CODEC = StreamCodec.composite(
                 ByteBufCodecs.stringUtf8(64), OfferView::key, ByteBufCodecs.stringUtf8(96), OfferView::label, ByteBufCodecs.stringUtf8(32),
-                OfferView::gear, ByteBufCodecs.VAR_INT, OfferView::price, OfferView::new);
+                OfferView::gear, ByteBufCodecs.VAR_INT, OfferView::price, ByteBufCodecs.stringUtf8(32), OfferView::group, OfferView::new);
     }
 
     /**
@@ -30,7 +37,7 @@ public final class RecruitPayloads {
         }
 
         public static final Type<View> TYPE = new Type<>(PoliticsPayloads.id("muster_view"));
-        private static final StreamCodec<RegistryFriendlyByteBuf, List<OfferView>> OFFERS = OfferView.CODEC.apply(ByteBufCodecs.list(64));
+        private static final StreamCodec<RegistryFriendlyByteBuf, List<OfferView>> OFFERS = OfferView.CODEC.apply(ByteBufCodecs.list(128));
         public static final StreamCodec<RegistryFriendlyByteBuf, View> CODEC = StreamCodec.of((buf, v) -> {
             BlockPos.STREAM_CODEC.encode(buf, v.pos());
             buf.writeUtf(v.header(), 512);
@@ -50,11 +57,18 @@ public final class RecruitPayloads {
     }
 
     /**
-     * One culture squad as shown (post-M5): hire it by sending {@code Hire(pos, "squad:" + id, 1)}. {@code refusal} is empty when the
-     * player may hire it; {@code price} in deniers for the whole squad.
+     * One culture squad as shown (post-M5): hire it by sending {@code Hire(pos, "squad:" + id, 1)} (a mercenary company:
+     * {@code "company:" + id}). {@code refusal} is empty when the player may hire it; {@code price} in deniers for the whole squad;
+     * {@code category} its list (Foot, Missile, Horse, Raiders, Special) and {@code group} its subgroup there (Spearmen, Archers,
+     * Heavy horse, ...); {@code origin} where a company comes from ("" for a village's squads).
      */
     public record SquadView(String id, String name, String category, String quality, String roster, String gear, int size, int price,
-                            String refusal, String description) {
+                            String refusal, String description, String group, String origin) {
+        public SquadView(String id, String name, String category, String quality, String roster, String gear, int size, int price,
+                         String refusal, String description) {
+            this(id, name, category, quality, roster, gear, size, price, refusal, description, "", "");
+        }
+
         public static final StreamCodec<RegistryFriendlyByteBuf, SquadView> CODEC = StreamCodec.of((buf, v) -> {
             buf.writeUtf(v.id(), 64);
             buf.writeUtf(v.name(), 64);
@@ -66,15 +80,25 @@ public final class RecruitPayloads {
             buf.writeVarInt(v.price());
             buf.writeUtf(v.refusal(), 128);
             buf.writeUtf(v.description(), 256);
+            buf.writeUtf(v.group(), 32);
+            buf.writeUtf(v.origin(), 96);
         }, buf -> new SquadView(buf.readUtf(64), buf.readUtf(64), buf.readUtf(16), buf.readUtf(16), buf.readUtf(256), buf.readUtf(32),
-                buf.readVarInt(), buf.readVarInt(), buf.readUtf(128), buf.readUtf(256)));
+                buf.readVarInt(), buf.readVarInt(), buf.readUtf(128), buf.readUtf(256), buf.readUtf(32), buf.readUtf(96)));
     }
 
-    /** Server → client (post-M5): the village's culture squads, sent with every {@link View}. */
-    public record Squads(BlockPos pos, List<SquadView> squads) implements CustomPacketPayload {
+    /**
+     * Server → client (post-M5): the village's culture squads, sent with every {@link View}; and (1.6) the mercenary companies to be
+     * found where the Muster Roll stands outside any village, with a line on the land ({@code wilds}: "" in a village).
+     */
+    public record Squads(BlockPos pos, List<SquadView> squads, List<SquadView> companies, String wilds) implements CustomPacketPayload {
+        public Squads(BlockPos pos, List<SquadView> squads) {
+            this(pos, squads, List.of(), "");
+        }
+
         public static final Type<Squads> TYPE = new Type<>(PoliticsPayloads.id("muster_squads"));
         public static final StreamCodec<RegistryFriendlyByteBuf, Squads> CODEC = StreamCodec.composite(
-                BlockPos.STREAM_CODEC, Squads::pos, SquadView.CODEC.apply(ByteBufCodecs.list(32)), Squads::squads, Squads::new);
+                BlockPos.STREAM_CODEC, Squads::pos, SquadView.CODEC.apply(ByteBufCodecs.list(128)), Squads::squads,
+                SquadView.CODEC.apply(ByteBufCodecs.list(64)), Squads::companies, ByteBufCodecs.stringUtf8(256), Squads::wilds, Squads::new);
 
         @Override
         public Type<? extends CustomPacketPayload> type() {

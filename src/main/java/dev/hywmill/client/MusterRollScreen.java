@@ -12,33 +12,62 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.List;
 
 /**
- * The Muster Roll screen. Two tabs: Soldiers (single hires: unit, gear tier, price, a quantity 1-32 and Hire) and Squads
- * (post-M5: the village culture's 16 squads, hired whole; one that cannot be hired shows why). The spawn radius (2-36) is the
- * placer's. Your colours (post-M5): two dye colours the soldiers you hire here wear, cycled by clicking (right-click goes back);
- * "Village" leaves them in their look's or the village's colours. Everything shown comes from the server; it decides and re-validates.
+ * The Muster Roll screen. Three tabs, each split into lists and subgroups:
+ * <ul>
+ *   <li>Soldiers: single hires (unit, gear tier, price, a quantity 1-32 and Hire), listed under Levies, Foot, Missile, Horse,
+ *       Mercenaries and Engines;</li>
+ *   <li>Squads (post-M5): the village culture's squads, hired whole, filtered by Foot, Missile, Horse (Raiders for peoples without
+ *       horses) and Special, each list in subgroups (Spearmen, Archers, Heavy horse, ...) from low to high quality; one that cannot
+ *       be hired shows why;</li>
+ *   <li>Mercenaries (1.6): the companies to be found where a Muster Roll stands outside any village, by the land and the nearest
+ *       village's people, filtered and grouped the same way.</li>
+ * </ul>
+ * The spawn radius (2-36) is the placer's. Your colours (post-M5): two dye colours the soldiers you hire here wear, cycled by
+ * clicking (right-click goes back); "Village" leaves them in their look's or the village's colours. Everything shown comes from
+ * the server; it decides and re-validates.
  */
 public final class MusterRollScreen extends Screen {
     private static final int PARCHMENT = 0xE0F2E3C2;
     private static final int INK = 0xFF3B2A14;
     private static final int FADED = 0xFF7A6548;
     private static final int RED = 0xFF8A1E1E;
+    private static final int HEADER = 0xFFE8D8A8;
     private static final int MAX_QTY = 32;
     private static final int MIN_RADIUS = 2, MAX_RADIUS = 36;
+    private static final int LIST_TOP = 78, ROW = 22;
+    private static final List<String> SOLDIER_GROUPS = List.of("Levies", "Foot", "Missile", "Horse", "Mercenaries", "Engines");
+    private static final List<String> SQUAD_CATEGORIES = List.of("Foot", "Missile", "Horse", "Raiders", "Special");
+    private static final List<String> SUBGROUPS = List.of("Levies", "Spearmen", "Sword and shield", "Heavy foot", "Archers", "Crossbowmen",
+            "Light horse", "Horse archers", "Heavy horse", "Combined arms", "Others");
+    private static final List<String> QUALITIES = List.of("LOW", "MEDIUM", "HIGH");
+
+    private enum Tab { SOLDIERS, SQUADS, COMPANIES }
+
+    /** A row of the list: a subgroup heading, or the index of an offer, squad or company. */
+    private record Row(String header, int index) {}
 
     private RecruitPayloads.View view;
     private List<RecruitPayloads.SquadView> squads;
-    private boolean squadTab;
-    private int selected;
-    private int squadSelected;
+    private List<RecruitPayloads.SquadView> companies;
+    private String wilds;
+    private Tab tab = Tab.SOLDIERS;
+    private final java.util.EnumMap<Tab, String> filter = new java.util.EnumMap<>(Tab.class);
+    private final java.util.EnumMap<Tab, Integer> selected = new java.util.EnumMap<>(Tab.class);
     private int qty = 1;
     private int scroll;
+    private final List<int[]> headings = new java.util.ArrayList<>();   // {y} of each heading drawn this frame
+    private final List<String> headingText = new java.util.ArrayList<>();
     private String lastResult = "";
     private boolean lastOk = true;
 
     public MusterRollScreen(RecruitPayloads.View view) {
         super(Component.literal("Muster Roll"));
         this.view = view;
-        this.squads = RecruitClient.pendingFor(view.pos());
+        RecruitPayloads.Squads pending = RecruitClient.pendingFor(view.pos());
+        this.squads = pending == null ? List.of() : pending.squads();
+        this.companies = pending == null ? List.of() : pending.companies();
+        this.wilds = pending == null ? "" : pending.wilds();
+        pickTab();
     }
 
     public BlockPos pos() {
@@ -47,14 +76,25 @@ public final class MusterRollScreen extends Screen {
 
     public void update(RecruitPayloads.View v) {
         this.view = v;
-        selected = Math.min(selected, Math.max(0, v.offers().size() - 1));
         rebuildWidgets();
     }
 
-    public void squads(List<RecruitPayloads.SquadView> s) {
-        this.squads = s;
-        squadSelected = Math.min(squadSelected, Math.max(0, s.size() - 1));
+    public void squads(RecruitPayloads.Squads s) {
+        boolean first = squads.isEmpty() && companies.isEmpty();
+        this.squads = s.squads();
+        this.companies = s.companies();
+        this.wilds = s.wilds();
+        if (first) {
+            pickTab();
+        }
         rebuildWidgets();
+    }
+
+    /** Outside any village only the mercenary companies are on offer: open on them. */
+    private void pickTab() {
+        if (view.offers().isEmpty() && squads.isEmpty() && !companies.isEmpty()) {
+            tab = Tab.COMPANIES;
+        }
     }
 
     public void result(RecruitPayloads.Result r) {
@@ -63,50 +103,148 @@ public final class MusterRollScreen extends Screen {
     }
 
     private int rows() {
-        return Math.max(1, (height - 150) / 22);
+        return Math.max(1, (height - LIST_TOP - 70) / ROW);
     }
 
-    private int count() {
-        return squadTab ? squads.size() : view.offers().size();
+    private List<RecruitPayloads.SquadView> squadList() {
+        return tab == Tab.COMPANIES ? companies : squads;
+    }
+
+    private int sel() {
+        return selected.getOrDefault(tab, -1);
+    }
+
+    private String filterOf() {
+        return filter.getOrDefault(tab, "All");
+    }
+
+    /** The filters of the current tab: All, then each list that has something in it. */
+    private List<String> filters() {
+        List<String> out = new java.util.ArrayList<>(List.of("All"));
+        if (tab == Tab.SOLDIERS) {
+            for (String g : SOLDIER_GROUPS) {
+                if (view.offers().stream().anyMatch(o -> o.group().equals(g))) {
+                    out.add(g);
+                }
+            }
+        } else {
+            for (String c : SQUAD_CATEGORIES) {
+                if (squadList().stream().anyMatch(q -> q.category().equals(c))) {
+                    out.add(c);
+                }
+            }
+        }
+        return out;
+    }
+
+    /** The rows of the current tab under its filter: headings and entries, grouped and ordered. */
+    private List<Row> listRows() {
+        List<Row> out = new java.util.ArrayList<>();
+        String f = filterOf();
+        if (tab == Tab.SOLDIERS) {
+            for (String g : SOLDIER_GROUPS) {
+                if (!f.equals("All") && !f.equals(g)) {
+                    continue;
+                }
+                List<Integer> idx = new java.util.ArrayList<>();
+                for (int i = 0; i < view.offers().size(); i++) {
+                    if (view.offers().get(i).group().equals(g) || (g.equals("Foot") && view.offers().get(i).group().isEmpty())) {
+                        idx.add(i);
+                    }
+                }
+                if (!idx.isEmpty()) {
+                    out.add(new Row(g, -1));
+                    idx.forEach(i -> out.add(new Row("", i)));
+                }
+            }
+            return out;
+        }
+        List<RecruitPayloads.SquadView> list = squadList();
+        for (String c : SQUAD_CATEGORIES) {
+            if (!f.equals("All") && !f.equals(c)) {
+                continue;
+            }
+            for (String g : SUBGROUPS) {
+                List<Integer> idx = new java.util.ArrayList<>();
+                for (int i = 0; i < list.size(); i++) {
+                    RecruitPayloads.SquadView q = list.get(i);
+                    String qg = SUBGROUPS.contains(q.group()) ? q.group() : "Others";
+                    if (q.category().equals(c) && qg.equals(g)) {
+                        idx.add(i);
+                    }
+                }
+                if (idx.isEmpty()) {
+                    continue;
+                }
+                idx.sort(java.util.Comparator.comparingInt((Integer i) -> QUALITIES.indexOf(list.get(i).quality()))
+                        .thenComparingInt(i -> list.get(i).price()));
+                out.add(new Row((f.equals("All") ? c + ": " : "") + g, -1));
+                idx.forEach(i -> out.add(new Row("", i)));
+            }
+        }
+        return out;
     }
 
     @Override
     protected void init() {
-        int left = 20, top = 54;
-        addRenderableWidget(Button.builder(Component.literal((squadTab ? "" : "> ") + "Soldiers"), b -> tab(false)).bounds(left, 32, 90, 18).build());
-        addRenderableWidget(Button.builder(Component.literal((squadTab ? "> " : "") + "Squads (" + squads.size() + ")"), b -> tab(true))
-                .bounds(left + 94, 32, 110, 18).build());
-        int rows = rows();
-        scroll = Math.max(0, Math.min(scroll, Math.max(0, count() - rows)));
-        for (int i = scroll; i < Math.min(count(), scroll + rows); i++) {
-            int idx = i;
+        int left = 20;
+        String[] names = {"Soldiers (" + view.offers().size() + ")", "Squads (" + squads.size() + ")", "Mercenaries (" + companies.size() + ")"};
+        for (Tab t : Tab.values()) {
+            addRenderableWidget(Button.builder(Component.literal((tab == t ? "> " : "") + names[t.ordinal()]), b -> tab(t))
+                    .bounds(left + t.ordinal() * 92, 32, 90, 18).build());
+        }
+        List<String> fs = filters();
+        int fw = Math.max(36, Math.min(60, 270 / Math.max(1, fs.size()) - 2));
+        for (int i = 0; i < fs.size(); i++) {
+            String f = fs.get(i);
+            addRenderableWidget(Button.builder(Component.literal((filterOf().equals(f) ? "> " : "") + f), b -> {
+                filter.put(tab, f);
+                scroll = 0;
+                rebuildWidgets();
+            }).bounds(left + i * (fw + 2), 54, fw, 18).build());
+        }
+        List<Row> rows = listRows();
+        int visible = rows();
+        scroll = Math.max(0, Math.min(scroll, Math.max(0, rows.size() - visible)));
+        headings.clear();
+        headingText.clear();
+        if (sel() < 0) {
+            rows.stream().filter(r -> r.index() >= 0).findFirst().ifPresent(r -> selected.put(tab, r.index()));
+        }
+        for (int i = scroll; i < Math.min(rows.size(), scroll + visible); i++) {
+            Row r = rows.get(i);
+            int y = LIST_TOP + (i - scroll) * ROW;
+            if (r.index() < 0) {
+                headings.add(new int[]{y});
+                headingText.add(r.header());
+                continue;
+            }
+            int idx = r.index();
             String label;
-            if (squadTab) {
-                RecruitPayloads.SquadView s = squads.get(i);
-                label = (i == squadSelected ? "> " : "") + (s.refusal().isEmpty() ? "" : "x ") + "[" + cat(s.category()) + "] " + s.name()
-                        + " - " + RecruitOffers.money(s.price());
+            if (tab == Tab.SOLDIERS) {
+                RecruitPayloads.OfferView o = view.offers().get(idx);
+                label = (idx == sel() ? "> " : "") + o.label() + " - " + RecruitOffers.money(o.price());
             } else {
-                RecruitPayloads.OfferView o = view.offers().get(i);
-                label = (i == selected ? "> " : "") + o.label() + " - " + RecruitOffers.money(o.price());
+                RecruitPayloads.SquadView q = squadList().get(idx);
+                label = (idx == sel() ? "> " : "") + (q.refusal().isEmpty() ? "" : "x ") + q.name() + " (" + quality(q.quality()) + ") - "
+                        + RecruitOffers.money(q.price());
             }
             addRenderableWidget(Button.builder(Component.literal(label), b -> {
-                if (squadTab) {
-                    squadSelected = idx;
-                } else {
-                    selected = idx;
-                }
+                selected.put(tab, idx);
                 rebuildWidgets();
-            }).bounds(left, top + (i - scroll) * 22, 250, 20).build());
+            }).bounds(left + 8, y, 262, 20).build());
         }
-        if (count() > rows) {
-            addRenderableWidget(Button.builder(Component.literal("▲"), b -> { scroll--; rebuildWidgets(); }).bounds(left + 254, top, 16, 18).build());
+        if (rows.size() > visible) {
+            addRenderableWidget(Button.builder(Component.literal("▲"), b -> { scroll--; rebuildWidgets(); }).bounds(left + 274, LIST_TOP, 16, 18).build());
             addRenderableWidget(Button.builder(Component.literal("▼"), b -> { scroll++; rebuildWidgets(); })
-                    .bounds(left + 254, top + (rows - 1) * 22, 16, 18).build());
+                    .bounds(left + 274, LIST_TOP + (visible - 1) * ROW, 16, 18).build());
         }
         int x = width - 230, y = height - 110;
-        if (squadTab) {
-            if (squadSelected < squads.size() && squads.get(squadSelected).refusal().isEmpty()) {
-                addRenderableWidget(Button.builder(Component.literal("Hire this squad"), b -> hireSquad()).bounds(x, y + 24, 200, 20).build());
+        if (tab != Tab.SOLDIERS) {
+            int i = sel();
+            if (i >= 0 && i < squadList().size() && squadList().get(i).refusal().isEmpty()) {
+                addRenderableWidget(Button.builder(Component.literal(tab == Tab.COMPANIES ? "Hire this company" : "Hire this squad"),
+                        b -> hireSquad()).bounds(x, y + 24, 200, 20).build());
             }
         } else if (!view.offers().isEmpty()) {
             addRenderableWidget(Button.builder(Component.literal("-8"), b -> setQty(qty - 8)).bounds(x, y, 30, 20).build());
@@ -128,6 +266,14 @@ public final class MusterRollScreen extends Screen {
                             Component.literal("Clear: hired soldiers wear their look's or the village's colours"))).build());
         }
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(width / 2 - 40, height - 26, 80, 20).build());
+    }
+
+    private static String quality(String q) {
+        return switch (q) {
+            case "LOW" -> "low";
+            case "MEDIUM" -> "medium";
+            default -> "high";
+        };
     }
 
     /** One of the two colour pickers: click for the next dye colour, right-click for the previous; "Village" is none chosen. */
@@ -169,18 +315,9 @@ public final class MusterRollScreen extends Screen {
         return "   " + Character.toUpperCase(n.charAt(0)) + n.substring(1);
     }
 
-    private static String cat(String category) {
-        return switch (category) {
-            case "INFANTRY" -> "Foot";
-            case "RANGED" -> "Missile";
-            case "CAVALRY" -> "Horse";
-            default -> "Special";
-        };
-    }
-
-    private void tab(boolean squadsTab) {
-        if (squadTab != squadsTab) {
-            squadTab = squadsTab;
+    private void tab(Tab t) {
+        if (tab != t) {
+            tab = t;
             scroll = 0;
             rebuildWidgets();
         }
@@ -191,14 +328,16 @@ public final class MusterRollScreen extends Screen {
     }
 
     private void hire() {
-        if (selected < view.offers().size()) {
-            PacketDistributor.sendToServer(new RecruitPayloads.Hire(view.pos(), view.offers().get(selected).key(), qty));
+        int i = sel();
+        if (i >= 0 && i < view.offers().size()) {
+            PacketDistributor.sendToServer(new RecruitPayloads.Hire(view.pos(), view.offers().get(i).key(), qty));
         }
     }
 
     private void hireSquad() {
-        if (squadSelected < squads.size()) {
-            PacketDistributor.sendToServer(new RecruitPayloads.Hire(view.pos(), "squad:" + squads.get(squadSelected).id(), 1));
+        int i = sel();
+        if (i >= 0 && i < squadList().size()) {
+            PacketDistributor.sendToServer(new RecruitPayloads.Hire(view.pos(), (tab == Tab.COMPANIES ? "company:" : "squad:") + squadList().get(i).id(), 1));
         }
     }
 
@@ -222,15 +361,20 @@ public final class MusterRollScreen extends Screen {
             g.drawString(font, line, 20, y, 0xFFFFFFFF, false);
             y += 10;
         }
+        for (int i = 0; i < headings.size(); i++) {
+            int hy = headings.get(i)[0];
+            g.fill(20, hy + 2, 290, hy + 18, 0x80000000);
+            g.drawString(font, headingText.get(i), 26, hy + 6, HEADER, false);
+        }
         int x = width - 230, py = 40;
         g.drawString(font, "Your money: " + RecruitOffers.money(view.money()), x, py, INK, false);
         py += 14;
-        if (squadTab) {
+        if (tab != Tab.SOLDIERS) {
             renderSquad(g, x, py);
         } else if (view.offers().isEmpty()) {
             g.drawString(font, "Nothing on offer to you here.", x, py, FADED, false);
-        } else if (selected < view.offers().size()) {
-            RecruitPayloads.OfferView o = view.offers().get(selected);
+        } else if (sel() >= 0 && sel() < view.offers().size()) {
+            RecruitPayloads.OfferView o = view.offers().get(sel());
             g.drawString(font, o.label(), x, py, INK, false);
             g.drawString(font, "Gear: " + o.gear().toLowerCase().replace('_', ' '), x, py + 12, FADED, false);
             g.drawString(font, "Each: " + RecruitOffers.money(o.price()), x, py + 24, FADED, false);
@@ -263,18 +407,31 @@ public final class MusterRollScreen extends Screen {
     }
 
     private void renderSquad(GuiGraphics g, int x, int py) {
-        if (squads.isEmpty()) {
-            g.drawString(font, "No squads are raised here.", x, py, FADED, false);
+        List<RecruitPayloads.SquadView> list = squadList();
+        if (list.isEmpty()) {
+            String none = tab == Tab.COMPANIES ? (wilds.isEmpty() ? "Mercenary companies are hired in the wilds: set a Muster Roll down"
+                    + " outside any village." : "No company is to be found here.") : "No squads are raised here.";
+            for (var line : font.split(Component.literal(none), 210)) {
+                g.drawString(font, line, x, py, FADED, false);
+                py += 10;
+            }
             return;
         }
-        if (squadSelected >= squads.size()) {
+        if (sel() < 0 || sel() >= list.size()) {
             return;
         }
-        RecruitPayloads.SquadView s = squads.get(squadSelected);
+        RecruitPayloads.SquadView s = list.get(sel());
         g.drawString(font, s.name(), x, py, INK, false);
         py += 12;
-        g.drawString(font, cat(s.category()) + ", " + s.quality().toLowerCase() + " quality, " + s.size() + " soldiers", x, py, FADED, false);
+        g.drawString(font, s.category() + " (" + s.group().toLowerCase() + "), " + quality(s.quality()) + " quality, " + s.size() + " soldiers",
+                x, py, FADED, false);
         py += 12;
+        if (!s.origin().isEmpty()) {
+            for (var line : font.split(Component.literal(s.origin()), 210)) {
+                g.drawString(font, line, x, py, FADED, false);
+                py += 10;
+            }
+        }
         for (var line : font.split(Component.literal(s.roster()), 210)) {
             g.drawString(font, line, x, py, INK, false);
             py += 10;
