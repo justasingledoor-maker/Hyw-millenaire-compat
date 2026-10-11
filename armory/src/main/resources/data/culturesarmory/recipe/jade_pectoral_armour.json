@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "e e",
+    "ece"
+  ],
+  "key": {
+    "e": {
+      "item": "minecraft:emerald"
+    },
+    "c": {
+      "item": "culturesarmory:quilted_cotton_armour"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:jade_pectoral_armour",
+    "count": 1
+  }
+}

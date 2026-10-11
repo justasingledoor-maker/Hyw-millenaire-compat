@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "ggg",
+    "gkg",
+    "ggg"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_nugget"
+    },
+    "k": {
+      "item": "culturesarmory:kulah_khud"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:gilded_kulah_khud",
+    "count": 1
+  }
+}

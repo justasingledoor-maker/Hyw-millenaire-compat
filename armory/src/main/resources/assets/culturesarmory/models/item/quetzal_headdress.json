@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/quetzal_headdress",
+    "layer1": "culturesarmory:item/quetzal_headdress_overlay"
+  }
+}

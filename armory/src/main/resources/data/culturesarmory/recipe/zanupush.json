@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "p p",
+    "pjp"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:plates/steel"
+    },
+    "j": {
+      "item": "culturesarmory:paijama"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:zanupush",
+    "count": 1
+  }
+}

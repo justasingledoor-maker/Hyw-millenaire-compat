@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "l l",
+    "lol",
+    "lcl"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "o": {
+      "item": "minecraft:orange_dye"
+    },
+    "c": {
+      "item": "culturesarmory:quilted_cotton_armour"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:jaguar_pelt_armour",
+    "count": 1
+  }
+}

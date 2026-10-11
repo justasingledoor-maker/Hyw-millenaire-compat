@@ -384,14 +384,24 @@ def write_all(item_dir, preview_dir, ARMOURS):
     os.makedirs(item_dir, exist_ok=True)
     os.makedirs(preview_dir, exist_ok=True)
     sheet = Image.new("RGBA", (len(ARMOURS) * 136, 136), (96, 110, 96, 255))
-    for n, (item_id, _, _, _, dye, _) in enumerate(ARMOURS):
-        if item_id not in ICONS:
+    for n, (item_id, factory, slot, _, dye, _) in enumerate(ARMOURS):
+        tint = ((dye >> 16) & 255, (dye >> 8) & 255, dye & 255)
+        if item_id in ICONS:
+            assert len(ICONS[item_id]) == 16, item_id
+            base, over = layers(ICONS[item_id])
+            shown = composite(ICONS[item_id], tint)
+        elif factory is not None:
+            # 1.5: drawn from the piece itself (autoicon)
+            import autoicon
+            from armorgen import paint_model
+            model = factory()
+            model.pack()
+            base, over = autoicon.render(model, paint_model(model), slot)
+            shown = autoicon.composite(base, over, tint)
+        else:
             print("no icon yet:", item_id)
             continue
-        assert len(ICONS[item_id]) == 16, item_id
-        base, over = layers(ICONS[item_id])
         base.save(os.path.join(item_dir, f"{item_id}.png"))
         over.save(os.path.join(item_dir, f"{item_id}_overlay.png"))
-        tint = ((dye >> 16) & 255, (dye >> 8) & 255, dye & 255)
-        sheet.paste(composite(ICONS[item_id], tint).resize((128, 128), Image.NEAREST), (n * 136 + 4, 4))
+        sheet.paste(shown.resize((128, 128), Image.NEAREST), (n * 136 + 4, 4))
     sheet.save(os.path.join(preview_dir, "icons.png"))

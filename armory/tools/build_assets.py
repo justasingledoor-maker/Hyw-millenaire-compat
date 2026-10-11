@@ -14,8 +14,10 @@ from armorgen import paint_model, write_json, write_png, write_text  # noqa: E40
 import icons  # noqa: E402
 import byzantine  # noqa: E402
 import horse  # noqa: E402
+import india  # noqa: E402
 import inuit  # noqa: E402
 import japan  # noqa: E402
+import maya  # noqa: E402
 import seljuk  # noqa: E402
 import shields  # noqa: E402
 import weapons  # noqa: E402
@@ -75,9 +77,10 @@ RECIPES = {
     "sohei_zukin": (["fff", "f f"], {"f": "minecraft:white_wool"}),
 }
 
-# the cultures: Japan (above), the Seljuks, the Inuit
-ARMOURS = japan.ARMOURS + seljuk.ARMOURS + inuit.ARMOURS + byzantine.ARMOURS
-for _m in (seljuk, inuit, byzantine, horse):
+# the cultures: Japan (above), then each culture's module (its pieces, names and recipes)
+CULTURES = [seljuk, inuit, byzantine, india, maya]
+ARMOURS = japan.ARMOURS + [a for m in CULTURES for a in m.ARMOURS]
+for _m in CULTURES + [horse]:
     NAMES.update(_m.NAMES)
     RECIPES.update(_m.RECIPES)
 

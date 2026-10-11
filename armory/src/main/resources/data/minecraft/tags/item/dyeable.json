@@ -286,6 +286,146 @@
       "required": false
     },
     {
+      "id": "culturesarmory:pagri",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kulah_khud",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:gilded_kulah_khud",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:top_khud",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:turbaned_khud",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bhil_headband",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:angarkha",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:chilta_hazar_masha",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:zirah_bagtar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:char_aina",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kavacha",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:paijama",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:dhoti",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:zanupush",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mail_paijama",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jutti",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:moza_boots",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:chappal",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jaguar_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:serpent_headdress",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:quetzal_headdress",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:cotton_war_cap",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:holkan_headband",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:deer_headdress",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:quilted_cotton_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jaguar_pelt_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:feathered_war_suit",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jade_pectoral_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:manta_cape",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ex_loincloth",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:cotton_war_kilt",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jaguar_kilt",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:xanab_sandals",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jade_anklets",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jaguar_leg_wraps",
+      "required": false
+    },
+    {
       "id": "culturesarmory:felt_barding",
       "required": false
     }

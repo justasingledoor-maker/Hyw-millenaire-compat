@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/manta_cape",
+    "layer1": "culturesarmory:item/manta_cape_overlay"
+  }
+}

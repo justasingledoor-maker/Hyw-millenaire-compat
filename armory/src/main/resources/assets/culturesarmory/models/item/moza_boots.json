@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/moza_boots",
+    "layer1": "culturesarmory:item/moza_boots_overlay"
+  }
+}

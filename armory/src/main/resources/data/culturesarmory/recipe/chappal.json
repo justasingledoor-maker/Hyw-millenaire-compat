@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "l l"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:chappal",
+    "count": 1
+  }
+}

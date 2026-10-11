@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "fsf"
+  ],
+  "key": {
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "s": {
+      "item": "minecraft:feather"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:bhil_headband",
+    "count": 1
+  }
+}

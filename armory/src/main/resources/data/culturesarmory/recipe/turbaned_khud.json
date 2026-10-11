@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "p",
+    "k"
+  ],
+  "key": {
+    "p": {
+      "item": "culturesarmory:pagri"
+    },
+    "k": {
+      "tag": "c:plates/steel"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:turbaned_khud",
+    "count": 1
+  }
+}

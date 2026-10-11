@@ -100,6 +100,46 @@
     {
       "id": "culturesarmory:strategos_klibanion",
       "required": false
+    },
+    {
+      "id": "culturesarmory:angarkha",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:chilta_hazar_masha",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:zirah_bagtar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:char_aina",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kavacha",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:quilted_cotton_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jaguar_pelt_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:feathered_war_suit",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jade_pectoral_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:manta_cape",
+      "required": false
     }
   ]
 }

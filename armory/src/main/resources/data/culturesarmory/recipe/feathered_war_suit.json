@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "f f",
+    "fcf",
+    "fff"
+  ],
+  "key": {
+    "f": {
+      "item": "minecraft:feather"
+    },
+    "c": {
+      "item": "culturesarmory:quilted_cotton_armour"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:feathered_war_suit",
+    "count": 1
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/jade_pectoral_armour",
+    "layer1": "culturesarmory:item/jade_pectoral_armour_overlay"
+  }
+}

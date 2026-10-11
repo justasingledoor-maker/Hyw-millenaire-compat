@@ -48,6 +48,34 @@
     {
       "id": "culturesarmory:mail_chausses",
       "required": false
+    },
+    {
+      "id": "culturesarmory:paijama",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:dhoti",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:zanupush",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mail_paijama",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ex_loincloth",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:cotton_war_kilt",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jaguar_kilt",
+      "required": false
     }
   ]
 }

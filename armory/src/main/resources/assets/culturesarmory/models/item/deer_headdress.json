@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/deer_headdress",
+    "layer1": "culturesarmory:item/deer_headdress_overlay"
+  }
+}

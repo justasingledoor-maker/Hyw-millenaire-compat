@@ -32,6 +32,30 @@
     {
       "id": "culturesarmory:podopsella",
       "required": false
+    },
+    {
+      "id": "culturesarmory:jutti",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:moza_boots",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:chappal",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:xanab_sandals",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jade_anklets",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jaguar_leg_wraps",
+      "required": false
     }
   ]
 }

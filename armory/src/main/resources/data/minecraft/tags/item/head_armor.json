@@ -104,6 +104,54 @@
     {
       "id": "culturesarmory:pilos",
       "required": false
+    },
+    {
+      "id": "culturesarmory:pagri",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kulah_khud",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:gilded_kulah_khud",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:top_khud",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:turbaned_khud",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bhil_headband",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jaguar_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:serpent_headdress",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:quetzal_headdress",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:cotton_war_cap",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:holkan_headband",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:deer_headdress",
+      "required": false
     }
   ]
 }
