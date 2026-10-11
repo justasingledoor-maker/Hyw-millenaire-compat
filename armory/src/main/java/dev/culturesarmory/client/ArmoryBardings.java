@@ -23,7 +23,11 @@ public final class ArmoryBardings {
     public static final List<Look> LOOKS = List.of(
             new Look(ArmoryItems.CATAPHRACT_BARDING, layer("cataphract_barding"), CataphractBardingModel::createLayer, tex("cataphract_barding"), null, false, 0xFFFFFF),
             new Look(ArmoryItems.CATAPHRACT_HALF_BARDING, layer("cataphract_half_barding"), CataphractHalfBardingModel::createLayer, tex("cataphract_half_barding"), null, false, 0xFFFFFF),
-            new Look(ArmoryItems.FELT_BARDING, layer("felt_barding"), FeltBardingModel::createLayer, tex("felt_barding"), tex("felt_barding_overlay"), true, 0x8E2A2A));
+            new Look(ArmoryItems.FELT_BARDING, layer("felt_barding"), FeltBardingModel::createLayer, tex("felt_barding"), tex("felt_barding_overlay"), true, 0x8E2A2A),
+            new Look(ArmoryItems.LAMELLAR_TIJFAF, layer("lamellar_tijfaf"), LamellarTijfafModel::createLayer, tex("lamellar_tijfaf"), null, false, 0xFFFFFF),
+            new Look(ArmoryItems.FELT_JUL, layer("felt_jul"), FeltJulModel::createLayer, tex("felt_jul"), tex("felt_jul_overlay"), true, 0x2E7D7A),
+            new Look(ArmoryItems.BARGUSTAWAN, layer("bargustawan"), BargustawanModel::createLayer, tex("bargustawan"), null, false, 0xFFFFFF),
+            new Look(ArmoryItems.CHILTA_BARDING, layer("chilta_barding"), ChiltaBardingModel::createLayer, tex("chilta_barding"), tex("chilta_barding_overlay"), true, 0x7A1E3A));
 
     static ModelLayerLocation layer(String id) {
         return new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, id), "main");

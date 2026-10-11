@@ -246,9 +246,17 @@ public class ArmoryItems extends ModItemsProvider {
             ArmorMaterials.IRON, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/blank.png"), false, new Item.Properties().stacksTo(1)));
     public static final RegistrySupplier<Item> FELT_BARDING = INSTANCE.items.register("felt_barding", () -> new MedievalHorseArmorItem(
             ArmorMaterials.LEATHER, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/blank.png"), false, new Item.Properties().stacksTo(1).component(DataComponents.DYED_COLOR, new DyedItemColor(0x8E2A2A, false))));
+    public static final RegistrySupplier<Item> LAMELLAR_TIJFAF = INSTANCE.items.register("lamellar_tijfaf", () -> new MedievalHorseArmorItem(
+            ArmorMaterials.GOLD, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/blank.png"), false, new Item.Properties().stacksTo(1)));
+    public static final RegistrySupplier<Item> FELT_JUL = INSTANCE.items.register("felt_jul", () -> new MedievalHorseArmorItem(
+            ArmorMaterials.LEATHER, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/blank.png"), false, new Item.Properties().stacksTo(1).component(DataComponents.DYED_COLOR, new DyedItemColor(0x2E7D7A, false))));
+    public static final RegistrySupplier<Item> BARGUSTAWAN = INSTANCE.items.register("bargustawan", () -> new MedievalHorseArmorItem(
+            ArmorMaterials.DIAMOND, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/blank.png"), false, new Item.Properties().stacksTo(1)));
+    public static final RegistrySupplier<Item> CHILTA_BARDING = INSTANCE.items.register("chilta_barding", () -> new MedievalHorseArmorItem(
+            ArmorMaterials.IRON, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/blank.png"), false, new Item.Properties().stacksTo(1).component(DataComponents.DYED_COLOR, new DyedItemColor(0x7A1E3A, false))));
     /** The horse armour (listed in Epic Knights' armour tab; the felt barding's icon is tinted by its dye). */
-    public static final java.util.List<RegistrySupplier<Item>> BARDINGS = java.util.List.of(CATAPHRACT_BARDING, CATAPHRACT_HALF_BARDING, FELT_BARDING);
-    public static final java.util.List<RegistrySupplier<Item>> DYED_BARDINGS = java.util.List.of(FELT_BARDING);
+    public static final java.util.List<RegistrySupplier<Item>> BARDINGS = java.util.List.of(CATAPHRACT_BARDING, CATAPHRACT_HALF_BARDING, FELT_BARDING, LAMELLAR_TIJFAF, FELT_JUL, BARGUSTAWAN, CHILTA_BARDING);
+    public static final java.util.List<RegistrySupplier<Item>> DYED_BARDINGS = java.util.List.of(FELT_BARDING, FELT_JUL, CHILTA_BARDING);
     public static final RegistrySupplier<MedievalShieldItem> SKOUTARION = INSTANCE.addMedievalShieldItem("skoutarion", "skoutarion", new Item.Properties(),
             ModItemTier.IRON, false, true, ShieldType.of(370, 0.8F, 5.0F, 10.0F, true, true));
     public static final RegistrySupplier<MedievalShieldItem> ASPIS = INSTANCE.addMedievalShieldItem("aspis", "aspis", new Item.Properties(),

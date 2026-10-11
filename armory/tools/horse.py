@@ -14,6 +14,17 @@ Textures are drawn at twice the vanilla density (SCALE texels per model unit): t
   felt_barding:            a quilted felt trapper in two tiers (dyed), a gold border and a roundel on each flank, a dagged
                            hem, a felt crinet
   All three: a saddle and a red saddle cloth (felt: the trapper is the cloth) when the horse is saddled.
+
+  1.5, the Seljuks (the ghulams' horse armour, tijfaf, and the Turkic horse cloth):
+  lamellar_tijfaf:         two tiers of hardened, lacquered leather lamellae laced with red leather to below the belly,
+                           a lamellar crinet, a steel chamfron
+  felt_jul:                the Turkic felt horse cloth (çul), dyed, a woven gold border and an eight-pointed star on each
+                           flank, tassels at the hem
+  1.5, India (the Mughal bargustawan and the Rajput quilted horse armour):
+  bargustawan:             mail set with rows of small plates in three tiers to the knees, gilt-edged, a mail-and-plate
+                           crinet, a chamfron with a heron plume
+  chilta_barding:          quilted velvet studded with gilt nails (dyed) in two tiers, a round steel 'mirror' plate on
+                           each flank, a quilted crinet, the chamfron
 """
 from armorgen import Canvas, Cube, Faces, Model, Part
 from japan import B, G
@@ -362,21 +373,168 @@ def felt():
     return BardingModel("FeltBardingModel", "felt_barding", neck)
 
 
+# ---------------------------------------------------------------------- 1.5: the Seljuks and India
+
+LACQ = [(40, 18, 12), (62, 28, 18), (88, 42, 26), (116, 60, 36), (146, 84, 52)]      # lacquered leather, dark to lit
+MAILC = [(46, 46, 50), (70, 70, 74), (98, 98, 102), (128, 128, 132), (156, 156, 160)]
+
+
+def mail_plate_px(s, t):
+    """Mail set with rows of small plates (two units wide, riveted): the bargustawan, as the zirah bagtar."""
+    if t % 6 in (2, 3) and (s // 4 + t // 6) % 2 == 0:
+        return STEEL[4] if t % 6 == 2 else STEEL[2]
+    if t % 6 == 1 and (s // 4 + t // 6) % 2 == 0:
+        return G[2]                                                                  # the plate's gilt top edge
+    lit = (s + t) % 2 == 0
+    return (MAILC[3] if lit else MAILC[1]) if t % 2 == 0 else (MAILC[2] if lit else MAILC[0])
+
+
+def gilt_hem(rows=2):
+    def hem(face, i, k, s):
+        if k < rows:
+            return (G[3] if (s + k) % 2 else G[2]), False
+        return False
+    return hem
+
+
+def tassel_hem(face, i, k, s):
+    """Tassels below a woven gold border (the Turkic horse cloth)."""
+    if k <= 1:
+        return ((CLOTH[2] if k else CLOTH[1]), False) if s % 6 in (2, 3) else None
+    if 2 <= k <= 4:
+        return gold_band(s, k - 2), False
+    return False
+
+
+def chilta_px(s, t):
+    """Quilted velvet (dyed) in diamonds, a gilt nail head at every crossing."""
+    if (s + t) % 6 == 0 and (s - t) % 6 == 0:
+        return G[3], False
+    if (s + t) % 6 == 0 or (s - t) % 6 == 0:
+        return (176, 176, 176), True
+    return ((214, 214, 214) if (s * 7 + t * 3) % 5 else (200, 200, 200)), True
+
+
+def flank_device(base, draw):
+    """A tier with a device painted on each flank, centred: draw(dx, dy) -> rgb or None."""
+    def paint(f):
+        base(f)
+        for s in range(f.strip_w):
+            face, i = f.face_of(s)
+            if face not in ("right", "left"):
+                continue
+            cx, cy = f.d / 2 - 0.5, 7
+            for t in range(f.h):
+                rgb = draw(i - cx, t - cy)
+                if rgb:
+                    f.side(s, t, rgb)
+    return paint
+
+
+def star(dx, dy):
+    """The Seljuk eight-pointed star in gold: two squares, one turned by 45 degrees, in a ring."""
+    import math
+    r = math.hypot(dx, dy)
+    if 6.2 <= r <= 7.4:
+        return G[2]
+    k = 4.2
+    if max(abs(dx), abs(dy)) <= k or (abs(dx) + abs(dy)) / math.sqrt(2) <= k:
+        inner = max(abs(dx), abs(dy)) <= k - 1.2 or (abs(dx) + abs(dy)) / math.sqrt(2) <= k - 1.2
+        return G[3] if inner else G[1]
+    return None
+
+
+def mirror(dx, dy):
+    """A round steel 'mirror' (aina) plate with a gilt rim and a boss."""
+    r2 = dx * dx + dy * dy
+    if r2 > 30:
+        return None
+    if r2 > 22:
+        return G[3] if (int(dx) + int(dy)) % 2 else G[2]
+    if r2 < 3:
+        return G[4]
+    return STEEL[4] if dx + dy < -2 else STEEL[3] if dx + dy < 2 else STEEL[2]
+
+
+def lamellar_tijfaf():
+    lam = lambda s, t: (lamella(s, t, LACQ), False)
+    extra = head_armour(lam, eyes=False)
+    extra["body"] = [
+        Cube((-5.5, -8.6, -18), (11, 7, 24), inflate=0.1, paint=tier(lam), tag="tier1"),
+        Cube((-6, -2, -18.5), (12, 8, 25), paint=tier(lam, top="rim", front=("open", 8), back=("open", 8), hem=fringed()), tag="tier2"),
+    ]
+    extra["saddle"] = saddle()
+    return BardingModel("LamellarTijfafModel", "lamellar_tijfaf", extra)
+
+
+def felt_jul():
+    fp = lambda s, t: (felt_px(s, t), True)
+    extra = {"head_parts": [Cube((-2.05, -6, -2), (4, 12, 7), inflate=0.35, paint=tier(fp, top="rim"), tag="jul_neck")],
+             "mane": [Cube((-1, -11, 5.01), (2, 16, 2), inflate=0.45, paint=tier(fp), tag="jul_crest")]}
+    lower = tier(fp, top="rim", front=("open", 8), back=("open", 8), hem=tassel_hem)
+    extra["body"] = [
+        Cube((-5.5, -8.6, -18), (11, 7, 24), inflate=0.1, paint=tier(fp), tag="jul1"),
+        Cube((-6, -2, -18.5), (12, 9, 25), paint=flank_device(lower, star), tag="jul2"),
+    ]
+    extra["saddle"] = saddle(cloth=False)
+    return BardingModel("FeltJulModel", "felt_jul", extra)
+
+
+def bargustawan():
+    mp = lambda s, t: (mail_plate_px(s, t), False)
+    extra = head_armour(mp)
+    extra["head"] = extra["head"] + [Cube((-0.5, -15, 1), (1, 4, 1), paint=lambda f: leather(f, [(24, 24, 28), (36, 36, 42),
+                                                                                                 (52, 52, 60), (70, 70, 80)]),
+                                          tag="kalgi")]
+    extra["body"] = [
+        Cube((-5.5, -8.6, -18), (11, 7, 24), inflate=0.1, paint=tier(mp), tag="tier1"),
+        Cube((-6, -2, -18.5), (12, 6, 25), paint=tier(mp, top="rim", front=("open", 8), back=("open", 8)), tag="tier2"),
+        Cube((-6.5, 3.5, -19), (13, 6, 26), paint=tier(mp, top="rim", front=("open", 0), back=("open", 0), hem=gilt_hem()),
+             tag="tier3"),
+    ]
+    extra["saddle"] = saddle()
+    return BardingModel("BargustawanModel", "bargustawan", extra)
+
+
+def chilta_barding():
+    cp = chilta_px
+    extra = head_armour(cp)
+    lower = tier(cp, top="rim", front=("open", 8), back=("open", 8), hem=gilt_hem())
+    extra["body"] = [
+        Cube((-5.5, -8.6, -18), (11, 7, 24), inflate=0.1, paint=tier(cp), tag="tier1"),
+        Cube((-6, -2, -18.5), (12, 9, 25), paint=flank_device(lower, mirror), tag="tier2"),
+    ]
+    extra["saddle"] = saddle()
+    return BardingModel("ChiltaBardingModel", "chilta_barding", extra)
+
+
 # id, model, ArmorMaterials holder (the horse's armour value: LEATHER 3, IRON 5, DIAMOND 11), dyeable, default dye
 BARDINGS = [
     ("cataphract_barding", cataphract, "DIAMOND", False, None),
     ("cataphract_half_barding", half_barding, "IRON", False, None),
     ("felt_barding", felt, "LEATHER", True, 0x8E2A2A),
+    ("lamellar_tijfaf", lamellar_tijfaf, "GOLD", False, None),
+    ("felt_jul", felt_jul, "LEATHER", True, 0x2E7D7A),
+    ("bargustawan", bargustawan, "DIAMOND", False, None),
+    ("chilta_barding", chilta_barding, "IRON", True, 0x7A1E3A),
 ]
 
 NAMES = {
     "cataphract_barding": "Kataphraktos Barding",
     "cataphract_half_barding": "Scale Peytral and Chamfron",
     "felt_barding": "Quilted Felt Barding",
+    "lamellar_tijfaf": "Lamellar Tijfaf",
+    "felt_jul": "Turkic Felt Horse Cloth",
+    "bargustawan": "Bargustawan",
+    "chilta_barding": "Quilted Chilta Barding",
 }
 
 RECIPES = {
     "cataphract_barding": (["  r", "rrr", "r r"], {"r": "#magistuarmory:lamellar_rows/steel"}),
     "cataphract_half_barding": (["  p", "ppp", "l l"], {"p": "#c:plates/steel", "l": "#magistuarmory:leather_strips"}),
     "felt_barding": (["  f", "fff", "f f"], {"f": "#magistuarmory:woolen_fabrics"}),
+    "lamellar_tijfaf": (["  l", "lsl", "l l"], {"l": "minecraft:leather", "s": "#magistuarmory:leather_strips"}),
+    "felt_jul": (["  f", "fgf", "f f"], {"f": "#magistuarmory:woolen_fabrics", "g": "minecraft:gold_nugget"}),
+    "bargustawan": (["  p", "cpc", "c c"], {"p": "#c:plates/steel", "c": "#magistuarmory:chainmails/steel"}),
+    "chilta_barding": (["  v", "vgv", "vgv"], {"v": "#magistuarmory:woolen_fabrics", "g": "minecraft:gold_nugget"}),
 }

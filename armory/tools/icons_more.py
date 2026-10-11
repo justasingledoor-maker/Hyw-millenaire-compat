@@ -667,5 +667,18 @@ BYZANTINE = {
                                "b" if (x + y) % 4 == 0 or (x - y) % 4 == 0 else "c"),
 }
 
+# 1.5: the Seljuk and Indian horse armour
+BYZANTINE.update({
+    "lamellar_tijfaf": horse_icon(lambda x, y: ("J" if x % 2 == 0 else "j") if y <= 4 else "r" if y % 3 == 0 or y == 10
+                                  else ("L" if x % 2 == 0 else "l")),
+    "felt_jul": horse_icon(lambda x, y: "." if y <= 2 else "G" if y == 9 else ("r" if x % 2 else ".") if y == 10
+                           else "G" if y in (5, 6) and x in (6, 7) else "b" if (x + y) % 4 == 0 else "c"),
+    "bargustawan": horse_icon(lambda x, y: ("J" if x % 2 == 0 else "j") if y <= 4 else "g" if y == 10
+                              else "p" if y % 3 == 1 and (x // 2 + y) % 2 == 0 else mail(x, y)),
+    "chilta_barding": horse_icon(lambda x, y: ("J" if x % 2 == 0 else "j") if y <= 4 else "G" if y == 10
+                                 else "G" if (x + y) % 4 == 0 and (x - y) % 4 == 0 else "b" if (x + y) % 4 == 0 or (x - y) % 4 == 0
+                                 else "c"),
+})
+
 MORE = dict(SELJUK, **INUIT)
 MORE.update(BYZANTINE)

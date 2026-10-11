@@ -572,6 +572,14 @@
     {
       "id": "culturesarmory:felt_barding",
       "required": false
+    },
+    {
+      "id": "culturesarmory:felt_jul",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:chilta_barding",
+      "required": false
     }
   ]
 }

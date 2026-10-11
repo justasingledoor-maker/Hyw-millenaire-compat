@@ -44,4 +44,25 @@ class HorseArmourTest {
         assertEquals(choose(0, false, 0, true, false), dev.hywmill.garrison.equip.HorseArmour.choose(kat, 0, false, 0, true, false),
                 "level 0: as before");
     }
+
+    @Test
+    void seljukAndIndianRidersRideTheirOwnHorses() {
+        String jawshan = "culturesarmory:jawshan", kaftan = "culturesarmory:kaftan", char_aina = "culturesarmory:char_aina",
+                chilta = "culturesarmory:chilta_hazar_masha";
+        // the ghulams' heavy horse in lamellar, horse archers and the Turkmen in the felt cloth
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.TIJFAF, dev.hywmill.garrison.equip.HorseArmour.choose(jawshan, 3, false, 0, true, false));
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.TIJFAF, dev.hywmill.garrison.equip.HorseArmour.choose(jawshan, 2, false, 0, true, false));
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.JUL, dev.hywmill.garrison.equip.HorseArmour.choose(jawshan, 3, true, 0, true, false));
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.JUL, dev.hywmill.garrison.equip.HorseArmour.choose(kaftan, 3, false, 0, true, false));
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.JUL, dev.hywmill.garrison.equip.HorseArmour.choose(jawshan, 1, false, 0, true, false));
+        // the mansabdars' heavy cavalry in the bargustawan, the Rajput horse in quilted chilta
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.BARGUSTAWAN, dev.hywmill.garrison.equip.HorseArmour.choose(char_aina, 3, false, 0, true, false));
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.CHILTA, dev.hywmill.garrison.equip.HorseArmour.choose(char_aina, 3, true, 0, true, false));
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.CHILTA, dev.hywmill.garrison.equip.HorseArmour.choose(chilta, 3, false, 0, true, false));
+        assertTrue(dev.hywmill.garrison.equip.HorseArmour.dyed(dev.hywmill.garrison.equip.HorseArmour.JUL));
+        assertTrue(dev.hywmill.garrison.equip.HorseArmour.dyed(dev.hywmill.garrison.equip.HorseArmour.CHILTA));
+        assertFalse(dev.hywmill.garrison.equip.HorseArmour.dyed(dev.hywmill.garrison.equip.HorseArmour.BARGUSTAWAN));
+        // 1.5's Byzantine coats bring the Byzantine horse
+        assertEquals(dev.hywmill.garrison.equip.HorseArmour.FELT, dev.hywmill.garrison.equip.HorseArmour.choose("culturesarmory:akrites_lamellar", 2, true, 0, true, false));
+    }
 }

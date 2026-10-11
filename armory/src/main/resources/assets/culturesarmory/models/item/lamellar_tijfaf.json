@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/lamellar_tijfaf",
+    "layer1": "culturesarmory:item/lamellar_tijfaf_overlay"
+  }
+}

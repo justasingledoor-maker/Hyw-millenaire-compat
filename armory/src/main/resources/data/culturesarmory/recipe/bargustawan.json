@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  p",
+    "cpc",
+    "c c"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:plates/steel"
+    },
+    "c": {
+      "tag": "magistuarmory:chainmails/steel"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:bargustawan",
+    "count": 1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  v",
+    "vgv",
+    "vgv"
+  ],
+  "key": {
+    "v": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "g": {
+      "item": "minecraft:gold_nugget"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:chilta_barding",
+    "count": 1
+  }
+}
