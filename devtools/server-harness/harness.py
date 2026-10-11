@@ -6462,13 +6462,19 @@ def scenario_CA(ctx):
             extra = all(slot(r, "chest") == A + "varangian_hauberk" for r in rows)
         note(name.split(" ")[0], " || ".join(r[r.find(":") + 1:][:220] for r in rows[:2]))
         check(name, rows and arm == len(rows) and wpn == len(rows) and extra, f"{arm}/{len(rows)} in armory armour, {wpn} with its weapon")
-    # the kataphraktoi: riders in kataphraktos armour, their horses in the full lamellar barding
+    # the kataphraktoi: riders in kataphraktos armour, their horses in the full lamellar barding. Owned riders (an unowned
+    # rider is an enemy to the village and is cut down before the check), their horses at the top equipment level
     riders, horses = [], []
+    P_INTS = "[I;858993459,1145324885,-2040105097,2004318071]"  # 33333333-4444-4555-8666-777777777777 as an NBT UUID
     for i in range(4):
         tag = f"ca_kat_{i}"
-        s.cmd(f'summon hundred_years_war:mounted_lancer_rider {x + 3 * i} {y} {z + 6} {{Tags:["{tag}"]}}', 0.8)
+        s.cmd(f'summon hundred_years_war:mounted_lancer_rider {x + 3 * i} {y} {z + 6} {{Tags:["{tag}"],OwnerUUID:{P_INTS}}}', 0.8)
         riders.append(" ".join(l for l in s.output(f'hywmill dev outfit @e[tag={tag},limit=1] "millenaire:byzantines" STRONGHOLD '
                                                      f'"look:byz.kataphraktoi"', 1) if "outfit " in l))
+    time.sleep(2)
+    for i in range(4):
+        s.cmd(f"execute at @e[tag=ca_kat_{i},limit=1] run data merge entity "
+              f"@e[type=hundred_years_war:hyw_horse,limit=1,sort=nearest] {{EquipmentLevel:3}}", 0.4)
     time.sleep(4)
     for i in range(4):
         horses.append(" ".join(s.output(f"execute at @e[tag=ca_kat_{i},limit=1] run data get entity "
