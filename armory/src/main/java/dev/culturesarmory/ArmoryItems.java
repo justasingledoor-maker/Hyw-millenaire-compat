@@ -5,6 +5,7 @@ import com.magistuarmory.item.MedievalWeaponItem;
 import com.magistuarmory.item.ModItemTier;
 import com.magistuarmory.item.RangedWeaponType;
 import com.magistuarmory.item.WeaponType;
+import com.magistuarmory.item.WeaponTypes;
 import com.magistuarmory.item.armor.DyeableMedievalArmorItem;
 import com.magistuarmory.item.armor.MedievalHorseArmorItem;
 import net.minecraft.core.component.DataComponents;
@@ -138,12 +139,16 @@ public class ArmoryItems extends ModItemsProvider {
     public static final RegistrySupplier<Item> TURKIC_BOW = INSTANCE.addMedievalBowItem("turkic_bow", RangedWeaponType.of(380, 30, 4.5F, true));
     public static final RegistrySupplier<Item> SINEW_BOW = INSTANCE.addMedievalBowItem("sinew_bow", RangedWeaponType.of(320, 30, 3.9F, true));
     public static final RegistrySupplier<Item> TOXARION = INSTANCE.addMedievalBowItem("toxarion", RangedWeaponType.of(390, 32, 4.4F, true));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_KONTOS = INSTANCE.addLanceItem("steel_kontos", new Item.Properties(), ModItemTier.STEEL,
+            WeaponTypes.GIANT_LANCE);
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_BARDOUKION = INSTANCE.addMedievalWeaponItem("steel_bardoukion", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(5.4F, 1.0F, 0.0F, 0.08F, 2.6F, 7, true));
     public static final RegistrySupplier<Item> CATAPHRACT_BARDING = INSTANCE.items.register("cataphract_barding", () -> new MedievalHorseArmorItem(
-            ArmorMaterials.DIAMOND, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/cataphract_barding.png"), false, new Item.Properties().stacksTo(1)));
+            ArmorMaterials.DIAMOND, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/blank.png"), false, new Item.Properties().stacksTo(1)));
     public static final RegistrySupplier<Item> CATAPHRACT_HALF_BARDING = INSTANCE.items.register("cataphract_half_barding", () -> new MedievalHorseArmorItem(
-            ArmorMaterials.IRON, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/cataphract_half_barding.png"), false, new Item.Properties().stacksTo(1)));
+            ArmorMaterials.IRON, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/blank.png"), false, new Item.Properties().stacksTo(1)));
     public static final RegistrySupplier<Item> FELT_BARDING = INSTANCE.items.register("felt_barding", () -> new MedievalHorseArmorItem(
-            ArmorMaterials.LEATHER, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/felt_barding.png"), false, new Item.Properties().stacksTo(1).component(DataComponents.DYED_COLOR, new DyedItemColor(0x8E2A2A, false))));
+            ArmorMaterials.LEATHER, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "textures/entity/horse/armor/blank.png"), false, new Item.Properties().stacksTo(1).component(DataComponents.DYED_COLOR, new DyedItemColor(0x8E2A2A, false))));
     /** The horse armour (listed in Epic Knights' armour tab; the felt barding's icon is tinted by its dye). */
     public static final java.util.List<RegistrySupplier<Item>> BARDINGS = java.util.List.of(CATAPHRACT_BARDING, CATAPHRACT_HALF_BARDING, FELT_BARDING);
     public static final java.util.List<RegistrySupplier<Item>> DYED_BARDINGS = java.util.List.of(FELT_BARDING);

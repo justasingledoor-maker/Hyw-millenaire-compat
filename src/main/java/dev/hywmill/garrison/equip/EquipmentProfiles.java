@@ -506,6 +506,7 @@ public final class EquipmentProfiles {
             // Byzantium
             Map.entry("kontarion", "pike"), Map.entry("menavlion", "ahlspiess"), Map.entry("spathion", "katzbalger"),
             Map.entry("paramerion", "bastardsword"), Map.entry("pelekys", "lochaberaxe"), Map.entry("siderorabdion", "heavymace"),
+            Map.entry("bardoukion", "heavymace"),
             Map.entry("toxarion", "longbow"));
 
     public static final List<String> MATERIALS = List.of("wood", "wooden", "stone", "iron", "gold", "golden", "diamond", "netherite", "copper",

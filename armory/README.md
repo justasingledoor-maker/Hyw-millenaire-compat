@@ -4,8 +4,8 @@ The armour of other cultures, made the Epic Knights way. Each piece is an Epic K
 dyeable like Epic Knights' cloth armour. The pieces sit in Epic Knights' armour tab and repair with steel ingots.
 Separate from HywMill: it needs only NeoForge 1.21.1, Epic Knights (10.12 or later) and Architectury.
 
-1.3: 71 armour pieces, 3 horse armours and 26 weapons: Japan (17 + 8), the Seljuks (18 + 6), the Inuit (16 + 5),
-Byzantium (20 + 3 bardings + 7).
+1.3: 71 armour pieces, 3 horse armours and 28 weapons: Japan (17 + 8), the Seljuks (18 + 6), the Inuit (16 + 5),
+Byzantium (20 + 3 bardings + 9).
 
 ## Japan
 
@@ -168,13 +168,16 @@ kataphraktoi with their barded horses.
 The kataphraktos (helmet, armour, lamellar kremasmata, podopsella) gives 18 armour and the most toughness of the armory.
 Cloth, padding, cloaks, sashes and plumes are dyeable (crimson, blue, green, ochre, scarlet and imperial purple by default).
 
-**Horse armour**, Epic Knights' way (a texture on the horse; put it on a horse like any horse armour):
+**Horse armour** in 3D (put it on a horse like any horse armour). As Epic Knights draws its caparison over the horse,
+each barding is a model of its own over the horse, moving with it: tiers hanging from the back to the knees, a crinet
+down the neck, a chamfron on the head, and a saddle with its cloth when the horse is saddled. Textures are twice the
+density of vanilla and Epic Knights (256x256). Drawn on every horse the game draws as a horse (HYW's war horses too).
 
 | Horse armour | Horse armour value | What it is |
 |---|---|---|
-| Kataphraktos Barding | 11 (as Epic Knights' barding) | Lamellar over head, neck, body and legs to the knees, a steel chamfron, red leather edging |
-| Scale Peytral and Chamfron | 5 (as mail) | A steel chamfron, a scale crinet and a scale peytral over chest and shoulders |
-| Quilted Felt Barding | 3 (as leather) | Quilted felt trappers over body, neck and upper legs; dyeable like leather horse armour |
+| Kataphraktos Barding | 11 (as Epic Knights' barding) | Three overlapping tiers of steel lamellae laced with red leather to the knees, a fringed hem; a two-band lamellar crinet and crest; a chamfron with a keel, a gilt boss and pierced eye guards; a red saddle cloth with a gold border |
+| Scale Peytral and Chamfron | 5 (as mail) | A scale peytral in two tiers over chest and shoulders, a scale crinet, the chamfron |
+| Quilted Felt Barding | 3 (as leather) | A quilted felt trapper in two tiers, a gold border and a gold roundel with a cross on each flank, a dagged hem, a felt crinet; dyeable like leather horse armour |
 
 | Weapon | Counts as (Epic Knights) | What it is |
 |---|---|---|
@@ -184,6 +187,8 @@ Cloth, padding, cloaks, sashes and plumes are dyeable (crimson, blue, green, och
 | Paramerion | Bastard sword | The curved single-edged cavalry sword; blocks |
 | Varangian Pelekys | Lochaber axe | The Varangian's two-handed axe; blocks |
 | Siderorabdion | Heavy mace | The all-iron mace; armour piercing |
+| Bardoukion | Heavy mace | 3D: an iron head with eight flanges on an iron-shod haft (Epic Knights' heavy mace hold) |
+| Kontos | Lance (Epic Knights') | 3D: the kataphraktos' cavalry lance, with a leaf-shaped head, a butt spike and a red bandon pennon with a gold cross; couched on horseback like Epic Knights' lances |
 | Byzantine Composite Bow | Longbow | The composite bow (390 uses, draw 32, power 4.4) |
 
 ## Building
@@ -195,7 +200,7 @@ Cloth, padding, cloaks, sashes and plumes are dyeable (crimson, blue, green, och
 `libs/` must hold the Epic Knights and Architectury jars (compile-only).
 
 The models (Java), armour textures, icons, item models, recipes, tags and translations are generated from
-`tools/japan.py`, `tools/seljuk.py`, `tools/inuit.py`, `tools/byzantine.py` (the armour), `tools/horse.py` (the horse armour), `tools/weapons.py` (the weapon sprites and stats) and `tools/icons.py` with `tools/icons_more.py` (the 16x16 icons):
+`tools/japan.py`, `tools/seljuk.py`, `tools/inuit.py`, `tools/byzantine.py` (the armour), `tools/horse.py` (the 3D horse armour), `tools/weapons.py` (the weapon sprites and stats), `tools/weapons3d.py` (the 3D weapons) and `tools/icons.py` with `tools/icons_more.py` (the 16x16 icons):
 
 ```
 python3 tools/build_assets.py      # needs Pillow

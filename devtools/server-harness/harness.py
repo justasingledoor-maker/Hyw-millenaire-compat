@@ -6471,7 +6471,7 @@ def scenario_CA(ctx):
                                                      f'"look:byz.kataphraktoi"', 1) if "outfit " in l))
     time.sleep(4)
     for i in range(4):
-        horses.append(" ".join(s.output(f"execute as @e[tag=ca_kat_{i},limit=1] at @s run data get entity "
+        horses.append(" ".join(s.output(f"execute at @e[tag=ca_kat_{i},limit=1] run data get entity "
                                         f"@e[type=hundred_years_war:hyw_horse,limit=1,sort=nearest] body_armor_item", 0.8)))
     note("CA-23", " || ".join(h[-120:] for h in horses[:2]))
     kat = sum(1 for r in riders if slot(r, "chest") == A + "kataphract_armour")

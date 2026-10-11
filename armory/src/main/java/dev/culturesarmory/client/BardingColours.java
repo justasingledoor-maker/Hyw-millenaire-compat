@@ -7,7 +7,7 @@ import net.minecraft.util.FastColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.DyedItemColor;
 
-/** The dyed horse armour's icon: its first layer tinted by the dye (the horse itself is tinted by the game's armour layer). */
+/** The dyed horse armour's icon: its first layer tinted by the dye (on the horse, BardingLayer tints the felt). */
 public final class BardingColours {
     private BardingColours() {}
 

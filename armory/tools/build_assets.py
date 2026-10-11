@@ -18,6 +18,7 @@ import inuit  # noqa: E402
 import japan  # noqa: E402
 import seljuk  # noqa: E402
 import weapons  # noqa: E402
+import weapons3d  # noqa: E402
 
 MODID = "culturesarmory"
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -104,31 +105,31 @@ def write_tags():
     tag("dyeable", [a[0] for a in ARMOURS] + [b[0] for b in horse.BARDINGS if b[3]])
     for name, slot in (("head_armor", "HELMET"), ("chest_armor", "CHESTPLATE"), ("leg_armor", "LEGGINGS"), ("foot_armor", "BOOTS")):
         tag(name, [a[0] for a in ARMOURS if a[2] == slot])
-    tag("swords", list(weapons.WEAPONS))
+    tag("swords", list(weapons.WEAPONS) + list(weapons3d.WEAPONS3D))
     tag("bows", [b[0] for b in weapons.BOWS])
     tag("enchantable/bow", [b[0] for b in weapons.BOWS])
 
 
 def build_bardings(lang, preview):
-    """Horse armour: the texture on the vanilla horse model, the item (an Epic Knights MedievalHorseArmorItem), its recipe."""
-    lines = []
-    for bid, paints, material, dyeable, dye in horse.BARDINGS:
-        model = horse.HorseModel(paints)
+    """Horse armour in 3D: each barding's model (Java), its texture at twice the density (dyed bardings: a tinted base and
+    an overlay), the item (an Epic Knights MedievalHorseArmorItem with a blank vanilla texture: the armory's horse layer
+    draws it), its recipe; client/ArmoryBardings lists the models and textures for the layer."""
+    from PIL import Image
+    lines, looks, layers = [], [], []
+    blank = "textures/entity/horse/armor/blank.png"
+    write_png(Image.new("RGBA", (64, 64), (0, 0, 0, 0)), os.path.join(ASSETS, blank))
+    for bid, make, material, dyeable, dye in horse.BARDINGS:
+        model = make()
+        model.pack()
         canvas = model.paint()
-        base, over = canvas.layers(dyeable=False)
-        write_png(over, os.path.join(ASSETS, f"textures/entity/horse/armor/{bid}.png"))
+        base, over = canvas.layers(dyeable)
+        tex = f"textures/entity/horse/barding/{bid}"
+        write_png(base if dyeable else over, os.path.join(ASSETS, tex + ".png"))
+        if dyeable:
+            write_png(over, os.path.join(ASSETS, tex + "_overlay.png"))
+        write_text(model.java("dev.culturesarmory.client.model"), os.path.join(JAVA, f"client/model/{model.java_name}.java"))
         tint = ((dye >> 16) & 255, (dye >> 8) & 255, dye & 255) if dyeable else None
         write_png(canvas.composite(tint) if tint else over, os.path.join(PREVIEW, f"{bid}.png"))
-        if tint:
-            # the game tints the whole texture: the preview shows it tinted too
-            img = over.copy()
-            px = img.load()
-            for x in range(img.size[0]):
-                for y in range(img.size[1]):
-                    r, g, b, a = px[x, y]
-                    if a:
-                        px[x, y] = (r * tint[0] // 255, g * tint[1] // 255, b * tint[2] // 255, a)
-            write_png(img, os.path.join(PREVIEW, f"{bid}.png"))
         preview[bid] = dict(model.preview_json(), slot="HORSE", texture=f"{bid}.png")
         textures = {"layer0": f"{MODID}:item/{bid}", "layer1": f"{MODID}:item/{bid}_overlay"}
         write_json({"parent": "item/generated", "textures": textures}, os.path.join(ASSETS, f"models/item/{bid}.json"))
@@ -140,12 +141,43 @@ def build_bardings(lang, preview):
             props += f".component(DataComponents.DYED_COLOR, new DyedItemColor(0x{dye:06X}, false))"
         lines.append(f"    public static final RegistrySupplier<Item> {bid.upper()} = INSTANCE.items.register(\"{bid}\", () -> new MedievalHorseArmorItem(\n"
                      f"            ArmorMaterials.{material}, ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, "
-                     f"\"textures/entity/horse/armor/{bid}.png\"), false, {props}));")
+                     f"\"{blank}\"), false, {props}));")
+        overlay = f"tex(\"{bid}_overlay\")" if dyeable else "null"
+        looks.append(f"            new Look(ArmoryItems.{bid.upper()}, layer(\"{bid}\"), {model.java_name}::createLayer, tex(\"{bid}\"), {overlay}, "
+                     f"{'true' if dyeable else 'false'}, 0x{(dye or 0xFFFFFF):06X})")
+    preview["_horse"] = dict(horse.vanilla_preview(), slot="HORSE_BASE", texture="horse.png")
     lines.append("    /** The horse armour (listed in Epic Knights' armour tab; the felt barding's icon is tinted by its dye). */")
     lines.append("    public static final java.util.List<RegistrySupplier<Item>> BARDINGS = java.util.List.of("
                  + ", ".join(b[0].upper() for b in horse.BARDINGS) + ");")
     lines.append("    public static final java.util.List<RegistrySupplier<Item>> DYED_BARDINGS = java.util.List.of("
                  + ", ".join(b[0].upper() for b in horse.BARDINGS if b[3]) + ");")
+    write_text("\n".join([
+        "package dev.culturesarmory.client;", "",
+        "import dev.culturesarmory.ArmoryItems;",
+        "import dev.culturesarmory.CulturesArmory;",
+        "import dev.culturesarmory.client.model.*;",
+        "import net.minecraft.client.model.geom.ModelLayerLocation;",
+        "import net.minecraft.client.model.geom.builders.LayerDefinition;",
+        "import net.minecraft.resources.ResourceLocation;",
+        "import net.minecraft.world.item.Item;", "",
+        "import javax.annotation.Nullable;",
+        "import java.util.List;",
+        "import java.util.function.Supplier;", "",
+        "/** Generated by armory/tools/build_assets.py: the bardings' models and textures, drawn by BardingLayer (client only). */",
+        "public final class ArmoryBardings {",
+        "    private ArmoryBardings() {}", "",
+        "    /** A barding: its item, model layer, mesh, texture (dyed bardings: the tinted base) and overlay, its default dye. */",
+        "    public record Look(Supplier<? extends Item> item, ModelLayerLocation layer, Supplier<LayerDefinition> mesh,",
+        "                       ResourceLocation texture, @Nullable ResourceLocation overlay, boolean dyeable, int dye) {}", "",
+        "    public static final List<Look> LOOKS = List.of(",
+        ",\n".join(looks) + ");", "",
+        "    static ModelLayerLocation layer(String id) {",
+        "        return new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, id), \"main\");",
+        "    }", "",
+        "    static ResourceLocation tex(String id) {",
+        "        return ResourceLocation.fromNamespaceAndPath(CulturesArmory.ID, \"textures/entity/horse/barding/\" + id + \".png\");",
+        "    }",
+        "}", ""]), os.path.join(JAVA, "client/ArmoryBardings.java"))
     return lines
 
 
@@ -184,6 +216,22 @@ def build_weapons(lang):
         lang[f"item.{MODID}.{bow_id}"] = weapons.WEAPON_NAMES[bow_id]
         lines.append(f"    public static final RegistrySupplier<Item> {bow_id.upper()} = INSTANCE.addMedievalBowItem(\"{bow_id}\", "
                      f"RangedWeaponType.of({bow_stats}));")
+    for item_id, (make, kind, stats, display, attrs, (pattern, keys)) in weapons3d.WEAPONS3D.items():
+        img, elements = make().build()
+        img.save(os.path.join(ASSETS, f"textures/item/{item_id}.png"))
+        overrides = None
+        if kind == "lance":
+            # Epic Knights' lances: held raised unless couched on horseback
+            overrides = [{"predicate": {"magistuarmory:raised": 1}, "model": f"{MODID}:item/{item_id}_raised"}]
+            write_json(weapons3d.item_model(MODID, item_id, elements, weapons3d.LANCE_RAISED_DISPLAY),
+                       os.path.join(ASSETS, f"models/item/{item_id}_raised.json"))
+        write_json(weapons3d.item_model(MODID, item_id, elements, display, overrides), os.path.join(ASSETS, f"models/item/{item_id}.json"))
+        write_json(attrs, os.path.join(DATA, f"weapon_attributes/{item_id}.json"))
+        recipe(item_id, pattern, keys)
+        lang[f"item.{MODID}.{item_id}"] = weapons3d.NAMES[item_id]
+        add = "addLanceItem" if kind == "lance" else "addMedievalWeaponItem"
+        lines.append(f"    public static final RegistrySupplier<MedievalWeaponItem> {item_id.upper()} = INSTANCE.{add}("
+                     f"\"{item_id}\", new Item.Properties(), ModItemTier.STEEL,\n            {stats});")
     return lines
 
 
@@ -280,6 +328,7 @@ def main():
         "import com.magistuarmory.item.ModItemTier;",
         "import com.magistuarmory.item.RangedWeaponType;",
         "import com.magistuarmory.item.WeaponType;",
+        "import com.magistuarmory.item.WeaponTypes;",
         "import com.magistuarmory.item.armor.DyeableMedievalArmorItem;",
         "import com.magistuarmory.item.armor.MedievalHorseArmorItem;",
         "import net.minecraft.core.component.DataComponents;",
@@ -298,7 +347,7 @@ def main():
         "        super(CulturesArmory.ID);",
         "    }",
         "}", ""]), os.path.join(JAVA, "ArmoryItems.java"))
-    print("generated", len(ARMOURS), "armours,", len(weapons.WEAPONS) + len(weapons.BOWS), "weapons")
+    print("generated", len(ARMOURS), "armours,", len(weapons.WEAPONS) + len(weapons.BOWS) + len(weapons3d.WEAPONS3D), "weapons")
 
 
 if __name__ == "__main__":

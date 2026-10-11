@@ -1894,3 +1894,60 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     Inuit and Japanese carts their armory weapons only; without the armory, Epic Knights ones; the Norman never.
   * Not run on a server: the harness world has only Norman villages, whose carts carry no armory items.
 * SHA-256 of the jar: `4b3be48701ced845cab7ae0ae44c760d0677289724e583c72983efdc378bc786`.
+
+### 6.61 Byzantium: Cultures Armory 1.3 with 3D bardings, and HywMill's Byzantines wear it (`dist/hywmill-m5-fix61.jar`)
+
+* **Request.** A Byzantine armory with sets for many roles, heavy horse armour and matching rider armour for the
+  kataphraktoi, to use in the villages. Then: weapons too; and the first bardings (flat textures on the horse) were not
+  good enough: "use Epic Knights as an example... needs to be 3D, maybe more pixels".
+* **Cultures Armory 1.3** (`dist/cultures-armory-1.3.0.jar`; tables in `armory/README.md`): 71 armour pieces, 3 horse
+  armours, 28 weapons.
+  * Byzantium (10th–12th centuries: the Praecepta Militaria, the tagmata, the Varangian Guard), 20 pieces:
+    * helmets: kassis, the kataphraktos' veiled helmet with a mail aventail and a tuft, the Varangian helmet, the
+      strategos' gilded crested helmet, phakeolion, pilos;
+    * coats: klibanion, kataphraktos armour, epilorikion, lorikion, scale armour, kabadion, Varangian hauberk, the
+      strategos' gilded klibanion;
+    * legs: kremasmata, lamellar kremasmata, hose, mail chausses; feet: tzangia, podopsella.
+  * Weapons: kontarion, menavlion, spathion, paramerion, pelekys, siderorabdion, the composite bow, and two in 3D
+    (block-model items with their own textures, as Epic Knights makes its lances and maces):
+    * the kontos, the kataphraktos' cavalry lance: an Epic Knights lance (couched on horseback, raised otherwise), a
+      leaf-shaped head, a butt spike and a red bandon pennon with a gold cross;
+    * the bardoukion: an eight-flanged mace on an iron-shod haft.
+  * **Bardings in 3D.** Epic Knights draws its caparison as a model of its own over the horse. The armory now does the
+    same with a horse render layer (`client/BardingLayer`, added to every horse renderer: vanilla horses and HYW's war
+    horses, which use the vanilla renderer). Each barding is the vanilla horse's part tree, so it moves with the horse,
+    with boxes of its own; its texture is twice vanilla's density (256x256). The items stay Epic Knights horse armour
+    (their vanilla texture is blank, so the game's own armour layer draws nothing):
+    * Kataphraktos Barding (armour 11): three overlapping tiers of steel lamellae laced with red leather down to the
+      knees, a fringed hem, open between the legs so they swing through; a two-band lamellar crinet and crest; a
+      chamfron with a keel, a gilt boss and pierced eye guards; a nose plate.
+    * Scale Peytral and Chamfron (5): a two-tier scale peytral over chest and shoulders, a scale crinet, the chamfron.
+    * Quilted Felt Barding (3, dyeable): a two-tier quilted trapper with a gold border, a gold roundel with a cross on
+      each flank and a dagged hem, a felt crinet. The felt takes the dye; the gold does not.
+    * All three: a saddle and a red saddle cloth with a gold border when the horse is saddled.
+  * Recipes: 102 shaped recipes, no clash with vanilla, Epic Knights, its Addon and Slavic Armory (1617 patterns) or
+    each other. The kontarion first had the yari's recipe; it now takes a gold nugget.
+* **HywMill.**
+  * The Byzantine weapons count as the Epic Knights families HYW gives: kontarion = pike, menavlion = ahlspiess,
+    spathion = katzbalger, paramerion = bastard sword, pelekys = Lochaber axe, siderorabdion and bardoukion = heavy
+    mace, the bow = longbow.
+  * The Byzantine profiles have armory kits at every tier and role: levies and psiloi in pilos, phakeolion and
+    kabadion; skoutatoi in the kassis with klibanion, scale, lorikion or epilorikion; the Varangians in their helmets
+    and hauberks with the pelekys; the strategos' guard gilded; Stronghold horse as kataphraktoi. 15 Byzantine squad
+    looks use them (the Latinikon stays Western). Epic Knights kits remain the fallback.
+  * Horses: a rider in the armory's Byzantine armour rides a Byzantine horse (`HorseArmour.choose`):
+    * heavy horse at the top level: the kataphraktos barding under kataphraktos or strategos armour, else the scale
+      peytral; at the middle level the scale peytral;
+    * light horse: the scale peytral at the top level, quilted felt below;
+    * the lowest level: quilted felt. The felt is dyed in the rider's colours.
+  * The kontos is not given to HYW's riders: they charge with HYW's own lance, which HYW switches itself, and HywMill
+    never overlays a rider's weapons.
+* **Tests.**
+  * JUnit: all pass (`EquipmentProfilesTest` checks every armory weapon's family, the bardoukion included;
+    `HorseArmourTest.byzantineRidersRideByzantineHorses`; `ConvoyLootTest` with Byzantine carts).
+  * Harness CA with Epic Knights 10.15, Addon 2.5, Slavic Armory 2.3 and Cultures Armory 1.3:
+    RESULTS_PLACEHOLDER
+  * Real client (NeoForge dev client with Epic Knights): the three 3D bardings on saddled horses, a kataphraktos on
+    the lamellar-barded horse with the kontos, the eight Byzantine outfits on stands with the weapons; no model or
+    texture errors. The bardings follow the horse's walk and grazing.
+* SHA-256 of the jar: `73e03f92feb29217b02135749704d5bbc3607b39140e211341b7a8b2b3b77ab2`; Cultures Armory 1.3.0: `61eb0f9fc1ed4ca2cbbd81d6a765524b02d3dd771b22d12ff4cff02697fbe109`.

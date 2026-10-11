@@ -189,11 +189,12 @@ class Canvas:
 class Faces:
     """The faces of one box on the canvas, with the box's size: what a painter draws on."""
 
-    def __init__(self, canvas, cube):
+    def __init__(self, canvas, cube, scale=1):
+        """scale: texels per model unit (2 draws the box at twice the vanilla density, on a canvas twice the layout)."""
         self.c = canvas
         self.cube = cube
-        self.w, self.h, self.d = cube.size
-        self.u, self.v = cube.uv
+        self.w, self.h, self.d = (k * scale for k in cube.size)
+        self.u, self.v = (k * scale for k in cube.uv)
         self.strip_w = 2 * (self.w + self.d)
         self.rng = random.Random(hash((cube.uv, cube.size)) & 0xffffffff)
 

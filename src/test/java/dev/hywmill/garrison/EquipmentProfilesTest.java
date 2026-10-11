@@ -175,6 +175,7 @@ class EquipmentProfilesTest {
         assertEquals("bastardsword", EquipmentProfiles.family("culturesarmory:steel_paramerion"));
         assertEquals("lochaberaxe", EquipmentProfiles.family("culturesarmory:steel_pelekys"));
         assertEquals("heavymace", EquipmentProfiles.family("culturesarmory:steel_siderorabdion"));
+        assertEquals("heavymace", EquipmentProfiles.family("culturesarmory:steel_bardoukion"));
         assertEquals("longbow", EquipmentProfiles.family("culturesarmory:toxarion"));
     }
 

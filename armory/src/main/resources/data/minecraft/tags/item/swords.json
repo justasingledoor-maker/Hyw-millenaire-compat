@@ -88,6 +88,14 @@
     {
       "id": "culturesarmory:steel_siderorabdion",
       "required": false
+    },
+    {
+      "id": "culturesarmory:steel_kontos",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_bardoukion",
+      "required": false
     }
   ]
 }

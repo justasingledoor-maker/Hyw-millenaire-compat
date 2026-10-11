@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 
 /**
@@ -26,7 +27,7 @@ public final class CulturesArmory {
     static final ResourceKey<CreativeModeTab> EK_WEAPONS_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
             ResourceLocation.fromNamespaceAndPath("magistuarmory", "weapons"));
 
-    public CulturesArmory() {
+    public CulturesArmory(IEventBus modBus) {
         ArmoryItems.INSTANCE.init();
         ArmoryArmorTypes.init();
         for (RegistrySupplier<? extends Item> item : ArmoryItems.INSTANCE.armorItems) {
@@ -50,6 +51,7 @@ public final class CulturesArmory {
         if (Platform.getEnv() == Dist.CLIENT) {
             ArmoryModels.INSTANCE.init(ArmoryItems.INSTANCE);
             dev.culturesarmory.client.BardingColours.register();
+            dev.culturesarmory.client.BardingLayer.register(modBus);
         }
     }
 }
