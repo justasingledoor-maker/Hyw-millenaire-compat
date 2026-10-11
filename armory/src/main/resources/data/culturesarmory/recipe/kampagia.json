@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "f f",
+    "l l"
+  ],
+  "key": {
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "l": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:kampagia",
+    "count": 1
+  }
+}

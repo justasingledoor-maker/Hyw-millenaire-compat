@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " w ",
+    "www",
+    "s s"
+  ],
+  "key": {
+    "w": {
+      "item": "minecraft:wheat"
+    },
+    "s": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:sugegasa",
+    "count": 1
+  }
+}

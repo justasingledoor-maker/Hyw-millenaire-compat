@@ -13,12 +13,16 @@ sys.path.insert(0, os.path.dirname(__file__))
 from armorgen import paint_model, write_json, write_png, write_text  # noqa: E402
 import icons  # noqa: E402
 import byzantine  # noqa: E402
+import byzantine_ext  # noqa: E402
 import horse  # noqa: E402
 import india  # noqa: E402
 import inuit  # noqa: E402
+import inuit_ext  # noqa: E402
 import japan  # noqa: E402
+import japan_ext  # noqa: E402
 import maya  # noqa: E402
 import seljuk  # noqa: E402
+import seljuk_ext  # noqa: E402
 import shields  # noqa: E402
 import weapons  # noqa: E402
 import weapons3d  # noqa: E402
@@ -78,7 +82,7 @@ RECIPES = {
 }
 
 # the cultures: Japan (above), then each culture's module (its pieces, names and recipes)
-CULTURES = [seljuk, inuit, byzantine, india, maya]
+CULTURES = [seljuk, inuit, byzantine, india, maya, japan_ext, seljuk_ext, inuit_ext, byzantine_ext]
 ARMOURS = japan.ARMOURS + [a for m in CULTURES for a in m.ARMOURS]
 for _m in CULTURES + [horse]:
     NAMES.update(_m.NAMES)

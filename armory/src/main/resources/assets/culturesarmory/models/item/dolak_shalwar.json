@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/dolak_shalwar",
+    "layer1": "culturesarmory:item/dolak_shalwar_overlay"
+  }
+}

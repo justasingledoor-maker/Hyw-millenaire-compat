@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/khalat",
+    "layer1": "culturesarmory:item/khalat_overlay"
+  }
+}

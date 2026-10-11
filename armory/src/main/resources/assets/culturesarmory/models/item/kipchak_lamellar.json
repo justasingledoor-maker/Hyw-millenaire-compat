@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/kipchak_lamellar",
+    "layer1": "culturesarmory:item/kipchak_lamellar_overlay"
+  }
+}

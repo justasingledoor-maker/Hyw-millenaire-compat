@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "p p",
+    "ppp",
+    "rpr"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:plates/steel"
+    },
+    "r": {
+      "tag": "magistuarmory:lamellar_rows/steel"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:nimai_do",
+    "count": 1
+  }
+}

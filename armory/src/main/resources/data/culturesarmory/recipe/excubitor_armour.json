@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "g g",
+    "gsg",
+    "ggg"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_nugget"
+    },
+    "s": {
+      "item": "culturesarmory:scale_armour"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:excubitor_armour",
+    "count": 1
+  }
+}

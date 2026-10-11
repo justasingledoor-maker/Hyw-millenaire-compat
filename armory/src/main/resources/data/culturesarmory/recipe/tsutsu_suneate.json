@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "p p",
+    "p p",
+    "l l"
+  ],
+  "key": {
+    "p": {
+      "tag": "c:plates/steel"
+    },
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:tsutsu_suneate",
+    "count": 1
+  }
+}

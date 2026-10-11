@@ -76,6 +76,22 @@
     {
       "id": "culturesarmory:jaguar_kilt",
       "required": false
+    },
+    {
+      "id": "culturesarmory:ikada_haidate",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:dolak_shalwar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:polar_bear_trousers",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:scale_kremasmata",
+      "required": false
     }
   ]
 }

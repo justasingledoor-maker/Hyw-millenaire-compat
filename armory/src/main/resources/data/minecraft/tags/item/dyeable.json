@@ -426,6 +426,150 @@
       "required": false
     },
     {
+      "id": "culturesarmory:momonari_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:eboshi_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:nanban_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sugegasa",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:nimai_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:hotoke_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:nanban_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jinbaori",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:haramaki",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sashimono_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ikada_haidate",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:tsutsu_suneate",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:waraji",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kipchak_mask_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sharbush",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kufiya",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kipchak_lamellar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bedouin_robe",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:khalat",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kepenek",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:dolak_shalwar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:carik",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:felt_boots",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:wolverine_hood",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bird_skin_parka",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:gut_skin_parka",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:polar_bear_trousers",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:polar_bear_kamik",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:phrygian_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:skiadion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mail_coif",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:akrites_lamellar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:excubitor_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:chiton",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:scale_kremasmata",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kampagia",
+      "required": false
+    },
+    {
       "id": "culturesarmory:felt_barding",
       "required": false
     }

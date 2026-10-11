@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/chiton",
+    "layer1": "culturesarmory:item/chiton_overlay"
+  }
+}

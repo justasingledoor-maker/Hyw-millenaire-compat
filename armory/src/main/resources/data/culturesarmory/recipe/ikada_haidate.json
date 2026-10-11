@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "fsf",
+    "p p",
+    "p p"
+  ],
+  "key": {
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "p": {
+      "tag": "c:plates/steel"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:ikada_haidate",
+    "count": 1
+  }
+}

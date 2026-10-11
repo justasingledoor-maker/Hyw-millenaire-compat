@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " f ",
+    "fff"
+  ],
+  "key": {
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:skiadion",
+    "count": 1
+  }
+}

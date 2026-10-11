@@ -90,6 +90,14 @@
       "required": false
     },
     {
+      "id": "culturesarmory:steel_tachi",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_nagamaki",
+      "required": false
+    },
+    {
       "id": "culturesarmory:steel_talwar",
       "required": false
     },

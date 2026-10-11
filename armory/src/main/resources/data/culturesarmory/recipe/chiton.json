@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "w w",
+    "www",
+    "w w"
+  ],
+  "key": {
+    "w": {
+      "item": "minecraft:brown_wool"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:chiton",
+    "count": 1
+  }
+}

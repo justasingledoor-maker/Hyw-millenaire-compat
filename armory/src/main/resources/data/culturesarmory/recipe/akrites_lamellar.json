@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "l l",
+    "lfl",
+    "lll"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:akrites_lamellar",
+    "count": 1
+  }
+}

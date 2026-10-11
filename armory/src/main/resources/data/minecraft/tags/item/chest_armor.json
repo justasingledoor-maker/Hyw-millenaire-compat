@@ -140,6 +140,66 @@
     {
       "id": "culturesarmory:manta_cape",
       "required": false
+    },
+    {
+      "id": "culturesarmory:nimai_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:hotoke_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:nanban_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:jinbaori",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:haramaki",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sashimono_do",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kipchak_lamellar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bedouin_robe",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:khalat",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kepenek",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:bird_skin_parka",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:gut_skin_parka",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:akrites_lamellar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:excubitor_armour",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:chiton",
+      "required": false
     }
   ]
 }

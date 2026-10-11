@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  b",
+    "fo "
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bamboo"
+    },
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "o": {
+      "item": "culturesarmory:okegawa_do"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:sashimono_do",
+    "count": 1
+  }
+}

@@ -152,6 +152,50 @@
     {
       "id": "culturesarmory:deer_headdress",
       "required": false
+    },
+    {
+      "id": "culturesarmory:momonari_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:eboshi_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:nanban_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sugegasa",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kipchak_mask_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sharbush",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kufiya",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:wolverine_hood",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:phrygian_helmet",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:skiadion",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:mail_coif",
+      "required": false
     }
   ]
 }

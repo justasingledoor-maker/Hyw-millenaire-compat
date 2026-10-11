@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "fgf",
+    "fff",
+    "r r"
+  ],
+  "key": {
+    "f": {
+      "tag": "magistuarmory:woolen_fabrics"
+    },
+    "g": {
+      "item": "minecraft:gold_nugget"
+    },
+    "r": {
+      "item": "minecraft:rabbit_hide"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:sharbush",
+    "count": 1
+  }
+}

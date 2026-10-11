@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "l l",
+    "lsl",
+    "lll"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "s": {
+      "tag": "magistuarmory:leather_strips"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:kipchak_lamellar",
+    "count": 1
+  }
+}

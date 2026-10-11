@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "w w",
+    "w w",
+    "l l"
+  ],
+  "key": {
+    "w": {
+      "item": "minecraft:white_wool"
+    },
+    "l": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:felt_boots",
+    "count": 1
+  }
+}

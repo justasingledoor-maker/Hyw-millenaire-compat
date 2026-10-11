@@ -2,12 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "www",
-    "w w"
+    "wsw",
+    " w "
   ],
   "key": {
     "w": {
       "tag": "magistuarmory:woolen_fabrics"
+    },
+    "s": {
+      "item": "minecraft:red_dye"
     }
   },
   "result": {

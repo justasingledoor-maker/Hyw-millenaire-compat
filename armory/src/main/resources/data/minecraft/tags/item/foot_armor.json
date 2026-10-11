@@ -56,6 +56,30 @@
     {
       "id": "culturesarmory:jaguar_leg_wraps",
       "required": false
+    },
+    {
+      "id": "culturesarmory:tsutsu_suneate",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:waraji",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:carik",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:felt_boots",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:polar_bear_kamik",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:kampagia",
+      "required": false
     }
   ]
 }

@@ -407,7 +407,7 @@ RECIPES = {
     "feathered_war_suit": (["f f", "fcf", "fff"], {"f": "minecraft:feather", "c": "culturesarmory:quilted_cotton_armour"}),
     "jade_pectoral_armour": (["e e", "ece"], {"e": "minecraft:emerald", "c": "culturesarmory:quilted_cotton_armour"}),
     "manta_cape": (["w w", "www"], {"w": _W}),
-    "ex_loincloth": (["www", "w w"], {"w": _F}),
+    "ex_loincloth": (["wsw", " w "], {"w": _F, "s": "minecraft:red_dye"}),
     "cotton_war_kilt": (["www", "wsw", "w w"], {"w": _W, "s": "minecraft:string"}),
     "jaguar_kilt": (["lll", "lol", "l l"], {"l": _L, "o": "minecraft:orange_dye"}),
     "xanab_sandals": (["l l", "s s"], {"l": _L, "s": "minecraft:string"}),

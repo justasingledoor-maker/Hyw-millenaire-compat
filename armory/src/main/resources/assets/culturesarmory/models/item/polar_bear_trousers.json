@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/polar_bear_trousers",
+    "layer1": "culturesarmory:item/polar_bear_trousers_overlay"
+  }
+}

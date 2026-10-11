@@ -3,12 +3,15 @@
   "category": "equipment",
   "pattern": [
     "f f",
-    "fwf",
-    "fff"
+    "fgf",
+    "fwf"
   ],
   "key": {
     "f": {
       "tag": "magistuarmory:woolen_fabrics"
+    },
+    "g": {
+      "item": "minecraft:gold_nugget"
     },
     "w": {
       "item": "minecraft:white_wool"

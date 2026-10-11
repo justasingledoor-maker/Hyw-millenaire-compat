@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  k",
+    " l ",
+    "l  "
+  ],
+  "key": {
+    "k": {
+      "item": "culturesarmory:steel_katana"
+    },
+    "l": {
+      "tag": "magistuarmory:leather_strips"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_nagamaki",
+    "count": 1
+  }
+}

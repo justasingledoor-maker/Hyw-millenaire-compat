@@ -223,6 +223,16 @@ def nodachi():
     return katana_like(32, 1.5, 8.5, 19.5, 1.2, 2.9)
 
 
+def tachi():
+    """The tachi: the older, deeper-curved slung sword of the mounted samurai, its fittings gilt."""
+    return katana_like(32, 1, 6, 20, 2.3, 3.0)
+
+
+def nagamaki():
+    """The nagamaki: a heavy sword blade on a hilt as long as itself, the grip bound in cord all along."""
+    return katana_like(48, 1.5, 16, 25, 1.4, 3.2)
+
+
 def draw_bow(pull, bulge, colour, grip_t, h0, outline=True):
     """A bow along the diagonal: bulge(t) its shape (toward the upper left), colour(t) its limbs; the string from nock to
     nock, drawn back to the grip with an arrow when pulled (pull 0-2)."""
@@ -944,6 +954,13 @@ WEAPONS.update({
     "steel_siderorabdion": (siderorabdion, "iron_bastardsword", False, "4.8F, 1.1F, 0.0F, 0.06F, 2.4F, 6, true",
                             "mace", None, (["mn ", "nm ", "  h"], {"m": STEEL, "n": "#c:nuggets/iron", "h": _H})),
 })
+# 1.5: the Sengoku period's slung sword and pole sword
+WEAPONS.update({
+    "steel_tachi": (tachi, "iron_bastardsword", True, "4.0F, 1.5F, 0.0F, 0.02F, 1.4F, 0, true, 1, 4.0F, true, false, false",
+                    "katana", None, (["g", "k"], {"g": "minecraft:gold_nugget", "k": "culturesarmory:steel_katana"})),
+    "steel_nagamaki": (nagamaki, "iron_lochaberaxe", True, "5.3F, 1.15F, 1.0F, 0.05F, 2.6F, 0, true, 2, 3.0F, true, false, false",
+                       "glaive", 3.2, (["  k", " l ", "l  "], {"k": "culturesarmory:steel_katana", "l": _LS})),
+})
 # 1.5: Indian weapons (watered steel) and Maya weapons (obsidian and flint)
 _FL, _OB = "minecraft:flint", "minecraft:obsidian"
 WEAPONS.update({
@@ -1010,6 +1027,8 @@ WEAPON_NAMES = {
     "steel_pelekys": "Varangian Pelekys",
     "steel_siderorabdion": "Siderorabdion",
     "toxarion": "Byzantine Composite Bow",
+    "steel_tachi": "Tachi",
+    "steel_nagamaki": "Nagamaki",
     "steel_talwar": "Talwar",
     "steel_khanda": "Khanda",
     "steel_katar": "Katar",
