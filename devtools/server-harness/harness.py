@@ -6412,8 +6412,9 @@ def scenario_CA(ctx):
     cases = [
         ("CA-1 Japanese spearmen (GARRISON) carry yari or jumonji yari, in the armory's armour", "spear_man", "GARRISON", "-",
          {A + "steel_yari", A + "steel_jumonji_yari"}),
-        ("CA-2 Japanese warriors (STRONGHOLD) carry katana, nodachi, naginata or kanabo, in kabuto and laced do", "warrior", "STRONGHOLD", "-",
-         {A + "steel_katana", A + "steel_nodachi", A + "steel_naginata", A + "steel_kanabo"}),
+        ("CA-2 Japanese warriors (STRONGHOLD) carry katana, tachi, nodachi, naginata, nagamaki or kanabo, in kabuto and do", "warrior",
+         "STRONGHOLD", "-", {A + "steel_katana", A + "steel_tachi", A + "steel_nodachi", A + "steel_naginata", A + "steel_nagamaki",
+                             A + "steel_kanabo"}),
         ("CA-3 Japanese shieldmen (GUARD_POST) carry the wakizashi", "shieldman", "GUARD_POST", "-", {A + "steel_wakizashi"}),
         ("CA-4 Japanese archers (GARRISON) shoot the yumi", "archer", "GARRISON", "-", {A + "yumi"}),
         ("CA-5 Japanese militia (WATCH) in hachigane or jingasa, tatami-do, hakama and kyahan", "militia", "WATCH", "-", None),
@@ -6443,6 +6444,28 @@ def scenario_CA(ctx):
         ("CA-21 the Varangians: hauberks and the pelekys", "warrior", "STRONGHOLD", "look:byz.varangians", {A + "steel_pelekys"},
          "millenaire:byzantines"),
         ("CA-22 Byzantine archers (GARRISON) shoot the composite bow", "archer", "GARRISON", "-", {A + "toxarion"}, "millenaire:byzantines"),
+        # 1.5: India and the Maya, and each unit dressed as its culture's own (the unit lists)
+        ("CA-32 Indian spearmen (GARRISON) carry the barchha, in chilta or zirah bagtar", "spear_man", "GARRISON", "-",
+         {A + "steel_barchha"}, "millenaire:indian"),
+        ("CA-33 Indian shieldmen (GARRISON) carry the talwar or the katar", "shieldman", "GARRISON", "-",
+         {A + "steel_talwar", A + "steel_katar"}, "millenaire:indian"),
+        ("CA-34 Indian warriors (STRONGHOLD) carry khanda, gada or tabar, in char aina", "warrior", "STRONGHOLD", "-",
+         {A + "steel_khanda", A + "steel_gada", A + "steel_tabar"}, "millenaire:indian"),
+        ("CA-35 Indian archers (GARRISON) shoot the Indian bow", "archer", "GARRISON", "-", {A + "dhanush"}, "millenaire:indian"),
+        ("CA-36 Maya shieldmen (WATCH) carry the macuahuitl", "shieldman", "WATCH", "-", {A + "macuahuitl"}, "millenaire:mayan"),
+        ("CA-37 Maya spearmen (GUARD_POST) carry the flint-bladed spear, in quilted cotton", "spear_man", "GUARD_POST", "-",
+         {A + "flint_spear"}, "millenaire:mayan"),
+        ("CA-38 Maya warriors (STRONGHOLD) carry the flint axe, in jaguar skins, feathers or jade", "warrior", "STRONGHOLD", "-",
+         {A + "flint_axe"}, "millenaire:mayan"),
+        ("CA-39 Maya archers (GARRISON) shoot the Maya bow", "archer", "GARRISON", "-", {A + "maya_bow"}, "millenaire:mayan"),
+        ("CA-40 the Jaguar squad: jaguar pelts and the macuahuitl", "shieldman", "STRONGHOLD", "look:maya.jaguar", {A + "macuahuitl"},
+         "millenaire:mayan"),
+        ("CA-41 Japanese spearmen (STRONGHOLD): ashigaru under the sashimono, or in haramaki or nimai-do", "spear_man", "STRONGHOLD", "-",
+         {A + "steel_yari", A + "steel_jumonji_yari"}),
+        ("CA-42 Seljuk militia (WATCH): peasants and shepherds in kaftan or kepenek, with dolak", "militia", "WATCH", "-", None,
+         "millenaire:seljuk"),
+        ("CA-43 Byzantine lancers (STRONGHOLD) ride as kataphraktoi or strategoi", "mounted_lancer_rider", "STRONGHOLD", "-", None,
+         "millenaire:byzantines"),
     ]
     for name, unit, tier, role, weapons, *cult in cases:
         rows = outfit(unit, tier, role, culture=cult[0] if cult else "millenaire:japanese")
@@ -6452,14 +6475,23 @@ def scenario_CA(ctx):
         if "Sohei" in name:
             extra = all(slot(r, "head") == A + "sohei_zukin" for r in rows)
         if "Kiba" in name:
-            # the look's two kits: the hoshi kabuto with the o-yoroi or with the do-maru
-            extra = all(slot(r, "head") == A + "hoshi_kabuto" and slot(r, "chest") in (A + "o_yoroi", A + "do_maru") for r in rows)
+            # the look's kits: the hoshi kabuto with the o-yoroi or with the do-maru, or (1.5) the Sengoku momonari and nimai-do
+            extra = all((slot(r, "head"), slot(r, "chest")) in ((A + "hoshi_kabuto", A + "o_yoroi"), (A + "hoshi_kabuto", A + "do_maru"),
+                                                                 (A + "momonari_kabuto", A + "nimai_do")) for r in rows)
         if "Hassa" in name:
             extra = all(slot(r, "chest") == A + "gilded_jawshan" for r in rows)
         if "shaman" in name:
             extra = all(slot(r, "chest") == A + "ceremonial_parka" for r in rows)
         if "Varangians" in name:
             extra = all(slot(r, "chest") == A + "varangian_hauberk" for r in rows)
+        chests = {"CA-32": {"chilta_hazar_masha", "zirah_bagtar"}, "CA-34": {"char_aina"},
+                  "CA-37": {"quilted_cotton_armour"}, "CA-38": {"jaguar_pelt_armour", "feathered_war_suit", "jade_pectoral_armour"},
+                  "CA-40": {"jaguar_pelt_armour", "quilted_cotton_armour"}, "CA-41": {"sashimono_do", "haramaki", "nimai_do"},
+                  "CA-42": {"kaftan", "kepenek"}, "CA-43": {"kataphract_armour", "strategos_klibanion"}}.get(name.split(" ")[0])
+        if chests:
+            extra = all(slot(r, "chest").replace(A, "") in chests for r in rows)
+        if name.startswith("CA-42"):
+            extra = extra and all(slot(r, "legs") == A + "dolak_shalwar" for r in rows)
         note(name.split(" ")[0], " || ".join(r[r.find(":") + 1:][:220] for r in rows[:2]))
         check(name, rows and arm == len(rows) and wpn == len(rows) and extra, f"{arm}/{len(rows)} in armory armour, {wpn} with its weapon")
     # 1.4: the cultures' shields. Only Normans carry heater shields; the Inuit and samurai none (they fought without them)
@@ -6478,6 +6510,13 @@ def scenario_CA(ctx):
         ("CA-30 Inuit shieldmen carry no shield", "shieldman", "GARRISON", "-", "millenaire:inuits", {"none"}),
         ("CA-31 Inuit sentries carry no shield (never the defaults' heater shields)", "shieldman", "STRONGHOLD", "sentry",
          "millenaire:inuits", {"none"}),
+        # 1.5
+        ("CA-44 Indian shieldmen and spearmen carry the dhal", "shieldman", "GARRISON", "-", "millenaire:indian", {A + "dhal"}),
+        ("CA-45 Maya shieldmen carry the pakal or the flexible shield", "shieldman", "GUARD_POST", "-", "millenaire:mayan",
+         {A + "pakal", A + "flexible_shield"}),
+        ("CA-46 Indian spearmen with a shield carry the dhal", "spear_man", "GARRISON", "-", "millenaire:indian", {A + "dhal", "none"}),
+        ("CA-47 Maya spearmen with a shield carry the pakal or the flexible shield", "spear_man", "GARRISON", "-", "millenaire:mayan",
+         {A + "pakal", A + "flexible_shield", "none"}),
     ]
     for name, unit, tier, role, culture, shields in shield_cases:
         rows = outfit(unit, tier, role, culture=culture)

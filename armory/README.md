@@ -4,8 +4,9 @@ The armour of other cultures, made the Epic Knights way. Each piece is an Epic K
 dyeable like Epic Knights' cloth armour. The pieces sit in Epic Knights' armour tab and repair with steel ingots.
 Separate from HywMill: it needs only NeoForge 1.21.1, Epic Knights (10.12 or later) and Architectury.
 
-1.4: 71 armour pieces, 3 horse armours, 28 weapons and 6 shields: Japan (17 + 8 + 1 shield), the Seljuks (18 + 6 + 2),
-the Inuit (16 + 5), Byzantium (20 + 3 bardings + 9 + 3).
+1.5: 142 armour pieces, 3 horse armours, 41 weapons and 9 shields: Japan (30 + 10 + 1 shield), the Seljuks (28 + 6 + 2),
+the Inuit (21 + 5), Byzantium (28 + 3 bardings + 9 + 3), India (18 + 7 + 1), the Maya (17 + 4 + 2). Pieces without a
+hand-drawn icon have one drawn from the model itself.
 
 ## Japan
 
@@ -191,6 +192,145 @@ density of vanilla and Epic Knights (256x256). Drawn on every horse the game dra
 | Kontos | Lance (Epic Knights') | 3D: the kataphraktos' cavalry lance, with a leaf-shaped head, a butt spike and a red bandon pennon with a gold cross; couched on horseback like Epic Knights' lances |
 | Byzantine Composite Bow | Longbow | The composite bow (390 uses, draw 32, power 4.4) |
 
+## India (1.5)
+
+The Rajput clans, the Delhi Sultanate, Vijayanagara and the Mughals (13th–17th centuries), after the surviving
+Indo-Persian arms and the painted records of the Deccan and Rajasthan courts: paiks (foot) in quilted coats with
+sword and dhal, Bhil archers, spearmen, the Rajput horse in turban and chilta, the heavy cavalry in char aina.
+
+| Item | Slot | Defence | Toughness | Durability | What it is |
+|---|---|---|---|---|---|
+| Rajput Pagri | head | 1 | 0.0 | 110 | The Rajput's tall turban, a gilt sarpech and a black heron plume (kalgi) |
+| Kulah Khud | head | 3 | 0.75 | 250 | Domed steel bowl with a spike, a sliding nasal, two plume holders with feathers, a mail aventail |
+| Gilded Kulah Khud | head | 3 | 1.0 | 270 | The kulah khud damascened in gold (koftgari), a longer aventail |
+| Top | head | 3 | 1.0 | 260 | A deeper domed bowl, a mail curtain to the shoulders |
+| Turbaned Khud | head | 2 | 0.5 | 230 | A steel cap wound in a turban, its spike through the crown, a mail neck guard |
+| Bhil Archer's Headband | head | 1 | 0.0 | 70 | The Bhil archer's cloth band with a feather |
+| Angarkha | chest | 3 | 0.0 | 170 | Long padded cotton coat tied at the side, flared to the knee, a patka sash |
+| Chilta Hazar Masha | chest | 5 | 0.5 | 260 | 'Coat of a thousand nails': quilted velvet studded with gilt nails |
+| Zirah Bagtar | chest | 6 | 0.75 | 300 | Mail set with rows of small plates |
+| Char Aina | chest | 7 | 1.25 | 330 | 'Four mirrors': steel plates over a mail coat, with dastana vambraces |
+| Kavacha | chest | 7 | 1.0 | 320 | The Vijayanagara noble's coat of gilt-edged steel scales |
+| Paijama | legs | 2 | 0.0 | 120 | Fitted trousers gathered above the ankle, a patka sash |
+| Dhoti | legs | 1 | 0.0 | 90 | The draped cloth, to the knee |
+| Zanupush | legs | 4 | 0.5 | 250 | Steel knee and thigh plates over the paijama |
+| Mail Paijama | legs | 4 | 0.25 | 260 | Mail trousers |
+| Jutti | feet | 1 | 0.0 | 100 | Curled-toe slippers embroidered in gold |
+| Moza | feet | 1 | 0.0 | 140 | Soft riding boots |
+| Chappal | feet | 1 | 0.0 | 70 | Leather sandals |
+
+Cloth, velvet and leather are dyeable (saffron, white, indigo, madder and velvet red by default).
+
+| Weapon | Counts as (Epic Knights) | What it is |
+|---|---|---|
+| Talwar | Katzbalger | The curved sword with a disc pommel, its hilt gold-damascened, a watered-steel blade |
+| Khanda | Bastard sword | The straight broad blade widening to a blunt point, a basket hilt; blocks |
+| Katar | Shortsword | The push dagger: an H-shaped grip behind a broad triangular blade |
+| Barchha | Pike | The bamboo-shafted spear with a slender head and a red tassel |
+| Tabar | Heavy mace | The battle axe: a steel haft, a crescent blade, a back spike |
+| Gada | Heavy mace | The mace with a round fluted head and a gilt finial |
+| Indian Composite Bow | Longbow | The strongly recurved bow, lacquered and painted |
+
+## The Maya (1.5)
+
+The Classic and Postclassic Maya (the Bonampak murals, the Spanish accounts of the Yucatán): the holkan (warriors) in
+quilted cotton with flint-bladed spears, obsidian-edged clubs and shields, the jaguar and feathered-serpent warriors,
+hunters with bows, the lords (ajaw) in jade and quetzal plumes.
+
+| Item | Slot | Defence | Toughness | Durability | What it is |
+|---|---|---|---|---|---|
+| Jaguar Helmet | head | 2 | 0.5 | 200 | The jaguar warrior's head: the jaguar's open jaws round the face, its ears |
+| Feathered Serpent Headdress | head | 2 | 0.25 | 170 | A feathered-serpent headdress of dyed feathers |
+| Quetzal Headdress | head | 2 | 0.25 | 160 | The lord's headdress: a fan of quetzal plumes, a jade band |
+| Quilted Cotton Cap | head | 2 | 0.0 | 130 | A quilted cotton cap |
+| Holkan Headband | head | 1 | 0.0 | 80 | The warrior's (holkan) cloth band |
+| Deer Headdress | head | 1 | 0.0 | 110 | The hunter's deer head with antlers |
+| Quilted Cotton Armour | chest | 5 | 0.25 | 220 | Ichcahuipilli: cotton quilted two fingers thick, salt-stiffened (the Spaniards took it up) |
+| Jaguar Pelt Armour | chest | 5 | 0.5 | 240 | A jaguar pelt over the quilted cotton |
+| Feathered War Suit | chest | 5 | 0.5 | 230 | A suit covered in dyed feathers, a feather fan on the back |
+| Cotton Armour with Jade Collar | chest | 5 | 0.5 | 240 | Quilted cotton under a collar and pectoral of jade |
+| Manta Cape | chest | 1 | 0.0 | 90 | The commoner's cotton cloak |
+| Ex | legs | 1 | 0.0 | 80 | The ex: the loincloth, its flap hanging in front |
+| Quilted Cotton Kilt | legs | 3 | 0.25 | 180 | A quilted cotton kilt |
+| Jaguar Skin Kilt | legs | 3 | 0.25 | 190 | A kilt of jaguar skin |
+| Xanab Sandals | feet | 1 | 0.0 | 90 | Xanab: leather sandals tied at the ankle |
+| Sandals with Jade Anklets | feet | 1 | 0.0 | 130 | Sandals with jade anklets |
+| Jaguar Skin Leg Wraps | feet | 2 | 0.0 | 150 | Jaguar-skin wraps over the shins |
+
+Cotton and feathers are dyeable (white, red ochre and Maya blue by default).
+
+| Weapon | Counts as (Epic Knights) | What it is |
+|---|---|---|
+| Macuahuitl | Katzbalger | The one-handed hardwood club with obsidian flakes set in both edges |
+| Flint-Bladed Spear | Pike | A long spear with a big leaf-shaped chert blade, a tuft of feathers below |
+| Flint War Axe | Heavy mace | A long chert blade set through a wooden haft |
+| Maya Bow | Longbow | The self bow of hardwood, cord-wrapped at the grip |
+
+## More of Japan, the Seljuks, the Inuit and Byzantium (1.5)
+
+**Japan, the Sengoku period** (c. 1540–1615): the tōsei gusoku ('modern armour') made quickly for armies of tens of
+thousands, the ashigaru under the clan's banner, commanders in jinbaori.
+
+| Item | Slot | Defence | Toughness | Durability | What it is |
+|---|---|---|---|---|---|
+| Momonari Kabuto | head | 3 | 0.75 | 250 | The 'peach' bowl of few plates, ridged front to back |
+| Eboshi Kabuto | head | 3 | 1.0 | 270 | Raised in the shape of the court cap, leaning back, a gilt mon |
+| Nanban Kabuto | head | 3 | 1.25 | 290 | A European cabasset of bright steel with a Japanese peak and neck guard |
+| Sugegasa | head | 1 | 0.0 | 70 | The broad conical straw hat of the levy and the porter |
+| Nimai-dō | chest | 7 | 1.0 | 310 | The two-piece tōsei dō of riveted horizontal plates, black-lacquered, with small sode |
+| Hotoke-dō | chest | 7 | 1.0 | 310 | Its plates lacquered over smooth in the clan's colour (dyeable) |
+| Nanban-dō | chest | 8 | 1.5 | 340 | A European peascod breastplate of bright steel, Japanese tassets |
+| Jinbaori over Dō | chest | 7 | 1.0 | 300 | The commander's sleeveless surcoat, the clan's mon on its back, over the dō |
+| Haramaki | chest | 5 | 0.5 | 260 | The light wrap of laced lames opening at the back, shoulder straps only |
+| Ashigaru Dō with Sashimono | chest | 5 | 0.25 | 250 | The ashigaru's riveted dō with the sashimono: the clan's banner on a pole on the back |
+| Ikada Haidate | legs | 5 | 0.75 | 270 | 'Raft' thigh guards of small plates in a grid |
+| Tsutsu Suneate | feet | 2 | 0.75 | 220 | Tubular shin guards of hinged plates, large knee guards |
+| Waraji and Tabi | feet | 1 | 0.0 | 60 | Straw sandals over white tabi |
+
+| Weapon | Counts as (Epic Knights) | What it is |
+|---|---|---|
+| Tachi | Bastard sword | The older, deeper-curved slung sword of the mounted samurai; blocks |
+| Nagamaki | Lochaber axe | A heavy sword blade on a hilt as long as itself; blocks |
+
+**The Seljuks and those beside them** (11th–13th c.): the Kipchak horsemen, the Bedouin auxiliaries, the Turkmen of the
+Anatolian frontier and its peasant levies, the court.
+
+| Item | Slot | Defence | Toughness | Durability | What it is |
+|---|---|---|---|---|---|
+| Kipchak Masked Helmet | head | 3 | 1.0 | 260 | The Kipchak's tall helmet with a steel face mask, brows and moustache |
+| Sharbush | head | 1 | 0.0 | 110 | The court's tall flaring cap with a fur band and a gilt plaque |
+| Bedouin Kufiya | head | 1 | 0.0 | 80 | The Bedouin's head cloth held by a black cord |
+| Kipchak Leather Lamellar | chest | 5 | 0.5 | 250 | Lamellar of hardened, lacquered leather laced in dyed thongs |
+| Bedouin Robe and Aba | chest | 2 | 0.0 | 130 | The white robe and the striped camel-hair aba |
+| Khalat | chest | 3 | 0.0 | 170 | The robe of honour: brocade with gilt roundels and tiraz bands |
+| Kepenek | chest | 3 | 0.0 | 160 | The Turkmen shepherd's square-shouldered coat of thick felt |
+| Shalwar with Dolak | legs | 2 | 0.0 | 110 | Shalwar wrapped below the knee in woollen leg wraps (dolak) |
+| Çarık | feet | 1 | 0.0 | 70 | Rawhide moccasins laced round the ankle |
+| Felt Boots | feet | 1 | 0.0 | 110 | Thick felt boots |
+
+**The Arctic**, after the clothing collected from Greenland to the Bering Strait.
+
+| Item | Slot | Defence | Toughness | Durability | What it is |
+|---|---|---|---|---|---|
+| Wolverine-Ruffed Hood | head | 1 | 0.0 | 120 | A hood ruffed with wolverine fur (frost does not cling to it) |
+| Bird-Skin Parka | chest | 2 | 0.0 | 130 | Eider or murre skins sewn feathers inward |
+| Gut-Skin Parka | chest | 2 | 0.0 | 110 | Kamleika: strips of seal intestine, waterproof, the seams trimmed with dyed sinew |
+| Polar-Bear Trousers | legs | 2 | 0.0 | 150 | Nanukkut: polar-bear trousers of the Polar Inuit of Greenland |
+| Polar-Bear Kamik | feet | 1 | 0.0 | 130 | Kamiks with the bear's fur outside |
+
+**Byzantium**: the frontier, the palace and the levy (10th–12th c.).
+
+| Item | Slot | Defence | Toughness | Durability | What it is |
+|---|---|---|---|---|---|
+| Phrygian Helmet | head | 3 | 0.75 | 250 | The crown raised and curving forward, a gilt brow band, a mail aventail |
+| Skiadion | head | 1 | 0.0 | 80 | The broad-brimmed hat of officials and of soldiers on the march |
+| Mail Coif | head | 2 | 0.5 | 230 | The mail hood of the Komnenian army |
+| Akritic Leather Lamellar | chest | 5 | 0.5 | 260 | The frontier warrior's lamellar of boiled leather |
+| Excubitor's Gilded Scale | chest | 7 | 1.25 | 330 | The palace guard's gilded scale over a white tunic, pteruges |
+| Chiton | chest | 2 | 0.0 | 100 | The belted knee-length tunic of the levy, with clavi stripes |
+| Scale Kremasmata | legs | 5 | 0.75 | 270 | A skirt of scales over the hose |
+| Kampagia | feet | 1 | 0.0 | 110 | The officer's low strapped shoes |
+
 ## Shields (1.4)
 
 Each culture's own shields, made as Epic Knights makes its own (held, blocking and repaired like them, in its shields
@@ -206,6 +346,9 @@ their own painting, at twice Epic Knights' pixel density; they are not painted w
 | Kalkan | Seljuks | Round shield | The Turkic shield of coiled cane bound with red and blue thread, convex, a steel boss |
 | Sipar | Seljuks | Round shield | The ghulam's round shield: leather over wood, dark red, a gold eight-pointed star round a domed boss |
 | Tedate | Japan | Kite shield | The ashigaru's hand-held plank shield with a painted mon (a cross in a ring) |
+| Dhal (1.5) | India | Round shield | The round, convex shield of buffalo or rhinoceros hide, lacquered dark, four gilt bosses |
+| Pakal (1.5) | Maya | Round shield | The small round shield of hide over wood, a painted jaguar pelt, a red rim, a fringe of quetzal feathers |
+| Maya Flexible Shield (1.5) | Maya | Kite shield | The tall flexible shield of quilted cotton and hide, striped, feather tassels on its foot |
 
 No shields for the Inuit or for samurai: neither fought with hand shields (the Inuit slat armour's raised back board
 and the samurai's ō-sode shoulder guards took their place).
@@ -219,7 +362,11 @@ and the samurai's ō-sode shoulder guards took their place).
 `libs/` must hold the Epic Knights and Architectury jars (compile-only).
 
 The models (Java), armour textures, icons, item models, recipes, tags and translations are generated from
-`tools/japan.py`, `tools/seljuk.py`, `tools/inuit.py`, `tools/byzantine.py` (the armour), `tools/horse.py` (the 3D horse armour), `tools/weapons.py` (the weapon sprites and stats), `tools/weapons3d.py` (the 3D weapons), `tools/shields.py` (the shields) and `tools/icons.py` with `tools/icons_more.py` (the 16x16 icons):
+`tools/japan.py`, `tools/seljuk.py`, `tools/inuit.py`, `tools/byzantine.py`, `tools/india.py`, `tools/maya.py` and the
+1.5 additions `tools/japan_ext.py`, `tools/seljuk_ext.py`, `tools/inuit_ext.py`, `tools/byzantine_ext.py` (the armour),
+`tools/horse.py` (the 3D horse armour), `tools/weapons.py` (the weapon sprites and stats), `tools/weapons3d.py` (the 3D
+weapons), `tools/shields.py` (the shields) and `tools/icons.py` with `tools/icons_more.py` (the hand-drawn 16x16 icons;
+`tools/autoicon.py` draws the rest from the models):
 
 ```
 python3 tools/build_assets.py      # needs Pillow

@@ -2020,3 +2020,74 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     shield does (checked beside one). The server-side harness was unaffected (the flags only choose the client renderer).
 * SHA-256 of the jar: `ee53dc501b3f00d5e30c268ec6bb50440d9c07c5f00e6a1d7124fe4d10c45c09`; Cultures Armory 1.4.0:
   `77dafed2d33c05de530c3ef16e453144717016e05ce79c7d1b55f7563e112aa9`.
+
+### 6.63 Every culture, every tier, every HYW unit: Cultures Armory 1.5 and per-unit kits (`dist/hywmill-m5-fix63.jar`)
+
+* **Request.** Many more sets for every culture, after historical accounts, with gear for every tier and every HYW unit
+  (and any unit HYW may add).
+* **Cultures Armory 1.5** (`dist/cultures-armory-1.5.0.jar`): 142 armour pieces (from 71), 41 weapons (from 28), 9
+  shields (from 6), the 3 bardings.
+  * India, new (18 pieces, 7 weapons, 1 shield): the Rajput pagri, kulah khud (plain and gilt-damascened), top,
+    turbaned khud, Bhil headband; angarkha, chilta hazar masha, zirah bagtar, char aina, the Vijayanagara kavacha;
+    paijama, dhoti, zanupush, mail paijama; jutti, moza, chappal. Talwar, khanda, katar, barchha, tabar, gada, the
+    Indian composite bow. The dhal.
+  * The Maya, new (17 pieces, 4 weapons, 2 shields): jaguar and serpent helmets, the quetzal headdress, the cotton war
+    cap, the holkan's headband, the hunter's deer headdress; ichcahuipilli (quilted cotton), jaguar pelt, feathered war
+    suit, jade pectoral, the commoner's manta; the ex, quilted and jaguar kilts; xanab sandals, jade anklets, jaguar leg
+    wraps. The macuahuitl, flint-bladed spear, flint war axe, Maya bow. The pakal and the flexible shield.
+  * Japan, the Sengoku period (+13, +2 weapons): momonari, eboshi and nanban kabuto, the sugegasa; nimai-dō,
+    hotoke-dō, nanban-dō, jinbaori over the dō, haramaki, the ashigaru's dō with the sashimono banner; ikada haidate;
+    tsutsu suneate, waraji. The tachi and the nagamaki.
+  * The Seljuks and those beside them (+10): the Kipchak masked helmet and leather lamellar, the court's sharbush and
+    khalat, the Bedouin kufiya and robe with the aba, the Turkmen kepenek, shalwar with dolak, çarık, felt boots.
+  * The Arctic (+5): the wolverine-ruffed hood, bird-skin and gut-skin parkas, polar-bear trousers and kamiks.
+  * Byzantium (+8): the Phrygian helmet, skiadion, mail coif; akritic leather lamellar, the excubitor's gilded scale,
+    the levy's chiton; scale kremasmata; kampagia.
+  * Pieces without a hand-drawn icon get one ray-cast from the model and its own texture (`tools/autoicon.py`).
+  * 195 shaped recipes, no clash with Minecraft, Epic Knights or its add-ons (five clashes found and fixed).
+* **HywMill.**
+  * A new role between the duty role and the class role: `unit:<HYW unit key>` (`unit:spear_man`, `unit:archer`, ...).
+    Kits and slot lists are looked up duty role → the unit's own → class role → "all" (culture, then defaults). A unit
+    without lists of its own, such as one HYW adds later, falls through to its class as before. The provider passes the
+    unit's key; `equipcheck` applies a unit's lists to that unit only.
+  * `devtools/unit_kits.py` writes 268 unit lists: seven cultures × four tiers × every HYW unit (militia, spearmen,
+    shieldmen, warriors, archers, crossbowmen, the three riders; Japan's and India's gunpowder men). Each list rises with
+    the tier (levy → regulars → elite) after each army's own make-up:
+    * Byzantium: thematic levy and skutatoi, menavlatoi, toxotai, akritai, trapezitai, kataphraktoi, Varangians,
+      excubitors;
+    * the Seljuks: Anatolian peasants and Turkmen shepherds, Daylamite foot, ghulams, Kipchaks, Bedouin, emirs;
+    * Japan: peasant levies, ashigaru (with sashimono from the garrison tier), kogashira, sōhei, samurai in tōsei gusoku,
+      the older great armour for mounted archers, commanders in jinbaori;
+    * India: villagers and paiks, Bhil archers, sipahis, Rajput horse, Vijayanagara nobles, the heavy cavalry in char
+      aina;
+    * the Maya: commoners, holkan, hunters, serpent and jaguar warriors, lords in jade and quetzal plumes;
+    * the Inuit: caribou and sealskin hunters, kayakers, bone, slat and ivory armour for the feuds;
+    * the Normans (Epic Knights and its add-on): peasants, serjeants, archers and crossbowmen, milites, the great helm at
+      the stronghold.
+  * Every list keeps Epic Knights kits beside the armory's, and at least one of Epic Knights' own pieces only, so it
+    dresses with or without the armory and add-ons. Weapons are only of the families HYW gives the unit (checked).
+  * India and the Maya had no armory gear before: their class, levy and sentry lists and their 32 squad looks now lead
+    with it (the dhal; the pakal and flexible shield). 1.5's new pieces join 36 other squads (the Sengoku pieces for the
+    ashigaru and samurai squads, Kipchaks for the mamluks, akritai, excubitors, kayak raiders, ...).
+  * Indian spearmen carry the dhal, Maya spearmen the pakal or the flexible shield (`SpearShield`).
+  * Families for the new weapons and shields (talwar = katzbalger, khanda = bastard sword, barchha = pike, macuahuitl
+    = katzbalger, flint axe = heavy mace, dhal and pakal = round shield, flexible shield = kite shield, ...).
+* **Tests.**
+  * JUnit: 399, all pass. New `UnitKitsTest`: every culture, tier and unit has its own kits, first in the candidates
+    with the culture's armour first and Epic Knights kits beside; every unit weapon is a family HYW gives it; levy duty
+    still first; a unit without lists falls to its class; Indian and Maya spearmen's shields; Indian and Maya squads.
+  * Harness CA with Epic Knights 10.15, Addon 2.5, Slavic Armory 2.3 and Cultures Armory 1.5
+    (`docs/m5-test-evidence/fix63-ca.txt`): 49/49 PASS, six soldiers each. The new checks:
+    * CA-32 to CA-35: Indian spearmen (barchha, in chilta or zirah bagtar), shieldmen (talwar or katar), warriors
+      (khanda, gada or tabar, in char aina) and archers (the Indian bow);
+    * CA-36 to CA-40: Maya shieldmen (macuahuitl), spearmen (flint spear, in quilted cotton), warriors (flint axe, in
+      jaguar, feathers or jade), archers (Maya bow), the Jaguar squad;
+    * CA-41 to CA-43: per-unit kits: Japanese stronghold spearmen under the sashimono or in haramaki or nimai-dō; Seljuk
+      watch militia as peasants and shepherds with dolak; Byzantine stronghold lancers as kataphraktoi or strategoi;
+    * CA-44 to CA-47: Indian shieldmen and spearmen the dhal; Maya shieldmen and spearmen the pakal or flexible shield;
+    * CA-0 (every profile and look item valid) and CA-1 to CA-31 still pass (CA-2 and CA-7 now accept the tachi,
+      nagamaki and the Sengoku kit).
+  * Real client: 26 new outfits on armour stands with their weapons and shields (`docs/m5-test-evidence/
+    fix63-client-*.png`): every piece, weapon and shield renders, no missing texture.
+* SHA-256 of the jar: `ee10e929fb9f2cce681473342881fb26f03a48e25320cc558aa2db9d8b3ce185`; Cultures Armory 1.5.0:
+  `4d594404cb247cdd943b90849c08b6f7cb089deecf5cef0c64f979074626cfa9`.
