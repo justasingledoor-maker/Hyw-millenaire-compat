@@ -2197,3 +2197,24 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     arrows left (inventory 84 -> 54 -> 24 -> 0), each tap one bolt (24 -> 19); five of eight husks in a line killed.
 * SHA-256 of the jar: `50f0547786f95aaf46bbd1ecba45cff9a60bdb0d9eba9185921d709472168b48`; Assault Crossbow 1.0.0:
   `5915f727b1f9e7ec1826cbab8948e5e7c5e50d4f0d0780c5c823cee4a038736c`.
+
+### 6.66 Lone buildings are never besieged (`dist/hywmill-m5-fix66.jar`)
+
+* **Request.** Villages should not besiege the small lone settlements (Unatannik Tupiq, the bandit towers and lairs, inns,
+  lone farms...): there is nothing there worth a siege.
+* **Change** (`SiegeService`, `SiegeMath.Refusal.LONE_BUILDING`): a Millénaire lone building (its own `isLoneBuilding`
+  flag, already on each village record) is never the target of a siege and never raises one:
+  * every launch refuses it (the AI, a player's counsel, the admin command): "<name> is a lone building, not a village:
+    there is nothing there worth a siege" / "... it raises no host";
+  * the AI never weighs such a pair, and a player's siege counsel is refused before any diplomacy point is spent;
+  * a siege of one already under way (from before this change) is called off on its next step: the host comes home,
+    nothing won and nothing paid.
+  * Wars with lone buildings (Millénaire's bandit raids start them) are unchanged: the village still defends itself, and
+    war counsel already refused lone buildings.
+* **Validation.** JUnit 405/405. Harness LB (new, kept world) 6/6 (`docs/m5-test-evidence/fix66-lb.txt`): a Norman bandit
+  tower (Tour des bandits) spawned with `/millenaire spawn_lb` beside village A is known as a lone building; A cannot
+  besiege it, nor it A; no siege of it is under way. The harness's village reuse now skips lone buildings (`hywmill village
+  list` marks them "lone"). The first runs failed on the harness's own setup (`millenaire spawn` refuses lone buildings,
+  and the first spot was over water); fixed and rerun. The call-off of a siege begun before the change is not exercised
+  (no such siege can be started any more).
+* SHA-256 of the jar: `e90c7fef8f9ffc0ae35aae83f38e7747c6e3b8efd6c789dadb81eceafcd9f560`.

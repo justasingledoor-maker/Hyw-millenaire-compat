@@ -204,15 +204,15 @@ def surface_y(s, x, z):
     return y
 
 
-def spawn_village(s, candidates, surface=False):
+def spawn_village(s, candidates, surface=False, lone=False):
     """surface=True spawns at the real ground height (Millénaire's reachability check starts from
-    the given position, so a guessed y above or below the surface rejects the village)."""
+    the given position, so a guessed y above or below the surface rejects the village). lone=True: lone buildings."""
     for vtype, x, y, z in candidates:
         if surface:
             y = surface_y(s, x, z) or y
-        lines = s.cmd(f'millenaire spawn at {x} {y} {z} "{vtype}" 100', wait=45)
+        lines = s.cmd(f'millenaire {"spawn_lb" if lone else "spawn"} at {x} {y} {z} "{vtype}" 100', wait=45)
         for l in lines:
-            m = re.search(r"Village \S+ spawned at (-?\d+), (-?\d+), (-?\d+)", l)
+            m = re.search(r"(?:Village|Lone building) \S+ spawned at (-?\d+), (-?\d+), (-?\d+)", l)
             if m:
                 return tuple(int(v) for v in m.groups())
     return None
@@ -352,7 +352,7 @@ def reuse(ctx):
     centers = []
     for l in s.output("hywmill village list", 2):
         m = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=| (-?\d+), (-?\d+), (-?\d+) tier=", l)
-        if m:
+        if m and not l.endswith(" lone"):  # LB's bandit tower is no test village
             g = [x for x in m.groups() if x is not None]
             centers.append(tuple(int(x) for x in g))
     ctx.a = centers[0] if centers else None
@@ -1742,7 +1742,7 @@ def village_centers(s):
     centers = []
     for l in s.output("hywmill village list", 2):
         m = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=| (-?\d+), (-?\d+), (-?\d+) tier=", l)
-        if m:
+        if m and not l.endswith(" lone"):
             centers.append(tuple(int(x) for x in m.groups() if x is not None))
     return centers
 
@@ -6146,6 +6146,41 @@ def scenario_SQ(ctx):
           ("ok=true" in h6 and len(ha) >= 10) or (tz == "WATCH" and "ok=false" in h6), f"{tz}: {h6[-160:]}; {len(ha)} horse archers")
 
 
+def scenario_LB(ctx):
+    """Lone buildings are not besieged (1.6; --keep-world): a bandit lone building spawned beside A is known as one; A cannot
+    besiege it, nor it A, by command or by counsel; the AI never picks it."""
+    s, a = ctx.s, ctx.a
+    x, z = a[0], a[2] - 320
+    s.cmd(f"forceload add {x - 64} {z - 64} {x + 64} {z + 64}", 15)
+    y = surface_y(s, x, z) or 70
+    # a dry, level pad (Millénaire rejects a footprint over water); each fill under the 32768-block limit
+    s.cmd(f"fill {x - 24} {y} {z - 24} {x + 24} {y + 12} {z + 24} minecraft:air", 2)
+    s.cmd(f"fill {x - 24} {y - 1} {z - 24} {x + 24} {y - 1} {z + 24} minecraft:grass_block", 1)
+    s.cmd(f"fill {x - 24} {y - 4} {z - 24} {x + 24} {y - 2} {z + 24} minecraft:dirt", 1)
+    lb = None
+    if "lone building" in " ".join(s.output(at((x, y, z), "hywmill village military"), 2)):
+        lb = (x, y, z)  # a kept world: the one spawned by an earlier run
+    for attempt in range(0 if lb else 3):  # Millénaire rolls the plan; a roll can find no room
+        lb = spawn_village(s, [("norman/bandittower", x, y, z), ("norman/banditlair", x, y, z), ("inuits/banditshack", x, y, z)], lone=True)
+        if lb:
+            break
+    check("LB-1 a bandit lone building stands beside A", lb is not None, str(lb))
+    if not lb:
+        return
+    time.sleep(25)  # the ledger picks it up on its next pass
+    info = " ".join(s.output(at(lb, "hywmill village military"), 2))
+    check("LB-2 HywMill knows it as a lone building", "lone building" in info, info[:200])
+    ca, cl = f"{a[0]} {a[1]} {a[2]}", f"{lb[0]} {lb[1]} {lb[2]}"
+    r1 = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cl} quick", 3) if l.startswith("war siege"))
+    check("LB-3 A cannot besiege it", "LONE_BUILDING" in r1 and "nothing there worth a siege" in r1, r1)
+    r2 = " | ".join(l for l in s.output(f"hywmill war admin siege {cl} {ca} quick", 3) if l.startswith("war siege"))
+    check("LB-4 nor can it besiege A", "LONE_BUILDING" in r2 and "raises no host" in r2, r2)
+    sieges = [l for l in s.output("hywmill war sieges", 1.5) if " -> " in l]
+    name = re.search(r"Military: (.+?) \(", info)
+    check("LB-5 no siege of it is under way", name is None or not any(name[1] in l for l in sieges), str(sieges))
+    s.cmd(f"forceload remove {x - 64} {z - 64} {x + 64} {z + 64}", 2)
+
+
 def scenario_MW(ctx):
     """Mercenary companies in the wilds (1.6; --keep-world with the extra villages): a Muster Roll outside any village offers the
     companies of its land (the biome's region) and of the nearest village's people; one is hired whole, in its own look; a
@@ -7269,7 +7304,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

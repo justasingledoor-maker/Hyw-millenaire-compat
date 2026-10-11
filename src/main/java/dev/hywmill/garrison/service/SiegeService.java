@@ -341,6 +341,9 @@ public final class SiegeService {
         if (a == null || t == null || attackerId.equals(targetId)) {
             return new Launch(SiegeMath.Refusal.NOT_AT_WAR, null, "unknown village");
         }
+        if (a.loneBuilding || t.loneBuilding) {
+            return new Launch(SiegeMath.Refusal.LONE_BUILDING, null, loneText(a, t));
+        }
         PoliticsTables.SiegeRule r = rule(a);
         if (!r.enabled()) {
             return new Launch(SiegeMath.Refusal.DISABLED, null, "sieges are turned off");
@@ -638,6 +641,9 @@ public final class SiegeService {
         if (source == null || a == null || t == null || attackerId.equals(targetId)) {
             return new Counsel(SiegeMath.Refusal.NOT_AT_WAR, 0, false, false, "unknown village");
         }
+        if (a.loneBuilding || t.loneBuilding) {
+            return new Counsel(SiegeMath.Refusal.LONE_BUILDING, 0, false, false, loneText(a, t));
+        }
         long now = overworld.getGameTime();
         PoliticsTables.SiegeRule r = rule(a);
         Campaign c = RelationProjector.campaignOf(ledger, player);
@@ -684,6 +690,12 @@ public final class SiegeService {
         return new Counsel(SiegeMath.Refusal.OK, chance, true, true, a.name + " heeds your counsel: " + l.detail());
     }
 
+    /** Lone buildings (bandit camps, inns, lone farms...) are no villages: no host marches from one, and none marches on one. */
+    static String loneText(VillageRecord a, VillageRecord t) {
+        return t.loneBuilding ? t.name + " is a lone building, not a village: there is nothing there worth a siege"
+                : a.name + " is a lone building, not a village: it raises no host";
+    }
+
     private static String refusalText(SiegeMath.Refusal refusal, VillageRecord a, VillageRecord t, PoliticsTables.SiegeRule r, SiegeMath.Facts f) {
         return switch (refusal) {
             case DISABLED -> "sieges are turned off";
@@ -695,6 +707,7 @@ public final class SiegeService {
             case HOST_TOO_SMALL -> a.name + " can spare only " + f.hostSize() + " soldier(s); a siege needs " + r.minCommit();
             case COOLDOWN -> "you counselled " + a.name + " recently; wait " + (r.counselCooldown() - (f.now() - f.lastCounsel())) / 20 + " s";
             case NO_DIPLOMACY_POINT -> "needs " + r.counselPoints() + " Millénaire diplomacy points with " + a.name + ", you have " + Math.max(0, f.points());
+            case LONE_BUILDING -> loneText(a, t);
             case OK -> "";
         };
     }
@@ -751,6 +764,15 @@ public final class SiegeService {
             return;
         }
         PoliticsTables.SiegeRule r = rule(a);
+        if (t != null && (t.loneBuilding || a.loneBuilding) && s.outcome == Siege.Outcome.NONE && s.phase != Siege.Phase.RETURN) {
+            // a siege of a lone building begun before they were exempt: called off, the host comes home (nothing won, nothing paid)
+            s.summary = "The host of " + a.name + " is called home: " + loneText(a, t);
+            announce(overworld, ledger, s, a, t, s.summary);
+            HmLog.info("Siege {} called off: {}", s.id.toString().substring(0, 8), s.summary);
+            goHome(overworld, ledger, s, a, entries(a, s.host), tick, r, false);
+            ledger.setDirty();
+            return;
+        }
         ReliefService.step(overworld, ledger, s, a, t, tick);
         List<RosterEntry> alive = entries(a, s.host);
         if (soldiers(a, alive).isEmpty() && s.phase != Siege.Phase.RETURN && s.phase != Siege.Phase.PREPARE) {
@@ -2957,7 +2979,7 @@ public final class SiegeService {
             for (UUID[] pair : new UUID[][]{{w.a, w.b}, {w.b, w.a}}) {
                 VillageRecord a = ledger.get(pair[0]);
                 VillageRecord t = ledger.get(pair[1]);
-                if (a == null || t == null || a.hywRoster == null) {
+                if (a == null || t == null || a.hywRoster == null || a.loneBuilding || t.loneBuilding) {
                     continue;
                 }
                 PoliticsTables.SiegeRule r = rule(a);

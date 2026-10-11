@@ -91,8 +91,9 @@ public final class SiegeMath {
 
     // ------------------------------------------------------------------ counsel and village decisions
 
+    /** LONE_BUILDING: a lone building (a bandit camp, an inn, a lone farm) is no village: it neither besieges nor is besieged. */
     public enum Refusal { OK, DISABLED, NOT_AT_WAR, NOT_ON_CAMPAIGN, STANDING_TOO_LOW, ALREADY_BESIEGING, TARGET_BESIEGED, HOST_TOO_SMALL,
-        COOLDOWN, NO_DIPLOMACY_POINT }
+        COOLDOWN, NO_DIPLOMACY_POINT, LONE_BUILDING }
 
     /**
      * @param besieging   the attacker already has a siege under way

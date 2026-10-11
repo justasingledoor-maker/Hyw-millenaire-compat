@@ -1,0 +1,16 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (847, 87, 624)]
+[harness] --- scenario LB
+[harness] PASS LB-1 a bandit lone building stands beside A (647, 110, 304)
+[harness] PASS LB-2 HywMill knows it as a lone building == Military: Tour des bandits (millenaire:norman/bandittower) [lone building] Tier: NONE | soldiers 0, leaders 0, militia 0, defenders 0 | outlaws 4, civilians 0 Capacity: 0 | readiness: 0% | equipmen
+[harness] PASS LB-3 A cannot besiege it war siege LONE_BUILDING: Tour des bandits is a lone building, not a village: there is nothing there worth a siege
+[harness] PASS LB-4 nor can it besiege A war siege LONE_BUILDING: Tour des bandits is a lone building, not a village: it raises no host
+[harness] PASS LB-5 no siege of it is under way []
+[harness] server stopped
+[harness] RESULT 6/6 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (847, 87, 624)]
+  PASS  LB-1 a bandit lone building stands beside A  (647, 110, 304)
+  PASS  LB-2 HywMill knows it as a lone building  == Military: Tour des bandits (millenaire:norman/bandittower) [lone building] Tier: NONE | soldiers 0, leaders 0, militia 0, defenders 0 | outlaws 4, civilians 0 Capacity: 0 | readiness: 0% | equipmen
+  PASS  LB-3 A cannot besiege it  war siege LONE_BUILDING: Tour des bandits is a lone building, not a village: there is nothing there worth a siege
+  PASS  LB-4 nor can it besiege A  war siege LONE_BUILDING: Tour des bandits is a lone building, not a village: it raises no host
+  PASS  LB-5 no siege of it is under way  []

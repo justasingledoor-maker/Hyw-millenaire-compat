@@ -196,7 +196,7 @@ public final class HywMillCommands {
         send(src, "Ledger villages: " + ledger.all().size());
         for (VillageRecord r : ledger.all()) {
             send(src, " - " + r.name + " " + r.center.toShortString() + " tier=" + r.tier + " garrison=" + r.garrison
-                    + " fort=" + r.fortification + " id=" + r.villageId + " culture=" + r.culture);
+                    + " fort=" + r.fortification + " id=" + r.villageId + " culture=" + r.culture + (r.loneBuilding ? " lone" : ""));
         }
         return 1;
     }
