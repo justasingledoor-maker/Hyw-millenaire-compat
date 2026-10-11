@@ -1,0 +1,6 @@
+{
+  "parent": "assaultcrossbow:item/assault_crossbow",
+  "textures": {
+    "layer0": "assaultcrossbow:item/assault_crossbow_loaded"
+  }
+}

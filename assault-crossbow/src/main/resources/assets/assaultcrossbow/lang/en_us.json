@@ -1,0 +1,6 @@
+{
+  "item.assaultcrossbow.assault_crossbow": "Assault Crossbow",
+  "item.assaultcrossbow.assault_crossbow.magazine": "Magazine: %s / %s %s",
+  "item.assaultcrossbow.assault_crossbow.help1": "Hold use: fully automatic. Tap: single shots.",
+  "item.assaultcrossbow.assault_crossbow.help2": "Reloads from your arrows when empty; sneak + use tops it up."
+}

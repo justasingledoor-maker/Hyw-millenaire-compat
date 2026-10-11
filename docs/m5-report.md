@@ -2163,3 +2163,37 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     plains; the tabs were widened and the Pindari kept to the savanna and the Indians' neighbourhood.
 * SHA-256 of the jar: `3f12a7f375a6ae4700a6307fb550cf6cc0a23f3200cf7b388b2ba1814af4484c`; Cultures Armory 1.6.0:
   `5d2456855f5fd154cbe4d558e623af2954521b325416f8759ae295fb691fcbd9`.
+
+### 6.65 The diplomacy screen's village list: search, distance and bearing; and the Assault Crossbow, a separate mod (`dist/hywmill-m5-fix65.jar`)
+
+* **Request.** On the diplomacy screen, village names easier to read, each village's distance from the village the player
+  is in, and a search bar. Separately: a crossbow for the player alone that holds 30 arrows and fires them fully automatic
+  while the use key is held, or one per tap, in its own jar.
+* **Politics screen** (`PoliticsScreen`, `PoliticsNet`, `PoliticsSnapshot`; protocol 8):
+  * a search box over the village list (it matches the name, the people, the player's standing there and the village's
+    place: "ally", "vassal of ...", "province of ..."), a Near / A-Z sort, mouse-wheel scrolling beside the arrows;
+  * wider rows: the livery, the name (shortened only when it doesn't fit, the full name in the tooltip), and on the right
+    the distance and compass point ("1.2km NE"), from the village the player is in, or from the player when in none; the
+    home village first, marked "here"; a line over the list: "12 of 40 villages, distance from <village>";
+  * the tooltip: the village's people, its distance and bearing, the player's standing, its place, a truce, the relation;
+  * the snapshot carries each village's bearing and people, and up to 256 villages (was 64).
+  * JUnit 405/405 (new: bearings are compass points, north being -z; the snapshot round-trips the new fields).
+  * Not shown in a real client this time: the dev client's test world has no Millénaire villages.
+* **Assault Crossbow 1.0.0** (`assault-crossbow/`, `dist/assault-crossbow-1.0.0.jar`): a standalone NeoForge 1.21.1 mod
+  (no dependency on HywMill, Millénaire, HYW or Epic Knights). One item, a repeating crossbow with a magazine box (its own
+  32x32 textures, standby and loaded):
+  * a 30-arrow magazine (the stack's charged projectiles: one arrow kind at a time, tipped and spectral arrows too);
+  * fully automatic while the use key is held (the game repeats a held use every 4 ticks: 5 bolts a second, at a
+    crossbow's speed, 7 damage a bolt), one bolt per tap (at most one every 2 ticks); its bolts land in full through a
+    target's hurt immunity; no slow-down while firing;
+  * empty, it reloads by itself in 1.5 s from the player's arrows (crossbow loading sounds; free in creative, where the
+    bolts can't be picked up); sneak + use tops up a part-full magazine; putting it away stops a reload;
+  * the rounds left beside the crosshair ("16 / 30", "Reloading 50%"), the magazine as the bar under its icon, the
+    two-handed aim while loaded;
+  * recipe: iron, a hopper, iron / string, a crossbow, string / a tripwire hook; in the Combat tab.
+  * It is the player's alone: units never get it (HywMill and HYW draw on their own lists, and no mob can work it).
+  * Real client (`assault-crossbow/docs/client-test-*.png`, `client-test.txt`): with 84 arrows, the right button held for
+    14 s through XTest, then five taps: a 1.5 s reload, 30 bolts, an automatic reload, 30 more, a third reload with the 24
+    arrows left (inventory 84 -> 54 -> 24 -> 0), each tap one bolt (24 -> 19); five of eight husks in a line killed.
+* SHA-256 of the jar: `50f0547786f95aaf46bbd1ecba45cff9a60bdb0d9eba9185921d709472168b48`; Assault Crossbow 1.0.0:
+  `5915f727b1f9e7ec1826cbab8948e5e7c5e50d4f0d0780c5c823cee4a038736c`.

@@ -1,0 +1,4 @@
+[21:56:37] [Render thread/INFO] [minecraft/ChatComponent]: [System] [CHAT] XBTEST arrows=84 husks=0 mag= state=
+[21:56:46] [Render thread/INFO] [minecraft/ChatComponent]: [System] [CHAT] XBTEST arrows=84 husks=8 mag= state={last_shot:0L,reload_until:18703L}
+[21:56:51] [Render thread/INFO] [minecraft/ChatComponent]: [System] [CHAT] XBTEST arrows=54 husks=4 mag=9 state={last_shot:18788L,reload_until:0L}
+[21:57:06] [Render thread/INFO] [minecraft/ChatComponent]: [System] [CHAT] XBTEST arrows=0 husks=3 mag=20 state={last_shot:19086L,reload_until:0L}
