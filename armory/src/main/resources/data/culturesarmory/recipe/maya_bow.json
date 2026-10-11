@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " ws",
+    "c s",
+    " ws"
+  ],
+  "key": {
+    "w": {
+      "tag": "minecraft:logs"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "c": {
+      "item": "minecraft:white_wool"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:maya_bow",
+    "count": 1
+  }
+}

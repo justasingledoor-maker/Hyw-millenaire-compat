@@ -16,6 +16,14 @@
     {
       "id": "culturesarmory:toxarion",
       "required": false
+    },
+    {
+      "id": "culturesarmory:dhanush",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:maya_bow",
+      "required": false
     }
   ]
 }

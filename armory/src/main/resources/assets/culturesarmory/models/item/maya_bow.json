@@ -1,0 +1,28 @@
+{
+  "parent": "magistuarmory:item/longbow",
+  "textures": {
+    "layer0": "culturesarmory:item/maya_bow"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "pulling": 1
+      },
+      "model": "culturesarmory:item/maya_bow_pulling_0"
+    },
+    {
+      "predicate": {
+        "pulling": 1,
+        "pull": 0.65
+      },
+      "model": "culturesarmory:item/maya_bow_pulling_1"
+    },
+    {
+      "predicate": {
+        "pulling": 1,
+        "pull": 0.9
+      },
+      "model": "culturesarmory:item/maya_bow_pulling_2"
+    }
+  ]
+}

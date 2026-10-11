@@ -172,10 +172,30 @@ public class ArmoryItems extends ModItemsProvider {
             WeaponType.of(6.8F, 0.95F, 1.0F, 0.06F, 3.2F, 3, true, 2, 3.0F, true, false, false));
     public static final RegistrySupplier<MedievalWeaponItem> STEEL_SIDERORABDION = INSTANCE.addMedievalWeaponItem("steel_siderorabdion", new Item.Properties(), ModItemTier.STEEL,
             WeaponType.of(4.8F, 1.1F, 0.0F, 0.06F, 2.4F, 6, true));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_TALWAR = INSTANCE.addMedievalWeaponItem("steel_talwar", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(3.5F, 1.6F, 0.0F, 0.0F, 1.2F, 0, true));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_KHANDA = INSTANCE.addMedievalWeaponItem("steel_khanda", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(4.2F, 1.4F, 0.0F, 0.03F, 1.6F, 0, true, 1, 4.0F, true, false, false));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_KATAR = INSTANCE.addMedievalWeaponItem("steel_katar", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(3.2F, 1.75F, 0.0F, 0.0F, 0.9F, 2, true));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_BARCHHA = INSTANCE.addMedievalWeaponItem("steel_barchha", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(3.0F, 1.2F, 2.5F, 0.0F, 2.2F, 3, true, 2, 0.0F, false, false, false));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_TABAR = INSTANCE.addMedievalWeaponItem("steel_tabar", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(4.8F, 1.15F, 0.0F, 0.04F, 2.2F, 3, true));
+    public static final RegistrySupplier<MedievalWeaponItem> STEEL_GADA = INSTANCE.addMedievalWeaponItem("steel_gada", new Item.Properties(), ModItemTier.STEEL,
+            WeaponType.of(5.0F, 1.05F, 0.0F, 0.07F, 2.6F, 6, true));
+    public static final RegistrySupplier<MedievalWeaponItem> MACUAHUITL = INSTANCE.addMedievalWeaponItem("macuahuitl", new Item.Properties(), ModItemTier.IRON,
+            WeaponType.of(4.4F, 1.2F, 0.0F, 0.03F, 2.0F, 2, true));
+    public static final RegistrySupplier<MedievalWeaponItem> FLINT_SPEAR = INSTANCE.addMedievalWeaponItem("flint_spear", new Item.Properties(), ModItemTier.IRON,
+            WeaponType.of(2.8F, 1.25F, 2.5F, 0.0F, 2.0F, 2, true, 2, 0.0F, false, false, false));
+    public static final RegistrySupplier<MedievalWeaponItem> FLINT_AXE = INSTANCE.addMedievalWeaponItem("flint_axe", new Item.Properties(), ModItemTier.IRON,
+            WeaponType.of(4.4F, 1.15F, 0.0F, 0.04F, 2.0F, 2, true));
     public static final RegistrySupplier<Item> YUMI = INSTANCE.addMedievalBowItem("yumi", RangedWeaponType.of(400, 34, 4.4F, true));
     public static final RegistrySupplier<Item> TURKIC_BOW = INSTANCE.addMedievalBowItem("turkic_bow", RangedWeaponType.of(380, 30, 4.5F, true));
     public static final RegistrySupplier<Item> SINEW_BOW = INSTANCE.addMedievalBowItem("sinew_bow", RangedWeaponType.of(320, 30, 3.9F, true));
     public static final RegistrySupplier<Item> TOXARION = INSTANCE.addMedievalBowItem("toxarion", RangedWeaponType.of(390, 32, 4.4F, true));
+    public static final RegistrySupplier<Item> DHANUSH = INSTANCE.addMedievalBowItem("dhanush", RangedWeaponType.of(390, 32, 4.5F, true));
+    public static final RegistrySupplier<Item> MAYA_BOW = INSTANCE.addMedievalBowItem("maya_bow", RangedWeaponType.of(300, 26, 3.6F, true));
     public static final RegistrySupplier<MedievalWeaponItem> STEEL_KONTOS = INSTANCE.addLanceItem("steel_kontos", new Item.Properties(), ModItemTier.STEEL,
             WeaponTypes.GIANT_LANCE);
     public static final RegistrySupplier<MedievalWeaponItem> STEEL_BARDOUKION = INSTANCE.addMedievalWeaponItem("steel_bardoukion", new Item.Properties(), ModItemTier.STEEL,
@@ -201,6 +221,12 @@ public class ArmoryItems extends ModItemsProvider {
             ModItemTier.STEEL, false, true, ShieldType.of(360, 0.8F, 3.5F, 8.0F, true, true));
     public static final RegistrySupplier<MedievalShieldItem> TEDATE = INSTANCE.addMedievalShieldItem("tedate", "tedate", new Item.Properties(),
             ModItemTier.WOOD, false, true, ShieldType.of(330, 0.8F, 4.0F, 9.0F, true, true));
+    public static final RegistrySupplier<MedievalShieldItem> DHAL = INSTANCE.addMedievalShieldItem("dhal", "dhal", new Item.Properties(),
+            ModItemTier.STEEL, false, true, ShieldType.of(360, 0.8F, 3.0F, 8.0F, true, true));
+    public static final RegistrySupplier<MedievalShieldItem> PAKAL = INSTANCE.addMedievalShieldItem("pakal", "pakal", new Item.Properties(),
+            ModItemTier.WOOD, false, true, ShieldType.of(300, 0.8F, 2.5F, 6.0F, true, true));
+    public static final RegistrySupplier<MedievalShieldItem> FLEXIBLE_SHIELD = INSTANCE.addMedievalShieldItem("flexible_shield", "flexible_shield", new Item.Properties(),
+            ModItemTier.WOOD, false, true, ShieldType.of(280, 0.8F, 2.0F, 6.0F, true, true));
 
     public ArmoryItems() {
         super(CulturesArmory.ID);

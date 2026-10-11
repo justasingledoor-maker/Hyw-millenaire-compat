@@ -47,6 +47,30 @@
     {
       "type": "single",
       "resource": "culturesarmory:entity/tedate_pattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/dhal_nopattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/dhal_pattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/pakal_nopattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/pakal_pattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/flexible_shield_nopattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/flexible_shield_pattern"
     }
   ]
 }

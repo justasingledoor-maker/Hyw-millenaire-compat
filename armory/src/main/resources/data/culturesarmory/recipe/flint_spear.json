@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  f",
+    " c ",
+    "p  "
+  ],
+  "key": {
+    "f": {
+      "item": "minecraft:flint"
+    },
+    "c": {
+      "item": "minecraft:string"
+    },
+    "p": {
+      "tag": "magistuarmory:poles"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:flint_spear",
+    "count": 1
+  }
+}

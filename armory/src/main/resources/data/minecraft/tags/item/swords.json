@@ -90,6 +90,42 @@
       "required": false
     },
     {
+      "id": "culturesarmory:steel_talwar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_khanda",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_katar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_barchha",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_tabar",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:steel_gada",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:macuahuitl",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:flint_spear",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:flint_axe",
+      "required": false
+    },
+    {
       "id": "culturesarmory:steel_kontos",
       "required": false
     },

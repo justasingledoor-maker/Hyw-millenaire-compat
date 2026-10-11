@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "lgl",
+    "lhl",
+    " l "
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "g": {
+      "item": "minecraft:gold_nugget"
+    },
+    "h": {
+      "item": "minecraft:black_dye"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:dhal",
+    "count": 1
+  }
+}

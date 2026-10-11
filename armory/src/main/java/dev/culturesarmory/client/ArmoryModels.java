@@ -121,6 +121,9 @@ public class ArmoryModels extends ModModelsProvider {
     public static final ModelLayerLocation KALKAN_SHIELD = INSTANCE.addModel("kalkan", KalkanModel::createLayer);
     public static final ModelLayerLocation SIPAR_SHIELD = INSTANCE.addModel("sipar", SiparModel::createLayer);
     public static final ModelLayerLocation TEDATE_SHIELD = INSTANCE.addModel("tedate", TedateModel::createLayer);
+    public static final ModelLayerLocation DHAL_SHIELD = INSTANCE.addModel("dhal", DhalModel::createLayer);
+    public static final ModelLayerLocation PAKAL_SHIELD = INSTANCE.addModel("pakal", PakalModel::createLayer);
+    public static final ModelLayerLocation FLEXIBLE_SHIELD_SHIELD = INSTANCE.addModel("flexible_shield", FlexibleShieldModel::createLayer);
 
     public ArmoryModels() {
         super("culturesarmory");

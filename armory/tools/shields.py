@@ -18,6 +18,12 @@ banners), drawn at twice the density of Epic Knights' (SCALE texels per unit).
   Japan:
     tedate           the hand-held plank shield (te-date) with a painted mon (the maru ni jūji: a cross in a ring); samurai
                      carried none, nor did the Inuit
+  India (Mughal and Rajput, 16th-17th c.):
+    dhal             the round, convex shield of buffalo or rhinoceros hide, lacquered dark, four gilt bosses
+  The Maya (Classic murals, Bonampak; the Postclassic):
+    pakal            the small round shield of hide over wood, a jaguar pelt painted on it, a red rim, a fringe of
+                     quetzal feathers below
+    flexible_shield  the rectangular flexible shield of quilted cotton and hide, striped, feather tassels on its foot
 """
 import math
 
@@ -359,6 +365,123 @@ def tedate():
     return ShieldModel("TedateModel", "tedate", plate, HANDLE, plate_pivot=(0, 2, 0))
 
 
+HIDE = [(34, 24, 18), (52, 36, 26), (70, 50, 36), (96, 72, 52)]
+JAG = [(196, 140, 62), (172, 116, 46), (120, 76, 30), (34, 26, 20)]
+QUETZ = [(22, 96, 64), (34, 132, 84), (70, 172, 104)]
+MAYA_RED = [(120, 34, 26), (168, 52, 38)]
+
+
+def dhal_front(cy):
+    def front(o, gx, gy):
+        if not o.inside(gx, gy):
+            return None
+        r, a = polar(o, gx, gy, cy)
+        R = o.W * SCALE / 2
+        if r > R - 2:
+            return HIDE[0]
+        if abs(r - (R - 4)) < 1:
+            return G[2] if int((a + math.pi) * R / 2) % 2 else G[3]                      # a gilt painted band
+        sheen = (gx - gy) / (o.W * SCALE)                                              # the lacquer catches the light
+        return HIDE[3] if -0.15 < sheen < -0.05 and r < R * 0.7 else HIDE[2] if (gx * 3 + gy * 5) % 9 else HIDE[1]
+    return front
+
+
+def dhal():
+    d = 15
+    o = Outline(round_widths(d), -10)
+    cy = d / 2
+    plate = o.slices(-2, 1, dhal_front(cy), back_leather, HIDE[0], "plate")
+    inner = Outline(round_widths(9), -10 + (d - 9) / 2)
+    off = (d - 9) / 2
+    plate += inner.slices(-2.6, 1, lambda oi, gx, gy: dhal_front(cy)(o, gx + off * SCALE, gy + off * SCALE),
+                          lambda oi, gx, gy: None, HIDE[0], "dome")
+    c = -10 + cy
+    for i, (dx, dy) in enumerate(((-2, -2), (2, -2), (-2, 2), (2, 2))):          # the four bosses
+        plate.append(Cube((dx - 0.5, c + dy - 0.5, -3.6), (1, 1, 1), paint=gilt_boss, tag=f"boss{i}"))
+    return ShieldModel("DhalModel", "dhal", plate, HANDLE)
+
+
+def gilt_boss(f):
+    for s in range(f.strip_w):
+        face, i = f.face_of(s)
+        for t in range(f.h):
+            f.side(s, t, G[4] if face == "front" and i + t < 2 else G[3] if face == "front" else G[2])
+    for i in range(f.w):
+        for j in range(f.d):
+            f.top(i, j, G[3])
+            f.bottom(i, j, G[1])
+
+
+def pakal_front(cy):
+    def front(o, gx, gy):
+        if not o.inside(gx, gy):
+            return None
+        r, a = polar(o, gx, gy, cy)
+        R = o.W * SCALE / 2
+        if r > R - 3:
+            return MAYA_RED[0] if r > R - 1.5 else MAYA_RED[1]                          # a red-painted rim
+        # the jaguar pelt: rosettes of black spots round a darker heart
+        cell = 7
+        ux, uy = gx // cell, gy // cell
+        jx = gx - ux * cell - 3 - ((ux * 5 + uy * 3) % 3 - 1)
+        jy = gy - uy * cell - 3 - ((ux * 3 + uy * 7) % 3 - 1)
+        dd = math.hypot(jx, jy)
+        if 1.8 < dd < 3.0 and int((math.atan2(jy, jx) + math.pi) / (math.pi / 3)) % 2 == 0:
+            return JAG[3]
+        if dd <= 1.6:
+            return JAG[2]
+        return JAG[0] if (gx * 5 + gy * 3) % 7 else JAG[1]
+    return front
+
+
+def feathers(f):
+    """A fringe of feathers, hanging: green with lighter tips, darker spines."""
+    for s in range(f.strip_w):
+        face, i = f.face_of(s)
+        for t in range(f.h):
+            tip = t >= f.h - 2
+            rgb = QUETZ[2] if tip else QUETZ[1] if (i // 2) % 2 else QUETZ[0]
+            if face in ("front", "back") and i % 4 == 3 and not tip:
+                rgb = (20, 70, 46)
+            if tip and i % 4 == 0:
+                continue
+            f.side(s, t, f.noise(rgb, 2))
+    for i in range(f.w):
+        for j in range(f.d):
+            f.top(i, j, QUETZ[0])
+            f.bottom(i, j, QUETZ[1])
+
+
+def pakal():
+    d = 13
+    o = Outline(round_widths(d), -9)
+    cy = d / 2
+    plate = o.slices(-2, 1, pakal_front(cy), back_leather, MAYA_RED[0], "plate")
+    plate.append(Cube((-4.5, -9 + d - 1, -2), (9, 5, 1), paint=feathers, tag="fringe"))
+    return ShieldModel("PakalModel", "pakal", plate, HANDLE)
+
+
+def flexible_front(o, gx, gy):
+    if not o.inside(gx, gy):
+        return None
+    w, h = o.W * SCALE, o.H * SCALE
+    if o.edge(gx, gy, 1):
+        return HIDE[1]
+    band = int(gy / (h / 7))
+    if band in (0, 6):                                                                  # the cotton ends, red-striped
+        return MAYA_RED[1] if gy % 4 < 2 else (226, 220, 204)
+    if band == 3:
+        return JAG[0] if (gx // 3 + gy // 3) % 3 else JAG[3]
+    return (226, 220, 204) if (gx + gy) % 9 else (196, 188, 170)                        # quilted cotton
+
+
+def flexible_shield():
+    o = Outline([11] * 16, -9)
+    plate = o.slices(-2, 1, flexible_front, back_leather, HIDE[1], "plate")
+    plate.append(Cube((-5.5, 7, -2), (11, 4, 1), paint=feathers, tag="fringe"))
+    return ShieldModel("FlexibleShieldModel", "flexible_shield", plate, HANDLE, plate_pivot=(0, 2, 0))
+
+
 # id: (model, Epic Knights item model it is held like, tier, ShieldType.of(durability, material factor, weight,
 #      max block damage), name, recipe)
 _PL, _LS = "#minecraft:planks", "#magistuarmory:leather_strips"
@@ -379,4 +502,10 @@ SHIELDS = {
               (["lgl", "lpl", " l "], {"l": "minecraft:leather", "g": "minecraft:gold_ingot", "p": _PL})),
     "tedate": (tedate, "kiteshield", "WOOD", "330, 0.8F, 4.0F, 9.0F, true, true", "Tedate",
                (["ppp", "pbp", "ppp"], {"p": _PL, "b": "minecraft:black_dye"})),
+    "dhal": (dhal, "roundshield", "STEEL", "360, 0.8F, 3.0F, 8.0F, true, true", "Dhal",
+             (["lgl", "lhl", " l "], {"l": "minecraft:leather", "g": "minecraft:gold_nugget", "h": "minecraft:black_dye"})),
+    "pakal": (pakal, "roundshield", "WOOD", "300, 0.8F, 2.5F, 6.0F, true, true", "Pakal",
+              (["lol", "lpl", "fff"], {"l": "minecraft:leather", "o": "minecraft:orange_dye", "p": _PL, "f": "minecraft:feather"})),
+    "flexible_shield": (flexible_shield, "kiteshield", "WOOD", "280, 0.8F, 2.0F, 6.0F, true, true", "Maya Flexible Shield",
+                        (["ww", "ll", "ff"], {"w": "minecraft:white_wool", "l": "minecraft:leather", "f": "minecraft:feather"})),
 }

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  m",
+    " r ",
+    "b  "
+  ],
+  "key": {
+    "m": {
+      "tag": "c:ingots/steel"
+    },
+    "r": {
+      "item": "minecraft:red_dye"
+    },
+    "b": {
+      "item": "minecraft:bamboo"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:steel_barchha",
+    "count": 1
+  }
+}
