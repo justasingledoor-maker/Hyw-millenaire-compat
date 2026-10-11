@@ -6156,7 +6156,9 @@ def scenario_MW(ctx):
     def roll_at(x, z, biome):
         s.cmd(f"forceload add {x - 8} {z - 8} {x + 8} {z + 8}", 8)
         y = surface_y(s, x, z) or 70
-        s.cmd(f"fillbiome {x - 24} {y - 10} {z - 24} {x + 24} {y + 20} {z + 24} minecraft:{biome}", 1)
+        # fillbiome changes at most 32768 blocks (the command block limit)
+        fb = " ".join(s.output(f"fillbiome {x - 16} {y - 6} {z - 16} {x + 16} {y + 9} {z + 16} minecraft:{biome}", 1))
+        note("MW fillbiome", fb[-120:])
         s.cmd(f"fill {x - 6} {y} {z - 6} {x + 6} {y + 4} {z + 6} minecraft:air", 1)
         s.cmd(f"fill {x - 6} {y - 1} {z - 6} {x + 6} {y - 1} {z + 6} minecraft:grass_block", 1)
         s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
@@ -6175,7 +6177,7 @@ def scenario_MW(ctx):
     check("MW-1 far from any village, in the desert: the desert's companies and the free company, none drawn by a people",
           "region DESERT near none" in c1 and all(i in c1 for i in ("merc.bedouin_raiders", "merc.caravan_guards", "merc.free_company"))
           and "merc.routiers" not in c1 and "merc.canul" not in c1, c1[-300:])
-    near = roll_at(a[0] + 260, a[2], "jungle")
+    near = roll_at(a[0], a[2] - 260, "jungle")              # outside A and B (both on z = a[2]), within 1500 blocks
     c2 = companies(near)
     drawn = {"millenaire:norman": "merc.routiers", "millenaire:byzantines": "merc.varangian_exiles", "millenaire:seljuk": "merc.turkmen",
              "millenaire:japanese": "merc.ronin", "millenaire:indian": "merc.pindari", "millenaire:mayan": "merc.canul",

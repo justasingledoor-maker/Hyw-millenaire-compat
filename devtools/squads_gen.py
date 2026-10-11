@@ -395,7 +395,7 @@ def companies():
            main=["culturesarmory:steel_katana", "culturesarmory:steel_tachi", "culturesarmory:yumi", "culturesarmory:steel_yari"], off=["none"],
            palette=("#2E2E34", "#E6E1D3")),
         # the savanna: India
-        co(i, ["SAVANNA", "GRASSLAND"], [i], "merc.pindari", "Pindari Riders", "CAVALRY", "LOW",
+        co(i, ["SAVANNA"], [i], "merc.pindari", "Pindari Riders", "CAVALRY", "LOW",
            "Irregular horse who served for plunder, not pay.",
            [("light_lancer_rider", 12)], kits_of(i, ["villager", "paik"]), off=["culturesarmory:dhal"], palette=("#D08A28", "#2E3E78")),
         co(i, ["SAVANNA"], [i], "merc.purbiya", "Purbiya Rajputs", "INFANTRY", "HIGH",

@@ -191,7 +191,7 @@ public final class MusterRollScreen extends Screen {
         String[] names = {"Soldiers (" + view.offers().size() + ")", "Squads (" + squads.size() + ")", "Mercenaries (" + companies.size() + ")"};
         for (Tab t : Tab.values()) {
             addRenderableWidget(Button.builder(Component.literal((tab == t ? "> " : "") + names[t.ordinal()]), b -> tab(t))
-                    .bounds(left + t.ordinal() * 92, 32, 90, 18).build());
+                    .bounds(left + t.ordinal() * 102, 32, 100, 18).build());
         }
         List<String> fs = filters();
         int fw = Math.max(36, Math.min(60, 270 / Math.max(1, fs.size()) - 2));

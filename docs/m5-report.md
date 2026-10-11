@@ -2091,3 +2091,75 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     fix63-client-*.png`): every piece, weapon and shield renders, no missing texture.
 * SHA-256 of the jar: `ee10e929fb9f2cce681473342881fb26f03a48e25320cc558aa2db9d8b3ce185`; Cultures Armory 1.5.0:
   `4d594404cb247cdd943b90849c08b6f7cb089deecf5cef0c64f979074626cfa9`.
+
+### 6.64 Seljuk and Indian horse armour; 57 more squads; mercenary companies in the wilds; the Muster Roll in lists (`dist/hywmill-m5-fix64.jar`)
+
+* **Request.** Horse armour for the other cavalry cultures; a large batch of historically sound squads with the new armour;
+  the Muster Roll screen in categories and subcategories; mercenary squads to hire outside villages, specific to the area.
+* **Cultures Armory 1.6** (`dist/cultures-armory-1.6.0.jar`): four 3D bardings, made like the Byzantine ones.
+  * The Seljuks: the lamellar tijfaf (two tiers of lacquered leather lamellae laced in red, a lamellar crinet, a steel
+    chamfron; armour value 7) and the Turkic felt horse cloth (the çul: dyeable felt, a woven gold border, the Seljuk
+    eight-pointed star on each flank, tassels; 3).
+  * India: the bargustawan (the Mughal heavy cavalry's mail set with rows of small plates, three tiers to the knees, gilt
+    edges, a chamfron with a heron plume; 11) and the Rajput quilted chilta barding (dyeable velvet studded with gilt nails,
+    a steel 'mirror' plate on each flank; 5).
+  * 199 recipes, no clash.
+* **HywMill: horses.** A rider in Seljuk armour rides a Seljuk horse (ghulams' heavy horse at the middle and top levels in
+  the tijfaf; horse archers, the Turkmen and the low levels in the dyed felt cloth); a rider in Indian armour an Indian one
+  (heavy cavalry in zirah bagtar, char aina or kavacha in the bargustawan; the Rajput horse and light horse in the dyed
+  chilta). 1.5's Byzantine coats (akritic lamellar, excubitor scale, chiton) bring the Byzantine horse too.
+* **57 more village squads** (169 in all, 21-26 per culture), each with its own look, after each army's own record:
+  * Normans: castle serjeants, Flemish spearmen, Templar serjeants, huscarls with the Dane axe, Welsh bowmen, the Saracen
+    archers of Norman Sicily, Breton horse, Hospitaller knights, the adventurers of Apulia;
+  * Byzantium: ploïmoi marines, kontaratoi, Armenian foot and archers, the Hetaireia, solenarioi, trapezitai, the
+    Vardariotai, the Scholai, Pecheneg federates;
+  * Seljuks: the Anatolian levy, the Ahi brotherhoods, a ghazi band, the silahdars, Bedouin bowmen and raiders, Khorasani
+    archers, Kurdish horse, Kipchak riders and masked Kipchak lancers;
+  * Japan: Ikkō-ikki, nagae yari ashigaru, jizamurai, nanban hatamoto, a yumi-gumi, Bandō musha, the Takeda horse,
+    Ii's Akazonae (the red devils);
+  * India: barchhait spearmen, Mavla swordsmen, the Vijayanagara guard and bowmen, Carnatic archers, Bargir horse, Afghan
+    horse, Ahadi troopers, the saffron Kesariya band;
+  * Maya: the tribute levy, a flexible-shield wall, obsidian clubmen, serpent archers, Petén raiders, the Ajaw's household;
+  * Inuit: an umiak crew, polar-bear hunters, Bering Strait warriors, bird-skin bowmen, sled raiders.
+* **27 mercenary companies, hired in the wilds.** A Muster Roll set down outside any village (overworld) offers the
+  companies of its land, from the biome where it stands (frozen north, desert, jungle, savanna, marshes, coast, mountains,
+  taiga, grasslands, woodlands), and those drawn by the people of the nearest village within 1500 blocks:
+  * desert: Bedouin raiders, caravan guards, Turkmen; mountains: Daylamite mercenaries, Kurdish horsemen, mountain sōhei,
+    Welsh archers, Gallowglass, Gosain ascetics; coast: Genoese marines, wokou, Gallowglass, Varangian exiles; taiga: the
+    Rus druzhina, Varangian exiles, sled hunters; grasslands: Cumans, Pechenegs, Turkmen, Brabançon routiers, free lances; savanna: Pindari, Purbiya Rajputs, Gosains, Cumans; jungle: Canul mercenaries, jungle hunters, a jaguar band;
+    marshes: Hereward's fenmen, the jaguar band; frozen north: feud exiles, sled hunters;
+  * near a people's village, its own masterless men (rōnin near the Japanese, routiers near the Normans, ...);
+  * a free company anywhere.
+  * No standing is needed (they have no village); they cost a quarter more than the same soldiers raised in a village. They
+    are the player's own, in the company's look (or the player's colours). A company is refused inside a village or where it
+    is not found.
+* **The Muster Roll screen.** Three tabs, Soldiers, Squads and Mercenaries, each with a row of filters by list (Levies,
+  Foot, Missile, Horse, Mercenaries and Engines for single hires; Foot, Missile, Horse, Raiders for the horseless peoples'
+  fast bands, and Special for squads and companies) and subgroup headings (Spearmen, Sword and shield, Heavy foot, Archers,
+  Crossbowmen, Light horse, Horse archers, Heavy horse, Combined arms), each list from low to high quality. A company shows
+  where it comes from ("Seljuk company, of the desert"). Outside a village the screen opens on the companies.
+* **Tests.**
+  * JUnit: 404, all pass. New: Seljuk and Indian riders' horses (`HorseArmourTest`); the region of a biome (vanilla names and
+    added biomes by their `c:` tags), which companies are found where (Bedouin in the desert, never the Canul; rōnin only
+    near the Japanese; a free company everywhere; no horses for the Maya and Inuit), a company's price over a village
+    squad's, the Muster Roll's lists and subgroups, a look for every squad and company with a plain Epic Knights kit.
+  * Harness with Epic Knights 10.15, Addon 2.5, Slavic Armory 2.3 and Cultures Armory 1.6
+    (`docs/m5-test-evidence/fix64-ca-sq-mw.txt`):
+    * CA 50/50: CA-0 (every profile and look item valid, the 57 new looks and 27 companies included) and CA-1 to CA-47 as
+      before; new CA-48 (Seljuk heavy lancers in jawshans on horses in the lamellar tijfaf) and CA-49 (Indian heavy lancers
+      in char aina on horses in the bargustawan);
+    * SQ: SQ-1 (169 squads and 27 companies load), SQ-2, SQ-3 pass; SQ-4 fails, and SQ-5 and SQ-6 did not run: they need a
+      Garrison-sized Norman village and a Byzantine one, which this test world no longer has (it found only its two small
+      villages); the check fails on the world, not on this build (the same hires pass in MW-6 and in JUnit);
+    * MW (new) 6/6: in a desert far from villages the desert's companies and the free company, none drawn by a people; near
+      a Norman village in a jungle the jungle's companies and the routiers and free lances; ten Bedouin raiders hired whole
+      for coin alone, all in their robes, mounted; a company not of this land refused; no company inside a village; a new
+      village squad (castle serjeants) hired whole. The first run of MW failed on the harness's own setup (its biome fill
+      exceeded the command's 32768-block limit and its 'near' spot lay inside the second village); fixed and rerun.
+  * Real client (`docs/m5-test-evidence/fix64-client-muster-roll.png`): a Muster Roll outside any village on the plains opens
+    on the Mercenaries tab: "Outside any village, in the grasslands", the filters (All, Foot, Horse), the subgroup headings
+    (Foot: Spearmen, Foot: Heavy foot, Horse: Light horse, Horse: Horse archers), each company's quality and price, its
+    origin ("Norman company, found anywhere"). The first look showed the Mercenaries tab's label clipped and Pindari on any
+    plains; the tabs were widened and the Pindari kept to the savanna and the Indians' neighbourhood.
+* SHA-256 of the jar: `3f12a7f375a6ae4700a6307fb550cf6cc0a23f3200cf7b388b2ba1814af4484c`; Cultures Armory 1.6.0:
+  `5d2456855f5fd154cbe4d558e623af2954521b325416f8759ae295fb691fcbd9`.
