@@ -206,7 +206,7 @@ def build_shields(lang, preview):
         lang[f"item.{MODID}.{sid}"] = name
         recipe(sid, pattern, keys)
         items.append(f"    public static final RegistrySupplier<MedievalShieldItem> {sid.upper()} = INSTANCE.addMedievalShieldItem(\"{sid}\", "
-                     f"\"{sid}\", new Item.Properties(),\n            ModItemTier.{tier}, true, false, ShieldType.of({stats}));")
+                     f"\"{sid}\", new Item.Properties(),\n            ModItemTier.{tier}, false, true, ShieldType.of({stats}));")  # (paintable, 3D), as Epic Knights registers its bucklers
     # the textures join the game's shield atlas (atlas sources add up across packs, as Epic Knights adds its own)
     write_json({"sources": atlas}, os.path.join(ROOT, "src/main/resources/assets/minecraft/atlases/shield_patterns.json"))
     return items, models

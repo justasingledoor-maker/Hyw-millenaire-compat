@@ -2006,6 +2006,17 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
   * JUnit: all pass. `CultureShieldsTest`: across all six other cultures, four tiers, five duties and four classes the
     first off hand list has no heater shield; Inuit and mounted samurai get an empty hand, Japanese shieldmen the
     tedate; Byzantine and Seljuk lists hold their shields with Epic Knights ones beside; spearmen's culture shields.
-  * Harness CA: RESULTS_PLACEHOLDER
-  * Real client: SHOTS_PLACEHOLDER
-* SHA-256 of the jar: `SHA_HYWMILL`; Cultures Armory 1.4.0: `SHA_ARMORY`.
+  * Harness CA with Epic Knights 10.15, Addon 2.5, Slavic Armory 2.3 and Cultures Armory 1.4
+    (`docs/m5-test-evidence/fix62-ca.txt`): 33/33 PASS, six soldiers each. The new checks:
+    * CA-24, CA-25: Byzantine shieldmen and spearmen carry the skoutarion or the aspis;
+    * CA-26: the Varangians their Norse round shield;
+    * CA-27: Seljuk shieldmen on sentry the kalkan or the sipar (sentries had taken the defaults' heater shields);
+    * CA-28: Japanese shieldmen the tedate; CA-29: mounted samurai nothing;
+    * CA-30, CA-31: Inuit shieldmen, on sentry too, nothing.
+    * CA-0 to CA-23 still pass.
+  * Real client: the first run crashed rendering a stand that held one of the shields: Epic Knights' shield registration
+    takes (paintable, 3D) in that order, the reverse of what the armory passed, so the shields had no 3D renderer. Fixed
+    (as Epic Knights registers its bucklers); the six shields now render in hand, and sit as Epic Knights' own kite
+    shield does (checked beside one). The server-side harness was unaffected (the flags only choose the client renderer).
+* SHA-256 of the jar: `ee53dc501b3f00d5e30c268ec6bb50440d9c07c5f00e6a1d7124fe4d10c45c09`; Cultures Armory 1.4.0:
+  `77dafed2d33c05de530c3ef16e453144717016e05ce79c7d1b55f7563e112aa9`.
