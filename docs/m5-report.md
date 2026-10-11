@@ -1945,8 +1945,21 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
 * **Tests.**
   * JUnit: all pass (`EquipmentProfilesTest` checks every armory weapon's family, the bardoukion included;
     `HorseArmourTest.byzantineRidersRideByzantineHorses`; `ConvoyLootTest` with Byzantine carts).
-  * Harness CA with Epic Knights 10.15, Addon 2.5, Slavic Armory 2.3 and Cultures Armory 1.3:
-    RESULTS_PLACEHOLDER
+  * Harness CA with Epic Knights 10.15, Addon 2.5, Slavic Armory 2.3 and Cultures Armory 1.3
+    (`docs/m5-test-evidence/fix61-ca2.txt`): 25/25 PASS, six soldiers each.
+    * CA-0: no invalid kit or item in any profile or look, the bardoukion included.
+    * Byzantines:
+      * CA-19: spearmen carry the kontarion or menavlion;
+      * CA-20: Stronghold shieldmen carry the spathion in klibanion or scale;
+      * CA-21: the Varangians wear their hauberks and carry the pelekys;
+      * CA-22: archers shoot the composite bow;
+      * CA-23: four kataphraktoi in kataphraktos armour; their HYW war horses wear the kataphraktos barding, put on
+        through HYW's own horse armour.
+    * The Japanese, Seljuk and Inuit checks CA-1 to CA-18 still pass; CA-8: Norman soldiers get no armory gear.
+  * Two earlier runs were 24/25 on CA-23, both from the check itself, not the gear. First, the horse query ran as the
+    rider, so its reply never reached the console. Then (`fix61-ca1.txt`) the riders, summoned without an owner, were
+    cut down by the Norman villagers before the check, and a fresh rider's horse is not at the top level. The check
+    now queries from the console, summons owned riders and sets their horses to the top level.
   * Real client (NeoForge dev client with Epic Knights): the three 3D bardings on saddled horses, a kataphraktos on
     the lamellar-barded horse with the kontos, the eight Byzantine outfits on stands with the weapons; no model or
     texture errors. The bardings follow the horse's walk and grazing.
