@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The same {@link #snapshot}/{@link #submit} are driven headless by {@code /hywmill dev ui}.
  */
 public final class PoliticsNet {
-    public static final String VERSION = "7"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab; 6: War tab; 7: Realm tab
+    public static final String VERSION = "8"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab; 6: War tab; 7: Realm tab; 8: bearings, mercenary companies
     /** At most one request per player per this many ticks. */
     public static final long RATE_TICKS = 5;
     /** Local requests (pardon, apology) and the home view need the player near the home village. */
@@ -120,6 +120,16 @@ public final class PoliticsNet {
         });
     }
 
+    /** The compass point (N, NE, E, ...) of an offset (dx, dz); north is -z. */
+    public static String bearing(int dx, int dz) {
+        if (dx == 0 && dz == 0) {
+            return "";
+        }
+        double a = Math.toDegrees(Math.atan2(dx, -dz));
+        String[] p = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
+        return p[(int) Math.floorMod(Math.round(a / 45.0), 8L)];
+    }
+
     /** Builds the snapshot for a player; {@code home} null: the nearest known village. Null if HywMill is inactive. */
     @Nullable
     public static PoliticsSnapshot snapshot(ServerPlayer player, @Nullable UUID home, @Nullable UUID selected) {
@@ -150,12 +160,16 @@ public final class PoliticsNet {
             VillageRecord hr = home == null ? null : ledger.get(home);
             VillageRecord vr = ledger.get(v.village());
             int[] liv = vr == null ? null : dev.hywmill.garrison.service.LiveryService.of(ow, vr);
-            int dist = hr == null || vr == null || vr == hr ? -1 : (int) Math.round(Math.sqrt(hr.center.distSqr(vr.center)));
+            // from the village the player is in; in none, from the player
+            net.minecraft.core.BlockPos from = hr != null ? hr.center : player.blockPosition();
+            int dist = vr == null || vr == hr || player.level() != ow && hr == null ? -1
+                    : (int) Math.round(Math.hypot(vr.center.getX() - from.getX(), vr.center.getZ() - from.getZ()));
+            String bearing = dist < 0 ? "" : bearing(vr.center.getX() - from.getX(), vr.center.getZ() - from.getZ());
             rows.add(new PoliticsSnapshot.VillageRow(v.village(), v.name(), v.effective().name(),
                     rel.isPresent() ? rel.getAsInt() : PoliticsSnapshot.VillageRow.NO_RELATION,
                     hr != null && hr.politics.truceWith(v.village(), ow.getGameTime()),
                     liv == null ? -1 : dev.hywmill.garrison.equip.VillageLivery.rgb(liv[0]), liv == null ? -1 : dev.hywmill.garrison.equip.VillageLivery.rgb(liv[1]),
-                    dist, tag(ledger, home, v.village(), ow.getGameTime())));
+                    dist, tag(ledger, home, v.village(), ow.getGameTime()), bearing, vr == null ? "" : vr.culture.replace("millenaire:", "")));
         }
         List<String> envoys = new ArrayList<>();
         PoliticsView.envoys(ow, me).forEach(e -> envoys.add(e.kind().name().toLowerCase() + " " + e.from() + " -> " + e.to() + ", about "

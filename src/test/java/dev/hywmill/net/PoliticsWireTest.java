@@ -21,7 +21,7 @@ class PoliticsWireTest {
         List<PoliticsSnapshot.VillageRow> vs = new ArrayList<>();
         for (int i = 0; i < villages; i++) {
             vs.add(new PoliticsSnapshot.VillageRow(UUID.randomUUID(), "Village " + i, "STRANGER", i % 3 == 0 ? PoliticsSnapshot.VillageRow.NO_RELATION : -i, i % 2 == 0,
-                    -1, -1, i * 100, i % 4 == 0 ? "province of Home" : ""));
+                    -1, -1, i * 100, i % 4 == 0 ? "province of Home" : "", i % 2 == 0 ? "NE" : "", "byzantines"));
         }
         List<String> ls = new ArrayList<>();
         for (int i = 0; i < lines; i++) {
@@ -40,6 +40,16 @@ class PoliticsWireTest {
         PoliticsSnapshot.CODEC.encode(b, s);
         assertEquals(s, PoliticsSnapshot.CODEC.decode(b));
         assertEquals(0, b.readableBytes());
+    }
+
+    @Test
+    void bearingsAreCompassPoints() {
+        // north is -z
+        assertEquals("N", PoliticsNet.bearing(0, -500));
+        assertEquals("E", PoliticsNet.bearing(500, 0));
+        assertEquals("SW", PoliticsNet.bearing(-300, 280));
+        assertEquals("NW", PoliticsNet.bearing(-300, -320));
+        assertEquals("", PoliticsNet.bearing(0, 0));
     }
 
     @Test
@@ -66,7 +76,7 @@ class PoliticsWireTest {
         var r = new PoliticsPayloads.ActionResult(false, "PAIR_COOLDOWN", "you proposed this recently");
         PoliticsPayloads.ActionResult.CODEC.encode(b, r);
         assertEquals(r, PoliticsPayloads.ActionResult.CODEC.decode(b));
-        assertEquals("7", PoliticsNet.VERSION); // 4: player colours; 5: History tab; 6: War tab; 7: Realm tab
+        assertEquals("8", PoliticsNet.VERSION); // 4: player colours; 5: History tab; 6: War tab; 7: Realm tab; 8: bearings
     }
 
     @Test

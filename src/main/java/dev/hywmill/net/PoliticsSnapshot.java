@@ -60,11 +60,18 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
     /**
      * A discovered village: its name, the player's standing there, and home's relation towards it. Post-M5: its livery
      * colours (RGB, -1: none) and its distance in metres (blocks) from the home village (-1: unknown, or it is home). Post-M5
-     * realms: its place ({@code tag}: "province of X", "vassal of X", "ally", "defensive", "pact"; empty: none).
+     * realms: its place ({@code tag}: "province of X", "vassal of X", "ally", "defensive", "pact"; empty: none). 1.6: the
+     * {@code bearing} to it ("N", "NE", ...: "" when the distance is unknown) and its {@code culture}; the distance and
+     * bearing are from the village the player is in, or from the player when in none.
      */
     public record VillageRow(UUID id, String name, String standing, int relation, boolean truce, int colour1, int colour2, int distance,
-                             String tag) {
+                             String tag, String bearing, String culture) {
         public static final int NO_RELATION = Integer.MIN_VALUE;
+
+        public VillageRow(UUID id, String name, String standing, int relation, boolean truce, int colour1, int colour2, int distance,
+                          String tag) {
+            this(id, name, standing, relation, truce, colour1, colour2, distance, tag, "", "");
+        }
 
         public VillageRow(UUID id, String name, String standing, int relation, boolean truce, int colour1, int colour2, int distance) {
             this(id, name, standing, relation, truce, colour1, colour2, distance, "");
@@ -81,7 +88,7 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
      */
     public record ActionRow(String action, String label, boolean available, String requirement, String outcome) {}
 
-    public static final int MAX_ROWS = 64;
+    public static final int MAX_ROWS = 256;
     public static final int MAX_LINES = 12;
 
     public static final Type<PoliticsSnapshot> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(HywMill.MODID, "politics_snapshot"));
@@ -109,6 +116,8 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
             buf.writeInt(v.colour2());
             buf.writeVarInt(v.distance() + 1);
             buf.writeUtf(v.tag(), 128);
+            buf.writeUtf(v.bearing(), 4);
+            buf.writeUtf(v.culture().length() > 32 ? v.culture().substring(0, 32) : v.culture(), 32);
         }
         writeUuid(buf, s.selected);
         buf.writeVarInt(Math.min(MAX_ROWS, s.actions.size()));
@@ -153,7 +162,7 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
         List<VillageRow> villages = new ArrayList<>();
         for (int i = 0; i < nv; i++) {
             villages.add(new VillageRow(buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readInt(), buf.readBoolean(), buf.readInt(), buf.readInt(),
-                    buf.readVarInt() - 1, buf.readUtf(128)));
+                    buf.readVarInt() - 1, buf.readUtf(128), buf.readUtf(4), buf.readUtf(32)));
         }
         UUID selected = readUuid(buf);
         int na = Math.min(MAX_ROWS, buf.readVarInt());

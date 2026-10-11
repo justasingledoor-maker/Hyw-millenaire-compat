@@ -18,7 +18,8 @@ import java.util.UUID;
  * comes from the server; the screen holds no political logic.
  */
 public final class PoliticsScreen extends Screen {
-    private static final int ROWS = 12;
+    /** 1.6: the village list: rows from here down, each a name button with the distance and bearing beside it. */
+    private static final int LIST_TOP = 66, ROW = 20, LIST_RIGHT = 180, NAME_X = 24, NAME_W = 98;
     private static final int PARCHMENT = 0xE0F2E3C2;
     private static final int INK = 0xFF3B2A14;
     private static final int FADED = 0xFF7A6548;
@@ -35,6 +36,12 @@ public final class PoliticsScreen extends Screen {
     private static final int WAR_ROW = 34;
     private String lastResult = "";
     private boolean lastOk = true;
+    /** 1.6: the search box's text, the sort (nearest first, else by name), the list's widgets and the rows they show. */
+    private String query = "";
+    private boolean byName;
+    private net.minecraft.client.gui.components.EditBox search;
+    private final List<net.minecraft.client.gui.components.AbstractWidget> rowWidgets = new java.util.ArrayList<>();
+    private List<PoliticsSnapshot.VillageRow> shown = List.of();
 
     public PoliticsScreen(PoliticsSnapshot snap) {
         super(Component.translatable("screen.hywmill.politics"));
@@ -43,7 +50,64 @@ public final class PoliticsScreen extends Screen {
 
     public void update(PoliticsSnapshot s) {
         this.snap = s;
+        boolean typing = search != null && search.isFocused();
         rebuildWidgets();
+        if (typing) {
+            setFocused(search);
+        }
+    }
+
+    private int rows() {
+        return Math.max(4, (height - LIST_TOP - 40) / ROW);
+    }
+
+    /** The villages the search matches (name, people, standing or place), nearest first or by name; the home village first. */
+    private List<PoliticsSnapshot.VillageRow> filtered() {
+        String q = query.trim().toLowerCase(java.util.Locale.ROOT);
+        java.util.Comparator<PoliticsSnapshot.VillageRow> order = byName
+                ? java.util.Comparator.comparing(v -> v.name().toLowerCase(java.util.Locale.ROOT))
+                : java.util.Comparator.comparingInt(v -> v.distance() < 0 ? Integer.MAX_VALUE : v.distance());
+        return snap.villages().stream()
+                .filter(v -> q.isEmpty() || (v.name() + " " + v.culture() + " " + v.standing() + " " + v.tag()).toLowerCase(java.util.Locale.ROOT)
+                        .contains(q))
+                .sorted(java.util.Comparator.comparing((PoliticsSnapshot.VillageRow v) -> !v.id().equals(snap.home())).thenComparing(order))
+                .toList();
+    }
+
+    private static String distance(PoliticsSnapshot.VillageRow v) {
+        if (v.distance() < 0) {
+            return "";
+        }
+        String d = v.distance() >= 1000 ? String.format("%.1fkm", v.distance() / 1000.0) : v.distance() + "m";
+        return d + (v.bearing().isEmpty() ? "" : " " + v.bearing());
+    }
+
+    /** (Re)builds only the list's rows, so the search box keeps its focus while typing. */
+    private void layoutRows() {
+        rowWidgets.forEach(this::removeWidget);
+        rowWidgets.clear();
+        List<PoliticsSnapshot.VillageRow> all = filtered();
+        int rows = rows();
+        scroll = Math.max(0, Math.min(scroll, Math.max(0, all.size() - rows)));
+        shown = all.subList(scroll, Math.min(all.size(), scroll + rows));
+        for (int i = 0; i < shown.size(); i++) {
+            PoliticsSnapshot.VillageRow v = shown.get(i);
+            boolean home = v.id().equals(snap.home());
+            String rel = v.relation() == PoliticsSnapshot.VillageRow.NO_RELATION ? "" : "\nRelation of " + snap.homeName() + " to it: " + v.relation();
+            String from = snap.home() == null ? "you" : snap.homeName();
+            String label = (v.id().equals(snap.selected()) ? "> " : "") + v.name();
+            if (font.width(label) > NAME_W - 8) {
+                label = font.plainSubstrByWidth(label, NAME_W - 14) + "..";
+            }
+            Button b = Button.builder(Component.literal(label), btn -> select(v.id()))
+                    .bounds(NAME_X, LIST_TOP + i * ROW, NAME_W, 18)
+                    .tooltip(Tooltip.create(Component.literal(v.name() + (v.culture().isEmpty() ? "" : " (" + v.culture() + ")")
+                            + (home ? "\nYou are here" : v.distance() < 0 ? "" : "\n" + distance(v) + " from " + from)
+                            + "\nYour standing: " + v.standing().toLowerCase()
+                            + (v.tag().isEmpty() ? "" : "\n" + Character.toUpperCase(v.tag().charAt(0)) + v.tag().substring(1))
+                            + (v.truce() ? "\nUnder truce with " + snap.homeName() : "") + rel))).build();
+            rowWidgets.add(addRenderableWidget(b));
+        }
     }
 
     public void result(PoliticsPayloads.ActionResult r) {
@@ -53,27 +117,31 @@ public final class PoliticsScreen extends Screen {
 
     @Override
     protected void init() {
-        int left = 12, top = 34;
-        List<PoliticsSnapshot.VillageRow> vs = snap.villages();
-        scroll = Math.max(0, Math.min(scroll, Math.max(0, vs.size() - ROWS)));
-        for (int i = 0; i < Math.min(ROWS, vs.size() - scroll); i++) {
-            PoliticsSnapshot.VillageRow v = vs.get(scroll + i);
-            String rel = v.relation() == PoliticsSnapshot.VillageRow.NO_RELATION ? "" : " " + v.relation();
-            String dist = v.distance() < 0 ? "" : " " + (v.distance() >= 1000 ? String.format("%.1f km", v.distance() / 1000.0) : v.distance() + " m");
-            String place = v.tag().isEmpty() ? "" : " [" + v.tag().split("[ ,]")[0] + "]";
-            Button b = Button.builder(Component.literal((v.id().equals(snap.selected()) ? "> " : "") + v.name() + rel + place + (v.truce() ? " [truce]" : "")),
-                            btn -> select(v.id()))
-                    .bounds(left + 12, top + i * 20, 138, 18)
-                    .tooltip(Tooltip.create(Component.literal("Your standing: " + v.standing().toLowerCase()
-                            + (v.tag().isEmpty() ? "" : "\n" + Character.toUpperCase(v.tag().charAt(0)) + v.tag().substring(1))
-                            + (v.distance() < 0 ? "" : "\nDistance from " + snap.homeName() + ":" + dist)))).build();
-            addRenderableWidget(b);
-        }
-        if (vs.size() > ROWS) {
-            addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { scroll--; rebuildWidgets(); }).bounds(left + 152, top, 16, 18).build());
-            addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { scroll++; rebuildWidgets(); })
-                    .bounds(left + 152, top + (ROWS - 1) * 20, 16, 18).build());
-        }
+        // 1.6: a search box over the village list, the sort and the list's scroll beside it
+        search = new net.minecraft.client.gui.components.EditBox(font, 12, 34, 102, 16, Component.literal("Search villages"));
+        search.setHint(Component.literal("Search...").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+        search.setMaxLength(40);
+        search.setValue(query);
+        search.setResponder(t -> {
+            if (!t.equals(query)) {
+                query = t;
+                scroll = 0;
+                layoutRows();
+            }
+        });
+        search.setTooltip(Tooltip.create(Component.literal("Search by name, people (culture), standing or place (ally, vassal...)")));
+        addRenderableWidget(search);
+        addRenderableWidget(Button.builder(Component.literal(byName ? "A-Z" : "Near"), b -> {
+            byName = !byName;
+            scroll = 0;
+            b.setMessage(Component.literal(byName ? "A-Z" : "Near"));
+            layoutRows();
+        }).bounds(116, 33, 30, 18).tooltip(Tooltip.create(Component.literal("Sort: nearest first, or by name"))).build());
+        addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { scroll = Math.max(0, scroll - rows() + 1); layoutRows(); })
+                .bounds(148, 33, 16, 18).build());
+        addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { scroll += rows() - 1; layoutRows(); })
+                .bounds(164, 33, 16, 18).build());
+        layoutRows();
         int ax = width - 182, ay = 34;
         int i = 0;
         for (PoliticsSnapshot.ActionRow a : snap.actions()) {
@@ -131,6 +199,11 @@ public final class PoliticsScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mx, double my, double dx, double dy) {
+        if (mx < LIST_RIGHT + 2 && my >= LIST_TOP) {
+            scroll = Math.max(0, scroll - (int) Math.signum(dy) * 2);
+            layoutRows();
+            return true;
+        }
         if ((history || realm) && mx >= 190 && mx <= width - 190) {
             historyScroll = Math.max(0, historyScroll - (int) Math.signum(dy) * 2);
             return true;
@@ -225,15 +298,22 @@ public final class PoliticsScreen extends Screen {
         super.render(g, mouseX, mouseY, partial);
         int x0 = 190, x1 = width - 190;
         g.drawString(font, title, 12, 14, 0xFFFFFFFF); // top left: the Overview/History tabs sit above the centre panel
-        // post-M5: each village's livery (two colours) beside its name, and its distance from home
-        List<PoliticsSnapshot.VillageRow> vs = snap.villages();
-        for (int i = 0; i < Math.min(ROWS, vs.size() - scroll); i++) {
-            PoliticsSnapshot.VillageRow v = vs.get(scroll + i);
-            int ry = 34 + i * 20;
+        // each village's livery (two colours) beside its name, and its distance and bearing from the village you are in (or you)
+        int total = filtered().size();
+        String count = total + (total == snap.villages().size() ? "" : " of " + snap.villages().size()) + " villages, distance from "
+                + (snap.home() == null ? "you" : snap.homeName());
+        g.drawString(font, font.width(count) > LIST_RIGHT - 12 ? font.plainSubstrByWidth(count, LIST_RIGHT - 20) + ".." : count, 12,
+                LIST_TOP - 11, 0xFFD8CFB8, false);
+        for (int i = 0; i < shown.size(); i++) {
+            PoliticsSnapshot.VillageRow v = shown.get(i);
+            int ry = LIST_TOP + i * ROW;
+            if (v.id().equals(snap.selected())) {
+                g.fill(10, ry - 1, LIST_RIGHT + 2, ry + 19, 0x60F2E3C2);
+            }
             swatch(g, 12, ry + 1, v.colour1(), v.colour2());
-            if (v.distance() >= 0) {
-                String d = v.distance() >= 1000 ? String.format("%.1f km", v.distance() / 1000.0) : v.distance() + " m";
-                g.drawString(font, d, 12 + 138 - font.width(d) - 3, ry + 5, 0xFFD8CFB8, false);
+            String d = v.id().equals(snap.home()) ? "here" : distance(v);
+            if (!d.isEmpty()) {
+                g.drawString(font, d, LIST_RIGHT - font.width(d), ry + 5, v.id().equals(snap.home()) ? 0xFFF0E070 : 0xFFFFFFFF, true);
             }
         }
         if (war) {
