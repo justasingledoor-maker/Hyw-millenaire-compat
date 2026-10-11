@@ -4,8 +4,8 @@ The armour of other cultures, made the Epic Knights way. Each piece is an Epic K
 dyeable like Epic Knights' cloth armour. The pieces sit in Epic Knights' armour tab and repair with steel ingots.
 Separate from HywMill: it needs only NeoForge 1.21.1, Epic Knights (10.12 or later) and Architectury.
 
-1.5: 142 armour pieces, 3 horse armours, 41 weapons and 9 shields: Japan (30 + 10 + 1 shield), the Seljuks (28 + 6 + 2),
-the Inuit (21 + 5), Byzantium (28 + 3 bardings + 9 + 3), India (18 + 7 + 1), the Maya (17 + 4 + 2). Pieces without a
+1.6: 142 armour pieces, 7 horse armours, 41 weapons and 9 shields: Japan (30 + 10 + 1 shield), the Seljuks (28 + 6 + 2),
+the Inuit (21 + 5), Byzantium (28 + 3 bardings + 9 + 3), India (18 + 2 bardings + 7 + 1), the Maya (17 + 4 + 2); the Seljuks have 2 bardings too (1.6). Pieces without a
 hand-drawn icon have one drawn from the model itself.
 
 ## Japan
@@ -330,6 +330,21 @@ Anatolian frontier and its peasant levies, the court.
 | Chiton | chest | 2 | 0.0 | 100 | The belted knee-length tunic of the levy, with clavi stripes |
 | Scale Kremasmata | legs | 5 | 0.75 | 270 | A skirt of scales over the hose |
 | Kampagia | feet | 1 | 0.0 | 110 | The officer's low strapped shoes |
+
+## Horse armour of the Seljuks and India (1.6)
+
+Made like the Byzantine bardings (3D, over every horse the game draws as a horse, at twice the density).
+
+| Horse armour | Horse armour value | What it is |
+|---|---|---|
+| Lamellar Tijfaf | 7 (as gold) | The ghulams' horse armour: two tiers of hardened, lacquered leather lamellae laced with red leather to below the belly, a lamellar crinet, a steel chamfron |
+| Turkic Felt Horse Cloth | 3 (as leather) | The çul: a felt horse cloth in two tiers, a woven gold border, the Seljuk eight-pointed star on each flank, tassels at the hem; dyeable |
+| Bargustawan | 11 (as Epic Knights' barding) | The Mughal heavy cavalry's horse armour: mail set with rows of small plates in three tiers to the knees, gilt-edged, a mail-and-plate crinet, a chamfron with a heron plume |
+| Quilted Chilta Barding | 5 (as mail) | The Rajput horse's quilted velvet studded with gilt nails, in two tiers, a round steel 'mirror' plate on each flank, the chamfron; dyeable |
+
+With HywMill, HYW riders in Seljuk armour ride Seljuk horses (the ghulams' heavy horse in the tijfaf, horse archers and the
+Turkmen in the felt cloth) and riders in Indian armour Indian ones (heavy cavalry in mail and plate in the bargustawan, the
+Rajput horse in chilta).
 
 ## Shields (1.4)
 

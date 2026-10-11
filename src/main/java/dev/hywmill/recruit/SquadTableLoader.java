@@ -36,8 +36,8 @@ public final class SquadTableLoader extends SimpleJsonResourceReloadListener {
         }
         Squads s = Squads.fromJson(ordered, GarrisonTables.current().units(), problems);
         Squads.set(s);
-        HmLog.info("Squads loaded from {} file(s): {} culture(s), {} squads in all, discount {}", ordered.size(), s.cultures().size(),
-                s.cultures().values().stream().mapToInt(List::size).sum(), s.squadDiscount());
+        HmLog.info("Squads loaded from {} file(s): {} culture(s), {} squads in all, {} mercenary companies, discount {}", ordered.size(),
+                s.cultures().size(), s.cultures().values().stream().mapToInt(List::size).sum(), s.companies().size(), s.squadDiscount());
         for (String p : problems) {
             HmLog.warn("Squad data entry ignored: {}", p);
         }

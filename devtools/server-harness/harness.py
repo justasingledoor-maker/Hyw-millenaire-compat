@@ -6081,7 +6081,8 @@ def scenario_SQ(ctx):
     for box in EXTRA_FORCELOAD:
         s.cmd("forceload add {} {} {} {}".format(*box), wait=10)
     loaded = s.wait_for(r"Squads loaded from", 5, since=s.start_pos)
-    check("SQ-1 the squad catalogue loads: 7 cultures, 112 squads", loaded is not None and "7 culture(s), 112 squads" in loaded, loaded or "")
+    check("SQ-1 the squad catalogue loads: 7 cultures, 169 squads, 27 mercenary companies", loaded is not None
+          and "7 culture(s), 169 squads in all, 27 mercenary companies" in loaded, loaded or "")
     centers = []
     for l in s.output("hywmill village list", 2):
         m = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=| (-?\d+), (-?\d+), (-?\d+) tier=", l)
@@ -6143,6 +6144,69 @@ def scenario_SQ(ctx):
     tz = info(s, byz).get("tier")
     check("SQ-6 a Byzantine village raises Hippotoxotai (10 horse archers) for a Patron",
           ("ok=true" in h6 and len(ha) >= 10) or (tz == "WATCH" and "ok=false" in h6), f"{tz}: {h6[-160:]}; {len(ha)} horse archers")
+
+
+def scenario_MW(ctx):
+    """Mercenary companies in the wilds (1.6; --keep-world with the extra villages): a Muster Roll outside any village offers the
+    companies of its land (the biome's region) and of the nearest village's people; one is hired whole, in its own look; a
+    company is refused inside a village or where it is not found; a new village squad is hired."""
+    s, a = ctx.s, ctx.a
+    P = "33333333-4444-4555-8666-777777777777"
+
+    def roll_at(x, z, biome):
+        s.cmd(f"forceload add {x - 8} {z - 8} {x + 8} {z + 8}", 8)
+        y = surface_y(s, x, z) or 70
+        s.cmd(f"fillbiome {x - 24} {y - 10} {z - 24} {x + 24} {y + 20} {z + 24} minecraft:{biome}", 1)
+        s.cmd(f"fill {x - 6} {y} {z - 6} {x + 6} {y + 4} {z + 6} minecraft:air", 1)
+        s.cmd(f"fill {x - 6} {y - 1} {z - 6} {x + 6} {y - 1} {z + 6} minecraft:grass_block", 1)
+        s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+        return x, y, z
+
+    def companies(pos):
+        x, y, z = pos
+        return " ".join(l for l in s.output(f"hywmill dev recruit companies {x} {y} {z}", 3) if "recruit companies" in l)
+
+    def hire(pos, key, standing="STRANGER", money=400000):
+        x, y, z = pos
+        return " ".join(l for l in s.output(f'hywmill dev recruit hire {x} {y} {z} "{key}" 1 {money} {standing}', 5) if "recruit:" in l)
+
+    far = roll_at(a[0] + 3200, a[2] + 3200, "desert")
+    c1 = companies(far)
+    check("MW-1 far from any village, in the desert: the desert's companies and the free company, none drawn by a people",
+          "region DESERT near none" in c1 and all(i in c1 for i in ("merc.bedouin_raiders", "merc.caravan_guards", "merc.free_company"))
+          and "merc.routiers" not in c1 and "merc.canul" not in c1, c1[-300:])
+    near = roll_at(a[0] + 260, a[2], "jungle")
+    c2 = companies(near)
+    drawn = {"millenaire:norman": "merc.routiers", "millenaire:byzantines": "merc.varangian_exiles", "millenaire:seljuk": "merc.turkmen",
+             "millenaire:japanese": "merc.ronin", "millenaire:indian": "merc.pindari", "millenaire:mayan": "merc.canul",
+             "millenaire:inuits": "merc.feud_exiles"}
+    vinfo = " ".join(s.output(at(a, "hywmill village info"), 2))
+    culture = next((k for k in drawn if k in vinfo), "")
+    want = next((v for k, v in drawn.items() if k in c2), None)
+    check("MW-2 near a village, in the jungle: the jungle's companies and those its people draw", "region JUNGLE near millenaire:" in c2
+          and "merc.canul" in c2 and "merc.jungle_hunters" in c2 and want is not None and want in c2, f"A {culture}: {c2[-300:]}")
+    h1 = hire(far, "company:merc.bedouin_raiders")
+    time.sleep(6)
+    riders = owned_near(s, "mounted_light_lancer_rider", P, far)
+    robed = sum(1 for r in riders if "bedouin_robe" in str(r.get("slots", {})))
+    check("MW-3 a company is hired whole for coin alone (10 Bedouin raiders, in their robes)", "ok=true" in h1 and len(riders) >= 10
+          and robed >= len(riders) - 1, f"{h1[-160:]}; {len(riders)} riders, {robed} in the Bedouin robe")
+    h2 = hire(far, "company:merc.canul")
+    check("MW-4 a company that is not found in this land is refused", "ok=false" in h2 and "No such company" in h2, h2[-160:])
+    x, z = a[0] + 6, a[2] + 6
+    y = surface_y(s, x, z) or a[1]
+    s.cmd(f"setblock {x} {y} {z} hywmill:muster_roll", 1)
+    h3 = hire((x, y, z), "company:merc.free_company", "TRUSTED")
+    check("MW-5 inside a village no company is hired", "ok=false" in h3 and "wilds" in h3, h3[-160:])
+    key = {"millenaire:norman": "squad:norman.castle_serjeants", "millenaire:byzantines": "squad:byz.ploimoi",
+           "millenaire:seljuk": "squad:seljuk.anatolian_levy", "millenaire:japanese": "squad:jp.ikko_ikki",
+           "millenaire:indian": "squad:in.barchhait", "millenaire:mayan": "squad:maya.tribute_levy",
+           "millenaire:inuits": "squad:inuit.umiak_crew"}.get(culture, "squad:norman.castle_serjeants")
+    h4 = hire((x, y, z), key, "TRUSTED")
+    time.sleep(5)
+    check("MW-6 a new 1.6 village squad is hired whole by a Trusted player", "ok=true" in h4 and "hired=10" in h4, f"{culture} {key}: {h4[-160:]}")
+    for pos in (far, near):
+        s.cmd(f"forceload remove {pos[0] - 8} {pos[2] - 8} {pos[0] + 8} {pos[2] + 8}", 1)
 
 
 def gear_of(s, u):
@@ -6549,6 +6613,33 @@ def scenario_CA(ctx):
     for i in range(4):
         s.cmd(f"execute as @e[tag=ca_kat_{i}] at @s run kill @e[type=hundred_years_war:hyw_horse,distance=..3]", 0.3)
         s.cmd(f"kill @e[tag=ca_kat_{i}]", 0.3)
+    # 1.6: Seljuk and Indian heavy horse ride their own barded horses (the lamellar tijfaf; the bargustawan)
+    for name, culture, coats, barding, base in (
+            ("CA-48 Seljuk heavy lancers (STRONGHOLD) in jawshans ride in the lamellar tijfaf", "millenaire:seljuk",
+             ("jawshan", "gilded_jawshan"), "lamellar_tijfaf", 12),
+            ("CA-49 Indian heavy lancers (STRONGHOLD) in char aina ride in the bargustawan", "millenaire:indian",
+             ("char_aina",), "bargustawan", 24)):
+        rid, hs = [], []
+        for i in range(3):
+            tag = f"ca_bh_{base}_{i}"
+            s.cmd(f'summon hundred_years_war:mounted_lancer_rider {x + 3 * i} {y} {z + base} {{Tags:["{tag}"],OwnerUUID:{P_INTS}}}', 0.8)
+            rid.append(" ".join(l for l in s.output(f'hywmill dev outfit @e[tag={tag},limit=1] "{culture}" STRONGHOLD "-"', 1)
+                                if "outfit " in l))
+        time.sleep(2)
+        for i in range(3):
+            s.cmd(f"execute at @e[tag=ca_bh_{base}_{i},limit=1] run data merge entity "
+                  f"@e[type=hundred_years_war:hyw_horse,limit=1,sort=nearest] {{EquipmentLevel:3}}", 0.4)
+        time.sleep(4)
+        for i in range(3):
+            hs.append(" ".join(s.output(f"execute at @e[tag=ca_bh_{base}_{i},limit=1] run data get entity "
+                                        f"@e[type=hundred_years_war:hyw_horse,limit=1,sort=nearest] body_armor_item", 0.8)))
+        coated = sum(1 for r in rid if slot(r, "chest").replace(A, "") in coats)
+        bard = sum(1 for h in hs if A + barding in h)
+        note(name.split(" ")[0], " || ".join(h[-90:] for h in hs[:2]))
+        check(name, rid and coated == len(rid) and bard == len(rid), f"{coated}/{len(rid)} in {coats}, {bard} horses in the {barding}")
+        for i in range(3):
+            s.cmd(f"execute as @e[tag=ca_bh_{base}_{i}] at @s run kill @e[type=hundred_years_war:hyw_horse,distance=..3]", 0.3)
+            s.cmd(f"kill @e[tag=ca_bh_{base}_{i}]", 0.3)
     rows = outfit("spear_man", "GARRISON", "-", culture="millenaire:norman")
     leak = sum(1 for r in rows if A in r)
     check("CA-8 other cultures never get the armory's gear", rows and leak == 0, f"{leak} of {len(rows)} Norman spearmen with armory items")
@@ -7176,7 +7267,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

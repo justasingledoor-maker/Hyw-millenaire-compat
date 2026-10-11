@@ -1,4 +1,5 @@
-execute as @a[tag=!v21] run function armorytest:setup
-execute as @a[tag=!v21] run tp @s 4.0 -59.6 13.4 0 4
-execute as @a[tag=!v21] run schedule function armorytest:view2 300t
-tag @a add v21
+execute as @a[tag=!v22] run function armorytest:setup
+execute as @a[tag=!v22] run setblock 0 -60 -30 hywmill:muster_roll
+execute as @a[tag=!v22] run tp @s 0.5 -60 -27.5 180 20
+execute as @a[tag=!v22] run schedule function armorytest:muster 100t
+tag @a add v22

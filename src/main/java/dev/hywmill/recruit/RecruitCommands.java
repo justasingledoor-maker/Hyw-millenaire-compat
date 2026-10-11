@@ -39,6 +39,12 @@ public final class RecruitCommands {
                                 .then(Commands.argument("count", IntegerArgumentType.integer(1, 64))
                                         .then(Commands.argument("deniers", IntegerArgumentType.integer(0))
                                                 .then(Commands.argument("standing", StringArgumentType.word()).executes(RecruitCommands::hire)))))))
+                .then(Commands.literal("companies").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(RecruitCommands::companies)))
+                .then(Commands.literal("open").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(c -> {
+                    // opens the Muster Roll screen at pos for the player running it (as a right-click would; for tests)
+                    RecruitService.open(c.getSource().getPlayerOrException(), BlockPosArgument.getBlockPos(c, "pos"));
+                    return 1;
+                })))
                 .then(Commands.literal("colours").then(Commands.argument("first", IntegerArgumentType.integer(-1, 15))
                         .then(Commands.argument("second", IntegerArgumentType.integer(-1, 15)).executes(c -> {
                             // the stand-in's colours for the soldiers it hires (dye ids; -1 clears)
@@ -125,6 +131,22 @@ public final class RecruitCommands {
         c.getSource().sendSuccess(() -> Component.literal("apology: before=" + before + " grievance=" + String.format("%.1f", res.quote().grievance())
                 + " outcome=" + res.quote().outcome() + " price=" + res.quote().price() + " paid=" + res.paid() + " after=" + res.status() + " left=" + left), false);
         return res.paid() ? 1 : 0;
+    }
+
+    /** 1.6: the mercenary companies to be found at the Muster Roll at pos (outside any village): the land and their ids. */
+    private static int companies(CommandContext<CommandSourceStack> c) {
+        BlockPos pos = BlockPosArgument.getBlockPos(c, "pos");
+        FakePlayer p = standin(c, pos, 0);
+        RecruitService.Wilds w = RecruitService.wilds(p, pos);
+        if (w == null) {
+            c.getSource().sendSuccess(() -> Component.literal("recruit companies: none (no Muster Roll in the wilds at " + pos.toShortString() + ")"), false);
+            return 0;
+        }
+        var list = Squads.current().companiesIn(w.region(), w.nearCulture());
+        String ids = String.join(",", list.stream().map(x -> x.squad().id()).toList());
+        c.getSource().sendSuccess(() -> Component.literal("recruit companies: region " + w.region() + " near "
+                + (w.nearCulture() == null ? "none" : w.nearCulture()) + " count " + list.size() + " ids " + ids), false);
+        return list.size();
     }
 
     private static int hire(CommandContext<CommandSourceStack> c) {
