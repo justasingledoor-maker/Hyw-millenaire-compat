@@ -1067,6 +1067,12 @@
    "kits": [
     {
      "head": "culturesarmory:pilos",
+     "chest": "culturesarmory:chiton",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:pilos",
      "chest": "culturesarmory:kabadion",
      "legs": "culturesarmory:byzantine_hose",
      "feet": "culturesarmory:tzangia"
@@ -1149,6 +1155,18 @@
   },
   "byz.akritai": {
    "kits": [
+    {
+     "head": "culturesarmory:phrygian_helmet",
+     "chest": "culturesarmory:akrites_lamellar",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:kassis",
+     "chest": "culturesarmory:akrites_lamellar",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
     {
      "head": "culturesarmory:kassis",
      "chest": "culturesarmory:lorikion",
@@ -1238,6 +1256,18 @@
   "byz.skoutatoi": {
    "kits": [
     {
+     "head": "culturesarmory:phrygian_helmet",
+     "chest": "culturesarmory:scale_armour",
+     "legs": "culturesarmory:scale_kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
+     "head": "culturesarmory:mail_coif",
+     "chest": "culturesarmory:lorikion",
+     "legs": "culturesarmory:kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
      "head": "culturesarmory:kassis",
      "chest": "culturesarmory:klibanion",
      "legs": "culturesarmory:kremasmata",
@@ -1316,6 +1346,12 @@
   },
   "byz.menavlatoi": {
    "kits": [
+    {
+     "head": "culturesarmory:phrygian_helmet",
+     "chest": "culturesarmory:klibanion",
+     "legs": "culturesarmory:lamellar_kremasmata",
+     "feet": "culturesarmory:podopsella"
+    },
     {
      "head": "culturesarmory:kassis",
      "chest": "culturesarmory:klibanion",
@@ -1458,6 +1494,12 @@
   "byz.excubitors": {
    "kits": [
     {
+     "head": "culturesarmory:phrygian_helmet",
+     "chest": "culturesarmory:excubitor_armour",
+     "legs": "culturesarmory:scale_kremasmata",
+     "feet": "culturesarmory:kampagia"
+    },
+    {
      "head": "culturesarmory:kassis",
      "chest": "culturesarmory:scale_armour",
      "legs": "culturesarmory:lamellar_kremasmata",
@@ -1545,6 +1587,12 @@
   },
   "byz.toxotai": {
    "kits": [
+    {
+     "head": "culturesarmory:skiadion",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
     {
      "head": "culturesarmory:kassis",
      "chest": "culturesarmory:lorikion",
@@ -1642,6 +1690,12 @@
   },
   "byz.psiloi": {
    "kits": [
+    {
+     "head": "culturesarmory:skiadion",
+     "chest": "culturesarmory:kabadion",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
     {
      "head": "culturesarmory:phakeolion",
      "chest": "culturesarmory:kabadion",
@@ -1875,6 +1929,12 @@
   "byz.prokoursatores": {
    "kits": [
     {
+     "head": "culturesarmory:phrygian_helmet",
+     "chest": "culturesarmory:akrites_lamellar",
+     "legs": "culturesarmory:byzantine_hose",
+     "feet": "culturesarmory:tzangia"
+    },
+    {
      "head": "culturesarmory:kassis",
      "chest": "culturesarmory:kabadion",
      "legs": "culturesarmory:byzantine_hose",
@@ -1983,6 +2043,12 @@
   },
   "byz.tagma": {
    "kits": [
+    {
+     "head": "culturesarmory:phrygian_helmet",
+     "chest": "culturesarmory:scale_armour",
+     "legs": "culturesarmory:scale_kremasmata",
+     "feet": "culturesarmory:tzangia"
+    },
     {
      "head": "culturesarmory:strategos_helmet",
      "chest": "culturesarmory:strategos_klibanion",
@@ -2165,6 +2231,12 @@
    "kits": [
     {
      "head": "culturesarmory:turban",
+     "chest": "culturesarmory:kaftan",
+     "legs": "culturesarmory:dolak_shalwar",
+     "feet": "culturesarmory:carik"
+    },
+    {
+     "head": "culturesarmory:turban",
      "chest": "culturesarmory:quilted_kaftan",
      "legs": "culturesarmory:shalwar",
      "feet": "culturesarmory:turkic_riding_boots"
@@ -2227,6 +2299,12 @@
   },
   "seljuk.tribal_foot": {
    "kits": [
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kepenek",
+     "legs": "culturesarmory:dolak_shalwar",
+     "feet": "culturesarmory:felt_boots"
+    },
     {
      "head": "culturesarmory:bork",
      "chest": "culturesarmory:kaftan",
@@ -2555,6 +2633,12 @@
   "seljuk.mamluk_foot": {
    "kits": [
     {
+     "head": "culturesarmory:kipchak_mask_helmet",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
      "head": "culturesarmory:seljuk_veiled_helmet",
      "chest": "culturesarmory:jawshan",
      "legs": "culturesarmory:lamellar_thigh_guards",
@@ -2714,6 +2798,12 @@
    "kits": [
     {
      "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kepenek",
+     "legs": "culturesarmory:dolak_shalwar",
+     "feet": "culturesarmory:felt_boots"
+    },
+    {
+     "head": "culturesarmory:bork",
      "chest": "culturesarmory:quilted_kaftan",
      "legs": "culturesarmory:shalwar",
      "feet": "culturesarmory:turkic_riding_boots"
@@ -2798,6 +2888,12 @@
   },
   "seljuk.turkmen_horse_archers": {
    "kits": [
+    {
+     "head": "culturesarmory:bork",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:felt_boots"
+    },
     {
      "head": "culturesarmory:bork",
      "chest": "culturesarmory:quilted_kaftan",
@@ -2965,6 +3061,12 @@
   "seljuk.iqta_cavalry": {
    "kits": [
     {
+     "head": "culturesarmory:kipchak_mask_helmet",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
      "head": "culturesarmory:seljuk_turbaned_helmet",
      "chest": "culturesarmory:kazaghand",
      "legs": "culturesarmory:shalwar",
@@ -3017,6 +3119,12 @@
   },
   "seljuk.mamluk_horse": {
    "kits": [
+    {
+     "head": "culturesarmory:kipchak_mask_helmet",
+     "chest": "culturesarmory:kipchak_lamellar",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
     {
      "head": "culturesarmory:seljuk_conical_helmet",
      "chest": "culturesarmory:jawshan",
@@ -3100,6 +3208,18 @@
   },
   "seljuk.atabeg_retinue": {
    "kits": [
+    {
+     "head": "culturesarmory:sharbush",
+     "chest": "culturesarmory:khalat",
+     "legs": "culturesarmory:shalwar",
+     "feet": "culturesarmory:turkic_riding_boots"
+    },
+    {
+     "head": "culturesarmory:atabeg_helmet",
+     "chest": "culturesarmory:gilded_jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
     {
      "head": "culturesarmory:atabeg_helmet",
      "chest": "culturesarmory:gilded_jawshan",
@@ -3189,6 +3309,12 @@
    "kits": [
     {
      "head": "culturesarmory:jingasa",
+     "chest": "culturesarmory:sashimono_do",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
+    {
+     "head": "culturesarmory:jingasa",
      "chest": "culturesarmory:tatami_do",
      "legs": "culturesarmory:ashigaru_hakama",
      "feet": "culturesarmory:ashigaru_kyahan"
@@ -3241,6 +3367,12 @@
   },
   "jp.nobushi": {
    "kits": [
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:haramaki",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
     {
      "head": "culturesarmory:ashigaru_hachigane",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -3317,6 +3449,12 @@
    "kits": [
     {
      "head": "culturesarmory:sohei_zukin",
+     "chest": "culturesarmory:haramaki",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:waraji"
+    },
+    {
+     "head": "culturesarmory:sohei_zukin",
      "chest": "culturesarmory:do_maru",
      "legs": "culturesarmory:ashigaru_hakama",
      "feet": "culturesarmory:ashigaru_kyahan"
@@ -3375,6 +3513,12 @@
   },
   "jp.ashigaru_tate": {
    "kits": [
+    {
+     "head": "culturesarmory:jingasa",
+     "chest": "culturesarmory:sashimono_do",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
     {
      "head": "culturesarmory:jingasa",
      "chest": "culturesarmory:okegawa_do",
@@ -3440,6 +3584,18 @@
   "jp.samurai": {
    "kits": [
     {
+     "head": "culturesarmory:momonari_kabuto",
+     "chest": "culturesarmory:nimai_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:hotoke_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
      "head": "culturesarmory:kabuto",
      "chest": "culturesarmory:samurai_do",
      "legs": "culturesarmory:samurai_haidate",
@@ -3501,6 +3657,8 @@
     }
    ],
    "mainhand": [
+    "culturesarmory:steel_tachi",
+    "culturesarmory:steel_nagamaki",
     "culturesarmory:steel_katana",
     "culturesarmory:steel_nodachi"
    ],
@@ -3512,6 +3670,18 @@
   },
   "jp.hatamoto": {
    "kits": [
+    {
+     "head": "culturesarmory:eboshi_kabuto",
+     "chest": "culturesarmory:jinbaori",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "culturesarmory:nanban_kabuto",
+     "chest": "culturesarmory:nanban_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
     {
      "head": "culturesarmory:menpo_kabuto",
      "chest": "culturesarmory:samurai_do",
@@ -3585,6 +3755,12 @@
   },
   "jp.yumi_samurai": {
    "kits": [
+    {
+     "head": "culturesarmory:momonari_kabuto",
+     "chest": "culturesarmory:nimai_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
     {
      "head": "culturesarmory:zunari_kabuto",
      "chest": "culturesarmory:do_maru",
@@ -3717,6 +3893,12 @@
    "kits": [
     {
      "head": "culturesarmory:jingasa",
+     "chest": "culturesarmory:sashimono_do",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
+    {
+     "head": "culturesarmory:jingasa",
      "chest": "culturesarmory:tatami_do",
      "legs": "culturesarmory:ashigaru_hakama",
      "feet": "culturesarmory:ashigaru_kyahan"
@@ -3762,6 +3944,12 @@
   },
   "jp.hunters": {
    "kits": [
+    {
+     "head": "culturesarmory:sugegasa",
+     "chest": "none",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:waraji"
+    },
     {
      "head": "culturesarmory:jingasa",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -3828,6 +4016,12 @@
   },
   "jp.kiba_musha": {
    "kits": [
+    {
+     "head": "culturesarmory:momonari_kabuto",
+     "chest": "culturesarmory:nimai_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
     {
      "head": "culturesarmory:hoshi_kabuto",
      "chest": "culturesarmory:o_yoroi",
@@ -3896,6 +4090,12 @@
   },
   "jp.mounted_samurai": {
    "kits": [
+    {
+     "head": "culturesarmory:momonari_kabuto",
+     "chest": "culturesarmory:nimai_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
     {
      "head": "culturesarmory:menpo_kabuto",
      "chest": "culturesarmory:samurai_do",
@@ -4117,6 +4317,18 @@
   "jp.ronin": {
    "kits": [
     {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:haramaki",
+     "legs": "culturesarmory:ashigaru_hakama",
+     "feet": "culturesarmory:ashigaru_kyahan"
+    },
+    {
+     "head": "culturesarmory:zunari_kabuto",
+     "chest": "culturesarmory:hotoke_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
      "head": "culturesarmory:kabuto",
      "chest": "culturesarmory:do_maru",
      "legs": "culturesarmory:ashigaru_hakama",
@@ -4232,6 +4444,7 @@
     }
    ],
    "mainhand": [
+    "culturesarmory:steel_tachi",
     "culturesarmory:steel_katana",
     "culturesarmory:steel_nodachi",
     "culturesarmory:yumi",
@@ -4245,6 +4458,24 @@
   },
   "jp.daimyo_guard": {
    "kits": [
+    {
+     "head": "culturesarmory:eboshi_kabuto",
+     "chest": "culturesarmory:jinbaori",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "culturesarmory:mikazuki_kabuto",
+     "chest": "culturesarmory:jinbaori",
+     "legs": "culturesarmory:samurai_haidate",
+     "feet": "culturesarmory:samurai_suneate"
+    },
+    {
+     "head": "culturesarmory:nanban_kabuto",
+     "chest": "culturesarmory:nanban_do",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
     {
      "head": "culturesarmory:mikazuki_kabuto",
      "chest": "culturesarmory:samurai_do",
@@ -4333,6 +4564,18 @@
   "in.paika": {
    "kits": [
     {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:dhoti",
+     "feet": "culturesarmory:chappal"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -4352,6 +4595,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:dhal",
     "magistuarmory:wood_roundshield"
    ],
    "palette": [
@@ -4368,10 +4612,20 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_talwar",
+    "culturesarmory:steel_barchha"
    ]
   },
   "in.bhil": {
    "kits": [
+    {
+     "head": "culturesarmory:bhil_headband",
+     "chest": "none",
+     "legs": "culturesarmory:dhoti",
+     "feet": "culturesarmory:chappal"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -4415,10 +4669,19 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:dhanush"
    ]
   },
   "in.nayar": {
    "kits": [
+    {
+     "head": "none",
+     "chest": "none",
+     "legs": "culturesarmory:dhoti",
+     "feet": "none"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -4439,6 +4702,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:dhal",
     "magistuarmory:iron_roundshield"
    ],
    "palette": [
@@ -4455,10 +4719,25 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_talwar"
    ]
   },
   "in.dhal": {
    "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "culturesarmory:turbaned_khud",
+     "chest": "culturesarmory:zirah_bagtar",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -4491,6 +4770,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:dhal",
     "magistuarmory:iron_roundshield"
    ],
    "palette": [
@@ -4507,10 +4787,26 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_talwar",
+    "culturesarmory:steel_katar"
    ]
   },
   "in.rajput_foot": {
    "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:turbaned_khud",
+     "chest": "culturesarmory:zirah_bagtar",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:chainmail_chestplate",
@@ -4531,6 +4827,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:dhal",
     "magistuarmory:steel_roundshield"
    ],
    "palette": [
@@ -4557,10 +4854,26 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_khanda",
+    "culturesarmory:steel_talwar"
    ]
   },
   "in.royal_spears": {
    "kits": [
+    {
+     "head": "culturesarmory:kulah_khud",
+     "chest": "culturesarmory:zirah_bagtar",
+     "legs": "culturesarmory:mail_paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:top_khud",
+     "chest": "culturesarmory:kavacha",
+     "legs": "culturesarmory:zanupush",
+     "feet": "culturesarmory:jutti"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -4587,6 +4900,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:dhal",
     "magistuarmory:steel_roundshield"
    ],
    "palette": [
@@ -4603,10 +4917,25 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_barchha"
    ]
   },
   "in.imperial_archers": {
    "kits": [
+    {
+     "head": "culturesarmory:turbaned_khud",
+     "chest": "culturesarmory:zirah_bagtar",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:brigandine_chestplate",
@@ -4629,10 +4958,25 @@
    "palette": [
     "#3F6B35",
     "#C9A227"
+   ],
+   "mainhand": [
+    "culturesarmory:dhanush"
    ]
   },
   "in.dhanurdhara": {
    "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -4655,10 +4999,19 @@
    "palette": [
     "#E9E4D4",
     "#E39A2B"
+   ],
+   "mainhand": [
+    "culturesarmory:dhanush"
    ]
   },
   "in.hill_archers": {
    "kits": [
+    {
+     "head": "culturesarmory:bhil_headband",
+     "chest": "none",
+     "legs": "culturesarmory:dhoti",
+     "feet": "culturesarmory:chappal"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -4687,10 +5040,25 @@
    "palette": [
     "#6B4A2A",
     "#3F6B35"
+   ],
+   "mainhand": [
+    "culturesarmory:dhanush"
    ]
   },
   "in.temple_bows": {
    "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:dhoti",
+     "feet": "culturesarmory:chappal"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -4720,10 +5088,25 @@
     "#E39A2B",
     "#9E1B1B",
     "#E39A2B"
+   ],
+   "mainhand": [
+    "culturesarmory:dhanush"
    ]
   },
   "in.rajput_lancers": {
    "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:kulah_khud",
+     "chest": "culturesarmory:zirah_bagtar",
+     "legs": "culturesarmory:mail_paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:chainmail_chestplate",
@@ -4744,6 +5127,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:dhal",
     "magistuarmory:steel_roundshield"
    ],
    "palette": [
@@ -4765,6 +5149,18 @@
   "in.silladar": {
    "kits": [
     {
+     "head": "culturesarmory:turbaned_khud",
+     "chest": "culturesarmory:zirah_bagtar",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -4784,6 +5180,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:dhal",
     "magistuarmory:iron_roundshield"
    ],
    "palette": [
@@ -4804,6 +5201,18 @@
   },
   "in.pindari": {
    "kits": [
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:dhoti",
+     "feet": "culturesarmory:chappal"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:angarkha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -4830,6 +5239,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:dhal",
     "magistuarmory:wood_roundshield"
    ],
    "palette": [
@@ -4851,6 +5261,18 @@
   },
   "in.turki_archers": {
    "kits": [
+    {
+     "head": "culturesarmory:turbaned_khud",
+     "chest": "culturesarmory:zirah_bagtar",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:kulah_khud",
+     "chest": "culturesarmory:zirah_bagtar",
+     "legs": "culturesarmory:mail_paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -4883,6 +5305,24 @@
   },
   "in.kshatriya": {
    "kits": [
+    {
+     "head": "culturesarmory:gilded_kulah_khud",
+     "chest": "culturesarmory:char_aina",
+     "legs": "culturesarmory:zanupush",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:kulah_khud",
+     "chest": "culturesarmory:char_aina",
+     "legs": "culturesarmory:zanupush",
+     "feet": "culturesarmory:moza_boots"
+    },
+    {
+     "head": "culturesarmory:top_khud",
+     "chest": "culturesarmory:char_aina",
+     "legs": "culturesarmory:mail_paijama",
+     "feet": "culturesarmory:moza_boots"
+    },
     {
      "head": "magistuarmory:face_helmet",
      "chest": "magistuarmory:lamellar_chestplate",
@@ -4921,6 +5361,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:dhal",
     "magistuarmory:steel_roundshield"
    ],
    "palette": [
@@ -4938,10 +5379,26 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_khanda",
+    "culturesarmory:steel_gada"
    ]
   },
   "in.temple_defenders": {
    "kits": [
+    {
+     "head": "culturesarmory:top_khud",
+     "chest": "culturesarmory:kavacha",
+     "legs": "culturesarmory:zanupush",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "culturesarmory:pagri",
+     "chest": "culturesarmory:chilta_hazar_masha",
+     "legs": "culturesarmory:paijama",
+     "feet": "culturesarmory:jutti"
+    },
     {
      "head": "magistuarmory:shishak",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -4962,6 +5419,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:dhal",
     "magistuarmory:iron_roundshield"
    ],
    "palette": [
@@ -4978,10 +5436,26 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:steel_gada",
+    "culturesarmory:steel_talwar"
    ]
   },
   "maya.milpa_levy": {
    "kits": [
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5005,10 +5479,23 @@
     "#E9E4D4",
     "#B08A5A",
     "#E9E4D4"
+   ],
+   "mainhand": [
+    "culturesarmory:flint_spear",
+    "culturesarmory:macuahuitl"
+   ],
+   "offhand": [
+    "culturesarmory:pakal"
    ]
   },
   "maya.hunters": {
    "kits": [
+    {
+     "head": "culturesarmory:deer_headdress",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5031,10 +5518,25 @@
    "palette": [
     "#3F6B35",
     "#6B4A2A"
+   ],
+   "mainhand": [
+    "culturesarmory:maya_bow"
    ]
   },
   "maya.holkan": {
    "kits": [
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:cotton_war_cap",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:xanab_sandals"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5061,6 +5563,8 @@
     }
    ],
    "offhand": [
+    "culturesarmory:pakal",
+    "culturesarmory:flexible_shield",
     "magistuarmory:wood_roundshield"
    ],
    "palette": [
@@ -5077,10 +5581,26 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "culturesarmory:flint_spear"
    ]
   },
   "maya.atlatl": {
    "kits": [
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5117,10 +5637,25 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:flint_spear"
    ]
   },
   "maya.jaguar": {
    "kits": [
+    {
+     "head": "culturesarmory:jaguar_helmet",
+     "chest": "culturesarmory:jaguar_pelt_armour",
+     "legs": "culturesarmory:jaguar_kilt",
+     "feet": "culturesarmory:jaguar_leg_wraps"
+    },
+    {
+     "head": "culturesarmory:jaguar_helmet",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:jaguar_kilt",
+     "feet": "culturesarmory:jaguar_leg_wraps"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5135,6 +5670,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:pakal",
     "magistuarmory:wood_roundshield"
    ],
    "palette": [
@@ -5152,10 +5688,26 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "culturesarmory:flint_axe"
    ]
   },
   "maya.nacom_guard": {
    "kits": [
+    {
+     "head": "culturesarmory:quetzal_headdress",
+     "chest": "culturesarmory:feathered_war_suit",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
+     "head": "culturesarmory:serpent_headdress",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5170,6 +5722,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:pakal",
     "magistuarmory:wood_roundshield"
    ],
    "palette": [
@@ -5186,10 +5739,26 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "culturesarmory:flint_spear"
    ]
   },
   "maya.royal_archers": {
    "kits": [
+    {
+     "head": "culturesarmory:serpent_headdress",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
+     "head": "culturesarmory:cotton_war_cap",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:xanab_sandals"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5206,10 +5775,25 @@
    "palette": [
     "#3E8E6A",
     "#D4A22A"
+   ],
+   "mainhand": [
+    "culturesarmory:maya_bow"
    ]
   },
   "maya.temple_archers": {
    "kits": [
+    {
+     "head": "culturesarmory:cotton_war_cap",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:deer_headdress",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5232,10 +5816,25 @@
    "palette": [
     "#E9E4D4",
     "#9E1B1B"
+   ],
+   "mainhand": [
+    "culturesarmory:maya_bow"
    ]
   },
   "maya.bowmen": {
    "kits": [
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:deer_headdress",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5258,10 +5857,25 @@
    "palette": [
     "#B08A5A",
     "#6B4A2A"
+   ],
+   "mainhand": [
+    "culturesarmory:maya_bow"
    ]
   },
   "maya.skirmishers": {
    "kits": [
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:deer_headdress",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5298,10 +5912,20 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:flint_spear",
+    "culturesarmory:maya_bow"
    ]
   },
   "maya.runners": {
    "kits": [
+    {
+     "head": "culturesarmory:holkan_headband",
+     "chest": "culturesarmory:manta_cape",
+     "legs": "culturesarmory:ex_loincloth",
+     "feet": "culturesarmory:xanab_sandals"
+    },
     {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5329,6 +5953,12 @@
   "maya.serpent": {
    "kits": [
     {
+     "head": "culturesarmory:serpent_headdress",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
      "head": "none",
      "chest": "magistuarmory:gambeson_chestplate",
      "legs": "magistuarmory:pantyhose",
@@ -5348,6 +5978,8 @@
     }
    ],
    "offhand": [
+    "culturesarmory:flexible_shield",
+    "culturesarmory:pakal",
     "magistuarmory:wood_roundshield"
    ],
    "palette": [
@@ -5364,10 +5996,25 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl"
    ]
   },
   "maya.captive_takers": {
    "kits": [
+    {
+     "head": "culturesarmory:cotton_war_cap",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:jaguar_helmet",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:jaguar_kilt",
+     "feet": "culturesarmory:jaguar_leg_wraps"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5382,6 +6029,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:pakal",
     "magistuarmory:wood_roundshield"
    ],
    "palette": [
@@ -5398,10 +6046,26 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "culturesarmory:flint_axe"
    ]
   },
   "maya.eagle": {
    "kits": [
+    {
+     "head": "culturesarmory:quetzal_headdress",
+     "chest": "culturesarmory:feathered_war_suit",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
+     "head": "culturesarmory:serpent_headdress",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5416,6 +6080,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:pakal",
     "magistuarmory:wood_roundshield"
    ],
    "palette": [
@@ -5433,10 +6098,31 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl"
    ]
   },
   "maya.sacred_war_band": {
    "kits": [
+    {
+     "head": "culturesarmory:quetzal_headdress",
+     "chest": "culturesarmory:jade_pectoral_armour",
+     "legs": "culturesarmory:jaguar_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
+     "head": "culturesarmory:quetzal_headdress",
+     "chest": "culturesarmory:feathered_war_suit",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
+     "head": "culturesarmory:jaguar_helmet",
+     "chest": "culturesarmory:jaguar_pelt_armour",
+     "legs": "culturesarmory:jaguar_kilt",
+     "feet": "culturesarmory:jaguar_leg_wraps"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5451,6 +6137,7 @@
     }
    ],
    "offhand": [
+    "culturesarmory:pakal",
     "magistuarmory:wood_rondache"
    ],
    "palette": [
@@ -5467,10 +6154,26 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "culturesarmory:flint_axe"
    ]
   },
   "maya.city_guard": {
    "kits": [
+    {
+     "head": "culturesarmory:cotton_war_cap",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:xanab_sandals"
+    },
+    {
+     "head": "culturesarmory:serpent_headdress",
+     "chest": "culturesarmory:quilted_cotton_armour",
+     "legs": "culturesarmory:cotton_war_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
     {
      "head": "magistuarmory:coif",
      "chest": "magistuarmory:gambeson_chestplate",
@@ -5485,6 +6188,8 @@
     }
    ],
    "offhand": [
+    "culturesarmory:flexible_shield",
+    "culturesarmory:pakal",
     "magistuarmory:wood_roundshield"
    ],
    "palette": [
@@ -5501,6 +6206,10 @@
       }
      ]
     }
+   ],
+   "mainhand": [
+    "culturesarmory:flint_spear",
+    "culturesarmory:macuahuitl"
    ]
   },
   "inuit.harpooners": {
@@ -5848,6 +6557,12 @@
   "inuit.kayak_raiders": {
    "kits": [
     {
+     "head": "culturesarmory:bentwood_visor",
+     "chest": "culturesarmory:gut_skin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
      "head": "culturesarmory:parka_hood",
      "chest": "culturesarmory:sealskin_parka",
      "legs": "culturesarmory:sealskin_trousers",
@@ -5878,6 +6593,12 @@
   "inuit.tundra_scouts": {
    "kits": [
     {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:bird_skin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
      "head": "culturesarmory:snow_goggle_hood",
      "chest": "culturesarmory:caribou_parka",
      "legs": "culturesarmory:caribou_trousers",
@@ -5907,6 +6628,18 @@
   },
   "inuit.whale_hunt": {
    "kits": [
+    {
+     "head": "culturesarmory:bentwood_visor",
+     "chest": "culturesarmory:gut_skin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:bird_skin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
     {
      "head": "culturesarmory:bentwood_visor",
      "chest": "culturesarmory:sealskin_parka",
@@ -5949,6 +6682,12 @@
   },
   "inuit.winter_warband": {
    "kits": [
+    {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:polar_bear_trousers",
+     "feet": "culturesarmory:polar_bear_kamik"
+    },
     {
      "head": "culturesarmory:bone_plate_hood",
      "chest": "culturesarmory:walrus_hide_armour",
@@ -6006,6 +6745,12 @@
   "inuit.shaman_band": {
    "kits": [
     {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:ceremonial_parka",
+     "legs": "culturesarmory:polar_bear_trousers",
+     "feet": "culturesarmory:polar_bear_kamik"
+    },
+    {
      "head": "culturesarmory:bentwood_visor",
      "chest": "culturesarmory:ceremonial_parka",
      "legs": "culturesarmory:caribou_trousers",
@@ -6056,6 +6801,18 @@
   },
   "inuit.feud_party": {
    "kits": [
+    {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:bird_skin_parka",
+     "legs": "culturesarmory:sealskin_trousers",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "culturesarmory:wolverine_hood",
+     "chest": "culturesarmory:caribou_parka",
+     "legs": "culturesarmory:polar_bear_trousers",
+     "feet": "culturesarmory:polar_bear_kamik"
+    },
     {
      "head": "culturesarmory:bone_plate_hood",
      "chest": "culturesarmory:bone_plate_armour",

@@ -75,7 +75,7 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
         EquipmentProfiles.Look look = p.lookFor(ctx.dutyRole()); // post-M5 squads: their own kits, shields, colours and arms
         EquipmentProfiles.Kit kit = look != null ? pick(look.kits(), unit.entityType(), ctx) : null;
         if (kit == null) {
-            kit = chooseKit(p, unit.entityType(), ctx);
+            kit = chooseKit(p, unit.entityType(), unit.key(), ctx);
         }
         for (String slot : EquipmentProfiles.SLOTS) {
             if (kit != null && EquipmentProfiles.ARMOUR.contains(slot)) {
@@ -87,7 +87,7 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
             }
             String item = look != null ? pickItem(look.items().get(slot), unit.entityType(), slot, ctx) : null;
             if (item == null) {
-                item = choose(p, unit.entityType(), slot, ctx);
+                item = choose(p, unit.entityType(), unit.key(), slot, ctx);
             }
             if (item != null) {
                 u.setItemSlot(slotOf(slot), item.equals(EquipmentProfiles.NONE) ? ItemStack.EMPTY
@@ -172,8 +172,8 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
 
     /** The unit's armour kit (deterministic by roster id): from the first kit list with a kit whose every piece is usable. */
     @javax.annotation.Nullable
-    static EquipmentProfiles.Kit chooseKit(EquipmentProfiles p, String entityType, Context ctx) {
-        for (List<EquipmentProfiles.Kit> list : p.kitCandidates(ctx.culture(), ctx.tier(), ctx.dutyRole(), ctx.classRole())) {
+    static EquipmentProfiles.Kit chooseKit(EquipmentProfiles p, String entityType, String unitKey, Context ctx) {
+        for (List<EquipmentProfiles.Kit> list : p.kitCandidates(ctx.culture(), ctx.tier(), ctx.dutyRole(), unitKey, ctx.classRole())) {
             List<EquipmentProfiles.Kit> valid = new ArrayList<>();
             for (EquipmentProfiles.Kit k : list) {
                 if (kitUsable(entityType, k)) {
@@ -410,8 +410,11 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
         return ADDONS.contains(ns) && !ModList.get().isLoaded(ns);
     }
 
-    /** Class roles apply to units of that class; duty roles and "all" to every unit. */
+    /** Class roles apply to units of that class, a unit's own lists to that unit; duty roles and "all" to every unit. */
     static boolean appliesTo(String role, UnitSpec u) {
+        if (role.startsWith(EquipmentProfiles.UNIT_PREFIX)) {
+            return role.equals(EquipmentProfiles.unitRole(u.key()));
+        }
         return switch (role) {
             case "militia", "line", "ranged" -> role.equals(EquipmentProfiles.classRole(u.unitClass()));
             default -> true;
@@ -419,8 +422,8 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
     }
 
     /** The profile item for one slot, or null to keep HYW's own (deterministic by roster id). */
-    static String choose(EquipmentProfiles p, String entityType, String slot, Context ctx) {
-        for (List<String> list : p.candidates(ctx.culture(), ctx.tier(), ctx.dutyRole(), ctx.classRole(), slot)) {
+    static String choose(EquipmentProfiles p, String entityType, String unitKey, String slot, Context ctx) {
+        for (List<String> list : p.candidates(ctx.culture(), ctx.tier(), ctx.dutyRole(), unitKey, ctx.classRole(), slot)) {
             List<String> valid = new ArrayList<>();
             for (String id : list) {
                 if (check(entityType, slot, id) == Verdict.OK) {

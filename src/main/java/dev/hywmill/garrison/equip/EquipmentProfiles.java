@@ -142,12 +142,22 @@ public final class EquipmentProfiles {
 
     /** Candidate kit lists in the same order as {@link #candidates} (duty role, culture class/all, defaults class/all). */
     public List<List<Kit>> kitCandidates(String culture, MilitaryTier tier, String dutyRole, String classRole) {
+        return kitCandidates(culture, tier, dutyRole, "", classRole);
+    }
+
+    /** As above, with the HYW unit's own lists ({@link #unitRole}) between the duty role and the class role. */
+    public List<List<Kit>> kitCandidates(String culture, MilitaryTier tier, String dutyRole, String unitKey, String classRole) {
         List<List<Kit>> out = new ArrayList<>();
         boolean own = !culture.equals(DEFAULTS);
         if (own) {
             addKits(out, culture, tier, dutyRole);
         }
         addKits(out, DEFAULTS, tier, dutyRole);
+        String unit = unitRole(unitKey);
+        if (own) {
+            addKits(out, culture, tier, unit);
+        }
+        addKits(out, DEFAULTS, tier, unit);
         if (own) {
             addKits(out, culture, tier, classRole);
             addKits(out, culture, tier, "all");
@@ -222,6 +232,13 @@ public final class EquipmentProfiles {
         };
     }
 
+    /** The role key of one HYW unit's own lists ({@code "unit:" + key}; {@code ""} for none). */
+    public static final String UNIT_PREFIX = "unit:";
+
+    public static String unitRole(@javax.annotation.Nullable String unitKey) {
+        return unitKey == null || unitKey.isEmpty() ? "" : UNIT_PREFIX + unitKey;
+    }
+
     public static String classRole(UnitClass c) {
         return switch (c) {
             case LEVY -> "militia";
@@ -237,12 +254,26 @@ public final class EquipmentProfiles {
      * the village's tier). The provider uses the first list with at least one item valid for the unit.
      */
     public List<List<String>> candidates(String culture, MilitaryTier tier, String dutyRole, String classRole, String slot) {
+        return candidates(culture, tier, dutyRole, "", classRole, slot);
+    }
+
+    /**
+     * Post-M5 Cultures Armory 1.5: as above, with the HYW unit's own lists ({@code "unit:spear_man"}: a culture's spearmen
+     * dressed and armed as its spearmen were) after the duty role and before the class role. A unit without lists of its
+     * own (a unit HYW adds later) falls through to its class.
+     */
+    public List<List<String>> candidates(String culture, MilitaryTier tier, String dutyRole, String unitKey, String classRole, String slot) {
         List<List<String>> out = new ArrayList<>();
         boolean own = !culture.equals(DEFAULTS);
         if (own) {
             add(out, culture, tier, dutyRole, slot);
         }
         add(out, DEFAULTS, tier, dutyRole, slot);
+        String unit = unitRole(unitKey);
+        if (own) {
+            add(out, culture, tier, unit, slot);
+        }
+        add(out, DEFAULTS, tier, unit, slot);
         if (own) {
             add(out, culture, tier, classRole, slot);
             add(out, culture, tier, "all", slot);
@@ -418,7 +449,8 @@ public final class EquipmentProfiles {
                 continue;
             }
             for (Map.Entry<String, JsonElement> r : t.getValue().getAsJsonObject().entrySet()) {
-                if (!ROLES.contains(r.getKey()) || !r.getValue().isJsonObject()) {
+                boolean unitRole = r.getKey().startsWith(UNIT_PREFIX) && r.getKey().length() > UNIT_PREFIX.length();
+                if ((!ROLES.contains(r.getKey()) && !unitRole) || !r.getValue().isJsonObject()) {
                     problems.add(where + " " + tier + ": unknown role " + r.getKey() + "; ignored");
                     continue;
                 }
@@ -512,7 +544,14 @@ public final class EquipmentProfiles {
             // the shields (1.4): carried where HYW gives a shield of that shape
             Map.entry("skoutarion", "kiteshield"), Map.entry("aspis", "roundshield"), Map.entry("varangian_shield", "roundshield"),
             Map.entry("kalkan", "roundshield"), Map.entry("sipar", "roundshield"), Map.entry("tedate", "kiteshield"),
-            Map.entry("toxarion", "longbow"));
+            Map.entry("toxarion", "longbow"),
+            // 1.5: Japan's slung sword and pole sword; India; the Maya (the one-handed obsidian club is a sword to a shieldman)
+            Map.entry("tachi", "bastardsword"), Map.entry("nagamaki", "lochaberaxe"),
+            Map.entry("talwar", "katzbalger"), Map.entry("khanda", "bastardsword"), Map.entry("katar", "shortsword"),
+            Map.entry("barchha", "pike"), Map.entry("tabar", "heavymace"), Map.entry("gada", "heavymace"), Map.entry("dhanush", "longbow"),
+            Map.entry("macuahuitl", "katzbalger"), Map.entry("flint_spear", "pike"), Map.entry("flint_axe", "heavymace"),
+            Map.entry("maya_bow", "longbow"),
+            Map.entry("dhal", "roundshield"), Map.entry("pakal", "roundshield"), Map.entry("flexible_shield", "kiteshield"));
 
     public static final List<String> MATERIALS = List.of("wood", "wooden", "stone", "iron", "gold", "golden", "diamond", "netherite", "copper",
             "steel", "bronze", "silver", "tin");

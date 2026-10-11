@@ -61,6 +61,8 @@ public final class SpearShield {
         return switch (culture.replace("millenaire:", "")) {
             case "byzantines" -> Math.floorMod(h >>> 9, 3L) == 0 ? "culturesarmory:aspis" : "culturesarmory:skoutarion";
             case "seljuk" -> Math.floorMod(h >>> 9, 2L) == 0 ? "culturesarmory:kalkan" : "culturesarmory:sipar";
+            case "indian" -> "culturesarmory:dhal";
+            case "mayan" -> Math.floorMod(h >>> 9, 3L) == 0 ? "culturesarmory:flexible_shield" : "culturesarmory:pakal";
             default -> null;
         };
     }
