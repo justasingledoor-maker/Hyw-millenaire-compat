@@ -51,6 +51,20 @@ public final class SpearShield {
         return "magistuarmory:" + material + "_" + shape;
     }
 
+    /**
+     * With Cultures Armory: the culture's own shield in place of the Epic Knights shape (the Byzantine skoutarion or round
+     * aspis, the Seljuk kalkan or sipar), or null for a culture without one (stable per soldier).
+     */
+    @Nullable
+    public static String armory(String culture, UUID soldier) {
+        long h = soldier.getMostSignificantBits() * 31 + soldier.getLeastSignificantBits() + 0x5BEA75L;
+        return switch (culture.replace("millenaire:", "")) {
+            case "byzantines" -> Math.floorMod(h >>> 9, 3L) == 0 ? "culturesarmory:aspis" : "culturesarmory:skoutarion";
+            case "seljuk" -> Math.floorMod(h >>> 9, 2L) == 0 ? "culturesarmory:kalkan" : "culturesarmory:sipar";
+            default -> null;
+        };
+    }
+
     /** Armour a carried shield gives (it is never raised to block): 1 wood, 2 iron, 3 steel. */
     public static int armour(String shield) {
         return Math.max(1, Pavise.armour(shield) - 1);

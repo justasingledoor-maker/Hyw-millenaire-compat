@@ -442,7 +442,9 @@ public final class EquipmentProfiles {
                     List<String> items = new ArrayList<>();
                     for (JsonElement e : s.getValue().getAsJsonArray()) {
                         String id = e.isJsonPrimitive() ? e.getAsString() : "";
-                        if (id.indexOf(':') <= 0) {
+                        if (id.equals(NONE) && s.getKey().equals("offhand")) {
+                            items.add(id); // post-M5: an empty off hand (cultures that carried no shield)
+                        } else if (id.indexOf(':') <= 0) {
                             problems.add(where + " " + tier + " " + r.getKey() + " " + s.getKey() + ": bad item id " + e + "; ignored");
                         } else {
                             items.add(id);
@@ -507,6 +509,9 @@ public final class EquipmentProfiles {
             Map.entry("kontarion", "pike"), Map.entry("menavlion", "ahlspiess"), Map.entry("spathion", "katzbalger"),
             Map.entry("paramerion", "bastardsword"), Map.entry("pelekys", "lochaberaxe"), Map.entry("siderorabdion", "heavymace"),
             Map.entry("bardoukion", "heavymace"),
+            // the shields (1.4): carried where HYW gives a shield of that shape
+            Map.entry("skoutarion", "kiteshield"), Map.entry("aspis", "roundshield"), Map.entry("varangian_shield", "roundshield"),
+            Map.entry("kalkan", "roundshield"), Map.entry("sipar", "roundshield"), Map.entry("tedate", "kiteshield"),
             Map.entry("toxarion", "longbow"));
 
     public static final List<String> MATERIALS = List.of("wood", "wooden", "stone", "iron", "gold", "golden", "diamond", "netherite", "copper",

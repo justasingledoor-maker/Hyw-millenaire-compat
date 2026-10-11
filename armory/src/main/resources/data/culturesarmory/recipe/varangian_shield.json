@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "prp",
+    "pip",
+    " p "
+  ],
+  "key": {
+    "p": {
+      "tag": "minecraft:planks"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "r": {
+      "item": "minecraft:red_dye"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:varangian_shield",
+    "count": 1
+  }
+}

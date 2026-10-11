@@ -4,8 +4,8 @@ The armour of other cultures, made the Epic Knights way. Each piece is an Epic K
 dyeable like Epic Knights' cloth armour. The pieces sit in Epic Knights' armour tab and repair with steel ingots.
 Separate from HywMill: it needs only NeoForge 1.21.1, Epic Knights (10.12 or later) and Architectury.
 
-1.3: 71 armour pieces, 3 horse armours and 28 weapons: Japan (17 + 8), the Seljuks (18 + 6), the Inuit (16 + 5),
-Byzantium (20 + 3 bardings + 9).
+1.4: 71 armour pieces, 3 horse armours, 28 weapons and 6 shields: Japan (17 + 8 + 1 shield), the Seljuks (18 + 6 + 2),
+the Inuit (16 + 5), Byzantium (20 + 3 bardings + 9 + 3).
 
 ## Japan
 
@@ -191,6 +191,25 @@ density of vanilla and Epic Knights (256x256). Drawn on every horse the game dra
 | Kontos | Lance (Epic Knights') | 3D: the kataphraktos' cavalry lance, with a leaf-shaped head, a butt spike and a red bandon pennon with a gold cross; couched on horseback like Epic Knights' lances |
 | Byzantine Composite Bow | Longbow | The composite bow (390 uses, draw 32, power 4.4) |
 
+## Shields (1.4)
+
+Each culture's own shields, made as Epic Knights makes its own (held, blocking and repaired like them, in its shields
+tab), in the shape of its round or kite shield so they sit in the hand the same way. The plate is built row by row
+along the outline, so the rim is solid all round, with a boss (and a domed centre on the Seljuk ones). They carry
+their own painting, at twice Epic Knights' pixel density; they are not painted with banners.
+
+| Shield | Culture | Held like | What it is |
+|---|---|---|---|
+| Skoutarion | Byzantium | Kite shield | The infantry's kite shield (10th–12th c.): crimson, a gilt rim set with pearls, a gold cross |
+| Byzantine Round Shield | Byzantium | Round shield | The aspis of the skoutatoi and menavlatoi: blue with white rays, a red band with pearls, an iron boss |
+| Varangian Shield | Byzantium | Round shield | The Varangian Guard's Norse round shield: planks in red and white quarters, an iron boss, a rawhide rim |
+| Kalkan | Seljuks | Round shield | The Turkic shield of coiled cane bound with red and blue thread, convex, a steel boss |
+| Sipar | Seljuks | Round shield | The ghulam's round shield: leather over wood, dark red, a gold eight-pointed star round a domed boss |
+| Tedate | Japan | Kite shield | The ashigaru's hand-held plank shield with a painted mon (a cross in a ring) |
+
+No shields for the Inuit or for samurai: neither fought with hand shields (the Inuit slat armour's raised back board
+and the samurai's ō-sode shoulder guards took their place).
+
 ## Building
 
 ```
@@ -200,7 +219,7 @@ density of vanilla and Epic Knights (256x256). Drawn on every horse the game dra
 `libs/` must hold the Epic Knights and Architectury jars (compile-only).
 
 The models (Java), armour textures, icons, item models, recipes, tags and translations are generated from
-`tools/japan.py`, `tools/seljuk.py`, `tools/inuit.py`, `tools/byzantine.py` (the armour), `tools/horse.py` (the 3D horse armour), `tools/weapons.py` (the weapon sprites and stats), `tools/weapons3d.py` (the 3D weapons) and `tools/icons.py` with `tools/icons_more.py` (the 16x16 icons):
+`tools/japan.py`, `tools/seljuk.py`, `tools/inuit.py`, `tools/byzantine.py` (the armour), `tools/horse.py` (the 3D horse armour), `tools/weapons.py` (the weapon sprites and stats), `tools/weapons3d.py` (the 3D weapons), `tools/shields.py` (the shields) and `tools/icons.py` with `tools/icons_more.py` (the 16x16 icons):
 
 ```
 python3 tools/build_assets.py      # needs Pillow

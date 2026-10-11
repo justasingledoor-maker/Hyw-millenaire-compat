@@ -1,9 +1,11 @@
 package dev.culturesarmory;
 
 import com.magistuarmory.api.item.ModItemsProvider;
+import com.magistuarmory.item.MedievalShieldItem;
 import com.magistuarmory.item.MedievalWeaponItem;
 import com.magistuarmory.item.ModItemTier;
 import com.magistuarmory.item.RangedWeaponType;
+import com.magistuarmory.item.ShieldType;
 import com.magistuarmory.item.WeaponType;
 import com.magistuarmory.item.WeaponTypes;
 import com.magistuarmory.item.armor.DyeableMedievalArmorItem;
@@ -152,6 +154,18 @@ public class ArmoryItems extends ModItemsProvider {
     /** The horse armour (listed in Epic Knights' armour tab; the felt barding's icon is tinted by its dye). */
     public static final java.util.List<RegistrySupplier<Item>> BARDINGS = java.util.List.of(CATAPHRACT_BARDING, CATAPHRACT_HALF_BARDING, FELT_BARDING);
     public static final java.util.List<RegistrySupplier<Item>> DYED_BARDINGS = java.util.List.of(FELT_BARDING);
+    public static final RegistrySupplier<MedievalShieldItem> SKOUTARION = INSTANCE.addMedievalShieldItem("skoutarion", "skoutarion", new Item.Properties(),
+            ModItemTier.IRON, true, false, ShieldType.of(370, 0.8F, 5.0F, 10.0F, true, true));
+    public static final RegistrySupplier<MedievalShieldItem> ASPIS = INSTANCE.addMedievalShieldItem("aspis", "aspis", new Item.Properties(),
+            ModItemTier.IRON, true, false, ShieldType.of(350, 0.8F, 3.0F, 7.0F, true, true));
+    public static final RegistrySupplier<MedievalShieldItem> VARANGIAN_SHIELD = INSTANCE.addMedievalShieldItem("varangian_shield", "varangian_shield", new Item.Properties(),
+            ModItemTier.IRON, true, false, ShieldType.of(360, 0.8F, 3.5F, 8.0F, true, true));
+    public static final RegistrySupplier<MedievalShieldItem> KALKAN = INSTANCE.addMedievalShieldItem("kalkan", "kalkan", new Item.Properties(),
+            ModItemTier.IRON, true, false, ShieldType.of(340, 0.8F, 2.5F, 7.0F, true, true));
+    public static final RegistrySupplier<MedievalShieldItem> SIPAR = INSTANCE.addMedievalShieldItem("sipar", "sipar", new Item.Properties(),
+            ModItemTier.STEEL, true, false, ShieldType.of(360, 0.8F, 3.5F, 8.0F, true, true));
+    public static final RegistrySupplier<MedievalShieldItem> TEDATE = INSTANCE.addMedievalShieldItem("tedate", "tedate", new Item.Properties(),
+            ModItemTier.WOOD, true, false, ShieldType.of(330, 0.8F, 4.0F, 9.0F, true, true));
 
     public ArmoryItems() {
         super(CulturesArmory.ID);

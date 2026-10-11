@@ -90,7 +90,8 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
                 item = choose(p, unit.entityType(), slot, ctx);
             }
             if (item != null) {
-                u.setItemSlot(slotOf(slot), new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(item))));
+                u.setItemSlot(slotOf(slot), item.equals(EquipmentProfiles.NONE) ? ItemStack.EMPTY
+                        : new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(item))));
             }
         }
         if (dev.hywmill.garrison.equip.Pavise.crossbowman(unit.entityType()) && u.getOffhandItem().isEmpty()) {
@@ -103,6 +104,10 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
         if (dev.hywmill.garrison.equip.SpearShield.spearman(unit.entityType()) && u.getOffhandItem().isEmpty()) {
             // post-M5: most spearmen carry a shield of their culture's shape (a squad's look may already have given one)
             String sh = dev.hywmill.garrison.equip.SpearShield.choose(ctx.culture(), ctx.tier(), ctx.rosterId());
+            String own = sh == null ? null : dev.hywmill.garrison.equip.SpearShield.armory(ctx.culture(), ctx.rosterId());
+            if (own != null && check(unit.entityType(), "offhand", own) == Verdict.OK) {
+                sh = own; // the culture's own shield, with Cultures Armory
+            }
             if (sh != null && check(unit.entityType(), "offhand", sh) == Verdict.OK) {
                 u.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(sh))));
             }
@@ -212,7 +217,9 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
             }
         }
         ItemStack shield = u.getItemBySlot(EquipmentSlot.OFFHAND);
-        if (p.heraldry() && shield.getItem() instanceof net.minecraft.world.item.ShieldItem) {
+        // Cultures Armory's shields carry their own painting (a cross, a mon, coiled cane), never European arms
+        boolean ownPainting = BuiltInRegistries.ITEM.getKey(shield.getItem()).getNamespace().equals(EquipmentProfiles.ARMORY);
+        if (p.heraldry() && shield.getItem() instanceof net.minecraft.world.item.ShieldItem && !ownPainting) {
             List<String>[] figures = figures(u, p.heraldryOf(ctx.culture()));
             if (ctx.hasLivery()) {
                 // post-M5: assorted arms in the culture's manner, always in the village's two colours
@@ -431,6 +438,9 @@ public final class HywProfileEquipmentProvider implements EquipmentProvider {
 
     /** Whether {@code itemId} may go into {@code slot} of HYW unit {@code entityType} (the M4 compatibility rule). */
     public static Verdict check(String entityType, String slot, String itemId) {
+        if (slot.equals("offhand") && itemId.equals(EquipmentProfiles.NONE)) {
+            return Verdict.OK; // post-M5: an empty off hand always fits (cultures that carried no shield)
+        }
         ResourceLocation id = ResourceLocation.tryParse(itemId);
         if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
             return Verdict.UNREGISTERED;

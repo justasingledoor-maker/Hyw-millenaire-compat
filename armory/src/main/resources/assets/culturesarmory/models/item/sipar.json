@@ -1,0 +1,11 @@
+{
+  "parent": "magistuarmory:item/roundshield",
+  "overrides": [
+    {
+      "predicate": {
+        "blocking": 1
+      },
+      "model": "culturesarmory:item/sipar_blocking"
+    }
+  ]
+}

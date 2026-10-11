@@ -37,10 +37,13 @@ class EquipmentProfilesTest {
                 for (var r : t.values()) {
                     for (List<String> items : r.values()) {
                         for (String i : items) {
-                            assertTrue(i.startsWith("magistuarmory:") || i.startsWith("culturesarmory:"), "profiles are Epic Knights (and its add-ons): " + i);
+                            assertTrue(i.startsWith("magistuarmory:") || i.startsWith("culturesarmory:") || i.equals(EquipmentProfiles.NONE),
+                                    "profiles are Epic Knights (and its add-ons): " + i);
                         }
-                        // post-M5 Cultures Armory: its weapons always stand beside Epic Knights ones (worn when it is absent)
-                        assertTrue(items.stream().anyMatch(i -> i.startsWith("magistuarmory:")), "Epic Knights fallback in " + items);
+                        // post-M5 Cultures Armory: its weapons always stand beside Epic Knights ones (worn when it is absent); an
+                        // empty off hand ("none") stands in for a culture that carried no shield
+                        assertTrue(items.stream().anyMatch(i -> i.startsWith("magistuarmory:") || i.equals(EquipmentProfiles.NONE)),
+                                "Epic Knights fallback in " + items);
                     }
                 }
             }

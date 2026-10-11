@@ -1,4 +1,4 @@
 kill @e[type=item]
 item replace entity @a weapon.mainhand with air
-tp @a -5.5 -59.3 -6.3 175 6
-schedule function armorytest:view3 300t
+tp @a 21.2 -59.6 2.2 -10 8
+schedule function armorytest:view3 200t

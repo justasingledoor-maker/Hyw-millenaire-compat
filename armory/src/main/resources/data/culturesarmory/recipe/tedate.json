@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "ppp",
+    "pbp",
+    "ppp"
+  ],
+  "key": {
+    "p": {
+      "tag": "minecraft:planks"
+    },
+    "b": {
+      "item": "minecraft:black_dye"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:tedate",
+    "count": 1
+  }
+}

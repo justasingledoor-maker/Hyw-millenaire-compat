@@ -6462,6 +6462,29 @@ def scenario_CA(ctx):
             extra = all(slot(r, "chest") == A + "varangian_hauberk" for r in rows)
         note(name.split(" ")[0], " || ".join(r[r.find(":") + 1:][:220] for r in rows[:2]))
         check(name, rows and arm == len(rows) and wpn == len(rows) and extra, f"{arm}/{len(rows)} in armory armour, {wpn} with its weapon")
+    # 1.4: the cultures' shields. Only Normans carry heater shields; the Inuit and samurai none (they fought without them)
+    shield_cases = [
+        ("CA-24 Byzantine shieldmen carry the skoutarion or the aspis", "shieldman", "GARRISON", "-", "millenaire:byzantines",
+         {A + "skoutarion", A + "aspis"}),
+        ("CA-25 Byzantine spearmen with a shield carry the skoutarion or the aspis", "spear_man", "GARRISON", "-", "millenaire:byzantines",
+         {A + "skoutarion", A + "aspis", "none"}),
+        ("CA-26 the Varangians bear their Norse round shield", "shieldman", "STRONGHOLD", "look:byz.varangians", "millenaire:byzantines",
+         {A + "varangian_shield"}),
+        ("CA-27 Seljuk shieldmen carry the kalkan or the sipar, on sentry too", "shieldman", "GARRISON", "sentry", "millenaire:seljuk",
+         {A + "kalkan", A + "sipar"}),
+        ("CA-28 Japanese shieldmen carry the tedate", "shieldman", "GARRISON", "-", "millenaire:japanese", {A + "tedate"}),
+        ("CA-29 mounted samurai carry no shield", "mounted_lancer_rider", "STRONGHOLD", "look:jp.mounted_samurai", "millenaire:japanese",
+         {"none"}),
+        ("CA-30 Inuit shieldmen carry no shield", "shieldman", "GARRISON", "-", "millenaire:inuits", {"none"}),
+        ("CA-31 Inuit sentries carry no shield (never the defaults' heater shields)", "shieldman", "STRONGHOLD", "sentry",
+         "millenaire:inuits", {"none"}),
+    ]
+    for name, unit, tier, role, culture, shields in shield_cases:
+        rows = outfit(unit, tier, role, culture=culture)
+        offs = [slot(r, "offhand") for r in rows]
+        note(name.split(" ")[0], ", ".join(offs))
+        check(name, rows and all(o in shields for o in offs) and (shields == {"none"} or any(o != "none" for o in offs)),
+              f"off hands: {sorted(set(offs))}")
     # the kataphraktoi: riders in kataphraktos armour, their horses in the full lamellar barding. Owned riders (an unowned
     # rider is an enemy to the village and is cut down before the check), their horses at the top equipment level
     riders, horses = [], []

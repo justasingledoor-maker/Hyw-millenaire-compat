@@ -1,4 +1,4 @@
-execute as @a[tag=!v17] run function armorytest:setup
-execute as @a[tag=!v17] run tp @s 0 -60 -3.5 0 4
-execute as @a[tag=!v17] run schedule function armorytest:view2 300t
-tag @a add v17
+execute as @a[tag=!v18] run function armorytest:setup
+execute as @a[tag=!v18] run tp @s 25 -59.6 0.6 0 6
+execute as @a[tag=!v18] run schedule function armorytest:view2 300t
+tag @a add v18

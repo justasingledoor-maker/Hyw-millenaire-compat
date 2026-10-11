@@ -79,6 +79,14 @@ public class ArmoryModels extends ModModelsProvider {
     public static final ModelLayerLocation TZANGIA = INSTANCE.addArmorModel("tzangia", TzangiaModel::createLayer);
     public static final ModelLayerLocation PODOPSELLA = INSTANCE.addArmorModel("podopsella", PodopsellaModel::createLayer);
 
+    // the shields (Epic Knights draws them, baking these layers by the shield's location)
+    public static final ModelLayerLocation SKOUTARION_SHIELD = INSTANCE.addModel("skoutarion", SkoutarionModel::createLayer);
+    public static final ModelLayerLocation ASPIS_SHIELD = INSTANCE.addModel("aspis", AspisModel::createLayer);
+    public static final ModelLayerLocation VARANGIAN_SHIELD_SHIELD = INSTANCE.addModel("varangian_shield", VarangianShieldModel::createLayer);
+    public static final ModelLayerLocation KALKAN_SHIELD = INSTANCE.addModel("kalkan", KalkanModel::createLayer);
+    public static final ModelLayerLocation SIPAR_SHIELD = INSTANCE.addModel("sipar", SiparModel::createLayer);
+    public static final ModelLayerLocation TEDATE_SHIELD = INSTANCE.addModel("tedate", TedateModel::createLayer);
+
     public ArmoryModels() {
         super("culturesarmory");
     }

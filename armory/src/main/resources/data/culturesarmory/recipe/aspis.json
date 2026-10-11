@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "pbp",
+    "pip",
+    " p "
+  ],
+  "key": {
+    "p": {
+      "tag": "minecraft:planks"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "b": {
+      "item": "minecraft:blue_dye"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:aspis",
+    "count": 1
+  }
+}

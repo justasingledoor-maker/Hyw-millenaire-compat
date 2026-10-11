@@ -23,6 +23,9 @@ public final class CulturesArmory {
     /** Epic Knights' armour tab: the pieces are listed there, after its own. */
     static final ResourceKey<CreativeModeTab> EK_ARMOR_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
             ResourceLocation.fromNamespaceAndPath("magistuarmory", "armor"));
+    /** Epic Knights' shields tab: the cultures' shields. */
+    static final ResourceKey<CreativeModeTab> EK_SHIELDS_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            ResourceLocation.fromNamespaceAndPath("magistuarmory", "shields"));
     /** Epic Knights' weapons tab: the weapons and the bow. */
     static final ResourceKey<CreativeModeTab> EK_WEAPONS_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
             ResourceLocation.fromNamespaceAndPath("magistuarmory", "weapons"));
@@ -41,6 +44,11 @@ public final class CulturesArmory {
         for (RegistrySupplier<? extends Item> item : ArmoryItems.INSTANCE.weaponItems) {
             if (item != null) {
                 CreativeTabRegistry.append(EK_WEAPONS_TAB, item);
+            }
+        }
+        for (RegistrySupplier<? extends Item> item : ArmoryItems.INSTANCE.shieldItems) {
+            if (item != null) {
+                CreativeTabRegistry.append(EK_SHIELDS_TAB, item);
             }
         }
         for (RegistrySupplier<? extends Item> item : ArmoryItems.INSTANCE.rangedWeaponItems) {

@@ -1,0 +1,52 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/skoutarion_nopattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/skoutarion_pattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/aspis_nopattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/aspis_pattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/varangian_shield_nopattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/varangian_shield_pattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/kalkan_nopattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/kalkan_pattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/sipar_nopattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/sipar_pattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/tedate_nopattern"
+    },
+    {
+      "type": "single",
+      "resource": "culturesarmory:entity/tedate_pattern"
+    }
+  ]
+}

@@ -34,6 +34,8 @@ function tex(url) { return cache[url]; }
 await preload('skin.png');
 const horseIds = items.filter(id => models[id] && models[id].slot === 'HORSE');
 const HORSE_VIEW = horseIds.length > 0;
+const shieldIds = items.filter(id => models[id] && models[id].slot === 'SHIELD');
+const SHIELD_VIEW = shieldIds.length > 0;
 if (horseIds.length) await preload('horse.png');
 for (const id of items) await preload('out/' + models[id].texture);
 
@@ -116,7 +118,23 @@ function horseFigure() {
   return root;
 }
 
+function shieldFigure() {
+  // the shields in a row, face on (the plate's front is the model's -z)
+  const root = new THREE.Group();
+  shieldIds.forEach((id, k) => {
+    const m = models[id];
+    const mat = new THREE.MeshLambertMaterial({ map: tex('out/' + m.texture), side: THREE.DoubleSide, alphaTest: 0.1 });
+    const g = new THREE.Group();
+    g.rotation.x = Math.PI;
+    for (const p of m.parts) g.add(buildPart(p, mat, m.tex[0], m.tex[1], null));
+    g.position.x = (k - (shieldIds.length - 1) / 2) * 17;
+    root.add(g);
+  });
+  return root;
+}
+
 function figure() {
+  if (SHIELD_VIEW) return shieldFigure();
   if (horseIds.length) return horseFigure();
   return humanFigure(POSES[pose]);
 }
@@ -161,7 +179,10 @@ fig.position.y = 0;
 scene.add(fig);
 
 // views: yaw (degrees round the figure, 0 = front), elevation, distance, target height, label
-const views = HORSE_VIEW ? [
+const views = SHIELD_VIEW ? [
+  [0, 4, 190, 0, 'front'], [30, 8, 190, 0, 'front 3/4'], [80, 4, 150, 0, 'side'],
+  [180, 4, 190, 0, 'back'], [150, 10, 190, 0, 'back 3/4'], [0, 2, 75, 0, 'front (close)'],
+] : HORSE_VIEW ? [
   [0, 6, 80, -6, 'front'], [40, 12, 80, -6, 'front 3/4'], [90, 4, 80, -6, 'side'],
   [140, 12, 80, -6, 'back 3/4'], [-60, -8, 75, -8, 'low 3/4'], [35, 14, 30, -1, 'head 3/4', 9],
 ] : [

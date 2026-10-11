@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "csc",
+    "cic",
+    " c "
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:sugar_cane"
+    },
+    "s": {
+      "item": "minecraft:string"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:kalkan",
+    "count": 1
+  }
+}

@@ -1964,3 +1964,48 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     the lamellar-barded horse with the kontos, the eight Byzantine outfits on stands with the weapons; no model or
     texture errors. The bardings follow the horse's walk and grazing.
 * SHA-256 of the jar: `73e03f92feb29217b02135749704d5bbc3607b39140e211341b7a8b2b3b77ab2`; Cultures Armory 1.3.0: `61eb0f9fc1ed4ca2cbbd81d6a765524b02d3dd771b22d12ff4cff02697fbe109`.
+
+### 6.62 The cultures' shields; only Normans carry heater shields (`dist/hywmill-m5-fix62.jar`)
+
+* **Request.** Shields for the cultures (Byzantine ones too), as historically accurate as possible, and a check that
+  the Inuit are not given Norman heater shields.
+* **What was wrong.** They were, and not only the Inuit:
+  * The defaults' duty-role lists (sentries and levies: heater and kite shields) come before a culture's own lists, so
+    every culture's sentries and levies carried Norman shields.
+  * Cultures without off hand lists (Japanese, Inuit, Indian, Maya) kept the shield HYW gives (heater, kite or round,
+    at random) or took the defaults'.
+  * Inuit and samurai squads carried Epic Knights round shields.
+* **Cultures Armory 1.4** (`dist/cultures-armory-1.4.0.jar`): six shields, made as Epic Knights makes its own
+  (`MedievalShieldItem`: held, blocking, repaired like them, in its shields tab), in the frames of its round and kite
+  shields. Each plate is built row by row along its outline, so the rim is solid all round; bosses and the Seljuk
+  shields' domed centres are boxes of their own. They carry their own painting at twice Epic Knights' density, not
+  banners. The textures join the game's shield atlas through the armory's own atlas file.
+  * Byzantium: the skoutarion (kite: crimson, a gilt rim set with pearls, a gold cross); the aspis (round: blue with
+    white rays, a red band with pearls, an iron boss); the Varangian shield (Norse: planks in red and white quarters,
+    an iron boss, a rawhide rim).
+  * Seljuks: the kalkan (coiled cane bound with red and blue thread, convex, a steel boss); the sipar (leather over
+    wood, dark red, a gold eight-pointed star round a domed boss).
+  * Japan: the tedate (the ashigaru's plank hand shield, the maru ni jūji mon).
+  * None for the Inuit or for samurai: neither fought with hand shields.
+  * 108 shaped recipes, no clash.
+* **HywMill.**
+  * An off hand list may now hold `"none"`: an empty off hand (validated, and accepted by the compatibility check).
+  * Every culture has its own off hand lists, sentry and levy ones included, so the defaults' Norman shields reach
+    Normans only:
+    * Byzantines: skoutarion and aspis, Epic Knights kite, elliptical and round shields beside them;
+    * Seljuks: kalkan and sipar, Epic Knights round shields and bucklers beside them;
+    * Japanese: the tedate for shieldmen (none without the armory), none for everyone else;
+    * Inuit: none; Indians: round shields and bucklers; Maya: wooden round shields.
+  * Spearmen carry their culture's own shield when the armory is installed (Byzantine skoutarion or aspis, Seljuk
+    kalkan or sipar); the shape rule (`SpearShield`) is unchanged otherwise.
+  * Squad looks: the Byzantine, Seljuk and Japanese squads carry the culture shields (the Varangians theirs); the
+    Inuit and samurai squads none. The Latinikon (Latin mercenaries) keep their kite and heater shields.
+  * The armory's shields count as the Epic Knights shape HYW gives (skoutarion and tedate = kite, the round ones =
+    round). Heraldry is not painted over them.
+* **Tests.**
+  * JUnit: all pass. `CultureShieldsTest`: across all six other cultures, four tiers, five duties and four classes the
+    first off hand list has no heater shield; Inuit and mounted samurai get an empty hand, Japanese shieldmen the
+    tedate; Byzantine and Seljuk lists hold their shields with Epic Knights ones beside; spearmen's culture shields.
+  * Harness CA: RESULTS_PLACEHOLDER
+  * Real client: SHOTS_PLACEHOLDER
+* SHA-256 of the jar: `SHA_HYWMILL`; Cultures Armory 1.4.0: `SHA_ARMORY`.

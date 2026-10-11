@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "lgl",
+    "lpl",
+    " l "
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "p": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:sipar",
+    "count": 1
+  }
+}

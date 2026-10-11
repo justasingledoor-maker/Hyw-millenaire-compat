@@ -17,6 +17,7 @@ import horse  # noqa: E402
 import inuit  # noqa: E402
 import japan  # noqa: E402
 import seljuk  # noqa: E402
+import shields  # noqa: E402
 import weapons  # noqa: E402
 import weapons3d  # noqa: E402
 
@@ -181,6 +182,36 @@ def build_bardings(lang, preview):
     return lines
 
 
+def build_shields(lang, preview):
+    """The cultures' shields, Epic Knights' way: the model (Java), its texture in the shield atlas (not paintable: the
+    painting is its own), the item (an Epic Knights MedievalShieldItem), its item model (held as Epic Knights' round or
+    kite shield), recipe. Returns the item and model registration lines."""
+    items, models, atlas = [], [], []
+    for sid, (make, held, tier, stats, name, (pattern, keys)) in shields.SHIELDS.items():
+        model = make()
+        model.pack()
+        canvas = model.paint()
+        _, over = canvas.layers(False)
+        for kind in ("nopattern", "pattern"):
+            write_png(over, os.path.join(ASSETS, f"textures/entity/{sid}_{kind}.png"))
+            atlas.append({"type": "single", "resource": f"{MODID}:entity/{sid}_{kind}"})
+        write_png(over, os.path.join(PREVIEW, f"{sid}.png"))
+        preview[sid] = dict(model.preview_json(), slot="SHIELD", texture=f"{sid}.png")
+        write_text(model.java("dev.culturesarmory.client.model"), os.path.join(JAVA, f"client/model/{model.java_name}.java"))
+        models.append(f"    public static final ModelLayerLocation {sid.upper()}_SHIELD = INSTANCE.addModel(\"{sid}\", {model.java_name}::createLayer);")
+        write_json({"parent": f"magistuarmory:item/{held}",
+                    "overrides": [{"predicate": {"blocking": 1}, "model": f"{MODID}:item/{sid}_blocking"}]},
+                   os.path.join(ASSETS, f"models/item/{sid}.json"))
+        write_json({"parent": f"magistuarmory:item/{held}_blocking"}, os.path.join(ASSETS, f"models/item/{sid}_blocking.json"))
+        lang[f"item.{MODID}.{sid}"] = name
+        recipe(sid, pattern, keys)
+        items.append(f"    public static final RegistrySupplier<MedievalShieldItem> {sid.upper()} = INSTANCE.addMedievalShieldItem(\"{sid}\", "
+                     f"\"{sid}\", new Item.Properties(),\n            ModItemTier.{tier}, true, false, ShieldType.of({stats}));")
+    # the textures join the game's shield atlas (atlas sources add up across packs, as Epic Knights adds its own)
+    write_json({"sources": atlas}, os.path.join(ROOT, "src/main/resources/assets/minecraft/atlases/shield_patterns.json"))
+    return items, models
+
+
 def build_weapons(lang):
     """The weapons: sprites, item models (Epic Knights' display transforms and blocking poses), recipes, Better Combat
     presets; returns the Java lines registering them."""
@@ -278,7 +309,8 @@ def main():
                     "result": {"id": f"{MODID}:{item_id}", "count": 1}},
                    os.path.join(DATA, f"recipe/{item_id}.json"))
 
-    weapon_lines = build_weapons(lang) + build_bardings(lang, preview)
+    shield_lines, shield_models = build_shields(lang, preview)
+    weapon_lines = build_weapons(lang) + build_bardings(lang, preview) + shield_lines
     write_tags()
     write_text(json.dumps(lang, indent=2, ensure_ascii=False) + "\n", os.path.join(ASSETS, "lang/en_us.json"))
     write_json(preview, os.path.join(PREVIEW, "models.json"))
@@ -294,6 +326,8 @@ def main():
         "public class ArmoryModels extends ModModelsProvider {",
         "    public static final ArmoryModels INSTANCE = new ArmoryModels();",
         *model_lines, "",
+        "    // the shields (Epic Knights draws them, baking these layers by the shield's location)",
+        *shield_models, "",
         "    public ArmoryModels() {",
         f"        super(\"{MODID}\");",
         "    }",
@@ -324,9 +358,11 @@ def main():
     write_text("\n".join([
         "package dev.culturesarmory;", "",
         "import com.magistuarmory.api.item.ModItemsProvider;",
+        "import com.magistuarmory.item.MedievalShieldItem;",
         "import com.magistuarmory.item.MedievalWeaponItem;",
         "import com.magistuarmory.item.ModItemTier;",
         "import com.magistuarmory.item.RangedWeaponType;",
+        "import com.magistuarmory.item.ShieldType;",
         "import com.magistuarmory.item.WeaponType;",
         "import com.magistuarmory.item.WeaponTypes;",
         "import com.magistuarmory.item.armor.DyeableMedievalArmorItem;",
@@ -347,7 +383,8 @@ def main():
         "        super(CulturesArmory.ID);",
         "    }",
         "}", ""]), os.path.join(JAVA, "ArmoryItems.java"))
-    print("generated", len(ARMOURS), "armours,", len(weapons.WEAPONS) + len(weapons.BOWS) + len(weapons3d.WEAPONS3D), "weapons")
+    print("generated", len(ARMOURS), "armours,", len(weapons.WEAPONS) + len(weapons.BOWS) + len(weapons3d.WEAPONS3D), "weapons,",
+          len(shields.SHIELDS), "shields")
 
 
 if __name__ == "__main__":
