@@ -299,6 +299,39 @@ public final class PoliticsView {
      * Options for the player dealing with {@code home}, with {@code target} selected. Everything is evaluated by
      * the same services the actions use, in dry-run: nothing is spent.
      */
+    /** 1.7: entering and leaving a realm's service, and bribing its officials (docs/realm-design.md §11). */
+    static void serviceActions(GarrisonLedger ledger, VillageRecord here, UUID player, long now, List<ActionOption> out) {
+        if (!dev.hywmill.politics.service.ServiceRoles.enabled() || here.loneBuilding) {
+            return;
+        }
+        VillageRecord head = ledger.get(dev.hywmill.politics.service.RealmService.sovereignOf(ledger, here.villageId, now));
+        if (head == null) {
+            return;
+        }
+        dev.hywmill.politics.realm.Service sv = ledger.services().get(player);
+        boolean elsewhere = sv != null && !sv.realm.equals(head.villageId);
+        String no = elsewhere ? "you serve another realm" : "";
+        String realm = "the realm of " + head.name;
+        out.add(new ActionOption("SERVE_VOLUNTEER", "Volunteer for " + realm, !elsewhere, elsewhere ? no : "called to its fights; never bound", ""));
+        out.add(new ActionOption("SERVE_MERCENARY", "Sign on as a mercenary of " + realm, !elsewhere, elsewhere ? no
+                : "only while it is at war; " + dev.hywmill.politics.realm.Service.CONTRACT_DAYS + "-day contract; a purse and 3 men the first time", ""));
+        out.add(new ActionOption("SERVE_KNIGHT", "Swear fealty as " + dev.hywmill.politics.realm.Service.knightTitle(head.culture) + " of " + head.name,
+                !elsewhere, elsewhere ? no : "patron or sworn with " + head.name + "; a stipend, orders, and a voice in its council", ""));
+        if (sv != null) {
+            out.add(new ActionOption("SERVE_LEAVE", "Leave the service of " + (elsewhere ? "your realm" : head.name), true,
+                    sv.role == dev.hywmill.politics.realm.Service.Role.MERCENARY ? "breaking a contract early bars you for "
+                            + dev.hywmill.politics.realm.Service.BROKEN_DAYS + " days" : "", ""));
+        }
+        if (sv != null && !elsewhere) {
+            List<dev.hywmill.politics.realm.Officials.Official> off = dev.hywmill.politics.service.ServiceRoles.officials(ledger, head);
+            for (int i = 0; i < off.size(); i++) {
+                var o = off.get(i);
+                out.add(new ActionOption("BRIBE_" + i, "Bribe the " + o.office.label + " " + o.name + " (1 or)", true,
+                        o.temper.label + "; thinks of you " + o.of(player), ""));
+            }
+        }
+    }
+
     public static List<ActionOption> actions(ServerLevel overworld, UUID player, UUID home, UUID target) {
         HywMillRuntime rt = HywMillRuntime.get();
         GarrisonLedger ledger = GarrisonLedger.get(overworld);
@@ -332,6 +365,7 @@ public final class PoliticsView {
             out.add(new ActionOption("CANCEL_ENVOYS", "Recall your envoys", envoys, envoys ? "points and Favor are not refunded" : "no envoy under way", ""));
             boolean onCampaign = dev.hywmill.politics.service.RelationProjector.campaignOf(ledger, player) != null;
             out.add(new ActionOption("WAR_LEAVE", "Leave your campaign", onCampaign, onCampaign ? "" : "you are not on campaign", ""));
+            serviceActions(ledger, h, player, overworld.getGameTime(), out);
             return out;
         }
         for (dev.hywmill.politics.EnvoyKind k : dev.hywmill.politics.EnvoyKind.values()) {
@@ -346,6 +380,20 @@ public final class PoliticsView {
                     "needs " + dev.hywmill.politics.DiplomacyOdds.required(k).name().toLowerCase() + " with " + h.name + "; " + p.detail(), band));
         }
         boolean war = dev.hywmill.politics.service.RelationProjector.atWar(ledger, home, target);
+        // 1.7: a knight counsels his realm's council (docs/realm-design.md §11)
+        dev.hywmill.politics.realm.Service sv = ledger.services().get(player);
+        if (sv != null && sv.role == dev.hywmill.politics.realm.Service.Role.KNIGHT
+                && !dev.hywmill.politics.service.RealmService.realmOf(ledger, sv.realm, overworld.getGameTime()).contains(target)) {
+            boolean ours = false;
+            for (UUID m : dev.hywmill.politics.service.RealmService.realmOf(ledger, sv.realm, overworld.getGameTime())) {
+                ours |= dev.hywmill.politics.service.RelationProjector.atWar(ledger, m, target);
+            }
+            out.add(new ActionOption("COUNSEL_WAR", ours ? "Counsel the council: press the war on " + t.name : "Counsel the council: war on " + t.name,
+                    true, "the officials vote (once per half day)", ""));
+            if (ours) {
+                out.add(new ActionOption("COUNSEL_PEACE", "Counsel the council: peace with " + t.name, true, "the officials vote; the enemy may refuse", ""));
+            }
+        }
         out.add(new ActionOption("WAR_JOIN", "Join " + h.name + "'s war against " + t.name, war,
                 war ? "needs trusted with " + h.name + "; " + t.name + " will hold a grievance" : "these villages are not at war", war ? "7-day campaign" : ""));
         var rc = dev.hywmill.politics.service.RaidCounselService.suggest(overworld, player, home, target, true, null);

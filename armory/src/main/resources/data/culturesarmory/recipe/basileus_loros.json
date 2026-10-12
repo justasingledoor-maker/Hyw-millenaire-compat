@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "gdg",
+    " k "
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "d": {
+      "item": "minecraft:diamond"
+    },
+    "k": {
+      "item": "culturesarmory:klibanion"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:basileus_loros",
+    "count": 1
+  }
+}

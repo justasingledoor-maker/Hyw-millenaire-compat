@@ -507,6 +507,14 @@ public final class GarrisonService {
         }
         e.equipmentLevel = res.appliedLevel();
         e.seen(tick, BlockPos.containing(pos).getX(), BlockPos.containing(pos).getY(), BlockPos.containing(pos).getZ());
+        if (("royal".equals(e.extra) || "ruler".equals(e.extra)) && res.entity() instanceof net.minecraft.world.entity.LivingEntity le) {
+            // 1.7: a capital's ruler and his guard fight with Strength I (docs/realm-design.md §14)
+            le.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.DAMAGE_BOOST, 24000, 0, false, false));
+            if ("ruler".equals(e.extra)) {
+                le.setCustomName(net.minecraft.network.chat.Component.literal(dev.hywmill.politics.realm.Rulers.title(rec.culture) + " of " + rec.name));
+                le.setCustomNameVisible(true);
+            }
+        }
         return true;
     }
 

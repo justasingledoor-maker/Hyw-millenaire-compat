@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "gdg",
+    " o "
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "d": {
+      "item": "minecraft:diamond"
+    },
+    "o": {
+      "item": "culturesarmory:o_yoroi"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:daimyo_yoroi",
+    "count": 1
+  }
+}

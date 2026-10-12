@@ -44,6 +44,7 @@ public final class HywMillRuntime {
     private final dev.hywmill.garrison.service.ArsenalService arsenal = new dev.hywmill.garrison.service.ArsenalService(perf);
     private final dev.hywmill.garrison.service.MobilizationService mobilization = new dev.hywmill.garrison.service.MobilizationService(perf);
     private final dev.hywmill.net.PoliticsNet.Limiter uiLimiter = new dev.hywmill.net.PoliticsNet.Limiter();
+    private final dev.hywmill.net.HudService hud = new dev.hywmill.net.HudService();
     /** M5-3: political hostility (outlaws; wars later). Replaces M1.1's ALWAYS_REVERT. */
     private final DiplomacyPolicy political = new dev.hywmill.politics.service.PoliticalPolicy(this);
     /** Dev-only overlay installed by an M5-0 spike command (this server run only); null when unused. */
@@ -132,6 +133,10 @@ public final class HywMillRuntime {
 
     public dev.hywmill.politics.service.PoliticsService politics() {
         return politics;
+    }
+
+    public dev.hywmill.net.HudService hud() {
+        return hud;
     }
 
     public dev.hywmill.net.PoliticsNet.Limiter uiLimiter() {

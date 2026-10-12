@@ -61,6 +61,8 @@ public final class CoreEvents {
         guarded("sieges", () -> rt.sieges().tick(overworld, tick));
         guarded("war arsenal", () -> rt.arsenal().tick(overworld, tick));
         guarded("mobilization", () -> rt.mobilization().tick(overworld, tick));
+        guarded("realm service", () -> dev.hywmill.politics.service.ServiceRoles.tick(overworld, tick));
+        guarded("hud", () -> rt.hud().tick(overworld, tick));
         guarded("threat scan", () -> {
             rt.threats().scan(overworld);
             if (tick % HywMillConfig.THREAT_SCAN_INTERVAL.get() == 0) {
@@ -76,6 +78,7 @@ public final class CoreEvents {
         if (rt != null && event.getEntity() instanceof net.minecraft.server.level.ServerPlayer sp) {
             guarded("diplomacy reports", () -> rt.envoys().onLogin(sp));
             guarded("siege tribute", () -> rt.sieges().onLogin(sp));
+            rt.hud().forget(sp.getUUID());
         }
     }
 

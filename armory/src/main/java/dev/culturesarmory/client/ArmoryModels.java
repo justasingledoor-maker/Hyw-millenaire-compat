@@ -149,6 +149,20 @@ public class ArmoryModels extends ModModelsProvider {
     public static final ModelLayerLocation CHITON = INSTANCE.addArmorModel("chiton", ChitonModel::createLayer);
     public static final ModelLayerLocation SCALE_KREMASMATA = INSTANCE.addArmorModel("scale_kremasmata", ScaleKremasmataModel::createLayer);
     public static final ModelLayerLocation KAMPAGIA = INSTANCE.addArmorModel("kampagia", KampagiaModel::createLayer);
+    public static final ModelLayerLocation ROYAL_CROWN_HELM = INSTANCE.addArmorModel("royal_crown_helm", RoyalCrownHelmModel::createLayer);
+    public static final ModelLayerLocation ROYAL_SURCOAT = INSTANCE.addArmorModel("royal_surcoat", RoyalSurcoatModel::createLayer);
+    public static final ModelLayerLocation BASILEUS_STEMMA = INSTANCE.addArmorModel("basileus_stemma", BasileusStemmaModel::createLayer);
+    public static final ModelLayerLocation BASILEUS_LOROS = INSTANCE.addArmorModel("basileus_loros", BasileusLorosModel::createLayer);
+    public static final ModelLayerLocation DAIMYO_KABUTO = INSTANCE.addArmorModel("daimyo_kabuto", DaimyoKabutoModel::createLayer);
+    public static final ModelLayerLocation DAIMYO_YOROI = INSTANCE.addArmorModel("daimyo_yoroi", DaimyoYoroiModel::createLayer);
+    public static final ModelLayerLocation SULTAN_HELM = INSTANCE.addArmorModel("sultan_helm", SultanHelmModel::createLayer);
+    public static final ModelLayerLocation SULTAN_JAWSHAN = INSTANCE.addArmorModel("sultan_jawshan", SultanJawshanModel::createLayer);
+    public static final ModelLayerLocation RAJA_CROWN_KHUD = INSTANCE.addArmorModel("raja_crown_khud", RajaCrownKhudModel::createLayer);
+    public static final ModelLayerLocation RAJA_REGALIA = INSTANCE.addArmorModel("raja_regalia", RajaRegaliaModel::createLayer);
+    public static final ModelLayerLocation AJAW_HEADDRESS = INSTANCE.addArmorModel("ajaw_headdress", AjawHeaddressModel::createLayer);
+    public static final ModelLayerLocation AJAW_REGALIA = INSTANCE.addArmorModel("ajaw_regalia", AjawRegaliaModel::createLayer);
+    public static final ModelLayerLocation CHIEF_CROWN_HOOD = INSTANCE.addArmorModel("chief_crown_hood", ChiefCrownHoodModel::createLayer);
+    public static final ModelLayerLocation CHIEF_PARKA = INSTANCE.addArmorModel("chief_parka", ChiefParkaModel::createLayer);
 
     // the shields (Epic Knights draws them, baking these layers by the shield's location)
     public static final ModelLayerLocation SKOUTARION_SHIELD = INSTANCE.addModel("skoutarion", SkoutarionModel::createLayer);

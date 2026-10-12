@@ -517,6 +517,44 @@ public final class RecruitService {
         return true;
     }
 
+    /**
+     * 1.7: soldiers given to a player (a mercenary's starting company): each of {@code keys} once, {@code rec}'s people at its
+     * gear, owned by the player, round them. Returns how many were placed.
+     */
+    public static int grant(ServerPlayer player, VillageRecord rec, List<String> keys) {
+        ServerLevel overworld = player.getServer().overworld();
+        UnitProvider units = Services.units();
+        if (player.level() != overworld || units == null) {
+            return 0;
+        }
+        GarrisonTables gt = GarrisonTables.current();
+        GarrisonTable table = gt.forCulture(rec.culture);
+        EquipmentProvider eq = Services.equipment(table.equipmentProvider());
+        if (eq == null) {
+            eq = Services.equipment("hyw");
+        }
+        MilitaryTier gear = rec.tier == MilitaryTier.NONE ? MilitaryTier.WATCH : rec.tier;
+        int level = table.tier(gear).equipmentLevel();
+        int[] mine = colours(overworld, player.getUUID());
+        RandomSource rnd = overworld.getRandom();
+        int placed = 0;
+        for (String key : keys) {
+            dev.hywmill.garrison.tables.UnitSpec spec = gt.units().get(key);
+            BlockPos spot = spot(overworld, player.blockPosition(), 6, rnd);
+            if (spec == null || spot == null || eq == null) {
+                continue;
+            }
+            UUID id = UUID.randomUUID();
+            SpawnResult r = units.spawn(overworld, new SpawnRequest(spec, player.getUUID(), id, Vec3.atBottomCenterOf(spot), spot, level, false, null, eq,
+                    new EquipmentProvider.Context(rec.culture, gear, "", EquipmentProfiles.classRole(spec.unitClass()), id).withLivery(mine)));
+            if (r.ok()) {
+                placed++;
+            }
+        }
+        HmLog.info("Muster Roll: {} is given {} soldier(s) of {} ({})", player.getName().getString(), placed, rec.name, keys);
+        return placed;
+    }
+
     public static Outcome setRadius(ServerPlayer player, BlockPos pos, int radius) {
         RecruitTables t = RecruitTables.current();
         MusterRollBlockEntity be = roll(player, pos);

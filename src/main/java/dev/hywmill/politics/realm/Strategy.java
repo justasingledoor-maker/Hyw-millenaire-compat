@@ -63,6 +63,18 @@ public final class Strategy {
 
     public record Plan(Stance stance, double ratio, int men, int reserve, List<Goal> goals, List<Army> armies) {}
 
+    /**
+     * What else weighs in a plan (1.7): its officials' {@code margin} factor and {@code reserveDelta}, the strength its
+     * military allies would send with an army against each target ({@code allied}), and the targets its knights urged it on
+     * ({@code urged}, worth {@link #URGED} times more).
+     */
+    public record Counsel(double margin, double reserveDelta, java.util.Map<UUID, Double> allied, Set<UUID> urged) {
+        public static final Counsel NONE = new Counsel(1, 0, java.util.Map.of(), Set.of());
+    }
+
+    /** A target the realm's knights urged the council on is worth this much more. */
+    public static final double URGED = 1.75;
+
     /** An army must be at least as strong as what it marches on (a village's own AI goes at 0.9). */
     public static final double MARGIN = 1.0;
     /** The smallest field army, in men. */
@@ -128,10 +140,14 @@ public final class Strategy {
      * {@link #MIN_ARMY} men and {@link #MARGIN} times the target's defence) and led by a member whose host is home.
      */
     public static Plan plan(List<Member> members, List<Target> targets, double enemyPower, boolean atWar) {
+        return plan(members, targets, enemyPower, atWar, Counsel.NONE);
+    }
+
+    public static Plan plan(List<Member> members, List<Target> targets, double enemyPower, boolean atWar, Counsel c) {
         int men = members.stream().mapToInt(Member::men).sum();
         double power = members.stream().mapToDouble(Member::power).sum();
         Stance stance = stance(power, enemyPower, atWar);
-        double hold = reserveShare(stance);
+        double hold = stance == Stance.AT_PEACE ? 1 : Math.max(0, Math.min(1, reserveShare(stance) + c.reserveDelta()));
         List<Goal> goals = new ArrayList<>();
         int reserve = 0;
         int[] freeMen = new int[members.size()];
@@ -152,10 +168,11 @@ public final class Strategy {
         if (stance != Stance.AT_PEACE) {
             List<Target> order = new ArrayList<>(targets);
             order.removeIf(Target::besieged);
-            order.sort(Comparator.comparingDouble((Target t) -> -score(t, members)).thenComparing(Target::id));
+            order.sort(Comparator.comparingDouble((Target t) -> -score(t, members) * (c.urged().contains(t.id()) ? URGED : 1)).thenComparing(Target::id));
             Set<Integer> used = new HashSet<>();
             for (Target t : order) {
-                double needed = t.defense() * MARGIN;
+                double needed = t.defense() * MARGIN * c.margin();
+                double allies = c.allied().getOrDefault(t.id(), 0.0);
                 List<Integer> near = new ArrayList<>();
                 for (int i = 0; i < members.size(); i++) {
                     if (!used.contains(i) && freeMen[i] > 0) {
@@ -165,7 +182,7 @@ public final class Strategy {
                 near.sort(Comparator.comparingDouble(i -> dist(members.get(i).x(), members.get(i).z(), t.x(), t.z())));
                 List<Integer> group = new ArrayList<>();
                 int gMen = 0;
-                double gPow = 0;
+                double gPow = allies;
                 for (int i : near) {
                     if (gPow >= needed && gMen >= MIN_ARMY) {
                         break;
@@ -195,9 +212,15 @@ public final class Strategy {
      */
     @Nullable
     public static Target covet(List<Member> members, List<Target> neighbours) {
+        return covet(members, neighbours, 1);
+    }
+
+    /** {@code factor}: its Chancellor's appetite ({@link Officials#covetFactor}). */
+    @Nullable
+    public static Target covet(List<Member> members, List<Target> neighbours, double factor) {
         double power = members.stream().mapToDouble(Member::power).sum() * (1 - reserveShare(Stance.AGGRESSIVE));
         return neighbours.stream()
-                .filter(t -> (t.formerMember() || t.hated() || t.kin()) && !t.besieged() && power >= t.defense() * MARGIN)
+                .filter(t -> (t.formerMember() || t.hated() || t.kin()) && !t.besieged() && power >= t.defense() * MARGIN * factor)
                 .max(Comparator.comparingDouble((Target t) -> score(t, members)).thenComparing(Target::id))
                 .orElse(null);
     }

@@ -200,6 +200,34 @@
     {
       "id": "culturesarmory:chiton",
       "required": false
+    },
+    {
+      "id": "culturesarmory:royal_surcoat",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:basileus_loros",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:daimyo_yoroi",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sultan_jawshan",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:raja_regalia",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ajaw_regalia",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:chief_parka",
+      "required": false
     }
   ]
 }

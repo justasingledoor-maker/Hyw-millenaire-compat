@@ -21,6 +21,7 @@ import inuit_ext  # noqa: E402
 import japan  # noqa: E402
 import japan_ext  # noqa: E402
 import maya  # noqa: E402
+import royal  # noqa: E402
 import seljuk  # noqa: E402
 import seljuk_ext  # noqa: E402
 import shields  # noqa: E402
@@ -82,7 +83,7 @@ RECIPES = {
 }
 
 # the cultures: Japan (above), then each culture's module (its pieces, names and recipes)
-CULTURES = [seljuk, inuit, byzantine, india, maya, japan_ext, seljuk_ext, inuit_ext, byzantine_ext]
+CULTURES = [seljuk, inuit, byzantine, india, maya, japan_ext, seljuk_ext, inuit_ext, byzantine_ext, royal]
 ARMOURS = japan.ARMOURS + [a for m in CULTURES for a in m.ARMOURS]
 for _m in CULTURES + [horse]:
     NAMES.update(_m.NAMES)

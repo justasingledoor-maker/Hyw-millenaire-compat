@@ -147,6 +147,37 @@ final class WarCommands {
                                     send(ctx.getSource(), "war admin siege-wound OK: " + n + " wounded, phase " + sg.phase + " wave " + sg.wave);
                                     return n;
                                 })))))
+                .then(Commands.literal("field").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
+                        .then(Commands.argument("attacker", BlockPosArgument.blockPos()).executes(ctx -> {
+                            // dev (1.7 field battle checks): the defending realm's council weighs meeting this host on the road now, and
+                            // if it sends its army, the armies meet at once
+                            VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
+                            ServerLevel ow = ctx.getSource().getServer().overworld();
+                            GarrisonLedger ledger = GarrisonLedger.get(ow);
+                            long now = ow.getGameTime();
+                            var sg = a == null ? null : dev.hywmill.garrison.service.SiegeService.byAttacker(ledger, a.villageId);
+                            if (sg == null) {
+                                send(ctx.getSource(), "war admin field: no siege by that village");
+                                return 0;
+                            }
+                            if (sg.interceptBy == null) {
+                                UUID head = dev.hywmill.politics.service.RealmService.sovereignOf(ledger, sg.target, now);
+                                VillageRecord h = ledger.get(head);
+                                if (h != null) {
+                                    dev.hywmill.garrison.service.SiegeService.considerIntercepts(ow, ledger, h,
+                                            dev.hywmill.politics.service.RealmService.members(ledger, head, now), 0.8, now)
+                                            .forEach(l -> send(ctx.getSource(), " " + l));
+                                }
+                            }
+                            if (sg.interceptBy == null) {
+                                send(ctx.getSource(), "war admin field: no army sent (phase " + sg.phase + ")");
+                                return 0;
+                            }
+                            sg.interceptAt = now;
+                            ledger.setDirty();
+                            send(ctx.getSource(), "war admin field OK: the armies meet now near (" + sg.interceptX + ", " + sg.interceptZ + "), " + sg.interceptMen + " men");
+                            return 1;
+                        })))
                 .then(Commands.literal("thin").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                         .then(Commands.argument("village", BlockPosArgument.blockPos())
                                 .then(Commands.argument("keep", com.mojang.brigadier.arguments.IntegerArgumentType.integer(0, 500)).executes(ctx -> {

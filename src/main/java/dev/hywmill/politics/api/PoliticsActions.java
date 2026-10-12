@@ -171,6 +171,25 @@ public final class PoliticsActions {
         return new ActionResult(ok, ok ? "OK" : "NONE", ok ? "You left the campaign; the projections are restored" : "You are not on campaign");
     }
 
+    /** 1.7: entering or leaving a realm's service, and a knight's counsel (docs/realm-design.md §11). */
+    static ActionResult service(ServerLevel overworld, UUID player, String action, UUID home, UUID target) {
+        net.minecraft.server.level.ServerPlayer sp = overworld.getServer().getPlayerList().getPlayer(player);
+        dev.hywmill.settlement.GarrisonLedger ledger = dev.hywmill.settlement.GarrisonLedger.get(overworld);
+        dev.hywmill.settlement.VillageRecord h = ledger.get(home), t = ledger.get(target);
+        if (sp == null || h == null) {
+            return new ActionResult(false, "UNKNOWN_VILLAGE", "Unknown village");
+        }
+        dev.hywmill.politics.service.ServiceRoles.Result r = switch (action) {
+            case "SERVE_VOLUNTEER" -> dev.hywmill.politics.service.ServiceRoles.enlist(overworld, sp, h, dev.hywmill.politics.realm.Service.Role.VOLUNTEER);
+            case "SERVE_MERCENARY" -> dev.hywmill.politics.service.ServiceRoles.enlist(overworld, sp, h, dev.hywmill.politics.realm.Service.Role.MERCENARY);
+            case "SERVE_KNIGHT" -> dev.hywmill.politics.service.ServiceRoles.enlist(overworld, sp, h, dev.hywmill.politics.realm.Service.Role.KNIGHT);
+            case "SERVE_LEAVE" -> dev.hywmill.politics.service.ServiceRoles.leave(overworld, player);
+            default -> t == null ? new dev.hywmill.politics.service.ServiceRoles.Result(false, "Unknown village")
+                    : dev.hywmill.politics.service.ServiceRoles.propose(overworld, player, t, action.equals("COUNSEL_WAR"));
+        };
+        return new ActionResult(r.ok(), r.ok() ? "OK" : "REFUSED", r.message());
+    }
+
     /**
      * The Politics screen's single intent entry point: {@code action} is one offered by {@link PoliticsView#actions};
      * every rule is re-validated by the action it maps to.
@@ -216,7 +235,22 @@ public final class PoliticsActions {
             case "WAR_LEAVE" -> {
                 return leaveWar(overworld, player);
             }
+            case "SERVE_VOLUNTEER", "SERVE_MERCENARY", "SERVE_KNIGHT", "SERVE_LEAVE", "COUNSEL_WAR", "COUNSEL_PEACE" -> {
+                return service(overworld, player, action, home, target);
+            }
             default -> {
+                if (action.startsWith("BRIBE_")) {
+                    net.minecraft.server.level.ServerPlayer sp = overworld.getServer().getPlayerList().getPlayer(player);
+                    int i;
+                    try {
+                        i = Integer.parseInt(action.substring(6));
+                    } catch (NumberFormatException e) {
+                        i = -1;
+                    }
+                    var r = sp == null ? new dev.hywmill.politics.service.ServiceRoles.Result(false, "Not online.")
+                            : dev.hywmill.politics.service.ServiceRoles.bribe(overworld, sp, i, 4096);
+                    return new ActionResult(r.ok(), r.ok() ? "OK" : "REFUSED", r.message());
+                }
                 return new ActionResult(false, "UNKNOWN_ACTION", "Unknown action");
             }
         }

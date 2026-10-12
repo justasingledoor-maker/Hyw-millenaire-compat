@@ -52,8 +52,9 @@ class CultureShieldsTest {
             }
         }
         for (var l : p.looks().entrySet()) {
-            // Latin squads and companies carry Latin shields: the Normans, the Latinikon, the Brabançon routiers
-            if (!l.getKey().startsWith("norman.") && !l.getKey().equals("byz.latinikon") && !l.getKey().equals("merc.routiers")) {
+            // Latin squads and companies carry Latin shields: the Normans (their king too), the Latinikon, the Brabançon routiers
+            if (!l.getKey().startsWith("norman.") && !l.getKey().equals("ruler.norman") && !l.getKey().equals("byz.latinikon")
+                    && !l.getKey().equals("merc.routiers")) {
                 List<String> off = l.getValue().items().getOrDefault("offhand", List.of());
                 assertTrue(off.stream().noneMatch(i -> i.contains("heatershield")), l.getKey() + ": " + off);
             }

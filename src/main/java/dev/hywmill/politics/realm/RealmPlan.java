@@ -2,7 +2,9 @@ package dev.hywmill.politics.realm;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -25,6 +27,17 @@ public final class RealmPlan {
     public final List<UUID> courting = new ArrayList<>();
     /** Newest first. */
     public final List<String> log = new ArrayList<>();
+    /** 1.7: targets its knights urged it on, until when. */
+    public final Map<UUID, Long> urged = new LinkedHashMap<>();
+    /** 1.7: its members an enemy council means to take (its scouts say), and that council's capital. Not persisted. */
+    public final Map<UUID, UUID> eyed = new LinkedHashMap<>();
+    /** 1.7: when it last offered peace to each enemy realm (its capital), and when it last made a demand. */
+    public final Map<UUID, Long> offered = new LinkedHashMap<>();
+    public long lastDemand = -1;
+    /** 1.7: when the leagues against it were last weighed, when it last courted, since when it is at peace. Not persisted. */
+    public long lastLeague = -1, lastCourt = -1, peaceSince = -1;
+    /** 1.7: enemies it does not pursue now (off its front, or past its few goals). Not persisted. */
+    public int farEnemies;
 
     public void note(String line) {
         log.add(0, line);

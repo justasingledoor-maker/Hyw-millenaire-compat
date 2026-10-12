@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/raja_crown_khud",
+    "layer1": "culturesarmory:item/raja_crown_khud_overlay"
+  }
+}

@@ -64,6 +64,7 @@ public final class PoliticsNet {
         }));
         // client-bound: handled by client-only code, loaded only when a client runs the handler
         r.playToClient(PoliticsSnapshot.TYPE, PoliticsSnapshot.CODEC, (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.PoliticsClient.onSnapshot(p)));
+        r.playToClient(HudPayloads.Hud.TYPE, HudPayloads.Hud.CODEC, (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.HudOverlay.accept(p)));
         r.playToClient(PoliticsPayloads.ActionResult.TYPE, PoliticsPayloads.ActionResult.CODEC,
                 (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.PoliticsClient.onResult(p)));
         // Muster Roll (post-M5 recruitment): same registrar and version; the server re-validates every intent
@@ -177,7 +178,7 @@ public final class PoliticsNet {
         List<String> honours = PoliticsView.honours(ow, me);
         if (home == null) {
             return new PoliticsSnapshot(null, "", "", "", "", 0, 0, 0, 0, List.of("No village nearby. Select a village you know."), List.of(),
-                    rows, null, List.of(), envoys, List.of(), honours, history(ow, ledger, null), intel(player, ledger), realm(ow, ledger, selected));
+                    rows, null, List.of(), envoys, List.of(), honours, history(ow, ledger, null), intel(player, ledger), realm(ow, ledger, selected, me));
         }
         PoliticsView.Home h = PoliticsView.home(ow, me, home).orElseThrow();
         List<String> chron = new ArrayList<>();
@@ -189,7 +190,7 @@ public final class PoliticsNet {
         OptionalInt dp = source.diplomacyPoints(ow, home, me);
         return new PoliticsSnapshot(home, h.name(), h.culture(), h.status().name(), h.effective().name(), h.reputation(), h.grievance(),
                 h.favor(), dp.isPresent() ? dp.getAsInt() : -1, h.wordTravels(), chron, rows, selected, actions, envoys,
-                PoliticsView.lent(ow, me, home), honours, history(ow, ledger, home), intel(player, ledger), realm(ow, ledger, selected));
+                PoliticsView.lent(ow, me, home), honours, history(ow, ledger, home), intel(player, ledger), realm(ow, ledger, selected, me));
     }
 
     /** Post-M5 realms: a village's place in the list: its subject tie, else home's treaty with it, else its realm's size. */
@@ -222,6 +223,10 @@ public final class PoliticsNet {
      * treaties (a subject's are its sovereign's), its wars and why it fights them; then the realms of the known world.
      */
     public static List<String> realm(ServerLevel ow, GarrisonLedger ledger, @Nullable UUID village) {
+        return realm(ow, ledger, village, null);
+    }
+
+    public static List<String> realm(ServerLevel ow, GarrisonLedger ledger, @Nullable UUID village, @Nullable UUID viewer) {
         List<String> out = new ArrayList<>();
         long now = ow.getGameTime();
         VillageRecord v = village == null ? null : ledger.get(village);
@@ -250,6 +255,10 @@ public final class PoliticsNet {
                 out.add(" Army of the realm of " + name(ledger, head) + ": " + army.total() + " men pledged (capital " + army.capital() + ", provinces "
                         + army.provinces() + ", vassals " + army.vassals() + "); they march together to its sieges and to break a siege of any of its villages.");
                 out.addAll(dev.hywmill.politics.service.RealmCouncil.lines(ow, ledger, head, now)); // 1.6: its council and its armies (§9-10)
+            }
+            VillageRecord headRec = ledger.get(head);
+            if (headRec != null && !headRec.loneBuilding) {
+                out.addAll(dev.hywmill.politics.service.ServiceRoles.realmLines(ow, ledger, headRec, viewer)); // 1.7: its officials and its service (§11)
             }
             out.add("");
             out.add("Treaties" + (head.equals(village) ? "" : " (its sovereign " + name(ledger, head) + "'s)") + ":");

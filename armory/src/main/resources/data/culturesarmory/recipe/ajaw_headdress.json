@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "eee",
+    " q "
+  ],
+  "key": {
+    "e": {
+      "item": "minecraft:emerald"
+    },
+    "q": {
+      "item": "culturesarmory:quetzal_headdress"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:ajaw_headdress",
+    "count": 1
+  }
+}

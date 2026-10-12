@@ -365,6 +365,20 @@ public final class PoliticsNbt {
                 x.putDouble("seatShare", g.seatShare);
                 x.putDouble("commit", g.commit);
             }
+            if (g.interceptBy != null) {
+                CompoundTag ic = new CompoundTag();
+                ic.putUUID("by", g.interceptBy);
+                ic.putLongArray("t", new long[]{g.interceptAt, g.interceptSet});
+                ic.putIntArray("at", new int[]{g.interceptX, g.interceptZ, g.interceptMen});
+                ic.putDouble("power", g.interceptPower);
+                ic.put("from", uuids(g.interceptFrom));
+                ic.putBoolean("done", g.interceptDone);
+                x.put("intercept", ic);
+            }
+            if (g.royalOut) {
+                x.putBoolean("royalOut", true);
+                x.putBoolean("rulerFell", g.rulerFell);
+            }
             x.putLong("startDay", g.startDay);
             x.putLong("arriveAt", g.arriveAt);
             x.putLong("march", g.march);
@@ -477,6 +491,24 @@ public final class PoliticsNbt {
                     g.seatShare = x.getDouble("seatShare");
                     g.commit = x.contains("commit") ? x.getDouble("commit") : 1;
                 }
+                if (x.contains("intercept")) {
+                    CompoundTag ic = x.getCompound("intercept");
+                    long[] tt = ic.getLongArray("t");
+                    int[] at = ic.getIntArray("at");
+                    if (ic.hasUUID("by") && tt.length == 2 && at.length == 3) {
+                        g.interceptBy = ic.getUUID("by");
+                        g.interceptAt = tt[0];
+                        g.interceptSet = tt[1];
+                        g.interceptX = at[0];
+                        g.interceptZ = at[1];
+                        g.interceptMen = at[2];
+                        g.interceptPower = ic.getDouble("power");
+                        g.interceptFrom.addAll(readUuids(ic.getList("from", Tag.TAG_INT_ARRAY)));
+                        g.interceptDone = ic.getBoolean("done");
+                    }
+                }
+                g.royalOut = x.getBoolean("royalOut");
+                g.rulerFell = x.getBoolean("rulerFell");
                 g.mercRolled = x.getBoolean("mercRolled");
                 g.aidRolled = x.getBoolean("aidRolled");
                 g.vassalRolled = x.getBoolean("vassalRolled");
@@ -897,9 +929,208 @@ public final class PoliticsNbt {
             ListTag log = new ListTag();
             p.log.forEach(l -> log.add(net.minecraft.nbt.StringTag.valueOf(l)));
             x.put("log", log);
+            x.put("urged", times(p.urged));
+            x.put("offered", times(p.offered));
+            x.putLong("lastDemand", p.lastDemand);
             out.add(x);
         });
         return out;
+    }
+
+    // ------------------------------------------------------------------ 1.7: service, officials, coalitions
+
+    public static CompoundTag saveServices(java.util.Map<UUID, dev.hywmill.politics.realm.Service> services,
+                                           java.util.Map<UUID, List<dev.hywmill.politics.realm.Officials.Official>> officials,
+                                           java.util.Set<String> bonuses, java.util.Map<String, Long> exiles, java.util.Map<UUID, java.util.Set<UUID>> coalitions) {
+        CompoundTag root = new CompoundTag();
+        ListTag sv = new ListTag();
+        services.values().forEach(s -> {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("player", s.player);
+            x.putString("role", s.role.name());
+            x.putUUID("realm", s.realm);
+            x.putLong("since", s.since);
+            x.putLong("until", s.until);
+            x.putIntArray("record", new int[]{s.obeyed, s.present, s.ignored});
+            x.putLong("paidDay", s.paidDay);
+            x.putLong("lastProposal", s.lastProposal);
+            ListTag os = new ListTag();
+            for (dev.hywmill.politics.realm.Service.Order o : s.orders) {
+                CompoundTag y = new CompoundTag();
+                y.putUUID("siege", o.siege);
+                y.putUUID("target", o.target);
+                y.putBoolean("defend", o.defend);
+                y.putIntArray("at", new int[]{o.x, o.z});
+                y.putString("side", o.side);
+                y.putLong("issued", o.issued);
+                y.putBoolean("atRally", o.atRally);
+                y.putBoolean("near", o.near);
+                y.putBoolean("fought", o.fought);
+                os.add(y);
+            }
+            x.put("orders", os);
+            ListTag ns = new ListTag();
+            s.notes.forEach(n -> ns.add(net.minecraft.nbt.StringTag.valueOf(n)));
+            x.put("notes", ns);
+            sv.add(x);
+        });
+        root.put("services", sv);
+        ListTag of = new ListTag();
+        officials.forEach((head, list) -> {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("head", head);
+            ListTag ls = new ListTag();
+            for (dev.hywmill.politics.realm.Officials.Official o : list) {
+                CompoundTag y = new CompoundTag();
+                y.putString("name", o.name);
+                y.putString("office", o.office.name());
+                y.putString("temper", o.temper.name());
+                ListTag op = new ListTag();
+                o.opinion.forEach((pl, v) -> {
+                    CompoundTag z = new CompoundTag();
+                    z.putUUID("p", pl);
+                    z.putInt("v", v);
+                    op.add(z);
+                });
+                y.put("opinion", op);
+                ls.add(y);
+            }
+            x.put("list", ls);
+            of.add(x);
+        });
+        root.put("officials", of);
+        ListTag bs = new ListTag();
+        bonuses.forEach(b -> bs.add(net.minecraft.nbt.StringTag.valueOf(b)));
+        root.put("bonuses", bs);
+        ListTag ex = new ListTag();
+        exiles.forEach((k, v) -> {
+            CompoundTag x = new CompoundTag();
+            x.putString("k", k);
+            x.putLong("until", v);
+            ex.add(x);
+        });
+        root.put("exiles", ex);
+        ListTag co = new ListTag();
+        coalitions.forEach((k, v) -> {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("against", k);
+            x.put("members", uuids(v));
+            co.add(x);
+        });
+        root.put("coalitions", co);
+        return root;
+    }
+
+    public static void loadServices(CompoundTag root, java.util.Map<UUID, dev.hywmill.politics.realm.Service> services,
+                                    java.util.Map<UUID, List<dev.hywmill.politics.realm.Officials.Official>> officials,
+                                    java.util.Set<String> bonuses, java.util.Map<String, Long> exiles, java.util.Map<UUID, java.util.Set<UUID>> coalitions) {
+        ListTag sv = root.getList("services", Tag.TAG_COMPOUND);
+        for (int i = 0; i < sv.size(); i++) {
+            CompoundTag x = sv.getCompound(i);
+            if (!x.hasUUID("player") || !x.hasUUID("realm")) {
+                continue;
+            }
+            dev.hywmill.politics.realm.Service s = new dev.hywmill.politics.realm.Service(x.getUUID("player"));
+            try {
+                s.role = dev.hywmill.politics.realm.Service.Role.valueOf(x.getString("role"));
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            s.realm = x.getUUID("realm");
+            s.since = x.getLong("since");
+            s.until = x.getLong("until");
+            int[] r = x.getIntArray("record");
+            if (r.length == 3) {
+                s.obeyed = r[0];
+                s.present = r[1];
+                s.ignored = r[2];
+            }
+            s.paidDay = x.getLong("paidDay");
+            s.lastProposal = x.getLong("lastProposal");
+            ListTag os = x.getList("orders", Tag.TAG_COMPOUND);
+            for (int j = 0; j < os.size(); j++) {
+                CompoundTag y = os.getCompound(j);
+                int[] at = y.getIntArray("at");
+                if (!y.hasUUID("siege") || !y.hasUUID("target") || at.length != 2) {
+                    continue;
+                }
+                dev.hywmill.politics.realm.Service.Order o = new dev.hywmill.politics.realm.Service.Order(y.getUUID("siege"), y.getUUID("target"),
+                        y.getBoolean("defend"), at[0], at[1], y.getString("side"), y.getLong("issued"));
+                o.atRally = y.getBoolean("atRally");
+                o.near = y.getBoolean("near");
+                o.fought = y.getBoolean("fought");
+                s.orders.add(o);
+            }
+            ListTag ns = x.getList("notes", Tag.TAG_STRING);
+            for (int j = 0; j < ns.size(); j++) {
+                s.notes.add(ns.getString(j));
+            }
+            services.put(s.player, s);
+        }
+        ListTag of = root.getList("officials", Tag.TAG_COMPOUND);
+        for (int i = 0; i < of.size(); i++) {
+            CompoundTag x = of.getCompound(i);
+            if (!x.hasUUID("head")) {
+                continue;
+            }
+            List<dev.hywmill.politics.realm.Officials.Official> list = new ArrayList<>();
+            ListTag ls = x.getList("list", Tag.TAG_COMPOUND);
+            for (int j = 0; j < ls.size(); j++) {
+                CompoundTag y = ls.getCompound(j);
+                try {
+                    dev.hywmill.politics.realm.Officials.Official o = new dev.hywmill.politics.realm.Officials.Official(y.getString("name"),
+                            dev.hywmill.politics.realm.Officials.Office.valueOf(y.getString("office")),
+                            dev.hywmill.politics.realm.Officials.Temper.valueOf(y.getString("temper")));
+                    ListTag op = y.getList("opinion", Tag.TAG_COMPOUND);
+                    for (int k = 0; k < op.size(); k++) {
+                        CompoundTag z = op.getCompound(k);
+                        if (z.hasUUID("p")) {
+                            o.opinion.put(z.getUUID("p"), z.getInt("v"));
+                        }
+                    }
+                    list.add(o);
+                } catch (IllegalArgumentException e) {
+                    // an office or temper this version no longer has
+                }
+            }
+            officials.put(x.getUUID("head"), list);
+        }
+        ListTag bs = root.getList("bonuses", Tag.TAG_STRING);
+        for (int i = 0; i < bs.size(); i++) {
+            bonuses.add(bs.getString(i));
+        }
+        ListTag ex = root.getList("exiles", Tag.TAG_COMPOUND);
+        for (int i = 0; i < ex.size(); i++) {
+            exiles.put(ex.getCompound(i).getString("k"), ex.getCompound(i).getLong("until"));
+        }
+        ListTag co = root.getList("coalitions", Tag.TAG_COMPOUND);
+        for (int i = 0; i < co.size(); i++) {
+            CompoundTag x = co.getCompound(i);
+            if (x.hasUUID("against")) {
+                coalitions.put(x.getUUID("against"), new java.util.LinkedHashSet<>(readUuids(x.getList("members", Tag.TAG_INT_ARRAY))));
+            }
+        }
+    }
+
+    /** A map of village to tick. */
+    static ListTag times(java.util.Map<UUID, Long> m) {
+        ListTag out = new ListTag();
+        m.forEach((k, v) -> {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("id", k);
+            x.putLong("t", v);
+            out.add(x);
+        });
+        return out;
+    }
+
+    static void readTimes(ListTag list, java.util.Map<UUID, Long> into) {
+        for (int i = 0; i < list.size(); i++) {
+            CompoundTag x = list.getCompound(i);
+            if (x.hasUUID("id")) {
+                into.put(x.getUUID("id"), x.getLong("t"));
+            }
+        }
     }
 
     public static void loadPlans(ListTag list, java.util.Map<UUID, dev.hywmill.politics.realm.RealmPlan> into) {
@@ -942,6 +1173,9 @@ public final class PoliticsNbt {
             for (int j = 0; j < log.size(); j++) {
                 p.log.add(log.getString(j));
             }
+            readTimes(x.getList("urged", Tag.TAG_COMPOUND), p.urged);
+            readTimes(x.getList("offered", Tag.TAG_COMPOUND), p.offered);
+            p.lastDemand = x.contains("lastDemand") ? x.getLong("lastDemand") : -1;
             into.put(x.getUUID("head"), p);
         }
     }

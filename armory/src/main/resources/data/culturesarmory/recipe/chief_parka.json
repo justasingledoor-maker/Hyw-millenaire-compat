@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "bgb",
+    " p "
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bone"
+    },
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "p": {
+      "item": "culturesarmory:ceremonial_parka"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:chief_parka",
+    "count": 1
+  }
+}

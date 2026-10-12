@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/daimyo_kabuto",
+    "layer1": "culturesarmory:item/daimyo_kabuto_overlay"
+  }
+}

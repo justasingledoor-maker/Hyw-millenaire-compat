@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "gdg",
+    " c "
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "d": {
+      "item": "minecraft:diamond"
+    },
+    "c": {
+      "item": "magistuarmory:chainmail_chestplate"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:royal_surcoat",
+    "count": 1
+  }
+}

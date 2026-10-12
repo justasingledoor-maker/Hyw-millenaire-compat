@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "gdg",
+    " c "
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "d": {
+      "item": "minecraft:diamond"
+    },
+    "c": {
+      "item": "culturesarmory:char_aina"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:raja_regalia",
+    "count": 1
+  }
+}

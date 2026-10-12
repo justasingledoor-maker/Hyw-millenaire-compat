@@ -423,6 +423,7 @@ public final class SiegeService {
         s.quick = quick;
         a.hywRoster.lastSiegeTick = tick;
         ledger.sieges().add(s);
+        dev.hywmill.politics.service.ServiceRoles.onSiegeLaunched(overworld, ledger, s, a, t, tick); // 1.7: orders to those in service
         String who = counsel != null ? " on " + PoliticsService.playerName(overworld, counsel) + "'s counsel" : "";
         String text;
         if (quick) {
@@ -569,11 +570,16 @@ public final class SiegeService {
                 pledged.put(c.villageId, dev.hywmill.politics.service.RealmService.pledgeShare(ledger, v.vassal, tick));
             }
         }
+        // 1.7: the realm's allies (its capital's) march with any of its armies, whichever member leads it
+        UUID crown = dev.hywmill.politics.service.RealmService.sovereignOf(ledger, a.villageId, tick);
         for (dev.hywmill.politics.realm.Treaty tr : ledger.treaties().values()) {
-            if (!tr.military() || !tr.involves(a.villageId)) {
+            if (!tr.military() || !(tr.involves(a.villageId) || tr.involves(crown))) {
                 continue;
             }
-            VillageRecord c = ledger.get(tr.other(a.villageId));
+            VillageRecord c = ledger.get(tr.other(tr.involves(a.villageId) ? a.villageId : crown));
+            if (c != null && (c.villageId.equals(a.villageId) || from.contains(c))) {
+                continue;
+            }
             dev.hywmill.politics.realm.Treaty withT = c == null ? null : dev.hywmill.politics.service.RealmService.realmTreaty(ledger, c.villageId, t.villageId, tick);
             if (c != null && !c.villageId.equals(t.villageId) && (withT == null || withT.kind.ordinal() < tr.kind.ordinal())
                     && !dev.hywmill.politics.service.RealmService.sameRealm(ledger, c.villageId, t.villageId, tick)
@@ -941,6 +947,153 @@ public final class SiegeService {
             case NIGHT -> night(overworld, ledger, s, a, t, tick, r);
             case RETURN -> bringHome(overworld, ledger, s, a, alive, tick);
         }
+    }
+
+    // ------------------------------------------------------------------ 1.7: field battles (docs/realm-design.md §13)
+
+    /**
+     * The council of the realm {@code realm} (its capital {@code capital}) looks at each enemy host mustering or on the road to
+     * one of its villages: when its field army (every member's pledge but the threatened village's own, less {@code commit}'s
+     * reserve) is a match for the host and there is time, it sends it to meet the host halfway. Returns what it decided.
+     */
+    public static List<String> considerIntercepts(ServerLevel overworld, GarrisonLedger ledger, VillageRecord capital, List<UUID> realm, double commit,
+                                                  long now) {
+        List<String> out = new ArrayList<>();
+        for (Siege s : ledger.sieges()) {
+            if (s.outcome != Siege.Outcome.NONE || s.interceptBy != null || (s.phase != Siege.Phase.MUSTER && s.phase != Siege.Phase.MARCH)
+                    || !realm.contains(s.target) || realm.contains(s.attacker)) {
+                continue;
+            }
+            VillageRecord a = ledger.get(s.attacker), t = ledger.get(s.target);
+            if (a == null || t == null || a.hywRoster == null) {
+                continue;
+            }
+            long elapsed = s.elapsed(now, overworld.getDayTime());
+            long at = dev.hywmill.politics.war.FieldBattle.meetAt(elapsed, s.arriveAt, s.march);
+            double host = hostStrength(a, entries(a, s.host));
+            double ours = 0;
+            int men = 0;
+            List<UUID> from = new ArrayList<>();
+            for (UUID m : realm) {
+                VillageRecord v = ledger.get(m);
+                if (v == null || v.hywRoster == null || m.equals(t.villageId) || besieged(ledger, m)) {
+                    continue;
+                }
+                int free = ReliefService.freeAtHome(v);
+                int pledge = dev.hywmill.politics.realm.NationalArmy.pledge(free, dev.hywmill.politics.service.RealmService.pledgeShare(ledger, m, now));
+                if (pledge <= 0) {
+                    continue;
+                }
+                men += (int) Math.round(pledge * commit);
+                ours += ReliefService.freeStrength(v) * pledge / free * commit;
+                from.add(m);
+            }
+            if (at < 0 || men <= 0 || !dev.hywmill.politics.war.FieldBattle.worthIt(ours, host)) {
+                continue;
+            }
+            double f = dev.hywmill.politics.war.FieldBattle.along(at, s.arriveAt, s.march);
+            s.interceptBy = capital.villageId;
+            s.interceptSet = now;
+            s.interceptAt = now + (at - elapsed);
+            s.interceptX = (int) Math.round(a.center.getX() + (t.center.getX() - a.center.getX()) * f);
+            s.interceptZ = (int) Math.round(a.center.getZ() + (t.center.getZ() - a.center.getZ()) * f);
+            s.interceptPower = ours;
+            s.interceptMen = men;
+            s.interceptFrom.clear();
+            s.interceptFrom.addAll(from);
+            ledger.setDirty();
+            out.add("the council sends the army of the realm (about " + men + " men) to meet the host of " + a.name + " on the road to " + t.name
+                    + ", near (" + s.interceptX + ", " + s.interceptZ + "), in about " + Math.max(1, Math.round((s.interceptAt - now) / 1200.0)) + " min");
+            dev.hywmill.politics.service.ServiceRoles.onIntercept(overworld, ledger, s, a, t, now);
+        }
+        return out;
+    }
+
+    /** The armies meet: a battle decided by strength (players of the realm's service at the meeting point add theirs). */
+    void resolveIntercept(ServerLevel overworld, GarrisonLedger ledger, Siege s, long now) {
+        s.interceptDone = true;
+        ledger.setDirty();
+        VillageRecord a = ledger.get(s.attacker), t = ledger.get(s.target), by = s.interceptBy == null ? null : ledger.get(s.interceptBy);
+        if (a == null || t == null || by == null || s.outcome != Siege.Outcome.NONE || s.phase == Siege.Phase.RETURN || s.fighting()) {
+            return; // too late, or over
+        }
+        int present = 0;
+        for (ServerPlayer p : overworld.players()) {
+            var sv = ledger.services().get(p.getUUID());
+            if (sv != null && sv.realm.equals(by.villageId) && Math.hypot(p.getX() - s.interceptX, p.getZ() - s.interceptZ) <= dev.hywmill.politics.war.FieldBattle.REACH) {
+                present++;
+            }
+        }
+        PoliticsTables.SiegeRule r = rule(a);
+        double host = hostStrength(a, entries(a, s.host));
+        double ours = s.interceptPower + present * dev.hywmill.politics.war.FieldBattle.PLAYER;
+        boolean won = new java.util.SplittableRandom(s.seed(0x4649454cL)).nextDouble() < SiegeMath.winChance(ours, host, r);
+        // losses: the loser's heavier
+        List<RosterEntry> hs = new ArrayList<>(soldiers(a, entries(a, s.host)));
+        hs.sort(java.util.Comparator.comparing(e -> e.rosterId));
+        int hostDead = (int) Math.round(hs.size() * (won ? r.loserLoss() : r.winnerLossBase()));
+        for (int i = 0; i < hostDead && i < hs.size(); i++) {
+            kill(overworld, a, hs.get(i).rosterId, now);
+        }
+        int ourDead = 0;
+        double share = won ? r.winnerLossBase() : r.loserLoss();
+        for (UUID m : s.interceptFrom) {
+            VillageRecord v = ledger.get(m);
+            if (v == null || v.hywRoster == null) {
+                continue;
+            }
+            List<RosterEntry> pool = new ArrayList<>(ReliefService.available(v));
+            pool.sort(java.util.Comparator.comparing(e -> e.rosterId));
+            int k = (int) Math.round(s.interceptMen * share / Math.max(1, s.interceptFrom.size()));
+            for (int i = 0; i < k && i < pool.size(); i++) {
+                kill(overworld, v, pool.get(i).rosterId, now);
+                ourDead++;
+            }
+        }
+        String where = "Battle on the road to " + t.name + " near (" + s.interceptX + ", " + s.interceptZ + ")";
+        String text = where + ": the army of the realm of " + by.name + " (" + s.interceptMen + " men" + (present > 0 ? " and " + present + " of its sworn swords" : "")
+                + ") meets the host of " + a.name + " (" + hs.size() + " men): " + (won ? "the host is broken (" + hostDead + " dead) and turns for home; "
+                + by.name + " lost " + ourDead : "the realm's army is beaten (" + ourDead + " dead) and the host marches on, " + hostDead + " fewer");
+        announce(overworld, ledger, s, a, t, text);
+        SettlementSource source = Services.settlements();
+        PoliticsService.chronicle(overworld, source, by, now, text);
+        PoliticsService.chronicle(overworld, source, a, now, text);
+        HmLog.info("Siege {}: {}", s.id.toString().substring(0, 8), text);
+        var plan = ledger.plans().get(by.villageId);
+        if (plan != null) {
+            plan.note("Day " + (now / PoliticsTables.DAY + 1) + ": " + (won ? "our army breaks the host of " + a.name + " on the road to " + t.name
+                    : "our army is beaten on the road by the host of " + a.name));
+        }
+        if (won) {
+            s.summary = text;
+            goHome(overworld, ledger, s, a, entries(a, s.host), now, r, false);
+        }
+    }
+
+    /**
+     * 1.7: where a host from {@code a} gathers before {@code t} (the side facing {@code a}, outside the village, at its centre's
+     * height): the rally point of a realm's orders. The landing itself may turn round the village to find dry ground.
+     */
+    public static BlockPos rallyPoint(VillageRecord a, VillageRecord t) {
+        int dist = (t.villageRadius > 0 ? t.villageRadius : DEFAULT_RADIUS) + STAGING_MARGIN;
+        double base = a.center.getX() == t.center.getX() && a.center.getZ() == t.center.getZ() ? 0
+                : Math.atan2(a.center.getZ() - t.center.getZ(), a.center.getX() - t.center.getX());
+        return t.center.offset((int) Math.round(Math.cos(base) * dist), 0, (int) Math.round(Math.sin(base) * dist));
+    }
+
+    /** 1.7: the war engines that would march with a host of {@code a} now (no trebuchets: they stay at their batteries). */
+    public static int marchingEngines(VillageRecord a) {
+        if (a.hywRoster == null) {
+            return 0;
+        }
+        int n = 0;
+        for (RosterEntry e : a.hywRoster.arsenal()) {
+            if ((e.state() == UnitState.GARRISONED || e.state() == UnitState.RECRUITED) && e.duty != Duty.SIEGE
+                    && dev.hywmill.politics.war.ArsenalPlan.isEngine(e.unitKey) && !"trebuchets".equals(e.unitKey)) {
+                n++;
+            }
+        }
+        return n;
     }
 
     /**
@@ -1783,6 +1936,11 @@ public final class SiegeService {
             }
             near.forEach(bar::addPlayer);
         }
+        for (Siege s : new ArrayList<>(ledger.sieges())) {
+            if (s.interceptBy != null && !s.interceptDone && overworld.getGameTime() >= s.interceptAt) {
+                resolveIntercept(overworld, ledger, s, overworld.getGameTime()); // 1.7: the armies meet on the road
+            }
+        }
         marchBars(overworld, ledger, live);
         bars.entrySet().removeIf(en -> {
             if (!live.contains(en.getKey())) {
@@ -1817,6 +1975,17 @@ public final class SiegeService {
                 bar(overworld, ledger, live, UUID.nameUUIDFromBytes((s.id + ":march").getBytes(StandardCharsets.UTF_8)), a,
                         army + what + (men > 0 ? " (" + men + " men)" : "") + ": before the walls in about " + Math.max(1, Math.round(left / 1200.0)) + " min",
                         s.arriveAt <= 0 ? 0f : 1f - Math.min(1f, left / (float) s.arriveAt), t, dev.hywmill.politics.service.RealmService.realmOf(ledger, a.villageId, now));
+            }
+            if (s.interceptBy != null && !s.interceptDone && s.outcome == Siege.Outcome.NONE) {
+                VillageRecord by = ledger.get(s.interceptBy);
+                if (by != null) {
+                    long l = Math.max(0, s.interceptAt - now);
+                    bar(overworld, ledger, live, UUID.nameUUIDFromBytes((s.id + ":field").getBytes(StandardCharsets.UTF_8)), by,
+                            "The army of the realm of " + by.name + " (" + s.interceptMen + " men) marches to meet the host of " + a.name + " on the road ("
+                                    + s.interceptX + ", " + s.interceptZ + "): battle in about " + Math.max(1, Math.round(l / 1200.0)) + " min",
+                            1f - Math.min(1f, l / (float) Math.max(1, s.interceptAt - s.interceptSet)), t,
+                            dev.hywmill.politics.service.RealmService.realmOf(ledger, by.villageId, now));
+                }
             }
             int men = 0;
             long left = 0, total = 1;
@@ -1997,6 +2166,7 @@ public final class SiegeService {
      */
     private void battle(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive, long tick,
                         PoliticsTables.SiegeRule r) {
+        rulerNews(overworld, ledger, s, a, t);
         long since = tick - s.phaseSince;
         boolean loaded = !s.forceUnwatched && overworld.isPositionEntityTicking(t.center);
         if (!s.field && loaded && since < SiegeWaves.WAVE_MAX - 1200) {
@@ -2392,7 +2562,8 @@ public final class SiegeService {
         }
         if (SiegeWaves.finalStand(defUp, defW, s.defendersStart, s.defStand)) {
             s.defStand = true;
-            boolean holds = world || SiegeWaves.standHolds(defUp + defW, (int) soldiers(a, entries(a, s.host)).stream().filter(e -> !e.wounded).count(),
+            int royal = royalGuard(overworld, ledger, s, a, t, tick, world); // 1.7: a capital's ruler and his guard come out (§14)
+            boolean holds = world || SiegeWaves.standHolds(defUp + defW + royal * 2, (int) soldiers(a, entries(a, s.host)).stream().filter(e -> !e.wounded).count(),
                     s.seed(0x5355L ^ s.wave));
             String text;
             if (holds) {
@@ -2414,6 +2585,78 @@ public final class SiegeService {
             s.notes.add("Day " + s.wave + ": " + text);
             HmLog.info("Siege {}: {}", s.id.toString().substring(0, 8), text);
             ledger.setDirty();
+        }
+    }
+
+    // ------------------------------------------------------------------ 1.7: the royal guard (docs/realm-design.md §14)
+
+    /** The royal guard's soldiers (the ruler comes besides). */
+    public static final List<String> ROYAL_GUARD = List.of("warrior", "warrior", "shieldman", "shieldman", "spear_man", "spear_man");
+    /** The ruler's and the guard's equipment: a stronghold's, one level better. */
+    public static final int ROYAL_LEVEL_BONUS = 1;
+
+    /** Each culture's guard look (hywmill_equipment/squad_looks.json); the ruler wears {@code ruler.<culture>}. */
+    static String guardLook(String culture) {
+        return switch (culture) {
+            case "millenaire:norman" -> "norman.household_men";
+            case "millenaire:byzantines" -> "byz.excubitors";
+            case "millenaire:japanese" -> "jp.daimyo_guard";
+            case "millenaire:seljuk" -> "seljuk.hassa";
+            case "millenaire:indian" -> "in.vijayanagara_guard";
+            case "millenaire:mayan" -> "maya.ajaw_household";
+            case "millenaire:inuits" -> "inuit.champions";
+            default -> "norman.household_men";
+        };
+    }
+
+    static String rulerLook(String culture) {
+        return "ruler." + culture.replace("millenaire:", "");
+    }
+
+    /**
+     * When the capital of a realm makes its final stand, its ruler comes out of his hall with his guard, in their regalia
+     * and heavy, decorated armour, a level better equipped and (in the world) with Strength I; they fight beside the
+     * risen wounded and go home with the siege. Once a siege. Returns how many came out.
+     */
+    int royalGuard(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, boolean world) {
+        if (s.royalOut || t.hywRoster == null || !dev.hywmill.politics.service.RealmService.national(ledger, t.villageId, tick)) {
+            return 0;
+        }
+        s.royalOut = true;
+        dev.hywmill.garrison.tables.GarrisonTable table = GarrisonTables.current().forCulture(t.culture);
+        int level = table.tier(dev.hywmill.military.MilitaryTier.STRONGHOLD).equipmentLevel() + ROYAL_LEVEL_BONUS;
+        int n = raiseExtras(t, s, ROYAL_GUARD, "royal", guardLook(t.culture), false, level, tick)
+                + raiseExtras(t, s, List.of("warrior"), "ruler", rulerLook(t.culture), false, level, tick);
+        if (world) {
+            musterExtras(overworld, s, t, tick);
+        }
+        String ruler = "the " + dev.hywmill.politics.realm.Rulers.title(t.culture) + " of " + t.name;
+        String text = capitalised(ruler) + " comes out of his hall with his guard (" + (n - 1) + "), to stand with the wounded";
+        horn(overworld, t.center);
+        announce(overworld, ledger, s, a, t, text);
+        s.notes.add("Day " + s.wave + ": " + text);
+        HmLog.info("Siege {}: {}", s.id.toString().substring(0, 8), text);
+        ledger.setDirty();
+        return n;
+    }
+
+    /** The ruler fell in the fight: the news, once. */
+    static void rulerNews(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t) {
+        if (!s.royalOut || s.rulerFell || t.hywRoster == null) {
+            return;
+        }
+        for (UUID id : s.extras) {
+            RosterEntry e = t.hywRoster.entry(id);
+            if (e != null && "ruler".equals(e.extra) && e.state() == UnitState.DEAD) {
+                s.rulerFell = true;
+                String text = "The " + dev.hywmill.politics.realm.Rulers.title(t.culture) + " of " + t.name + " has fallen before his walls";
+                announce(overworld, ledger, s, a, t, text);
+                s.notes.add("Day " + s.wave + ": " + text);
+                PoliticsService.chronicle(overworld, Services.settlements(), t, overworld.getGameTime(), text);
+                HmLog.info("Siege {}: {}", s.id.toString().substring(0, 8), text);
+                ledger.setDirty();
+                return;
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 {
- "_comment": "Post-M5 squad looks (Epic Knights only): each Muster Roll squad wears its own armour kits, carries its own shields, is dyed in its own colours (repeat a colour to weight it) and bears its own arms on its shields. A squad names its look in hywmill_squads. Kits and items that Epic Knights lacks or HYW cannot use are skipped (the culture's gear is used instead). Kits from the Epic Knights addons (Epic Knights: Addon, magistuarmoryaddon; Slavic Armory, slavicarmory) are used when those are installed and skipped otherwise. Cultures Armory (culturesarmory): the Japanese squads wear its armour and carry its weapons when it is installed (ashigaru in jingasa and tatami-do with yari and yumi, sohei in hoods with naginata, samurai in kabuto and laced do with katana and nodachi, mounted archers in o-yoroi, the daimyo's guard under the crescent crest); the Epic Knights kits are their fallback. Cultures Armory 1.2: the Seljuk and Inuit squads too (Turkmen in bork and quilted kaftans, Daylamites in segmented helmets and mail, ghulams in kazaghands and jawshans, the hassa and the atabeg's retinue gilded; Inuit harpooners in sealskin, hunters in snow goggles and bentwood visors, warriors in bone, slat and walrus-hide armour, the shaman's band in ceremonial parkas). Cultures Armory 1.3: the Byzantine squads (not the Latinikon, Latin mercenaries) wear its armour: levies in pilos and kabadion, skoutatoi in kassis and klibanion or scale, the Varangians in their hauberks with the pelekys, the kataphraktoi veiled in lamellar on barded horses, the tagma under the strategos. Cultures Armory 1.4: the squads carry their culture's shields (the skoutarion, the aspis, the Varangians' Norse round shield; the kalkan and the sipar; the ashigaru's tedate); samurai and the Inuit carry none ('none': an empty off hand).",
+ "_comment": "Post-M5 squad looks (Epic Knights only): each Muster Roll squad wears its own armour kits, carries its own shields, is dyed in its own colours (repeat a colour to weight it) and bears its own arms on its shields. A squad names its look in hywmill_squads. Kits and items that Epic Knights lacks or HYW cannot use are skipped (the culture's gear is used instead). Kits from the Epic Knights addons (Epic Knights: Addon, magistuarmoryaddon; Slavic Armory, slavicarmory) are used when those are installed and skipped otherwise. Cultures Armory (culturesarmory): the Japanese squads wear its armour and carry its weapons when it is installed (ashigaru in jingasa and tatami-do with yari and yumi, sohei in hoods with naginata, samurai in kabuto and laced do with katana and nodachi, mounted archers in o-yoroi, the daimyo's guard under the crescent crest); the Epic Knights kits are their fallback. Cultures Armory 1.2: the Seljuk and Inuit squads too (Turkmen in bork and quilted kaftans, Daylamites in segmented helmets and mail, ghulams in kazaghands and jawshans, the hassa and the atabeg's retinue gilded; Inuit harpooners in sealskin, hunters in snow goggles and bentwood visors, warriors in bone, slat and walrus-hide armour, the shaman's band in ceremonial parkas). Cultures Armory 1.3: the Byzantine squads (not the Latinikon, Latin mercenaries) wear its armour: levies in pilos and kabadion, skoutatoi in kassis and klibanion or scale, the Varangians in their hauberks with the pelekys, the kataphraktoi veiled in lamellar on barded horses, the tagma under the strategos. Cultures Armory 1.4: the squads carry their culture's shields (the skoutarion, the aspis, the Varangians' Norse round shield; the kalkan and the sipar; the ashigaru's tedate); samurai and the Inuit carry none ('none': an empty off hand). 1.7: the rulers' looks (ruler.<culture>): when a realm's capital makes its final stand, its ruler comes out in his culture's regalia from Cultures Armory 1.7 (a crowned helm and a royal coat; the rest of his guard's kit), his guard in the culture's most decorated household kit; without the armory, his guard's look.",
  "looks": {
   "norman.fyrd_spearmen": {
    "kits": [
@@ -10616,6 +10616,274 @@
     "culturesarmory:sinew_bow",
     "culturesarmory:harpoon",
     "magistuarmory:longbow"
+   ]
+  },
+  "ruler.norman": {
+   "kits": [
+    {
+     "head": "culturesarmory:royal_crown_helm",
+     "chest": "culturesarmory:royal_surcoat",
+     "legs": "magistuarmory:xivcenturyknight_leggings",
+     "feet": "magistuarmory:xivcenturyknight_boots"
+    },
+    {
+     "head": "magistuarmory:grand_bascinet",
+     "chest": "magistuarmory:xivcenturyknight_chestplate",
+     "legs": "magistuarmory:xivcenturyknight_leggings",
+     "feet": "magistuarmory:xivcenturyknight_boots"
+    }
+   ],
+   "offhand": [
+    "magistuarmory:steel_heatershield"
+   ],
+   "palette": [
+    "#5B2A86",
+    "#D4A22A",
+    "#5B2A86"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:lion2",
+       "color": "yellow"
+      }
+     ]
+    },
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "yellow"
+      },
+      {
+       "pattern": "magistuarmory:lion2",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "ruler.byzantines": {
+   "kits": [
+    {
+     "head": "culturesarmory:basileus_stemma",
+     "chest": "culturesarmory:basileus_loros",
+     "legs": "culturesarmory:scale_kremasmata",
+     "feet": "culturesarmory:kampagia"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:skoutarion",
+    "magistuarmory:steel_ellipticalshield"
+   ],
+   "mainhand": [
+    "culturesarmory:steel_spathion",
+    "culturesarmory:steel_kontarion"
+   ],
+   "palette": [
+    "#5B2A86",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "purple",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "ruler.japanese": {
+   "kits": [
+    {
+     "head": "culturesarmory:daimyo_kabuto",
+     "chest": "culturesarmory:daimyo_yoroi",
+     "legs": "culturesarmory:ikada_haidate",
+     "feet": "culturesarmory:tsutsu_suneate"
+    },
+    {
+     "head": "magistuarmory:sallet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "none"
+   ],
+   "mainhand": [
+    "culturesarmory:steel_nodachi",
+    "culturesarmory:steel_katana"
+   ],
+   "palette": [
+    "#B0302A",
+    "#D4A22A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:circle",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "ruler.seljuk": {
+   "kits": [
+    {
+     "head": "culturesarmory:sultan_helm",
+     "chest": "culturesarmory:sultan_jawshan",
+     "legs": "culturesarmory:lamellar_thigh_guards",
+     "feet": "culturesarmory:splinted_greaves"
+    },
+    {
+     "head": "magistuarmory:shishak",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:sipar",
+    "magistuarmory:steel_roundshield"
+   ],
+   "mainhand": [
+    "culturesarmory:steel_sayf",
+    "culturesarmory:steel_kilij",
+    "culturesarmory:steel_shishpar"
+   ],
+   "palette": [
+    "#8E2A2A",
+    "#E6E1D3"
+   ],
+   "arms": [
+    {
+     "base": "red",
+     "layers": [
+      {
+       "pattern": "magistuarmory:two_headed_eagle",
+       "color": "yellow"
+      }
+     ]
+    }
+   ]
+  },
+  "ruler.indian": {
+   "kits": [
+    {
+     "head": "culturesarmory:raja_crown_khud",
+     "chest": "culturesarmory:raja_regalia",
+     "legs": "culturesarmory:zanupush",
+     "feet": "culturesarmory:jutti"
+    },
+    {
+     "head": "magistuarmory:chainmail_helmet",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:chainmail_leggings",
+     "feet": "magistuarmory:lamellar_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:dhal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "mainhand": [
+    "culturesarmory:steel_talwar",
+    "culturesarmory:steel_barchha",
+    "magistuarmory:iron_shortsword"
+   ],
+   "palette": [
+    "#D9822B",
+    "#7A1E3A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "ruler.mayan": {
+   "kits": [
+    {
+     "head": "culturesarmory:ajaw_headdress",
+     "chest": "culturesarmory:ajaw_regalia",
+     "legs": "culturesarmory:jaguar_kilt",
+     "feet": "culturesarmory:jade_anklets"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:gambeson_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "offhand": [
+    "culturesarmory:pakal",
+    "magistuarmory:iron_roundshield"
+   ],
+   "mainhand": [
+    "culturesarmory:macuahuitl",
+    "culturesarmory:flint_axe",
+    "magistuarmory:iron_shortsword"
+   ],
+   "palette": [
+    "#E6E1D3",
+    "#2F7A5A"
+   ],
+   "arms": [
+    {
+     "base": "white",
+     "layers": [
+      {
+       "pattern": "minecraft:border",
+       "color": "red"
+      }
+     ]
+    }
+   ]
+  },
+  "ruler.inuits": {
+   "kits": [
+    {
+     "head": "culturesarmory:chief_crown_hood",
+     "chest": "culturesarmory:chief_parka",
+     "legs": "culturesarmory:bone_plate_leggings",
+     "feet": "culturesarmory:sealskin_kamik"
+    },
+    {
+     "head": "none",
+     "chest": "magistuarmory:lamellar_chestplate",
+     "legs": "magistuarmory:pantyhose",
+     "feet": "magistuarmory:gambeson_boots"
+    }
+   ],
+   "mainhand": [
+    "culturesarmory:bone_club"
+   ],
+   "palette": [
+    "#2E5B8A",
+    "#B0302A"
    ]
   }
  }

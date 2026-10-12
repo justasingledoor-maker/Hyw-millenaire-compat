@@ -295,6 +295,34 @@ public final class ArmoryArmorTypes {
             new Integer[]{0, 270, 0, 0}, new Integer[]{0, 5, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_CHAIN, true, true, "c:ingots/steel");
     public static final ArmorType KAMPAGIA = new ArmorType(ARMOR_MATERIALS, id("kampagia"), id("kampagia"), 0.0F, 0.0F,
             new Integer[]{110, 0, 0, 0}, new Integer[]{1, 0, 0, 0}, 11, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType ROYAL_CROWN_HELM = new ArmorType(ARMOR_MATERIALS, id("royal_crown_helm"), id("royal_crown_helm"), 2.0F, 0.05F,
+            new Integer[]{0, 0, 0, 420}, new Integer[]{0, 0, 0, 4}, 22, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType ROYAL_SURCOAT = new ArmorType(ARMOR_MATERIALS, id("royal_surcoat"), id("royal_surcoat"), 2.0F, 0.05F,
+            new Integer[]{0, 0, 460, 0}, new Integer[]{0, 0, 8, 0}, 22, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType BASILEUS_STEMMA = new ArmorType(ARMOR_MATERIALS, id("basileus_stemma"), id("basileus_stemma"), 1.5F, 0.0F,
+            new Integer[]{0, 0, 0, 380}, new Integer[]{0, 0, 0, 3}, 25, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType BASILEUS_LOROS = new ArmorType(ARMOR_MATERIALS, id("basileus_loros"), id("basileus_loros"), 2.0F, 0.05F,
+            new Integer[]{0, 0, 460, 0}, new Integer[]{0, 0, 8, 0}, 25, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType DAIMYO_KABUTO = new ArmorType(ARMOR_MATERIALS, id("daimyo_kabuto"), id("daimyo_kabuto"), 2.0F, 0.05F,
+            new Integer[]{0, 0, 0, 420}, new Integer[]{0, 0, 0, 4}, 22, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType DAIMYO_YOROI = new ArmorType(ARMOR_MATERIALS, id("daimyo_yoroi"), id("daimyo_yoroi"), 2.0F, 0.05F,
+            new Integer[]{0, 0, 460, 0}, new Integer[]{0, 0, 8, 0}, 22, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType SULTAN_HELM = new ArmorType(ARMOR_MATERIALS, id("sultan_helm"), id("sultan_helm"), 2.0F, 0.05F,
+            new Integer[]{0, 0, 0, 420}, new Integer[]{0, 0, 0, 4}, 22, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType SULTAN_JAWSHAN = new ArmorType(ARMOR_MATERIALS, id("sultan_jawshan"), id("sultan_jawshan"), 2.0F, 0.05F,
+            new Integer[]{0, 0, 460, 0}, new Integer[]{0, 0, 8, 0}, 22, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType RAJA_CROWN_KHUD = new ArmorType(ARMOR_MATERIALS, id("raja_crown_khud"), id("raja_crown_khud"), 2.0F, 0.05F,
+            new Integer[]{0, 0, 0, 420}, new Integer[]{0, 0, 0, 4}, 22, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType RAJA_REGALIA = new ArmorType(ARMOR_MATERIALS, id("raja_regalia"), id("raja_regalia"), 2.0F, 0.05F,
+            new Integer[]{0, 0, 460, 0}, new Integer[]{0, 0, 8, 0}, 22, SoundEvents.ARMOR_EQUIP_GOLD, true, true, "c:ingots/steel");
+    public static final ArmorType AJAW_HEADDRESS = new ArmorType(ARMOR_MATERIALS, id("ajaw_headdress"), id("ajaw_headdress"), 0.5F, 0.0F,
+            new Integer[]{0, 0, 0, 300}, new Integer[]{0, 0, 0, 3}, 22, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType AJAW_REGALIA = new ArmorType(ARMOR_MATERIALS, id("ajaw_regalia"), id("ajaw_regalia"), 1.0F, 0.0F,
+            new Integer[]{0, 0, 360, 0}, new Integer[]{0, 0, 6, 0}, 22, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType CHIEF_CROWN_HOOD = new ArmorType(ARMOR_MATERIALS, id("chief_crown_hood"), id("chief_crown_hood"), 0.5F, 0.0F,
+            new Integer[]{0, 0, 0, 300}, new Integer[]{0, 0, 0, 3}, 20, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
+    public static final ArmorType CHIEF_PARKA = new ArmorType(ARMOR_MATERIALS, id("chief_parka"), id("chief_parka"), 1.0F, 0.0F,
+            new Integer[]{0, 0, 360, 0}, new Integer[]{0, 0, 6, 0}, 20, SoundEvents.ARMOR_EQUIP_LEATHER, true, true, "c:ingots/steel");
 
     private ArmoryArmorTypes() {}
 

@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/royal_crown_helm",
+    "layer1": "culturesarmory:item/royal_crown_helm_overlay"
+  }
+}

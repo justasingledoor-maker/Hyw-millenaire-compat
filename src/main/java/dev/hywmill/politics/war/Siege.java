@@ -105,6 +105,18 @@ public final class Siege {
     public double commit = 1;
     /** The final stand ({@link SiegeWaves#finalStand}): each side made its stand in this wave (reset at dawn). */
     public boolean hostStand, defStand;
+    /**
+     * 1.7 field battle (docs/realm-design.md §13): the realm (its capital) whose army meets this host on the road, when and
+     * where, with what strength and men, raised from which members; decided once ({@code interceptDone}).
+     */
+    @javax.annotation.Nullable public UUID interceptBy;
+    public long interceptAt = -1, interceptSet = -1;
+    public int interceptX, interceptZ, interceptMen;
+    public double interceptPower;
+    public final List<UUID> interceptFrom = new ArrayList<>();
+    public boolean interceptDone;
+    /** 1.7 royal guard (docs/realm-design.md §14): the capital's ruler and guard came out for the final stand; the ruler fell. */
+    public boolean royalOut, rulerFell;
 
     /** A wave is being fought or the night between two (no help may join any more; no recruiting at the target). */
     public boolean fighting() {

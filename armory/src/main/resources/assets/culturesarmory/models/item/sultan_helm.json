@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/sultan_helm",
+    "layer1": "culturesarmory:item/sultan_helm_overlay"
+  }
+}

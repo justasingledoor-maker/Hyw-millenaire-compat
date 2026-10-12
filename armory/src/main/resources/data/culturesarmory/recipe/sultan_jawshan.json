@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "gdg",
+    " j "
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "d": {
+      "item": "minecraft:diamond"
+    },
+    "j": {
+      "item": "culturesarmory:gilded_jawshan"
+    }
+  },
+  "result": {
+    "id": "culturesarmory:sultan_jawshan",
+    "count": 1
+  }
+}

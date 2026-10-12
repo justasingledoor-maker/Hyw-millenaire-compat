@@ -322,6 +322,33 @@ public final class RelationProjector {
         return JoinResult.OK;
     }
 
+    /**
+     * 1.7: a player in a realm's service is put on campaign with {@code allyId} against {@code enemyId} by the realm itself (no
+     * standing needed: a mercenary may be a stranger); an earlier campaign gives way. The enemy holds the usual grievance.
+     */
+    public void enlist(ServerLevel overworld, HywMillRuntime rt, UUID player, UUID allyId, UUID enemyId) {
+        GarrisonLedger ledger = GarrisonLedger.get(overworld);
+        Campaign old = campaignOf(ledger, player);
+        long now = overworld.getGameTime();
+        if (old != null && old.ally().equals(allyId) && old.enemy().equals(enemyId) && old.until() - now > CAMPAIGN_TICKS / 2) {
+            return;
+        }
+        VillageRecord enemy = ledger.get(enemyId);
+        if (enemy == null || ledger.get(allyId) == null || !atWar(ledger, allyId, enemyId)) {
+            return;
+        }
+        if (old != null) {
+            ledger.campaigns().remove(old);
+        }
+        ledger.campaigns().add(new Campaign(player, allyId, enemyId, now, now + CAMPAIGN_TICKS));
+        if (old == null || !old.enemy().equals(enemyId)) {
+            rt.politics().applyGrievance(overworld, enemy, player, new GrievanceEvent(GrievanceKind.JOINED_ENEMY, now, false, true, false,
+                    enemy.center.getX(), enemy.center.getY(), enemy.center.getZ()));
+        }
+        ledger.setDirty();
+        reconcile(overworld, rt, now);
+    }
+
     /** {@code /hywmill war leave}. Returns true if the player was on campaign. */
     public boolean leave(ServerLevel overworld, HywMillRuntime rt, UUID player) {
         GarrisonLedger ledger = GarrisonLedger.get(overworld);

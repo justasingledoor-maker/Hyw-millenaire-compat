@@ -196,6 +196,34 @@
     {
       "id": "culturesarmory:mail_coif",
       "required": false
+    },
+    {
+      "id": "culturesarmory:royal_crown_helm",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:basileus_stemma",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:daimyo_kabuto",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:sultan_helm",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:raja_crown_khud",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:ajaw_headdress",
+      "required": false
+    },
+    {
+      "id": "culturesarmory:chief_crown_hood",
+      "required": false
     }
   ]
 }

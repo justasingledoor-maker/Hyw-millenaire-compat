@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "culturesarmory:item/ajaw_headdress",
+    "layer1": "culturesarmory:item/ajaw_headdress_overlay"
+  }
+}

@@ -118,6 +118,9 @@ public final class RealmService {
         }
         loyalty(overworld, ledger, now);
         unity(overworld, ledger, now);
+        if (now / PoliticsTables.DAY != (now - interval) / PoliticsTables.DAY) {
+            RealmDiplomacy.heal(overworld, ledger, source, now); // 1.7: old grudges fade at peace (§12)
+        }
         for (Treaty t : new ArrayList<>(ledger.treaties().values())) {
             VillageRecord a = ledger.get(t.a), b = ledger.get(t.b);
             Integer rel = a == null || b == null ? null : relation(overworld, source, t.a, t.b);

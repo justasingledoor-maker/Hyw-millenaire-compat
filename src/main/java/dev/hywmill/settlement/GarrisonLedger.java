@@ -107,6 +107,37 @@ public final class GarrisonLedger extends SavedData {
         return excused;
     }
 
+    /** 1.7 (docs/realm-design.md §11): players in a realm's service. */
+    private final java.util.Map<UUID, dev.hywmill.politics.realm.Service> services = new java.util.LinkedHashMap<>();
+    /** 1.7: each realm head's officials. */
+    private final java.util.Map<UUID, java.util.List<dev.hywmill.politics.realm.Officials.Official>> officials = new java.util.LinkedHashMap<>();
+    /** 1.7: "player|head": the mercenary signing bonus already paid. */
+    private final java.util.Set<String> bonuses = new java.util.LinkedHashSet<>();
+    /** 1.7: "player|head": exiled (or a broken contract) until then. */
+    private final java.util.Map<String, Long> exiles = new java.util.LinkedHashMap<>();
+    /** 1.7: coalitions: each realm head feared, and the heads of the villages and realms leagued against it. */
+    private final java.util.Map<UUID, java.util.Set<UUID>> coalitions = new java.util.LinkedHashMap<>();
+
+    public java.util.Map<UUID, dev.hywmill.politics.realm.Service> services() {
+        return services;
+    }
+
+    public java.util.Map<UUID, java.util.List<dev.hywmill.politics.realm.Officials.Official>> officials() {
+        return officials;
+    }
+
+    public java.util.Set<String> bonuses() {
+        return bonuses;
+    }
+
+    public java.util.Map<String, Long> exiles() {
+        return exiles;
+    }
+
+    public java.util.Map<UUID, java.util.Set<UUID>> coalitions() {
+        return coalitions;
+    }
+
     /** Post-M5 realms: a razed village's record goes for good. */
     public void remove(UUID villageId) {
         if (records.remove(villageId) != null) {
@@ -235,6 +266,7 @@ public final class GarrisonLedger extends SavedData {
             }
         }
         PoliticsNbt.loadPlans(root.getList("plans", Tag.TAG_COMPOUND), ledger.plans);
+        PoliticsNbt.loadServices(root.getCompound("service"), ledger.services, ledger.officials, ledger.bonuses, ledger.exiles, ledger.coalitions);
         ListTag ex = root.getList("excused", Tag.TAG_COMPOUND);
         for (int i = 0; i < ex.size(); i++) {
             CompoundTag x = ex.getCompound(i);
@@ -307,6 +339,9 @@ public final class GarrisonLedger extends SavedData {
         }
         if (!plans.isEmpty()) {
             root.put("plans", PoliticsNbt.savePlans(plans));
+        }
+        if (!services.isEmpty() || !officials.isEmpty() || !bonuses.isEmpty() || !exiles.isEmpty() || !coalitions.isEmpty()) {
+            root.put("service", PoliticsNbt.saveServices(services, officials, bonuses, exiles, coalitions));
         }
         if (!excused.isEmpty()) {
             ListTag ex = new ListTag();

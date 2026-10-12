@@ -49,6 +49,8 @@ public final class HywMillConfig {
     public static final ModConfigSpec.BooleanValue RAZE_ENABLED;
     public static final ModConfigSpec.BooleanValue REALM_COUNCIL;
     public static final ModConfigSpec.BooleanValue REALM_AMBITION;
+    public static final ModConfigSpec.BooleanValue REALM_SERVICE;
+    public static final ModConfigSpec.BooleanValue REALM_DIPLOMACY;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -173,6 +175,14 @@ public final class HywMillConfig {
         REALM_AMBITION = b.comment("1.6: a council at peace, with an army to spare, covets a neighbour it has a claim on (a former member, a",
                         "village it hates, or one of its capital's people under another lord) and, a day later, declares war to take it.")
                 .define("realmAmbition", true);
+        REALM_SERVICE = b.comment("1.7 (docs/realm-design.md §11): players may serve a realm as a volunteer (called to its fights, never bound), a",
+                        "mercenary (a contract, paid each dawn while it is at war, a starting purse and company once per realm) or a knight",
+                        "(sworn into the realm: a stipend, orders on the HUD, a voice in its council, judged by its officials).")
+                .define("realmService", true);
+        REALM_DIPLOMACY = b.comment("1.7 (docs/realm-design.md §12): realms read each other's plans through their scouts, demand fealty before",
+                        "going to war for a claim, buy peace with tribute when losing, and their neighbours league against a realm that grows",
+                        "too great.")
+                .define("realmDiplomacy", true);
         b.pop();
 
         SPEC = b.build();
