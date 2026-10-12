@@ -330,7 +330,7 @@ public final class ServiceRoles {
                     }
                     continue;
                 }
-                if (sg != null && t != null && sg.fighting() && sg.wave <= 1) {
+                if (sg != null && t != null && sg.phase == Siege.Phase.BATTLE && sg.wave <= 1) {
                     o.fought = true;
                     if (p != null && p.level() == ow) {
                         double dr = Math.hypot(p.getX() - o.x, p.getZ() - o.z);
@@ -340,7 +340,9 @@ public final class ServiceRoles {
                     }
                     continue;
                 }
-                boolean over = sg == null || sg.outcome != Siege.Outcome.NONE || sg.phase == Siege.Phase.RETURN || sg.wave > 1;
+                // answered when the first day's fight is over (nightfall), or the siege is
+                boolean over = sg == null || sg.outcome != Siege.Outcome.NONE || sg.phase == Siege.Phase.RETURN || sg.wave > 1
+                        || (o.fought && sg.phase == Siege.Phase.NIGHT);
                 if (!over) {
                     continue;
                 }
@@ -398,6 +400,7 @@ public final class ServiceRoles {
                     : "you were not at " + where + (s.role == Service.Role.KNIGHT ? " (orders ignored: " + s.ignored + " of " + Service.IGNORED_LIMIT + ")" : "");
         };
         notify(p, s, text);
+        HmLog.info("Service: {} ({} of {}): {}", PoliticsService.playerName(ow, s.player), s.role, head.name, text);
         if (s.role == Service.Role.KNIGHT && Officials.banish(s.ignored, Officials.average(off, s.player))) {
             banish(ow, ledger, source, s, head, p, s.ignored >= Service.IGNORED_LIMIT ? "you ignored " + s.ignored + " orders" : "the council despises you", now);
         }

@@ -83,6 +83,18 @@ final class ServiceCommands {
                         .executes(ctx -> status(ctx.getSource(), UuidArgument.getUuid(ctx, "player")))))
                 .then(Commands.literal("counsel").then(Commands.argument("player", UuidArgument.uuid()).then(Commands.argument("kind", StringArgumentType.word())
                         .then(Commands.argument("village", BlockPosArgument.blockPos()).executes(ctx -> counsel(ctx, UuidArgument.getUuid(ctx, "player")))))))
+                .then(Commands.literal("bar").then(Commands.argument("village", BlockPosArgument.blockPos()).executes(ctx -> {
+                    // the HUD's village bar for that village, as a player standing in it sees it
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    VillageRecord v = here(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "village"));
+                    if (v == null) {
+                        send(ctx.getSource(), "service admin bar: no village there");
+                        return 0;
+                    }
+                    String[] bar = dev.hywmill.net.HudService.describe(GarrisonLedger.get(ow), v, ow.getGameTime());
+                    send(ctx.getSource(), "service admin bar: " + v.name + " | " + bar[0] + " | " + bar[1]);
+                    return 1;
+                })))
                 .then(Commands.literal("mark").then(Commands.argument("player", UuidArgument.uuid()).then(Commands.argument("where", StringArgumentType.word())
                         .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("rally", "near", "away"), b))
                         .executes(ctx -> {
@@ -104,6 +116,10 @@ final class ServiceCommands {
     }
 
     static ServerPlayer standIn(ServerLevel ow, UUID id, BlockPos at) {
+        ServerPlayer here = dev.hywmill.politics.service.PoliticsService.onlinePlayer(ow, id);
+        if (here != null) {
+            return here; // the harness stand-in, where it stands
+        }
         ServerPlayer p = FakePlayerFactory.get(ow, new GameProfile(id, "StandIn"));
         p.moveTo(at.getX() + 0.5, at.getY() + 1, at.getZ() + 0.5);
         return p;

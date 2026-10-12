@@ -2344,3 +2344,73 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
 * **Not tested in the world:** two armies marching at once (needs two weak enemies within reach; covered by JUnit), the
   recall when pressed, and a covet turning into a declared war a day later.
 * SHA-256 of the jar: `dea3c38244e17492ba992b0e30482ab5c28e75269fdcb453fb533ee3e853c71e`.
+
+### 6.70 Service, the village bar, realms that answer each other, field battles, the royal guard (`dist/hywmill-m5-fix70.jar`, `dist/cultures-armory-1.7.0.jar`)
+
+* **Requests.** A small bar at the top of the screen with the village one stands in: its name, what it is (village, realm,
+  vassal...) and who owns it. Players may serve a realm: as a mercenary (paid for helping in its wars, a small starting bonus
+  that cannot be farmed), as a knight (part of the realm, paid, bound to orders shown away from the chat, e.g. "muster on the
+  eastern side of X; we attack at first dawn", rewarded when found there, not punished if they fight elsewhere), with a say
+  in the council, officials with personalities to sway or bribe, and banishment for knights who keep ignoring orders; or as
+  a volunteer, called but never bound. The council counts its allies and its engines (1), realms react to one another (3),
+  armies meet on the road (4), and a capital's ruler and royal guard come out with the final stand, heavily and richly
+  armoured, with Strength I (5). And (with a screenshot of a chronicle full of courting): too many goals, everyone too
+  hostile: slower and more targeted.
+* **The village bar** (`HudService`, `HudOverlay`, payload `hud`): top centre, below any boss bars, one line: the village's
+  name in its livery colour, what it is ("Capital of a realm of 3 villages", "Province", "Vassal", "Independent village",
+  "Lone building", and "· at war with X"), whom it answers to ("Ruled by X, its King", "Sworn to X", "Seat of the King");
+  bright for six seconds after entering, then quieter. Sent only when it changes. At the left, the orders panel (below).
+* **Service** (`Service`, `Officials` (pure), `ServiceRoles`, `/hywmill service ...`, Politics screen buttons; docs/realm-
+  design.md §11): volunteer, mercenary (3-day contracts, a purse and three men once per realm, a 7-day bar for breaking a
+  contract), knight (patron or sworn; culture titles; stipend; orders with rally points, answered when the first day's fight
+  ends: at the rally point paid 1 or, elsewhere at the fight 12 argent, absent an order ignored); four officials per realm
+  with tempers that vote on a knight's counsel (war, pressing a war, peace), take or refuse bribes and lean the council's
+  margins and reserve; banishment after three ignored orders (or contempt) with a 14-day exile.
+* **The council** (`RealmCouncil`, `Strategy.Counsel`, `RealmDiplomacy`; §10, §12): allies' contingents and its engines
+  count; its scouts read enemy councils' ready goals; a demand of fealty before a claim war; tribute offered for peace when
+  losing; leagues of neighbours against a realm of four villages or more, with pacts and, when a match, war.
+* **Slower and more targeted** (§10, §12): the council sits every quarter day (was a tenth), raises an army every half day,
+  pursues three goals at a time and only on its front (2,000 blocks; the rest are counted, "N other enemies too far or not
+  worth an army now"), courts at most two villages (the nearest) once a day, covets only after two days of peace (and
+  within 1,500 blocks), and each day at peace a grudge between villages within reach fades by 2 (a relation below zero,
+  short of open conflict), so fewer quarrels reach the -90 that makes a war.
+* **Field battles** (`FieldBattle` (pure), `SiegeService.considerIntercepts/resolveIntercept`; §13): the realm's army meets
+  an enemy host halfway along its remaining march when it is the host's match; a boss bar, road orders for its knights, a
+  battle by strength (players of its service at the meeting point add 12 each); a broken host turns for home.
+* **The royal guard** (`SiegeService.royalGuard`, `ruler.<culture>` looks; §14): at a capital's final stand, its ruler
+  (named "King of X") and six guards in the culture's household kit, a stronghold's equipment +1, Strength I; news if the
+  ruler falls. **Cultures Armory 1.7**: 14 regalia pieces (a crowned helm and a royal coat for each of the seven rulers).
+* **Validation.** JUnit 425/425 (new: `ServiceTest` 5, `FieldBattleTest` 2; two data tests updated for the rulers' looks).
+  Harness (`docs/m5-test-evidence/fix70-*.txt`), with Cultures Armory 1.7 and the Epic Knights addons:
+  * SV 9/9 (new): the bar of Vaucelles les-pâtures reads "Capital of a realm of 3 villages | Seat of the King", Araden's
+    "Province | Ruled by Vaucelles les-pâtures, its King", Itanos's "Vassal | Sworn to Vaucelles les-pâtures, its King"; a
+    stranger volunteers; a mercenary is refused at peace ("it hires no swords now"), signs on at war with "Signing purse: 1
+    or, and 3 men of Vaucelles les-pâtures to lead (yours to keep)", is not paid it again, and breaking his contract bars
+    him; a patron is made Knight; when the army of the realm sets out his HUD reads "Orders of the King of Vaucelles
+    les-pâtures: muster on the SE side of Ouilly la-fôret (251, 329); we attack from there at first light; the army is
+    there at dawn, in about 4 min"; standing there when the first wave is fought, at sundown: "you held the SE rally at
+    Ouilly la-fôret (+1 or); the Marshal Hugues is pleased" (the volunteer, absent: "you did not answer the call");
+    his counsel of war is put to the vote (one run: carried 3 to 1, "the council will press the war on Ouilly la-fôret
+    for a day"; another: rejected 1 to 3, the peaceable Chancellor and Steward and the cautious Spymaster against); the
+    Realm view lists the four officials and what they think of him.
+  * FB 3/3 (new): Le Mesnil le-volcan marches on Itanos; "the council sends the army of the realm (about 37 men) to meet the
+    host of Le Mesnil le-volcan on the road"; "Battle on the road to Ouilly la-fôret near (411, 621): the army of the realm
+    of Vaucelles les-pâtures (37 men) meets the host of Le Mesnil le-volcan (17 men): the host is broken (9 dead) and turns
+    for home; Vaucelles les-pâtures lost 6" (the first run's winner lost more than the loser: fixed, the winner's losses
+    now come from the smaller army).
+  * RG 3/3 (new): Le Mesnil besieges the capital; at its final stand: "The King of Vaucelles les-pâtures comes out of his
+    hall with his guard (6), to stand with the wounded".
+  * CO 6/6 again under the new pacing ("Covets Araden (it was ours): war in about 40 min", two days).
+  * FS 4/4 again ("Itanos is down to 0 of 86 defenders standing: its 69 wounded rise for a final stand", held to sundown).
+  * Test tooling fixed on the way: stand-ins with fresh ids each run (a kept world remembers bars and bonuses); dev siege
+    `nofield` (RG's siege was otherwise met and broken on the road by the realm's army, as designed) and council
+    `longpeace`; `siege-wound` also wounds relief and temporary defenders and fells militia.
+* **In a real client** (`docs/m5-test-evidence/fix70-hud-client.png`, the dev client under Xvfb with the test world): the bar
+  at the top ("Vaucelles les-pâtures · Independent village", its red livery swatch) and the orders panel at the left
+  ("Volunteer of the realm of Vaucelles les-pâtures", "Day 13: you entered the service of Vaucelles les-pâtures as
+  volunteer"), above the chat, clear of it. The regalia rendered (`fix70-regalia.png`).
+* **Not tested in the world:** a knight banished (JUnit covers the rule), bribes paid in money (the stand-in has none;
+  JUnit covers the officials' answer), demands, peace bought with tribute, leagues going to war, scouts reading a ready enemy
+  goal, grudges fading over days, a ruler falling; the royal guard fought in the world (RG's stand was decided on paper);
+  the bar's realm wording in the client (the server-side text is checked in SV-1).
+* SHA-256: `hywmill-m5-fix70.jar` `49966dc6d34d7e0abe7b946f669f1815ad9bf37f5344424730ae1085d74ffb80`; `cultures-armory-1.7.0.jar` `4e32a281cc785238e2c964aff31df29df2a23b58227f3bd7a2638f6fd4a23e0e`.

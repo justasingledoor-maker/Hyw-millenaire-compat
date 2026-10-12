@@ -958,6 +958,12 @@ public final class SiegeService {
      */
     public static List<String> considerIntercepts(ServerLevel overworld, GarrisonLedger ledger, VillageRecord capital, List<UUID> realm, double commit,
                                                   long now) {
+        return considerIntercepts(overworld, ledger, capital, realm, commit, now, false);
+    }
+
+    /** {@code anyTime} (dev): the armies may meet whenever the host is on its way, however near the walls. */
+    public static List<String> considerIntercepts(ServerLevel overworld, GarrisonLedger ledger, VillageRecord capital, List<UUID> realm, double commit,
+                                                  long now, boolean anyTime) {
         List<String> out = new ArrayList<>();
         for (Siege s : ledger.sieges()) {
             if (s.outcome != Siege.Outcome.NONE || s.interceptBy != null || (s.phase != Siege.Phase.MUSTER && s.phase != Siege.Phase.MARCH)
@@ -970,6 +976,9 @@ public final class SiegeService {
             }
             long elapsed = s.elapsed(now, overworld.getDayTime());
             long at = dev.hywmill.politics.war.FieldBattle.meetAt(elapsed, s.arriveAt, s.march);
+            if (at < 0 && anyTime && s.arriveAt > elapsed) {
+                at = elapsed + Math.max(1, (s.arriveAt - elapsed) / 2);
+            }
             double host = hostStrength(a, entries(a, s.host));
             double ours = 0;
             int men = 0;
@@ -1031,7 +1040,9 @@ public final class SiegeService {
         // losses: the loser's heavier
         List<RosterEntry> hs = new ArrayList<>(soldiers(a, entries(a, s.host)));
         hs.sort(java.util.Comparator.comparing(e -> e.rosterId));
-        int hostDead = (int) Math.round(hs.size() * (won ? r.loserLoss() : r.winnerLossBase()));
+        // the loser loses its share of its own men; the winner a share of the smaller army's (a few men beat many lose few)
+        int smaller = Math.min(hs.size(), s.interceptMen);
+        int hostDead = (int) Math.round(won ? hs.size() * r.loserLoss() : smaller * r.winnerLossBase());
         for (int i = 0; i < hostDead && i < hs.size(); i++) {
             kill(overworld, a, hs.get(i).rosterId, now);
         }
@@ -1044,7 +1055,7 @@ public final class SiegeService {
             }
             List<RosterEntry> pool = new ArrayList<>(ReliefService.available(v));
             pool.sort(java.util.Comparator.comparing(e -> e.rosterId));
-            int k = (int) Math.round(s.interceptMen * share / Math.max(1, s.interceptFrom.size()));
+            int k = (int) Math.round((won ? smaller : s.interceptMen) * share / Math.max(1, s.interceptFrom.size()));
             for (int i = 0; i < k && i < pool.size(); i++) {
                 kill(overworld, v, pool.get(i).rosterId, now);
                 ourDead++;
@@ -2488,6 +2499,16 @@ public final class SiegeService {
             return 0;
         }
         List<RosterEntry> side = new ArrayList<>(host ? soldiers(a, entries(a, s.host)) : homeDefenders(t));
+        if (!host) {
+            for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+                side.addAll(ReliefService.present(ledger, s, rl.helper)); // the relief that came counts among the defenders too
+            }
+            for (RosterEntry e : entries(t, s.extras)) {
+                if (!side.contains(e)) {
+                    side.add(e); // and its temporary defenders (refugees, hired men)
+                }
+            }
+        }
         side.removeIf(e -> e.wounded || e.state().terminal());
         side.sort(java.util.Comparator.comparing(e -> e.rosterId));
         int k = 0;
@@ -2500,6 +2521,11 @@ public final class SiegeService {
                 GarrisonService.stow(overworld, e);
             }
             k++;
+        }
+        if (!host && k < n) {
+            int m = Math.min(n - k, Math.max(0, s.milStart - s.milKilled));
+            s.milKilled += m; // the militia (a count, not soldiers on a roster) fall too
+            k += m;
         }
         ledger.setDirty();
         return k;

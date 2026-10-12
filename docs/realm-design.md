@@ -199,7 +199,7 @@ share of its free garrison (at home, on a standing duty), counted when the army 
 ## 10. The realm's council (1.6)
 
 A realm with a national army is run by one council, at its capital. Its members no longer besiege on their own. It sits
-every tenth of a day (about two minutes). Inspired by the kingdom AIs of strategy games (a marshal gathering a kingdom's
+every quarter of a day (about five minutes; 1.7: it was every tenth). Inspired by the kingdom AIs of strategy games (a marshal gathering a kingdom's
 lords, a campaign AI weighing fronts), kept to what the realm can see.
 
 * **It sees.** Each member: the men it pledges now and their strength, whether a host is announced, mustering or marching
@@ -217,13 +217,14 @@ lords, a campaign AI weighing fronts), kept to what the realm can see.
 * **Its armies.** It divides what it does not hold back into up to three field armies, each raised from the members nearest
   its target and led by the one with the most men whose host is home ("the army of Itanos"; "the army of the realm of X"
   when the capital leads). Each is a siege with the usual build-up (it gathers two days, arrives at dawn on the third),
-  every member sending its pledge less the reserve as stand-ins in the host. One new army a session at most. A goal it cannot
+  every member sending its pledge less the reserve as stand-ins in the host. One new army every half day at most (1.7). A goal it cannot
   fill yet stays on its list, "waiting for men".
 * **It adapts.** On the defensive with a village threatened, it calls home the armies not yet at the walls, and sends none.
   The enemy of its enemy: it courts each village that fights one of its enemies (its relation with the capital rises 5 a
-  session, up to 80), so a military alliance follows by the treaty rule.
-* **At peace** (`realmAmbition`), with an army to spare, it covets a neighbour (within 2,500 blocks) it has a claim on: one
-  that was its own, one it hates, or one of its capital's people under another lord, that four fifths of its army could take. A day later, if it still covets it, it declares war (and the realm's unity does the rest).
+  day, up to 80; 1.7: at most two villages at a time, the nearest within reach of its capital, once a day), so a military
+  alliance follows by the treaty rule.
+* **At peace** (`realmAmbition`), after two days of peace (1.7), with an army to spare, it covets a neighbour (within 1,500 blocks) it has a claim on: one
+  that was its own, one it hates, or one of its capital's people under another lord, that four fifths of its army could take. Two days later (1.7), if it still covets it, it demands its fealty (§12), and if refused declares war (and the realm's unity does the rest).
 * **What you see.** The Realm tab, for a village of the realm: "The council of X: on the attack (our army against our
   enemies': 2.0 to 1)", its armies and where they are, its goals and their state (an army is on it, ready, waiting for men
   with its strength of what it needs, its men stay home), the men held back, the villages it courts, the one it covets
@@ -231,3 +232,87 @@ lords, a campaign AI weighing fronts), kept to what the realm can see.
   Saint-André) to annex Araden (Annex)"). The chronicle of the capital tells the same. `/hywmill war council` prints it;
   `war admin council <capital>` makes it sit now.
 * `politics.realmCouncil` (default true): false gives each village its own siege decisions again.
+* **1.7: slower and more focused.** Only its front: an enemy village farther than 2,000 blocks from all of its villages is
+  no goal of its own (unless its army marches on the realm); and it pursues three goals at a time, the worthiest (its own
+  villages' defence always). The Realm tab counts the others ("4 other enemies too far or not worth an army now"). Its
+  officials lean its judgement (§11), its scouts read its enemies' plans, and its allies' contingents and its own siege
+  engines count in what it can take (§12).
+
+## 11. In a realm's service (1.7)
+
+A player may serve one realm at a time (`politics.realmService`), from the Politics screen (his own village selected) or
+`/hywmill service volunteer|mercenary|knight` where he stands; `/hywmill service leave|status`.
+
+* **Volunteer** (anyone not unwelcome or outlawed): called to the realm's fights (a call on his HUD), never bound; paid a
+  third of the reward only when he answers a call at its rally point.
+* **Mercenary** (anyone not unwelcome or outlawed; the realm must be at war): a 3-day contract, renewed by signing again;
+  each dawn 4 argent and half an argent a village of the realm while it is at war; 1 denier or for each order obeyed, 12
+  argent for fighting elsewhere at the same fight. The first time with a realm, a signing purse (1 or) and three of its men
+  (two spearmen and an archer, his to keep), once only: never again from that realm. Leaving before the contract ends bars
+  him from it for 7 days. The realm puts him on campaign against the enemy of each order.
+* **Knight** (a patron or one sworn to its capital; the culture's title: Knight, Archon, Samurai, Sipahi, Sardar, Nacom,
+  Champion): part of the realm: a stipend each dawn (6 argent and one a village, in peace too), orders from its ruler (the
+  King, the Basileus, the Daimyo, the Sultan, the Raja, the Ajaw, the Chief), a voice in its council.
+* **Orders** appear on the HUD at the left of the screen, not in chat (a short notice above the hotbar when new): when the
+  realm's army sets out, "muster on the E side of X (x, z); we attack from there at first light", with the time to dawn
+  and the distance and bearing to the rally point; when one of its villages is besieged, "hold the W side of Y, where the
+  enemy will land"; when its army goes to meet a host on the road (§13), "meet the host of Z on the road at (x, z)".
+  Answered when the first day's fight ends: at the rally point (within 40 blocks) while it was fought, obeyed (paid, and
+  its officials are pleased); at the fight elsewhere (within the village radius + 96), present (paid less, no reproach);
+  absent: a knight's order ignored.
+* **The officials.** Each realm has four, named in its capital's tongue: the Marshal, the Chancellor, the Steward, the
+  Spymaster, each hawkish, peaceable, greedy, honourable or cautious, and each with an opinion of every player in its
+  service (an order obeyed +10, the Marshal +15; ignored -10, the Marshal -15). They lean the council: a hawkish Marshal
+  sends armies with 10% less to spare, a cautious one asks 15% more and holds 10% more men home; a peaceable Chancellor
+  holds more back and covets only with much more to spare, a hawkish or greedy one with less.
+* **Counsel.** A knight may counsel war on a village (at war: the council presses the war on it, its worth x1.75 for a day;
+  at peace: a declaration of war) or peace with one (the enemy weighs it by the balance of arms); the officials vote, each by
+  his temper and his opinion of the knight, a majority carrying it (the Marshal breaks a tie on war, the Chancellor on
+  peace). Once each half day.
+* **Bribes.** 1 or to an official: a greedy one's opinion +30, others +12; an honourable one refuses it (-15).
+* **Banishment.** A knight who has ignored three orders, while the officials think little of him (average under 25), or
+  whom they despise (-50 or less), or who becomes unwelcome or an outlaw there, is banished: his service ends and the realm
+  will not have him back for 14 days. The Realm tab lists the officials, what they think of the viewer, and who serves.
+
+## 12. Realms answering each other (1.7)
+
+`politics.realmDiplomacy` (default true).
+
+* **Scouts.** A council sees which of its villages an enemy council is ready to march on (a goal with an army raised for
+  it): that village keeps its men home, as if threatened ("Our scouts: the council of X is ready to march on Y").
+* **Allies and engines count.** The contingent its military allies would send (about a quarter of their free garrison, if
+  within reach of the target) counts toward an army; its own war engines cut the target's walls in its reckoning, as they
+  do in the siege. The realm's allies march with any of its armies, whichever member leads it.
+* **Demands.** Before declaring war for a claim, the council demands fealty: a village that rules and answers to no one
+  gives in when the realm's army is well over its defence (no chance under 1.2 times; up to 70%); then it is the realm's
+  vassal and there is no war.
+* **Buying peace.** A realm on the defensive with its army under 0.6 of its enemies' offers each enemy realm 1 or a day per
+  village of its own for three days, once a day each; a council on the attack with an army ready seldom takes it (25%),
+  others often (60%). Taken: peace, and the tribute is paid.
+* **Leagues.** A realm of four villages or more alarms its neighbours by its size and its strength against theirs; an
+  alarmed neighbour (not its ally or friend) leagues against it: the league's members sign defensive pacts with each other
+  and like it less each day; when together they are 1.1 times its match, they declare war on it.
+* **Time heals.** Each day, between two villages within reach at peace with each other, a grudge (a relation below zero,
+  short of open conflict) fades by 2: fewer quarrels turn into wars.
+
+## 13. Field battles (1.7)
+
+When an enemy host musters or marches on one of a realm's villages, the council weighs meeting it on the road: its field
+army (every member's pledge, less the reserve, but the threatened village's own) must be at least the host's match, and
+there must be time to meet it at least a minute before the walls, halfway along the march still to come. Then the army
+marches (a boss bar: "The army of the realm of X marches to meet the host of Y on the road (x, z): battle in about N
+min"), its knights are ordered to the meeting point, and when the armies meet the battle is decided by strength, squared,
+as an off-screen siege battle: each player in the realm's service standing at the meeting point adds 12 to its strength.
+The loser loses half of its men, the winner as many as a third of the smaller army (a few beat by many cost little): a broken host turns for home (the war goes on); a beaten army leaves
+the host to march on. The chronicle and the council's log tell it.
+
+## 14. The royal guard (1.7)
+
+The capital of a realm with a national army keeps a royal guard. When it makes its final stand in a siege (siege-design
+§final stand), its ruler (named: "King of X") comes out of his hall with six of his guard, in heavy decorated armour (the
+culture's household kit) and the ruler in his regalia (Cultures Armory 1.7: the crowned bascinet and surcoat of the King,
+the stemma and loros of the Basileus, the daimyo's kabuto and o-yoroi under a jinbaori, the sultan's turbaned helmet and
+gilt jawshan, the raja's crowned khud and regalia, the ajaw's quetzal headdress and jade, the chief's crowned hood and
+parka), a stronghold's equipment one level better, with Strength I. They fight beside the risen wounded (off-screen they
+add to the stand) and go home with the siege; if the ruler falls, all are told.
+

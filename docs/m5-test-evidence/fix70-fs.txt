@@ -1,0 +1,16 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620), (166, 63, 266)]
+[harness] --- scenario FS
+[harness] PASS FS-0 two villages [('Vaucelles les-pâtures', 17), ('Itanos', 17), ('Araden', 16), ('Ouilly la-fôret', 15), ('Le Mesnil le-volcan', 14)]
+[harness] NOTE FS villages: A=Vaucelles les-pâtures (17) | T=Itanos (17)
+[harness] PASS FS-1 the siege reaches its first wave war siege OK: Vaucelles les-pâtures musters 25 soldiers to besiege Itanos to make it a vassal; they march in about 1 min id 513c9a19 host 25 (unwatched) || [09:34:01] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 513c9a19: wave 1 begins: host 49/49, defenders 86/86
+[harness] PASS FS-2 the defenders, down to a fifth standing, make a final stand with their wounded war admin siege-wound OK: 86 wounded, phase BATTLE wave 1 || [09:36:56] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 513c9a19: Itanos is down to 0 of 86 defenders standing: its 69 wounded rise for a final stand, and hold until sundown
+[harness] PASS FS-3 the stand decides the day: broken, the siege is won at once; held, the night follows as ever broke False won False held True night True
+[harness] server stopped
+[harness] RESULT 5/5 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620), (166, 63, 266)]
+  PASS  FS-0 two villages  [('Vaucelles les-pâtures', 17), ('Itanos', 17), ('Araden', 16), ('Ouilly la-fôret', 15), ('Le Mesnil le-volcan', 14)]
+  PASS  FS-1 the siege reaches its first wave  war siege OK: Vaucelles les-pâtures musters 25 soldiers to besiege Itanos to make it a vassal; they march in about 1 min id 513c9a19 host 25 (unwatched) || [09:34:01] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 513c9a19: wave 1 begins: host 49/49, defenders 86/86
+  PASS  FS-2 the defenders, down to a fifth standing, make a final stand with their wounded  war admin siege-wound OK: 86 wounded, phase BATTLE wave 1 || [09:36:56] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 513c9a19: Itanos is down to 0 of 86 defenders standing: its 69 wounded rise for a final stand, and hold until sundown
+  PASS  FS-3 the stand decides the day: broken, the siege is won at once; held, the night follows as ever  broke False won False held True night True
+  NOTE  FS villages  A=Vaucelles les-pâtures (17) | T=Itanos (17)

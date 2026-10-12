@@ -346,6 +346,29 @@ With HywMill, HYW riders in Seljuk armour ride Seljuk horses (the ghulams' heavy
 Turkmen in the felt cloth) and riders in Indian armour Indian ones (heavy cavalry in mail and plate in the bargustawan, the
 Rajput horse in chilta).
 
+## Regalia of the rulers (1.7)
+
+What each people's ruler wears when he comes out of his hall to stand with his guard at the last of a siege (with HywMill:
+a realm's capital, at its final stand). Gold, stones, crests and cloaks over each culture's finest armour; dyeable
+(the cloak, the surcoat, the cap). Made with gold and a diamond (or emeralds, or bone) from the piece beneath.
+
+| Piece | Slot | Armour | What it is |
+|---|---|---|---|
+| King's Crowned Bascinet | head | 4 | A rounded bascinet and mail aventail ringed with a fleuroned gold crown set with rubies and sapphires |
+| King's Surcoat | chest | 8 | A dyed surcoat over mail, a gold cross on breast and back, gold collar, belt and hem, a cloak (purple) |
+| Stemma of the Basileus | head | 3 | The closed jewelled crown of the emperor over the purple kamelaukion, its arches and cross, pearl pendilia |
+| Loros of the Basileus | chest | 8 | A gilt klibanion under the loros (the jewelled imperial sash, front and collar), pteruges, the chlamys |
+| Daimyo's Kabuto | head | 4 | A kabuto with menpo, great gilt kuwagata sweeping up and a red sun disc between them, a gilt brow |
+| Daimyo's Ō-yoroi and Jinbaori | chest | 8 | The ō-yoroi under the daimyo's jinbaori, its back hanging long, a gold mon between the shoulders |
+| Sultan's Helmet | head | 4 | A gilt conical helmet wrapped in a turban with a jewelled band, an emerald aigrette and heron plume, mail |
+| Sultan's Jawshan | chest | 8 | The gilt jawshan with a jewelled collar and a kaftan cloak |
+| Raja's Crowned Khud | head | 4 | The gilt kulah khud ringed with a gold circlet, the sarpech and a tall kalgi of heron plumes, a ruby |
+| Raja's Regalia | chest | 8 | The char-aina over mail with its dastana, a jewelled collar and a cloak (saffron) |
+| Headdress of the Ajaw | head | 3 | A jade band, a jaguar-skin crown with the jaguar's mask over the brow, jade plaques, nine quetzal plumes |
+| Regalia of the Ajaw | chest | 6 | Cotton armour with its jade collar and a jade plaque, a jaguar cape |
+| Chief's Crowned Hood | head | 3 | The caribou hood and its ruff under an ivory crown set with blue and red beads, beaded strings at the temples |
+| Chief's Parka | chest | 6 | The ceremonial parka of fur mosaic with an ivory breastplate, ivory shoulder plates, a beaded collar and pendants |
+
 ## Shields (1.4)
 
 Each culture's own shields, made as Epic Knights makes its own (held, blocking and repaired like them, in its shields

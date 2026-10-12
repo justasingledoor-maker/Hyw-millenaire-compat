@@ -1,0 +1,23 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620), (166, 63, 266)]
+[harness] --- scenario RG
+[harness] PASS RG-0 four villages 
+[harness] PASS RG-1 the siege of the capital reaches its first wave war siege OK: Le Mesnil le-volcan musters 17 soldiers to besiege Vaucelles les-pâtures to punish it; they march in about 1 min id 366535d4 host 17 (unwatched) || 08:53:13] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 366535d4: wave 1 begins: host 17/17, defenders 186/186
+[harness] PASS RG-2 at the final stand the King comes out of his hall with his guard war admin siege-wound OK: 169 wounded, phase BATTLE wave 1 || [08:56:02] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 366535d4: The King of Vaucelles les-pâtures comes out of his hall with his guard (6), to stand with the wounded
+[harness] --- scenario FS
+[harness] PASS FS-0 two villages [('Vaucelles les-pâtures', 17), ('Itanos', 17), ('Araden', 16), ('Ouilly la-fôret', 15), ('Le Mesnil le-volcan', 14)]
+[harness] NOTE FS villages: A=Vaucelles les-pâtures (17) | T=Itanos (17)
+[harness] PASS FS-1 the siege reaches its first wave war siege OK: Vaucelles les-pâtures musters 12 soldiers to besiege Itanos to make it a vassal; they march in about 1 min id a1aa69e2 host 12 (unwatched) || [09:03:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege a1aa69e2: wave 1 begins: host 12/12, defenders 74/74
+[harness] FAIL FS-2 the defenders, down to a fifth standing, make a final stand with their wounded war admin siege-wound OK: 57 wounded, phase BATTLE wave 1 || 
+[harness] FAIL FS-3 the stand decides the day: broken, the siege is won at once; held, the night follows as ever broke False won False held False night True
+[harness] server stopped
+[harness] RESULT 6/8 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620), (166, 63, 266)]
+  PASS  RG-0 four villages  
+  PASS  RG-1 the siege of the capital reaches its first wave  war siege OK: Le Mesnil le-volcan musters 17 soldiers to besiege Vaucelles les-pâtures to punish it; they march in about 1 min id 366535d4 host 17 (unwatched) || 08:53:13] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 366535d4: wave 1 begins: host 17/17, defenders 186/186
+  PASS  RG-2 at the final stand the King comes out of his hall with his guard  war admin siege-wound OK: 169 wounded, phase BATTLE wave 1 || [08:56:02] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 366535d4: The King of Vaucelles les-pâtures comes out of his hall with his guard (6), to stand with the wounded
+  PASS  FS-0 two villages  [('Vaucelles les-pâtures', 17), ('Itanos', 17), ('Araden', 16), ('Ouilly la-fôret', 15), ('Le Mesnil le-volcan', 14)]
+  PASS  FS-1 the siege reaches its first wave  war siege OK: Vaucelles les-pâtures musters 12 soldiers to besiege Itanos to make it a vassal; they march in about 1 min id a1aa69e2 host 12 (unwatched) || [09:03:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege a1aa69e2: wave 1 begins: host 12/12, defenders 74/74
+  FAIL  FS-2 the defenders, down to a fifth standing, make a final stand with their wounded  war admin siege-wound OK: 57 wounded, phase BATTLE wave 1 || 
+  FAIL  FS-3 the stand decides the day: broken, the siege is won at once; held, the night follows as ever  broke False won False held False night True
+  NOTE  FS villages  A=Vaucelles les-pâtures (17) | T=Itanos (17)
