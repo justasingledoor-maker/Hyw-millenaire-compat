@@ -93,6 +93,13 @@ public final class GarrisonLedger extends SavedData {
         return rebels;
     }
 
+    /** Realm unity: vassals excused (for scutage) from their realm's war with a realm, and that realm's head. */
+    private final java.util.Map<UUID, UUID> excused = new java.util.LinkedHashMap<>();
+
+    public java.util.Map<UUID, UUID> excused() {
+        return excused;
+    }
+
     /** Post-M5 realms: a razed village's record goes for good. */
     public void remove(UUID villageId) {
         if (records.remove(villageId) != null) {
@@ -220,6 +227,13 @@ public final class GarrisonLedger extends SavedData {
                 ledger.rebels.put(x.getUUID("rebel"), x.getUUID("against"));
             }
         }
+        ListTag ex = root.getList("excused", Tag.TAG_COMPOUND);
+        for (int i = 0; i < ex.size(); i++) {
+            CompoundTag x = ex.getCompound(i);
+            if (x.hasUUID("vassal") && x.hasUUID("from")) {
+                ledger.excused.put(x.getUUID("vassal"), x.getUUID("from"));
+            }
+        }
         ledger.battles.addAll(PoliticsNbt.loadBattles(root.getList("battles", Tag.TAG_COMPOUND)));
         ledger.columns.addAll(PoliticsNbt.loadColumns(root.getList("columns", Tag.TAG_COMPOUND)));
         ledger.scoutRides.addAll(PoliticsNbt.loadRides(root.getList("scoutRides", Tag.TAG_COMPOUND)));
@@ -282,6 +296,16 @@ public final class GarrisonLedger extends SavedData {
                 rb.add(x);
             });
             root.put("rebels", rb);
+        }
+        if (!excused.isEmpty()) {
+            ListTag ex = new ListTag();
+            excused.forEach((k, v) -> {
+                CompoundTag x = new CompoundTag();
+                x.putUUID("vassal", k);
+                x.putUUID("from", v);
+                ex.add(x);
+            });
+            root.put("excused", ex);
         }
         if (!battles.isEmpty()) {
             root.put("battles", PoliticsNbt.saveBattles(battles));

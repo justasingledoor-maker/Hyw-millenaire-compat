@@ -2218,3 +2218,45 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
   and the first spot was over water); fixed and rerun. The call-off of a siege begun before the change is not exercised
   (no such siege can be started any more).
 * SHA-256 of the jar: `e90c7fef8f9ffc0ae35aae83f38e7747c6e3b8efd6c789dadb81eceafcd9f560`.
+
+### 6.67 Realm unity: one diplomacy, one war (`dist/hywmill-m5-fix67.jar`)
+
+* **Request.** A realm should act as one: anyone entering it is friends with every member; whatever village the capital, or
+  any member, comes to hate, the whole realm hates; an outsider attacking any member is at war with the whole realm, and the
+  realm with the outsider's whole realm; vassals must answer the call to war (refusing makes them independent and at war
+  with the realm); a vassal that will not march beside a comrade it hates goes to the capital's council. Provinces' diplomacy
+  is the realm's. (The national army, for a capital with at least two subjects, is the next phase; the royal guard waits.)
+* **Change** (`RealmService` realm unity, `RealmCall` (pure), docs/realm-design.md §8):
+  * entering a realm (fealty or annexation, and subjects passed along with it): peace with every member it was at war with,
+    relation 90 with all of them, the realm's wars its own at once and its own wars the realm's;
+  * provinces are kept at 90 with every member;
+  * shared hatred (each village decision): the realm's feeling for an outsider is its worst member's when that is −50 or
+    worse; relations are mutual, so the outsider's realm answers in kind;
+  * one war: any war between villages of two realms (declared, open conflict, a raid, a rebellion) is a war of every village
+    of one against every village of the other, at once (truces hold); the capitals' treaty allies then take sides as before;
+    a peace between villages of two realms is the realms' peace;
+  * the call to war: provinces always march; a vassal with loyalty 20 or less, or under 40 and a friend (75+) of the enemy,
+    refuses and breaks away (free, at war with the realm at once); a vassal that hates a comrade (−50 or worse) goes to the
+    council: a feud ended by decree (loyalty 35+, the rest of the realm at least as strong; loyalty −10), else excused for
+    scutage (loyalty 20+; 64 deniers a soldier a day for 3 days to the capital, as levy points; loyalty −5), else cast out;
+  * feuds in peacetime: members at open conflict or at war go to the council at once (ended by decree, or the less loyal
+    vassal cast out); provinces and the capital are never at fault;
+  * rebels are at war with the whole realm at once;
+  * a subject cannot be counselled war or peace (its capital makes them), nor members of one realm against each other;
+  * the Realm tab shows a vassal excused for scutage; `war admin wars` lists every war in the ledger.
+  * Lone buildings stay out of all of it.
+* **Validation.** JUnit 409/409 (new: the call to war, the council, shared hatred, scutage). Harness RU (new) 7/7, twice
+  (two sets of villages), and RLM 9/9 again with it (`docs/m5-test-evidence/fix67-ru-rlm.txt`, 18/18):
+  * RU-1: a vassal sworn and a province annexed are friends (90) with the capital and with each other;
+  * RU-2: the vassal comes to hate an outsider O (−60): within a minute the capital and the province hate O as much, and
+    O's own vassal hates them back;
+  * RU-3: O declares war on the province: the capital, the vassal and the province are all at war with O and O's vassal at
+    once (6 wars);
+  * RU-4: the two capitals make peace: every one of those wars ends;
+  * RU-5: called to war with loyalty 10, the vassal refuses: no longer a vassal, at war with the capital and the province,
+    not with O;
+  * RU-6: sworn again (friends with all at once), loyalty 50, hating the province: the council ends the feud by decree
+    (relation 90 again, loyalty 40) and the vassal marches;
+  * RU-7: with loyalty 25 the council excuses it for scutage: still a vassal (loyalty 20), at peace with O, paying the
+    capital (24 argent a day for 3 days).
+* SHA-256 of the jar: `de728e0ca2d1d4e1a07536d9cbd99b744daca0e68b357dd067e3c9bbf765bbf5`.

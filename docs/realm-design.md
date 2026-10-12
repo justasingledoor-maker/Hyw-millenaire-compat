@@ -115,7 +115,7 @@ Every vassal and province has a loyalty of 0-100. Provinces start at 50, vassals
   * +3 when the sovereign wins a siege it sent men to.
 * **Rebellion:** below 30, once a day. The chance is (30 − loyalty)/30 × 25% for a vassal, or × 6% for a province (about
   a quarter as likely). It is doubled when the sovereign's garrison is smaller than the subject's.
-  * A rebel is free at once. Its relation with the old sovereign drops to −100, so a war follows.
+  * A rebel is free at once, and the whole realm is at war with it at once (§8).
   * A province's garrison takes its own colours again, re-dressed by the existing livery mechanism.
   * The chronicle tells it; a realm may reconquer.
 
@@ -137,4 +137,35 @@ Every vassal and province has a loyalty of 0-100. Provinces start at 50, vassals
   * `war admin treaty <a> <b> <pact|defensive|alliance|none>`;
   * `war admin annex <province> <sovereign>`;
   * `war admin loyalty <subject> <value>`;
-  * `war admin siege <a> <t> [quick] … aim <subjugate|annex|punish|raze>`.
+  * `war admin siege <a> <t> [quick] … aim <subjugate|annex|punish|raze>`;
+  * `war admin wars`: every war in the ledger.
+
+## 8. Realm unity (1.6)
+
+A realm is a capital and its subjects (vassals and provinces), however many. It has one diplomacy and one war.
+
+* **Entering a realm.** A village that swears fealty or is annexed makes peace with every member it was at war with and is
+  friends (relation 90) with all of them. The realm's wars become its own at once, and its own wars the realm's (a village
+  that swears fealty for protection brings its war along).
+* **Provinces** stay friends with every member (kept at 90 every village decision); their diplomacy is the realm's.
+* **Shared hatred.** A relation of −50 or worse is hatred. The realm's feeling for an outsider is its worst member's when
+  that is hatred: whoever hates first, the capital or any subject, the whole realm comes to hate that village as much (each
+  village decision). Relations are mutual, so the outsider's own realm answers in kind. Lone buildings are left out.
+* **One war.** A war between villages of two realms (by any cause: declared, open conflict, a raid, a rebellion) is a war of
+  every village of one against every village of the other, at once; a truce between a pair holds. Allies by treaty of the
+  two capitals then take sides as in §2. A peace between villages of two realms is the realms' peace: every war between them
+  ends. Players counsel war and peace to the capital: a subject answers "the realm's war and peace are made there".
+* **The call to war.** Provinces always march. Each vassal answers:
+  * loyalty 20 or less: it refuses and breaks away: free, and at war with the whole realm at once;
+  * loyalty under 40 and a friend (75 or better) of a village of the enemy's realm: the same;
+  * holding a fellow member at −50 or worse: the capital's **council** decides: with loyalty 35 or more and the rest of the
+    realm at least as strong as the vassal, it ends the feud by decree (the two are friends again; loyalty −10) and the
+    vassal marches; else, with loyalty 20 or more, it lets the vassal stay home for **scutage** (64 deniers a soldier, paid
+    to the capital each day for 3 days, as levy points; loyalty −5); else it casts the vassal out: free, and at war with
+    the realm;
+  * otherwise it marches.
+* **Feuds in peacetime.** Two members at open conflict (−90) or at war go to the council at once: a capital or a province
+  is never at fault; of two vassals, the less loyal is. It ends the feud by decree (loyalty 35 or more, the rest of the
+  realm at least as strong) or casts the culprit out.
+* The Realm tab shows a vassal excused for scutage. The national army (the realm's sieges and relief drawn from every
+  member, for a capital with at least two subjects) comes next.

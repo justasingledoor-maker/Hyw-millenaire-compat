@@ -1495,6 +1495,16 @@ public final class SiegeService {
                 + " days: they are allies, and " + vassal.name + " owes its overlord men in war";
         chronicle(overworld, vassal, overlord, tick, text);
         HmLog.info("Vassalage: {}", text);
+        if (realms) {
+            // realm unity: friends with every member of the realm, and its wars are the realm's (and the realm's its)
+            dev.hywmill.politics.service.RealmService.welcome(overworld, ledger, vassal, lord.villageId, tick);
+            for (dev.hywmill.politics.war.Vassalage t : dev.hywmill.politics.service.RealmService.subjectsOf(ledger, lord.villageId, tick)) {
+                VillageRecord moved = ledger.get(t.vassal);
+                if (moved != null && moved != vassal && t.since == tick) {
+                    dev.hywmill.politics.service.RealmService.welcome(overworld, ledger, moved, lord.villageId, tick);
+                }
+            }
+        }
     }
 
     /** Vassalages whose 21 days are over end: the two villages are neutral again. */

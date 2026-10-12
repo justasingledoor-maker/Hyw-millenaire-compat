@@ -6146,6 +6146,129 @@ def scenario_SQ(ctx):
           ("ok=true" in h6 and len(ha) >= 10) or (tz == "WATCH" and "ok=false" in h6), f"{tz}: {h6[-160:]}; {len(ha)} horse archers")
 
 
+def scenario_RU(ctx):
+    """Realm unity (1.6, docs/realm-design.md §8; --keep-world, five villages: the extra ones are spawned if missing): members
+    enter as friends; a hatred any member holds is the realm's; a war on any member is a war of both whole realms at once;
+    the heads' peace is the realms' peace; a disloyal vassal refuses the call and is at war with its realm; a vassal that hates
+    a comrade goes to the council (reconciled by decree, or excused for scutage)."""
+    s = ctx.s
+    ensure_extra_villages(ctx)
+    s.output("hywmill war admin recall-all", 3)
+    rows = []
+    for l in s.output("hywmill village list", 2):
+        m = re.search(r" - (.+?) (-?\d+), (-?\d+), (-?\d+) tier=(\w+) garrison=(\d+) .* id=(\S+) culture=(\S+)", l)
+        if m and not l.endswith(" lone"):
+            rows.append(dict(name=m[1], pos=(int(m[2]), int(m[3]), int(m[4])), tier=m[5], garrison=int(m[6]), id=m[7]))
+    check("RU-0 five villages", len(rows) >= 5, str([(r["name"], r["garrison"]) for r in rows]))
+    if len(rows) < 5:
+        return
+    rows.sort(key=lambda r: -r["garrison"])
+    # the capital the strongest, its province next, its vassal the weakest (so the council can make a decree stick)
+    R = dict(zip("SPOQV", rows[:5]))
+    c = {k: "{} {} {}".format(*r["pos"]) for k, r in R.items()}
+    note("RU villages", " | ".join(f"{k}={r['name']} ({r['garrison']})" for k, r in R.items()))
+    keys = "SVPOQ"
+    pairs = [(x, y) for i, x in enumerate(keys) for y in keys[i + 1:]]
+    P_ = U_UUID
+
+    def clean():
+        for k in keys:
+            s.output(f"hywmill war admin rebel {c[k]}", 1)
+        for x, y in pairs:
+            s.output(f"hywmill war admin treaty {c[x]} {c[y]} none", 0.3)
+            dip(s, R["S"]["pos"], f"admin truce {c[x]} {c[y]} 1", 0.3)  # a truce ends any war between them
+        for x, y in pairs:
+            m5(s, f"mill mrel {c[x]} {c[y]} set 0", 0.3)
+            m5(s, f"mill mrel {c[y]} {c[x]} set 0", 0.3)
+        time.sleep(14)
+        for x, y in pairs:
+            dip(s, R["S"]["pos"], f"admin truce {c[x]} {c[y]} 0", 0.3)
+
+    def rel(x, y):
+        return mrel_of(s, f"{c[x]} {c[y]}") or (999, 999)
+
+    def wars():
+        out = set()
+        for l in s.output("hywmill war admin wars", 2):
+            m = re.search(r": at war ids (\S+) (\S+)", l)
+            if m:
+                out.add(frozenset((m[1], m[2])))
+        return out
+
+    def at_war(ws, x, y):
+        return frozenset((R[x]["id"], R[y]["id"])) in ws
+
+    def vassal_line(k):
+        return next((l.strip() for l in s.output("hywmill war vassals", 1.5) if l.strip().startswith(R[k]["name"] + " is ")), "")
+
+    clean()
+    # 1. entering the realm: friends with every member
+    s.output(f"hywmill war admin vassal {c['V']} {c['S']}", 2)
+    s.output(f"hywmill war admin annex {c['P']} {c['S']}", 4)
+    s.output(f"hywmill war admin vassal {c['Q']} {c['O']}", 2)
+    r1 = {k: rel(*k) for k in [("V", "P"), ("S", "V"), ("S", "P"), ("O", "Q")]}
+    check("RU-1 entering a realm makes friends of all its members (the vassal and the province too)",
+          min(r1[("V", "P")]) >= 90 and min(r1[("S", "V")]) >= 90 and min(r1[("S", "P")]) >= 90 and min(r1[("O", "Q")]) >= 90, str(r1))
+
+    # 2. shared hatred: the vassal comes to hate O
+    m5(s, f"mill mrel {c['V']} {c['O']} set -60")
+    m5(s, f"mill mrel {c['O']} {c['V']} set -60")
+    t0, r2 = time.time(), {}
+    while time.time() - t0 < 100:
+        time.sleep(10)
+        r2 = {k: rel(*k) for k in [("S", "O"), ("P", "O"), ("Q", "V")]}
+        if all(max(v) <= -60 for v in r2.values()):
+            break
+    check("RU-2 a hatred one member holds is the realm's (S and P hate O as V does), and O's realm answers in kind (Q hates V)",
+          all(max(v) <= -60 for v in r2.values()), str(r2))
+
+    # 3. a war on one member is a war of both whole realms, at once
+    d = " ".join(l for l in s.output(f"hywmill war for {P_} declare {c['O']} on {c['P']} force", 3) if l.startswith("war declare"))
+    ws = wars()
+    cross = [(x, y) for x in "SVP" for y in "OQ"]
+    check("RU-3 O declares war on the province P: S, V and P are all at war with O and its vassal Q at once",
+          all(at_war(ws, x, y) for x, y in cross), f"{d[-160:]} || missing {[p for p in cross if not at_war(ws, *p)]}")
+
+    # 4. the heads' peace is the realms' peace
+    pc = " ".join(l for l in s.output(f"hywmill war for {P_} peace {c['S']} with {c['O']} force", 3) if l.startswith("war peace"))
+    ws = wars()
+    check("RU-4 S and O make peace: every war between the two realms ends", not any(at_war(ws, x, y) for x, y in cross),
+          f"{pc[-160:]} || still {[p for p in cross if at_war(ws, *p)]}")
+
+    # 5. a disloyal vassal refuses the call: free, and at war with its realm
+    s.output(f"hywmill war admin loyalty {c['V']} 10", 1)
+    s.output(f"hywmill war for {P_} declare {c['O']} on {c['S']} force", 3)
+    ws, vl = wars(), vassal_line("V")
+    check("RU-5 called to war with loyalty 10, V refuses: no longer S's vassal, at war with S and P, not with O",
+          vl == "" and at_war(ws, "V", "S") and at_war(ws, "V", "P") and not at_war(ws, "V", "O") and at_war(ws, "S", "O"),
+          f"vassal line '{vl}' V-S {at_war(ws, 'V', 'S')} V-P {at_war(ws, 'V', 'P')} V-O {at_war(ws, 'V', 'O')} S-O {at_war(ws, 'S', 'O')}")
+
+    # 6. the council: V, sworn again, hates the province; loyal enough, its feud is ended by decree and it marches
+    s.output(f"hywmill war for {P_} peace {c['S']} with {c['O']} force", 3)
+    s.output(f"hywmill war admin vassal {c['V']} {c['S']}", 2)
+    rv = rel("V", "S")
+    s.output(f"hywmill war admin loyalty {c['V']} 50", 1)
+    m5(s, f"mill mrel {c['V']} {c['P']} set -60")
+    m5(s, f"mill mrel {c['P']} {c['V']} set -60")
+    s.output(f"hywmill war for {P_} declare {c['O']} on {c['S']} force", 3)
+    ws, vl, rvp = wars(), vassal_line("V"), rel("V", "P")
+    check("RU-6 sworn again (friends with S at once), V hates P: the council ends the feud by decree (loyalty 50 -> 40) and V marches",
+          min(rv) >= 90 and min(rvp) >= 90 and at_war(ws, "V", "O") and "loyalty 40" in vl, f"V-S {rv}, V-P {rvp}, V-O {at_war(ws, 'V', 'O')}, '{vl}'")
+
+    # 7. less loyal, it is excused for scutage instead: it stays home and pays the capital
+    s.output(f"hywmill war for {P_} peace {c['S']} with {c['O']} force", 3)
+    s.output(f"hywmill war admin loyalty {c['V']} 25", 1)
+    m5(s, f"mill mrel {c['V']} {c['P']} set -60")
+    m5(s, f"mill mrel {c['P']} {c['V']} set -60")
+    s.output(f"hywmill war for {P_} declare {c['O']} on {c['S']} force", 3)
+    ws, vl = wars(), vassal_line("V")
+    trib = " | ".join(l for l in s.output("hywmill war tributes", 1.5) if R["V"]["name"] in l)
+    check("RU-7 with loyalty 25 the council excuses V for scutage: still a vassal (loyalty 20), at peace with O, paying S",
+          "loyalty 20" in vl and not at_war(ws, "V", "O") and at_war(ws, "S", "O") and R["S"]["name"] in trib, f"'{vl}' V-O {at_war(ws, 'V', 'O')} || {trib[-200:]}")
+    s.output(f"hywmill war for {P_} peace {c['S']} with {c['O']} force", 3)
+    clean()
+
+
 def scenario_LB(ctx):
     """Lone buildings are not besieged (1.6; --keep-world): a bandit lone building spawned beside A is known as one; A cannot
     besiege it, nor it A, by command or by counsel; the AI never picks it."""
@@ -7304,7 +7427,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

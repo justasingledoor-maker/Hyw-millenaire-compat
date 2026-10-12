@@ -4,6 +4,7 @@ import dev.hywmill.config.HywMillConfig;
 import dev.hywmill.core.HmLog;
 import dev.hywmill.core.Services;
 import dev.hywmill.politics.PoliticsTables;
+import dev.hywmill.politics.realm.RealmCall;
 import dev.hywmill.politics.realm.Treaty;
 import dev.hywmill.politics.realm.WarSides;
 import dev.hywmill.politics.war.Vassalage;
@@ -15,7 +16,10 @@ import net.minecraft.server.level.ServerLevel;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.OptionalInt;
 import java.util.SplittableRandom;
 import java.util.UUID;
@@ -112,6 +116,7 @@ public final class RealmService {
             return;
         }
         loyalty(overworld, ledger, now);
+        unity(overworld, ledger, now);
         for (Treaty t : new ArrayList<>(ledger.treaties().values())) {
             VillageRecord a = ledger.get(t.a), b = ledger.get(t.b);
             Integer rel = a == null || b == null ? null : relation(overworld, source, t.a, t.b);
@@ -215,18 +220,41 @@ public final class RealmService {
     // ------------------------------------------------------------------ war obligations
 
     /**
-     * A war has started between {@code x} and {@code y} (docs/realm-design.md §2): every village bound to either by a military
-     * alliance or a subject tie takes a side. Joining drops its relation with the enemy to −100 (the war follows by the
-     * existing rule, a day later, and obliges its own allies in turn); a village bound to both breaks with the weaker bond.
+     * A war has started between {@code x} and {@code y}. Realm unity (docs/realm-design.md §8): it is a war of their whole realms
+     * at once (two members of one realm at war go to its council instead); then the villages bound to either realm's head by a
+     * military alliance take a side (§2). Lone buildings take no part in realm wars.
      */
     public static void onWarStarted(ServerLevel overworld, GarrisonLedger ledger, VillageRecord x, VillageRecord y, long now) {
         SettlementSource source = Services.settlements();
         if (source == null || !enabled()) {
             return;
         }
+        VillageRecord ax = x, ay = y;
+        if (!x.loneBuilding && !y.loneBuilding) {
+            UUID hx = sovereignOf(ledger, x.villageId, now), hy = sovereignOf(ledger, y.villageId, now);
+            if (hx.equals(hy)) {
+                feud(overworld, ledger, x, y, now);
+                return;
+            }
+            realmWar(overworld, ledger, hx, hy, now);
+            ax = ledger.get(hx) != null ? ledger.get(hx) : x;
+            ay = ledger.get(hy) != null ? ledger.get(hy) : y;
+        }
+        alliesTakeSides(overworld, ledger, ax, ay, now);
+    }
+
+    /**
+     * Every village bound to {@code x} or {@code y} by a military alliance (and not of either's realm, which is already at war)
+     * takes a side (docs/realm-design.md §2). Joining drops its relation with the enemy to −100 (the war follows by the existing
+     * rule, a day later, and obliges its own allies in turn); a village bound to both breaks with the weaker bond.
+     */
+    static void alliesTakeSides(ServerLevel overworld, GarrisonLedger ledger, VillageRecord x, VillageRecord y, long now) {
+        SettlementSource source = Services.settlements();
+        Set<UUID> realms = new HashSet<>(realmOf(ledger, x.villageId, now));
+        realms.addAll(realmOf(ledger, y.villageId, now));
         List<WarSides.Bond> bonds = new ArrayList<>();
         for (VillageRecord c : ledger.all()) {
-            if (c == x || c == y || c.loneBuilding) {
+            if (c == x || c == y || c.loneBuilding || realms.contains(c.villageId)) {
                 continue;
             }
             WarSides.Tie tx = tie(ledger, c.villageId, x.villageId, now), ty = tie(ledger, c.villageId, y.villageId, now);
@@ -321,6 +349,7 @@ public final class RealmService {
         if (!enabled()) {
             return;
         }
+        realmPeace(overworld, ledger, x, y, now);
         for (WarRecord w : new ArrayList<>(ledger.wars().values())) {
             if (w.joiner == null || w.joinedFor == null || !(w.atWar() || w.conflictSince >= 0)) {
                 continue;
@@ -380,16 +409,6 @@ public final class RealmService {
             }
             t.loyaltyDay = day;
             ledger.setDirty();
-            if (t.province) {
-                // a province has no wars of its own: only its sovereign's (so it never fights its sovereign's friends)
-                for (WarRecord w : new ArrayList<>(ledger.wars().values())) {
-                    UUID other = w.atWar() && w.involves(sub.villageId) ? w.other(sub.villageId) : null;
-                    VillageRecord o = other == null ? null : ledger.get(other);
-                    if (o != null && !other.equals(sov.villageId) && !RelationProjector.atWar(ledger, sov.villageId, other)) {
-                        WarCounselService.makePeace(overworld, ledger, sub, o, now, sub.name + " is a province of " + sov.name + " and has no wars of its own");
-                    }
-                }
-            }
             int subLive = sub.hywRoster == null ? 0 : sub.hywRoster.live(), sovLive = sov.hywRoster == null ? 0 : sov.hywRoster.live();
             double p = dev.hywmill.politics.realm.Loyalty.rebelChance(t.loyalty, t.province, sovLive < subLive);
             if (p > 0 && new SplittableRandom(day * 31 + t.vassal.getLeastSignificantBits()).nextDouble() < p) {
@@ -411,6 +430,433 @@ public final class RealmService {
         if (sub != null && sov != null) {
             news(overworld, source, sub, sov, now, sub.name + " rises against " + sov.name + " (loyalty " + Math.round(t.loyalty) + "): the "
                     + t.kindLabel() + " throws off its sovereign" + (t.province ? ", and its garrison takes its own colours again" : ""));
+            warWithRealm(overworld, ledger, sov.villageId, sub, now); // realm unity: the whole realm is at war with it, at once
+        }
+    }
+
+    // ------------------------------------------------------------------ realm unity (docs/realm-design.md §8)
+
+    /** The realm of {@code head}: the head first, then its subjects (provinces first). */
+    public static List<UUID> members(GarrisonLedger ledger, UUID head, long now) {
+        List<UUID> out = new ArrayList<>();
+        out.add(head);
+        subjectsOf(ledger, head, now).forEach(t -> out.add(t.vassal));
+        return out;
+    }
+
+    /** The realm {@code v} belongs to: its sovereign's (just itself when it neither has nor is a subject). */
+    public static List<UUID> realmOf(GarrisonLedger ledger, UUID v, long now) {
+        return members(ledger, sovereignOf(ledger, v, now), now);
+    }
+
+    static int soldiers(@Nullable VillageRecord v) {
+        return v == null || v.hywRoster == null ? 0 : v.hywRoster.live();
+    }
+
+    static boolean atWarWithAny(GarrisonLedger ledger, UUID v, List<UUID> others) {
+        for (UUID o : others) {
+            if (RelationProjector.atWar(ledger, v, o)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Some member of the one realm is at war with some member of the other. */
+    static boolean realmsAtWar(GarrisonLedger ledger, UUID hx, UUID hy, long now) {
+        List<UUID> my = members(ledger, hy, now);
+        for (UUID a : members(ledger, hx, now)) {
+            if (atWarWithAny(ledger, a, my)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@code newcomer} has entered the realm of {@code head} (sworn or annexed): it makes peace with every member it was at war
+     * with and is friends with all of them; the realm's wars are its own at once, and its own wars the realm's.
+     */
+    public static void welcome(ServerLevel overworld, GarrisonLedger ledger, VillageRecord newcomer, UUID head, long now) {
+        SettlementSource source = Services.settlements();
+        VillageRecord h = ledger.get(head);
+        if (source == null || !enabled() || h == null) {
+            return;
+        }
+        ledger.excused().remove(newcomer.villageId);
+        List<String> names = new ArrayList<>();
+        for (UUID m : members(ledger, head, now)) {
+            VillageRecord o = ledger.get(m);
+            if (o == null || o == newcomer) {
+                continue;
+            }
+            if (RelationProjector.atWar(ledger, newcomer.villageId, m)) {
+                WarCounselService.makePeace(overworld, ledger, newcomer, o, now, newcomer.name + " enters the realm of " + h.name, false);
+            }
+            Integer r = relation(overworld, source, newcomer.villageId, m);
+            if (r == null || r < RealmCall.FRIENDLY) {
+                source.setVillageRelation(overworld, newcomer.villageId, m, RealmCall.FRIENDLY);
+            }
+            names.add(o.name);
+        }
+        ledger.setDirty();
+        String text = newcomer.name + " enters the realm of " + h.name + (names.isEmpty() ? "" : ": at peace and friends with " + String.join(", ", names));
+        PoliticsService.chronicle(overworld, source, newcomer, now, text);
+        HmLog.info("Realm: {}", text);
+        Set<String> done = new HashSet<>();
+        List<UUID> realm = members(ledger, head, now);
+        for (WarRecord w : new ArrayList<>(ledger.wars().values())) {
+            for (UUID m : realm) {
+                if (w.atWar() && w.involves(m) && !realm.contains(w.other(m))) {
+                    VillageRecord e = ledger.get(w.other(m));
+                    UUID eh = e == null || e.loneBuilding ? null : sovereignOf(ledger, e.villageId, now);
+                    if (eh != null && done.add(eh.toString())) {
+                        realmWar(overworld, ledger, head, eh, now);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * The realms of {@code hx} and {@code hy} are at war, whole against whole, from now: each realm's vassals are called first
+     * (each marches, breaks away, or is dealt with by the council), then every member of one is at war with every member of
+     * the other (a truce between a pair holds). Returns the number of new wars.
+     */
+    public static int realmWar(ServerLevel overworld, GarrisonLedger ledger, UUID hx, UUID hy, long now) {
+        SettlementSource source = Services.settlements();
+        VillageRecord x = ledger.get(hx), y = ledger.get(hy);
+        if (source == null || !enabled() || hx.equals(hy) || x == null || y == null || x.loneBuilding || y.loneBuilding) {
+            return 0;
+        }
+        List<UUID> mx = answerCall(overworld, ledger, source, hx, hy, now);
+        List<UUID> my = answerCall(overworld, ledger, source, hy, hx, now);
+        List<VillageRecord> fresh = new ArrayList<>();
+        int n = 0;
+        for (UUID a : mx) {
+            for (UUID b : my) {
+                VillageRecord va = ledger.get(a), vb = ledger.get(b);
+                if (va != null && vb != null && startWar(overworld, ledger, source, va, vb, hx, now)) {
+                    n++;
+                    if (!fresh.contains(va)) {
+                        fresh.add(va);
+                    }
+                    if (!fresh.contains(vb)) {
+                        fresh.add(vb);
+                    }
+                }
+            }
+        }
+        if (n > 0 && (mx.size() > 1 || my.size() > 1)) {
+            String text = "The realm of " + x.name + " (" + mx.size() + " village" + (mx.size() == 1 ? "" : "s") + ") and the realm of " + y.name
+                    + " (" + my.size() + ") are at war, every village of one against every village of the other";
+            fresh.forEach(v -> PoliticsService.chronicle(overworld, source, v, now, text));
+            HmLog.info("Realm: {} ({} new war(s))", text, n);
+        }
+        return n;
+    }
+
+    /** {@code outsider} (a vassal that broke away, a rebel) is at war with every member of {@code head}'s realm, at once. */
+    static void warWithRealm(ServerLevel overworld, GarrisonLedger ledger, UUID head, VillageRecord outsider, long now) {
+        SettlementSource source = Services.settlements();
+        if (source == null || outsider.loneBuilding) {
+            return;
+        }
+        for (UUID m : members(ledger, head, now)) {
+            VillageRecord v = ledger.get(m);
+            if (v != null && v != outsider) {
+                startWar(overworld, ledger, source, v, outsider, head, now);
+            }
+        }
+    }
+
+    /** {@code m} is at war with {@code n} now, in its realm's war: both relations at the war relation, the war record at war. */
+    static boolean startWar(ServerLevel overworld, GarrisonLedger ledger, SettlementSource source, VillageRecord m, VillageRecord n, UUID joinedFor,
+                            long now) {
+        if (RelationProjector.atWar(ledger, m.villageId, n.villageId) || m.politics.truceWith(n.villageId, now) || n.politics.truceWith(m.villageId, now)) {
+            return false;
+        }
+        source.setVillageRelation(overworld, m.villageId, n.villageId, PoliticsService.tables(m).warCounsel().warRelation());
+        WarRecord w = ledger.wars().computeIfAbsent(WarRecord.key(m.villageId, n.villageId), k -> new WarRecord(m.villageId, n.villageId));
+        w.declare(now);
+        w.joiner = m.villageId;
+        w.joinedFor = joinedFor;
+        ledger.setDirty();
+        HmLog.info("War: {} <-> {} started (realm war)", m.name, n.name);
+        return true;
+    }
+
+    /**
+     * The members of {@code head}'s realm that march against {@code enemyHead}'s: the head, its provinces (always), those already
+     * at war with it, and each vassal that answers the call ({@link RealmCall#call}). A vassal excused for scutage from this war
+     * stays home; one that refuses, or that the council casts out, is free and at war with the whole realm.
+     */
+    static List<UUID> answerCall(ServerLevel overworld, GarrisonLedger ledger, SettlementSource source, UUID head, UUID enemyHead, long now) {
+        List<UUID> out = new ArrayList<>();
+        out.add(head);
+        List<UUID> enemies = members(ledger, enemyHead, now);
+        List<Vassalage> leaving = new ArrayList<>();
+        List<String> why = new ArrayList<>();
+        VillageRecord h = ledger.get(head), eh = ledger.get(enemyHead);
+        for (Vassalage t : subjectsOf(ledger, head, now)) {
+            VillageRecord v = ledger.get(t.vassal);
+            if (v == null || v.loneBuilding) {
+                continue;
+            }
+            if (t.province || atWarWithAny(ledger, t.vassal, enemies)) {
+                out.add(t.vassal);
+                continue;
+            }
+            if (enemyHead.equals(ledger.excused().get(t.vassal))) {
+                continue;
+            }
+            boolean hates = false;
+            int rest = 0;
+            List<VillageRecord> hated = new ArrayList<>();
+            for (UUID m : members(ledger, head, now)) {
+                if (m.equals(t.vassal)) {
+                    continue;
+                }
+                rest += soldiers(ledger.get(m));
+                Integer r = relation(overworld, source, t.vassal, m);
+                if (r != null && r <= RealmCall.HATE && ledger.get(m) != null) {
+                    hates = true;
+                    hated.add(ledger.get(m));
+                }
+            }
+            int best = Integer.MIN_VALUE;
+            for (UUID e : enemies) {
+                Integer r = relation(overworld, source, t.vassal, e);
+                if (r != null) {
+                    best = Math.max(best, r);
+                }
+            }
+            RealmCall.Answer a = RealmCall.call(t.loyalty, hates, best == Integer.MIN_VALUE ? 0 : best, soldiers(v), rest);
+            String names = hated.stream().map(o -> o.name).reduce((p, q) -> p + ", " + q).orElse("");
+            String foe = eh != null ? eh.name : "the enemy";
+            String lord = h != null ? h.name : "its sovereign";
+            switch (a) {
+                case JOIN -> out.add(t.vassal);
+                case RECONCILE -> {
+                    for (VillageRecord o : hated) {
+                        reconcile(overworld, ledger, source, v, o, now);
+                    }
+                    loyaltyEvent(ledger, t.vassal, RealmCall.DECREE_LOYALTY, now);
+                    news(overworld, source, v, h != null ? h : v, now, "Called to war against " + foe + ", " + v.name + " would not march beside " + names
+                            + ": the council of " + lord + " ends the feud by decree, and " + v.name + " marches");
+                    out.add(t.vassal);
+                }
+                case EXCUSE -> excuse(overworld, ledger, source, t, v, h, eh, names, now);
+                case BREAK -> {
+                    leaving.add(t);
+                    why.add(v.name + " (loyalty " + Math.round(t.loyalty) + ") refuses " + lord + "'s call to war against " + foe
+                            + ": it throws off its sovereign and is at war with the realm");
+                }
+                case CAST_OUT -> {
+                    leaving.add(t);
+                    why.add(v.name + " (loyalty " + Math.round(t.loyalty) + ") will not march beside " + names + ": the council of " + lord
+                            + " casts it out of the realm, and the realm is at war with it");
+                }
+            }
+        }
+        for (int i = 0; i < leaving.size(); i++) {
+            breakAway(overworld, ledger, leaving.get(i), now, why.get(i));
+        }
+        return out;
+    }
+
+    /** Two members are reconciled: any war between them ends, and they are friends again. */
+    static void reconcile(ServerLevel overworld, GarrisonLedger ledger, SettlementSource source, VillageRecord a, VillageRecord b, long now) {
+        if (RelationProjector.atWar(ledger, a.villageId, b.villageId)) {
+            WarCounselService.makePeace(overworld, ledger, a, b, now, "reconciled by their realm's council", false);
+        }
+        source.setVillageRelation(overworld, a.villageId, b.villageId, RealmCall.FRIENDLY);
+        ledger.setDirty();
+    }
+
+    /** {@code t}'s vassal stays out of the war with {@code enemyHead}'s realm and pays its sovereign scutage for {@link RealmCall#SCUTAGE_DAYS} days. */
+    static void excuse(ServerLevel overworld, GarrisonLedger ledger, SettlementSource source, Vassalage t, VillageRecord v, @Nullable VillageRecord h,
+                       @Nullable VillageRecord eh, String hated, long now) {
+        if (h == null || eh == null) {
+            return;
+        }
+        ledger.excused().put(t.vassal, eh.villageId);
+        int due = RealmCall.scutage(soldiers(v));
+        ledger.tributes().add(new dev.hywmill.politics.war.Tribute(v.villageId, h.villageId, due,
+                dev.hywmill.politics.war.SiegeMath.levy(due, dev.hywmill.garrison.service.SiegeService.rule(h)), 0, RealmCall.SCUTAGE_DAYS, now));
+        loyaltyEvent(ledger, t.vassal, RealmCall.SCUTAGE_LOYALTY, now);
+        ledger.setDirty();
+        news(overworld, source, v, h, now, "Called to war against " + eh.name + ", " + v.name + " will not march beside " + hated + ": the council of "
+                + h.name + " lets it stay home for scutage (" + dev.hywmill.recruit.RecruitOffers.money(due) + " a day for " + RealmCall.SCUTAGE_DAYS + " days)");
+    }
+
+    /** {@code t}'s vassal leaves the realm (it refused the call, or the council cast it out): free, and at war with the whole realm at once. */
+    static void breakAway(ServerLevel overworld, GarrisonLedger ledger, Vassalage t, long now, String text) {
+        SettlementSource source = Services.settlements();
+        VillageRecord sub = ledger.get(t.vassal), sov = ledger.get(t.overlord);
+        ledger.vassalages().remove(t);
+        ledger.rebels().put(t.vassal, t.overlord);
+        ledger.excused().remove(t.vassal);
+        ledger.setDirty();
+        if (sub == null || sov == null) {
+            return;
+        }
+        news(overworld, source, sub, sov, now, text);
+        warWithRealm(overworld, ledger, sov.villageId, sub, now);
+    }
+
+    /**
+     * Two members of one realm at feud (at war, or at open conflict): the council steps in. Neither the capital nor a province is
+     * ever at fault (a province's diplomacy is the realm's); of two vassals the less loyal is. It ends the feud by decree when it
+     * can make it stick, else it casts the culprit out (free, and at war with the realm).
+     */
+    static void feud(ServerLevel overworld, GarrisonLedger ledger, VillageRecord x, VillageRecord y, long now) {
+        SettlementSource source = Services.settlements();
+        if (source == null) {
+            return;
+        }
+        Vassalage tx = tieOf(ledger, x.villageId, now), ty = tieOf(ledger, y.villageId, now);
+        boolean vx = tx != null && !tx.province, vy = ty != null && !ty.province;
+        Vassalage culprit = vx && vy ? (RealmCall.blameFirst(tx.loyalty, ty.loyalty) ? tx : ty) : vx ? tx : vy ? ty : null;
+        UUID head = sovereignOf(ledger, x.villageId, now);
+        VillageRecord h = ledger.get(head);
+        if (culprit == null) {
+            reconcile(overworld, ledger, source, x, y, now);
+            return;
+        }
+        VillageRecord c = ledger.get(culprit.vassal), other = c == x ? y : x;
+        int rest = 0;
+        for (UUID m : members(ledger, head, now)) {
+            if (!m.equals(culprit.vassal)) {
+                rest += soldiers(ledger.get(m));
+            }
+        }
+        RealmCall.Answer a = RealmCall.council(culprit.loyalty, soldiers(c), rest, false);
+        String lord = h != null ? h.name : "their sovereign";
+        if (a == RealmCall.Answer.RECONCILE) {
+            reconcile(overworld, ledger, source, x, y, now);
+            loyaltyEvent(ledger, culprit.vassal, RealmCall.DECREE_LOYALTY, now);
+            news(overworld, source, x, y, now, "The council of " + lord + " ends the feud between " + x.name + " and " + y.name + " by decree");
+        } else {
+            breakAway(overworld, ledger, culprit, now, c.name + " (loyalty " + Math.round(culprit.loyalty) + ") will not end its feud with " + other.name
+                    + ": the council of " + lord + " casts it out of the realm, and the realm is at war with it");
+        }
+    }
+
+    /** A peace between two villages of two realms is their realms' peace: every war between them ends (and its excusals). */
+    static void realmPeace(ServerLevel overworld, GarrisonLedger ledger, VillageRecord x, VillageRecord y, long now) {
+        if (x.loneBuilding || y.loneBuilding) {
+            return;
+        }
+        SettlementSource source = Services.settlements();
+        UUID hx = sovereignOf(ledger, x.villageId, now), hy = sovereignOf(ledger, y.villageId, now);
+        List<UUID> mx = members(ledger, hx, now), my = members(ledger, hy, now);
+        if (hx.equals(hy) || (mx.size() < 2 && my.size() < 2)) {
+            return;
+        }
+        Set<VillageRecord> told = new LinkedHashSet<>();
+        for (UUID a : mx) {
+            for (UUID b : my) {
+                VillageRecord va = ledger.get(a), vb = ledger.get(b);
+                if (va != null && vb != null && RelationProjector.atWar(ledger, a, b)) {
+                    WarCounselService.makePeace(overworld, ledger, va, vb, now, "the peace of their realms", false);
+                    told.add(va);
+                    told.add(vb);
+                }
+            }
+        }
+        ledger.excused().entrySet().removeIf(e -> (mx.contains(e.getKey()) && e.getValue().equals(hy)) || (my.contains(e.getKey()) && e.getValue().equals(hx)));
+        VillageRecord rx = ledger.get(hx), ry = ledger.get(hy);
+        if (!told.isEmpty() && rx != null && ry != null) {
+            String text = "The realm of " + rx.name + " and the realm of " + ry.name + " make peace: every war between their villages ends";
+            told.forEach(v -> PoliticsService.chronicle(overworld, source, v, now, text));
+            HmLog.info("Realm: {}", text);
+        }
+    }
+
+    /**
+     * Realm unity upkeep (each village AI interval): provinces are kept friends with their realm; a feud between members at open
+     * conflict goes to the council; a realm at war with any village of another realm is at war with all of it (vassals called,
+     * newcomers included); excusals end with their wars; and a hatred any member holds for an outsider is the whole realm's.
+     */
+    public static void unity(ServerLevel overworld, GarrisonLedger ledger, long now) {
+        SettlementSource source = Services.settlements();
+        if (source == null || !enabled()) {
+            return;
+        }
+        Set<UUID> heads = new LinkedHashSet<>();
+        for (Vassalage t : ledger.vassalages()) {
+            if (t.indefinite() && !t.over(now) && ledger.get(t.overlord) != null && tieOf(ledger, t.overlord, now) == null) {
+                heads.add(t.overlord);
+            }
+        }
+        // 1. friends, and feuds
+        for (UUID h : heads) {
+            List<UUID> m = members(ledger, h, now);
+            for (int i = 0; i < m.size(); i++) {
+                for (int j = i + 1; j < m.size(); j++) {
+                    VillageRecord p = ledger.get(m.get(i)), q = ledger.get(m.get(j));
+                    if (p == null || q == null || !sameRealm(ledger, p.villageId, q.villageId, now)) {
+                        continue;
+                    }
+                    Integer r = relation(overworld, source, p.villageId, q.villageId);
+                    boolean war = RelationProjector.atWar(ledger, p.villageId, q.villageId);
+                    if (isProvince(ledger, p.villageId, now) || isProvince(ledger, q.villageId, now)) {
+                        if (war || r == null || r < RealmCall.FRIENDLY) {
+                            reconcile(overworld, ledger, source, p, q, now);
+                        }
+                    } else if (war || (r != null && r <= RelationProjector.OPEN_CONFLICT)) {
+                        feud(overworld, ledger, p, q, now);
+                    }
+                }
+            }
+        }
+        // 2. a realm at war with any village of another realm is at war with all of it
+        Set<String> done = new HashSet<>();
+        for (WarRecord w : new ArrayList<>(ledger.wars().values())) {
+            VillageRecord a = ledger.get(w.a), b = ledger.get(w.b);
+            if (!w.atWar() || a == null || b == null || a.loneBuilding || b.loneBuilding) {
+                continue;
+            }
+            UUID ha = sovereignOf(ledger, a.villageId, now), hb = sovereignOf(ledger, b.villageId, now);
+            if (ha.equals(hb) || (members(ledger, ha, now).size() < 2 && members(ledger, hb, now).size() < 2)) {
+                continue;
+            }
+            if (done.add(ha.compareTo(hb) < 0 ? ha + ">" + hb : hb + ">" + ha)) {
+                realmWar(overworld, ledger, ha, hb, now);
+            }
+        }
+        // excusals end with their wars, or when the vassal is no longer one
+        ledger.excused().entrySet().removeIf(e -> tieOf(ledger, e.getKey(), now) == null
+                || !realmsAtWar(ledger, sovereignOf(ledger, e.getKey(), now), e.getValue(), now));
+        // 3. shared hatred: the realm's feeling for an outsider is its worst member's, when that is hatred
+        for (UUID h : heads) {
+            List<UUID> m = members(ledger, h, now);
+            for (VillageRecord x : new ArrayList<>(ledger.all())) {
+                if (x.loneBuilding || m.contains(x.villageId)) {
+                    continue;
+                }
+                List<Integer> rs = new ArrayList<>();
+                Integer[] own = new Integer[m.size()];
+                for (int i = 0; i < m.size(); i++) {
+                    own[i] = relation(overworld, source, m.get(i), x.villageId);
+                    if (own[i] != null) {
+                        rs.add(own[i]);
+                    }
+                }
+                Integer worst = RealmCall.shared(rs.stream().mapToInt(Integer::intValue).toArray());
+                if (worst == null) {
+                    continue;
+                }
+                UUID xh = sovereignOf(ledger, x.villageId, now);
+                for (int i = 0; i < m.size(); i++) {
+                    if (own[i] != null && own[i] > worst && !xh.equals(ledger.excused().get(m.get(i)))) {
+                        source.setVillageRelation(overworld, m.get(i), x.villageId, worst);
+                        VillageRecord v = ledger.get(m.get(i));
+                        HmLog.info("Realm: {} shares its realm's hatred of {} ({} -> {})", v != null ? v.name : m.get(i), x.name, own[i], worst);
+                    }
+                }
+            }
         }
     }
 
@@ -442,11 +888,13 @@ public final class RealmService {
         SettlementSource source = Services.settlements();
         UUID sov = sovereignOf(ledger, sovereign.villageId, now); // a province's conquests go to its own sovereign
         VillageRecord head = ledger.get(sov) != null ? ledger.get(sov) : sovereign;
+        List<UUID> moved = new ArrayList<>();
         for (Vassalage t : subjectsOf(ledger, province.villageId, now)) {
             ledger.vassalages().remove(t);
-            Vassalage moved = Vassalage.subject(t.vassal, head.villageId, now, t.province);
-            moved.loyalty = t.loyalty;
-            ledger.vassalages().add(moved);
+            Vassalage m = Vassalage.subject(t.vassal, head.villageId, now, t.province);
+            m.loyalty = t.loyalty;
+            ledger.vassalages().add(m);
+            moved.add(t.vassal);
         }
         ledger.vassalages().removeIf(t -> t.vassal.equals(province.villageId));
         ledger.treaties().values().removeIf(t -> t.involves(province.villageId));
@@ -465,12 +913,11 @@ public final class RealmService {
                 WarCounselService.makePeace(overworld, ledger, province, o, now, province.name + " is a province of " + head.name + " now");
             }
         }
-        for (WarRecord w : new ArrayList<>(ledger.wars().values())) {
-            if (w.atWar() && w.involves(head.villageId) && !w.involves(province.villageId)) {
-                VillageRecord enemy = ledger.get(w.other(head.villageId));
-                if (enemy != null) {
-                    join(overworld, ledger, province, head, enemy, now, province.name + ", a province of " + head.name + " now, takes up its war against " + enemy.name);
-                }
+        welcome(overworld, ledger, province, head.villageId, now); // realm unity: friends with all, and in all the realm's wars
+        for (UUID m : moved) {
+            VillageRecord mv = ledger.get(m);
+            if (mv != null) {
+                welcome(overworld, ledger, mv, head.villageId, now);
             }
         }
         int disbanded = dev.hywmill.garrison.service.GarrisonService.disband(overworld, province, now);

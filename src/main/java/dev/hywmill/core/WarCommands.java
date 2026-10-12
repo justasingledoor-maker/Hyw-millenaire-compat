@@ -108,6 +108,22 @@ final class WarCommands {
                 .then(Commands.literal("bribe").then(Commands.argument("id", com.mojang.brigadier.arguments.StringArgumentType.word())
                         .executes(ctx -> intelAct(ctx, true)))));
         war.then(Commands.literal("admin").requires(s -> s.hasPermission(3))
+                .then(Commands.literal("wars").executes(ctx -> {
+                    // every war and open conflict in the ledger, with each side's realm head (realm unity checks)
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    GarrisonLedger ledger = GarrisonLedger.get(ow);
+                    long now = ow.getGameTime();
+                    var ws = new java.util.ArrayList<>(ledger.wars().values());
+                    send(ctx.getSource(), "war admin wars: " + ws.stream().filter(dev.hywmill.politics.war.WarRecord::atWar).count());
+                    for (var w : ws) {
+                        VillageRecord a = ledger.get(w.a), b = ledger.get(w.b);
+                        if (a != null && b != null) {
+                            send(ctx.getSource(), " " + a.name + " vs " + b.name + ": " + (w.atWar() ? "at war" : "conflict") + " ids " + a.villageId + " "
+                                    + b.villageId + " excused " + ledger.excused().size() + " now " + now);
+                        }
+                    }
+                    return ws.size();
+                }))
                 .then(Commands.literal("column").then(Commands.argument("kind", com.mojang.brigadier.arguments.StringArgumentType.word())
                         .then(Commands.argument("owner", BlockPosArgument.blockPos()).then(Commands.argument("to", BlockPosArgument.blockPos())
                                 .executes(ctx -> adminColumn(ctx, false))

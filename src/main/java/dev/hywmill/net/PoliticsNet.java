@@ -307,8 +307,10 @@ public final class PoliticsNet {
             StringBuilder b = new StringBuilder();
             for (dev.hywmill.politics.war.Vassalage s : subs) {
                 men += live(ledger, s.vassal);
+                UUID excused = ledger.excused().get(s.vassal);
                 b.append(b.isEmpty() ? "" : ", ").append(name(ledger, s.vassal)).append(" (").append(s.kindLabel())
-                        .append(s.indefinite() ? ", loyalty " + Math.round(s.loyalty) : ", " + s.daysLeft(now) + " d").append(")");
+                        .append(s.indefinite() ? ", loyalty " + Math.round(s.loyalty) : ", " + s.daysLeft(now) + " d")
+                        .append(excused != null ? ", excused from the war with " + name(ledger, excused) + " for scutage" : "").append(")");
             }
             out.add(" " + name(ledger, h) + ", " + men + " soldiers: " + b);
         }

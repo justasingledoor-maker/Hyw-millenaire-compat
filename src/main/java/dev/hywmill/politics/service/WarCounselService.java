@@ -56,6 +56,19 @@ public final class WarCounselService {
             return new Result(WarCounsel.Refusal.SAME_VILLAGE, 0, 0, false, false, "unknown village");
         }
         long now = overworld.getGameTime();
+        if (RealmService.enabled() && !home.loneBuilding && !other.loneBuilding) {
+            // realm unity: a subject's war and peace are its capital's, and the members of one realm never war on each other
+            UUID head = RealmService.sovereignOf(ledger, homeId, now);
+            if (RealmService.sameRealm(ledger, homeId, otherId, now)) {
+                return new Result(WarCounsel.Refusal.SAME_REALM, 0, 0, false, false, home.name + " and " + other.name
+                        + " belong to one realm: its council settles their quarrels");
+            }
+            if (!head.equals(homeId)) {
+                VillageRecord h = ledger.get(head);
+                return new Result(WarCounsel.Refusal.SUBJECT, 0, 0, false, false, home.name + " answers to " + (h != null ? h.name : "its sovereign")
+                        + ": the realm's war and peace are made there");
+            }
+        }
         PoliticsTables.WarCounselRule r = PoliticsService.tables(home).warCounsel();
         PoliticsRecord pr = home.politics.peek(player);
         Standing own = pr == null ? Standing.STRANGER : pr.status;
@@ -140,6 +153,14 @@ public final class WarCounselService {
      * villages drift back into it on their own), the war ended, and any host between the two sent home.
      */
     public static void makePeace(ServerLevel overworld, GarrisonLedger ledger, VillageRecord a, VillageRecord b, long now, String why) {
+        makePeace(overworld, ledger, a, b, now, why, true);
+    }
+
+    /**
+     * {@code spread} false (realm unity making peace across two realms, pair by pair): no chronicle of its own and no further
+     * spreading; the caller tells it once.
+     */
+    public static void makePeace(ServerLevel overworld, GarrisonLedger ledger, VillageRecord a, VillageRecord b, long now, String why, boolean spread) {
         SettlementSource source = Services.settlements();
         PoliticsTables.WarCounselRule r = PoliticsService.tables(a).warCounsel();
         if (source != null) {
@@ -151,7 +172,9 @@ public final class WarCounselService {
             ledger.wars().remove(w.key());
         }
         SiegeService.recall(overworld, ledger, a.villageId, b.villageId, now);
-        if (ended) {
+        if (ended && !spread) {
+            HmLog.info("War: {} <-> {} ended (peace: {})", a.name, b.name, why);
+        } else if (ended) {
             String text = a.name + " and " + b.name + " make peace (" + why + "; relation " + r.peaceRelation() + ")";
             PoliticsService.chronicle(overworld, source, a, now, text);
             PoliticsService.chronicle(overworld, source, b, now, text);
@@ -168,6 +191,8 @@ public final class WarCounselService {
             case DISABLED -> "war and peace counsel is turned off";
             case SAME_VILLAGE -> "choose another village";
             case LONE_BUILDING -> "bandits and lone buildings take no part in wars";
+            case SUBJECT -> home.name + " answers to its sovereign: the realm's war and peace are made there";
+            case SAME_REALM -> home.name + " and " + other.name + " belong to one realm";
             case ALREADY_AT_WAR -> home.name + " is already at war with " + other.name;
             case NOT_AT_WAR -> home.name + " is not at war with " + other.name;
             case TRUCE -> "a truce between " + home.name + " and " + other.name + " is in force";

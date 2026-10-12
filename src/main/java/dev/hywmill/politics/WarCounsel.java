@@ -12,7 +12,9 @@ public final class WarCounsel {
 
     public enum Kind { WAR, PEACE }
 
-    public enum Refusal { OK, DISABLED, SAME_VILLAGE, LONE_BUILDING, ALREADY_AT_WAR, NOT_AT_WAR, TRUCE, STANDING_TOO_LOW, COOLDOWN, NO_DIPLOMACY_POINT }
+    /** SUBJECT, SAME_REALM (realm unity): a subject's war and peace are its capital's; members of one realm never war on each other. */
+    public enum Refusal { OK, DISABLED, SAME_VILLAGE, LONE_BUILDING, ALREADY_AT_WAR, NOT_AT_WAR, TRUCE, STANDING_TOO_LOW, COOLDOWN, NO_DIPLOMACY_POINT,
+        SUBJECT, SAME_REALM }
 
     /**
      * @param lastCounsel tick of the player's last war or peace counsel with this village (-1: never, or not counted)
