@@ -2414,3 +2414,97 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
   goal, grudges fading over days, a ruler falling; the royal guard fought in the world (RG's stand was decided on paper);
   the bar's realm wording in the client (the server-side text is checked in SV-1).
 * SHA-256: `hywmill-m5-fix70.jar` `49966dc6d34d7e0abe7b946f669f1815ad9bf37f5344424730ae1085d74ffb80`; `cultures-armory-1.7.0.jar` `4e32a281cc785238e2c964aff31df29df2a23b58227f3bd7a2638f6fd4a23e0e`.
+
+### 6.71 Field battles in the world, attackers fall back, small states seek peace, map markers, the Service tab (`dist/hywmill-m5-fix71.jar`)
+
+* **Requests.** Field battles were decided off-screen: make them visible. Volunteers, mercenaries and knights get orders (a
+  call for volunteers) with coordinates and direction; the armies stand about 120 blocks apart under a ceasefire for 20 min,
+  moving about their lines as if preparing; then they fight by predefined tactics that counter each other (e.g. warriors
+  first with archers behind, then shields closing in), with a tactical brain that makes sense, using their war engines. No
+  final stand for attackers in sieges: they fall back to their lines and try again, until they are down to 20% alive
+  (wounded counted as alive). A naturally running world had a realm of 10 at war with some 30 states: smaller states
+  should want peace with it while preparing for war. Test the untested items. Map markers for JourneyMap (POIs and events,
+  live timers). A Service tab, and a general clean-up of the screen. Knight ranks: later.
+* **Field battles in the world** (`FieldTactics` (pure), `FieldService`; docs/realm-design.md §16): when the realm's army
+  meets the host on the road, the host halts and both armies form their lines 120 blocks apart across the meeting point
+  under a 20-min ceasefire (`fieldCeasefireTicks`). Whenever the field is loaded they come into the world at their lines
+  (shields in front, or the warriors in the hammer; archers behind; riders on the wings; engines at the back) and wait: the
+  ranks are re-dressed, the shields, warriors and archers step out in turn and back, the riders pace along the front, and
+  nobody strikes; a blow across the field (by either side or a player) breaks the ceasefire. Each marshal chooses one of four
+  doctrines against what his scouts saw of the other's make-up, his own men's suitability, the balance of strength and his
+  temper: the hammer (warriors first, archers close behind, shields closing in after 30 s or at the first blows, riders on a
+  flank), the shield wall (shields 20 blocks forward, archers over them, warriors falling on whoever breaks on it), the
+  skirmish (archers forward to 30 blocks short of the enemy, screened by shields, giving ground before a charge while the
+  warriors counter-charge) and the pincer (centre holds, warriors and riders swing round both flanks); each beats two and
+  loses to one or two. Group by group the marshal gives orders every second (hold, advance, follow, screen, wheel, charge,
+  fall back, bombard); a side whose foe is down to 55% pursues with everything, an attacking side down to 65% rallies into a
+  shield wall once, a side down to 40% routs; after 6 min the side with more standing holds the field. Engines shoot what
+  is in reach and move up when nothing is. The fallen are wounded by chance (35%) and carried off; afterwards the wounded are
+  tended. Unwatched, the battle is drawn by strength with doctrine weighing 20%. The winning host marches on (its march
+  resumes); beaten, it goes home; the realm's army goes home either way. Peace or a recall parts the armies.
+* **Orders for every role** (`ServiceRoles.onIntercept/onFieldFormed`): those in the service of either realm (volunteers
+  called, mercenaries and knights ordered) get the meeting point, then their side's line with coordinates, which way the
+  enemy stands, a live clock and the marshal's plan ("take your place in our line at (339, 405), facing the host of Ouilly
+  la-fôret. Ceasefire: battle in 19:39. We fight by the skirmish"); boss bar "Ceasefire near (x, z) ... battle in 20 min",
+  then "Battle near (x, z): the army of X 38/43 vs the host of Y 25/25".
+* **The attackers fall back** (`SiegeWaves.fallBack/regrouped`, siege-design §): no final stand for the host. Down to a
+  fifth standing while its wounded keep it above a fifth (wounded count as alive), it falls back to its lines, tends its
+  wounded and comes on again after at least 2 min by day (that assault counts as one of the three; falling back on the
+  last ends the siege in a stalemate); it is beaten only at a fifth with its wounded. The defenders keep their final stand
+  (and a capital its royal guard).
+* **Fewer wars: the weak seek peace, the great keep few** (`RealmDiplomacy.appease/focus/braced`; §15): a league against a
+  great realm only defends (pacts, and its members' garrisons on a war footing); each state 1.5 times weaker than a great
+  realm sues for peace with tribute when at war with it (taken 75%, 20% if the council means to take it, 95% when it has more
+  than three wars; with a non-aggression pact) and courts it at peace (+6/+4 a day up to 35, a pact once both are at 25,
+  which keeps the council's ambition off it); a council at war with more than three states offers peace to those it does
+  not mean to take; a realm whose council makes its wars is no longer dragged into one by a quarrel at -90 (a raid still
+  does; the hatred is weighed as a claim); a member's hatred is shared only by members within reach. The village bar counts
+  wars by state ("at war with 3 states (11 villages)").
+* **JourneyMap** (optional; `MapService`, payload `map_markers`, `integration.journeymap.HywMillJourneyMap`; §17): villages
+  near the player (icon by kind: village, capital, province, vassal; in their colours; status on hover), hosts gathering and
+  on the march (moving), sieges (day, final stand, night, regrouping), field battles (meeting, ceasefire, battle), relief
+  armies on the march and the player's orders, each with its clock counting down live.
+* **The Politics screen**: tabs Overview, Realm, War, Service, History (the open one in gold; keys 1-5); the new Service tab
+  (your service, pay and record; orders with clocks; the realm's calls to arms with coordinates and clocks; the officials
+  and what they think of you; recent notes; serving none, how the realm takes volunteers, mercenaries and knights); the
+  service's actions on that tab only; the layout follows the window (narrow screens and large GUI scales); scrolling text
+  tabs with arrows at the panel's foot and "more" hints; the action column scrolls; results in a band at the foot.
+* **Bugs found by the world tests, fixed:** a day's healing and a weak state's courting were applied twice (Millénaire keeps
+  one relation for a pair; both feelings are now read first); the defenders' final stand fought in the world broke at once
+  (the count of defenders standing missed the wounded who had risen; it now counts them while the stand lasts); a field
+  battle with the realm's capital gone counted as the realm's win; armies at the field were not parted on peace or recall.
+* **Validation.** JUnit 435/435 (new: `FieldTacticsTest`, `FieldBattleTest`, `SiegeWavesTest` fall-back cases,
+  `PoliticsWireTest` net version 9, service lines and markers round trip). Dedicated server with the test world
+  (`docs/m5-test-evidence/fix71-fw-fb.txt`, `fix71-ut-rw-fbk.txt`, `fix71-jm.txt`):
+  * FW 5/5 (new): Le Mesnil le-volcan marches on Ouilly la-fôret; "field battle forms near (411, 621): realm 36 men
+    (SKIRMISH), host 20 men (SHIELD_WALL)"; both armies in the world at their lines, the ceasefire holding; "field battle
+    begins in the world: host 20 (SHIELD_WALL), realm 40 (SKIRMISH)"; men of both sides wounded and carried off; "the host
+    broke and fled: 8 of 20 still standing. The host turns for home with 15 men; the realm's army marches home with 35".
+  * FB 3/3 again (unwatched: drawn on paper, "the army of the realm (41 men, the skirmish) against the host (27 men, the
+    shield wall): the host was broken").
+  * FBK 4/4 (new): "The host of Vaucelles les-pâtures is down to 0 of 34 standing: it falls back to its lines before Le
+    Mesnil le-volcan to tend its 34 wounded and regroup, and will come on again"; 3 min later "wave 2 begins: host 29/34".
+  * RW (new, the royal guard fought in the world): the capital's siege fought in the world; "The King of Vaucelles
+    les-pâtures comes out of his hall with his guard (6), to stand with the wounded", the King in the world ("Test passed,
+    count: 1"); the stand held 1 min 45 s until the harness ended the siege, a relief rider wounded and carried off in it.
+    RW-3 failed on its pattern (it sought defenders by name); rewritten, it passes on that log.
+  * UT (new, the items untested in fix70), over four runs on this build: bribes paid in money (the greedy Marshal takes the or, 10 -> 40; the
+    peaceable take it too, 10 -> 22; each paid exactly one or) 4/4; a demand of fealty ("gives in (chance 0.70)", the bar
+    "Vassal | Sworn to Itanos, its Basileus") 3/4, refused once at its roll; a weak state buys peace ("Le Mesnil le-volcan,
+    outmatched, sues for peace and offers 1 or a day for three days; the council accepts: peace and a non-aggression pact")
+    2/3, refused in the last run: the harness's six tries came seconds apart and Java's Random draws nearly the same first
+    number from seeds that close (0.766, 0.760, 0.775, ...), so they were one roll; in play the plea is made once a day,
+    whose draws spread (0.766, 0.685, 0.168, ...); a league against the great realm arms and declares no war ("Araden fears
+    the realm: it leagues with its neighbours for their defence and arms") 4/4; a grudge fades by 2 a day (-50 -> -48; one
+    run failed on the harness, whose pair was still at war, as the rule wants; fixed); a knight banished at dawn and barred
+    ("will not have you back for another 13 day(s)") 3/4, once missed on the harness's wait.
+  * JM, a real client (the dev client under Xvfb with JourneyMap 6.0.9): the minimap with the village and battle markers and
+    a live "Ceasefire: battle 19:38" (`fix71-jm-minimap.png`); the full map with villages, "Battle!" and the player's orders
+    (`fix71-jm-fullmap.png`); the orders HUD with coordinates, direction and clock; the Service tab
+    (`fix71-service-tab.png`); the battle in the world (`fix71-field-battle.png`). JM-2 failed once on harness timing
+    (the battle formed after its first wait; fixed).
+  * Test tooling: `_muster` refills a test garrison (sieges were refused, too few men); dev `war fieldnow`, `war admin
+    demand|diplomacy|heal`, `service admin bribe`, siege `quick nofield`; the JM client joins as a spectator.
+* **Not tested:** fewer wars in a naturally running world over days (the rules are covered by JUnit and UT; no long soak);
+  a ruler falling in the world; knight ranks (deferred, as asked).
+* SHA-256: `hywmill-m5-fix71.jar` `109b6e7757ea1341f02dfec347da3faa8f2a7c0e95f5f4e60adfdba07eb37e07`.

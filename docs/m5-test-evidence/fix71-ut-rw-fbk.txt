@@ -1,0 +1,54 @@
+fix71: untested items in the world (UT), the royal guard fought in the world (RW), the host falls back (FBK)
+Dedicated server (Millénaire 9.0.2, HYW 0.7.1r-fix1, Epic Knights + addons, culturesarmory), kept test world, devtools/server-harness.
+
+== Run A: harness run RW FBK UT
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620), (166, 63, 266)]
+[harness] PASS RW-0 four villages 
+[harness] PASS RW-1 the siege of the capital is fought in the world war siege OK: Le Mesnil le-volcan musters 34 soldiers to besiege Vaucelles les-pâtures to raze it; they march in about 1 min id e72db3bb host 34 || ve 1: 35 unit(s) materialized in 6 group(s) round Vaucelles les-pâtures (main at 650, 76, 730); 90 defender(s) in the world; reserves: 29 at the camp, 30 inside
+[harness] PASS RW-2 at the final stand the King and his guard come out into the world war admin siege-wound OK: 121 wounded, phase BATTLE wave 1 || [21:34:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege e72db3bb: The King of Vaucelles les-pâtures comes out of his hall with his guard (6), to stand with the wounded || Test passed, count: 1
+[harness] NOTE RW fight: defenders wounded in the world 0; ruler fell: False
+[harness] FAIL RW-3 the stand is fought in the world after the guard comes out (defenders fall in the world) wounded=0
+[harness] PASS FBK-0 four villages 
+[harness] PASS FBK-1 the siege is fought in the world war siege OK: Vaucelles les-pâtures musters 36 soldiers to besiege Le Mesnil le-volcan to raze it; they march in about 1 min id 0d239b1c host 36 || wave 1: 19 unit(s) materialized in 3 group(s) round Le Mesnil le-volcan (main at 653, 76, 870); 70 defender(s) in the world; reserves: 15 at the camp, 30 inside
+[harness] PASS FBK-2 down to a fifth standing, the host makes no final stand: it falls back to its lines war admin siege-wound OK: 34 wounded, phase BATTLE wave 1 || [de.hy.co.HmLog/]: [hywmill] Siege 0d239b1c: The host of Vaucelles les-pâtures is down to 0 of 34 standing: it falls back to its lines before Le Mesnil le-volcan to tend its 34 wounded and regroup, and will come on again
+[harness] PASS FBK-3 once regrouped, the host comes on again (the next assault) [21:48:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 0d239b1c: wave 2 begins: host 29/34, defenders 103/101
+[harness] PASS UT-0 four villages 
+[harness] NOTE UT villages: S=Itanos | P=Ouilly la-fôret | V=Le Mesnil le-volcan | O=Vaucelles les-pâtures
+[harness] PASS UT-1 a knight bribes the officials with a gold denier: those who take it get it, the honourable refuse and keep none service admin bribe OK: money 4096 -> 0 | the Marshal Michael (greedy) takes 1 or: his opinion of you 10 -> 40. || service admin bribe OK: money 4096 -> 0 | the Chancellor Leon (peaceable) takes 1 or: his opinion of you 10 -> 22. || service admin bribe OK: money 4096 -> 0 | the Steward Ioannes (peaceable) takes 1 or: his opinion of you 10 -> 22. || service admin bribe OK: money 4096 -> 0 | the Spymaster Nikephoros (cautious) takes 1 or: his opinion of you 10 -> 22
+[harness] PASS UT-2 the council demands fealty of a much weaker village: it bows and is the realm's vassal war admin demand OK: Vaucelles les-pâtures gives in (chance 0.70) Can't keep up! Is the server overloaded? Running 9589ms or 191 ticks behind || service admin bar: Vaucelles les-pâtures | Vassal · at war with Araden | Sworn to Itanos, its Basileus
+[harness] PASS UT-3 a weak state at war with a great realm sues for peace with tribute; taken, peace and a non-aggression pact  theirs: 1.0 to 1)  log Day 19: Araden, outmatched, sues for peace and offers 1 or a day for three days; the council refuses (it means to take it)  log Day 19: the council seeks the friendship of Vaucelles les-pâtures (a common enemy: Araden)  log Day 19: the council turns on the attack (our army against theirs: 9.9 to 1) Can't keep up! Is the server overloaded? Running 12463ms or 249 ticks behind
+[harness] FAIL UT-5 a grudge between villages at peace fades by 2 a day m5 mrel 06ac098a<->1e540411 before=-50/-50 now=-50/-50 op=null v=null
+[harness] NOTE UT league:  take it)  log Day 19: the council turns holding its ground (our army against theirs: 1.0 to 1)  log Day 19: Araden, outmatched, sues for peace and offers 1 or a day for three days; the council refuses (it means to take it)  log Day 19: the council seeks the friendship of Vaucelles les-pâtures (a common enemy: Araden)  log Day 19: the council turns on the attack (our army against theirs: 9.9 to 1)
+[harness] PASS UT-4 the league against a great realm arms (a war footing) and declares no war s (it means to take it)  log Day 19: the council seeks the friendship of Vaucelles les-pâtures (a common enemy: Araden)  log Day 19: the council turns on the attack (our army against theirs: 9.9 to 1) || mob=der, spear_man, shieldman, shieldman, spear_man, archer, shieldman, light_lancer_rider, spear_man, shieldman, spear_man]
+[harness] PASS UT-6 a knight who wrongs his realm is banished at dawn, and barred from it [21:52:17] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Service: 'Itanos' banishes 6acd5614 (you have wronged Itanos) || service status: none || service REFUSED: The realm of Itanos will not have you back for another 13 day(s).
+[harness] RESULT 14/16 checks passed
+
+RW-3 failed on its old pattern (it looked for defenders wounded by name). Server log of siege e72db3bb, the stand from the guard's
+sortie until the harness wiped the siege (1:45 later): the stand held and a relief rider fell in the world. The rewritten
+RW-3 check (any man wounded and carried off after the guard comes out, and the stand not broken) passes on this log (1, no break).
+[12Oct2026 21:34:05.433] [Server thread/INFO] [hywmill] Siege e72db3bb: wave 1 begins: host 64/64, defenders 120/120
+[12Oct2026 21:34:05.459] [Server thread/INFO] [hywmill] Siege e72db3bb: wave 1: 35 unit(s) materialized in 6 group(s) round Vaucelles les-pâtures (main at 650, 76, 730); 90 defender(s) in the world; reserves: 29 at the camp, 30 inside
+[12Oct2026 21:34:26.612] [Server thread/INFO] [hywmill] Siege e72db3bb: The King of Vaucelles les-pâtures comes out of his hall with his guard (6), to stand with the wounded
+[12Oct2026 21:34:26.618] [Server thread/INFO] [hywmill] Siege e72db3bb: Vaucelles les-pâtures is down to 0 of 120 defenders standing: its 102 wounded rise for a final stand
+[12Oct2026 21:35:34.634] [Server thread/INFO] [hywmill] Siege e72db3bb: light_lancer_rider of Ouilly la-fôret wounded and carried off the field (wave 1)
+[12Oct2026 21:36:11.089] [Server thread/INFO] [hywmill] Siege e72db3bb: 56 temporary defender(s) of Vaucelles les-pâtures go home
+[12Oct2026 21:36:11.089] [Server thread/INFO] [hywmill] Siege e72db3bb: wiped by an admin (Le Mesnil le-volcan -> Vaucelles les-pâtures: home)
+
+FBK, siege 0d239b1c (server log):
+[12Oct2026 21:45:23.818] [Server thread/INFO] [hywmill] Siege 0d239b1c: wave 1 begins: host 34/34, defenders 101/101
+[12Oct2026 21:45:23.829] [Server thread/INFO] [hywmill] Siege 0d239b1c: wave 1: 19 unit(s) materialized in 3 group(s) round Le Mesnil le-volcan (main at 653, 76, 870); 70 defender(s) in the world; reserves: 15 at the camp, 30 inside
+[12Oct2026 21:45:35.879] [Server thread/INFO] [hywmill] Siege 0d239b1c: The host of Vaucelles les-pâtures is down to 0 of 34 standing: it falls back to its lines before Le Mesnil le-volcan to tend its 34 wounded and regroup, and will come on again
+[12Oct2026 21:48:26.060] [Server thread/INFO] [hywmill] Siege 0d239b1c: wave 2 begins: host 29/34, defenders 103/101
+[12Oct2026 21:48:26.073] [Server thread/INFO] [hywmill] Siege 0d239b1c: wave 2: 16 unit(s) materialized in 3 group(s) round Le Mesnil le-volcan (main at 653, 76, 870); 72 defender(s) in the world; reserves: 13 at the camp, 30 inside
+
+UT-5 failed in run A on the harness's setup: the tribute in UT-3 was taken from another state, so the pair it used stayed at
+war and the day's healing rightly passed it by. The check now uses the capital and its province (surely at peace).
+
+== Earlier UT run (same build)
+[harness] PASS UT-0 four villages 
+[harness] PASS UT-1 a knight bribes the officials with a gold denier: those who take it get it, the honourable refuse and keep none service admin bribe OK: money 4096 -> 0 | the Marshal Hugues (hawkish) takes 1 or: his opinion of you 10 -> 22. || service admin bribe OK: money 4096 -> 0 | the Chancellor Gautier (peaceable) takes 1 or: his opinion of you 10 -> 22. || service admin bribe OK: money 4096 -> 0 | the Steward Baudouin (peaceable) takes 1 or: his opinion of you 10 -> 22. || service admin bribe OK: money 4096 -> 0 | the Spymaster Eudes (cautious) takes 1 or: his opinion of you 10 -> 22.
+[harness] PASS UT-2 the council demands fealty of a much weaker village: it bows and is the realm's vassal war admin demand OK: Le Mesnil le-volcan gives in (chance 0.70) || service admin bar: Le Mesnil le-volcan | Vassal | Sworn to Vaucelles les-pâtures, its King
+[harness] PASS UT-3 a weak state at war with a great realm sues for peace with tribute; taken, peace and a non-aggression pact war admin diplomacy OK: league 0  log Day 18: Le Mesnil le-volcan, outmatched, sues for peace and offers 1 or a day for three days; the council accepts: peace and a non-aggression pact  log Day 18: Araden, wary of the realm, seeks its friendship: they sign a non-aggression pact
+[harness] PASS UT-5 a grudge between villages at peace fades by 2 a day m5 mrel 7b985c9b<->22df02d9 before=-48/-48 now=-48/-48 op=null v=null
+[harness] PASS UT-4 the league against a great realm arms (a war footing) and declares no war  sues for peace and offers 1 or a day for three days; the council accepts: peace and a non-aggression pact  log Day 18: Araden, wary of the realm, seeks its friendship: they sign a non-aggression pact || mob=ar_man, light_lancer_rider, shieldman, archer, spear_man, shieldman, spear_man, shieldman, archer, spear_man, shieldman]
+[harness] FAIL UT-6 a knight who wrongs his realm is banished at dawn, and barred from it  || ay 1: paid 9 argent by Vaucelles les-pâtures  realm:  Day 17: you entered the service of Vaucelles les-pâtures as knight || service REFUSED: Vaucelles les-pâtures will not take you into its service (unwelcome).
