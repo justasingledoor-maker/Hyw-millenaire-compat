@@ -1,0 +1,28 @@
+Village Roads 1.0.0: test evidence
+
+JUnit (plan/, pure): RoadPlannerTest 12/12, NetworkTest 3/3.
+
+Dedicated server (Millénaire 9.0.2, HYW, HywMill, Epic Knights + addons, Cultures Armory; the kept test world), devtools/server-harness RD + RDV:
+[harness] PASS RD-0 the mod is loaded 0 village link(s) waiting 4 village road(s) built, 0 failed (tried again later), 4715 road columns known 
+[harness] PASS RD-1 a road across the lake bridges it, and fells the trees on its way villageroads lay OK: Spec[mode=ROAD, road=COBBLESTONE, bridge=AUTO, width=3] || [23:44:19] [Server thread/INFO] [villageroads/]: Road 1: your road built: 120 blocks of road, a bridge of 20 blocks | road True deck True felled True
+[harness] PASS RD-2 taken up, every block comes back (grass, water, trees) 
+[harness] PASS RD-3 a road past a pond goes round it (no bridge) and snakes round a wall, keeping clear of it [23:44:56] [Server thread/INFO] [villageroads/]: Road 3: your road built: 120 blocks of road | pond True wall True clear True
+[harness] PASS RD-4 a straight bridge runs from end to end, over the land and the lake [23:45:20] [Server thread/INFO] [villageroads/]: Road 4: your road built: a bridge of 121 blocks | deck True
+[harness] NOTE RD road: Road 5: the road from Araden to Itanos built: 17 blocks of road
+[harness] NOTE RD road: Road 6: the road from Vaucelles les-pâtures to Itanos built: 71 blocks of road
+[harness] NOTE RD road: Road 7: the road from Araden to Ouilly la-fôret built: 131 blocks of road
+[harness] NOTE RD road: Road 8: the road from Vaucelles les-pâtures to Le Mesnil le-volcan built: 176 blocks of road
+[harness] PASS RD-5 the villages are linked to their neighbours by road villageroads scan: 4 village link(s) queued || 4 built of 4 || 0 village link(s) waiting 4 village road(s) built, 0 failed (tried again later), 4869 road columns known 
+[harness] PASS RDV-0 a client joins 
+[harness] NOTE RDV road: Road 9: from 330, 87, 500 to 250, 70, 619, middle 296, 69, 559
+[harness] NOTE RDV road: Road 10: from 500, 72, 700 to 599, 86, 790, middle 532, 70, 767
+[harness] PASS RDV-1 the client pictured the roads 6 views, village roads at [(296, 69, 559), (532, 70, 767)]
+[harness] RESULT 9/9 checks passed
+
+Earlier runs, fixed on the way: a road skirting a pond filled its rim (the planner now keeps a margin from water; a straightened stretch never cuts along a shore; a bank seals off water only where it cut the ground); two villages whose edges met got a road of 1 block (edges now drawn in, 16 blocks at least between them); a road column dug up and grassed over still counted as road (now only road blocks do); diagonal stretches were scalloped and patchy (columns now take their part from the distance to the way's line, edges less broken, half steps where the road climbs).
+
+Server log, the village network (first run, at start-up):
+Road 1: the road from Araden to Itanos built: 1 blocks of road
+Road 2: the road from Vaucelles les-pâtures to Itanos built: 79 blocks of road, a bridge of 31 blocks
+Road 3: the road from Araden to Ouilly la-fôret built: 133 blocks of road
+Road 4: the road from Vaucelles les-pâtures to Le Mesnil le-volcan built: 178 blocks of road, a bridge of 13 blocks

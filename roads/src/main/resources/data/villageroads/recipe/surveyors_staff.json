@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " C",
+    "S ",
+    "S "
+  ],
+  "key": {
+    "C": { "item": "minecraft:compass" },
+    "S": { "item": "minecraft:stick" }
+  },
+  "result": { "id": "villageroads:surveyors_staff", "count": 1 }
+}

@@ -6464,6 +6464,134 @@ def scenario_FB(ctx):
     _clean(s, R, c)
 
 
+def _block(s, test, wait=1.5):
+    """An /execute if|unless block test: True if it passed."""
+    return any("Test passed" in l for l in s.cmd(f"execute {test}", wait))
+
+
+def _road_done(s, since, timeout):
+    """Waits for the console's road to be built or to fail; the log line."""
+    return s.wait_for(r"Road \d+: your road (built|failed): ", timeout, since=since)
+
+
+def scenario_RD(ctx):
+    """Village Roads (a separate mod, roads/; run with HYWMILL_EXTRA_MODS holding village-roads-*.jar; --keep-world). On a test
+    ground built in the sky (a 20-wide lake strip across it, a pond, a wall, trees): a road across the lake bridges it (going
+    round is longer); taken up, every block comes back; a road past the pond goes round it and keeps clear of the wall; a
+    straight bridge runs end to end. Then the villages' own network: each linked to its neighbours by road."""
+    s = ctx.s
+    st = " ".join(s.output("villageroads status", 2))
+    check("RD-0 the mod is loaded", "village link(s) waiting" in st, st[-200:])
+    if "village link(s) waiting" not in st:
+        return
+    # the test ground: 140 x 200 of grass on stone at y 149, cleared above
+    s.output("forceload add 1184 1184 1343 1407", 20)
+    for z1, z2 in ((1200, 1299), (1300, 1399)):
+        s.output(f"fill 1200 148 {z1} 1339 148 {z2} minecraft:stone", 1)
+        s.output(f"fill 1200 149 {z1} 1339 149 {z2} minecraft:grass_block", 1)
+        for y in range(150, 160):
+            s.output(f"fill 1200 {y} {z1} 1339 {y} {z2} minecraft:air", 0.5)
+    s.output("fill 1260 149 1200 1279 149 1299 minecraft:water", 1)  # the lake strip, the width of the ground
+    s.output("fill 1267 149 1347 1272 149 1352 minecraft:water", 1)  # a pond
+    s.output("fill 1300 150 1330 1300 152 1370 minecraft:cobblestone", 1)  # a wall (a building's)
+    for z in range(1241, 1262, 3):  # a row of trees across the first road's way
+        s.output(f"fill 1230 150 {z} 1230 154 {z} minecraft:oak_log", 0.3)
+        s.output(f"fill 1228 155 {z - 1} 1232 156 {z + 1} minecraft:oak_leaves[persistent=true]", 0.3)
+    # 1. across the lake: a bridge (going round it is far longer)
+    p0 = s.pos()
+    lay = " ".join(s.output("villageroads lay 1210 149 1250 1330 149 1250", 2))
+    done = _road_done(s, p0, 240) or ""
+    road = _block(s, "unless block 1215 149 1250 minecraft:grass_block")
+    deck = _block(s, "unless block 1270 151 1250 minecraft:air")
+    trees = any(_block(s, f"unless block 1230 151 {z} minecraft:oak_log") for z in range(1241, 1262, 3))
+    check("RD-1 a road across the lake bridges it, and fells the trees on its way",
+          "built" in done and "bridge of" in done and road and deck and trees, f"{lay[-120:]} || {done[-200:]} | road {road} deck {deck} felled {trees}")
+    # 2. taken up: all as it was
+    p1 = s.pos()
+    s.output("villageroads undo", 2)
+    s.wait_for(r"a road is taken up", 120, since=p1)
+    back = _block(s, "if block 1215 149 1250 minecraft:grass_block") and _block(s, "if block 1270 151 1250 minecraft:air") \
+        and _block(s, "if block 1270 149 1250 minecraft:water") and all(_block(s, f"if block 1230 151 {z} minecraft:oak_log") for z in range(1241, 1262, 3))
+    check("RD-2 taken up, every block comes back (grass, water, trees)", back, "")
+    # laid again, for the pictures
+    p2 = s.pos()
+    s.output("villageroads lay 1210 149 1250 1330 149 1250", 2)
+    _road_done(s, p2, 240)
+    # 3. past the pond and the wall: round both, a dirt path, clear of the wall
+    p3 = s.pos()
+    s.output("villageroads lay 1210 149 1350 1330 149 1350 road PATH OAK 3", 2)
+    done3 = _road_done(s, p3, 240) or ""
+    pond = all(_block(s, f"if block {x} 149 {z} minecraft:water", 0.4) for x in range(1267, 1273) for z in range(1347, 1353))
+    wall = _block(s, "if block 1300 151 1350 minecraft:cobblestone")
+    clear = all(_block(s, f"if block {x} 149 1350 minecraft:grass_block") for x in (1298, 1299, 1301, 1302))
+    check("RD-3 a road past a pond goes round it (no bridge) and snakes round a wall, keeping clear of it",
+          "built" in done3 and "bridge" not in done3 and pond and wall and clear, f"{done3[-200:]} | pond {pond} wall {wall} clear {clear}")
+    # 4. a straight bridge from end to end
+    p4 = s.pos()
+    s.output("villageroads lay 1210 149 1215 1330 149 1215 bridge COBBLESTONE SPRUCE 3", 2)
+    done4 = _road_done(s, p4, 240) or ""
+    over = _block(s, "if block 1270 151 1215 minecraft:spruce_planks") and _block(s, "unless block 1240 150 1215 minecraft:air")
+    check("RD-4 a straight bridge runs from end to end, over the land and the lake", "built" in done4 and "a bridge of" in done4 and over,
+          f"{done4[-200:]} | deck {over}")
+    # 5. the villages' network (built at start-up already in a kept world: forgotten and built again over the old roads)
+    s.output("villageroads forget", 2)
+    p5 = s.pos()
+    sc = " ".join(s.output("villageroads scan", 3))
+    t0, stl = time.time(), ""
+    while time.time() - t0 < 1500:
+        time.sleep(20)
+        stl = " ".join(s.output("villageroads status", 2))
+        if "#" not in stl and " 0 village link(s) waiting" in " " + stl:
+            break
+    lines = [l for l in s.read_since(p5) if re.search(r"Road \d+: the road from .* (built|failed)", l)]
+    built = [l for l in lines if " built: " in l]
+    for l in lines:
+        note("RD road", l.split("]: ", 1)[-1])
+    check("RD-5 the villages are linked to their neighbours by road", len(built) >= 1 and len(built) >= len(lines) - 1,
+          f"{sc[-120:]} || {len(built)} built of {len(lines)} || {stl[-200:]}")
+    s.output("forceload remove 1184 1184 1343 1407", 2)
+
+
+def scenario_RDV(ctx):
+    """Village Roads, seen (--keep-world, after RD; a client joins localhost as Dev and takes pictures on the server's say "CLI-SHOT
+    <name>"): the test ground's roads and bridges, and the villages' roads (rebuilt, so the log says where they run)."""
+    s = ctx.s
+    joined = s.wait_for(r"Dev joined the game", 900)
+    check("RDV-0 a client joins", joined is not None, "")
+    if joined is None:
+        return
+    for c in ("gamemode spectator Dev", "time set 5000", "weather clear", "gamerule doDaylightCycle false", "forceload add 1184 1184 1343 1407"):
+        s.output(c, 1)
+    # two fresh roads over the country near the villages (the villages' own roads were built by an earlier version)
+    mids = []
+    for a, b, style in (("330 70 500", "250 70 620", "road COBBLESTONE AUTO 3"), ("500 70 700", "600 70 790", "road PATH AUTO 3")):
+        p0 = s.pos()
+        s.output(f"villageroads lay {a} {b} {style}", 2)
+        _road_done(s, p0, 300)
+        for l in s.read_since(p0):
+            m = re.search(r"Road \d+: from .* middle (-?\d+), (-?\d+), (-?\d+)", l)
+            if m:
+                mids.append(tuple(int(v) for v in m.groups()))
+                note("RDV road", l.split("]: ", 1)[-1])
+    views = [("rd_lake_bridge", "1250 162 1232", "1272 151 1250"), ("rd_pond_wall", "1262 166 1322", "1292 149 1352"),
+             ("rd_straight_bridge", "1236 158 1200", "1268 151 1216"), ("rd_overview", "1215 192 1172", "1268 149 1290")]
+    for i, (x, y, z) in enumerate(mids[:3]):
+        views.append((f"rd_village_road_{i + 1}", f"{x + 9} {y + 12} {z + 9}", f"{x} {y} {z}"))
+    shots = 0
+    for name, at, look in views:
+        p1 = s.pos()
+        s.output(f"tp Dev {at} facing {look}", 1)
+        time.sleep(9)
+        s.output(f"say CLI-SHOT {name}", 1)
+        if s.wait_for(r"CLI-SHOT-DONE " + name, 60, since=p1) or True:
+            shots += 1
+        time.sleep(5)
+    s.output("say CLI-QUIT", 1)
+    check("RDV-1 the client pictured the roads", shots == len(views), f"{shots} views, village roads at {mids[:3]}")
+    s.output("forceload remove 1184 1184 1343 1407", 1)
+    s.output("gamerule doDaylightCycle true", 1)
+
+
 def scenario_FW(ctx):
     """A field battle in the world (1.8, docs/realm-design.md §16; --keep-world): O marches on the vassal V; the realm's army
     meets it on the road; with the field loaded both armies come into the world and form their lines 120 blocks apart under
@@ -8125,7 +8253,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

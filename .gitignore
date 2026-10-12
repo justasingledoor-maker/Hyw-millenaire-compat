@@ -21,3 +21,7 @@ armory/tools/preview/horse.png
 # assault crossbow: build and dev client
 assault-crossbow/.gradle/
 assault-crossbow/run/
+
+# village roads: build
+roads/.gradle/
+roads/run/
