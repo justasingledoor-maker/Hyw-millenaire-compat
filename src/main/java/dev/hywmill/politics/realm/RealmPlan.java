@@ -34,6 +34,8 @@ public final class RealmPlan {
     /** 1.7: when it last offered peace to each enemy realm (its capital), and when it last made a demand. */
     public final Map<UUID, Long> offered = new LinkedHashMap<>();
     public long lastDemand = -1;
+    /** 1.8: when each weak state at war with it last sued it for peace. Not persisted. */
+    public final Map<UUID, Long> pleas = new LinkedHashMap<>();
     /** 1.7: when the leagues against it were last weighed, when it last courted, since when it is at peace. Not persisted. */
     public long lastLeague = -1, lastCourt = -1, peaceSince = -1;
     /** 1.7: enemies it does not pursue now (off its front, or past its few goals). Not persisted. */

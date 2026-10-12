@@ -38,3 +38,11 @@ description='''${mod_description}'''
     versionRange="${hyw_version_range}"
     ordering="AFTER"
     side="BOTH"
+
+# 1.8: map markers for JourneyMap (client only), if it is installed
+[[dependencies.${mod_id}]]
+    modId="journeymap"
+    type="optional"
+    versionRange="*"
+    ordering="NONE"
+    side="CLIENT"

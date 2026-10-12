@@ -80,17 +80,22 @@ public final class HudService {
                 owner = subjects == 0 ? "" : "Seat of the " + Rulers.title(v.culture);
             }
         }
-        List<String> enemies = new ArrayList<>();
+        // 1.8: counted by state (a realm is one), the villages besides
+        java.util.Set<UUID> states = new java.util.LinkedHashSet<>();
+        int villages = 0;
         for (WarRecord w : ledger.wars().values()) {
             if (w.atWar() && (w.a.equals(v.villageId) || w.b.equals(v.villageId))) {
                 VillageRecord e = ledger.get(w.a.equals(v.villageId) ? w.b : w.a);
                 if (e != null) {
-                    enemies.add(e.name);
+                    villages++;
+                    states.add(RealmService.sovereignOf(ledger, e.villageId, now));
                 }
             }
         }
-        if (!enemies.isEmpty()) {
-            status += enemies.size() == 1 ? " · at war with " + enemies.get(0) : " · at war with " + enemies.size() + " villages";
+        if (!states.isEmpty()) {
+            VillageRecord one = ledger.get(states.iterator().next());
+            status += states.size() == 1 && one != null ? " · at war with " + (villages > 1 ? "the realm of " : "") + one.name
+                    : " · at war with " + states.size() + " states (" + villages + " villages)";
         }
         return new String[]{status, owner};
     }

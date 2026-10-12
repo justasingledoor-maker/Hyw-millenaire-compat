@@ -30,7 +30,7 @@ class PoliticsWireTest {
         return new PoliticsSnapshot(UUID.randomUUID(), "Home", "millenaire:norman", "TRUSTED", "UNWELCOME", 5000, 12.5, 7, 3, ls, ls, vs,
                 null, List.of(new PoliticsSnapshot.ActionRow("RECONCILE", "Envoy: reconciliation", true, "needs trusted", "likely")),
                 List.of(), List.of("spear_man (detached, 100 s left)"), List.of("a trusted friend of Home"), List.of(), List.of(),
-                List.of("Home, 40 soldiers", " Province Village 0: loyalty 50"));
+                List.of("Home, 40 soldiers", " Province Village 0: loyalty 50"), List.of("Your service", " Volunteer of the realm of Home."));
     }
 
     @Test
@@ -39,6 +39,17 @@ class PoliticsWireTest {
         RegistryFriendlyByteBuf b = buf();
         PoliticsSnapshot.CODEC.encode(b, s);
         assertEquals(s, PoliticsSnapshot.CODEC.decode(b));
+        assertEquals(0, b.readableBytes());
+    }
+
+    @Test
+    void mapMarkersRoundTrip() {
+        var m = new MapPayloads.Markers(List.of(
+                new MapPayloads.Marker("v:1", MapPayloads.Kind.CAPITAL, 100, -200, "Home", "Capital of a realm of 3 villages", 0xFF0000, -1),
+                new MapPayloads.Marker("f:2", MapPayloads.Kind.BATTLE, 411, 621, "Ceasefire: battle", "the armies face each other; battle in", 0x40A0FF, 352907)));
+        RegistryFriendlyByteBuf b = buf();
+        MapPayloads.Markers.CODEC.encode(b, m);
+        assertEquals(m, MapPayloads.Markers.CODEC.decode(b));
         assertEquals(0, b.readableBytes());
     }
 
@@ -76,7 +87,7 @@ class PoliticsWireTest {
         var r = new PoliticsPayloads.ActionResult(false, "PAIR_COOLDOWN", "you proposed this recently");
         PoliticsPayloads.ActionResult.CODEC.encode(b, r);
         assertEquals(r, PoliticsPayloads.ActionResult.CODEC.decode(b));
-        assertEquals("8", PoliticsNet.VERSION); // 4: player colours; 5: History tab; 6: War tab; 7: Realm tab; 8: bearings
+        assertEquals("9", PoliticsNet.VERSION); // 4: player colours; 5: History tab; 6: War tab; 7: Realm tab; 8: bearings; 9: map, Service tab
     }
 
     @Test

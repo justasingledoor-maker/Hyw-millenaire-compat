@@ -1,0 +1,54 @@
+# fix71 JM: a real client (JourneyMap 6.0.9) at a field battle; harness result:
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620), (166, 63, 266)]
+[harness] PASS JM-0 a client joins [16:10:36] [Server thread/INFO] [minecraft/MinecraftServer]: Dev joined the game
+[harness] PASS JM-1 a volunteer; the realm's army goes to meet the host elles les-pâtures: you will be called to its fights, and come if you will. Your calls appear at the left of your screen. || il sends the army of the realm (about 43 men) to meet the host of Ouilly la-fôret on the road to Araden, near (293, 368), in about 2 min war admin field OK: the armies meet now near (293, 368), 43 men
+[harness] FAIL JM-2 the field battle formed and was fought before the client nst the host of Ouilly la-fôret (25 men, the shield wall): the realm's army broke and fled: 17 of 43 still standing. The host marches on to Araden with 15 men; the realm's army falls back home with 20
+[harness] RESULT 3/4 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620), (166, 63, 266)]
+  PASS  JM-0 a client joins  [16:10:36] [Server thread/INFO] [minecraft/MinecraftServer]: Dev joined the game
+  PASS  JM-1 a volunteer; the realm's army goes to meet the host  elles les-pâtures: you will be called to its fights, and come if you will. Your calls appear at the left of your screen. || il sends the army of the realm (about 43 men) to meet the host of Ouilly la-fôret on the road to Araden, near (293, 368), in about 2 min war admin field OK: the armies meet now near (293, 368), 43 men
+  FAIL  JM-2 the field battle formed and was fought before the client  nst the host of Ouilly la-fôret (25 men, the shield wall): the realm's army broke and fled: 17 of 43 still standing. The host marches on to Araden with 15 men; the realm's army falls back home with 20
+# (JM-2 failed only on harness timing: the battle formed after its first 120 s wait; fixed in the scenario)
+
+# server log, siege d0add075
+[15:29:25] [Server thread/INFO] [minecraft/MinecraftServer]: Dev joined the game
+[15:37:42] [Server thread/INFO] [minecraft/MinecraftServer]: Dev joined the game
+[15:49:13] [Server thread/INFO] [minecraft/MinecraftServer]: [Not Secure] [Server] CLI-READY
+[15:50:15] [Server thread/INFO] [minecraft/MinecraftServer]: [Not Secure] [Server] CLI-UI
+[15:53:31] [Server thread/INFO] [minecraft/MinecraftServer]: Dev joined the game
+[16:10:36] [Server thread/INFO] [minecraft/MinecraftServer]: Dev joined the game
+[16:19:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: Vaucelles les-pâtures is bound to relieve Araden (the army of the realm)
+[16:19:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: Le Mesnil le-volcan is bound to relieve Araden (the army of the realm)
+[16:19:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075 launched: Ouilly la-fôret -> Araden (quick, arrives in 5110 ticks)
+[16:19:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: Refugees from the countryside crowd into Araden before the host of Ouilly la-fôret: 16 of them take up arms
+[16:19:26] [Server thread/INFO] [minecraft/MinecraftServer]: war siege OK: Ouilly la-fôret musters 25 soldiers to besiege Araden to make it a vassal; they march in about 1 min id d0add075 host 25
+[16:22:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: 31 unit(s) stowed, marching 3896 ticks
+[16:22:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: relief: Vaucelles les-pâtures sends 44 soldiers with the army of the realm of Vaucelles les-pâtures to break the siege of Araden; the army arrives in about 1 min
+[16:22:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: relief: Le Mesnil le-volcan sends 10 soldiers with the army of the realm of Vaucelles les-pâtures to break the siege of Araden; the army arrives in about 1 min
+[16:22:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field battle forms near (293, 368): realm 43 men (SKIRMISH), host 25 men (SHIELD_WALL); battle at 387087
+[16:22:39] [Server thread/INFO] [minecraft/MinecraftServer]: [Not Secure] [Server] CLI-READY
+[16:23:41] [Server thread/INFO] [minecraft/MinecraftServer]: [Not Secure] [Server] CLI-UI
+[16:24:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: relief CLEAN: Vaucelles les-pâtures's relief (44) reaches Araden and takes position round the village
+[16:24:00] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: relief CLEAN: Le Mesnil le-volcan's relief (10) reaches Araden and takes position round the village
+[16:24:21] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field battle begins in the world: host 31 (SHIELD_WALL), realm 44 (SKIRMISH)
+[16:24:39] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: light_lancer_rider of Le Mesnil le-volcan wounded and carried off the field
+[16:25:23] [Server thread/INFO] [minecraft/MinecraftServer]: [Not Secure] [Server] CLI-BATTLE
+[16:25:33] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: crossbowman of Vaucelles les-pâtures wounded and carried off the field
+[16:26:21] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: crossbowman of Vaucelles les-pâtures wounded and carried off the field
+[16:26:26] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: crossbowman of Vaucelles les-pâtures wounded and carried off the field
+[16:26:37] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: archer of Vaucelles les-pâtures wounded and carried off the field
+[16:26:45] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: light_lancer_rider of Le Mesnil le-volcan wounded and carried off the field
+[16:26:55] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: crossbowman of Le Mesnil le-volcan wounded and carried off the field
+[16:28:40] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: light_lancer_rider of Le Mesnil le-volcan wounded and carried off the field
+[16:29:21] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: shieldman of Le Mesnil le-volcan wounded and carried off the field
+[16:29:27] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: spear_man of Vaucelles les-pâtures wounded and carried off the field
+[16:29:35] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: shieldman of Le Mesnil le-volcan wounded and carried off the field
+[16:29:41] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: shieldman of Ouilly la-fôret wounded and carried off the field
+[16:30:29] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: spear_man of Vaucelles les-pâtures wounded and carried off the field
+[16:30:40] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: crossbowman of Vaucelles les-pâtures wounded and carried off the field
+[16:30:47] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: light_lancer_rider of Le Mesnil le-volcan wounded and carried off the field
+[16:31:01] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: field: spear_man of Le Mesnil le-volcan wounded and carried off the field
+[16:31:03] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: Battle near (293, 368) on the road to Araden: the army of the realm of Vaucelles les-pâtures (43 men, the skirmish) against the host of Ouilly la-fôret (25 men, the shield wall): the realm's army broke and fled: 17 of 43 still standing. The host marches on to Araden with 15 men; the realm's army falls back home with 20
+[16:31:03] [Server thread/INFO] [minecraft/MinecraftServer]: [Not Secure] [Server] CLI-DONE
+[16:31:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: 14 temporary defender(s) of Araden go home
+[16:31:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege d0add075: wiped by an admin (Ouilly la-fôret -> Araden: home)

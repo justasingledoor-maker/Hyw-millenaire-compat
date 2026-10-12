@@ -56,7 +56,8 @@ public final class MobilizationService {
                 continue;
             }
             try {
-                boolean war = ArsenalService.atWar(ledger, rec.villageId);
+                // 1.8: a state leagued against a great realm keeps a war footing while it seeks peace (docs/realm-design.md §15)
+                boolean war = ArsenalService.atWar(ledger, rec.villageId) || dev.hywmill.politics.service.RealmDiplomacy.braced(ledger, rec.villageId, tick);
                 if (war && !r.mobilizedWar && r.startingGranted) {
                     mobilize(overworld, ledger, rec, r, tick);
                 } else if (war && r.mobilizedWar) {

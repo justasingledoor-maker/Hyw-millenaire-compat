@@ -108,6 +108,7 @@ public final class HudOverlay {
         @SubscribeEvent
         public static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
             hud = HudPayloads.Hud.EMPTY;
+            MapMarkers.clear();
         }
     }
 }

@@ -291,11 +291,11 @@ A player may serve one realm at a time (`politics.realmService`), from the Polit
   others often (60%). Taken: peace, and the tribute is paid.
 * **Leagues.** A realm of four villages or more alarms its neighbours by its size and its strength against theirs; an
   alarmed neighbour (not its ally or friend) leagues against it: the league's members sign defensive pacts with each other
-  and like it less each day; when together they are 1.1 times its match, they declare war on it.
+  (each must relieve the other when besieged). 1.8: a league only defends; it no longer declares war (§15).
 * **Time heals.** Each day, between two villages within reach at peace with each other, a grudge (a relation below zero,
   short of open conflict) fades by 2: fewer quarrels turn into wars.
 
-## 13. Field battles (1.7)
+## 13. Field battles (1.7; fought in the world since 1.8, §16)
 
 When an enemy host musters or marches on one of a realm's villages, the council weighs meeting it on the road: its field
 army (every member's pledge, less the reserve, but the threatened village's own) must be at least the host's match, and
@@ -315,4 +315,82 @@ the stemma and loros of the Basileus, the daimyo's kabuto and o-yoroi under a ji
 gilt jawshan, the raja's crowned khud and regalia, the ajaw's quetzal headdress and jade, the chief's crowned hood and
 parka), a stronghold's equipment one level better, with Strength I. They fight beside the risen wounded (off-screen they
 add to the stand) and go home with the siege; if the ruler falls, all are told.
+
+## 15. The weak seek peace; the great keep few wars (1.8)
+
+A naturally running world grew a realm of ten villages at war with some thirty: every league member declared war on it,
+any member's quarrel became the whole realm's, and a quarrel at -90 started a war that realm unity spread to both realms
+whole. Now:
+
+* **Leagues defend.** The league against a great realm signs defensive pacts and arms, but declares no war (§12).
+* **Arming.** A state in a league keeps its garrison on a war footing though at peace (wartime mobilization: its ranks
+  filled with levies), and stands down when the league no longer needs it.
+* **Seeking peace.** Each day, every neighbouring state at least 1.5 times weaker than a great realm wants peace with it.
+  At war, it sues with tribute (1 or a day per village of its own, three days): the realm takes it (75%), seldom (20%) if
+  its council means to take that state (a goal or a claim on it), and nearly always (95%) when it has more than three wars;
+  taken, peace, a non-aggression pact and warm feelings on both sides. At peace, it courts the realm: the feelings between
+  its members and the realm's rise 6 a day (3 while the realm covets it), up to 35; once both sides are at a pact's 25,
+  they sign a non-aggression pact (half the time a day; never while the realm covets it), which keeps the council's
+  ambition off it.
+* **Few wars at once.** A council at war with more than three states offers peace (once a day each, the farthest first) to
+  those it does not mean to take and that do not march on it; a state on the attack against it seldom takes it.
+* **Quarrels stay local.** A realm whose council makes its wars (a national army) is no longer dragged into war by a
+  quarrel at -90 (a raid still is): its council weighs the hatred as a claim, and demands fealty before declaring war
+  (§10, §12). A member's hatred of an outsider is shared only by the members within reach of it.
+* The village bar counts wars by state: "at war with 3 states (11 villages)".
+
+## 16. Field battles in the world (1.8)
+
+When the realm's army meets the host on the road (§13), the host halts there and both armies form their lines 120 blocks
+apart across the meeting point, under a ceasefire of 20 min (config `fieldCeasefireTicks`). The realm's army is raised
+from the members the council counted on (each its share, and one war engine with its crew if it has one); the host
+brings its engines. Whenever the field is loaded the armies come into the world at their lines: the shields in front (the
+warriors in the hammer), the warriors behind them, the archers behind those, the riders on the wings and the engines at
+the back. While they wait nobody strikes: the ranks are re-dressed, the shields, warriors and archers step out in turn and
+back, and the riders pace along the front. A blow struck across the field (by a man of either side, or by a player)
+breaks the ceasefire and the battle begins at once. Those in either realm's service are ordered to their side's line
+(its coordinates, which way the enemy stands, the battle's clock and the marshal's plan on the HUD).
+
+Each side's marshal chooses a doctrine against what his scouts saw of the other's make-up (shields, warriors, archers,
+riders, engines), weighing how well his own men suit it; the stronger side leans to attack, the weaker to defend, a
+hawkish marshal bolder, a cautious one less:
+
+* **The hammer**: the warriors charge first with the archers close behind; the shields hold, then close in (after 30 s or
+  at the first blows); the riders strike a flank once the lines meet.
+* **The shield wall**: the shields go 20 blocks forward and hold, the archers shooting over them, falling back if
+  reached; the warriors wait behind and fall on whoever breaks on the wall, round both its ends; the riders charge when
+  the foe is down to 70%.
+* **The skirmish**: the archers go forward to 30 blocks short of the enemy and shoot, screened by the shields; when a foe
+  comes within 12 they give ground behind the shields and the warriors counter-charge; the riders harass the wings.
+* **The pincer**: the shields and archers hold the centre 30 blocks forward while the warriors (in two halves) and the
+  riders swing wide round both flanks and fall on the enemy from there.
+
+The hammer breaks on a wall but catches skirmishers and hits a pincer's thinned centre; the wall stops a charge but is
+shot to pieces by skirmishers and turned by a pincer; skirmishers whittle a wall but are caught by a charge and run down
+on the wings. War engines shoot at whatever comes in reach and move up when nothing does. A side whose foe is down to 55%
+pursues with everything; a side on the attack that is down to 65% rallies once into a shield wall; a side down to 40%
+routs. After 6 min, the side with more of its men standing holds the field. The fallen are wounded by the attackers'
+chance (35%), carried off; after the battle the wounded are tended (some die of their wounds).
+
+Far from any witness (the field not loaded when the ceasefire ends, or when the witnesses leave), the battle is drawn by
+strength, each side's doctrine against the other's weighing 20% (§13's losses). The host that wins marches on (its
+march resumes where it stopped); beaten, it goes home. The realm's army goes home either way, its men taking their
+places again when it arrives. Boss bar: "Ceasefire near (x, z): ... battle in N min", then "Battle near (x, z): the
+army of X 30/40 vs the host of Y 25/35".
+
+## 17. Map markers and the Service tab (1.8)
+
+With JourneyMap installed (optional, client), the villages near the player are on its minimap and full map, each in its
+colours with an icon for what it is (village, capital, province, vassal) and, on hover, its status and whom it answers
+to; and the wars' events: hosts gathering and on the march (moving along the road), sieges (day, final stand, night,
+regrouping), field battles (the meeting, the ceasefire, the battle), armies of relief on the march, and the player's own
+orders. Each event's clock counts down live on the map. The server sends the markers every 5 s when they change.
+
+The Politics screen's tabs are Overview, Realm, War, Service and History (the open one in gold). The Service tab shows the
+player's service (role, pay, record, contract), his orders with their clocks, the realm's calls to arms (its hosts on the
+march, the sieges it suffers, field battles, each with coordinates and a clock), its officials and what they think of
+him; serving none, how the realm of the village he is in takes volunteers, mercenaries and knights. The service's actions
+(enter, leave, bribe, counsel) are on that tab's action column; the other tabs show the rest. Text tabs scroll by wheel
+or by the arrows at the panel's foot; the action column scrolls when it does not fit; the last result shows in a band at
+the panel's foot.
 

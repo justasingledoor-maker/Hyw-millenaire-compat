@@ -51,6 +51,7 @@ public final class HywMillConfig {
     public static final ModConfigSpec.BooleanValue REALM_AMBITION;
     public static final ModConfigSpec.BooleanValue REALM_SERVICE;
     public static final ModConfigSpec.BooleanValue REALM_DIPLOMACY;
+    public static final ModConfigSpec.LongValue FIELD_CEASEFIRE;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -183,6 +184,9 @@ public final class HywMillConfig {
                         "going to war for a claim, buy peace with tribute when losing, and their neighbours league against a realm that grows",
                         "too great.")
                 .define("realmDiplomacy", true);
+        FIELD_CEASEFIRE = b.comment("1.8 (docs/realm-design.md §16): when a realm's army meets an enemy host on the road, both form their lines",
+                        "120 blocks apart and wait this long (ticks; 24000 = 20 min) under a ceasefire before the battle.")
+                .defineInRange("fieldCeasefireTicks", 24000L, 600L, 72000L);
         b.pop();
 
         SPEC = b.build();

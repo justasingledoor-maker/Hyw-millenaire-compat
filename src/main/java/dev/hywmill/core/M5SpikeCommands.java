@@ -72,6 +72,20 @@ final class M5SpikeCommands {
         // M5-UI headless: the Politics screen's server handlers, driven for a stand-in (printed instead of sent)
         m5.then(Commands.literal("ui")
                 .then(Commands.literal("open").then(Commands.argument("id", UuidArgument.uuid()).executes(ctx -> ui(ctx, null, null))))
+                // 1.8 dev: the snapshot sent to a real player's client (it opens the Politics screen there)
+                .then(Commands.literal("send").then(Commands.argument("id", UuidArgument.uuid()).executes(ctx -> {
+                    ServerLevel level = ctx.getSource().getServer().overworld();
+                    if (!(level.getPlayerByUUID(UuidArgument.getUuid(ctx, "id")) instanceof net.minecraft.server.level.ServerPlayer sp)) {
+                        HywMillCommands.send(ctx.getSource(), "m5 ui send: no such player");
+                        return 0;
+                    }
+                    dev.hywmill.net.PoliticsSnapshot s = dev.hywmill.net.PoliticsNet.snapshot(sp, null, null);
+                    if (s != null) {
+                        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(sp, s);
+                    }
+                    HywMillCommands.send(ctx.getSource(), "m5 ui send " + (s != null ? "OK" : "inactive"));
+                    return 1;
+                })))
                 .then(Commands.literal("select").then(Commands.argument("id", UuidArgument.uuid())
                         .then(Commands.argument("village", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
                                 .executes(ctx -> ui(ctx, net.minecraft.commands.arguments.coordinates.BlockPosArgument.getBlockPos(ctx, "village"), null)))))
@@ -250,6 +264,7 @@ final class M5SpikeCommands {
             }
         }
         s.realm().forEach(l -> HywMillCommands.send(ctx.getSource(), "m5 ui realm " + l));
+        s.service().forEach(l -> HywMillCommands.send(ctx.getSource(), "m5 ui service " + l)); // 1.8: the Service tab
         // the wire format round-trips (what a client would receive)
         net.minecraft.network.RegistryFriendlyByteBuf buf = new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(),
                 level.registryAccess());

@@ -226,21 +226,63 @@ public final class ServiceRoles {
         ledger.setDirty();
     }
 
-    /** A field battle (§13): those serving the intercepting realm are ordered to the meeting point on the road instead of the walls. */
+    /**
+     * A field battle (§13, §16): those serving the intercepting realm are ordered to the meeting point on the road instead of
+     * the walls; those serving the host's realm, to march with it there.
+     */
     public static void onIntercept(ServerLevel ow, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long now) {
         if (!enabled() || s.interceptBy == null) {
             return;
         }
+        UUID hostRealm = RealmService.sovereignOf(ledger, a.villageId, now);
+        VillageRecord by = ledger.get(s.interceptBy);
         for (Service sv : ledger.services().values()) {
-            if (!sv.realm.equals(s.interceptBy)) {
+            boolean realm = sv.realm.equals(s.interceptBy), host = sv.realm.equals(hostRealm);
+            if (!realm && !host) {
                 continue;
             }
             sv.orders.removeIf(o -> o.siege.equals(s.id));
-            sv.orders.add(new Service.Order(s.id, t.villageId, true, s.interceptX, s.interceptZ, ROAD, now));
+            sv.orders.add(new Service.Order(s.id, t.villageId, realm, s.interceptX, s.interceptZ, ROAD, now));
             ServerPlayer p = PoliticsService.onlinePlayer(ow, sv.player);
             VillageRecord head = ledger.get(sv.realm);
             if (p != null && head != null) {
-                p.displayClientMessage(Component.literal("New orders from " + ruler(head) + ": meet the host of " + a.name + " on the road"), true);
+                p.displayClientMessage(Component.literal((sv.role == Service.Role.VOLUNTEER ? "A call from " : "New orders from ") + ruler(head) + ": "
+                        + (realm ? "meet the host of " + a.name + " on the road" : "march with the host: the army of " + (by == null ? "the enemy" : by.name)
+                        + " bars the road") + " at (" + s.interceptX + ", " + s.interceptZ + ")"), true);
+            }
+        }
+        ledger.setDirty();
+    }
+
+    /**
+     * 1.8: the armies have met and face each other under a ceasefire (§16): each road order moves to its side's line, and the
+     * order says which way the enemy stands, when the battle begins and how the marshal means to fight.
+     */
+    public static void onFieldFormed(ServerLevel ow, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, BlockPos hostLine, BlockPos realmLine,
+                                     dev.hywmill.politics.war.FieldTactics.Doctrine hostDoctrine, dev.hywmill.politics.war.FieldTactics.Doctrine realmDoctrine,
+                                     long now) {
+        if (!enabled()) {
+            return;
+        }
+        for (Service sv : ledger.services().values()) {
+            for (int i = 0; i < sv.orders.size(); i++) {
+                Service.Order o = sv.orders.get(i);
+                if (!o.siege.equals(s.id) || !ROAD.equals(o.side)) {
+                    continue;
+                }
+                BlockPos line = o.defend ? realmLine : hostLine, foe = o.defend ? hostLine : realmLine;
+                Service.Order moved = new Service.Order(s.id, t.villageId, o.defend, line.getX(), line.getZ(), ROAD, now);
+                moved.atRally = o.atRally;
+                moved.near = o.near;
+                sv.orders.set(i, moved);
+                ServerPlayer p = PoliticsService.onlinePlayer(ow, sv.player);
+                VillageRecord head = ledger.get(sv.realm);
+                if (p != null && head != null) {
+                    dev.hywmill.politics.war.FieldTactics.Doctrine d = o.defend ? realmDoctrine : hostDoctrine;
+                    p.displayClientMessage(Component.literal(capital(ruler(head)) + ": take your place in our line at (" + line.getX() + ", " + line.getZ()
+                            + "), the enemy " + dev.hywmill.net.PoliticsNet.bearing(foe.getX() - line.getX(), foe.getZ() - line.getZ())
+                            + " of it; we fight by " + d.label), true);
+                }
             }
         }
         ledger.setDirty();
@@ -301,13 +343,16 @@ public final class ServiceRoles {
                 Siege sg = siege(ledger, o.siege);
                 VillageRecord t = ledger.get(o.target);
                 if (ROAD.equals(o.side) && sg != null && t != null) {
-                    // a field battle: seen at the meeting point when the armies meet; answered once it is fought
-                    if (!sg.interceptDone && Math.abs(now - sg.interceptAt) <= 1200) {
+                    // a field battle (1.8: fought after the ceasefire): seen at its line or on the field while it is fought;
+                    // answered once it is over
+                    boolean live = sg.fieldPhase == Siege.Field.FIGHT || (sg.fieldPhase == Siege.Field.FORMING && now >= sg.fieldBattleAt - 1200);
+                    if (live) {
                         o.fought = true;
                         if (p != null && p.level() == ow) {
-                            double dr = Math.hypot(p.getX() - o.x, p.getZ() - o.z);
-                            o.atRally |= dr <= dev.hywmill.politics.war.FieldBattle.REACH;
-                            o.near |= dr <= 3 * dev.hywmill.politics.war.FieldBattle.REACH;
+                            double dr = Math.hypot(p.getX() - o.x, p.getZ() - o.z), df = Math.hypot(p.getX() - sg.interceptX, p.getZ() - sg.interceptZ);
+                            o.atRally |= dr <= dev.hywmill.politics.war.FieldBattle.REACH
+                                    || (sg.fieldPhase == Siege.Field.FIGHT && df <= dev.hywmill.garrison.service.FieldService.AT_BATTLE);
+                            o.near |= df <= dev.hywmill.garrison.service.FieldService.AT_BATTLE + 96;
                         }
                         continue;
                     }
@@ -315,6 +360,10 @@ public final class ServiceRoles {
                         continue;
                     }
                     s.orders.remove(o);
+                    if (!o.fought) {
+                        s.note("Day " + now / DAY + ": the orders for the road to " + t.name + " were withdrawn");
+                        continue;
+                    }
                     answer(ow, ledger, source, s, head, p, o, t, now);
                     if (!ledger.services().containsKey(s.player)) {
                         break;
@@ -324,7 +373,7 @@ public final class ServiceRoles {
                         VillageRecord a = ledger.get(sg.attacker);
                         if (a != null) {
                             BlockPos rally = SiegeService.rallyPoint(a, t);
-                            s.orders.add(new Service.Order(sg.id, t.villageId, true, rally.getX(), rally.getZ(),
+                            s.orders.add(new Service.Order(sg.id, t.villageId, o.defend, rally.getX(), rally.getZ(),
                                     dev.hywmill.net.PoliticsNet.bearing(rally.getX() - t.center.getX(), rally.getZ() - t.center.getZ()), now));
                         }
                     }
@@ -558,12 +607,20 @@ public final class ServiceRoles {
             }
             String from = s.role == Service.Role.VOLUNTEER ? capital(ruler(head)) + " calls for volunteers: " : "Orders of " + ruler(head) + ": ";
             if (ROAD.equals(o.side)) {
-                VillageRecord a = ledger.get(sg.attacker);
-                out.add(from + "meet the host of " + (a == null ? "the enemy" : a.name) + " on the road to " + t.name + " at (" + o.x + ", " + o.z
-                        + "): battle in about " + Math.max(1, Math.round(Math.max(0, sg.interceptAt - now) / 1200.0)) + " min.");
+                VillageRecord a = ledger.get(sg.attacker), by = sg.interceptBy == null ? null : ledger.get(sg.interceptBy);
+                String foe = o.defend ? "the host of " + (a == null ? "the enemy" : a.name) : "the army of " + (by == null ? "the enemy" : by.name);
+                String at = " at (" + o.x + ", " + o.z + ")";
+                out.add(from + switch (sg.fieldPhase) {
+                    case NONE -> (o.defend ? "meet " + foe + " on the road to " + t.name : "march with the host: " + foe + " bars the road") + at
+                            + ": the armies meet in " + clock(sg.interceptAt - now) + ".";
+                    case FORMING -> "take your place in our line" + at + ", facing " + foe + ". Ceasefire: battle in " + clock(sg.fieldBattleAt - now)
+                            + ". We fight by " + dev.hywmill.garrison.service.FieldService.doctrineLabel(o.defend ? sg.realmDoctrine : sg.hostDoctrine) + ".";
+                    case FIGHT -> "battle! Fight with our line" + at + " against " + foe + ".";
+                    case DONE -> "the battle on the road to " + t.name + " is over.";
+                });
                 if (p != null && p.level() == ow) {
                     double dr = Math.hypot(p.getX() - o.x, p.getZ() - o.z);
-                    out.add(dr <= dev.hywmill.politics.war.FieldBattle.REACH ? "  You are at the meeting point." : "  Meeting point: " + Math.round(dr)
+                    out.add(dr <= dev.hywmill.politics.war.FieldBattle.REACH ? "  You are in the line." : "  Our line: " + Math.round(dr)
                             + " blocks " + dev.hywmill.net.PoliticsNet.bearing((int) Math.round(o.x - p.getX()), (int) Math.round(o.z - p.getZ())) + ".");
                 }
                 continue;
@@ -589,8 +646,121 @@ public final class ServiceRoles {
         return out.size() > 8 ? out.subList(0, 8) : out;
     }
 
+    /** A live timer: m:ss. */
+    static String clock(long ticks) {
+        long sec = Math.max(0, ticks) / 20;
+        return sec / 60 + ":" + String.format("%02d", sec % 60);
+    }
+
     static String capital(String s) {
         return s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
+
+    /**
+     * 1.8: the Service tab (headings unindented): the player's service (role, pay, record), his orders with their clocks, the
+     * calls to arms of the realm he serves or of the village he is in (its hosts on the march, sieges, field battles), the
+     * officials and what they think of him, his recent notes; or, serving none, how the realm of the village he is in takes
+     * volunteers, mercenaries and knights.
+     */
+    public static List<String> serviceTab(ServerLevel ow, GarrisonLedger ledger, UUID player, @Nullable UUID home) {
+        List<String> out = new ArrayList<>();
+        if (!enabled()) {
+            out.add("Realm service is turned off on this server.");
+            return out;
+        }
+        long now = ow.getGameTime();
+        Service s = ledger.services().get(player);
+        VillageRecord here = home == null ? null : ledger.get(home);
+        VillageRecord crown = s != null ? ledger.get(s.realm) : here == null || here.loneBuilding ? null
+                : ledger.get(RealmService.sovereignOf(ledger, here.villageId, now));
+        if (s != null && crown != null) {
+            List<UUID> realm = RealmService.members(ledger, crown.villageId, now);
+            boolean war = !enemies(ledger, realm).isEmpty();
+            out.add("Your service");
+            out.add(" " + Service.label(s.role, crown.culture) + " of the realm of " + crown.name + " (" + realm.size() + " village" + (realm.size() == 1 ? "" : "s")
+                    + (war ? ", at war" : ", at peace") + ").");
+            int wage = Service.wage(s.role, realm.size(), war);
+            out.add(" " + (s.role == Service.Role.KNIGHT ? "Stipend" : "Wage") + ": " + (wage > 0 ? RecruitOffers.money(wage) + " each dawn" : "none now")
+                    + (s.role == Service.Role.MERCENARY ? "; contract: " + clock(s.until - now) + " left" : "")
+                    + (s.role == Service.Role.VOLUNTEER ? "; paid for each fight you answer" : "") + ".");
+            out.add(" Orders obeyed " + s.obeyed + ", fought elsewhere " + s.present + (s.role == Service.Role.KNIGHT ? ", ignored " + s.ignored + " of "
+                    + Service.IGNORED_LIMIT + " (then banished)" : "") + ".");
+            List<String> hud = hudLines(ow, ledger, player, now);
+            if (hud.size() > 1 && !s.orders.isEmpty()) {
+                out.add("Orders");
+                hud.subList(1, hud.size()).forEach(l -> out.add(" " + l.trim()));
+            }
+        } else {
+            out.add("You serve no realm");
+            if (crown != null) {
+                String realm = "the realm of " + crown.name;
+                out.add(" " + capital(realm) + " takes three kinds of men (the actions below):");
+                out.add("  Volunteer: called to its fights, never bound; paid for each fight you answer.");
+                out.add("  Mercenary: only while it is at war; a " + Service.CONTRACT_DAYS + "-day contract paid each dawn; a purse and "
+                        + Service.COMPANY.size() + " men the first time; breaking it bars you " + Service.BROKEN_DAYS + " days.");
+                out.add("  " + Service.knightTitle(crown.culture) + ": a patron or sworn friend of " + crown.name + "; a stipend, orders on your screen and a"
+                        + " voice in its council (its officials vote; a bribe sways them). Ignore " + Service.IGNORED_LIMIT + " orders and you are banished "
+                        + Service.EXILE_DAYS + " days.");
+                Long exile = ledger.exiles().get(key(player, crown.villageId));
+                if (exile != null && exile > now) {
+                    out.add(" You are barred from " + realm + " for " + clock(exile - now) + ".");
+                }
+            } else {
+                out.add(" Stand in a village (or select one you know) to see how its realm takes men into its service.");
+            }
+        }
+        if (crown != null) {
+            List<String> calls = calls(ow, ledger, crown, now);
+            if (!calls.isEmpty()) {
+                out.add("Calls to arms of the realm of " + crown.name);
+                out.addAll(calls);
+            }
+            out.add("The officials of " + ruler(crown));
+            for (Officials.Official o : officials(ledger, crown)) {
+                out.add(" " + o.office.label + " " + o.name + " (" + o.temper.label + ")" + (s == null ? "" : ": thinks of you " + o.of(player)));
+            }
+        }
+        if (s != null && !s.notes.isEmpty()) {
+            out.add("Lately");
+            s.notes.forEach(n -> out.add(" " + n));
+        }
+        return out;
+    }
+
+    /** The realm's fights now: its hosts on the march and before walls, the sieges it suffers, the field battles, with clocks. */
+    static List<String> calls(ServerLevel ow, GarrisonLedger ledger, VillageRecord crown, long now) {
+        List<String> out = new ArrayList<>();
+        List<UUID> realm = RealmService.members(ledger, crown.villageId, now);
+        for (Siege sg : ledger.sieges()) {
+            VillageRecord a = ledger.get(sg.attacker), t = ledger.get(sg.target);
+            if (a == null || t == null || sg.outcome != Siege.Outcome.NONE || sg.phase == Siege.Phase.RETURN) {
+                continue;
+            }
+            boolean ours = realm.contains(a.villageId), theirs = realm.contains(t.villageId);
+            if (!ours && !theirs && !crown.villageId.equals(sg.interceptBy)) {
+                continue;
+            }
+            BlockPos rally = SiegeService.rallyPoint(a, t);
+            long left = Math.max(0, sg.arriveAt - sg.elapsed(now, ow.getDayTime()));
+            String side = dev.hywmill.net.PoliticsNet.bearing(rally.getX() - t.center.getX(), rally.getZ() - t.center.getZ());
+            if (sg.fighting()) {
+                out.add(" " + (ours ? "Our host besieges " + t.name : a.name + " besieges our " + t.name) + ", day " + sg.wave + " (" + side + " side, "
+                        + rally.getX() + ", " + rally.getZ() + ")" + (sg.phase == Siege.Phase.NIGHT ? ": night" : ""));
+            } else {
+                out.add(" " + (ours ? "Our host marches on " + t.name + ": muster on its " : "The host of " + a.name + " marches on our " + t.name
+                        + ": hold its ") + side + " side (" + rally.getX() + ", " + rally.getZ() + "), before the walls in " + clock(left));
+            }
+            if (sg.interceptBy != null && !sg.interceptDone) {
+                String what = switch (sg.fieldPhase) {
+                    case NONE -> "the armies meet in " + clock(sg.interceptAt - now);
+                    case FORMING -> "ceasefire, battle in " + clock(sg.fieldBattleAt - now);
+                    case FIGHT -> "the battle is on";
+                    default -> "over";
+                };
+                out.add("  Field battle near (" + sg.interceptX + ", " + sg.interceptZ + "): " + what);
+            }
+        }
+        return out;
     }
 
     /** The Realm tab: the realm's officials (and what they think of {@code viewer}), and those in its service. */

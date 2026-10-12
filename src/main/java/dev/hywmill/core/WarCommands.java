@@ -178,6 +178,22 @@ final class WarCommands {
                             send(ctx.getSource(), "war admin field OK: the armies meet now near (" + sg.interceptX + ", " + sg.interceptZ + "), " + sg.interceptMen + " men");
                             return 1;
                         })))
+                .then(Commands.literal("fieldnow").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
+                        .then(Commands.argument("attacker", BlockPosArgument.blockPos()).executes(ctx -> {
+                            // dev (1.8): the ceasefire of this host's field battle ends now
+                            VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
+                            ServerLevel ow = ctx.getSource().getServer().overworld();
+                            GarrisonLedger ledger = GarrisonLedger.get(ow);
+                            var sg = a == null ? null : dev.hywmill.garrison.service.SiegeService.byAttacker(ledger, a.villageId);
+                            if (sg == null || sg.fieldPhase != dev.hywmill.politics.war.Siege.Field.FORMING) {
+                                send(ctx.getSource(), "war admin fieldnow: no field battle forming for that village");
+                                return 0;
+                            }
+                            sg.fieldBattleAt = ow.getGameTime();
+                            ledger.setDirty();
+                            send(ctx.getSource(), "war admin fieldnow OK: the ceasefire ends now (host by " + sg.hostDoctrine + ", realm by " + sg.realmDoctrine + ")");
+                            return 1;
+                        })))
                 .then(Commands.literal("thin").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                         .then(Commands.argument("village", BlockPosArgument.blockPos())
                                 .then(Commands.argument("keep", com.mojang.brigadier.arguments.IntegerArgumentType.integer(0, 500)).executes(ctx -> {
@@ -195,6 +211,41 @@ final class WarCommands {
                                             + Math.round(dev.hywmill.garrison.service.SiegeService.defense(ow, v)));
                                     return n;
                                 }))))
+                .then(Commands.literal("demand").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
+                        .then(Commands.argument("capital", BlockPosArgument.blockPos()).then(Commands.argument("target", BlockPosArgument.blockPos())
+                                .executes(ctx -> adminDemand(ctx, false)).then(Commands.literal("force").executes(ctx -> adminDemand(ctx, true))))))
+                .then(Commands.literal("diplomacy").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
+                        .then(Commands.argument("capital", BlockPosArgument.blockPos()).executes(ctx -> {
+                            // dev (1.8): the great realm's day of diplomacy now: its neighbours league and arm, the weak seek peace
+                            VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "capital"));
+                            ServerLevel ow = ctx.getSource().getServer().overworld();
+                            GarrisonLedger ledger = GarrisonLedger.get(ow);
+                            var plan = v == null || !dev.hywmill.politics.service.RealmService.national(ledger, v.villageId, ow.getGameTime()) ? null
+                                    : ledger.plans().computeIfAbsent(v.villageId, k -> new dev.hywmill.politics.realm.RealmPlan());
+                            var source = dev.hywmill.core.Services.settlements();
+                            if (plan == null || source == null) {
+                                send(ctx.getSource(), "war admin diplomacy: no council there (a realm with a national army)");
+                                return 0;
+                            }
+                            long now = ow.getGameTime();
+                            plan.pleas.clear();
+                            plan.lastLeague = now;
+                            dev.hywmill.politics.service.RealmDiplomacy.leagues(ow, ledger, source, v, plan, now);
+                            dev.hywmill.politics.service.RealmDiplomacy.appease(ow, ledger, source, v, plan, now);
+                            send(ctx.getSource(), "war admin diplomacy OK: league " + ledger.coalitions().getOrDefault(v.villageId, java.util.Set.of()).size());
+                            plan.log.forEach(l -> send(ctx.getSource(), " log " + l));
+                            return 1;
+                        })))
+                .then(Commands.literal("heal").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get()).executes(ctx -> {
+                    // dev (1.7 grudges fade): a day's healing between villages at peace, now
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    var source = dev.hywmill.core.Services.settlements();
+                    if (source != null) {
+                        dev.hywmill.politics.service.RealmDiplomacy.heal(ow, GarrisonLedger.get(ow), source, ow.getGameTime());
+                    }
+                    send(ctx.getSource(), "war admin heal OK");
+                    return 1;
+                }))
                 .then(Commands.literal("council").then(Commands.argument("capital", BlockPosArgument.blockPos()).executes(ctx -> adminCouncil(ctx, false))
                         .then(Commands.literal("longpeace").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                                 .executes(ctx -> adminCouncil(ctx, true)))))
@@ -267,6 +318,9 @@ final class WarCommands {
                                 .then(Commands.literal("aim").then(Commands.argument("aim", com.mojang.brigadier.arguments.StringArgumentType.word())
                                         .executes(ctx -> adminSiege(ctx, false, false))))
                                 .then(Commands.literal("quick").executes(ctx -> adminSiege(ctx, false, true))
+                                        // dev (1.8): watched (in the world when loaded), but no field battle on the road
+                                        .then(Commands.literal("nofield").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
+                                                .executes(ctx -> adminSiege(ctx, false, true, true)))
                                         .then(Commands.literal("aim").then(Commands.argument("aim", com.mojang.brigadier.arguments.StringArgumentType.word())
                                                 .executes(ctx -> adminSiege(ctx, false, true))))
                                         .then(Commands.literal("unwatched").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
@@ -517,6 +571,34 @@ final class WarCommands {
     }
 
     /** 1.6: the realm's council sits now; {@code longPeace} (dev, 1.7): as if at peace for long (its ambition may stir). */
+    /** Dev (1.7 demands): the council of {@code capital} demands {@code target}'s fealty now ({@code force}: it gives in). */
+    private static int adminDemand(CommandContext<CommandSourceStack> ctx, boolean force) {
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(ow);
+        VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "capital"));
+        VillageRecord t = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "target"));
+        long now0 = ow.getGameTime();
+        var plan = v == null || !dev.hywmill.politics.service.RealmService.national(ledger, v.villageId, now0) ? null
+                : ledger.plans().computeIfAbsent(v.villageId, k -> new dev.hywmill.politics.realm.RealmPlan()); // its council may not have sat yet
+        if (plan == null || t == null) {
+            send(ctx.getSource(), "war admin demand: no council or no target");
+            return 0;
+        }
+        long now = ow.getGameTime();
+        double ours = 0;
+        for (UUID m : dev.hywmill.politics.service.RealmService.members(ledger, v.villageId, now)) {
+            VillageRecord mv = ledger.get(m);
+            if (mv != null && mv.hywRoster != null) {
+                ours += dev.hywmill.garrison.service.ReliefService.freeStrength(mv);
+            }
+        }
+        double army = force ? 1e9 : ours;
+        double chance = dev.hywmill.politics.service.RealmDiplomacy.yieldChance(army, dev.hywmill.garrison.service.SiegeService.defense(ow, t));
+        boolean yields = dev.hywmill.politics.service.RealmDiplomacy.demand(ow, ledger, v, plan, t, army, now);
+        send(ctx.getSource(), "war admin demand OK: " + t.name + (yields ? " gives in" : " refuses") + " (chance " + String.format("%.2f", chance) + ")");
+        return yields ? 1 : 0;
+    }
+
     private static int adminCouncil(CommandContext<CommandSourceStack> ctx, boolean longPeace) {
         VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "capital"));
         ServerLevel ow = ctx.getSource().getServer().overworld();

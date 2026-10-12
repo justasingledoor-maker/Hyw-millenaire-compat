@@ -103,8 +103,11 @@ public final class Siege {
     public double seatShare = -1;
     /** The share of each member's pledge the council commits to this army (the rest it holds back to defend). */
     public double commit = 1;
-    /** The final stand ({@link SiegeWaves#finalStand}): each side made its stand in this wave (reset at dawn). */
-    public boolean hostStand, defStand;
+    /**
+     * The defenders made their final stand in this wave ({@link SiegeWaves#finalStand}); the host fell back to its lines to
+     * regroup ({@link SiegeWaves#fallBack}, 1.8). Reset at dawn.
+     */
+    public boolean hostFellBack, defStand;
     /**
      * 1.7 field battle (docs/realm-design.md §13): the realm (its capital) whose army meets this host on the road, when and
      * where, with what strength and men, raised from which members; decided once ({@code interceptDone}).
@@ -115,6 +118,19 @@ public final class Siege {
     public double interceptPower;
     public final List<UUID> interceptFrom = new ArrayList<>();
     public boolean interceptDone;
+    /**
+     * 1.8 field battle in the world (docs/realm-design.md §16): FORMING when the armies have met and face each other under a
+     * ceasefire; FIGHT until one routs; DONE (the realm's army going home until {@code fieldHomeAt}). The host's march is
+     * halted meanwhile ({@code fieldLeft}: its road still to go). Each side's doctrine and whether it rallied; the realm army's
+     * men by village; the strength each brought to the field.
+     */
+    public enum Field { NONE, FORMING, FIGHT, DONE }
+    public Field fieldPhase = Field.NONE;
+    public long fieldSince = -1, fieldBattleAt = -1, fieldLeft = -1, fieldHomeAt = -1;
+    public int fieldHostStart, fieldRealmStart;
+    public String hostDoctrine = "", realmDoctrine = "";
+    public boolean fieldWorld, hostRallied, realmRallied;
+    public final java.util.Map<UUID, List<UUID>> fieldArmy = new java.util.LinkedHashMap<>();
     /** 1.7 royal guard (docs/realm-design.md §14): the capital's ruler and guard came out for the final stand; the ruler fell. */
     public boolean royalOut, rulerFell;
 

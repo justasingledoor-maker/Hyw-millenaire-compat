@@ -1,0 +1,188 @@
+package dev.hywmill.net;
+
+import dev.hywmill.garrison.service.FieldService;
+import dev.hywmill.garrison.service.SiegeService;
+import dev.hywmill.net.MapPayloads.Kind;
+import dev.hywmill.net.MapPayloads.Marker;
+import dev.hywmill.politics.realm.Service;
+import dev.hywmill.politics.service.RealmService;
+import dev.hywmill.politics.war.FieldBattle;
+import dev.hywmill.politics.war.Relief;
+import dev.hywmill.politics.war.Siege;
+import dev.hywmill.politics.war.SiegeWaves;
+import dev.hywmill.politics.war.Vassalage;
+import dev.hywmill.settlement.GarrisonLedger;
+import dev.hywmill.settlement.VillageRecord;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.DyeColor;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+/**
+ * Map markers (1.8): every few seconds, for each player whose client takes them, the villages near him (what each is, whom it
+ * answers to) and the wars' events (hosts on the march, sieges, field battles, armies of relief, the player's own orders),
+ * each with its clock; sent only when they change. JourneyMap shows them, if installed (integration.journeymap). Owned by
+ * the runtime (one per server).
+ */
+public final class MapService {
+    public static final int INTERVAL = 100;
+    /** Villages this near a player are on his map (blocks); events this near. */
+    static final int VILLAGES = 4000, EVENTS = 8000;
+
+    private final Map<UUID, List<Marker>> sent = new HashMap<>();
+
+    public void tick(ServerLevel overworld, long now) {
+        if (now % INTERVAL != 37) {
+            return;
+        }
+        GarrisonLedger ledger = GarrisonLedger.get(overworld);
+        List<Marker> events = events(overworld, ledger, now);
+        for (ServerPlayer p : overworld.getServer().getPlayerList().getPlayers()) {
+            if (!p.connection.hasChannel(MapPayloads.Markers.TYPE)) {
+                continue;
+            }
+            List<Marker> out = new ArrayList<>();
+            if (p.level() == overworld) {
+                for (VillageRecord v : ledger.all()) {
+                    if (Math.hypot(v.center.getX() - p.getX(), v.center.getZ() - p.getZ()) <= VILLAGES) {
+                        out.add(village(ledger, v, now));
+                    }
+                }
+                for (Marker m : events) {
+                    if (Math.hypot(m.x() - p.getX(), m.z() - p.getZ()) <= EVENTS) {
+                        out.add(m);
+                    }
+                }
+                out.addAll(orders(overworld, ledger, p.getUUID(), now));
+            }
+            if (out.size() > MapPayloads.Markers.MAX) {
+                out = out.subList(0, MapPayloads.Markers.MAX);
+            }
+            if (!out.equals(sent.get(p.getUUID()))) {
+                sent.put(p.getUUID(), out);
+                PacketDistributor.sendToPlayer(p, new MapPayloads.Markers(out));
+            }
+        }
+        sent.keySet().removeIf(id -> overworld.getServer().getPlayerList().getPlayer(id) == null);
+    }
+
+    /** Forget what a player was sent (they logged in again: send it all). */
+    public void forget(UUID player) {
+        sent.remove(player);
+    }
+
+    static int colour(VillageRecord v) {
+        return v.liveryPrimary >= 0 ? DyeColor.byId(v.liveryPrimary).getTextColor() : 0xD8C8A0;
+    }
+
+    static Marker village(GarrisonLedger ledger, VillageRecord v, long now) {
+        String[] d = HudService.describe(ledger, v, now);
+        Kind kind = Kind.VILLAGE;
+        if (!v.loneBuilding) {
+            Vassalage t = RealmService.tieOf(ledger, v.villageId, now);
+            kind = t != null ? (t.province ? Kind.PROVINCE : Kind.VASSAL) : RealmService.subjectsOf(ledger, v.villageId, now).isEmpty() ? Kind.VILLAGE : Kind.CAPITAL;
+        }
+        return new Marker("v:" + v.villageId, kind, v.center.getX(), v.center.getZ(), v.name, d[0] + (d[1].isEmpty() ? "" : " · " + d[1]), colour(v), -1);
+    }
+
+    /** The wars' events: hosts gathering and on the march, sieges, field battles, armies of relief. */
+    static List<Marker> events(ServerLevel ow, GarrisonLedger ledger, long now) {
+        List<Marker> out = new ArrayList<>();
+        long dayTime = ow.getDayTime();
+        for (Siege s : ledger.sieges()) {
+            VillageRecord a = ledger.get(s.attacker), t = ledger.get(s.target);
+            if (a == null || t == null || s.outcome != Siege.Outcome.NONE) {
+                continue;
+            }
+            String id = s.id.toString().substring(0, 8);
+            long left = Math.max(0, s.arriveAt - s.elapsed(now, dayTime));
+            String host = (RealmService.national(ledger, a.villageId, now) ? "Army of the realm of " : "Host of ") + a.name;
+            int men = SiegeService.hostSize(a, s);
+            switch (s.phase) {
+                case PREPARE, MUSTER -> out.add(new Marker("h:" + id, Kind.HOST, a.center.getX(), a.center.getZ(), host + " gathers",
+                        host + " gathers to march on " + t.name + (men > 0 ? " (" + men + " men)" : "") + "; before its walls in", colour(a), now + left));
+                case MARCH, WAIT -> {
+                    if (s.fieldPhase == Siege.Field.FORMING || s.fieldPhase == Siege.Field.FIGHT) {
+                        break; // halted at the field: the battle marker shows it
+                    }
+                    double f = FieldBattle.along(s.elapsed(now, dayTime), s.arriveAt, s.march);
+                    int x = (int) Math.round(a.center.getX() + (t.center.getX() - a.center.getX()) * f);
+                    int z = (int) Math.round(a.center.getZ() + (t.center.getZ() - a.center.getZ()) * f);
+                    out.add(new Marker("h:" + id, Kind.HOST, x, z, host + " → " + t.name, host + " (" + men + " men) marches on " + t.name
+                            + "; before its walls in", colour(a), now + left));
+                }
+                case BATTLE -> out.add(new Marker("s:" + id, Kind.SIEGE, t.center.getX(), t.center.getZ(), "Siege of " + t.name + " (day " + s.wave + ")",
+                        host + " besieges " + t.name + ", day " + s.wave + " of " + SiegeWaves.WAVES + (s.defStand ? " (the defenders' final stand)" : "")
+                                + "; sundown at the latest in", colour(a), s.phaseSince + SiegeWaves.WAVE_MAX));
+                case NIGHT -> out.add(new Marker("s:" + id, Kind.SIEGE, t.center.getX(), t.center.getZ(), "Siege of " + t.name + (s.hostFellBack ? " (regrouping)" : " (night)"),
+                        host + (s.hostFellBack ? " fell back to its lines before " : " is camped before ") + t.name + "; it comes on again in",
+                        colour(a), s.phaseSince + (s.hostFellBack ? SiegeWaves.REGROUP : SiegeWaves.NIGHT_MIN)));
+                case RETURN -> { }
+            }
+            if (s.interceptBy != null && !s.interceptDone) {
+                VillageRecord by = ledger.get(s.interceptBy);
+                String realm = by == null ? "the realm" : "the realm of " + by.name;
+                switch (s.fieldPhase) {
+                    case NONE -> out.add(new Marker("f:" + id, Kind.BATTLE, s.interceptX, s.interceptZ, "Armies meet",
+                            "The army of " + realm + " (" + s.interceptMen + " men) marches to meet " + host + " on the road; they meet in", colour(by == null ? a : by),
+                            s.interceptAt));
+                    case FORMING -> out.add(new Marker("f:" + id, Kind.BATTLE, s.interceptX, s.interceptZ, "Ceasefire: battle",
+                            "The army of " + realm + " (" + s.fieldRealmStart + ", " + FieldService.doctrineLabel(s.realmDoctrine) + ") faces " + host + " ("
+                                    + s.fieldHostStart + ", " + FieldService.doctrineLabel(s.hostDoctrine) + ") under a ceasefire; battle in",
+                            colour(by == null ? a : by), s.fieldBattleAt));
+                    case FIGHT -> out.add(new Marker("f:" + id, Kind.BATTLE, s.interceptX, s.interceptZ, "Battle!",
+                            "The army of " + realm + " fights " + host + " on the road to " + t.name, 0xFF4040, -1));
+                    default -> { }
+                }
+            }
+            for (Relief rl : s.reliefs) {
+                VillageRecord h = ledger.get(rl.helper);
+                if (h == null || rl.phase != Relief.Phase.MARCH) {
+                    continue;
+                }
+                long total = Math.max(1, rl.phaseEnd - s.phaseSince);
+                double f = Math.max(0, Math.min(1, 1 - (rl.phaseEnd - now) / (double) total));
+                int x = (int) Math.round(h.center.getX() + (t.center.getX() - h.center.getX()) * f);
+                int z = (int) Math.round(h.center.getZ() + (t.center.getZ() - h.center.getZ()) * f);
+                out.add(new Marker("r:" + id + ":" + h.villageId.toString().substring(0, 8), Kind.RELIEF, x, z, "Relief of " + t.name,
+                        h.name + " sends " + rl.units.size() + " men to relieve " + t.name + "; they arrive in", colour(h), rl.phaseEnd));
+            }
+        }
+        return out;
+    }
+
+    /** The player's orders in a realm's service: each rally point or line, with its clock. */
+    static List<Marker> orders(ServerLevel ow, GarrisonLedger ledger, UUID player, long now) {
+        List<Marker> out = new ArrayList<>();
+        Service sv = ledger.services().get(player);
+        if (sv == null) {
+            return out;
+        }
+        for (Service.Order o : sv.orders) {
+            Siege sg = null;
+            for (Siege s : ledger.sieges()) {
+                if (s.id.equals(o.siege)) {
+                    sg = s;
+                }
+            }
+            VillageRecord t = ledger.get(o.target);
+            if (sg == null || t == null) {
+                continue;
+            }
+            long due = dev.hywmill.politics.service.ServiceRoles.ROAD.equals(o.side)
+                    ? (sg.fieldPhase == Siege.Field.FORMING ? sg.fieldBattleAt : sg.fieldPhase == Siege.Field.NONE ? sg.interceptAt : -1)
+                    : sg.fighting() ? -1 : now + Math.max(0, sg.arriveAt - sg.elapsed(now, ow.getDayTime()));
+            String what = dev.hywmill.politics.service.ServiceRoles.ROAD.equals(o.side) ? (o.defend ? "Our line" : "The host's line")
+                    : (o.defend ? "Hold the " : "Muster on the ") + o.side + " side";
+            out.add(new Marker("o:" + o.siege.toString().substring(0, 8), Kind.ORDER, o.x, o.z, "Your orders: " + what,
+                    "Your orders (" + t.name + "): " + what + " at (" + o.x + ", " + o.z + ")" + (due >= 0 ? "; due in" : ""), 0xFFD700, due));
+        }
+        return out;
+    }
+}

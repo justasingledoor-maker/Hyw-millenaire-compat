@@ -22,7 +22,16 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
                                double grievance, int favor, int diplomacyPoints, List<String> notes, List<String> chronicle,
                                List<VillageRow> villages, @Nullable UUID selected, List<ActionRow> actions, List<String> envoys,
                                List<String> lent, List<String> honours, List<String> history, List<IntelRow> intel,
-                               List<String> realm) implements CustomPacketPayload {
+                               List<String> realm, List<String> service) implements CustomPacketPayload {
+
+    /** 1.8: {@code service} holds the Service tab: the player's service, orders and the calls to arms of the home village's realm. */
+    public PoliticsSnapshot(@Nullable UUID home, String homeName, String culture, String standing, String effective, int reputation,
+                            double grievance, int favor, int diplomacyPoints, List<String> notes, List<String> chronicle,
+                            List<VillageRow> villages, @Nullable UUID selected, List<ActionRow> actions, List<String> envoys,
+                            List<String> lent, List<String> honours, List<String> history, List<IntelRow> intel, List<String> realm) {
+        this(home, homeName, culture, standing, effective, reputation, grievance, favor, diplomacyPoints, notes, chronicle, villages, selected,
+                actions, envoys, lent, honours, history, intel, realm, List.of());
+    }
 
     /** Post-M5: the War tab: columns the player's side found ({@code id}: the column; the verdicts are the server's). */
     public record IntelRow(UUID id, String text, boolean open, boolean canTake, boolean canBribe, int price) {}
@@ -151,6 +160,11 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
         for (String l : s.realm.subList(0, nr)) {
             buf.writeUtf(l, 512);
         }
+        int ns = Math.min(MAX_HISTORY, s.service.size());
+        buf.writeVarInt(ns);
+        for (String l : s.service.subList(0, ns)) {
+            buf.writeUtf(l, 512);
+        }
     }, buf -> {
         UUID home = readUuid(buf);
         String homeName = buf.readUtf(), culture = buf.readUtf(), standing = buf.readUtf(), effective = buf.readUtf();
@@ -186,8 +200,13 @@ public record PoliticsSnapshot(@Nullable UUID home, String homeName, String cult
         for (int i = 0; i < nr; i++) {
             realm.add(buf.readUtf(512));
         }
+        int ns = Math.min(MAX_HISTORY, buf.readVarInt());
+        List<String> service = new ArrayList<>();
+        for (int i = 0; i < ns; i++) {
+            service.add(buf.readUtf(512));
+        }
         return new PoliticsSnapshot(home, homeName, culture, standing, effective, rep, g, favor, dp, notes, chronicle, villages, selected,
-                actions, envoys, lent, honours, history, intel, realm);
+                actions, envoys, lent, honours, history, intel, realm, service);
     });
 
     static void writeUuid(RegistryFriendlyByteBuf buf, @Nullable UUID u) {

@@ -45,8 +45,17 @@ neoForge {
     }
 }
 
+repositories {
+    // 1.8: the JourneyMap API (compile only; JourneyMap itself is an optional mod the player may install)
+    maven {
+        url = 'https://jm.gserv.me/repository/maven-public/'
+        content { includeGroup 'info.journeymap' }
+    }
+}
+
 dependencies {
     compileOnly files(millenaireJar, hywJar)
+    compileOnly 'info.journeymap:journeymap-api-neoforge:2.0.0-1.21.1-SNAPSHOT'
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'

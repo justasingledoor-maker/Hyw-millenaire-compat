@@ -180,6 +180,11 @@ public final class RelationProjector {
                 OptionalInt ryx = source.villageRelation(overworld, y.villageId, x.villageId);
                 boolean conflict = (rxy.isPresent() && rxy.getAsInt() <= OPEN_CONFLICT) || (ryx.isPresent() && ryx.getAsInt() <= OPEN_CONFLICT);
                 boolean raid = y.villageId.equals(raidTarget.get(x.villageId)) || x.villageId.equals(raidTarget.get(y.villageId));
+                // 1.8: a realm whose council makes its wars is not dragged into one by a quarrel (a raid still is): its council
+                // weighs the hatred as a claim (docs/realm-design.md §15)
+                if (conflict && !raid && (w == null || !w.atWar()) && (RealmCouncil.governs(ledger, x.villageId, now) || RealmCouncil.governs(ledger, y.villageId, now))) {
+                    conflict = false;
+                }
                 if (w == null) {
                     if (!auto || !(conflict || raid)) {
                         continue;

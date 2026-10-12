@@ -373,6 +373,19 @@ public final class PoliticsNbt {
                 ic.putDouble("power", g.interceptPower);
                 ic.put("from", uuids(g.interceptFrom));
                 ic.putBoolean("done", g.interceptDone);
+                if (g.fieldPhase != dev.hywmill.politics.war.Siege.Field.NONE) {
+                    CompoundTag f = new CompoundTag();
+                    f.putString("phase", g.fieldPhase.name());
+                    f.putLongArray("t", new long[]{g.fieldSince, g.fieldBattleAt, g.fieldLeft, g.fieldHomeAt});
+                    f.putIntArray("start", new int[]{g.fieldHostStart, g.fieldRealmStart});
+                    f.putString("hostDoctrine", g.hostDoctrine);
+                    f.putString("realmDoctrine", g.realmDoctrine);
+                    f.putIntArray("flags", new int[]{g.fieldWorld ? 1 : 0, g.hostRallied ? 1 : 0, g.realmRallied ? 1 : 0});
+                    CompoundTag army = new CompoundTag();
+                    g.fieldArmy.forEach((v, ids) -> army.put(v.toString(), uuids(ids)));
+                    f.put("army", army);
+                    ic.put("field", f);
+                }
                 x.put("intercept", ic);
             }
             if (g.royalOut) {
@@ -419,8 +432,8 @@ public final class PoliticsNbt {
                     x.put("defReserve", uuids(g.defReserve));
                 }
                 x.putIntArray("toll", new int[]{g.hostDeadW, g.hostHurtW, g.defDeadW, g.defHurtW, g.hostDead, g.hostHurt, g.defDead, g.defHurt});
-                if (g.hostStand || g.defStand) {
-                    x.putIntArray("stand", new int[]{g.hostStand ? 1 : 0, g.defStand ? 1 : 0});
+                if (g.hostFellBack || g.defStand) {
+                    x.putIntArray("stand", new int[]{g.hostFellBack ? 1 : 0, g.defStand ? 1 : 0});
                 }
             }
             if (!g.notes.isEmpty()) {
@@ -505,6 +518,41 @@ public final class PoliticsNbt {
                         g.interceptPower = ic.getDouble("power");
                         g.interceptFrom.addAll(readUuids(ic.getList("from", Tag.TAG_INT_ARRAY)));
                         g.interceptDone = ic.getBoolean("done");
+                        if (ic.contains("field")) {
+                            CompoundTag f = ic.getCompound("field");
+                            try {
+                                g.fieldPhase = dev.hywmill.politics.war.Siege.Field.valueOf(f.getString("phase"));
+                            } catch (IllegalArgumentException ex) {
+                                g.fieldPhase = dev.hywmill.politics.war.Siege.Field.NONE;
+                            }
+                            long[] ft = f.getLongArray("t");
+                            int[] st = f.getIntArray("start"), fl = f.getIntArray("flags");
+                            if (ft.length == 4) {
+                                g.fieldSince = ft[0];
+                                g.fieldBattleAt = ft[1];
+                                g.fieldLeft = ft[2];
+                                g.fieldHomeAt = ft[3];
+                            }
+                            if (st.length == 2) {
+                                g.fieldHostStart = st[0];
+                                g.fieldRealmStart = st[1];
+                            }
+                            if (fl.length == 3) {
+                                g.fieldWorld = fl[0] != 0;
+                                g.hostRallied = fl[1] != 0;
+                                g.realmRallied = fl[2] != 0;
+                            }
+                            g.hostDoctrine = f.getString("hostDoctrine");
+                            g.realmDoctrine = f.getString("realmDoctrine");
+                            CompoundTag army = f.getCompound("army");
+                            for (String k : army.getAllKeys()) {
+                                try {
+                                    g.fieldArmy.put(UUID.fromString(k), new ArrayList<>(readUuids(army.getList(k, Tag.TAG_INT_ARRAY))));
+                                } catch (IllegalArgumentException ignored) {
+                                    // a bad key: that contingent is forgotten (its men come home as orphans)
+                                }
+                            }
+                        }
                     }
                 }
                 g.royalOut = x.getBoolean("royalOut");
@@ -533,7 +581,7 @@ public final class PoliticsNbt {
                 }
                 int[] stand = x.getIntArray("stand");
                 if (stand.length == 2) {
-                    g.hostStand = stand[0] != 0;
+                    g.hostFellBack = stand[0] != 0;
                     g.defStand = stand[1] != 0;
                 }
                 int[] toll = x.getIntArray("toll");

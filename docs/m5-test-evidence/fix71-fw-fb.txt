@@ -1,0 +1,43 @@
+# fix71 FW (a field battle in the world) - harness run 1
+[harness] PASS FW-0 four villages 
+[harness] NOTE FW villages: S=Vaucelles les-pâtures | P=Itanos | V=Ouilly la-fôret | O=Le Mesnil le-volcan
+[harness] PASS FW-1 the council sends the realm's army to meet the host on the road snil le-volcan musters 20 soldiers to besiege Ouilly la-fôret to annex it; they march in about 1 min id 3f21a0df host 20 ||  the council sends the army of the realm (about 36 men) to meet the host of Le Mesnil le-volcan on the road to Ouilly la-fôret, near (411, 621), in about 5 min war admin field OK: the armies meet now near (411, 621), 36 men
+[harness] PASS FW-2 the armies meet and form their lines under a ceasefire, each with a doctrine [15:11:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field battle forms near (411, 621): realm 36 men (SKIRMISH), host 20 men (SHIELD_WALL); battle at 352907
+[harness] PASS FW-3 both armies come into the world at their lines; the ceasefire holds (no battle yet) -> Ouilly la-fôret MARCH 20/20 next in 516 s id 3f21a0df relief [Vaucelles les-pâtures MARCH/CLEAN 54/54, Itanos MARCH/CLEAN 18/18] field FORMING host SHIELD_WALL 20 realm SKIRMISH 36 battle in 1168 s host=True realm=True
+[harness] PASS FW-4 the ceasefire ends and the battle is fought in the world [15:12:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field battle begins in the world: host 20 (SHIELD_WALL), realm 40 (SKIRMISH)
+[harness] PASS FW-5 one side routs or holds the field; the host goes home or marches on [15:16:13] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: Battle near (411, 621) on the road to Ouilly la-fôret: the army of the realm of Vaucelles les-pâtures (36 men, the skirmish) against the host of Le Mesnil le-volcan (20 men, the shield wall): the host broke and fled: 8 of 20 still standing. The host turns for home with 15 men; the realm's army marches home with 35
+[harness] NOTE FW tactics: read/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field battle forms near (411, 621): realm 36 men (SKIRMISH), host 20 men (SHIELD_WALL); battle at 352907 | [15:12:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field battle begins in the world: host 20 (SHIELD_WALL), realm 40 (SKIRMISH) | le-volcan (20 men, the shield wall): the host broke and fled: 8 of 20 still standing. The host turns for home with 15 men; the realm's army marches home with 35
+
+# server log, siege 3f21a0df
+[15:08:59] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: Vaucelles les-pâtures is bound to relieve Ouilly la-fôret (the army of the realm)
+[15:08:59] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: Itanos is bound to relieve Ouilly la-fôret (the army of the realm)
+[15:08:59] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df launched: Le Mesnil le-volcan -> Ouilly la-fôret (quick, arrives in 11552 ticks)
+[15:08:59] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: Refugees from the countryside crowd into Ouilly la-fôret before the host of Le Mesnil le-volcan: 19 of them take up arms
+[15:08:59] [Server thread/INFO] [minecraft/MinecraftServer]: war siege OK: Le Mesnil le-volcan musters 20 soldiers to besiege Ouilly la-fôret to annex it; they march in about 1 min id 3f21a0df host 20
+[15:11:05] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: 20 unit(s) stowed, marching 10351 ticks
+[15:11:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: relief: Vaucelles les-pâtures sends 54 soldiers with the army of the realm of Vaucelles les-pâtures to break the siege of Ouilly la-fôret; the army arrives in about 2 min
+[15:11:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: relief: Itanos sends 18 soldiers with the army of the realm of Vaucelles les-pâtures to break the siege of Ouilly la-fôret; the army arrives in about 2 min
+[15:11:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field battle forms near (411, 621): realm 36 men (SKIRMISH), host 20 men (SHIELD_WALL); battle at 352907
+[15:12:18] [Server thread/INFO] [minecraft/MinecraftServer]:  Le Mesnil le-volcan -> Ouilly la-fôret MARCH 20/20 next in 516 s id 3f21a0df relief [Vaucelles les-pâtures MARCH/CLEAN 54/54, Itanos MARCH/CLEAN 18/18] field FORMING host SHIELD_WALL 20 realm SKIRMISH 36 battle in 1168 s
+[15:12:22] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field battle begins in the world: host 20 (SHIELD_WALL), realm 40 (SKIRMISH)
+[15:14:23] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field: light_lancer_rider of Itanos wounded and carried off the field
+[15:14:52] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field: shieldman of Le Mesnil le-volcan wounded and carried off the field
+[15:15:07] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field: crossbowman of Itanos wounded and carried off the field
+[15:15:12] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field: shieldman of Le Mesnil le-volcan wounded and carried off the field
+[15:15:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: relief CLEAN: Vaucelles les-pâtures's relief (54) reaches Ouilly la-fôret and takes position round the village
+[15:15:15] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: relief CLEAN: Itanos's relief (18) reaches Ouilly la-fôret and takes position round the village
+[15:15:18] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field: shieldman of Le Mesnil le-volcan wounded and carried off the field
+[15:15:41] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field: shieldman of Vaucelles les-pâtures wounded and carried off the field
+[15:15:43] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field: shieldman of Le Mesnil le-volcan wounded and carried off the field
+[15:15:59] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field: spear_man of Le Mesnil le-volcan wounded and carried off the field
+[15:16:08] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field: spear_man of Le Mesnil le-volcan wounded and carried off the field
+[15:16:12] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: field: spear_man of Le Mesnil le-volcan wounded and carried off the field
+[15:16:13] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: Battle near (411, 621) on the road to Ouilly la-fôret: the army of the realm of Vaucelles les-pâtures (36 men, the skirmish) against the host of Le Mesnil le-volcan (20 men, the shield wall): the host broke and fled: 8 of 20 still standing. The host turns for home with 15 men; the realm's army marches home with 35
+[15:16:13] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: 19 temporary defender(s) of Ouilly la-fôret go home
+[15:16:13] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 3f21a0df: wiped by an admin (Le Mesnil le-volcan -> Ouilly la-fôret: home)
+
+# fix71 FB (a field battle far from any witness, after the ceasefire) - harness run 2
+[harness] PASS FB-0 four villages 
+[harness] NOTE FB villages: S=Vaucelles les-pâtures | P=Itanos | V=Ouilly la-fôret | O=Le Mesnil le-volcan
+[harness] PASS FB-1 the council sends the army of the realm to meet the host on the road can musters 27 soldiers to besiege Ouilly la-fôret to raze it; they march in about 1 min id 88a87318 host 27 (unwatched) ||  the council sends the army of the realm (about 41 men) to meet the host of Le Mesnil le-volcan on the road to Ouilly la-fôret, near (411, 621), in about 5 min war admin field OK: the armies meet now near (411, 621), 41 men
+[harness] PASS FB-2 the armies meet on the road: one breaks (the host goes home, or the realm's army is beaten and the host marches on) 8: Battle near (411, 621) on the road to Ouilly la-fôret: the army of the realm of Vaucelles les-pâtures (41 men, the skirmish) against the host of Le Mesnil le-volcan (27 men, the shield wall): the host was broken (14 dead). The host turns for home with 13 men; the realm's army marches home with 32

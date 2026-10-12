@@ -181,6 +181,12 @@ public final class Officials {
         return m == null ? 1 : m.temper == Temper.HAWK ? 0.9 : m.temper == Temper.CAUTIOUS ? 1.15 : 1;
     }
 
+    /** 1.8: how bold the realm's Marshal is in the field: 1 hawkish, -1 cautious or peaceable, else 0. */
+    public static int boldness(List<Official> all) {
+        Official m = of(all, Office.MARSHAL);
+        return m == null ? 0 : m.temper == Temper.HAWK ? 1 : m.temper == Temper.CAUTIOUS || m.temper == Temper.DOVE ? -1 : 0;
+    }
+
     /** Added to the share held back to defend: a cautious Marshal or a peaceable Chancellor hold more men home. */
     public static double reserveDelta(List<Official> all) {
         double d = 0;

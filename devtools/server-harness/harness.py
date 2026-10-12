@@ -350,7 +350,7 @@ def reuse(ctx):
         s.cmd("forceload add {} {} {} {}".format(*box), wait=15)
     s.cmd("millenaire chunkload", 10)
     centers = []
-    for l in s.output("hywmill village list", 2):
+    for l in s.output("hywmill village list", 6):
         m = re.search(r" \((-?\d+), (-?\d+), (-?\d+)\) tier=| (-?\d+), (-?\d+), (-?\d+) tier=", l)
         if m and not l.endswith(" lone"):  # LB's bandit tower is no test village
             g = [x for x in m.groups() if x is not None]
@@ -6344,6 +6344,15 @@ def _realm(ctx):
     return R, c
 
 
+def _muster(s, R, key, n=12):
+    """Tops up R[key]'s garrison (a kept world wears it down from battle to battle): n soldiers granted, spawned at once."""
+    pos = R[key]["pos"]
+    for i in range(n):
+        s.output(at(pos, "hywmill admin grant " + ("warrior", "shieldman", "archer", "spear_man")[i % 4] + " 1"), 0.3)
+    s.output(at(pos, "hywmill dev spawn-now"), 3)
+    time.sleep(20)
+
+
 def _standing(s, R, c, uid, key="S", rep=20000, favors=20):
     """A stand-in at R[key] with the reputation (and Favor) of a patron there."""
     standin_at(s, uid, R[key]["pos"][0] + 3, R[key]["pos"][2] + 3)
@@ -6434,6 +6443,7 @@ def scenario_FB(ctx):
     if R is None:
         return
     note("FB villages", " | ".join(f"{k}={r['name']}" for k, r in R.items()))
+    _muster(s, R, "O")
     s.output(f"hywmill war for {U_UUID} declare {c['O']} on {c['S']} force", 3)
     p0 = s.pos()
     sg = " ".join(l for l in s.output(f"hywmill war admin siege {c['O']} {c['V']} quick unwatched", 3) if l.startswith("war siege"))
@@ -6441,11 +6451,284 @@ def scenario_FB(ctx):
     while time.time() - t0 < 240 and "war admin field OK" not in fb:
         time.sleep(15)
         fb = " ".join(s.output(f"hywmill war admin field {c['O']}", 3))
-    battle = s.wait_for(r"Battle on the road to " + re.escape(R["V"]["name"]), 60, since=p0)
-    check("FB-1 the council sends the army of the realm to meet the host on the road", "war admin field OK" in fb, f"{sg[-120:]} || {fb[-300:]}")
+    # 1.8: the armies face each other under a ceasefire first; far from any witness the battle is then drawn
+    formed = s.wait_for(r"field battle forms near", 300, since=p0)  # once the host is on the road
+    s.output(f"hywmill war admin fieldnow {c['O']}", 2)
+    battle = s.wait_for(r"Battle near \(-?\d+, -?\d+\) on the road to " + re.escape(R["V"]["name"]), 120, since=p0)
+    check("FB-1 the council sends the army of the realm to meet the host on the road", "war admin field OK" in fb and formed is not None,
+          f"{sg[-120:]} || {fb[-300:]}")
     check("FB-2 the armies meet on the road: one breaks (the host goes home, or the realm's army is beaten and the host marches on)",
           battle is not None and ("turns for home" in battle or "marches on" in battle), (battle or "")[-300:])
     s.output("hywmill war admin recall-all", 4)
+    s.output(f"hywmill war for {U_UUID} peace {c['O']} with {c['S']} force", 3)
+    _clean(s, R, c)
+
+
+def scenario_FW(ctx):
+    """A field battle in the world (1.8, docs/realm-design.md §16; --keep-world): O marches on the vassal V; the realm's army
+    meets it on the road; with the field loaded both armies come into the world and form their lines 120 blocks apart under
+    a ceasefire, each by its marshal's doctrine; nobody strikes; when the ceasefire ends they fight in the world until one
+    side routs or holds the field, and the host goes home or marches on."""
+    s = ctx.s
+    R, c = _realm(ctx)
+    check("FW-0 four villages", R is not None, "")
+    if R is None:
+        return
+    note("FW villages", " | ".join(f"{k}={r['name']}" for k, r in R.items()))
+    _muster(s, R, "O")
+    s.output(f"hywmill war for {U_UUID} declare {c['O']} on {c['S']} force", 3)
+    p0 = s.pos()
+    sg = " ".join(l for l in s.output(f"hywmill war admin siege {c['O']} {c['V']} quick", 3) if l.startswith("war siege"))
+    fb, t0 = "", time.time()
+    while time.time() - t0 < 240 and "war admin field OK" not in fb:
+        time.sleep(15)
+        fb = " ".join(s.output(f"hywmill war admin field {c['O']}", 3))
+    m = re.search(r"near \((-?\d+), (-?\d+)\)", fb)
+    check("FW-1 the council sends the realm's army to meet the host on the road", "war admin field OK" in fb and m is not None, f"{sg[-120:]} || {fb[-300:]}")
+    if not m:
+        s.output("hywmill war admin recall-all", 4)
+        return
+    x, z = int(m[1]), int(m[2])
+    s.cmd(f"forceload add {x - 96} {z - 96} {x + 96} {z + 96}", 20)
+    formed = s.wait_for(r"field battle forms near", 120, since=p0)
+    check("FW-2 the armies meet and form their lines under a ceasefire, each with a doctrine",
+          formed is not None and re.search(r"realm \d+ men \((HAMMER|SHIELD_WALL|SKIRMISH|FLANK)\), host \d+ men \((HAMMER|SHIELD_WALL|SKIRMISH|FLANK)\)", formed or "") is not None,
+          (formed or "")[-240:])
+    time.sleep(70)
+    log = "\n".join(s.read_since(p0))
+    st = " ".join(l for l in s.output("hywmill war sieges", 2) if " field " in l)
+    host_in = re.search(r"field: \d+ of the host come to the line", log) is not None
+    realm_in = re.search(r"field: \d+ of the realm's army come to the line", log) is not None
+    check("FW-3 both armies come into the world at their lines; the ceasefire holds (no battle yet)",
+          host_in and realm_in and "FORMING" in st and "battle begins" not in log, f"{st[-200:]} host={host_in} realm={realm_in}")
+    s.output(f"hywmill war admin fieldnow {c['O']}", 2)
+    began = s.wait_for(r"field battle begins in the world", 60, since=p0)
+    check("FW-4 the ceasefire ends and the battle is fought in the world", began is not None, (began or "")[-200:])
+    end = s.wait_for(r"Battle near \(-?\d+, -?\d+\) on the road to " + re.escape(R["V"]["name"]), 480, since=p0)
+    check("FW-5 one side routs or holds the field; the host goes home or marches on",
+          end is not None and "far from any witness" not in end and ("turns for home" in end or "marches on" in end), (end or "")[-400:])
+    note("FW tactics", " | ".join(l[-160:] for l in s.read_since(p0) if "wavers" in l or "field battle" in l or "Battle near" in l)[:900])
+    s.output("hywmill war admin recall-all", 4)
+    s.cmd("forceload remove all", 2)
+    s.output(f"hywmill war for {U_UUID} peace {c['O']} with {c['S']} force", 3)
+    _clean(s, R, c)
+
+
+def scenario_JM(ctx):
+    """Client check (1.8; --keep-world, a client joins localhost): the map markers and the Service tab. A real client (with
+    JourneyMap) joins; it volunteers for S; O marches on V and the realm's army meets it on the road; the player stands by
+    the field during the ceasefire (the client takes its pictures on the server's say), the Politics screen is sent to it,
+    then the battle is fought before it."""
+    s = ctx.s
+    p0 = s.pos()
+    joined = s.wait_for(r"]: (\S+) joined the game", 1800, since=p0)
+    m = re.search(r"]: (\S+) joined the game", joined or "")
+    check("JM-0 a client joins", m is not None, (joined or "")[-200:])
+    if not m:
+        return
+    name = m[1]
+    import hashlib, uuid as _uuid
+    h = bytearray(hashlib.md5(("OfflinePlayer:" + name).encode()).digest())  # an offline server's UUID for the name
+    h[6] = (h[6] & 0x0F) | 0x30
+    h[8] = (h[8] & 0x3F) | 0x80
+    uid = str(_uuid.UUID(bytes=bytes(h)))
+    s.cmd(f"gamemode spectator {name}", 1)  # nothing at the spawn kills him while the realm is set up
+    s.cmd("gamerule doImmediateRespawn true", 1)
+    s.cmd(f"op {name}", 1)
+    time.sleep(20)
+    R, c = _realm(ctx)
+    if R is None:
+        return
+    v = " ".join(s.output(f"hywmill service admin enlist {uid} volunteer {c['S']}", 2))
+    _muster(s, R, "O")
+    s.output(f"hywmill war for {U_UUID} declare {c['O']} on {c['S']} force", 3)
+    p1 = s.pos()
+    s.output(f"hywmill war admin siege {c['O']} {c['V']} quick", 3)
+    fb, t0 = "", time.time()
+    while time.time() - t0 < 240 and "war admin field OK" not in fb:
+        time.sleep(15)
+        fb = " ".join(s.output(f"hywmill war admin field {c['O']}", 3))
+    mm = re.search(r"near \((-?\d+), (-?\d+)\)", fb)
+    check("JM-1 a volunteer; the realm's army goes to meet the host", "service OK" in v and mm is not None, f"{v[-120:]} || {fb[-200:]}")
+    if not mm:
+        s.output("hywmill war admin recall-all", 3)
+        return
+    x, z = int(mm[1]), int(mm[2])
+    s.cmd(f"forceload add {x - 96} {z - 96} {x + 96} {z + 96}", 10)
+    formed = s.wait_for(r"field battle forms near", 120, since=p1)
+    s.cmd(f"execute positioned {x + 50} 0 {z + 50} positioned over motion_blocking_no_leaves run tp {name} ~ ~12 ~ facing {x} ~ {z}", 2)
+    time.sleep(40)
+    s.cmd("say CLI-READY", 60)  # the client: the minimap, then the full map
+    s.output(f"hywmill dev m5 ui send {uid}", 2)
+    s.cmd("say CLI-UI", 40)  # the client: the Service tab
+    s.output(f"hywmill war admin fieldnow {c['O']}", 2)
+    s.wait_for(r"field battle begins in the world", 60, since=p1)
+    time.sleep(60)
+    s.cmd("say CLI-BATTLE", 30)  # the client: the battle
+    end = s.wait_for(r"Battle near \(-?\d+, -?\d+\) on the road to ", 420, since=p1)
+    formed = formed or next((l for l in s.read_since(p1) if "field battle forms near" in l), None)  # it may form after the first wait
+    check("JM-2 the field battle formed and was fought before the client", formed is not None and end is not None
+          and "far from any witness" not in (end or ""), (end or "")[-200:])
+    s.cmd("say CLI-DONE", 5)
+    s.output("hywmill war admin recall-all", 4)
+    s.cmd("forceload remove all", 2)
+    s.output(f"hywmill war for {U_UUID} peace {c['O']} with {c['S']} force", 3)
+    s.output(f"hywmill service admin leave {uid}", 1)
+    _clean(s, R, c)
+
+
+def scenario_UT(ctx):
+    """1.7/1.8 items not yet seen in a running world (--keep-world): a knight bribes the officials with money; a demand of
+    fealty; a weak state at war with a great realm buys peace and a pact; the league against a great realm arms and makes no
+    war; a grudge fades; a knight who wrongs his realm is banished and barred."""
+    s = ctx.s
+    R, c = _realm(ctx)
+    check("UT-0 four villages", R is not None, "")
+    if R is None:
+        return
+    note("UT villages", " | ".join(f"{k}={r['name']}" for k, r in R.items()))
+    run = "%08x" % (int(time.time()) & 0xFFFFFFFF)
+    K = f"{run}-0000-4000-8000-0000000000b1"
+    _standing(s, R, c, K)
+    k0 = " ".join(s.output(f"hywmill service admin enlist {K} knight {c['S']}", 2))
+    # bribes: a gold denier offered to each official; the honourable refuse, the others take it
+    br = [" ".join(s.output(f"hywmill service admin bribe {K} {i}", 2)) for i in range(4)]
+    took = [b for b in br if "bribe OK" in b]
+    refused = [b for b in br if "REFUSED" in b]
+    paid = all(re.search(r"money (\d+) -> (\d+)", b) and int(re.search(r"money (\d+) -> (\d+)", b)[1]) - int(re.search(r"money (\d+) -> (\d+)", b)[2]) == 4096
+               for b in took)
+    kept = all(re.search(r"money (\d+) -> \1\b", b) for b in refused)
+    check("UT-1 a knight bribes the officials with a gold denier: those who take it get it, the honourable refuse and keep none",
+          "service OK" in k0 and len(took) >= 1 and paid and kept, " || ".join(b[-160:] for b in br))
+    # a demand of fealty (the realm's army far the stronger: forced)
+    d = " ".join(s.output(f"hywmill war admin demand {c['S']} {c['O']} force", 3))
+    bar = " ".join(s.output(f"hywmill service admin bar {c['O']}", 1))
+    check("UT-2 the council demands fealty of a much weaker village: it bows and is the realm's vassal",
+          "gives in" in d and "Vassal" in bar and ("Sworn to " + R["S"]["name"]) in bar, f"{d[-160:]} || {bar[-160:]}")
+    s.output(f"hywmill war admin rebel {c['O']}", 2)
+    time.sleep(14)
+    # a weak state at war with the great realm buys peace (and a pact)
+    s.output(f"hywmill war admin thin {c['O']} 2", 3)
+    s.output(f"hywmill war for {U_UUID} declare {c['S']} on {c['O']} force", 3)
+    p0 = s.pos()
+    dip = ""
+    for _ in range(6):
+        dip = " ".join(s.output(f"hywmill war admin diplomacy {c['S']}", 3))
+        if "accepts: peace" in dip:
+            break
+    log = "\n".join(s.read_since(p0))
+    check("UT-3 a weak state at war with a great realm sues for peace with tribute; taken, peace and a non-aggression pact",
+          "sues for peace" in dip and "accepts: peace" in dip and "non-aggression pact" in log, dip[-400:])
+    # a grudge fades (O is at peace with the realm now; it rebels below, which is war)
+    m5(s, f"mill mrel {c['P']} {c['O']} set -50", 1)
+    s.output("hywmill war admin heal", 2)
+    g = m5_1(s, f"mill mrel {c['P']} {c['O']}", 1)
+    check("UT-5 a grudge between villages at peace fades by 2 a day", "now=-48/-48" in g, g)
+    # the league: the outsiders fear the realm, league and arm, and declare no war
+    p1 = s.pos()
+    s.output(f"hywmill war admin annex {c['O']} {c['S']}", 4)
+    time.sleep(14)
+    lg = " ".join(s.output(f"hywmill war admin diplomacy {c['S']}", 3))
+    mob = s.wait_for(r"mobilizes for war", 30, since=p1)
+    wars = " ".join(s.output("hywmill war admin wars", 2))
+    note("UT league", lg[-400:])
+    check("UT-4 the league against a great realm arms (a war footing) and declares no war",
+          re.search(r"league [1-9]", lg) is not None and "declares war" not in "\n".join(s.read_since(p1)), f"{lg[-200:]} || mob={(mob or '')[-120:]}")
+    s.output(f"hywmill war admin rebel {c['O']}", 2)
+    # banishment: the knight wrongs the realm (his standing falls to outlaw); at dawn the council banishes him
+    p2 = s.pos()
+    m5(s, f"mill rep {c['S']} {K} adjust -100000", 1)
+    time.sleep(30)  # his standing is re-evaluated on the politics cadence
+    s.cmd("time add 24000", 3)
+    ban = s.wait_for(r"banishes", 45, since=p2)
+    if ban is None:  # the dawn came before his standing fell: the next one
+        s.cmd("time add 24000", 3)
+        ban = s.wait_for(r"banishes", 45, since=p2)
+    st = " ".join(s.output(f"hywmill service admin status {K}", 2))
+    again = " ".join(s.output(f"hywmill service admin enlist {K} volunteer {c['S']}", 2))
+    check("UT-6 a knight who wrongs his realm is banished at dawn, and barred from it", ban is not None and "REFUSED" in again,
+          f"{(ban or '')[-160:]} || {st[-120:]} || {again[-160:]}")
+    s.output(f"hywmill war for {U_UUID} peace {c['S']} with {c['O']} force", 3)
+    s.output(f"hywmill service admin leave {K}", 1)
+    _clean(s, R, c)
+
+
+def scenario_RW(ctx):
+    """The royal guard fought in the world (1.7; --keep-world): O besieges the capital S, the wave fought in the world (S is
+    loaded); most defenders are wounded; at their final stand the ruler and his guard come out into the world and fight."""
+    s = ctx.s
+    R, c = _realm(ctx)
+    check("RW-0 four villages", R is not None, "")
+    if R is None:
+        return
+    _muster(s, R, "O")
+    s.cmd("time set 1000", 1)
+    x, _, z = R["S"]["pos"]
+    s.cmd(f"forceload add {x - 128} {z - 128} {x + 128} {z + 128}", 15)
+    s.output(f"hywmill war for {U_UUID} declare {c['O']} on {c['S']} force", 3)
+    p0 = s.pos()
+    sg = " ".join(l for l in s.output(f"hywmill war admin siege {c['O']} {c['S']} quick nofield", 3) if l.startswith("war siege"))
+    began = s.wait_for(r"Siege \S+: wave 1: \d+ unit\(s\) materialized", 900, since=p0)
+    check("RW-1 the siege of the capital is fought in the world", "OK" in sg and began is not None, f"{sg[-160:]} || {(began or '')[-160:]}")
+    if not began:
+        s.output("hywmill war admin recall-all", 3)
+        s.cmd("forceload remove all", 2)
+        return
+    time.sleep(20)
+    w = " ".join(l for l in s.output(f"hywmill war admin siege-wound {c['O']} def 500", 2) if "siege-wound" in l)
+    royal = s.wait_for(r"comes out of his hall with his guard", 120, since=p0)
+    time.sleep(10)
+    title = "King of " + R["S"]["name"]
+    seen = " ".join(s.output(f'execute if entity @e[name="{title}"]', 2))
+    guards = " ".join(s.output(f'execute if entity @e[tag=hywmill_garrison,distance=..9999]', 1))
+    check("RW-2 at the final stand the King and his guard come out into the world", royal is not None and "Test passed" in seen,
+          f"{w} || {(royal or '')[-200:]} || {seen[-120:]}")
+    time.sleep(90)
+    log = "\n".join(s.read_since(p0))
+    fought = len(re.findall(r"of " + re.escape(R["S"]["name"]) + r" wounded and carried off the field", log))
+    ruler = re.search(r"has fallen before his walls", log)
+    over = re.search(r"Siege \S+: (sundown|.*final stand broke|.*defenders broke|.*host broke)", log)
+    note("RW fight", f"defenders wounded in the world {fought}; ruler fell: {bool(ruler)}")
+    check("RW-3 the stand is fought in the world after the guard comes out (defenders fall in the world)", fought >= 1, f"wounded={fought}")
+    s.output("hywmill war admin recall-all", 3)
+    s.cmd("forceload remove all", 2)
+    s.output(f"hywmill war for {U_UUID} peace {c['O']} with {c['S']} force", 3)
+    s.cmd("time set 1000", 1)
+    _clean(s, R, c)
+
+
+def scenario_FBK(ctx):
+    """The host falls back (1.8; --keep-world): O besieges V, the wave fought in the world; nearly all the host is wounded
+    (standing men under a fifth, wounded keeping it alive): it makes no final stand but falls back to its lines, tends its
+    wounded and comes on again (a new assault) once regrouped."""
+    s = ctx.s
+    R, c = _realm(ctx)
+    check("FBK-0 four villages", R is not None, "")
+    if R is None:
+        return
+    _muster(s, R, "O")
+    s.cmd("time set 1000", 1)
+    x, _, z = R["V"]["pos"]
+    s.cmd(f"forceload add {x - 128} {z - 128} {x + 128} {z + 128}", 15)
+    s.output(f"hywmill war for {U_UUID} declare {c['O']} on {c['S']} force", 3)
+    p0 = s.pos()
+    sg = " ".join(l for l in s.output(f"hywmill war admin siege {c['O']} {c['V']} quick nofield", 3) if l.startswith("war siege"))
+    began = s.wait_for(r"Siege \S+: wave 1: \d+ unit\(s\) materialized", 900, since=p0)
+    check("FBK-1 the siege is fought in the world", "OK" in sg and began is not None, f"{sg[-160:]} || {(began or '')[-160:]}")
+    if not began:
+        s.output("hywmill war admin recall-all", 3)
+        s.cmd("forceload remove all", 2)
+        return
+    time.sleep(10)
+    w = " ".join(l for l in s.output(f"hywmill war admin siege-wound {c['O']} host 500", 2) if "siege-wound" in l)
+    fell = s.wait_for(r"falls back to its lines before", 60, since=p0)
+    stand = [l for l in s.read_since(p0) if "host of " + R["O"]["name"] in l and "final stand" in l]
+    check("FBK-2 down to a fifth standing, the host makes no final stand: it falls back to its lines", fell is not None and not stand,
+          f"{w} || {(fell or '')[-220:]}")
+    again = s.wait_for(r"Siege \S+: wave 2 begins", 400, since=p0)
+    check("FBK-3 once regrouped, the host comes on again (the next assault)", again is not None, (again or "")[-200:])
+    s.output("hywmill war admin recall-all", 3)
+    s.cmd("forceload remove all", 2)
     s.output(f"hywmill war for {U_UUID} peace {c['O']} with {c['S']} force", 3)
     _clean(s, R, c)
 
@@ -7841,7 +8124,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

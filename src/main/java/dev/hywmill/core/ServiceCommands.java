@@ -79,6 +79,22 @@ final class ServiceCommands {
                                 })))))
                 .then(Commands.literal("leave").then(Commands.argument("player", UuidArgument.uuid()).executes(ctx -> result(ctx.getSource(),
                         ServiceRoles.leave(ctx.getSource().getServer().overworld(), UuidArgument.getUuid(ctx, "player"))))))
+                .then(Commands.literal("bribe").then(Commands.argument("player", UuidArgument.uuid())
+                        .then(Commands.argument("official", com.mojang.brigadier.arguments.IntegerArgumentType.integer(0, 3)).executes(ctx -> {
+                            // dev (1.7 bribes): the stand-in is given a gold denier (1 or) and offers it to that official
+                            ServerLevel ow = ctx.getSource().getServer().overworld();
+                            var source = dev.hywmill.core.Services.settlements();
+                            if (!(ow.getPlayerByUUID(UuidArgument.getUuid(ctx, "player")) instanceof net.minecraft.server.level.ServerPlayer sp) || source == null) {
+                                send(ctx.getSource(), "service admin bribe: no such player");
+                                return 0;
+                            }
+                            source.giveMoney(sp, 4096);
+                            int before = source.playerMoney(sp);
+                            ServiceRoles.Result r = ServiceRoles.bribe(ow, sp, com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "official"), 4096);
+                            send(ctx.getSource(), "service admin bribe " + (r.ok() ? "OK" : "REFUSED") + ": money " + before + " -> " + source.playerMoney(sp)
+                                    + " | " + r.message());
+                            return r.ok() ? 1 : 0;
+                        }))))
                 .then(Commands.literal("status").then(Commands.argument("player", UuidArgument.uuid())
                         .executes(ctx -> status(ctx.getSource(), UuidArgument.getUuid(ctx, "player")))))
                 .then(Commands.literal("counsel").then(Commands.argument("player", UuidArgument.uuid()).then(Commands.argument("kind", StringArgumentType.word())

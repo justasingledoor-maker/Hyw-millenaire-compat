@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The same {@link #snapshot}/{@link #submit} are driven headless by {@code /hywmill dev ui}.
  */
 public final class PoliticsNet {
-    public static final String VERSION = "8"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab; 6: War tab; 7: Realm tab; 8: bearings, mercenary companies
+    public static final String VERSION = "9"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab; 6: War tab; 7: Realm tab; 8: bearings, mercenary companies; 9: map markers, Service tab
     /** At most one request per player per this many ticks. */
     public static final long RATE_TICKS = 5;
     /** Local requests (pardon, apology) and the home view need the player near the home village. */
@@ -65,6 +65,7 @@ public final class PoliticsNet {
         // client-bound: handled by client-only code, loaded only when a client runs the handler
         r.playToClient(PoliticsSnapshot.TYPE, PoliticsSnapshot.CODEC, (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.PoliticsClient.onSnapshot(p)));
         r.playToClient(HudPayloads.Hud.TYPE, HudPayloads.Hud.CODEC, (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.HudOverlay.accept(p)));
+        r.playToClient(MapPayloads.Markers.TYPE, MapPayloads.Markers.CODEC, (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.MapMarkers.accept(p)));
         r.playToClient(PoliticsPayloads.ActionResult.TYPE, PoliticsPayloads.ActionResult.CODEC,
                 (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.PoliticsClient.onResult(p)));
         // Muster Roll (post-M5 recruitment): same registrar and version; the server re-validates every intent
@@ -178,7 +179,8 @@ public final class PoliticsNet {
         List<String> honours = PoliticsView.honours(ow, me);
         if (home == null) {
             return new PoliticsSnapshot(null, "", "", "", "", 0, 0, 0, 0, List.of("No village nearby. Select a village you know."), List.of(),
-                    rows, null, List.of(), envoys, List.of(), honours, history(ow, ledger, null), intel(player, ledger), realm(ow, ledger, selected, me));
+                    rows, null, List.of(), envoys, List.of(), honours, history(ow, ledger, null), intel(player, ledger), realm(ow, ledger, selected, me),
+                    dev.hywmill.politics.service.ServiceRoles.serviceTab(ow, ledger, me, null));
         }
         PoliticsView.Home h = PoliticsView.home(ow, me, home).orElseThrow();
         List<String> chron = new ArrayList<>();
@@ -190,7 +192,8 @@ public final class PoliticsNet {
         OptionalInt dp = source.diplomacyPoints(ow, home, me);
         return new PoliticsSnapshot(home, h.name(), h.culture(), h.status().name(), h.effective().name(), h.reputation(), h.grievance(),
                 h.favor(), dp.isPresent() ? dp.getAsInt() : -1, h.wordTravels(), chron, rows, selected, actions, envoys,
-                PoliticsView.lent(ow, me, home), honours, history(ow, ledger, home), intel(player, ledger), realm(ow, ledger, selected, me));
+                PoliticsView.lent(ow, me, home), honours, history(ow, ledger, home), intel(player, ledger), realm(ow, ledger, selected, me),
+                dev.hywmill.politics.service.ServiceRoles.serviceTab(ow, ledger, me, home));
     }
 
     /** Post-M5 realms: a village's place in the list: its subject tie, else home's treaty with it, else its realm's size. */

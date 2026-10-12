@@ -240,13 +240,19 @@ treated like soldiers ("repairable" or "beyond repair"). The rest (`SiegeWaves`,
   brought to the walls (alive or wounded) loses at once (if both, the attackers: a host that cannot hold the field gives
   up). Strength: the host's soldiers; the defenders' garrison, temporary help, relief at the village and Millénaire
   fighters (counted in the world during a wave fought there, else as at the first dawn).
-* **The final stand (1.6).** So that a siege does not drag on for days: when a side's standing men (not wounded) are down to
-  a fifth of the strength it brought while it still has wounded, its wounded rise and go back in at once, a final stand
-  (once a wave). From then until sundown only its standing men count: down to a fifth again, it is beaten that day. In the
-  world the host's wounded come back from its camp, the defenders' from inside the village and the relief's to their posts;
-  far from any witness the stand is drawn at sundown by strength (stand and risen wounded against the foe's standing men,
-  squared): it holds, or it breaks and the siege is decided. A stand that lasts to sundown changes nothing more: the night
-  and the next dawn go as ever (the wounded tended, another assault). The siege bar says "(final stand)".
+* **The final stand (1.6; the defenders' only since 1.8).** So that a siege does not drag on for days: when the defenders'
+  standing men (not wounded) are down to a fifth of the strength they brought while they still have wounded, their wounded
+  rise and go back in at once, a final stand (once a wave). From then until sundown only their standing men count: down to a
+  fifth again, the walls fall that day. In the world the wounded come from inside the village and the relief's to their
+  posts; far from any witness the stand is drawn at sundown by strength (stand and risen wounded against the host's standing
+  men, squared): it holds, or it breaks and the siege is decided. A stand that lasts to sundown changes nothing more: the
+  night and the next dawn go as ever. The siege bar says "(final stand)". A national capital's stand brings out its ruler
+  and royal guard (docs/realm-design.md §14).
+* **The host falls back (1.8).** The attackers make no final stand. When the host's standing men are down to a fifth of
+  its strength while its wounded keep it above that (wounded counted as alive), it falls back to its lines (out of the
+  world, as at sundown), tends its wounded as in a night and comes on again once regrouped: at least 2 min and by day, or
+  after the longest night. That assault counts as one of the three; falling back on the last one ends the siege in a
+  stalemate. The host is beaten only when it is down to a fifth, wounded included. The siege bar says "(the host regroups)".
 * **Stalemate.** After the third wave, neither side beaten: the attackers give up and go home. No tribute, no peace, no
   vassalage; the war goes on. The History tab says "stalemate".
 * **Unwatched waves.** A wave nobody watches is drawn at sundown: the side that holds the field (by the strength odds of the

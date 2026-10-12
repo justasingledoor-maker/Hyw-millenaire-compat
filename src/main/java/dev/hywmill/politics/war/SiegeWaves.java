@@ -118,22 +118,38 @@ public final class SiegeWaves {
     }
 
     /**
-     * The final stand (1.6): a side whose standing men (not wounded) are down to {@link #BREAK} of its starting strength while
-     * it still has wounded makes its final stand: the wounded rise and go back in at once. From then until sundown only its
-     * standing men count, so it is beaten when they are down to {@code BREAK} again; if it holds to sundown, the night and the
-     * next dawn go as ever (and it may make another stand the next day).
+     * The final stand (1.6, the defenders' only since 1.8): a side whose standing men (not wounded) are down to {@link #BREAK}
+     * of its starting strength while it still has wounded makes its final stand: the wounded rise and go back in at once. From
+     * then until sundown only its standing men count, so it is beaten when they are down to {@code BREAK} again; if it holds to
+     * sundown, the night and the next dawn go as ever (and it may make another stand the next day).
      */
     public static boolean finalStand(int standing, int wounded, int start, boolean made) {
         return !made && wounded > 0 && start > 0 && share(standing, start) <= BREAK;
     }
 
+    /** 1.8: how long a host that fell back to its lines regroups at least before it comes on again (2 min). */
+    public static final long REGROUP = 2400;
+
     /**
-     * The verdict during a wave with final stands: a side that has made its stand is counted by its standing men only
-     * ({@code hostStanding}, {@code defStanding}); otherwise as {@link #verdict}.
+     * 1.8: the attackers make no final stand. A host whose standing men are down to {@link #BREAK} of its strength while its
+     * wounded keep it above that (wounded counted as alive) falls back to its lines, tends its wounded, and comes on again.
      */
-    public static Siege.Outcome verdict(int host, int hostStanding, boolean hostStand, int hostStart, int defenders, int defStanding, boolean defStand,
+    public static boolean fallBack(int standing, int wounded, int start, boolean fellBack) {
+        return !fellBack && start > 0 && share(standing, start) <= BREAK && share(standing + wounded, start) > BREAK;
+    }
+
+    /** A host that fell back has regrouped: {@link #REGROUP} passed and it is day, or the longest night passed. */
+    public static boolean regrouped(long ticksSinceFallBack, long dayTime) {
+        return ticksSinceFallBack >= NIGHT_MAX || (ticksSinceFallBack >= REGROUP && !night(dayTime));
+    }
+
+    /**
+     * The verdict during a wave with the defenders' final stand: the host is counted alive (wounded included); the defenders by
+     * their standing men only once they made their stand ({@code defStanding}); otherwise as {@link #verdict}.
+     */
+    public static Siege.Outcome verdict(int host, int hostStart, int defenders, int defStanding, boolean defStand,
                                         int defendersStart, int wave, boolean waveDone) {
-        return verdict(hostStand ? hostStanding : host, hostStart, defStand ? defStanding : defenders, defendersStart, wave, waveDone);
+        return verdict(host, hostStart, defStand ? defStanding : defenders, defendersStart, wave, waveDone);
     }
 
     /**

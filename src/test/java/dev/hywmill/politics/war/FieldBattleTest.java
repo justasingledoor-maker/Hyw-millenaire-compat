@@ -32,4 +32,13 @@ class FieldBattleTest {
         assertTrue(RealmDiplomacy.alarm(5, 2) >= RealmDiplomacy.ALARM, "a great realm twice as strong does");
         assertEquals(4096 * 4, RealmDiplomacy.tribute(4));
     }
+
+    @Test
+    void theWeakSeekPeaceAndTheGreatKeepFewWars() {
+        assertTrue(RealmDiplomacy.peaceChance(true, 1) < 0.5, "a state the realm means to take seldom buys peace");
+        assertTrue(RealmDiplomacy.peaceChance(false, 1) > 0.5);
+        assertTrue(RealmDiplomacy.peaceChance(false, RealmDiplomacy.MAX_WARS + 1) > RealmDiplomacy.peaceChance(false, 1),
+                "a realm with many wars takes peace more readily");
+        assertTrue(RealmDiplomacy.COURT_CAP >= dev.hywmill.politics.realm.Treaty.Kind.PACT.threshold, "courting can reach a pact");
+    }
 }

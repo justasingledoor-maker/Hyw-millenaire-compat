@@ -8,6 +8,7 @@ import dev.hywmill.politics.PoliticsTables;
 import dev.hywmill.politics.realm.RealmPlan;
 import dev.hywmill.politics.realm.Strategy;
 import dev.hywmill.politics.realm.Treaty;
+import dev.hywmill.politics.war.Siege;
 import dev.hywmill.politics.war.SiegeMath;
 import dev.hywmill.politics.war.Tribute;
 import dev.hywmill.settlement.GarrisonLedger;
@@ -28,7 +29,8 @@ import java.util.UUID;
  * Realms reading and answering each other (docs/realm-design.md §12). Its scouts tell a council which of its villages an
  * enemy council means to take, and those keep their men home. Before going to war for a claim it demands fealty, which a much
  * weaker village may give. A realm losing a war offers tribute for peace. And when a realm grows great, its neighbours fear
- * it: they league against it in defensive pacts, and when together they are a match for it, they go to war with it.
+ * it: they league against it in defensive pacts and keep their garrisons on a war footing, while each seeks peace with it
+ * (1.8: a league no longer goes to war; it only defends). A great realm keeps a few wars at a time and makes peace on the rest.
  */
 public final class RealmDiplomacy {
     private RealmDiplomacy() {}
@@ -38,8 +40,12 @@ public final class RealmDiplomacy {
     public static final int FEARED = 4;
     /** A neighbour this alarmed joins the league against it; below {@link #CALM} it leaves. */
     public static final int ALARM = 50, CALM = 35;
-    /** The league goes to war when its strength is this share of the feared realm's. */
-    public static final double LEAGUE_WAR = 1.1;
+    /** 1.8: a state this many times weaker than a great realm seeks peace with it (and keeps its guard up). */
+    public static final double AWED = 1.5;
+    /** 1.8: a realm at war with more states than this makes peace with those it is not fighting for. */
+    public static final int MAX_WARS = 3;
+    /** 1.8: a day's courting: the feelings between a weak state and a great realm rise this much (half while the realm covets it), up to {@link #COURT_CAP}. */
+    public static final int COURT = 6, COURT_CAP = 35;
     /** A realm on the defensive offers peace when its army is under this share of its enemies'. */
     public static final double SUE = 0.6;
 
@@ -169,12 +175,17 @@ public final class RealmDiplomacy {
                         || SiegeService.byAttacker(ledger, y.villageId) != null && x.villageId.equals(SiegeService.byAttacker(ledger, y.villageId).target)) {
                     continue;
                 }
-                for (VillageRecord[] d : new VillageRecord[][]{{x, y}, {y, x}}) {
-                    java.util.OptionalInt r = source.villageRelation(ow, d[0].villageId, d[1].villageId);
-                    if (r.isPresent() && r.getAsInt() < 0 && r.getAsInt() > RelationProjector.OPEN_CONFLICT) {
-                        source.setVillageRelation(ow, d[0].villageId, d[1].villageId, Math.min(0, r.getAsInt() + HEAL));
-                        n++;
-                    }
+                // both feelings read first: a source that keeps one relation for the pair must not heal it twice
+                java.util.OptionalInt rxy = source.villageRelation(ow, x.villageId, y.villageId), ryx = source.villageRelation(ow, y.villageId, x.villageId);
+                boolean hx = rxy.isPresent() && rxy.getAsInt() < 0 && rxy.getAsInt() > RelationProjector.OPEN_CONFLICT;
+                boolean hy = ryx.isPresent() && ryx.getAsInt() < 0 && ryx.getAsInt() > RelationProjector.OPEN_CONFLICT;
+                if (hx) {
+                    source.setVillageRelation(ow, x.villageId, y.villageId, Math.min(0, rxy.getAsInt() + HEAL));
+                    n++;
+                }
+                if (hy) {
+                    source.setVillageRelation(ow, y.villageId, x.villageId, Math.min(0, ryx.getAsInt() + HEAL));
+                    n++;
                 }
             }
         }
@@ -203,8 +214,9 @@ public final class RealmDiplomacy {
 
     /**
      * Once a day for each great realm: its alarmed neighbours (the heads of the villages and realms within reach that are not
-     * its friends) league against it: each pair signs a defensive pact and their friendship grows; their liking for it falls.
-     * When the league together is a match for it, its members go to war with it.
+     * its friends) league against it: each pair signs a defensive pact (each must relieve the other when besieged) and their
+     * friendship grows, and their garrisons stand on a war footing ({@link #braced}). 1.8: the league only defends; it does not
+     * go to war.
      */
     public static void leagues(ServerLevel ow, GarrisonLedger ledger, SettlementSource source, VillageRecord great, RealmPlan p, long now) {
         if (!enabled()) {
@@ -244,11 +256,7 @@ public final class RealmDiplomacy {
         });
         for (VillageRecord m : members) {
             if (!before.contains(m.villageId)) {
-                RealmCouncil.note(ow, ledger, source, great, p, now, m.name + " fears the realm and leagues against it");
-            }
-            Integer rel = RealmService.relation(ow, source, m.villageId, r);
-            if (rel != null && rel > -40) {
-                source.setVillageRelation(ow, m.villageId, r, Math.max(-40, rel - 5));
+                RealmCouncil.note(ow, ledger, source, great, p, now, m.name + " fears the realm: it leagues with its neighbours for their defence and arms");
             }
         }
         // the league holds together: friendship between its members, and a defensive pact for each pair within reach
@@ -269,29 +277,194 @@ public final class RealmDiplomacy {
                 }
             }
         }
-        // a match for it together: war
-        double theirs = 0;
-        boolean atWar = false;
-        VillageRecord strongest = null;
-        double best = -1;
-        for (VillageRecord m : members) {
-            double s = strength(ledger, m.villageId, now);
-            theirs += s;
-            if (s > best) {
-                best = s;
-                strongest = m;
-            }
-            atWar |= RelationProjector.atWar(ledger, m.villageId, r);
+        ledger.setDirty();
+    }
+
+    // ------------------------------------------------------------------ 1.8: the weak seek peace; the great keep few wars
+
+    /** {@code v}'s state leagues against a great realm: its garrison stands on a war footing (mobilized) though at peace. */
+    public static boolean braced(GarrisonLedger ledger, UUID v, long now) {
+        if (!enabled() || ledger.coalitions().isEmpty()) {
+            return false;
         }
-        if (!atWar && strongest != null && members.size() >= 2 && theirs >= LEAGUE_WAR * ours) {
-            RealmCouncil.note(ow, ledger, source, great, p, now, "the league against the realm (" + names(members) + ") declares war");
-            for (VillageRecord m : members) {
-                if (!RelationProjector.atWar(ledger, m.villageId, r) && !m.politics.truceWith(r, now)) {
-                    WarCounselService.declareWar(ow, ledger, m, great, now, "the league against the realm of " + great.name);
+        UUID h = RealmService.sovereignOf(ledger, v, now);
+        for (Set<UUID> league : ledger.coalitions().values()) {
+            if (league.contains(h)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** The heads of the states the council of {@code p} means to take: its goals and its claim. */
+    static Set<UUID> coveted(GarrisonLedger ledger, RealmPlan p, long now) {
+        Set<UUID> out = new LinkedHashSet<>();
+        for (Strategy.Goal g : p.goals) {
+            if (g.kind() != Strategy.Kind.DEFEND) {
+                out.add(RealmService.sovereignOf(ledger, g.target(), now));
+            }
+        }
+        if (p.covets != null) {
+            out.add(RealmService.sovereignOf(ledger, p.covets, now));
+        }
+        return out;
+    }
+
+    /** The heads of the states at war with {@code realm}. */
+    static Set<UUID> enemyHeads(GarrisonLedger ledger, List<UUID> realm, long now) {
+        Set<UUID> out = new LinkedHashSet<>();
+        for (dev.hywmill.politics.war.WarRecord w : ledger.wars().values()) {
+            if (!w.atWar()) {
+                continue;
+            }
+            for (UUID m : realm) {
+                if (w.involves(m) && !realm.contains(w.other(m))) {
+                    VillageRecord e = ledger.get(w.other(m));
+                    if (e != null && !e.loneBuilding) {
+                        out.add(RealmService.sovereignOf(ledger, e.villageId, now));
+                    }
                 }
             }
         }
+        return out;
+    }
+
+    /** The chance a great realm takes a weak state's offer of peace: seldom if it means to take it; readily if it has many wars. */
+    public static double peaceChance(boolean coveted, int wars) {
+        return coveted ? 0.2 : wars > MAX_WARS ? 0.95 : 0.75;
+    }
+
+    /**
+     * Once a day for each great realm: each neighbouring state {@link #AWED} by it wants peace with it. At war, it sues for peace
+     * with tribute (taken unless the realm means to take it); at peace, it courts the realm (their feelings for each other rise
+     * a little each day) and offers a non-aggression pact once both are warm enough, which the realm signs unless it covets it
+     * (a pact keeps its ambition off). Meanwhile it leagues and arms ({@link #leagues}, {@link #braced}).
+     */
+    public static void appease(ServerLevel ow, GarrisonLedger ledger, SettlementSource source, VillageRecord great, RealmPlan p, long now) {
+        if (!enabled()) {
+            return;
+        }
+        UUID r = great.villageId;
+        List<UUID> realm = RealmService.members(ledger, r, now);
+        double ours = strength(ledger, r, now);
+        Set<UUID> coveted = coveted(ledger, p, now);
+        int wars = enemyHeads(ledger, realm, now).size();
+        for (VillageRecord h : new ArrayList<>(ledger.all())) {
+            UUID hid = h.villageId;
+            if (h.loneBuilding || realm.contains(hid) || !RealmService.sovereignOf(ledger, hid, now).equals(hid) || !near(ledger, realm, h)) {
+                continue;
+            }
+            List<UUID> theirs = RealmService.members(ledger, hid, now);
+            if (ours < AWED * Math.max(1, strength(ledger, hid, now))) {
+                continue;
+            }
+            boolean wanted = coveted.contains(hid);
+            Random rnd = new Random(now ^ hid.getMostSignificantBits() ^ r.getLeastSignificantBits());
+            if (RealmService.realmsAtWar(ledger, hid, r, now)) {
+                Long last = p.pleas.get(hid);
+                if (last != null && now - last < DAY) {
+                    continue;
+                }
+                p.pleas.put(hid, now);
+                int perDay = tribute(theirs.size());
+                String offer = h.name + ", outmatched, sues for peace and offers " + dev.hywmill.recruit.RecruitOffers.money(perDay) + " a day for three days";
+                if (rnd.nextDouble() >= peaceChance(wanted, wars)) {
+                    RealmCouncil.note(ow, ledger, source, great, p, now, offer + "; the council refuses" + (wanted ? " (it means to take it)" : ""));
+                    continue;
+                }
+                RealmCouncil.note(ow, ledger, source, great, p, now, offer + "; the council accepts: peace and a non-aggression pact");
+                WarCounselService.makePeace(ow, ledger, h, great, now, h.name + " buys peace from the realm of " + great.name, true);
+                ledger.tributes().add(new Tribute(hid, r, perDay, SiegeMath.levy(perDay, SiegeService.rule(h)), 0, 3, now));
+                settle(ow, source, realm, theirs);
+                RealmService.sign(ow, ledger, h, great, Treaty.Kind.PACT, now);
+                wars--;
+                ledger.setDirty();
+                continue;
+            }
+            if (RealmService.treaty(ledger, hid, r) != null) {
+                continue;
+            }
+            warm(ow, source, realm, theirs, wanted ? COURT / 2 : COURT);
+            Integer a = RealmService.relation(ow, source, hid, r), b = RealmService.relation(ow, source, r, hid);
+            if (!wanted && a != null && b != null && a >= Treaty.Kind.PACT.threshold && b >= Treaty.Kind.PACT.threshold && rnd.nextDouble() < 0.5) {
+                RealmCouncil.note(ow, ledger, source, great, p, now, h.name + ", wary of the realm, seeks its friendship: they sign a non-aggression pact");
+                RealmService.sign(ow, ledger, h, great, Treaty.Kind.PACT, now);
+            }
+        }
         ledger.setDirty();
+    }
+
+    /**
+     * Feelings warm between a weak state ({@code theirs}) and a great realm ({@code realm}): between each member of the one
+     * and each of the other they rise by {@code by}, up to {@link #COURT_CAP} (both read first, so a source that keeps one
+     * relation for the pair raises it once).
+     */
+    static void warm(ServerLevel ow, SettlementSource source, List<UUID> realm, List<UUID> theirs, int by) {
+        for (UUID x : theirs) {
+            for (UUID m : realm) {
+                java.util.OptionalInt a = source.villageRelation(ow, x, m), b = source.villageRelation(ow, m, x);
+                if (a.isPresent() && a.getAsInt() < COURT_CAP) {
+                    source.setVillageRelation(ow, x, m, Math.min(COURT_CAP, a.getAsInt() + by));
+                }
+                if (b.isPresent() && b.getAsInt() < COURT_CAP) {
+                    source.setVillageRelation(ow, m, x, Math.min(COURT_CAP, b.getAsInt() + by));
+                }
+            }
+        }
+    }
+
+    /** Peace bought: every member of each side at {@link #COURT_CAP} with every member of the other (a pact's warmth). */
+    static void settle(ServerLevel ow, SettlementSource source, List<UUID> realm, List<UUID> theirs) {
+        for (UUID x : theirs) {
+            for (UUID m : realm) {
+                source.setVillageRelation(ow, x, m, COURT_CAP);
+                source.setVillageRelation(ow, m, x, COURT_CAP);
+            }
+        }
+    }
+
+    /**
+     * Once a session: a great realm at war with more than {@link #MAX_WARS} states offers peace to those it does not mean to
+     * take and that do not march on it (one a day each, the farthest first); a state on the attack against it seldom takes it.
+     */
+    public static void focus(ServerLevel ow, GarrisonLedger ledger, SettlementSource source, VillageRecord capital, RealmPlan p, List<UUID> realm, long now) {
+        if (!enabled()) {
+            return;
+        }
+        Set<UUID> heads = enemyHeads(ledger, realm, now);
+        int excess = heads.size() - MAX_WARS;
+        if (excess <= 0) {
+            return;
+        }
+        Set<UUID> coveted = coveted(ledger, p, now);
+        List<VillageRecord> spare = new ArrayList<>();
+        for (UUID h : heads) {
+            VillageRecord e = ledger.get(h);
+            Siege theirs = SiegeService.byAttacker(ledger, h);
+            if (e != null && !coveted.contains(h) && (theirs == null || !realm.contains(theirs.target))) {
+                spare.add(e);
+            }
+        }
+        spare.sort(java.util.Comparator.comparingDouble((VillageRecord e) -> e.center.distSqr(capital.center)).reversed());
+        for (VillageRecord e : spare) {
+            if (excess <= 0) {
+                break;
+            }
+            Long last = p.offered.get(e.villageId);
+            if (last != null && now - last < DAY) {
+                continue;
+            }
+            p.offered.put(e.villageId, now);
+            RealmPlan their = ledger.plans().get(e.villageId);
+            boolean eager = their != null && their.stance == Strategy.Stance.AGGRESSIVE && coveted(ledger, their, now).contains(capital.villageId);
+            boolean taken = new Random(now ^ e.villageId.getLeastSignificantBits()).nextDouble() < (eager ? 0.15 : 0.6);
+            RealmCouncil.note(ow, ledger, source, capital, p, now, "the council, with " + heads.size() + " wars on its hands, offers " + e.name + " peace: "
+                    + (taken ? "it accepts" : "it refuses"));
+            if (taken) {
+                WarCounselService.makePeace(ow, ledger, capital, e, now, "the realm of " + capital.name + " makes peace to fight its other wars", true);
+                excess--;
+            }
+        }
     }
 
     static boolean near(GarrisonLedger ledger, List<UUID> realm, VillageRecord v) {
@@ -326,8 +499,8 @@ public final class RealmDiplomacy {
             for (VillageRecord v : vs) {
                 theirs += strength(ledger, v.villageId, now);
             }
-            out.add(" Its neighbours fear it: " + names(vs) + " league against it (their armies " + String.format("%.1f", theirs / Math.max(1,
-                    strength(ledger, head, now))) + " to its 1; at " + LEAGUE_WAR + " they go to war).");
+            out.add(" Its neighbours fear it: " + names(vs) + " league against it for their defence (their armies " + String.format("%.1f",
+                    theirs / Math.max(1, strength(ledger, head, now))) + " to its 1).");
         }
         for (Map.Entry<UUID, Set<UUID>> e : ledger.coalitions().entrySet()) {
             VillageRecord g = ledger.get(e.getKey());

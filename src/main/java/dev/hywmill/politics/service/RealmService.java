@@ -837,7 +837,7 @@ public final class RealmService {
         for (UUID h : heads) {
             List<UUID> m = members(ledger, h, now);
             for (VillageRecord x : new ArrayList<>(ledger.all())) {
-                if (x.loneBuilding || m.contains(x.villageId)) {
+                if (x.loneBuilding || m.contains(x.villageId) || !RealmDiplomacy.near(ledger, m, x)) {
                     continue;
                 }
                 List<Integer> rs = new ArrayList<>();
@@ -854,6 +854,10 @@ public final class RealmService {
                 }
                 UUID xh = sovereignOf(ledger, x.villageId, now);
                 for (int i = 0; i < m.size(); i++) {
+                    VillageRecord mi = ledger.get(m.get(i));
+                    if (mi == null || mi.center.distSqr(x.center) > (double) Treaty.REACH * Treaty.REACH) {
+                        continue; // 1.8: only its members within reach of it take up the hatred
+                    }
                     if (own[i] != null && own[i] > worst && !xh.equals(ledger.excused().get(m.get(i)))) {
                         source.setVillageRelation(overworld, m.get(i), x.villageId, worst);
                         VillageRecord v = ledger.get(m.get(i));

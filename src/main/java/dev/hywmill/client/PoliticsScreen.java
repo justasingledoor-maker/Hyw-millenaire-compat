@@ -19,21 +19,40 @@ import java.util.UUID;
  */
 public final class PoliticsScreen extends Screen {
     /** 1.6: the village list: rows from here down, each a name button with the distance and bearing beside it. */
-    private static final int LIST_TOP = 66, ROW = 20, LIST_RIGHT = 180, NAME_X = 24, NAME_W = 98;
+    private static final int LIST_TOP = 66, ROW = 20, NAME_X = 24;
+    /**
+     * 1.8: the layout follows the window: the village list's right edge, its name buttons' width, the centre panel's edges
+     * and the action column's left edge and width (narrower on small screens or a large GUI scale).
+     */
+    private int listRight = 180, nameW = 98, x0 = 190, x1, ax, actionW = 170;
     private static final int PARCHMENT = 0xE0F2E3C2;
     private static final int INK = 0xFF3B2A14;
     private static final int FADED = 0xFF7A6548;
     private PoliticsSnapshot snap;
     private int scroll;
-    /** Post-M5: the History tab (vassal ties and battle reports) instead of the overview, and its scroll. */
-    private boolean history;
-    private int historyScroll;
-    /** Post-M5: the War tab (scout reports: columns on the road, convoys), and its scroll (rows). */
-    private boolean war;
-    private int warScroll;
-    /** Post-M5 realms: the Realm tab (the selected village's realm, treaties and wars; the known realms); it scrolls like History. */
-    private boolean realm;
-    private static final int WAR_ROW = 34;
+    /**
+     * The centre panel's tabs: the overview of the village you deal with; its realm (treaties, wars, the known realms); the
+     * war (scout reports: columns on the road, convoys); 1.8 your service in a realm (orders, calls to arms, officials); the
+     * history (vassal ties, battle reports). The text tabs scroll by line, the War tab by report.
+     */
+    enum Tab {
+        OVERVIEW("Overview", "The village you deal with: your standing, word, chronicle"),
+        REALM("Realm", "The selected village's realm, treaties and wars; the known realms"),
+        WAR("War", "Your scouts' reports: columns on the road, convoys"),
+        SERVICE("Service", "Your service in a realm: orders, calls to arms, its officials"),
+        HISTORY("History", "Vassal ties and battle reports");
+
+        final String label, tip;
+
+        Tab(String label, String tip) {
+            this.label = label;
+            this.tip = tip;
+        }
+    }
+
+    private Tab tab = Tab.OVERVIEW;
+    private int textScroll, warScroll, actionScroll;
+    private static final int WAR_ROW = 34, ACTION_ROW = 22;
     private String lastResult = "";
     private boolean lastOk = true;
     /** 1.6: the search box's text, the sort (nearest first, else by name), the list's widgets and the rows they show. */
@@ -96,11 +115,11 @@ public final class PoliticsScreen extends Screen {
             String rel = v.relation() == PoliticsSnapshot.VillageRow.NO_RELATION ? "" : "\nRelation of " + snap.homeName() + " to it: " + v.relation();
             String from = snap.home() == null ? "you" : snap.homeName();
             String label = (v.id().equals(snap.selected()) ? "> " : "") + v.name();
-            if (font.width(label) > NAME_W - 8) {
-                label = font.plainSubstrByWidth(label, NAME_W - 14) + "..";
+            if (font.width(label) > nameW - 8) {
+                label = font.plainSubstrByWidth(label, nameW - 14) + "..";
             }
             Button b = Button.builder(Component.literal(label), btn -> select(v.id()))
-                    .bounds(NAME_X, LIST_TOP + i * ROW, NAME_W, 18)
+                    .bounds(NAME_X, LIST_TOP + i * ROW, nameW, 18)
                     .tooltip(Tooltip.create(Component.literal(v.name() + (v.culture().isEmpty() ? "" : " (" + v.culture() + ")")
                             + (home ? "\nYou are here" : v.distance() < 0 ? "" : "\n" + distance(v) + " from " + from)
                             + "\nYour standing: " + v.standing().toLowerCase()
@@ -117,8 +136,14 @@ public final class PoliticsScreen extends Screen {
 
     @Override
     protected void init() {
+        listRight = Math.max(130, Math.min(180, (int) (width * 0.28)));
+        nameW = listRight - NAME_X - 58;
+        actionW = Math.max(118, Math.min(170, (int) (width * 0.27)));
+        ax = width - actionW - 12;
+        x0 = listRight + 10;
+        x1 = ax - 10;
         // 1.6: a search box over the village list, the sort and the list's scroll beside it
-        search = new net.minecraft.client.gui.components.EditBox(font, 12, 34, 102, 16, Component.literal("Search villages"));
+        search = new net.minecraft.client.gui.components.EditBox(font, 12, 34, listRight - 78, 16, Component.literal("Search villages"));
         search.setHint(Component.literal("Search...").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
         search.setMaxLength(40);
         search.setValue(query);
@@ -136,37 +161,54 @@ public final class PoliticsScreen extends Screen {
             scroll = 0;
             b.setMessage(Component.literal(byName ? "A-Z" : "Near"));
             layoutRows();
-        }).bounds(116, 33, 30, 18).tooltip(Tooltip.create(Component.literal("Sort: nearest first, or by name"))).build());
+        }).bounds(listRight - 64, 33, 30, 18).tooltip(Tooltip.create(Component.literal("Sort: nearest first, or by name"))).build());
         addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { scroll = Math.max(0, scroll - rows() + 1); layoutRows(); })
-                .bounds(148, 33, 16, 18).build());
+                .bounds(listRight - 32, 33, 16, 18).build());
         addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { scroll += rows() - 1; layoutRows(); })
-                .bounds(164, 33, 16, 18).build());
+                .bounds(listRight - 16, 33, 16, 18).build());
         layoutRows();
-        int ax = width - 182, ay = 34;
-        int i = 0;
-        for (PoliticsSnapshot.ActionRow a : snap.actions()) {
-            Button b = Button.builder(Component.literal(a.label()), btn -> submit(a.action()))
-                    .bounds(ax, ay + i * 22, 170, 20)
-                    .tooltip(Tooltip.create(Component.literal(a.requirement() + (a.outcome().isEmpty() ? "" : "\nOutcome: " + a.outcome())))).build();
+        // the actions on the right: the service's on the Service tab, the rest elsewhere; a scroll when they do not fit
+        List<PoliticsSnapshot.ActionRow> acts = actions();
+        int ay = 34, fitActions = Math.max(1, (height - 34 - ay) / ACTION_ROW);
+        actionScroll = Math.max(0, Math.min(actionScroll, Math.max(0, acts.size() - fitActions)));
+        for (int i = 0; i < fitActions && actionScroll + i < acts.size(); i++) {
+            PoliticsSnapshot.ActionRow a = acts.get(actionScroll + i);
+            String label = a.label();
+            if (font.width(label) > actionW - 8) {
+                label = font.plainSubstrByWidth(label, actionW - 14) + "..";
+            }
+            Button b = Button.builder(Component.literal(label), btn -> submit(a.action()))
+                    .bounds(ax, ay + i * ACTION_ROW, actionW, 20)
+                    .tooltip(Tooltip.create(Component.literal(a.label() + (a.requirement().isEmpty() ? "" : "\n" + a.requirement())
+                            + (a.outcome().isEmpty() ? "" : "\nOutcome: " + a.outcome())))).build();
             b.active = a.available() && snap.home() != null;
             addRenderableWidget(b);
-            i++;
         }
-        int x0 = 190;
-        addRenderableWidget(Button.builder(Component.literal((history || war || realm ? "" : "> ") + "Overview"), b -> tab(false, false, false))
-                .bounds(x0, 12, 70, 16).build());
-        addRenderableWidget(Button.builder(Component.literal((history ? "> " : "") + "History"), b -> tab(true, false, false))
-                .bounds(x0 + 74, 12, 70, 16).build());
+        if (acts.size() > fitActions) {
+            addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { actionScroll = Math.max(0, actionScroll - fitActions + 1); rebuildWidgets(); })
+                    .bounds(ax, height - 28, 16, 16).build());
+            addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { actionScroll += fitActions - 1; rebuildWidgets(); })
+                    .bounds(ax + 18, height - 28, 16, 16).build());
+        }
+        // the tabs over the centre panel: the open one in gold
         long openCount = snap.intel().stream().filter(PoliticsSnapshot.IntelRow::open).count();
-        addRenderableWidget(Button.builder(Component.literal((war ? "> " : "") + "War" + (openCount > 0 ? " (" + openCount + ")" : "")),
-                b -> tab(false, true, false)).bounds(x0 + 148, 12, 70, 16).build());
-        addRenderableWidget(Button.builder(Component.literal((realm ? "> " : "") + "Realm"), b -> tab(false, false, true))
-                .bounds(x0 + 222, 12, 70, 16).tooltip(Tooltip.create(Component.literal("The selected village's realm, treaties and wars"))).build());
+        int tx = x0;
+        for (Tab t : Tab.values()) {
+            String label = t == Tab.WAR && openCount > 0 ? t.label + " (" + openCount + ")" : t == Tab.SERVICE && !snap.service().isEmpty()
+                    && snap.service().stream().anyMatch(l -> l.startsWith("Orders")) ? t.label + " !" : t.label;
+            Component c = t == tab ? Component.literal(label).withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.UNDERLINE)
+                    : Component.literal(label);
+            int tw = font.width(label) + 12;
+            addRenderableWidget(Button.builder(c, b -> tab(t)).bounds(tx, 12, tw, 16)
+                    .tooltip(Tooltip.create(Component.literal(t.tip + "\nKey " + (t.ordinal() + 1)))).build());
+            tx += tw + 2;
+        }
+        boolean war = tab == Tab.WAR;
         if (war) {
             List<PoliticsSnapshot.IntelRow> rows = snap.intel();
             int fit = Math.max(1, (height - 44 - 34) / WAR_ROW);
             warScroll = Math.max(0, Math.min(warScroll, Math.max(0, rows.size() - fit)));
-            int bx = width - 190 - 74;
+            int bx = x1 - 72;
             for (int k = 0; k < fit && warScroll + k < rows.size(); k++) {
                 PoliticsSnapshot.IntelRow row = rows.get(warScroll + k);
                 int ry = 34 + k * WAR_ROW;
@@ -183,51 +225,82 @@ public final class PoliticsScreen extends Screen {
             }
             if (rows.size() > fit) {
                 addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { warScroll = Math.max(0, warScroll - 1); rebuildWidgets(); })
-                        .bounds(width - 190 - 18, 12, 16, 16).build());
+                        .bounds(x1 - 34, height - 28, 16, 16).build());
                 addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { warScroll++; rebuildWidgets(); })
-                        .bounds(width - 190 - 36, 12, 16, 16).build());
+                        .bounds(x1 - 16, height - 28, 16, 16).build());
             }
         }
-        if (history || realm) {
-            addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { historyScroll = Math.max(0, historyScroll - 5); })
-                    .bounds(width - 190 - 18, 12, 16, 16).build());
-            addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { historyScroll += 5; })
-                    .bounds(width - 190 - 36, 12, 16, 16).build());
+        if (tab == Tab.HISTORY || tab == Tab.REALM || tab == Tab.SERVICE) {
+            addRenderableWidget(Button.builder(Component.literal("\u25B2"), b -> { textScroll = Math.max(0, textScroll - 5); })
+                    .bounds(x1 - 34, height - 28, 16, 16).build());
+            addRenderableWidget(Button.builder(Component.literal("\u25BC"), b -> { textScroll += 5; })
+                    .bounds(x1 - 16, height - 28, 16, 16).build());
         }
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(width / 2 - 40, height - 26, 80, 20).build());
     }
 
     @Override
     public boolean mouseScrolled(double mx, double my, double dx, double dy) {
-        if (mx < LIST_RIGHT + 2 && my >= LIST_TOP) {
+        if (mx < listRight + 2 && my >= LIST_TOP) {
             scroll = Math.max(0, scroll - (int) Math.signum(dy) * 2);
             layoutRows();
             return true;
         }
-        if ((history || realm) && mx >= 190 && mx <= width - 190) {
-            historyScroll = Math.max(0, historyScroll - (int) Math.signum(dy) * 2);
+        if (mx >= x0 && mx <= x1) {
+            if (tab == Tab.WAR) {
+                warScroll = Math.max(0, warScroll - (int) Math.signum(dy));
+                rebuildWidgets();
+                return true;
+            }
+            if (tab != Tab.OVERVIEW) {
+                textScroll = Math.max(0, textScroll - (int) Math.signum(dy) * 2);
+                return true;
+            }
+        }
+        if (mx >= ax - 2) {
+            actionScroll = Math.max(0, actionScroll - (int) Math.signum(dy));
+            rebuildWidgets();
             return true;
         }
         return super.mouseScrolled(mx, my, dx, dy);
     }
 
-    private void tab(boolean history, boolean war, boolean realm) {
-        if (history != this.history || realm != this.realm) {
-            historyScroll = 0;
+    /** 1.8: keys 1-5 open the tabs (unless typing in the search box). */
+    @Override
+    public boolean keyPressed(int key, int scan, int mods) {
+        if ((search == null || !search.isFocused()) && key >= org.lwjgl.glfw.GLFW.GLFW_KEY_1 && key < org.lwjgl.glfw.GLFW.GLFW_KEY_1 + Tab.values().length) {
+            tab(Tab.values()[key - org.lwjgl.glfw.GLFW.GLFW_KEY_1]);
+            return true;
         }
-        this.history = history;
-        this.war = war;
-        this.realm = realm;
+        return super.keyPressed(key, scan, mods);
+    }
+
+    private void tab(Tab t) {
+        if (t != tab) {
+            textScroll = 0;
+            actionScroll = 0;
+        }
+        tab = t;
         rebuildWidgets();
     }
 
+    /** 1.8: the service's actions (entering, leaving, bribes, counsel) on the Service tab; the others elsewhere. */
+    private List<PoliticsSnapshot.ActionRow> actions() {
+        return snap.actions().stream().filter(a -> serviceAction(a.action()) == (tab == Tab.SERVICE)).toList();
+    }
+
+    private static boolean serviceAction(String a) {
+        return a.startsWith("SERVE_") || a.startsWith("BRIBE_") || a.startsWith("COUNSEL_");
+    }
+
     /**
-     * Post-M5: the History tab (vassal ties and battle reports) or the Realm tab (realm lines; unindented lines are headings),
-     * wrapped, from the scroll position.
+     * Post-M5: the History tab (vassal ties and battle reports), the Realm tab or (1.8) the Service tab (unindented lines are
+     * headings), wrapped, from the scroll position.
      */
-    private void renderHistory(GuiGraphics g, int x0, int x1) {
+    private void renderText(GuiGraphics g, int x0, int x1) {
         List<String> lines = new java.util.ArrayList<>();
-        for (String h : realm ? snap.realm() : snap.history()) {
+        boolean realm = tab != Tab.HISTORY;
+        for (String h : tab == Tab.REALM ? snap.realm() : tab == Tab.SERVICE ? snap.service() : snap.history()) {
             if (h.isEmpty()) {
                 lines.add("");
                 continue;
@@ -239,13 +312,26 @@ public final class PoliticsScreen extends Screen {
                 lines.add((head ? "\u0001" : "") + sb);
             }
         }
-        historyScroll = Math.min(historyScroll, Math.max(0, lines.size() - 1));
-        int y = 34;
-        for (int i = historyScroll; i < lines.size() && y < height - 44; i++) {
+        textScroll = Math.min(textScroll, Math.max(0, lines.size() - 1));
+        int y = 34, bottom = height - (lastResult.isEmpty() ? 44 : 64);
+        for (int i = textScroll; i < lines.size() && y < bottom; i++) {
             String l = lines.get(i);
             boolean head = l.startsWith("\u0001");
+            if (head && i > textScroll) {
+                y += 3; // a little air before each heading
+            }
             g.drawString(font, head ? l.substring(1) : l, x0, y, head ? INK : FADED, false);
+            if (head) {
+                g.fill(x0, y + 9, x0 + font.width(l.substring(1)), y + 10, 0x603B2A14);
+            }
             y += 10;
+        }
+        if (lines.isEmpty()) {
+            g.drawString(font, tab == Tab.HISTORY ? "No history yet." : "Nothing to show.", x0, y, FADED, false);
+        }
+        if (textScroll > 0 || y >= bottom) {
+            String more = (textScroll > 0 ? "\u25B2 " : "") + (y >= bottom ? "\u25BC more" : "");
+            g.drawString(font, more, x1 - font.width(more), bottom - 2, FADED, false);
         }
     }
 
@@ -289,45 +375,41 @@ public final class PoliticsScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partial) {
         super.renderBackground(g, mouseX, mouseY, partial);
-        g.fill(190 - 6, 28, width - 190 + 6, height - 32, PARCHMENT);
+        g.fill(x0 - 6, 28, x1 + 6, height - 32, PARCHMENT);
     }
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
         // background (blur + parchment) and widgets first; the text goes on top (drawn before, the 1.21 blur covered it)
         super.render(g, mouseX, mouseY, partial);
-        int x0 = 190, x1 = width - 190;
+        int x0 = this.x0, x1 = this.x1;
         g.drawString(font, title, 12, 14, 0xFFFFFFFF); // top left: the Overview/History tabs sit above the centre panel
         // each village's livery (two colours) beside its name, and its distance and bearing from the village you are in (or you)
         int total = filtered().size();
         String count = total + (total == snap.villages().size() ? "" : " of " + snap.villages().size()) + " villages, distance from "
                 + (snap.home() == null ? "you" : snap.homeName());
-        g.drawString(font, font.width(count) > LIST_RIGHT - 12 ? font.plainSubstrByWidth(count, LIST_RIGHT - 20) + ".." : count, 12,
+        g.drawString(font, font.width(count) > listRight - 12 ? font.plainSubstrByWidth(count, listRight - 20) + ".." : count, 12,
                 LIST_TOP - 11, 0xFFD8CFB8, false);
         for (int i = 0; i < shown.size(); i++) {
             PoliticsSnapshot.VillageRow v = shown.get(i);
             int ry = LIST_TOP + i * ROW;
             if (v.id().equals(snap.selected())) {
-                g.fill(10, ry - 1, LIST_RIGHT + 2, ry + 19, 0x60F2E3C2);
+                g.fill(10, ry - 1, listRight + 2, ry + 19, 0x60F2E3C2);
             }
             swatch(g, 12, ry + 1, v.colour1(), v.colour2());
             String d = v.id().equals(snap.home()) ? "here" : distance(v);
             if (!d.isEmpty()) {
-                g.drawString(font, d, LIST_RIGHT - font.width(d), ry + 5, v.id().equals(snap.home()) ? 0xFFF0E070 : 0xFFFFFFFF, true);
+                g.drawString(font, d, listRight - font.width(d), ry + 5, v.id().equals(snap.home()) ? 0xFFF0E070 : 0xFFFFFFFF, true);
             }
         }
-        if (war) {
+        if (tab == Tab.WAR) {
             renderWar(g, x0, x1);
-            if (!lastResult.isEmpty()) {
-                wrap(g, lastResult, x0, height - 58, x1 - x0, lastOk ? 0xFF2E5E1E : 0xFF8A1E1E);
-            }
+            result(g, x0, x1);
             return;
         }
-        if (history || realm) {
-            renderHistory(g, x0, x1);
-            if (!lastResult.isEmpty()) {
-                wrap(g, lastResult, x0, height - 58, x1 - x0, lastOk ? 0xFF2E5E1E : 0xFF8A1E1E);
-            }
+        if (tab != Tab.OVERVIEW) {
+            renderText(g, x0, x1);
+            result(g, x0, x1);
             return;
         }
         int y = 34;
@@ -372,8 +454,19 @@ public final class PoliticsScreen extends Screen {
         for (String h : snap.honours()) {
             y = wrap(g, "Honour: " + h, x0, y + 2, x1 - x0, FADED);
         }
-        if (!lastResult.isEmpty()) {
-            wrap(g, lastResult, x0, height - 58, x1 - x0, lastOk ? 0xFF2E5E1E : 0xFF8A1E1E);
+        result(g, x0, x1);
+    }
+
+    /** The last action's result, in a band at the foot of the panel (green: done; red: refused). */
+    private void result(GuiGraphics g, int x0, int x1) {
+        if (lastResult.isEmpty()) {
+            return;
+        }
+        var lines = font.split(Component.literal(lastResult), x1 - x0 - 8);
+        int n = Math.min(2, lines.size()), y = height - 36 - n * 10;
+        g.fill(x0 - 4, y - 3, x1 + 4, height - 33, lastOk ? 0x402E5E1E : 0x408A1E1E);
+        for (int i = 0; i < n; i++) {
+            g.drawString(font, lines.get(i), x0, y + i * 10, lastOk ? 0xFF2E5E1E : 0xFF8A1E1E, false);
         }
     }
 

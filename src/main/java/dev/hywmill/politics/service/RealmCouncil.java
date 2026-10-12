@@ -83,6 +83,7 @@ public final class RealmCouncil {
                     SettlementSource source = Services.settlements();
                     if (source != null) {
                         RealmDiplomacy.leagues(ow, ledger, source, v, p, now); // 1.7: its neighbours fear a great realm (§12)
+                        RealmDiplomacy.appease(ow, ledger, source, v, p, now); // 1.8: and each seeks peace with it (§15)
                     }
                 }
             }
@@ -232,6 +233,7 @@ public final class RealmCouncil {
         }
         court(ow, ledger, source, capital, p, realm, targets, now);
         RealmDiplomacy.sue(ow, ledger, source, capital, p, realm, targets, now); // 1.7: losing, it offers tribute for peace (§12)
+        RealmDiplomacy.focus(ow, ledger, source, capital, p, realm, now); // 1.8: a few wars at a time (§15)
         if (plan.stance() == Strategy.Stance.AT_PEACE && now - p.peaceSince >= PEACE_FIRST) {
             ambition(ow, ledger, source, capital, p, members, realm, engines, dev.hywmill.politics.realm.Officials.covetFactor(officials), now);
         } else if (p.covets != null) {

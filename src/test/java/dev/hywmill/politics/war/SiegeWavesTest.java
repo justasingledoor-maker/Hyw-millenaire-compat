@@ -118,17 +118,32 @@ class SiegeWavesTest {
         assertEquals(0, SiegeWaves.feed(0, 0, 36, SiegeWaves.NOON));
     }
     @Test
-    void aBatteredSideMakesAFinalStandAndThenStandsOnItsFeetAlone() {
+    void theDefendersMakeAFinalStandAndThenStandOnTheirFeetAlone() {
         // 100 men: down to 20 standing with 30 wounded, the wounded rise (once a wave)
         assertTrue(SiegeWaves.finalStand(20, 30, 100, false));
         assertFalse(SiegeWaves.finalStand(21, 30, 100, false), "more than a fifth still standing");
         assertFalse(SiegeWaves.finalStand(20, 0, 100, false), "no wounded to rise: it is simply beaten");
         assertFalse(SiegeWaves.finalStand(20, 30, 100, true), "one stand a wave");
-        // before its stand a side counts its wounded (50 of 100 left: fighting on); after it, only those standing
-        assertEquals(Siege.Outcome.NONE, SiegeWaves.verdict(50, 20, false, 100, 80, 80, false, 100, 1, false));
-        assertEquals(Siege.Outcome.LOST, SiegeWaves.verdict(50, 20, true, 100, 80, 80, false, 100, 1, false), "the host's stand broke");
-        assertEquals(Siege.Outcome.WON, SiegeWaves.verdict(80, 80, false, 100, 45, 15, true, 100, 2, false), "the defenders' stand broke");
-        assertEquals(Siege.Outcome.NONE, SiegeWaves.verdict(80, 80, false, 100, 45, 30, true, 100, 2, false), "the stand holds for now");
+        // before their stand the defenders count their wounded; after it, only those standing
+        assertEquals(Siege.Outcome.WON, SiegeWaves.verdict(80, 100, 45, 15, true, 100, 2, false), "the defenders' stand broke");
+        assertEquals(Siege.Outcome.NONE, SiegeWaves.verdict(80, 100, 45, 30, true, 100, 2, false), "the stand holds for now");
+        assertEquals(Siege.Outcome.NONE, SiegeWaves.verdict(80, 100, 45, 15, false, 100, 2, false), "no stand yet: the wounded count");
+    }
+
+    @Test
+    void theHostFallsBackInsteadOfAFinalStand() {
+        // 1.8: the host counts its wounded as alive, always; down to a fifth standing it falls back to regroup
+        assertEquals(Siege.Outcome.NONE, SiegeWaves.verdict(50, 100, 80, 80, false, 100, 1, false), "20 standing, 30 wounded: still in it");
+        assertEquals(Siege.Outcome.LOST, SiegeWaves.verdict(20, 100, 80, 80, false, 100, 1, false), "a fifth left, wounded included: beaten");
+        assertTrue(SiegeWaves.fallBack(20, 30, 100, false));
+        assertFalse(SiegeWaves.fallBack(21, 30, 100, false), "more than a fifth standing: it fights on");
+        assertFalse(SiegeWaves.fallBack(15, 5, 100, false), "a fifth left with its wounded: beaten, not falling back");
+        assertFalse(SiegeWaves.fallBack(20, 30, 100, true), "once a wave");
+        // it comes on again after REGROUP by day, or after the longest night
+        assertFalse(SiegeWaves.regrouped(SiegeWaves.REGROUP - 1, 6000));
+        assertTrue(SiegeWaves.regrouped(SiegeWaves.REGROUP, 6000));
+        assertFalse(SiegeWaves.regrouped(SiegeWaves.REGROUP, 18000), "not by night");
+        assertTrue(SiegeWaves.regrouped(SiegeWaves.NIGHT_MAX, 18000));
     }
 
     @Test
