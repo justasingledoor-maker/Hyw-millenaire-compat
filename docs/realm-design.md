@@ -188,5 +188,46 @@ share of its free garrison (at home, on a standing duty), counted when the army 
 * **Breaking a siege.** When any member is besieged, every other member marches to break it with its pledge, vassals too
   (instead of their old levy), as one army: the same road time for every contingent, and none waylaid or lost on the way.
 * A realm with a single subject keeps the earlier rules (§4: the province's 30–50%, the vassal's own levy).
-* **Realm tab.** "Army of the realm of X: N men pledged (capital a, provinces b, vassals c)", and the realm list shows it.
+* **Realm tab.** "Army of the realm of X: N men pledged (capital a, provinces b, vassals c)", and the realm list shows it,
+  then where each of its armies is (gathering, on the road, at the walls with its standing men, camped for the night,
+  coming home, or marching to break a siege of one of its villages).
+* **On the road.** A bar shows an army while it gathers and marches ("The army of X marches on T (42 men): before the walls
+  in about 3 min"), and the realm's army marching to break a siege; players near the target or near any village of the
+  army's realm see it.
 * The capital's royal guard is for later.
+
+## 10. The realm's council (1.6)
+
+A realm with a national army is run by one council, at its capital. Its members no longer besiege on their own. It sits
+every tenth of a day (about two minutes). Inspired by the kingdom AIs of strategy games (a marshal gathering a kingdom's
+lords, a campaign AI weighing fronts), kept to what the realm can see.
+
+* **It sees.** Each member: the men it pledges now and their strength, whether a host is announced, mustering or marching
+  on it (threatened) or at its walls (besieged), and whether it can lead an army (its own host is home). Each enemy (every
+  village at war with a member): its strength at home (the siege defence: garrison, Millénaire fighters, engines, walls);
+  whether it rebelled against the realm or broke away; whether its own army is away besieging; whether the realm hates it;
+  whether it is of the capital's people under another lord; whether it is besieged already. The enemies' armies: their
+  realms' pledges (half the free garrison of a village without a national army).
+* **Its stance**, by the balance of arms: on the attack (1.5 to 1 or better), holding its ground (0.8 to 1.5), on the
+  defensive (under 0.8), at peace. It holds back 20%, 35% or 60% of every member's pledge to defend; a threatened or
+  besieged member keeps all of its men home (its defence is a goal).
+* **Its goals**, worthiest first for what they cost (weaker, nearer, worthier): take back a village that was its own;
+  strike an enemy whose army is away (its home is thin); annex its own people under a foreign lord; punish a village it
+  hates; subdue the rest. Each goal names what it needs (at least the target's defence, and at least 10 men; a village's own AI goes at 0.9).
+* **Its armies.** It divides what it does not hold back into up to three field armies, each raised from the members nearest
+  its target and led by the one with the most men whose host is home ("the army of Itanos"; "the army of the realm of X"
+  when the capital leads). Each is a siege with the usual build-up (it gathers two days, arrives at dawn on the third),
+  every member sending its pledge less the reserve as stand-ins in the host. One new army a session at most. A goal it cannot
+  fill yet stays on its list, "waiting for men".
+* **It adapts.** On the defensive with a village threatened, it calls home the armies not yet at the walls, and sends none.
+  The enemy of its enemy: it courts each village that fights one of its enemies (its relation with the capital rises 5 a
+  session, up to 80), so a military alliance follows by the treaty rule.
+* **At peace** (`realmAmbition`), with an army to spare, it covets a neighbour (within 2,500 blocks) it has a claim on: one
+  that was its own, one it hates, or one of its capital's people under another lord, that four fifths of its army could take. A day later, if it still covets it, it declares war (and the realm's unity does the rest).
+* **What you see.** The Realm tab, for a village of the realm: "The council of X: on the attack (our army against our
+  enemies': 2.0 to 1)", its armies and where they are, its goals and their state (an army is on it, ready, waiting for men
+  with its strength of what it needs, its men stay home), the men held back, the villages it courts, the one it covets
+  ("war in about 12 min"), and its last decisions ("Day 12: the council sends the army of Itanos (about 34 men from Itanos,
+  Saint-André) to annex Araden (Annex)"). The chronicle of the capital tells the same. `/hywmill war council` prints it;
+  `war admin council <capital>` makes it sit now.
+* `politics.realmCouncil` (default true): false gives each village its own siege decisions again.

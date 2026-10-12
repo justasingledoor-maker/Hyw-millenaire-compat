@@ -94,6 +94,17 @@ public final class Siege {
      */
     public final java.util.Map<UUID, UUID[]> levies = new java.util.LinkedHashMap<>();
     public int reserveWave, hostFront, defFront;
+    /**
+     * The realm's council (docs/realm-design.md §10): an army it raised: its name ("" for a village's own host), the members
+     * whose men march in it besides the seat's own, and the share of its free garrison the seat commits (-1: its rule's).
+     */
+    public String armyName = "";
+    public final List<UUID> contributors = new ArrayList<>();
+    public double seatShare = -1;
+    /** The share of each member's pledge the council commits to this army (the rest it holds back to defend). */
+    public double commit = 1;
+    /** The final stand ({@link SiegeWaves#finalStand}): each side made its stand in this wave (reset at dawn). */
+    public boolean hostStand, defStand;
 
     /** A wave is being fought or the night between two (no help may join any more; no recruiting at the target). */
     public boolean fighting() {

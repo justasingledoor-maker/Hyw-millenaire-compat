@@ -6146,6 +6146,188 @@ def scenario_SQ(ctx):
           ("ok=true" in h6 and len(ha) >= 10) or (tz == "WATCH" and "ok=false" in h6), f"{tz}: {h6[-160:]}; {len(ha)} horse archers")
 
 
+def _rows(s):
+    rows = []
+    for l in s.output("hywmill village list", 2):
+        m = re.search(r" - (.+?) (-?\d+), (-?\d+), (-?\d+) tier=(\w+) garrison=(\d+) .* id=(\S+) culture=(\S+)", l)
+        if m and not l.endswith(" lone"):
+            rows.append(dict(name=m[1], pos=(int(m[2]), int(m[3]), int(m[4])), garrison=int(m[6]), id=m[7]))
+    rows.sort(key=lambda r: -r["garrison"])
+    return rows
+
+
+def _clean(s, R, c):
+    keys = list(R)
+    pairs = [(x, y) for i, x in enumerate(keys) for y in keys[i + 1:]]
+    s.output("hywmill war admin recall-all", 3)
+    for k in keys:
+        s.output(f"hywmill war admin rebel {c[k]}", 1)
+    for x, y in pairs:
+        s.output(f"hywmill war admin treaty {c[x]} {c[y]} none", 0.3)
+        dip(s, R[keys[0]]["pos"], f"admin truce {c[x]} {c[y]} 1", 0.3)
+    for x, y in pairs:
+        m5(s, f"mill mrel {c[x]} {c[y]} set 0", 0.3)
+        m5(s, f"mill mrel {c[y]} {c[x]} set 0", 0.3)
+    time.sleep(14)
+    for x, y in pairs:
+        dip(s, R[keys[0]]["pos"], f"admin truce {c[x]} {c[y]} 0", 0.3)
+
+
+def scenario_FS(ctx):
+    """The final stand (1.6; --keep-world): a siege far from any witness; in its first wave most of the defenders' garrison is
+    wounded; at sundown those still standing are under a fifth of their strength: the wounded rise for a final stand, which
+    holds to sundown (the night follows) or breaks (the siege is decided that day)."""
+    s = ctx.s
+    rows = _rows(s)
+    check("FS-0 two villages", len(rows) >= 2, str([(r["name"], r["garrison"]) for r in rows]))
+    if len(rows) < 2:
+        return
+    R = {"A": rows[0], "T": rows[1]}
+    c = {k: "{} {} {}".format(*r["pos"]) for k, r in R.items()}
+    note("FS villages", " | ".join(f"{k}={r['name']} ({r['garrison']})" for k, r in R.items()))
+    _clean(s, R, c)
+    s.cmd("time set 1000", 1)
+    p0 = s.pos()
+    sg = " ".join(l for l in s.output(f"hywmill war admin siege {c['A']} {c['T']} quick unwatched", 3) if l.startswith("war siege"))
+    began = s.wait_for(r"Siege \S+: wave 1 begins", 420, since=p0)
+    check("FS-1 the siege reaches its first wave", "OK" in sg and began is not None, f"{sg[-160:]} || {(began or '')[-160:]}")
+    if not began:
+        s.output("hywmill war admin recall-all", 3)
+        return
+    w = " ".join(l for l in s.output(f"hywmill war admin siege-wound {c['A']} def 500", 2) if "siege-wound" in l)
+    time.sleep(125)  # the shortest wave
+    s.cmd("time set 13000", 1)  # sundown: the wave is decided on paper
+    stand = s.wait_for(r"wounded rise for a final stand", 120, since=p0)
+    logs = s.read_since(p0)
+    broke = any("and the walls fall" in l for l in logs)
+    held = any("and hold until sundown" in l for l in logs)
+    won = any("ended WON" in l and "final stand broke" in l for l in logs) or any("final stand broke" in l for l in logs)
+    night = any("sundown after wave 1" in l for l in logs)
+    check("FS-2 the defenders, down to a fifth standing, make a final stand with their wounded", stand is not None,
+          f"{w} || {(stand or '')[-220:]}")
+    check("FS-3 the stand decides the day: broken, the siege is won at once; held, the night follows as ever",
+          (broke and won) or (held and night), f"broke {broke} won {won} held {held} night {night}")
+    s.output("hywmill war admin recall-all", 3)
+    s.cmd("time set 1000", 1)
+
+
+MORE_VILLAGES = [("norman/militaire", 1250, 70, 300), ("byzantines/militaryvillage", 250, 70, 1150), ("norman/artisans", 1300, 70, 1050),
+                 ("norman/militaire", 150, 70, 250), ("byzantines/militaryvillage", 1400, 70, 650)]
+
+
+def ensure_villages(ctx, n):
+    """Spawns villages from MORE_VILLAGES (forceloaded) until the ledger knows n that are not lone buildings."""
+    s = ctx.s
+    rows = _rows(s)
+    for vtype, x, y, z in MORE_VILLAGES:
+        if len(rows) >= n:
+            break
+        if any(abs(r["pos"][0] - x) < 200 and abs(r["pos"][2] - z) < 200 for r in rows):
+            continue
+        s.cmd(f"forceload add {x - 64} {z - 64} {x + 64} {z + 64}", 15)
+        y = surface_y(s, x, z) or y
+        # a dry, level pad 80 blocks across (Millénaire rejects rough or wet ground); each fill under the 32768-block limit
+        for dx in (-40, 0):
+            for dz in (-40, 0):
+                s.cmd(f"fill {x + dx} {y} {z + dz} {x + dx + 39} {y + 19} {z + dz + 39} minecraft:air", 1)
+        s.cmd(f"fill {x - 40} {y - 1} {z - 40} {x + 39} {y - 1} {z + 39} minecraft:grass_block", 1)
+        s.cmd(f"fill {x - 40} {y - 4} {z - 40} {x + 39} {y - 2} {z + 39} minecraft:dirt", 1)
+        v = spawn_village(s, [(vtype, x, y, z)])
+        log(f"ensure_villages: {vtype} at {x},{z}: {v}")
+        if v:
+            time.sleep(25)
+            rows = _rows(s)
+    return rows
+
+
+def scenario_CO(ctx):
+    """The realm's council (1.6, docs/realm-design.md §10; --keep-world, five villages): a capital with a province and a
+    vassal at war with a weak village: its council takes a stance, lists its goals and sends an army it names after the member
+    that leads it; the Realm view says where the army is; a village of the realm threatened by a siege becomes a goal to defend;
+    the council courts the enemy of its enemy; and at peace it covets a village it hates."""
+    s = ctx.s
+    ensure_extra_villages(ctx)
+    rows = _rows(s)
+    check("CO-0 four villages (a fifth for the courting check)", len(rows) >= 4, str([(r["name"], r["garrison"]) for r in rows]))
+    if len(rows) < 4:
+        return
+    # the target: the village with the weakest defence at home (Millénaire's own fighters weigh heavily in it)
+    pos = lambda r: "{} {} {}".format(*r["pos"])
+    for r in rows[1:]:
+        m = re.search(r"defense now (\d+)", " ".join(s.output(f"hywmill war admin thin {pos(r)} 500", 1.5)))
+        r["defense"] = int(m[1]) if m else 10 ** 6
+    weakest = min(rows[1:], key=lambda r: r["defense"])
+    rest = [r for r in rows[1:] if r is not weakest]
+    R = {"S": rows[0], "P": rest[0], "V": rest[1], "O": weakest}
+    if len(rest) >= 3:
+        R["X"] = rest[2]
+    c = {k: pos(r) for k, r in R.items()}
+    note("CO villages", " | ".join(f"{k}={r['name']} ({r['garrison']}, defence {r.get('defense', '?')})" for k, r in R.items()))
+    P_ = U_UUID
+    _clean(s, R, c)
+    s.output(f"hywmill war admin annex {c['P']} {c['S']}", 4)
+    s.output(f"hywmill war admin vassal {c['V']} {c['S']}", 2)
+    time.sleep(40)  # the province's new garrison is raised and comes home
+    s.output(f"hywmill war for {P_} declare {c['S']} on {c['O']} force", 3)
+    if "X" in c:
+        s.output(f"hywmill war for {P_} declare {c['X']} on {c['O']} force", 3)  # a third village fights O too
+    # O is mobilised and armed for war; its garrison is struck down so that the realm's army can take it
+    note("CO O thinned", " ".join(l for l in s.output(f"hywmill war admin thin {c['O']} 0", 2) if "thin" in l))
+    p0 = s.pos()
+    out = " ".join(l for l in s.output(f"hywmill war admin council {c['S']}", 4) if "council" in l)
+    council = [l.strip() for l in s.output("hywmill war council", 2)]
+    text = " | ".join(council)
+    logs = s.read_since(p0)
+    goal = any(R["O"]["name"] in l and any(k in l for k in ("Subdue", "Annex", "Punish", "Strike", "Take back")) for l in council)
+    check("CO-1 the council sits: a stance, and O among its goals", "council OK" in out and ("on the attack" in text or "holding its ground" in text
+          or "on the defensive" in text) and goal, f"{out} || {text[:600]}")
+    if "X" in c:
+        court = any(("seeks the friendship of " + R["X"]["name"]) in l for l in logs) or any(("Courts " + R["X"]["name"]) in l for l in council)
+        check("CO-3 it courts the enemy of its enemy", court, f"{[l.split('[hywmill] ')[-1] for l in logs if 'friendship' in l][:2]}")
+    else:
+        note("CO-3", "not run: no fifth village to fight O")
+    # a member threatened: a village besieges the vassal (X if there is one: O is too weak now)
+    s.output("hywmill war admin recall-all", 4)
+    for k in [k for k in ("X", "O") if k in c]:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {c[k]} {c['V']}", 3)):
+            break
+    s.output(f"hywmill war admin council {c['S']}", 4)
+    council4 = [l.strip() for l in s.output("hywmill war council", 2)]
+    check("CO-4 a village of the realm threatened by a siege becomes a goal to defend",
+          any(("Defend " + R["V"]["name"]) in l for l in council4), " | ".join(council4)[:600])
+    s.output("hywmill war admin recall-all", 4)
+    time.sleep(10)
+    sent = next((l for l in logs if "the council sends" in l), "")
+    if not sent and "X" in c:
+        # still too few: the realm grows (X, which fights O, is annexed as a second province) and the council sits again
+        note("CO realm grows", next((l for l in council if "waiting for men" in l), "")[:160])
+        s.output(f"hywmill war admin annex {c['X']} {c['S']}", 4)
+        time.sleep(40)
+        s.output(f"hywmill war admin thin {c['O']} 0", 2)
+        p0 = s.pos()
+        s.output(f"hywmill war admin council {c['S']}", 4)
+        council = [l.strip() for l in s.output("hywmill war council", 2)]
+        logs = s.read_since(p0)
+        sent = next((l for l in logs if "the council sends" in l), "")
+    check("CO-2 it sends an army named after the member that leads it, and says where it is",
+          sent != "" and "the army of" in sent and any(("gathers to march on " + R["O"]["name"]) in l or ("on the road to " + R["O"]["name"]) in l for l in council),
+          f"{sent.split('[hywmill] ')[-1][-200:]} || {[l for l in council if 'march' in l or 'road' in l or 'waiting' in l][:3]}")
+    # at peace, it covets a village it hates
+    s.output("hywmill war admin recall-all", 4)
+    s.output(f"hywmill war for {P_} peace {c['S']} with {c['O']} force", 3)
+    if "X" in c:
+        s.output(f"hywmill war for {P_} peace {c['X']} with {c['O']} force", 3)
+    m5(s, f"mill mrel {c['S']} {c['O']} set -60")
+    m5(s, f"mill mrel {c['O']} {c['S']} set -60")
+    s.output(f"hywmill war admin thin {c['O']} 0", 2)
+    p1 = s.pos()
+    s.output(f"hywmill war admin council {c['S']}", 4)
+    council = [l.strip() for l in s.output("hywmill war council", 2)]
+    covet = any(("Covets " + R["O"]["name"]) in l for l in council) or any(("covets " + R["O"]["name"]) in l for l in s.read_since(p1))
+    check("CO-5 at peace, the council covets a village the realm hates (war a day later)", covet, " | ".join(council)[:600])
+    _clean(s, R, c)
+
+
 def scenario_NA(ctx):
     """The national army (1.6, docs/realm-design.md §9; --keep-world, five villages): a capital with a province and a vassal
     raises one: the Realm tab counts the men pledged; its siege musters as 'the army of the realm' at the member nearest the
@@ -7508,7 +7690,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

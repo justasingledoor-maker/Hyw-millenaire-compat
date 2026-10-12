@@ -359,6 +359,12 @@ public final class PoliticsNbt {
                 x.putBoolean("unwatched", true);
             }
             x.putString("aim", g.aim.name());
+            if (!g.armyName.isEmpty()) {
+                x.putString("armyName", g.armyName);
+                x.put("contributors", uuids(g.contributors));
+                x.putDouble("seatShare", g.seatShare);
+                x.putDouble("commit", g.commit);
+            }
             x.putLong("startDay", g.startDay);
             x.putLong("arriveAt", g.arriveAt);
             x.putLong("march", g.march);
@@ -399,6 +405,9 @@ public final class PoliticsNbt {
                     x.put("defReserve", uuids(g.defReserve));
                 }
                 x.putIntArray("toll", new int[]{g.hostDeadW, g.hostHurtW, g.defDeadW, g.defHurtW, g.hostDead, g.hostHurt, g.defDead, g.defHurt});
+                if (g.hostStand || g.defStand) {
+                    x.putIntArray("stand", new int[]{g.hostStand ? 1 : 0, g.defStand ? 1 : 0});
+                }
             }
             if (!g.notes.isEmpty()) {
                 ListTag nl = new ListTag();
@@ -462,6 +471,12 @@ public final class PoliticsNbt {
                 } catch (IllegalArgumentException ex) {
                     g.aim = dev.hywmill.politics.realm.SiegeAims.Aim.SUBJUGATE;
                 }
+                if (x.contains("armyName")) {
+                    g.armyName = x.getString("armyName");
+                    g.contributors.addAll(readUuids(x.getList("contributors", Tag.TAG_INT_ARRAY)));
+                    g.seatShare = x.getDouble("seatShare");
+                    g.commit = x.contains("commit") ? x.getDouble("commit") : 1;
+                }
                 g.mercRolled = x.getBoolean("mercRolled");
                 g.aidRolled = x.getBoolean("aidRolled");
                 g.vassalRolled = x.getBoolean("vassalRolled");
@@ -483,6 +498,11 @@ public final class PoliticsNbt {
                     g.defFront = reserve[2];
                     g.hostReserve.addAll(readUuids(x.getList("hostReserve", Tag.TAG_INT_ARRAY)));
                     g.defReserve.addAll(readUuids(x.getList("defReserve", Tag.TAG_INT_ARRAY)));
+                }
+                int[] stand = x.getIntArray("stand");
+                if (stand.length == 2) {
+                    g.hostStand = stand[0] != 0;
+                    g.defStand = stand[1] != 0;
                 }
                 int[] toll = x.getIntArray("toll");
                 if (toll.length == 8) {
@@ -840,5 +860,89 @@ public final class PoliticsNbt {
             out.add(net.minecraft.nbt.NbtUtils.loadUUID(t));
         }
         return out;
+    }
+
+    // ------------------------------------------------------------------ realm councils (docs/realm-design.md §10)
+
+    public static ListTag savePlans(java.util.Map<UUID, dev.hywmill.politics.realm.RealmPlan> plans) {
+        ListTag out = new ListTag();
+        plans.forEach((head, p) -> {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("head", head);
+            x.putString("stance", p.stance.name());
+            x.putDouble("ratio", p.ratio);
+            x.putIntArray("men", new int[]{p.men, p.reserve});
+            ListTag gs = new ListTag();
+            for (dev.hywmill.politics.realm.Strategy.Goal g : p.goals) {
+                CompoundTag y = new CompoundTag();
+                y.putString("kind", g.kind().name());
+                y.putUUID("target", g.target());
+                y.putInt("men", g.men());
+                y.putDouble("power", g.power());
+                y.putDouble("needed", g.needed());
+                y.putBoolean("ready", g.ready());
+                gs.add(y);
+            }
+            x.put("goals", gs);
+            if (p.covets != null) {
+                x.putUUID("covets", p.covets);
+                x.putString("claim", p.claim);
+                x.putLong("covetSince", p.covetSince);
+            }
+            x.putLong("lastSession", p.lastSession);
+            x.putLong("lastLaunch", p.lastLaunch);
+            if (!p.courting.isEmpty()) {
+                x.put("courting", uuids(p.courting));
+            }
+            ListTag log = new ListTag();
+            p.log.forEach(l -> log.add(net.minecraft.nbt.StringTag.valueOf(l)));
+            x.put("log", log);
+            out.add(x);
+        });
+        return out;
+    }
+
+    public static void loadPlans(ListTag list, java.util.Map<UUID, dev.hywmill.politics.realm.RealmPlan> into) {
+        for (int i = 0; i < list.size(); i++) {
+            CompoundTag x = list.getCompound(i);
+            if (!x.hasUUID("head")) {
+                continue;
+            }
+            dev.hywmill.politics.realm.RealmPlan p = new dev.hywmill.politics.realm.RealmPlan();
+            try {
+                p.stance = dev.hywmill.politics.realm.Strategy.Stance.valueOf(x.getString("stance"));
+            } catch (IllegalArgumentException ex) {
+                p.stance = dev.hywmill.politics.realm.Strategy.Stance.AT_PEACE;
+            }
+            p.ratio = x.getDouble("ratio");
+            int[] men = x.getIntArray("men");
+            if (men.length == 2) {
+                p.men = men[0];
+                p.reserve = men[1];
+            }
+            ListTag gs = x.getList("goals", Tag.TAG_COMPOUND);
+            for (int j = 0; j < gs.size(); j++) {
+                CompoundTag y = gs.getCompound(j);
+                try {
+                    p.goals.add(new dev.hywmill.politics.realm.Strategy.Goal(dev.hywmill.politics.realm.Strategy.Kind.valueOf(y.getString("kind")),
+                            y.getUUID("target"), y.getInt("men"), y.getDouble("power"), y.getDouble("needed"), y.getBoolean("ready")));
+                } catch (IllegalArgumentException ex) {
+                    // a goal of a kind this version no longer has
+                }
+            }
+            if (x.hasUUID("covets")) {
+                p.covets = x.getUUID("covets");
+                p.claim = x.getString("claim");
+                p.covetSince = x.getLong("covetSince");
+            }
+            p.lastSession = x.getLong("lastSession");
+            p.lastLaunch = x.getLong("lastLaunch");
+            p.courting.addAll(readUuids(x.getList("courting", Tag.TAG_INT_ARRAY)));
+            ListTag log = x.getList("log", Tag.TAG_STRING);
+            for (int j = 0; j < log.size(); j++) {
+                p.log.add(log.getString(j));
+            }
+            into.put(x.getUUID("head"), p);
+        }
     }
 }

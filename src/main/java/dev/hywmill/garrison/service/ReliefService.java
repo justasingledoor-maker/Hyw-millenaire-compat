@@ -59,6 +59,11 @@ public final class ReliefService {
         return out;
     }
 
+    /** The strength (by cost and level) of {@code v}'s soldiers at home and free to go. */
+    public static double freeStrength(VillageRecord v) {
+        return SiegeService.strength(available(v));
+    }
+
     /** How many soldiers of {@code v} are at home and free to go. */
     public static int freeAtHome(VillageRecord v) {
         return available(v).size();
@@ -155,7 +160,7 @@ public final class ReliefService {
      * {@code helper} relieves {@code target} as part of their realm's national army (docs/realm-design.md §9): both belong to a
      * realm whose capital has at least two subjects.
      */
-    static boolean nationalRelief(GarrisonLedger ledger, VillageRecord helper, VillageRecord target, long now) {
+    public static boolean nationalRelief(GarrisonLedger ledger, VillageRecord helper, VillageRecord target, long now) {
         return dev.hywmill.politics.service.RealmService.sameRealm(ledger, helper.villageId, target.villageId, now)
                 && dev.hywmill.politics.service.RealmService.national(ledger, dev.hywmill.politics.service.RealmService.sovereignOf(ledger, target.villageId, now), now);
     }

@@ -1,0 +1,40 @@
+[harness] server started
+[harness] PASS reuse: villages found in existing world [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620)]
+[harness] --- scenario FS
+[harness] PASS FS-0 two villages [('Vaucelles les-pâtures', 18), ('Araden', 15), ('Le Mesnil le-volcan', 12), ('Itanos', 12)]
+[harness] NOTE FS villages: A=Vaucelles les-pâtures (18) | T=Araden (15)
+[harness] PASS FS-1 the siege reaches its first wave war siege OK: Vaucelles les-pâtures musters 37 soldiers to besiege Araden to make it a vassal; they march in about 1 min id 1f69d5ba host 37 (unwatched) || [02:18:36] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 1f69d5ba: wave 1 begins: host 37/37, defenders 125/125
+[harness] PASS FS-2 the defenders, down to a fifth standing, make a final stand with their wounded war admin siege-wound OK: 110 wounded, phase BATTLE wave 1 || [02:20:52] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 1f69d5ba: Araden is down to 16 of 125 defenders standing: its 109 wounded rise for a final stand, and hold until sundown
+[harness] PASS FS-3 the stand decides the day: broken, the siege is won at once; held, the night follows as ever broke False won False held True night True
+[harness] --- scenario CO
+[harness] ensure_villages: norman/militaire at 1250,300: None
+[harness] ensure_villages: byzantines/militaryvillage at 250,1150: None
+[harness] ensure_villages: norman/artisans at 1300,1050: None
+[harness] ensure_villages: norman/militaire at 150,250: None
+[harness] ensure_villages: byzantines/militaryvillage at 1400,650: None
+[harness] FAIL CO-0 six villages [('Vaucelles les-pâtures', 19), ('Araden', 15), ('Le Mesnil le-volcan', 12), ('Itanos', 12)]
+[harness] --- scenario NA
+[harness] PASS NA-0 four villages [('Vaucelles les-pâtures', 19), ('Le Mesnil le-volcan', 12), ('Araden', 15), ('Itanos', 12)]
+[harness] NOTE NA villages: S=Vaucelles les-pâtures (19) | P=Araden (15) | O=Le Mesnil le-volcan (12) | V=Itanos (12)
+[harness] PASS NA-1 a capital with a province and a vassal raises a national army: the realm list counts the men pledged war realms: 2 line(s) | Realms of the known world: | Vaucelles les-pâtures, 170 soldiers (army of the realm: 51 men pledged): Araden (province, loyalty 50), Itanos (vassal, loyalty 40)
+[harness] PASS NA-2 the capital's siege musters as the army of the realm, its province and its vassal sending their men with it war siege OK: The army of the realm of Vaucelles les-pâtures musters 40 soldiers to besiege Le Mesnil le-volcan to punish it; they march in about 1 min id 2095da75 host 40 || INFO] [de.hy.co.HmLog/]: [hywmill] Siege 2095da75: Araden sends 1 soldier with the army of the realm of Vaucelles les-pâtures (its province) || INFO] [de.hy.co.HmLog/]: [hywmill] Siege 2095da75: Itanos sends 11 soldiers with the army of the realm of Vaucelles les-pâtures (its vassal)
+[harness] PASS NA-3 the province besieged: the capital and the vassal are bound to relieve it as the army of the realm war siege OK: Le Mesnil le-volcan musters 23 soldiers to besiege Araden to punish it; they march in about 1 min id cb08d1bb host 23 || ['O] [de.hy.co.HmLog/]: [hywmill] Siege cb08d1bb: Vaucelles les-pâtures is bound to relieve Araden (the army of the realm)', 'rver thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege cb08d1bb: Itanos is bound to relieve Araden (the army of the realm)']
+[harness] PASS NA-4 they march together to break the siege (one road time for all) ['b08d1bb: relief: Vaucelles les-pâtures sends 55 soldiers with the army of the realm of Vaucelles les-pâtures to break the siege of Araden; the army arrives in about 1 min', 'Siege cb08d1bb: relief: Itanos sends 18 soldiers with the army of the realm of Vaucelles les-pâtures to break the siege of Araden; the army arrives in about 1 min']
+[harness] --- scenario RU
+[harness] FAIL RU-0 five villages [('Vaucelles les-pâtures', 19), ('Le Mesnil le-volcan', 12), ('Araden', 15), ('Itanos', 12)]
+[harness] server stopped
+[harness] RESULT 10/12 checks passed
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620)]
+  PASS  FS-0 two villages  [('Vaucelles les-pâtures', 18), ('Araden', 15), ('Le Mesnil le-volcan', 12), ('Itanos', 12)]
+  PASS  FS-1 the siege reaches its first wave  war siege OK: Vaucelles les-pâtures musters 37 soldiers to besiege Araden to make it a vassal; they march in about 1 min id 1f69d5ba host 37 (unwatched) || [02:18:36] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 1f69d5ba: wave 1 begins: host 37/37, defenders 125/125
+  PASS  FS-2 the defenders, down to a fifth standing, make a final stand with their wounded  war admin siege-wound OK: 110 wounded, phase BATTLE wave 1 || [02:20:52] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege 1f69d5ba: Araden is down to 16 of 125 defenders standing: its 109 wounded rise for a final stand, and hold until sundown
+  PASS  FS-3 the stand decides the day: broken, the siege is won at once; held, the night follows as ever  broke False won False held True night True
+  FAIL  CO-0 six villages  [('Vaucelles les-pâtures', 19), ('Araden', 15), ('Le Mesnil le-volcan', 12), ('Itanos', 12)]
+  PASS  NA-0 four villages  [('Vaucelles les-pâtures', 19), ('Le Mesnil le-volcan', 12), ('Araden', 15), ('Itanos', 12)]
+  PASS  NA-1 a capital with a province and a vassal raises a national army: the realm list counts the men pledged  war realms: 2 line(s) | Realms of the known world: | Vaucelles les-pâtures, 170 soldiers (army of the realm: 51 men pledged): Araden (province, loyalty 50), Itanos (vassal, loyalty 40)
+  PASS  NA-2 the capital's siege musters as the army of the realm, its province and its vassal sending their men with it  war siege OK: The army of the realm of Vaucelles les-pâtures musters 40 soldiers to besiege Le Mesnil le-volcan to punish it; they march in about 1 min id 2095da75 host 40 || INFO] [de.hy.co.HmLog/]: [hywmill] Siege 2095da75: Araden sends 1 soldier with the army of the realm of Vaucelles les-pâtures (its province) || INFO] [de.hy.co.HmLog/]: [hywmill] Siege 2095da75: Itanos sends 11 soldiers with the army of the realm of Vaucelles les-pâtures (its vassal)
+  PASS  NA-3 the province besieged: the capital and the vassal are bound to relieve it as the army of the realm  war siege OK: Le Mesnil le-volcan musters 23 soldiers to besiege Araden to punish it; they march in about 1 min id cb08d1bb host 23 || ['O] [de.hy.co.HmLog/]: [hywmill] Siege cb08d1bb: Vaucelles les-pâtures is bound to relieve Araden (the army of the realm)', 'rver thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege cb08d1bb: Itanos is bound to relieve Araden (the army of the realm)']
+  PASS  NA-4 they march together to break the siege (one road time for all)  ['b08d1bb: relief: Vaucelles les-pâtures sends 55 soldiers with the army of the realm of Vaucelles les-pâtures to break the siege of Araden; the army arrives in about 1 min', 'Siege cb08d1bb: relief: Itanos sends 18 soldiers with the army of the realm of Vaucelles les-pâtures to break the siege of Araden; the army arrives in about 1 min']
+  FAIL  RU-0 five villages  [('Vaucelles les-pâtures', 19), ('Le Mesnil le-volcan', 12), ('Araden', 15), ('Itanos', 12)]
+  NOTE  FS villages  A=Vaucelles les-pâtures (18) | T=Araden (15)
+  NOTE  NA villages  S=Vaucelles les-pâtures (19) | P=Araden (15) | O=Le Mesnil le-volcan (12) | V=Itanos (12)

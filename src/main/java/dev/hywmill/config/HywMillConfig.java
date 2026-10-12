@@ -47,6 +47,8 @@ public final class HywMillConfig {
     public static final ModConfigSpec.IntValue SIEGE_RESISTANCE;
     public static final ModConfigSpec.BooleanValue REALMS_ENABLED;
     public static final ModConfigSpec.BooleanValue RAZE_ENABLED;
+    public static final ModConfigSpec.BooleanValue REALM_COUNCIL;
+    public static final ModConfigSpec.BooleanValue REALM_AMBITION;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -163,6 +165,14 @@ public final class HywMillConfig {
         RAZE_ENABLED = b.comment("Post-M5 realms: a village may besiege another to raze it (the negation wand's mechanics: its villagers and",
                         "record are gone, its buildings stay as ruins). Rare; never a player-controlled village.")
                 .define("razeEnabled", true);
+        REALM_COUNCIL = b.comment("1.6 (docs/realm-design.md §10): a realm with a national army (a capital with at least two subjects) is run by",
+                        "one council: it weighs its army against its enemies', holds back a reserve to defend, and raises one or more field",
+                        "armies against the targets worth most for what they cost; its members no longer besiege on their own.",
+                        "false: each village decides its own sieges, as before.")
+                .define("realmCouncil", true);
+        REALM_AMBITION = b.comment("1.6: a council at peace, with an army to spare, covets a neighbour it has a claim on (a former member, a",
+                        "village it hates, or one of its capital's people under another lord) and, a day later, declares war to take it.")
+                .define("realmAmbition", true);
         b.pop();
 
         SPEC = b.build();

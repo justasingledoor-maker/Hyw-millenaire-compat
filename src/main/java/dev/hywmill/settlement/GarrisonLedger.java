@@ -93,6 +93,13 @@ public final class GarrisonLedger extends SavedData {
         return rebels;
     }
 
+    /** Realm councils (docs/realm-design.md §10): each realm head's last plan. */
+    private final java.util.Map<UUID, dev.hywmill.politics.realm.RealmPlan> plans = new java.util.LinkedHashMap<>();
+
+    public java.util.Map<UUID, dev.hywmill.politics.realm.RealmPlan> plans() {
+        return plans;
+    }
+
     /** Realm unity: vassals excused (for scutage) from their realm's war with a realm, and that realm's head. */
     private final java.util.Map<UUID, UUID> excused = new java.util.LinkedHashMap<>();
 
@@ -227,6 +234,7 @@ public final class GarrisonLedger extends SavedData {
                 ledger.rebels.put(x.getUUID("rebel"), x.getUUID("against"));
             }
         }
+        PoliticsNbt.loadPlans(root.getList("plans", Tag.TAG_COMPOUND), ledger.plans);
         ListTag ex = root.getList("excused", Tag.TAG_COMPOUND);
         for (int i = 0; i < ex.size(); i++) {
             CompoundTag x = ex.getCompound(i);
@@ -296,6 +304,9 @@ public final class GarrisonLedger extends SavedData {
                 rb.add(x);
             });
             root.put("rebels", rb);
+        }
+        if (!plans.isEmpty()) {
+            root.put("plans", PoliticsNbt.savePlans(plans));
         }
         if (!excused.isEmpty()) {
             ListTag ex = new ListTag();

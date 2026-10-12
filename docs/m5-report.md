@@ -2287,3 +2287,60 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
   * The province sent only 2 in NA-2: its garrison, just raised again after the annexation, was mostly not yet at home in
     the world (pledges count soldiers at home and free, as relief always has).
 * SHA-256 of the jar: `0d9274ec8ac758116e9de308d5ae8f40f9b46c05da166a9b5b0655130f678416`.
+
+### 6.69 The final stand, the army on the march, and the realm's council (`dist/hywmill-m5-fix69.jar`)
+
+* **Request.** Sieges that drag on for days end sooner: when a side's living, standing men fall under about 20%, its wounded
+  make a final stand; if it lasts to sundown, the night and the next assault go as ever. Finish the realm's Phase 4: a march
+  bar for the army and the Realm tab saying where it is. Then one living mind for a whole realm: it reads the balance of arms,
+  sets goals, divides its men between defence and attack (several armies at once when it has the numbers), courts allies,
+  covets land at peace, and shows all of it on the diplomacy screen. No war weariness (asked).
+* **The final stand** (`SiegeWaves.finalStand/verdict/standHolds`, `SiegeService`; docs/siege-design.md): when a side's
+  standing men are down to a fifth of what it brought and it still has wounded, they rise and go back in, once a wave. From
+  then to sundown only standing men count: down to a fifth again and the side is beaten that day. In the world the wounded
+  come back from the camp, from inside the village or to their relief posts; off-screen the stand is drawn at sundown
+  (stand and risen wounded against the foe's standing men, squared). The siege bar says "(final stand)". Persisted.
+* **The army on the march** (`SiegeService.marchBars/armyLines`): a boss bar for each realm army gathering, mustering or
+  marching ("The army of the realm of X marches on Y to make it a vassal (52 men): before the walls in about 3 min"), shown near the target and near every village of the realm, and one for the army marching to break a siege of a
+  member. The Realm tab and `/hywmill war council` list each army and where it is.
+* **The realm's council** (`Strategy` (pure), `RealmPlan`, `RealmCouncil`; ledger `plans`; docs/realm-design.md §10): a
+  realm with a national army is run by one council at its capital, sitting every tenth of a day; its members no longer
+  besiege on their own.
+  * It sees each member (its pledge and strength, threatened, besieged, able to lead) and each enemy (defence at home, its
+    army away, once its own, of its people, hated, already besieged), and the enemies' armies.
+  * Its stance by the balance of arms (on the attack 1.5:1, holding its ground 0.8:1, on the defensive), holding back 20%,
+    35% or 60% of every pledge, and every man of a threatened member (a Defend goal). On the defensive with a member
+    threatened, it calls home the armies not yet at the walls.
+  * Its goals, worthiest for their cost: take back a rebel, strike an enemy whose army is away, annex its own people under
+    a foreign lord, punish a village it hates, subdue the rest. Each needs at least the target's defence (a village's own AI
+    goes at 0.9) and 10 men, or it waits "for men (strength a of b needed)".
+  * Up to three field armies at once, each raised from the members nearest its target, led by the one with most men at home
+    ("the army of Itanos", "the army of the realm of X" when the capital leads); one new army a session. Each is an ordinary
+    siege with its build-up, every member sending its pledge less the reserve.
+  * It courts the enemy of its enemy (relation +5 a session up to 80, so the treaty rule brings an alliance), and at peace
+    (`realmAmbition`) covets a neighbour it has a claim on that four fifths of its army could take; a day later, war.
+  * The Realm tab: stance and ratio, armies and where they are, goals and their state, men held back, villages courted,
+    the one coveted ("war in about 20 min"), and the council's last decisions (also in the capital's chronicle).
+  * `politics.realmCouncil` / `politics.realmAmbition` (default true). `/hywmill war council`; `war admin council <capital>`;
+    dev: `war admin siege-wound`, `war admin thin <village> <keep>`.
+* **Validation.** JUnit 418/418 (new: `StrategyTest` 5 (stance, two fronts with two armies raised from the nearest
+  members, a threatened member keeps its men and a too-strong target waits, worth, covet), final stand 2). Harness
+  (`docs/m5-test-evidence/fix69-fs-na.txt`, `fix69-co-ru.txt` (RU, and CO before the fixes below), `fix69-co.txt`):
+  * FS 4/4: "Araden is down to 16 of 125 defenders standing: its 109 wounded rise for a final stand", which held to sundown
+    and the night followed as ever.
+  * NA 5/5 and RU 7/7 again with the council on (members of a national realm no longer besiege on their own).
+  * CO 6/6 (Vaucelles les-pâtures with the province Araden and the vassal Itanos, at war with Ouilly la-fôret, which
+    once rebelled against it): CO-1 "on the attack (9.9 to 1)", "Take back Ouilly la-fôret: waiting for men (strength 177
+    of 203 needed)"; CO-3 "the council seeks the friendship of Le Mesnil le-volcan (a common enemy: Ouilly la-fôret)";
+    CO-4 Le Mesnil besieges Itanos: "Defend Itanos: its men stay home: it is besieged"; CO-2 the realm grows (Le Mesnil
+    annexed) and the council sits again: "the council sends the army of the realm of Vaucelles les-pâtures (about 62 men
+    from Araden, Itanos, Vaucelles les-pâtures) to subjugate Ouilly la-fôret (take back)", and the Realm view: "The army
+    of the realm of Vaucelles les-pâtures (with Araden, Itanos) gathers to march on Ouilly la-fôret to make it a vassal";
+    CO-5 at peace, hated: "Covets Ouilly la-fôret (it was ours): war in about 20 min".
+  * Fixed on the way: an army needed 1.3 times the target's defence, stricter than a village's own AI (0.9); now 1.0, and
+    a covet needs four fifths of the army to match it. In this world a village's Millénaire villagers weigh heavily in its
+    defence (Ouilly la-fôret: about 170 to 200, nearly all of it Millénaire), so a three-member realm rightly waits; the
+    test thins the target's garrison (`war admin thin`) and grows the realm to see the army sent.
+* **Not tested in the world:** two armies marching at once (needs two weak enemies within reach; covered by JUnit), the
+  recall when pressed, and a covet turning into a declared war a day later.
+* SHA-256 of the jar: `dea3c38244e17492ba992b0e30482ab5c28e75269fdcb453fb533ee3e853c71e`.

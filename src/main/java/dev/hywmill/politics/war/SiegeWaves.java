@@ -117,6 +117,35 @@ public final class SiegeWaves {
         return Siege.Outcome.NONE;
     }
 
+    /**
+     * The final stand (1.6): a side whose standing men (not wounded) are down to {@link #BREAK} of its starting strength while
+     * it still has wounded makes its final stand: the wounded rise and go back in at once. From then until sundown only its
+     * standing men count, so it is beaten when they are down to {@code BREAK} again; if it holds to sundown, the night and the
+     * next dawn go as ever (and it may make another stand the next day).
+     */
+    public static boolean finalStand(int standing, int wounded, int start, boolean made) {
+        return !made && wounded > 0 && start > 0 && share(standing, start) <= BREAK;
+    }
+
+    /**
+     * The verdict during a wave with final stands: a side that has made its stand is counted by its standing men only
+     * ({@code hostStanding}, {@code defStanding}); otherwise as {@link #verdict}.
+     */
+    public static Siege.Outcome verdict(int host, int hostStanding, boolean hostStand, int hostStart, int defenders, int defStanding, boolean defStand,
+                                        int defendersStart, int wave, boolean waveDone) {
+        return verdict(hostStand ? hostStanding : host, hostStart, defStand ? defStanding : defenders, defendersStart, wave, waveDone);
+    }
+
+    /**
+     * A final stand far from any witness: the {@code stand} men (standing and risen wounded) against the {@code foes} standing,
+     * by strength (squared, as a siege): true if it holds to sundown, false if it breaks.
+     */
+    public static boolean standHolds(int stand, int foes, long seed) {
+        double a = (double) stand * stand, b = (double) foes * foes;
+        double p = a + b <= 0 ? 0.5 : a / (a + b);
+        return new SplittableRandom(seed).nextDouble() < p;
+    }
+
     /** What one wave did to a side: how many fell dead and how many were wounded. */
     public record Toll(int dead, int wounded) {
         public int fallen() {

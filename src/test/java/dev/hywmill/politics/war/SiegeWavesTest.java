@@ -117,4 +117,32 @@ class SiegeWavesTest {
         assertEquals(SiegeWaves.FEED, SiegeWaves.feed(29, 36, 36, SiegeWaves.NOON));
         assertEquals(0, SiegeWaves.feed(0, 0, 36, SiegeWaves.NOON));
     }
+    @Test
+    void aBatteredSideMakesAFinalStandAndThenStandsOnItsFeetAlone() {
+        // 100 men: down to 20 standing with 30 wounded, the wounded rise (once a wave)
+        assertTrue(SiegeWaves.finalStand(20, 30, 100, false));
+        assertFalse(SiegeWaves.finalStand(21, 30, 100, false), "more than a fifth still standing");
+        assertFalse(SiegeWaves.finalStand(20, 0, 100, false), "no wounded to rise: it is simply beaten");
+        assertFalse(SiegeWaves.finalStand(20, 30, 100, true), "one stand a wave");
+        // before its stand a side counts its wounded (50 of 100 left: fighting on); after it, only those standing
+        assertEquals(Siege.Outcome.NONE, SiegeWaves.verdict(50, 20, false, 100, 80, 80, false, 100, 1, false));
+        assertEquals(Siege.Outcome.LOST, SiegeWaves.verdict(50, 20, true, 100, 80, 80, false, 100, 1, false), "the host's stand broke");
+        assertEquals(Siege.Outcome.WON, SiegeWaves.verdict(80, 80, false, 100, 45, 15, true, 100, 2, false), "the defenders' stand broke");
+        assertEquals(Siege.Outcome.NONE, SiegeWaves.verdict(80, 80, false, 100, 45, 30, true, 100, 2, false), "the stand holds for now");
+    }
+
+    @Test
+    void aStandFarFromAnyWitnessHoldsByStrength() {
+        int held = 0;
+        for (long seed = 0; seed < 2000; seed++) {
+            held += SiegeWaves.standHolds(30, 30, seed) ? 1 : 0;
+        }
+        assertTrue(held > 850 && held < 1150, "even strength: about half hold (" + held + ")");
+        int strong = 0, weak = 0;
+        for (long seed = 0; seed < 1000; seed++) {
+            strong += SiegeWaves.standHolds(40, 10, seed) ? 1 : 0;
+            weak += SiegeWaves.standHolds(10, 40, seed) ? 1 : 0;
+        }
+        assertTrue(strong > 900 && weak < 100, strong + " / " + weak);
+    }
 }

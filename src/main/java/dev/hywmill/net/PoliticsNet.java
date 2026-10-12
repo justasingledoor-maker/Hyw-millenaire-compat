@@ -249,6 +249,7 @@ public final class PoliticsNet {
                 var army = dev.hywmill.politics.service.RealmService.army(ledger, head, now);
                 out.add(" Army of the realm of " + name(ledger, head) + ": " + army.total() + " men pledged (capital " + army.capital() + ", provinces "
                         + army.provinces() + ", vassals " + army.vassals() + "); they march together to its sieges and to break a siege of any of its villages.");
+                out.addAll(dev.hywmill.politics.service.RealmCouncil.lines(ow, ledger, head, now)); // 1.6: its council and its armies (§9-10)
             }
             out.add("");
             out.add("Treaties" + (head.equals(village) ? "" : " (its sovereign " + name(ledger, head) + "'s)") + ":");
