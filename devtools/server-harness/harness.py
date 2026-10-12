@@ -6146,6 +6146,87 @@ def scenario_SQ(ctx):
           ("ok=true" in h6 and len(ha) >= 10) or (tz == "WATCH" and "ok=false" in h6), f"{tz}: {h6[-160:]}; {len(ha)} horse archers")
 
 
+def scenario_NA(ctx):
+    """The national army (1.6, docs/realm-design.md §9; --keep-world, five villages): a capital with a province and a vassal
+    raises one: the Realm tab counts the men pledged; its siege musters as 'the army of the realm' at the member nearest the
+    target, the province sending 40% of its free garrison and the vassal its share by loyalty; and when the province is
+    besieged, the capital and the vassal march together to break the siege, as one army (one road time, none lost)."""
+    s = ctx.s
+    ensure_extra_villages(ctx)
+    s.output("hywmill war admin recall-all", 3)
+    rows = []
+    for l in s.output("hywmill village list", 2):
+        m = re.search(r" - (.+?) (-?\d+), (-?\d+), (-?\d+) tier=(\w+) garrison=(\d+) .* id=(\S+) culture=(\S+)", l)
+        if m and not l.endswith(" lone"):
+            rows.append(dict(name=m[1], pos=(int(m[2]), int(m[3]), int(m[4])), garrison=int(m[6]), id=m[7]))
+    check("NA-0 four villages", len(rows) >= 4, str([(r["name"], r["garrison"]) for r in rows]))
+    if len(rows) < 4:
+        return
+    rows.sort(key=lambda r: -r["garrison"])
+    R = dict(zip("SPOV", rows[:4]))
+    c = {k: "{} {} {}".format(*r["pos"]) for k, r in R.items()}
+    note("NA villages", " | ".join(f"{k}={r['name']} ({r['garrison']})" for k, r in R.items()))
+    keys = "SPVO"
+    pairs = [(x, y) for i, x in enumerate(keys) for y in keys[i + 1:]]
+    P_ = U_UUID
+
+    def clean():
+        s.output("hywmill war admin recall-all", 3)
+        for k in keys:
+            s.output(f"hywmill war admin rebel {c[k]}", 1)
+        for x, y in pairs:
+            s.output(f"hywmill war admin treaty {c[x]} {c[y]} none", 0.3)
+            dip(s, R["S"]["pos"], f"admin truce {c[x]} {c[y]} 1", 0.3)
+        for x, y in pairs:
+            m5(s, f"mill mrel {c[x]} {c[y]} set 0", 0.3)
+            m5(s, f"mill mrel {c[y]} {c[x]} set 0", 0.3)
+        time.sleep(14)
+        for x, y in pairs:
+            dip(s, R["S"]["pos"], f"admin truce {c[x]} {c[y]} 0", 0.3)
+
+    clean()
+    s.output(f"hywmill war admin annex {c['P']} {c['S']}", 4)
+    s.output(f"hywmill war admin vassal {c['V']} {c['S']}", 2)
+    time.sleep(20)  # the province's new garrison is raised
+    realms = " | ".join(l.strip() for l in s.output("hywmill war realms", 1.5))
+    m = re.search(re.escape(R["S"]["name"]) + r", \d+ soldiers \(army of the realm: (\d+) men pledged\)", realms)
+    check("NA-1 a capital with a province and a vassal raises a national army: the realm list counts the men pledged",
+          m is not None and int(m[1]) > 0, realms[-300:])
+
+    # offence: the capital's siege is the army's
+    s.output(f"hywmill war for {P_} declare {c['S']} on {c['O']} force", 3)
+    p0 = s.pos()
+    sg = " ".join(l for l in s.output(f"hywmill war admin siege {c['S']} {c['O']} quick", 4) if l.startswith("war siege"))
+    logs = s.read_since(p0)
+    prov = next((l for l in logs if R["P"]["name"] + " sends " in l and "with the army of the realm of " + R["S"]["name"] + " (its province)" in l), "")
+    vas = next((l for l in logs if R["V"]["name"] + " sends " in l and "with the army of the realm of " + R["S"]["name"] + " (its vassal)" in l), "")
+    check("NA-2 the capital's siege musters as the army of the realm, its province and its vassal sending their men with it",
+          "OK" in sg and "The army of the realm of " + R["S"]["name"] in sg and prov != "" and vas != "",
+          f"{sg[-220:]} || {prov[-140:]} || {vas[-140:]}")
+    s.output("hywmill war admin recall-all", 4)
+    time.sleep(5)
+
+    # defence: a siege of the province brings the whole army to break it
+    p1 = s.pos()
+    sg2 = " ".join(l for l in s.output(f"hywmill war admin siege {c['O']} {c['P']} quick", 4) if l.startswith("war siege"))
+    bound = [l for l in s.read_since(p1) if "is bound to relieve " + R["P"]["name"] + " (the army of the realm)" in l]
+    t0, sent = time.time(), []
+    while time.time() - t0 < 200:
+        time.sleep(10)
+        sent = [l for l in s.read_since(p1) if "with the army of the realm of " + R["S"]["name"] + " to break the siege of " + R["P"]["name"] in l]
+        if len(sent) >= 2:
+            break
+    mins = {re.search(r"arrives in about (\d+) min", l)[1] for l in sent if re.search(r"arrives in about (\d+) min", l)}
+    check("NA-3 the province besieged: the capital and the vassal are bound to relieve it as the army of the realm",
+          "OK" in sg2 and any(R["S"]["name"] in l for l in bound) and any(R["V"]["name"] in l for l in bound),
+          f"{sg2[-160:]} || {[l[-120:] for l in bound]}")
+    check("NA-4 they march together to break the siege (one road time for all)", len(sent) >= 2 and len(mins) == 1,
+          f"{[l.split('[hywmill] ')[-1][-170:] for l in sent]}")
+    s.output("hywmill war admin recall-all", 4)
+    s.output(f"hywmill war for {P_} peace {c['S']} with {c['O']} force", 3)
+    clean()
+
+
 def scenario_RU(ctx):
     """Realm unity (1.6, docs/realm-design.md §8; --keep-world, five villages: the extra ones are spawned if missing): members
     enter as friends; a hatred any member holds is the realm's; a war on any member is a war of both whole realms at once;
@@ -7427,7 +7508,7 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

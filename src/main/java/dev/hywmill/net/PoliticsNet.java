@@ -244,6 +244,12 @@ public final class PoliticsNet {
             if (tie == null && subs.isEmpty()) {
                 out.add(" Independent, with no subjects.");
             }
+            if (dev.hywmill.politics.service.RealmService.national(ledger, head, now)) {
+                // the national army (docs/realm-design.md §9): the men pledged from the free garrisons now
+                var army = dev.hywmill.politics.service.RealmService.army(ledger, head, now);
+                out.add(" Army of the realm of " + name(ledger, head) + ": " + army.total() + " men pledged (capital " + army.capital() + ", provinces "
+                        + army.provinces() + ", vassals " + army.vassals() + "); they march together to its sieges and to break a siege of any of its villages.");
+            }
             out.add("");
             out.add("Treaties" + (head.equals(village) ? "" : " (its sovereign " + name(ledger, head) + "'s)") + ":");
             int nt = 0;
@@ -312,7 +318,8 @@ public final class PoliticsNet {
                         .append(s.indefinite() ? ", loyalty " + Math.round(s.loyalty) : ", " + s.daysLeft(now) + " d")
                         .append(excused != null ? ", excused from the war with " + name(ledger, excused) + " for scutage" : "").append(")");
             }
-            out.add(" " + name(ledger, h) + ", " + men + " soldiers: " + b);
+            String army = dev.hywmill.politics.service.RealmService.national(ledger, h, now) ? " (army of the realm: " + dev.hywmill.politics.service.RealmService.army(ledger, h, now).total() + " men pledged)" : "";
+            out.add(" " + name(ledger, h) + ", " + men + " soldiers" + army + ": " + b);
         }
         return out;
     }

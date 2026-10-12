@@ -167,5 +167,26 @@ A realm is a capital and its subjects (vassals and provinces), however many. It 
 * **Feuds in peacetime.** Two members at open conflict (−90) or at war go to the council at once: a capital or a province
   is never at fault; of two vassals, the less loyal is. It ends the feud by decree (loyalty 35 or more, the rest of the
   realm at least as strong) or casts the culprit out.
-* The Realm tab shows a vassal excused for scutage. The national army (the realm's sieges and relief drawn from every
-  member, for a capital with at least two subjects) comes next.
+* The Realm tab shows a vassal excused for scutage.
+
+## 9. The national army (1.6)
+
+A capital with at least two subjects raises a national army: a muster roll, not a standing host. Each member pledges a
+share of its free garrison (at home, on a standing duty), counted when the army is called:
+
+| Member | Share |
+|---|---|
+| Capital | 60% |
+| Province | 40% |
+| Vassal | 25% at loyalty 50, in proportion to its loyalty (10%–40%) |
+
+* **Its sieges.** A siege by the capital is the army's: the capital commits 60% of its garrison (instead of half), each
+  province its 40% and each vassal its share (a vassal excused for scutage from that war stays home), as stand-ins in the
+  host in their own colours, as provinces did before. The army musters at the member nearest the target, and the march is
+  timed from there. The chronicle and the siege bar name it "the army of the realm of X". Military allies still send their
+  20–35%.
+* **Breaking a siege.** When any member is besieged, every other member marches to break it with its pledge, vassals too
+  (instead of their old levy), as one army: the same road time for every contingent, and none waylaid or lost on the way.
+* A realm with a single subject keeps the earlier rules (§4: the province's 30–50%, the vassal's own levy).
+* **Realm tab.** "Army of the realm of X: N men pledged (capital a, provinces b, vassals c)", and the realm list shows it.
+* The capital's royal guard is for later.

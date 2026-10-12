@@ -4,6 +4,7 @@ import dev.hywmill.config.HywMillConfig;
 import dev.hywmill.core.HmLog;
 import dev.hywmill.core.Services;
 import dev.hywmill.politics.PoliticsTables;
+import dev.hywmill.politics.realm.NationalArmy;
 import dev.hywmill.politics.realm.RealmCall;
 import dev.hywmill.politics.realm.Treaty;
 import dev.hywmill.politics.realm.WarSides;
@@ -858,6 +859,58 @@ public final class RealmService {
                 }
             }
         }
+    }
+
+    // ------------------------------------------------------------------ the national army (docs/realm-design.md §9)
+
+    /** {@code head} is the capital of a realm that raises a national army (at least two subjects). */
+    public static boolean national(GarrisonLedger ledger, UUID head, long now) {
+        return enabled() && tieOf(ledger, head, now) == null && NationalArmy.raised(subjectsOf(ledger, head, now).size());
+    }
+
+    /** The share of its free garrison {@code member} pledges to its realm's army. */
+    public static double pledgeShare(GarrisonLedger ledger, UUID member, long now) {
+        Vassalage t = tieOf(ledger, member, now);
+        return NationalArmy.share(t == null, t != null && t.province, t == null ? 0 : t.loyalty);
+    }
+
+    /** {@code vassal} is excused (for scutage) from its realm's war with {@code enemy}'s realm. */
+    public static boolean excusedFrom(GarrisonLedger ledger, UUID vassal, UUID enemy, long now) {
+        UUID e = ledger.excused().get(vassal);
+        return e != null && e.equals(sovereignOf(ledger, enemy, now));
+    }
+
+    /** The men pledged to {@code head}'s army now, from its free garrisons: the capital's, the provinces', the vassals'. */
+    public record Army(int capital, int provinces, int vassals, int villages) {
+        public int total() {
+            return capital + provinces + vassals;
+        }
+    }
+
+    public static Army army(GarrisonLedger ledger, UUID head, long now) {
+        int cap = 0, prov = 0, vas = 0, n = 0;
+        for (UUID m : members(ledger, head, now)) {
+            VillageRecord v = ledger.get(m);
+            if (v == null || v.hywRoster == null) {
+                continue;
+            }
+            int men = NationalArmy.pledge(dev.hywmill.garrison.service.ReliefService.freeAtHome(v), pledgeShare(ledger, m, now));
+            Vassalage t = tieOf(ledger, m, now);
+            if (t == null) {
+                cap += men;
+            } else if (t.province) {
+                prov += men;
+            } else {
+                vas += men;
+            }
+            n++;
+        }
+        return new Army(cap, prov, vas, n);
+    }
+
+    /** "the army of the realm of X" for the capital of a national army, else the village's name. */
+    public static String hostName(GarrisonLedger ledger, VillageRecord v, long now) {
+        return national(ledger, v.villageId, now) ? "the army of the realm of " + v.name : v.name;
     }
 
     // ------------------------------------------------------------------ siege aims and their outcomes

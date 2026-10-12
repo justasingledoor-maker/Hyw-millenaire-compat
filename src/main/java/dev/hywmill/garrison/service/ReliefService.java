@@ -59,6 +59,11 @@ public final class ReliefService {
         return out;
     }
 
+    /** How many soldiers of {@code v} are at home and free to go. */
+    public static int freeAtHome(VillageRecord v) {
+        return available(v).size();
+    }
+
     // ------------------------------------------------------------------ planning (at launch)
 
     /** At launch: the besieged village's friends decide whether they will send relief (seeded; at most maxHelpers). */
@@ -82,9 +87,14 @@ public final class ReliefService {
                         || dev.hywmill.politics.service.RealmService.sameRealm(ledger, v.villageId, a.villageId, now)) {
                     continue;
                 }
-                boolean realm = dev.hywmill.politics.service.RealmService.sameRealm(ledger, v.villageId, t.villageId, now)
+                // a vassal sends its levy instead, unless its realm has a national army: then it marches with the army (§9)
+                boolean national = nationalRelief(ledger, v, t, now);
+                if (national && dev.hywmill.politics.service.RealmService.excusedFrom(ledger, v.villageId, a.villageId, now)) {
+                    continue;
+                }
+                boolean realm = national || (dev.hywmill.politics.service.RealmService.sameRealm(ledger, v.villageId, t.villageId, now)
                         && !(dev.hywmill.politics.service.RealmService.tieOf(ledger, v.villageId, now) != null
-                        && !dev.hywmill.politics.service.RealmService.tieOf(ledger, v.villageId, now).province); // a vassal sends its levy instead
+                        && !dev.hywmill.politics.service.RealmService.tieOf(ledger, v.villageId, now).province));
                 dev.hywmill.politics.realm.Treaty pact = dev.hywmill.politics.service.RealmService.realmTreaty(ledger, v.villageId, t.villageId, now);
                 dev.hywmill.politics.realm.Treaty withA = dev.hywmill.politics.service.RealmService.realmTreaty(ledger, v.villageId, a.villageId, now);
                 boolean treaty = pact != null && pact.obligesRelief() && (withA == null || withA.kind.ordinal() < pact.kind.ordinal())
@@ -101,7 +111,7 @@ public final class ReliefService {
                     s.reliefs.add(rl);
                     bound.add(v.villageId);
                     HmLog.info("Siege {}: {} is bound to relieve {} ({})", s.id.toString().substring(0, 8), v.name, t.name,
-                            realm ? "same realm" : pact.kind.label());
+                            national ? "the army of the realm" : realm ? "same realm" : pact.kind.label());
                 }
             }
         }
@@ -139,6 +149,15 @@ public final class ReliefService {
                 HmLog.info("Siege {}: {} will send relief to {}", s.id.toString().substring(0, 8), v.name, t.name);
             }
         }
+    }
+
+    /**
+     * {@code helper} relieves {@code target} as part of their realm's national army (docs/realm-design.md §9): both belong to a
+     * realm whose capital has at least two subjects.
+     */
+    static boolean nationalRelief(GarrisonLedger ledger, VillageRecord helper, VillageRecord target, long now) {
+        return dev.hywmill.politics.service.RealmService.sameRealm(ledger, helper.villageId, target.villageId, now)
+                && dev.hywmill.politics.service.RealmService.national(ledger, dev.hywmill.politics.service.RealmService.sovereignOf(ledger, target.villageId, now), now);
     }
 
     /** {@code x} is the vassal or the overlord of {@code y} (a fealty in force). */
@@ -245,7 +264,9 @@ public final class ReliefService {
         PoliticsTables.ReliefRule r = rule(h);
         List<RosterEntry> pool = available(h);
         SplittableRandom rnd = new SplittableRandom(s.seed(h.villageId.getLeastSignificantBits()));
-        int n = rl.bound ? Relief.boundSize(pool.size(), rnd.nextDouble()) : Relief.size(pool.size(), rnd.nextDouble(), r);
+        boolean national = rl.bound && nationalRelief(ledger, h, t, tick);
+        int n = national ? dev.hywmill.politics.realm.NationalArmy.pledge(pool.size(), dev.hywmill.politics.service.RealmService.pledgeShare(ledger, h.villageId, tick))
+                : rl.bound ? Relief.boundSize(pool.size(), rnd.nextDouble()) : Relief.size(pool.size(), rnd.nextDouble(), r);
         if (n <= 0) {
             rl.phase = Relief.Phase.DONE;
             return;
@@ -259,11 +280,18 @@ public final class ReliefService {
             rl.units.add(e.rosterId);
         }
         rl.sent = n;
-        long travel = Relief.travel(rnd.nextDouble(), r);
+        // the national army marches as one: the same road time for all its contingents, and no band of it is waylaid or lost
+        long travel = Relief.travel(national ? new SplittableRandom(s.seed(0x4e4154L)).nextDouble() : rnd.nextDouble(), r);
+        if (national) {
+            rl.fate = Relief.Fate.CLEAN;
+        }
         rl.phase = Relief.Phase.MARCH;
         rl.phaseEnd = tick + travel;
         ledger.setDirty();
-        String text = h.name + " sends " + n + " soldier" + (n == 1 ? "" : "s") + " by forced march to relieve " + t.name
+        VillageRecord head = ledger.get(dev.hywmill.politics.service.RealmService.sovereignOf(ledger, t.villageId, tick));
+        String text = national ? h.name + " sends " + n + " soldier" + (n == 1 ? "" : "s") + " with the army of the realm of " + (head != null ? head.name : t.name)
+                + " to break the siege of " + t.name + "; the army arrives in about " + Math.max(1, Math.round(travel / 1200.0)) + " min"
+                : h.name + " sends " + n + " soldier" + (n == 1 ? "" : "s") + " by forced march to relieve " + t.name
                 + (a != null ? " against " + a.name : "") + "; they arrive in about " + Math.max(1, Math.round(travel / 1200.0)) + " min";
         SiegeService.chronicle(overworld, h, t, tick, text);
         SiegeService.announceNear(overworld, ledger, s, text);

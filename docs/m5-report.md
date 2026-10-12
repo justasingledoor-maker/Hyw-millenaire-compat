@@ -2260,3 +2260,30 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
   * RU-7: with loyalty 25 the council excuses it for scutage: still a vassal (loyalty 20), at peace with O, paying the
     capital (24 argent a day for 3 days).
 * SHA-256 of the jar: `de728e0ca2d1d4e1a07536d9cbd99b744daca0e68b357dd067e3c9bbf765bbf5`.
+
+### 6.68 The national army (`dist/hywmill-m5-fix68.jar`)
+
+* **Request.** A full realm (a capital with at least two subjects) has a national army: one force drawn from all its
+  villages, for its sieges and to break a siege of any of them. (The royal guard waits.)
+* **Change** (`NationalArmy` (pure), `RealmService`, `SiegeService`, `ReliefService`, Realm tab; docs/realm-design.md §9):
+  a muster roll, not a standing host: each member pledges a share of its free garrison: the capital 60%, a province 40%, a
+  vassal 25% at loyalty 50 (10–40% with its loyalty).
+  * The capital's sieges are the army's: the capital commits 60% (not half), each province its 40% and each vassal its
+    share (one excused for scutage stays home) as stand-ins in the host; the army musters at the member nearest the target
+    (the march is timed from there); the chronicle and the siege bar call it "the army of the realm of X". The vassals' old
+    separate levy is not raised for a national army (its vassals march in it).
+  * When any member is besieged, every other member, vassals too, marches with its pledge to break the siege, as one army:
+    one road time for all its contingents, none waylaid or lost.
+  * The Realm tab: "Army of the realm of X: N men pledged (capital a, provinces b, vassals c)"; the realm list shows it.
+  * A realm with a single subject keeps the earlier rules.
+* **Validation.** JUnit 411/411 (new: who raises an army, each member's share and pledge). Harness NA (new) 5/5 and RLM 9/9
+  again with it (`docs/m5-test-evidence/fix68-na-rlm.txt`, 15/15):
+  * NA-1: Vaucelles with the province Araden and the vassal Itanos: the realm list reads "164 soldiers (army of the realm: 51
+    men pledged)";
+  * NA-2: Vaucelles' siege of Le Mesnil: "The army of the realm of Vaucelles les-pâtures musters 42 soldiers"; Araden sends
+    its men (its province), Itanos 10 (its vassal);
+  * NA-3/4: Le Mesnil besieges the province Araden: Vaucelles and Itanos are bound to relieve it as the army of the realm and
+    march together (55 and 18 men, the army arriving in about 2 min, the same for both).
+  * The province sent only 2 in NA-2: its garrison, just raised again after the annexation, was mostly not yet at home in
+    the world (pledges count soldiers at home and free, as relief always has).
+* SHA-256 of the jar: `0d9274ec8ac758116e9de308d5ae8f40f9b46c05da166a9b5b0655130f678416`.
