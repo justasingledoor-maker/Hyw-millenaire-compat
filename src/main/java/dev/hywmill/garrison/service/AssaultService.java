@@ -356,7 +356,15 @@ public final class AssaultService {
         a.host.clear();
         UnitProvider units = Services.units();
         Morale.Ranks ranks = Morale.Ranks.NONE;
-        for (LivingEntity e : ownMen(ow, a.player, rally(a), Assault.GATHER_REACH)) {
+        // his men at the rally point, and those already at the village (skirmishing with its garrison before the hour)
+        List<LivingEntity> band = new ArrayList<>(ownMen(ow, a.player, rally(a), Assault.GATHER_REACH));
+        int radius = t.villageRadius > 0 ? t.villageRadius : 64;
+        for (LivingEntity e : ownMen(ow, a.player, new Vec3(t.center.getX() + 0.5, t.center.getY(), t.center.getZ() + 0.5), radius + Assault.RALLY_OUT)) {
+            if (!band.contains(e)) {
+                band.add(e);
+            }
+        }
+        for (LivingEntity e : band) {
             a.host.add(e.getUUID());
             ranks = ranks.plus(units != null && units.equipmentLevel(e) >= Morale.VETERAN_GEAR ? Morale.Grade.VETERAN : Morale.Grade.REGULAR, 1);
         }
@@ -364,7 +372,7 @@ public final class AssaultService {
         List<RosterEntry> lent = lentAlive(helper, a);
         ranks = plus(ranks, SiegeService.ranks(lent));
         if (a.host.isEmpty() && lent.isEmpty()) {
-            end(ow, ledger, a, t, Assault.Outcome.CALLED_OFF, "none of your men were at the rally point", now);
+            end(ow, ledger, a, t, Assault.Outcome.CALLED_OFF, "none of your men were at the rally point or the village", now);
             return;
         }
         List<RosterEntry> defs = SiegeService.homeDefenders(t);
@@ -466,9 +474,9 @@ public final class AssaultService {
             end(ow, ledger, a, t, Assault.Outcome.WON, a.defFallen + " of its " + a.defStart + " defenders fell and the rest would not stand", now);
         } else if (a.assaultEngaged > 0 && alive(ow, a).isEmpty() && lentAlive(a.helper == null ? null : ledger.get(a.helper), a).isEmpty()) {
             end(ow, ledger, a, t, Assault.Outcome.LOST, "none of your band is left standing", now);
-        } else if (Morale.broken(a.assaultFallen, a.assaultEngaged, a.hostResolve, ripe)
+        } else if (a.assault > 1 && Morale.broken(a.assaultFallen, a.assaultEngaged, a.hostResolve, ripe)
                 && Morale.broken(a.hostFallen, a.hostStart, Morale.campaign(a.hostResolve), true)) {
-            // thrown back with its campaign's worth lost: the band gives up
+            // thrown back again with its campaign's worth lost: the band gives up (after its first repulse it always comes again)
             end(ow, ledger, a, t, Assault.Outcome.LOST, "your band lost " + a.hostFallen + " of its " + a.hostStart + " men and gave up", now);
         } else if (Morale.broken(a.assaultFallen, a.assaultEngaged, a.hostResolve, ripe)) {
             a.phase = Assault.Phase.REGROUP;
@@ -628,10 +636,10 @@ public final class AssaultService {
         HmLog.info("Assault {} ended {}: {}", a.id.toString().substring(0, 8), o, text);
     }
 
-    /** A village that yields to a band pays a ransom: twice its tier's siege tribute. */
+    /** A village that yields to a band pays a ransom: one day of its tier's siege tribute. */
     static int ransom(VillageRecord t) {
         PoliticsTables.SiegeRule r = SiegeService.rule(t);
-        return 2 * r.tribute(PoliticsTables.MilitaryTierKey.valueOf(t.tier.name()));
+        return r.tribute(PoliticsTables.MilitaryTierKey.valueOf(t.tier.name()));
     }
 
     static void tell(ServerLevel ow, Assault a, String text) {

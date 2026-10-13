@@ -215,16 +215,19 @@ public final class Morale {
         return won ? new Field(true, winnerFallen, loserFallen) : new Field(false, loserFallen, winnerFallen);
     }
 
-    /** The head price of a soldier killed in war, in deniers: a levy 16, a regular or hired sword 32, a veteran 96. */
+    /**
+     * The head price of a soldier killed in war, in deniers: a levy 1 denier argent (64), a regular or hired sword 2 argent, a
+     * veteran 6 argent; a soldier costs about 1 denier or (4,096) on the Muster Roll, so a few dozen heads pay for one.
+     */
     public static int headPrice(Grade g) {
         return switch (g) {
-            case LEVY -> 16;
-            case MERCENARY, REGULAR -> 32;
-            case VETERAN -> 96;
+            case LEVY -> 64;
+            case MERCENARY, REGULAR -> 128;
+            case VETERAN -> 384;
         };
     }
 
-    public static final int ENGINE_PRICE = 128, ROYAL_PRICE = 256, RULER_PRICE = 4096;
+    public static final int ENGINE_PRICE = 512, ROYAL_PRICE = 1024, RULER_PRICE = 16384;
 
     /**
      * Spoils by merit: of {@code pool} deniers among {@code n} helpers, three tenths shared equally (they were there), the rest

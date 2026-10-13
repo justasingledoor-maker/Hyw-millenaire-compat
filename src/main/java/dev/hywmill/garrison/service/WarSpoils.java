@@ -23,8 +23,8 @@ import java.util.UUID;
 
 /**
  * Head prices (1.9, docs/siege-design.md "Spoils"): a soldier killed by a player, or by one of a player's own men, in a war that
- * player fights against the soldier's village, earns the player his head price at once (a levy 16 deniers, a regular or hired
- * sword 32, a veteran 96, a war engine 128, a royal guard 256, a ruler a denier or), paid by the side he fights for. It is also
+ * player fights against the soldier's village, earns the player his head price at once (a levy 1 denier argent, a regular or
+ * hired sword 2, a veteran 6, a war engine 8, a royal guard 16, a ruler 4 denier or), paid by the side he fights for. It is also
  * his merit in the sieges and assaults the soldier fell in: at victory the spoils are shared by merit ({@link Morale#spoils}).
  */
 public final class WarSpoils {
@@ -56,7 +56,7 @@ public final class WarSpoils {
         int price = price(v, e);
         String key = v.hywRoster.isArsenal(e) && e.unitKey.endsWith("s") ? e.unitKey.substring(0, e.unitKey.length() - 1) : e.unitKey;
         String what = key.replace('_', ' ') + " of " + v.name;
-        String text = "+" + dev.hywmill.recruit.RecruitOffers.money(price) + ": the head price of a " + what + (killer instanceof ServerPlayer ? "" : " (your men)");
+        String text = "+" + dev.hywmill.recruit.RecruitOffers.money(price) + ": the head price of " + ("aeiou".indexOf(what.charAt(0)) >= 0 ? "an " : "a ") + what + (killer instanceof ServerPlayer ? "" : " (your men)");
         SettlementSource source = Services.settlements();
         ServerPlayer online = AssaultService.online(ow, player);
         if (online != null) {
@@ -74,7 +74,7 @@ public final class WarSpoils {
         }
         AssaultService.merit(ledger, player, v.villageId, price);
         ledger.setDirty();
-        HmLog.info("Head price: {} earns {} deniers for a {} (killed by {})", player.toString().substring(0, 8), price, what,
+        HmLog.info("Head price: {} earns {} deniers for {} (killed by {})", player.toString().substring(0, 8), price, ("aeiou".indexOf(what.charAt(0)) >= 0 ? "an " : "a ") + what,
                 killer instanceof ServerPlayer ? "the player" : "his men");
     }
 

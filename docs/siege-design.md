@@ -329,8 +329,9 @@ defences". The rules are pure (`Morale`):
     of the odds); a ruler in the field +5%; surprised -4%. It stays between 8% and 36%.
 * **Assaults.** A siege is fought in assaults. An assault breaks when the men the host threw in have lost its resolve: it is
   thrown back, falls back to its lines (out of the world), regroups for two minutes and, if the day lasts, forms up and
-  comes on again (the second assault, the third...). The host gives up the siege when it has lost its campaign's worth: 1.6
-  times its resolve, at most 45%, all assaults counted. The defenders yield when they have lost their resolve, all assaults
+  comes on again (the second assault, the third...). The host gives up the siege when it has lost its campaign's worth (1.6
+  times its resolve, at most 45%, all assaults counted), judged when an assault after its first is thrown back or at the
+  day's end: a first assault thrown back always comes again. The defenders yield when they have lost their resolve, all assaults
   counted. So a siege ends with 10-30% of the beaten side down, never the last man.
 * **A clash takes time.** A side breaks only once the assault has lasted a minute and a second and a half more for every man
   in it (at most five minutes), unless it has lost twice its resolve. Big armies fight longer.
@@ -373,8 +374,9 @@ defences". The rules are pure (`Morale`):
 
 * **Head prices.** A soldier killed by a player, or by one of a player's own men, in a war that player fights against the
   soldier's village (on campaign against it, serving a realm at war with it, riding for a side of a siege against it, or in
-  his own assault on it) earns the player his price at once, paid by his side: a levy 16 deniers, a regular or hired sword 32,
-  a veteran 96, a war engine 128, a royal guard 256, the ruler 4,096 (a denier or). Offline, it waits for him.
+  his own assault on it) earns the player his price at once, paid by his side: a levy 1 denier argent, a regular or hired sword
+  2, a veteran 6, a war engine 8, a royal guard 16, the ruler 4 denier or (a soldier costs about 1 or on the Muster Roll:
+  a few dozen heads pay for one). Offline, it waits for him.
 * **Merit.** Every head price is also merit in the sieges and assaults the soldier fell in. When a siege is won, the helpers'
   share of the tribute, plunder or indemnity is split three tenths equally (they were there) and seven tenths by merit; with
   no merit at all, equally. Tributes paid over days keep the same shares.
@@ -389,13 +391,13 @@ defences". The rules are pure (`Morale`):
   to 8 men (no more than he brings himself), who march to the rally point.
 * **The village sees it.** When his men come within 64 blocks of its edge, or half the time has passed, it presses levies
   into service against the band (as for a siege, sized to the band).
-* **The hour.** His men within 48 blocks of the rally point, with the lent men, are the band; he must be there to lead them
+* **The hour.** His men within 48 blocks of the rally point or already at the village, with the lent men, are the band; he must be there to lead them
   (else it is called off). Each side's resolve is reckoned as for a siege; his hired men count as the village's average
   soldier, a quarter better. They go in: each man without a foe takes the nearest defender.
-* **The fight.** By morale: thrown back, the band falls back to the rally point and goes in again after 90 s; it gives up at
-  its campaign's worth, or when the defenders held 15 minutes. One in three of his men who fall is only wounded, carried
+* **The fight.** By morale: thrown back, the band falls back to the rally point and goes in again after 90 s; after a later
+  repulse it gives up at its campaign's worth, or when the defenders held 15 minutes. One in three of his men who fall is only wounded, carried
   back to the rally point, weakened and out of the fight. The village yields when its defenders have lost their resolve: it
-  pays him a ransom (twice its tier's siege tribute); the village that lent men gets levy points by it. Every head taken
+  pays him a ransom (one day of its tier's siege tribute); the village that lent men gets levy points by it. Every head taken
   earns its price.
 * **Leaving.** A player gone from his band for a minute calls it off. Called off or over, his men stand down, the lent men go
   home, the levies go home.

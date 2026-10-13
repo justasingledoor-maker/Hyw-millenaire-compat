@@ -2528,7 +2528,7 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     8-36%.
   * **Sieges:** fought in assaults. An assault that loses its resolve is thrown back, regroups for 2 min and comes again
     the same day. The defenders yield at their resolve, all assaults counted. The host gives up at 1.6 times its resolve
-    (at most 45%).
+    (at most 45%), judged at a later repulse or the day's end; its first repulse always regroups.
   * **Clash time:** a clash lasts at least a minute, plus 1.5 s a man (5 min at most), unless a side loses twice its
     resolve.
   * **Days:** 2-4, by the host's size.
@@ -2552,8 +2552,9 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     * A host that saw walls of 20+ brings its trebuchets.
     * A side never scouted that is 1.33 times what was believed falls on the enemy by surprise.
 * **Spoils** (`WarSpoils`; siege-design "Spoils"):
-  * **Head prices:** paid at once, by his side, for a soldier killed by the player or his own men in his war: levy 16,
-    regular or hired 32, veteran 96, engine 128, royal guard 256, ruler 4,096 deniers.
+  * **Head prices:** paid at once, by his side, for a soldier killed by the player or his own men in his war: levy 1
+    denier argent, regular or hired 2, veteran 6, engine 8, royal guard 16, ruler 4 denier or. A soldier costs about 1 or,
+    so a few dozen heads pay for one.
   * **Merit:** head prices count as merit in the siege or assault. Helpers' shares of tribute, plunder and indemnity are
     30% equal and 70% by merit.
 * **A player's assault** (`Assault`, `AssaultService`; siege-design "A player's assault"):
@@ -2567,7 +2568,62 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     * Morale decides it: a band thrown back regroups at the rally point after 90 s.
     * It gives up at its campaign's worth.
     * One in three of his fallen men is only wounded and carried back.
-    * The village yields when its defenders lose heart, or when none is left standing, and pays a ransom of twice its
-      tier's tribute.
+    * The village yields when its defenders lose heart, or when none is left standing, and pays a ransom of one day
+      of its tier's tribute.
   * **Controls:** the War tab's assault bar (Rally side / In n min / With help-Alone / Lead assault / Call off), `/hywmill
     war assault <village> <side> <minutes> [help|alone]`, `status` and `cancel`; a HUD line and a map marker with a clock.
+* **Bugs found by the world tests, fixed:**
+  * A player's assault never advanced: its own one-second gate never met the siege tick's offset. It now runs on the
+    sieges' cadence.
+  * In mid-assault the host's give-up check (always "ripe") fired before the assault's own break (which waits for the clash
+    time), so a host gave up a siege without ever being thrown back. The host is now judged when an assault breaks or at
+    the day's end, and a first repulse always regroups.
+  * At the hour, a band that had already gone to skirmish with the garrison counted no men. Men at the village now count
+    too.
+  * A village with no defender left standing never yielded to a band. It now yields.
+  * Levies before the muster were weighed against an empty host. The host is now counted as it would muster.
+* **Validation.**
+  * **JUnit:** 441/441. New: `MoraleTest` (8), `AssaultTest` (4: the screen's packed choices, the compass, the
+    regroup-before-give-up rule); `FieldTacticsTest` and `SiegeWavesTest` updated for morale.
+  * **Dedicated server, test world** (`docs/m5-test-evidence/fix72-mo.txt`, `fix72-mow.txt`, `fix72-pa.txt`):
+    * **MO, morale siege: MO-1..5 pass.**
+      * A prepared siege "arrives in 22,841 ticks" (the next dawn).
+      * "Levies for Le Mesnil le-volcan: 4 raised (host believed 19, actually 16; 13 defenders; cap 14)".
+      * A rider for the besieged "counted the host of Vaucelles les-pâtures: 15 strong", and the council acted on it.
+      * "Resolve host 0.15 (25 men), defenders 0.31 (37 men); 2 days".
+      * Unwatched, "on the second day the host gave up the siege: it had lost 9 of its 25 men in 2 assaults".
+      * MO-6/7 failed in that run on harness timing and its kill rate, so they were rerun as MOW.
+    * **MOW, watched siege: 3/3.**
+      * The host's men have Resistance IV ("amplifier: 3b").
+      * "The first assault on Le Mesnil le-volcan is thrown back: the host lost 16 of the 60 it sent in and falls back to
+        its lines to regroup (44 standing, 3 wounded)".
+      * 4 min 46 s later (the server ran at half speed): "The host forms up again before Le Mesnil le-volcan (44
+        standing): the second assault", with 44 men back in the world.
+    * **PA, a player's assault: 7/8 on the final jar, 7/7 on the one before.**
+      * Refused at peace.
+      * On campaign, "gather your men at the east rally point (777, 624)".
+      * "Vaucelles les-pâtures sees a band of 8 gathering to the east".
+      * "Your band (8) goes in against Vaucelles les-pâtures from the east; 55 defenders hold it".
+      * Head prices: "earns 128 deniers for a spear man ... (killed by his men)", "512 deniers for a mangonel".
+      * "Vaucelles les-pâtures yields to your band: 32 of its 55 defenders fell ...; it pays you a ransom of 16 or (your
+        men took 40 argent in head prices)".
+      * From the War tab: launched, then called off.
+      * PA-3 missed its 180 s wait once: the server ran at a third of speed, and the band went in 3 min 10 s after a
+        1-min hour, as the log shows.
+      * The harness kills defenders far faster than 8 men could, so the 32 of 55 fallen is the harness's rate, not the
+        rule's.
+  * **Test tooling:**
+    * The scenarios free a vassal tie left by an earlier run (a lost siege makes the loser a vassal, so both are one
+      realm).
+    * PA uses a new player each run (an earlier run's kills leave grudges).
+    * MOW is the watched part of MO alone.
+    * Stand-in players count for assaults and head prices.
+* **Not tested:**
+  * Help lent to a player's band (the realm-member path), in the world.
+  * A council calling off a siege, or a village offering terms, in the world (covered by the rules and their logs only).
+  * A ruler's rally at wavering.
+  * Field battles under the new morale in the world (JUnit only).
+  * The Politics screen's assault bar in a real client (its server path is tested through the dev UI).
+* **Upgrading:** an existing `serverconfig` keeps its `siegeResistance` (3 before) until it is changed to 4;
+  `siegeResistancePlayers` is new (1).
+* SHA-256: `hywmill-m5-fix72.jar` `a6005b521080b3fb14d67adb0a7eddaa86f722492b5a4cdfd88048ee06ff6b0e`.

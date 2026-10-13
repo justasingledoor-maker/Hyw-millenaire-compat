@@ -87,8 +87,8 @@ class MoraleTest {
 
     @Test
     void headPricesAndSpoilsByMerit() {
-        assertEquals(16, Morale.headPrice(Grade.LEVY));
-        assertEquals(96, Morale.headPrice(Grade.VETERAN));
+        assertEquals(64, Morale.headPrice(Grade.LEVY));
+        assertEquals(384, Morale.headPrice(Grade.VETERAN));
         // 1000 among two: one earned 300, the other nothing
         assertEquals(850, Morale.spoils(1000, 2, 300, 300));
         assertEquals(150, Morale.spoils(1000, 2, 0, 300));

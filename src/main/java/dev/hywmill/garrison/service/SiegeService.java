@@ -2423,9 +2423,10 @@ public final class SiegeService {
         int def = defenderCount(overworld, ledger, s, t, s.field && loaded);
         // 1.9 morale: the clash is not decided in its first moments (longer for bigger armies)
         boolean ripe = s.assaultSince < 0 || tick - s.assaultSince >= dev.hywmill.politics.war.Morale.clash(s.assaultEngaged + Math.max(0, def));
-        // the host is judged when an assault breaks (it gives up the siege, or falls back to come again), not in mid-assault
+        // the host is judged when an assault breaks (it gives up the siege, or falls back to come again), not in mid-assault;
+        // its first assault thrown back, it always comes again (no commander gives up a siege at the first repulse)
         boolean thrown = s.field && loaded && dev.hywmill.politics.war.Morale.broken(s.assaultFallen, s.assaultEngaged, s.hostResolve, ripe);
-        Siege.Outcome o = verdict(s, host, ripe, thrown);
+        Siege.Outcome o = verdict(s, host, ripe, thrown && s.assault > 1);
         if (o == Siege.Outcome.NONE && thrown) {
             fallBack(overworld, ledger, s, a, t, tick, host, def); // the assault is thrown back: the host regroups and comes on again
             return;

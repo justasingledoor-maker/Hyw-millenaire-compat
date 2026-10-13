@@ -1,0 +1,5 @@
+# fix72 harness: MOW (the watched part of MO), final jar
+[harness] --- scenario MOW
+[harness] PASS MO-6 everyone fighting in a siege has Resistance IV  653, 76, 870); 30 defender(s) in the world; reserves: 27 at the camp, 12 inside || Spear Man has the following entity data: [{duration: 62, show_icon: 1b, "neoforge:cures": ["protected_by_totem", "milk"], amplifier: 3b, ambient: 1b, id: "minecraft:resistance", show_particles: 0b}]
+[harness] PASS MO-7 an assault that loses its resolve is thrown back; the host regroups and comes on again the same day (or gives up)  Mesnil le-volcan is thrown back: the host of Vaucelles les-pâtures lost 16 of the 60 it sent in and falls back to its lines to regroup (44 standing, 3 wounded) || g/]: [hywmill] Siege afe41be0: The host of Vaucelles les-pâtures forms up again before Le Mesnil le-volcan (44 standing): the second assault
+[harness] RESULT 3/3 checks passed

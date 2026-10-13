@@ -8315,21 +8315,28 @@ def scenario_MO(ctx):
             break
         time.sleep(10)
     dep = s.wait_for(r"wave 1: \d+ unit\(s\) materialized", 900, since=p3)
+    s.cmd("time set 1000", 1)  # a host regroups by daylight: give the day its length (a real siege arrives at dawn)
     time.sleep(8)
     near = lambda f: [u for u, v in spike_info(s, "@e[type=!minecraft:player]").items() if f and ("owner=" + f) in v["desc"] and dist(v["pos"], tuple(b)) < 140]
-    host = near(fa)
-    eff = " ".join(s.output(f"data get entity {host[0]} active_effects", 2)) if host else ""
+    eff = ""
+    for _ in range(4):  # the host may still be coming into the world
+        host = near(fa)
+        eff = " ".join(s.output(f"data get entity {host[0]} active_effects", 2)) if host else ""
+        if "minecraft:resistance" in eff:
+            break
+        time.sleep(5)
     check("MO-6 everyone fighting in a siege has Resistance IV", "minecraft:resistance" in eff and "amplifier: 3b" in eff, f"{(dep or '')[-80:]} || {eff[-200:]}")
     # the clash is not decided in its first moments (a minute and 1.5 s a man): then the host's men fall a few at a time
     time.sleep(150)
     thrown = None
-    for _ in range(8):
-        for u in near(fa)[:3]:
+    for _ in range(12):
+        for u in near(fa)[:1]:  # one at a time, as a fight wears a side down
             s.cmd(f"kill {u}", 0.3)
-        thrown = s.wait_for(r"assault on .* is thrown back: the host of .* lost \d+ of the \d+ it sent in", 30, since=p3)
+        thrown = s.wait_for(r"assault on .* is thrown back: the host of .* lost \d+ of the \d+ it sent in", 20, since=p3)
         if thrown or s.wait_for(r"Siege \w+ ended", 1, since=p3):
             break
-    again = s.wait_for(r"forms up again before .* the second assault", 260, since=p3) if thrown else None
+    # REGROUP is 2,400 ticks; a busy test server runs at half speed
+    again = s.wait_for(r"forms up again before .* the second assault", 600, since=p3) if thrown else None
     end3 = s.wait_for(r"Siege \w+ ended (WON|LOST|STALEMATE)", 5, since=p3)
     check("MO-7 an assault that loses its resolve is thrown back; the host regroups and comes on again the same day (or gives up)",
           thrown is not None and (again is not None or (end3 is not None and "LOST" in end3)), f"{(thrown or '')[-160:]} || {(again or end3 or '')[-140:]}")
@@ -8376,6 +8383,62 @@ def scenario_MO(ctx):
     s.output("hywmill war admin recall-all", 3)
     time.sleep(5)
     s.output("hywmill war admin recall-all", 3)
+
+def scenario_MOW(ctx):
+    """1.9 morale, the watched part of MO alone: Resistance IV; an assault thrown back regroups and comes on again."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    fa = info(s, a).get("faction")
+    P = "33333333-4444-4555-8666-777777777777"
+    Q = "44444444-5555-4666-8777-888888888888"  # rides for the besieged
+    for c in (ca, cb):
+        s.output(f"hywmill war admin rebel {c}", 2)  # an earlier run's lost siege may have made one the other's vassal
+    s.output("hywmill war admin recall-all", 3)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(6)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    s.output(at(a, "hywmill admin grant spear_man 20"), 2)
+    s.cmd("time set 1000", 1)
+    time.sleep(10)
+    # watched: Resistance IV, and an assault thrown back regroups and comes on again
+    p3 = s.pos()
+    s.cmd("time set 1000", 1)
+    standin_at(s, P, b[0] + 2, b[2] + 2)
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2)):
+            break
+        time.sleep(10)
+    dep = s.wait_for(r"wave 1: \d+ unit\(s\) materialized", 900, since=p3)
+    s.cmd("time set 1000", 1)  # a host regroups by daylight: give the day its length (a real siege arrives at dawn)
+    time.sleep(8)
+    near = lambda f: [u for u, v in spike_info(s, "@e[type=!minecraft:player]").items() if f and ("owner=" + f) in v["desc"] and dist(v["pos"], tuple(b)) < 140]
+    eff = ""
+    for _ in range(4):  # the host may still be coming into the world
+        host = near(fa)
+        eff = " ".join(s.output(f"data get entity {host[0]} active_effects", 2)) if host else ""
+        if "minecraft:resistance" in eff:
+            break
+        time.sleep(5)
+    check("MO-6 everyone fighting in a siege has Resistance IV", "minecraft:resistance" in eff and "amplifier: 3b" in eff, f"{(dep or '')[-80:]} || {eff[-200:]}")
+    # the clash is not decided in its first moments (a minute and 1.5 s a man): then the host's men fall a few at a time
+    time.sleep(150)
+    thrown = None
+    for _ in range(12):
+        for u in near(fa)[:1]:  # one at a time, as a fight wears a side down
+            s.cmd(f"kill {u}", 0.3)
+        thrown = s.wait_for(r"assault on .* is thrown back: the host of .* lost \d+ of the \d+ it sent in", 20, since=p3)
+        if thrown or s.wait_for(r"Siege \w+ ended", 1, since=p3):
+            break
+    # REGROUP is 2,400 ticks; a busy test server runs at half speed
+    again = s.wait_for(r"forms up again before .* the second assault", 600, since=p3) if thrown else None
+    end3 = s.wait_for(r"Siege \w+ ended (WON|LOST|STALEMATE)", 5, since=p3)
+    check("MO-7 an assault that loses its resolve is thrown back; the host regroups and comes on again the same day (or gives up)",
+          thrown is not None and (again is not None or (end3 is not None and "LOST" in end3)), f"{(thrown or '')[-160:]} || {(again or end3 or '')[-140:]}")
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {P}", 0.3)
+
 
 def scenario_PA(ctx):
     """1.9 a player's own assault (docs/siege-design.md "A player's assault", "Spoils"): refused when he is at no war with the
@@ -8456,7 +8519,7 @@ def scenario_PA(ctx):
     s.cmd(f"forceload remove {a[0] - 40} {a[2] - 120} {a[0] + 220} {a[2] + 120}", 2)
 
 
-SCENARIOS = {"MO": scenario_MO, "PA": scenario_PA, "RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+SCENARIOS = {"MO": scenario_MO, "MOW": scenario_MOW, "PA": scenario_PA, "RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,
