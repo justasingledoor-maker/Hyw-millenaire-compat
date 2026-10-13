@@ -1,0 +1,35 @@
+# fix73 harness: WR (war on the roads), with Village Roads 1.1.0, on the test world whose village roads were built by Village Roads 1.0 (their ways traced)
+[harness] --- scenario WR
+[harness] PASS WR-0 Village Roads offers the way from A to B by its roads (the older roads' ways traced from their columns) villageroads route: 8 points, 357 blocks (straight 352), 4 road(s) known: (647, 624) (651, 768) (658, 776) (660, 793) (669, 815) (669, 833) (664, 855) (656, 976) || 
+[harness] PASS WR-1 the host marches by the road; its realm's supply trains take the roads to its camp diers, HOSTILE with the enemy's; the enemy holds a grievance || .hy.co.HmLog/]: [hywmill] Siege ba7bbb05: the host will march by the road (357 blocks, 352 straight) || war supply SENT 1 (fed 0, cut 0; besieged fed 0, cut 0) |  8bf0a32f a supply train for the host (1 cart, 4 guards) of Vaucelles les-pâtures at 647, 624 -> Vaucelles les-pâtures, making for the road; arrives in about 1 min | from 647,624 to 652,838 | road of 7 points, 228 blocks | departs in 0 ticks
+[harness] PASS WR-2 a player by the road meets the train: it comes into the world, guards and carts [16:09:05] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Column 8bf0a32f (SUPPLY) of Vaucelles les-pâtures in the world at 651, 69, 768: 4 men || carts 5
+[harness] PASS WR-3 each guard cut down earns his head price 4 guards || read/INFO] [de.hy.co.HmLog/]: [hywmill] Head price: 66666666 earns 64 deniers for one of a supply train for the host (1 cart, 4 guards) of Vaucelles les-pâtures
+[harness] PASS WR-4 the train is cut: the host goes short, the player takes the bounty are there for the taking; the host goes short, and its heart sinks; it cannot keep the field as long || [16:09:16] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Column 8bf0a32f: hwStandIn6666 earns the bounty of 512 deniers for cutting it ||  0 guards) of Vaucelles les-pâtures was destroyed on the road (cut down to the last man); its carts are there for the taking; the host goes short, and its heart sinks; it cannot keep the field as long
+[harness] PASS WR-5 its carts stay on the road, loaded, for the taking t: 24, Slot: 19b, id: "minecraft:string"}, {count: 1, Slot: 21b, id: "millenaire:tripes"}, {count: 58, Slot: 23b, id: "minecraft:oak_log"}, {count: 15, Slot: 24b, id: "minecraft:leather"}, {count: 59, Slot: 26b, id: "minecraft:oak_planks"}]
+[harness] PASS WR-6 a train not cut reaches the host's camp (or none was left) and the siege counts the cut one  || 4:48] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege ba7bbb05: resolve host 0.12 (28 men, surprised false), defenders 0.34 (31 men, surprised false); 1 days; supply host +0/-1, besieged +0/-0
+[harness] PASS WR-7 a train nobody stops reaches the host's camp, and the siege counts it for the host ywmill] Column 902a570a (SUPPLY): a supply train for the host (1 cart, 4 guards) of Vaucelles les-pâtures reached the host's camp before Le Mesnil le-volcan: the host is better fed and its heart is up || 2:39] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Siege eb15756f: resolve host 0.13 (52 men, surprised false), defenders 0.33 (41 men, surprised false); 2 days; supply host +1/-0, besieged +0/-0
+[harness] RESULT 9/9 checks passed
+
+# server log
+[13Oct2026 16:06:34.147] [Serv/]: Roads: 4 way(s) for travellers, 159 places
+[13Oct2026 16:07:05.636] [Servcore.HmLog/]: [hywmill] Siege ba7bbb05: the host will march by the road (357 blocks, 352 straight)
+[13Oct2026 16:07:07.634] [Servcore.HmLog/]: [hywmill] Column 8bf0a32f (SUPPLY): Vaucelles les-pâtures sends a supply train for the host (1 cart, 4 guards) to the host's camp (652, 838), 1 min on the road by the roads
+[13Oct2026 16:09:05.930] [Servcore.HmLog/]: [hywmill] Column 8bf0a32f (SUPPLY) of Vaucelles les-pâtures in the world at 651, 69, 768: 4 men
+[13Oct2026 16:09:14.194] [Servcore.HmLog/]: [hywmill] Head price: 66666666 earns 64 deniers for one of a supply train for the host (1 cart, 4 guards) of Vaucelles les-pâtures
+[13Oct2026 16:09:14.598] [Servcore.HmLog/]: [hywmill] Head price: 66666666 earns 64 deniers for one of a supply train for the host (1 cart, 4 guards) of Vaucelles les-pâtures
+[13Oct2026 16:09:14.937] [Servcore.HmLog/]: [hywmill] Head price: 66666666 earns 64 deniers for one of a supply train for the host (1 cart, 2 guards) of Vaucelles les-pâtures
+[13Oct2026 16:09:15.376] [Servcore.HmLog/]: [hywmill] Head price: 66666666 earns 64 deniers for one of a supply train for the host (1 cart, 2 guards) of Vaucelles les-pâtures
+[13Oct2026 16:09:16.499] [Servcore.HmLog/]: [hywmill] Column 8bf0a32f: hwStandIn6666 earns the bounty of 512 deniers for cutting it
+[13Oct2026 16:09:16.499] [Servcore.HmLog/]: [hywmill] Column 8bf0a32f (SUPPLY) DESTROYED: a supply train for the host (1 cart, 0 guards) of Vaucelles les-pâtures was destroyed on the road (cut down to the last man); its carts are there for the taking; the host goes short, and its heart sinks; it cannot keep the field as long
+[13Oct2026 16:14:48.380] [Servcore.HmLog/]: [hywmill] Siege ba7bbb05: resolve host 0.12 (28 men, surprised false), defenders 0.34 (31 men, surprised false); 1 days; supply host +0/-1, besieged +0/-0
+[13Oct2026 16:15:04.948] [Servcore.HmLog/]: [hywmill] Siege eb15756f: the host will march by the road (357 blocks, 352 straight)
+[13Oct2026 16:15:06.947] [Servcore.HmLog/]: [hywmill] Column 902a570a (SUPPLY): Vaucelles les-pâtures sends a supply train for the host (1 cart, 4 guards) to the host's camp (652, 838), 1 min on the road by the roads
+[13Oct2026 16:17:49.218] [Servcore.HmLog/]: [hywmill] Column 902a570a (SUPPLY): a supply train for the host (1 cart, 4 guards) of Vaucelles les-pâtures reached the host's camp before Le Mesnil le-volcan: the host is better fed and its heart is up
+[13Oct2026 16:22:39.326] [Servcore.HmLog/]: [hywmill] Siege eb15756f: resolve host 0.13 (52 men, surprised false), defenders 0.33 (41 men, surprised false); 2 days; supply host +1/-0, besieged +0/-0
+
+# run 1 (the world's first start with Village Roads 1.1.0; later runs found the ways kept):
+#   Roads: traced the ways of 4 older road(s) (0 could not be traced)
+#   Roads: 4 way(s) for travellers, 159 places
+#   Siege b3a43cd8: resolve host 0.08 (48 men, surprised false), defenders 0.34 (32 men, surprised false); 1 days; supply host +0/-1, besieged +0/-0
+# run 2: the player's join was refused on the standing's cadence (harness: the join is now retried), so WR-3/4 had no war to pay in;
+#   the cut, the carts and WR-6/7 passed.

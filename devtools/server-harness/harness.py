@@ -8519,7 +8519,118 @@ def scenario_PA(ctx):
     s.cmd(f"forceload remove {a[0] - 40} {a[2] - 120} {a[0] + 220} {a[2] + 120}", 2)
 
 
-SCENARIOS = {"MO": scenario_MO, "MOW": scenario_MOW, "PA": scenario_PA, "RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_WR(ctx):
+    """1.10 war on the roads (run with HYWMILL_EXTRA_MODS holding village-roads-1.1.0.jar, on the kept world where RD built the
+    villages' roads): Village Roads offers the way from A to B (the older roads' ways traced from their columns); a siege host
+    marches by the road and its realm's supply trains take the roads to its camp; a player at war with A meets a train on the
+    road, cuts it down (head prices for its guards), takes the bounty and its carts; the host goes short (counted against its
+    resolve when the siege begins)."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    fa = info(s, a).get("faction")
+    W = "33333333-4444-4555-8666-777777777777"
+    P = f"66666666-7777-4888-8999-{int(time.time()) % 10 ** 12:012d}"  # rides for B: a new player each run
+    for c in (ca, cb):
+        s.output(f"hywmill war admin rebel {c}", 2)
+    s.output("hywmill war admin recall-all", 3)
+    s.output(f"hywmill war for {W} peace {ca} with {cb} force", 2)
+    time.sleep(6)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    r0 = " | ".join(l for l in s.output(f"villageroads route {ca} {cb}", 8) if "villageroads route" in l)
+    m0 = re.search(r"route: (\d+) points, (\d+) blocks \(straight (\d+)\), (\d+) road\(s\) known", r0)
+    traced = s.wait_for(r"Roads: traced the ways of \d+ older road", 5)
+    check("WR-0 Village Roads offers the way from A to B by its roads (the older roads' ways traced from their columns)",
+          m0 is not None and int(m0.group(1)) >= 3 and int(m0.group(4)) >= 1, f"{r0[-260:]} || {(traced or '')[-120:]}")
+    s.output(f"hywmill war for {W} declare {ca} on {cb} force", 2)
+    s.output(at(a, "hywmill admin grant spear_man 20"), 2)
+    m5(s, f"mill discover {ca} {P}", 0.5)
+    m5(s, f"mill discover {cb} {P}", 0.5)
+    standin_at(s, P, b[0] + 3, b[2] + 3)
+    m5(s, f"mill rep {cb} {P} adjust 5000", 0.5)
+    s.cmd("time set 1000", 1)
+    j = ""
+    t0 = time.time()
+    while time.time() - t0 < 120 and "join OK" not in j:  # the standing is re-evaluated on the politics cadence
+        time.sleep(8)
+        j = " | ".join(war_lines(s, b, f"for {P} join {cb} against {ca}"))
+    p0 = s.pos()
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2)):
+            break
+        time.sleep(10)
+    road = s.wait_for(r"the host will march by the road \((\d+) blocks, (\d+) straight\)", 10, since=p0)
+    sup = [l for l in s.output(f"hywmill war admin supply {ca} now", 4) if l.startswith("war supply") or l.startswith(" ")]
+    trains = [l for l in sup if "supply train" in l]
+    by_road = [l for l in trains if "road of" in l]
+    check("WR-1 the host marches by the road; its realm's supply trains take the roads to its camp",
+          road is not None and len(trains) >= 1 and len(by_road) >= 1, f"{j[-60:]} || {(road or '')[-100:]} || {' | '.join(sup)[-400:]}")
+    if not by_road:
+        return
+    tid = by_road[0].split()[0]
+    # the train makes its way out of A; meet it by the road once it is well out of the village
+    pos = None
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        lst = [l for l in s.output(f"hywmill war admin supply {ca}", 3) if l.startswith(" " + tid)]
+        mm = re.search(r" at (-?\d+), (-?\d+)", lst[0]) if lst else None
+        if mm and dist((int(mm.group(1)), a[1], int(mm.group(2))), tuple(a)) > 130:
+            pos = (int(mm.group(1)), int(mm.group(2)))
+            break
+        time.sleep(10)
+    if pos is None:
+        check("WR-2 a player by the road meets the train: it comes into the world with its carts", False, "the train never got clear of A")
+        return
+    p1 = s.pos()
+    s.cmd(f"forceload add {pos[0] - 48} {pos[1] - 48} {pos[0] + 48} {pos[1] + 48}", 6)
+    standin_at(s, P, pos[0] + 6, pos[1] + 6)
+    seen = s.wait_for(rf"Column {tid} \(SUPPLY\) of .* in the world at (-?\d+), (-?\d+), (-?\d+): (\d+) men", 90, since=p1)
+    time.sleep(4)
+    cn = re.search(r"count: (\d+)", " ".join(s.output(f"execute positioned {pos[0]} 64 {pos[1]} if entity @e[type=minecraft:chest_minecart,distance=..64]", 1)))
+    check("WR-2 a player by the road meets the train: it comes into the world, guards and carts", seen is not None and cn is not None and int(cn.group(1)) >= 1,
+          f"{(seen or '')[-160:]} || carts {cn.group(1) if cn else 0}")
+    guards = [u for u, v in spike_info(s, "@e[type=!minecraft:player]").items() if fa and ("owner=" + fa) in v["desc"]
+              and dist(v["pos"], (pos[0], v["pos"][1], pos[1])) < 48]
+    for u in guards:
+        s.cmd(f"damage {u} 500 minecraft:player_attack by {P}", 0.4)
+    cut = s.wait_for(rf"Column {tid} \(SUPPLY\) DESTROYED", 60, since=p1)
+    time.sleep(3)
+    heads = [l for l in s.read_since(p1) if "Head price:" in l and "supply train" in l]
+    bounty = [l for l in s.read_since(p1) if "earns the bounty of" in l]
+    short = [l for l in s.read_since(p1) if "DESTROYED" in l and "goes short" in l]
+    check("WR-3 each guard cut down earns his head price", len(heads) >= 1, f"{len(guards)} guards || {(heads or [''])[0][-160:]}")
+    check("WR-4 the train is cut: the host goes short, the player takes the bounty", cut is not None and bounty and short,
+          f"{(cut or '')[-100:]} || {(bounty or [''])[0][-140:]} || {(short or [''])[0][-200:]}")
+    loot = " ".join(s.output(f"execute positioned {pos[0]} 64 {pos[1]} as @e[type=minecraft:chest_minecart,distance=..64] run data get entity @s Items", 2))
+    check("WR-5 its carts stay on the road, loaded, for the taking", "id:" in loot, loot[-240:])
+    # the trains not cut reach the camp; when the siege begins its resolve counts what the roads brought and what was cut
+    res = s.wait_for(r"resolve host .*; supply host \+(\d+)/-(\d+)", 900, since=p0)
+    mr = re.search(r"supply host \+(\d+)/-(\d+)", res or "")
+    fed = s.wait_for(r"supply train for the host .* reached the host's camp before .*: the host", 5, since=p0)
+    check("WR-6 a train not cut reaches the host's camp (or none was left) and the siege counts the cut one", mr is not None and int(mr.group(2)) >= 1
+          and (fed is not None or int(mr.group(1)) == 0), f"{(fed or '')[-160:]} || {(res or '')[-200:]}")
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {P}", 0.3)
+    s.cmd(f"forceload remove {pos[0] - 48} {pos[1] - 48} {pos[0] + 48} {pos[1] + 48}", 2)
+    # a train nobody waits for reaches the camp: the host is better found when the siege begins
+    time.sleep(5)
+    p2 = s.pos()
+    s.cmd("time set 1000", 1)
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2)):
+            break
+        time.sleep(10)
+    s.output(f"hywmill war admin supply {ca} now", 3)
+    fed2 = s.wait_for(r"supply train for the host .* reached the host's camp before .*: the host", 900, since=p2)
+    res2 = s.wait_for(r"resolve host .*; supply host \+(\d+)/-(\d+)", 900, since=p2)
+    m2 = re.search(r"supply host \+(\d+)/-(\d+)", res2 or "")
+    check("WR-7 a train nobody stops reaches the host's camp, and the siege counts it for the host", fed2 is not None and m2 is not None
+          and int(m2.group(1)) >= 1, f"{(fed2 or '')[-200:]} || {(res2 or '')[-200:]}")
+    s.output("hywmill war admin recall-all", 3)
+
+
+SCENARIOS = {"WR": scenario_WR, "MO": scenario_MO, "MOW": scenario_MOW, "PA": scenario_PA, "RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

@@ -405,3 +405,39 @@ defences". The rules are pure (`Morale`):
   assault on the selected village, Call off). Commands: `/hywmill war assault <village> <side> <minutes> [help|alone]`,
   `/hywmill war assault status`, `/hywmill war assault cancel`. His HUD shows the assault's state, his map the rally point
   with its clock.
+
+## War on the roads (1.10, fix73)
+
+The user's request: messengers, convoys and everything else that crosses from one village to another should take the roads
+the Village Roads mod builds, so that a player can travel them and cut the enemy's supplies, for money and to help a coming
+siege. With Village Roads installed (optional; HywMill calls its route API by reflection, `integration.roads`):
+
+* **Who takes the roads.** Mercenary companies, messengers, the besieged's alarm riders, vassals' men, bribed companies on
+  their new way, supply trains, siege hosts on the march (and so where the realm's army meets them: on the road, the two
+  lines drawn up across it), relief forces on the map. Each goes across country to the nearest road (at most 160 blocks),
+  along the roads through the villages they link, and off them to its end; a road journey is not taken when it is much
+  longer than going straight (1.8 times and 64 blocks more) or the roads barely serve it. On the road travellers go a
+  quarter faster, so a road a little longer takes no more time. Camped convoys pitch by a road leaving the enemy village.
+  Without the mod, or where no road serves, everything goes straight as before.
+* **Meeting them.** A column comes into the world near a player (96 blocks), on its road; its men march in file along the
+  road's stretch they are on. A player who knows where the roads run can wait by them.
+* **Supply trains** (`Supply`, pure; `Column.Kind.SUPPLY`). When a siege is announced:
+  * the besieger's realm sends one train, and one more for each member that can spare one (three at most; the attacker
+    first, then its nearest members, none besieged, within reach), to its host's camp before the walls, arriving through
+    the first day of the siege;
+  * the besieged's realm sends a train from each of its nearest members (three at most) to arrive before the host; one that
+    comes once the siege is fought finds the host's lines barring the way.
+  * A train is one to three carts (a cart for every three guards) and four to seven guards of its village, at a cart's pace.
+  * **Arrived**, it stiffens its side: +2% resolve (two count). **Cut** on the road (its guards killed to the last man, by a
+    player or by a council that caught it), it weakens it: -3% resolve (two count), and a host whose trains were cut more
+    than arrived keeps the field a day less (never under one). Before the siege is fought these count when it begins; once
+    it is fought, at once.
+  * Whoever cuts a train: each player near it at war with its village earns a bounty from his side (8 deniers argent a
+    cart) and merit in the siege; its carts stay on the road, loaded, for the taking. A train met and left goes on with what
+    is left in its carts.
+* **Head prices on the road.** Column soldiers killed by a player or his men in his war earn their price too (a guard 1
+  denier argent, a messenger, scout or hired sword 2), with merit in the column's siege.
+* **Finding them.** Scouts find columns as before; the War tab and the scouts' reports say whether a column is on the road
+  ("riding for X by the road", "on the road", "camped by the road"). Found columns show on the map (JourneyMap: a cart
+  marker) with where they ride and a clock to their arrival.
+* **Admin.** `/hywmill war admin supply <attacker> [now]` sends (or lists) a siege's supply trains, with their roads.

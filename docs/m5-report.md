@@ -2627,3 +2627,68 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
 * **Upgrading:** an existing `serverconfig` keeps its `siegeResistance` (3 before) until it is changed to 4;
   `siegeResistancePlayers` is new (1).
 * SHA-256: `hywmill-m5-fix72.jar` `a6005b521080b3fb14d67adb0a7eddaa86f722492b5a4cdfd88048ee06ff6b0e`.
+
+### 6.73 War on the roads: travellers follow Village Roads, supply trains to cut (`dist/hywmill-m5-fix73.jar`, `dist/village-roads-1.1.0.jar`)
+
+* **Request.** Messengers, convoys and everything else crossing from one village to another should take the roads Village
+  Roads builds, so that a player can travel them and cut the enemy's supplies, for money and to support a coming siege.
+* **Village Roads 1.1.0** (`roads/`; README "Travellers"):
+  * **Ways:** each road keeps its way (its centre line, folded to a few points). A village road's way runs from one
+    village's centre to the other's.
+  * **Older roads:** roads built with 1.0 have their ways traced from their road columns, the first time travellers need
+    them.
+  * **Network:** the ways make a network (`RoadGraph`, pure). Roads that cross or join within 10 blocks meet, and players'
+    roads count too.
+  * **API:** `dev.villageroads.api.Roads.route(level, x0, z0, x1, z1)` returns the journey: across country to the
+    nearest road (at most 160 blocks), along the roads, and off them to the end. It returns null when the roads would be
+    more than 1.8 times the straight line (plus 64 blocks) or barely serve it.
+  * **Command:** `/villageroads route <from> <to>`.
+* **HywMill** (`Route`, pure; `integration.roads.VillageRoads`, by reflection; siege-design "War on the roads"):
+  * **Travellers on the roads:** mercenaries, messengers, alarm riders, vassals' men, bribed companies, supply trains and
+    siege hosts take the roads when they serve. On the road they go a quarter faster.
+  * **Battle on the road:** the realm's army meets a host on its road, with the lines drawn up across it.
+  * **Map and convoys:** relief forces move along the roads on the map, and camped convoys pitch by a road.
+  * **Without the mod:** everything goes straight, as before.
+* **Supply trains** (`Supply`, pure; `Column.Kind.SUPPLY`):
+  * **Who sends them:** at a siege's announcement, the besieger's realm sends one to three trains to its host's camp,
+    arriving through the first day. The besieged's realm sends its own to arrive before the host.
+  * **Arrived:** +2% resolve to its side.
+  * **Cut:** -3% resolve, and a host whose trains were cut more than arrived keeps the field a day less.
+  * **Rewards for cutting one:** each player near it who is at war with its village earns 8 argent a cart and merit in the
+    siege, and its carts stay on the road, loaded.
+  * **Carts:** a train met and left carries on with what is left in its carts.
+  * **Head prices on the road:** column soldiers now have head prices: a guard 1 argent; a messenger, scout or hired
+    sword 2.
+  * **Map:** found columns show on the map (a cart marker, with where they ride and a clock).
+  * **Network version:** 10.
+* **Validation.**
+  * **JUnit:** HywMill 449/449 (new: `RouteTest` 4, `SupplyTest` 4; `PoliticsWireTest` net version 10). Village Roads 20/20
+    (new: `RoadGraphTest` 5: folding ways, journeys through the villages roads link, roads meeting mid-stretch, no road or
+    too long a detour, tracing a road known only by its columns).
+  * **Dedicated server, with Village Roads 1.1.0, on the test world whose village roads 1.0 built**
+    (`docs/m5-test-evidence/fix73-wr.txt`). **WR: 9/9.**
+    * "Roads: traced the ways of 4 older road(s) (0 could not be traced)".
+    * `/villageroads route` A→B: "8 points, 357 blocks (straight 352)".
+    * "the host will march by the road (357 blocks, 352 straight)".
+    * "Vaucelles les-pâtures sends a supply train for the host (1 cart, 4 guards) to the host's camp (652, 838), 1 min on
+      the road by the roads".
+    * A player at war with it waits by the road. The train "comes into the world at 651, 69, 768", on the road, with its
+      cart.
+    * Each guard cut down: "Head price: ... earns 64 deniers for one of a supply train".
+    * "was destroyed on the road (cut down to the last man); its carts are there for the taking; the host goes short, and
+      its heart sinks; it cannot keep the field as long", and "earns the bounty of 512 deniers for cutting it".
+    * The cart holds its loot (oak logs, planks, leather, string, Millénaire tripes).
+    * When the siege begins: "resolve host 0.12 (28 men) ...; 1 days; supply host +0/-1". In run 1: 48 men, resolve at its
+      0.08 floor, its 2 days cut to 1.
+    * A second siege's train left alone: "reached the host's camp before Le Mesnil le-volcan: the host is better fed and its
+      heart is up", then "supply host +1/-0".
+    * An earlier run failed WR-3/4 once: the harness's join came before the standing was re-evaluated. The join is now
+      retried.
+* **Not tested in the world:**
+  * The besieged's own trains (the test villages have no realm).
+  * A council cutting a train.
+  * Mercenaries and messengers on the road, and a field battle laid out across a road (all use the same route as the
+    tested train and host; JUnit covers the geometry).
+  * The cart marker on a real client's map.
+* SHA-256: `hywmill-m5-fix73.jar` `7fb76a0f93a6612b8a08cd864a143f79e8364a89fca490101cd2e271de31bd1c`;
+  `village-roads-1.1.0.jar` `0ac5b88dc406ef72f571b38c2c231bf50f74acd207277d8483f0a687b57ec133`.

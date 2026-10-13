@@ -50,7 +50,30 @@ every ten blocks.
 
 ## Commands (operators)
 
-`/villageroads status | scan | link <near> <near> | lay <a> <b> [road|bridge <surface> <bridge> <width>] | undo | cancel | forget`
+`/villageroads status | scan | link <near> <near> | lay <a> <b> [road|bridge <surface> <bridge> <width>] | undo | cancel | forget | route <from> <to>`
+
+## Travellers (1.1)
+
+Each road keeps its **way**, its centre line: a village road's way runs from one village's centre to the other's, so the
+roads of a village meet there. Roads built with 1.0 have their ways traced from their road columns the first time travellers
+need them. The ways make a network: roads that cross or join meet, players' roads count too.
+
+`/villageroads route <from> <to>` shows the journey a traveller would take: across country to the nearest road (at most 160
+blocks), along the roads (through the villages they link, over their bridges) and off them to the end. It is not taken when
+the roads would make the journey much longer than going straight (1.8 times and 64 blocks more), or barely serve it.
+
+### For other mods
+
+`dev.villageroads.api.Roads` (server side) takes and returns plain types, so a mod can call it by reflection without
+depending on this one:
+
+* `int[] route(ServerLevel level, int fromX, int fromZ, int toX, int toZ)`: the journey's points `{x0, z0, x1, z1, ...}`
+  from the start to the end (its first and last legs across country, the rest on the road), or `null`.
+* `boolean onRoad(ServerLevel level, int x, int z)`: whether a column is part of one of this mod's roads.
+* `int roads(ServerLevel level)`: how many roads travellers can follow.
+
+HywMill uses it so that messengers, mercenaries, supply trains and siege hosts travel the roads, where players can wait for
+them.
 
 ## Settings (`serverconfig/villageroads-server.toml`)
 

@@ -508,6 +508,11 @@ public final class ColumnService {
      * is there. Returns how many trains set out.
      */
     public static int supplies(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        for (Column c : ledger.columns()) {
+            if (c.kind == Column.Kind.SUPPLY && s.id.equals(c.siege)) {
+                return 0; // sent already
+            }
+        }
         long hostAt = tick + Math.max(1200, s.arriveAt - s.elapsed(tick, overworld.getDayTime()));
         SplittableRandom r = new SplittableRandom(s.seed(0x737570L));
         int n = 0;
@@ -776,7 +781,7 @@ public final class ColumnService {
         } else if (st == Column.State.DESTROYED) {
             tell(overworld, ledger, c, text);
         }
-        HmLog.info("Column {} ({}) {}: {}", c.id.toString().substring(0, 8), c.kind, st, why);
+        HmLog.info("Column {} ({}) {}: {}", c.id.toString().substring(0, 8), c.kind, st, st == Column.State.DESTROYED ? text : why);
     }
 
     private static String consequence(GarrisonLedger ledger, Column c) {
