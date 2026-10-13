@@ -102,6 +102,9 @@ public final class RoadManager {
             if (j.phase == RoadJob.Phase.DONE) {
                 j.data.built.add(key);
                 j.data.failed.remove(key);
+                if (j.way() != null) {
+                    j.data.way(key, j.way());
+                }
                 if (RoadsConfig.ANNOUNCE.get()) {
                     server.getPlayerList().broadcastSystemMessage(Component.literal("A road now links " + v.a().name() + " and " + v.b().name()
                             + " (" + j.note + ").").withStyle(ChatFormatting.GRAY), false);
@@ -110,6 +113,10 @@ public final class RoadManager {
                 j.data.failed.put(key, now + RETRY);
             }
             j.data.setDirty();
+        }
+        if (j.ends instanceof RoadJob.Points && j.phase == RoadJob.Phase.DONE && j.way() != null) {
+            j.wayKey = "staff:" + now + ":" + j.id;
+            j.data.way(j.wayKey, j.way()); // a player's road is a road like any other for travellers
         }
         LOG.info("Road {}: {} {}: {}", j.id, what, j.phase == RoadJob.Phase.DONE ? "built" : "failed", j.note);
         if (j.phase == RoadJob.Phase.DONE) {
@@ -238,6 +245,9 @@ public final class RoadManager {
             return "You have no road to take up.";
         }
         undos.add(new Undo(owner, j.level, j.undo, j.footprint(), j.data));
+        if (j.wayKey != null) {
+            j.data.way(j.wayKey, null);
+        }
         LOG.info("Road {}: taken up ({} blocks put back)", j.id, j.undo.size());
         return "Taking up your road (" + j.undo.size() + " blocks)...";
     }

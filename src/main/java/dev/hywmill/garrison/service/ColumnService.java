@@ -94,14 +94,15 @@ public final class ColumnService {
         SplittableRandom r = new SplittableRandom(s.seed(0x636F6CL));
         Mercenaries.Hire ha = Mercenaries.roll(s.seed(0x4D455243L), Mercenaries.CHANCE);
         if (ha != null) {
-            mercs(ledger, s, a, ha, tick, prep, r);
+            mercs(overworld, ledger, s, a, ha, tick, prep, r);
         }
         s.mercRolled = true;
         s.vassalRolled = true;
+        supplies(overworld, ledger, s, a, t, tick); // 1.10: supply trains on the roads
         for (Relief rl : s.reliefs) {
             VillageRecord h = ledger.get(rl.helper);
             if (h != null) {
-                messenger(ledger, s, t, h, tick + r.nextLong(1200), r);
+                messenger(overworld, ledger, s, t, h, tick + r.nextLong(1200), r);
             }
         }
         for (Vassalage v : ledger.vassalages()) {
@@ -109,9 +110,9 @@ public final class ColumnService {
                 continue;
             }
             if (v.overlord.equals(a.villageId) && !v.vassal.equals(t.villageId) && ledger.get(v.vassal) != null) {
-                messenger(ledger, s, a, ledger.get(v.vassal), tick + r.nextLong(1200), r);
+                messenger(overworld, ledger, s, a, ledger.get(v.vassal), tick + r.nextLong(1200), r);
             } else if (v.overlord.equals(t.villageId) && !v.vassal.equals(a.villageId) && ledger.get(v.vassal) != null) {
-                messenger(ledger, s, t, ledger.get(v.vassal), tick + r.nextLong(1200), r);
+                messenger(overworld, ledger, s, t, ledger.get(v.vassal), tick + r.nextLong(1200), r);
             }
         }
         ledger.setDirty();
@@ -127,6 +128,7 @@ public final class ColumnService {
         double d = Math.hypot(t.center.getX() - fx, t.center.getZ() - fz);
         Column c = new Column(id(s.id + ">alarm>" + tick), Column.Kind.ALARM, s.id, t.villageId, t.villageId, (int) fx, (int) fz, t.center.getX(),
                 t.center.getZ(), tick, tick + Math.max(600, (long) (d / RIDER_SPEED)));
+        c.arrive = c.depart + Math.max(600, travel(overworld, c, RIDER_SPEED)); // 1.10: by the roads when they serve
         String rider = lightRider(t);
         for (int i = 0, n = 2 + r.nextInt(2); i < n; i++) {
             c.units.add(rider);
@@ -141,16 +143,19 @@ public final class ColumnService {
         intel(overworld, ledger, a, c, tick, "pickets of " + a.name + " saw");
     }
 
-    private static void mercs(GarrisonLedger ledger, Siege s, VillageRecord to, Mercenaries.Hire h, long tick, long prep, SplittableRandom r) {
+    private static void mercs(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord to, Mercenaries.Hire h, long tick, long prep,
+                              SplittableRandom r) {
         double ang = r.nextDouble() * Math.PI * 2;
         // 1.9: from as far as the build-up lets them come in time (it is a day now): 200 to 900 blocks
         int far = (int) Math.max(200, Math.min(900, prep * 0.7 * SPEED));
         int dist = Math.max(150, far - r.nextInt(Math.max(1, far / 3)));
         int fx = (int) (to.center.getX() + Math.cos(ang) * dist), fz = (int) (to.center.getZ() + Math.sin(ang) * dist);
-        long travel = (long) (dist / SPEED);
-        long depart = tick + (long) (r.nextDouble() * Math.max(0, prep * 0.8 - travel));
+        double when = r.nextDouble();
         Column c = new Column(id(s.id + ">mercs>" + to.villageId), Column.Kind.MERCS, s.id, to.villageId, to.villageId, fx, fz, to.center.getX(),
-                to.center.getZ(), depart, depart + travel);
+                to.center.getZ(), tick, tick + 1);
+        long travel = travel(overworld, c, SPEED); // 1.10: they ride in by the roads when they serve
+        c.depart = tick + (long) (when * Math.max(0, prep * 0.8 - travel));
+        c.arrive = c.depart + travel;
         c.units.addAll(h.units());
         h.units().forEach(u -> c.regular.add(false));
         c.look = h.company().look();
@@ -159,11 +164,13 @@ public final class ColumnService {
         ledger.columns().add(c);
     }
 
-    private static void messenger(GarrisonLedger ledger, Siege s, VillageRecord from, VillageRecord helper, long depart, SplittableRandom r) {
+    private static void messenger(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord from, VillageRecord helper, long depart,
+                                  SplittableRandom r) {
         double d = Math.sqrt(from.center.distSqr(helper.center));
         Column c = new Column(id(s.id + ">msg>" + helper.villageId), Column.Kind.MESSENGER, s.id, from.villageId, helper.villageId, from.center.getX(),
                 from.center.getZ(), helper.center.getX(), helper.center.getZ(), depart, depart + Math.max(600, (long) (d / RIDER_SPEED)));
         c.helper = helper.villageId;
+        c.arrive = c.depart + Math.max(600, travel(overworld, c, RIDER_SPEED)); // 1.10: by the roads when they serve
         String rider = lightRider(from);
         for (int i = 0, n = 1 + r.nextInt(2); i < n; i++) {
             c.units.add(rider);
@@ -283,6 +290,11 @@ public final class ColumnService {
             end(overworld, ledger, c, Column.State.EXPIRED, "the convoy broke camp and moved on", tick);
             return;
         }
+        if (c.kind == Column.Kind.SUPPLY && c.cartsSpawned) {
+            c.cargo = cargo(overworld, c); // 1.10: it goes on with what is left in its carts
+            discardCarts(overworld, c);
+            c.cartsSpawned = false;
+        }
         c.resume(tick);
         ledger.setDirty();
     }
@@ -296,10 +308,9 @@ public final class ColumnService {
         }
         BlockPos base = SiegeService.surface(overworld, BlockPos.containing(p[0], 64, p[1]));
         boolean convoy = c.kind == Column.Kind.CONVOY;
-        // the road's heading, for a column in file
-        double hx = c.toX - c.fromX, hz = c.toZ - c.fromZ, hl = Math.max(1, Math.hypot(hx, hz));
-        hx /= hl;
-        hz /= hl;
+        // the road's heading, for a column in file (1.10: the stretch of road it is on)
+        double[] heading = c.route().heading(c.progress(tick));
+        double hx = heading[0], hz = heading[1];
         SplittableRandom r = new SplittableRandom(c.id.getLeastSignificantBits() ^ tick);
         int n = 0;
         for (int i = 0; i < c.units.size() && n < c.survivors; i++) {
@@ -332,7 +343,10 @@ public final class ColumnService {
         c.survivors = n;
         c.heldSince = tick;
         if (convoy && !c.cartsSpawned) {
-            spawnCarts(overworld, c, owner, base, r);
+            spawnCarts(overworld, c, owner, base, r, 1 + r.nextInt(3));
+        } else if (c.kind == Column.Kind.SUPPLY && !c.cartsSpawned) {
+            // 1.10: the train's carts follow its guards on the road
+            spawnCarts(overworld, c, owner, base.offset((int) Math.round(-hx * 8), 0, (int) Math.round(-hz * 8)), r, c.carts());
         }
         ledger.setDirty();
         for (ServerPlayer pl : overworld.players()) {
@@ -405,8 +419,8 @@ public final class ColumnService {
         return false;
     }
 
-    private static void spawnCarts(ServerLevel overworld, Column c, VillageRecord owner, BlockPos base, SplittableRandom r) {
-        int carts = 1 + r.nextInt(3);
+    private static void spawnCarts(ServerLevel overworld, Column c, VillageRecord owner, BlockPos base, SplittableRandom r, int carts) {
+        int keep = c.cargo; // 1.10: a train met before carries what was left in its carts then
         for (int i = 0; i < carts; i++) {
             BlockPos at = SiegeService.surface(overworld, base.offset(i * 4 - (carts - 1) * 2, 0, 0));
             Entity cart = dev.hywmill.integration.astikor.AstikorCarts.supplyCart(overworld, Vec3.atBottomCenterOf(at));
@@ -421,6 +435,10 @@ public final class ColumnService {
             c.carts.add(cart.getUUID());
             if (cart instanceof Container box) {
                 ConvoyLoot.fill(box, owner.culture, c.theme, r);
+                if (keep >= 0) {
+                    int share = keep / carts + (i < keep % carts ? 1 : 0);
+                    trim(box, share);
+                }
             }
             var horse = EntityType.HORSE.create(overworld);
             if (horse != null) {
@@ -433,6 +451,139 @@ public final class ColumnService {
             }
         }
         c.cartsSpawned = true;
+    }
+
+    /** Keeps the first {@code keep} full slots of a cart (what was left in it when its train was last met). */
+    static void trim(Container box, int keep) {
+        int seen = 0;
+        for (int i = 0; i < box.getContainerSize(); i++) {
+            if (!box.getItem(i).isEmpty() && ++seen > keep) {
+                box.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
+            }
+        }
+    }
+
+    /** The full slots left in a train's carts. */
+    static int cargo(ServerLevel overworld, Column c) {
+        int n = 0;
+        for (UUID id : c.carts) {
+            if (overworld.getEntity(id) instanceof Container box) {
+                for (int i = 0; i < box.getContainerSize(); i++) {
+                    n += box.getItem(i).isEmpty() ? 0 : 1;
+                }
+            }
+        }
+        return n;
+    }
+
+    /**
+     * 1.10: a supply train cut on the road: each player near it who is at war with its village earns the bounty from his side
+     * ({@link dev.hywmill.politics.war.Supply#bounty}), and the merit in the siege.
+     */
+    private static void bounty(ServerLevel overworld, GarrisonLedger ledger, Column c, Siege s, long tick) {
+        double[] p = c.position(tick);
+        int pay = dev.hywmill.politics.war.Supply.bounty(c.carts());
+        dev.hywmill.settlement.SettlementSource source = Services.settlements();
+        for (ServerPlayer pl : overworld.players()) {
+            if (pl.isSpectator() || Math.hypot(pl.getX() - p[0], pl.getZ() - p[1]) > HIDE
+                    || WarSpoils.payer(ledger, pl.getUUID(), c.owner, tick) == null) {
+                continue;
+            }
+            if (source != null) {
+                source.giveMoney(pl, pay);
+            }
+            s.merit.merge(pl.getUUID(), pay, Integer::sum);
+            pl.sendSystemMessage(Component.literal("[Road] +" + dev.hywmill.recruit.RecruitOffers.money(pay) + ": the bounty for cutting " + c.label()
+                    + ". Its carts are yours.").withStyle(ChatFormatting.GOLD));
+            HmLog.info("Column {}: {} earns the bounty of {} deniers for cutting it", c.id.toString().substring(0, 8), pl.getGameProfile().getName(), pay);
+        }
+    }
+
+    /** Supply trains go this far at most (blocks from the village they serve). */
+    static final int SUPPLY_REACH = 1600;
+
+    /**
+     * 1.10 (docs/siege-design.md "War on the roads"): a siege announced, each side's realm sends its supply trains by the
+     * roads: the besieger's to its host's camp through the first day before the walls, the besieged's friends' before the host
+     * is there. Returns how many trains set out.
+     */
+    public static int supplies(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        long hostAt = tick + Math.max(1200, s.arriveAt - s.elapsed(tick, overworld.getDayTime()));
+        SplittableRandom r = new SplittableRandom(s.seed(0x737570L));
+        int n = 0;
+        // the host's: from the attacker and the nearest of its realm, to the camp before the walls
+        List<VillageRecord> ours = senders(ledger, a, t, true, tick);
+        double ux = a.center.getX() - t.center.getX(), uz = a.center.getZ() - t.center.getZ(), ul = Math.max(1, Math.hypot(ux, uz));
+        int reach = (t.villageRadius > 0 ? t.villageRadius : 64) + 48;
+        int campX = (int) Math.round(t.center.getX() + ux / ul * reach), campZ = (int) Math.round(t.center.getZ() + uz / ul * reach);
+        int trains = dev.hywmill.politics.war.Supply.trains(ours.size() - 1);
+        for (int k = 0; k < trains && !ours.isEmpty(); k++) {
+            VillageRecord from = ours.get(k % ours.size());
+            n += train(overworld, ledger, s, from, a, campX, campZ, true, hostAt + 1200 + k * 4000L, k, tick, r) ? 1 : 0;
+        }
+        // the besieged's: from their realm, before the host is at the walls
+        List<VillageRecord> theirs = senders(ledger, t, a, false, tick);
+        for (int k = 0; k < Math.min(dev.hywmill.politics.war.Supply.MAX_TRAINS, theirs.size()); k++) {
+            n += train(overworld, ledger, s, theirs.get(k), t, t.center.getX(), t.center.getZ(), false, hostAt - 2400 - k * 2400L, k, tick, r) ? 1 : 0;
+        }
+        ledger.setDirty();
+        if (n > 0) {
+            HmLog.info("Siege {}: {} supply train(s) take the road ({} for the host, {} for the besieged)", s.id.toString().substring(0, 8), n,
+                    Math.min(trains, ours.isEmpty() ? 0 : trains), Math.min(dev.hywmill.politics.war.Supply.MAX_TRAINS, theirs.size()));
+        }
+        return n;
+    }
+
+    /** The villages that can send a side's trains: its realm's (the village itself first for the host), not besieged, within reach. */
+    private static List<VillageRecord> senders(GarrisonLedger ledger, VillageRecord v, VillageRecord foe, boolean self, long tick) {
+        List<VillageRecord> out = new ArrayList<>();
+        UUID sov = dev.hywmill.politics.service.RealmService.sovereignOf(ledger, v.villageId, tick);
+        for (UUID m : dev.hywmill.politics.service.RealmService.members(ledger, sov, tick)) {
+            VillageRecord mv = ledger.get(m);
+            if (mv == null || mv == foe || mv.hywRoster == null || mv.loneBuilding || SiegeService.besieged(ledger, m) || !self && mv == v
+                    || Math.sqrt(mv.center.distSqr(foe.center)) > SUPPLY_REACH + Math.sqrt(v.center.distSqr(foe.center))) {
+                continue;
+            }
+            out.add(mv);
+        }
+        if (self && !out.contains(v)) {
+            out.add(v);
+        }
+        out.sort(java.util.Comparator.comparingDouble((VillageRecord x) -> x == v && self ? -1 : x.center.distSqr(v.center)));
+        return out;
+    }
+
+    /** One supply train from {@code from} to (x, z), serving {@code dest}, to arrive about {@code arriveBy}. */
+    private static boolean train(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord from, VillageRecord dest, int x, int z, boolean host,
+                                 long arriveBy, int k, long tick, SplittableRandom r) {
+        Column c = new Column(id(s.id + ">supply>" + (host ? "h" : "d") + k), Column.Kind.SUPPLY, s.id, from.villageId, dest.villageId,
+                from.center.getX(), from.center.getZ(), x, z, tick, tick + 1);
+        long travel = Math.max(600, travel(overworld, c, dev.hywmill.politics.war.Supply.SPEED));
+        c.depart = Math.max(tick + 200, arriveBy - travel);
+        c.arrive = c.depart + travel;
+        c.forHost = host;
+        c.theme = host ? (r.nextBoolean() ? "military" : "siege") : (r.nextBoolean() ? "provisions" : "mixed");
+        List<String> pool = new ArrayList<>();
+        GarrisonTables tables = GarrisonTables.current();
+        dev.hywmill.garrison.Recruitment.eligibleUnits(from.tier, tables.forCulture(from.culture), tables.units()).forEach(u -> {
+            if (u.unitClass() != UnitClass.CAVALRY && !LIGHT.contains(u.key())) {
+                pool.add(u.key());
+            }
+        });
+        MobilizationService.rule(from).levyUnits().keySet().forEach(pool::add);
+        if (pool.isEmpty()) {
+            pool.add("spear_man");
+        }
+        int guards = dev.hywmill.politics.war.Supply.guards(r.nextDouble());
+        for (int i = 0; i < guards; i++) {
+            c.units.add(pool.get(r.nextInt(pool.size())));
+            c.regular.add(r.nextDouble() < 0.4);
+        }
+        c.survivors = guards;
+        ledger.columns().add(c);
+        HmLog.info("Column {} (SUPPLY): {} sends {} to {} ({}), {} min on the road{}", c.id.toString().substring(0, 8), from.name, c.label(),
+                host ? "the host's camp" : dest.name, x + ", " + z, Math.max(1, travel / 1200), c.route().roads() ? " by the roads" : " across country");
+        return true;
     }
 
     private static void discardCarts(ServerLevel overworld, Column c) {
@@ -458,7 +609,11 @@ public final class ColumnService {
             end(overworld, ledger, c, Column.State.FAILED, "it came too late", tick);
             return;
         }
-        if (s.wave > 0 && c.kind != Column.Kind.ALARM) {
+        if (c.kind == Column.Kind.SUPPLY && !c.forHost && s.fighting()) {
+            end(overworld, ledger, c, Column.State.FAILED, "the host's lines bar the way into " + dest.name, tick);
+            return;
+        }
+        if (s.wave > 0 && c.kind != Column.Kind.ALARM && c.kind != Column.Kind.SUPPLY) {
             // post-M5: help joins only before the first assault; once the siege is fought it comes too late
             end(overworld, ledger, c, Column.State.FAILED, "it came too late: the siege had begun", tick);
             return;
@@ -511,7 +666,7 @@ public final class ColumnService {
                 }
                 for (Vassalage v : ledger.vassalages()) {
                     if (!besieged && foe == null && v.vassal.equals(h.villageId) && v.overlord.equals(owner.villageId) && !v.over(tick)) {
-                        any |= vassalColumn(ledger, s, owner, h, tick);
+                        any |= vassalColumn(overworld, ledger, s, owner, h, tick);
                     }
                 }
                 text = "A messenger of " + owner.name + " reached " + h.name + (any ? ": it sends help"
@@ -523,6 +678,13 @@ public final class ColumnService {
                 // 1.9: the scouts counted the host as it marched: the besieged know its strength and levy accordingly
                 text = "Scouts of " + dest.name + " brought the alarm home" + (a != null ? ": " + SiegeService.hostCounted(overworld, ledger, s, a, dest, tick) : "");
                 s.notes.add(dest.name + "'s scouts brought the alarm home");
+            }
+            case SUPPLY -> {
+                // 1.10: the train reached the host's camp (or the besieged before the host): its side is better found
+                String what = SiegeService.supplied(s, c.forHost, true);
+                text = c.label() + " of " + owner.name + " reached " + (c.forHost ? "the host's camp before " + (t == null ? "?" : t.name) : dest.name)
+                        + ": " + what;
+                s.notes.add(text);
             }
             default -> text = "";
         }
@@ -537,7 +699,7 @@ public final class ColumnService {
     }
 
     /** A vassal answers its overlord's messenger (three times in four): its men take the road. */
-    private static boolean vassalColumn(GarrisonLedger ledger, Siege s, VillageRecord lord, VillageRecord vassal, long tick) {
+    private static boolean vassalColumn(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord lord, VillageRecord vassal, long tick) {
         List<Boolean> men = Vassalage.levy(s.seed(vassal.villageId.getMostSignificantBits() ^ 0x766173L));
         if (men.isEmpty()) {
             return false;
@@ -557,6 +719,7 @@ public final class ColumnService {
         double d = Math.sqrt(vassal.center.distSqr(lord.center));
         Column c = new Column(id(s.id + ">vassal>" + vassal.villageId), Column.Kind.VASSAL, s.id, vassal.villageId, lord.villageId,
                 vassal.center.getX(), vassal.center.getZ(), lord.center.getX(), lord.center.getZ(), tick, tick + Math.max(1200, (long) (d / SPEED)));
+        c.arrive = c.depart + Math.max(1200, travel(overworld, c, SPEED)); // 1.10: by the roads when they serve
         c.units.addAll(dev.hywmill.politics.war.DefenderAid.draw(pool, men.size(), s.seed(vassal.villageId.getLeastSignificantBits())));
         c.regular.addAll(men.subList(0, c.units.size()));
         c.survivors = c.units.size();
@@ -594,12 +757,16 @@ public final class ColumnService {
         String text = c.label() + (owner != null ? " of " + owner.name : "") + ": " + why;
         if (st == Column.State.DESTROYED) {
             text = c.label() + (owner != null ? " of " + owner.name : "") + " was destroyed on the road (" + why + ")" + consequence(ledger, c);
-            if (c.kind == Column.Kind.CONVOY) {
+            if (c.kind == Column.Kind.CONVOY || c.kind == Column.Kind.SUPPLY) {
                 c.carts.clear(); // its carts stay where they stand, for the taking
                 text += "; its carts are there for the taking";
             }
         }
         Siege s = siegeOf(ledger, c);
+        if (s != null && st == Column.State.DESTROYED && c.kind == Column.Kind.SUPPLY) {
+            text += "; " + SiegeService.supplied(s, c.forHost, false); // 1.10: its side goes short
+            bounty(overworld, ledger, c, s, tick);
+        }
         if (s != null && st == Column.State.DESTROYED) {
             s.notes.add(c.label() + " destroyed on the road");
             VillageRecord a = ledger.get(s.attacker);
@@ -620,6 +787,7 @@ public final class ColumnService {
             case MESSENGER -> h == null ? "" : ": " + h.name + " will never hear the call";
             case ALARM -> d == null ? "" : ": " + d.name + " will not hear of the host in time";
             case CONVOY -> "";
+            case SUPPLY -> "";
         };
     }
 
@@ -722,6 +890,7 @@ public final class ColumnService {
         ledger.columns().remove(c);
         Column moved = new Column(c.id, c.kind, c.siege, c.owner, c.destination, (int) p[0], (int) p[1], c.toX, c.toZ, nc.depart, nc.arrive);
         copy(c, moved);
+        moved.arrive = moved.depart + Math.max(600, travel(overworld, moved, SPEED)); // 1.10: by the roads to its new master
         ledger.columns().add(moved);
         ledger.setDirty();
         String text = PoliticsService.playerName(overworld, player.getUUID()) + " bought " + c.name + " away from " + (was == null ? "?" : was.name)
@@ -757,12 +926,15 @@ public final class ColumnService {
         to.cartsSpawned = from.cartsSpawned;
         to.carts.addAll(from.carts);
         to.outcome = from.outcome;
+        to.forHost = from.forHost;
     }
 
     /** The player may act on a column: on campaign against its owner (or the column belongs to his ally's enemy's side). */
     public static boolean mayAct(GarrisonLedger ledger, UUID player, Column c) {
         Campaign camp = RelationProjector.campaignOf(ledger, player);
-        return camp != null && camp.enemy().equals(c.owner);
+        // 1.10: or it serves the enemy (a supply train of its realm), or comes from a village his ally is at war with
+        return camp != null && (camp.enemy().equals(c.owner) || c.destination != null && camp.enemy().equals(c.destination)
+                || RelationProjector.atWar(ledger, camp.ally(), c.owner));
     }
 
     /** Columns a player should see in the War tab: found by his ally's scouts (or concerning his ally's war). */
@@ -792,6 +964,9 @@ public final class ColumnService {
             }
             if (c.destination != null && c.kind != Column.Kind.CONVOY) {
                 b.append(" -> ").append(name(ledger, c.destination));
+            }
+            if (c.route().roads()) {
+                b.append(c.kind == Column.Kind.CONVOY ? ", camped by the road" : c.onTheRoad(now) ? ", on the road" : ", making for the road"); // 1.10
             }
             b.append(eta(c, now));
             if (c.takenBy != null) {
@@ -943,7 +1118,7 @@ public final class ColumnService {
             }
         }
         if (found == null && (forced || r.nextDouble() < CONVOY_INSTEAD)) {
-            found = convoy(ledger, v, tick, r);
+            found = convoy(overworld, ledger, v, tick, r);
         }
         if (found == null) {
             HmLog.info("Scouts: a scout of {} came back with nothing", v.name);
@@ -958,7 +1133,7 @@ public final class ColumnService {
 
     /** An enemy supply convoy camped for the night, somewhere between the scout's village and an enemy. */
     @Nullable
-    static Column convoy(GarrisonLedger ledger, VillageRecord v, long tick, SplittableRandom r) {
+    static Column convoy(ServerLevel overworld, GarrisonLedger ledger, VillageRecord v, long tick, SplittableRandom r) {
         List<VillageRecord> enemies = new ArrayList<>();
         for (WarRecord w : ledger.wars().values()) {
             if (w.atWar() && (w.a.equals(v.villageId) || w.b.equals(v.villageId))) {
@@ -976,7 +1151,19 @@ public final class ColumnService {
         double dx = v.center.getX() - en.center.getX(), dz = v.center.getZ() - en.center.getZ(), dl = Math.max(1, Math.hypot(dx, dz));
         double off = (r.nextDouble() - 0.5) * 300;
         int x = (int) (en.center.getX() + dx * f - dz / dl * off), z = (int) (en.center.getZ() + dz * f + dx / dl * off);
+        // 1.10: where a road leaves the enemy village towards the scout's, the convoy camps by it
+        dev.hywmill.politics.war.Route road = dev.hywmill.integration.roads.VillageRoads.route(overworld, en.center.getX(), en.center.getZ(),
+                v.center.getX(), v.center.getZ());
+        double[] by = road.roadPoint(0.2 + r.nextDouble() * 0.4);
+        if (by != null) {
+            double[] h = road.headingNear(by[0], by[1]);
+            x = (int) Math.round(by[0] - h[1] * 9);
+            z = (int) Math.round(by[1] + h[0] * 9);
+        }
         Column c = new Column(id(en.villageId + ">convoy>" + tick), Column.Kind.CONVOY, null, en.villageId, null, x, z, x, z, tick, tick + CAMP);
+        if (by != null) {
+            c.road(new int[]{x, z, (int) by[0], (int) by[1], x, z}); // remembered as camped by the road (it does not move)
+        }
         c.theme = ConvoyLoot.THEMES.get(r.nextInt(ConvoyLoot.THEMES.size()));
         List<String> pool = new ArrayList<>();
         GarrisonTables tables = GarrisonTables.current();
@@ -1005,7 +1192,8 @@ public final class ColumnService {
     private static void intel(ServerLevel overworld, GarrisonLedger ledger, VillageRecord v, Column c, long tick, String how) {
         double[] p = c.position(tick);
         String owner = name(ledger, c.owner);
-        String dest = c.destination != null && c.kind != Column.Kind.CONVOY ? " riding for " + name(ledger, c.destination) : "";
+        String dest = (c.destination != null && c.kind != Column.Kind.CONVOY ? " riding for " + name(ledger, c.destination) : "")
+                + (!c.route().roads() ? "" : c.kind == Column.Kind.CONVOY ? " camped by the road" : " by the road");
         for (ServerPlayer pl : recipients(overworld, ledger, v)) {
             pl.sendSystemMessage(Component.literal("[Scouts] " + capital(how) + " " + c.label() + " of " + owner + dest + " at " + (int) p[0] + ", "
                     + (int) p[1] + ": " + Column.where(pl.getX(), pl.getZ(), p[0], p[1]) + " of you" + eta(c, tick)
@@ -1111,6 +1299,13 @@ public final class ColumnService {
         return s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
+    /** 1.10: the column takes the roads when they serve its way (Village Roads); how long its journey takes at {@code speed}. */
+    static long travel(ServerLevel overworld, Column c, double speed) {
+        dev.hywmill.politics.war.Route r = dev.hywmill.integration.roads.VillageRoads.route(overworld, c.fromX, c.fromZ, c.toX, c.toZ);
+        c.road(r.saved());
+        return (long) (r.time() / speed);
+    }
+
     static UUID id(String key) {
         return UUID.nameUUIDFromBytes(key.getBytes(StandardCharsets.UTF_8));
     }
@@ -1126,7 +1321,7 @@ public final class ColumnService {
         Column c;
         if (kind == Column.Kind.CONVOY) {
             VillageRecord scout = revealer != null && ledger.get(revealer) != null ? ledger.get(revealer) : to;
-            c = convoy(ledger, scout, tick, r);
+            c = convoy(overworld, ledger, scout, tick, r);
             if (c == null) {
                 c = new Column(id(owner.villageId + ">convoy>" + tick), Column.Kind.CONVOY, null, owner.villageId, null, to.center.getX() + 40,
                         to.center.getZ() + 40, to.center.getX() + 40, to.center.getZ() + 40, tick, tick + CAMP);
@@ -1148,6 +1343,7 @@ public final class ColumnService {
             double speed = kind == Column.Kind.MESSENGER || kind == Column.Kind.ALARM ? RIDER_SPEED : SPEED;
             c = new Column(id(owner.villageId + ">" + kind + ">" + tick), kind, s == null ? null : s.id, kind == Column.Kind.MERCS ? to.villageId : owner.villageId,
                     to.villageId, fx, fz, to.center.getX(), to.center.getZ(), tick, tick + (long) (Math.hypot(to.center.getX() - fx, to.center.getZ() - fz) / speed));
+            c.arrive = tick + Math.max(1, travel(overworld, c, speed));
             if (kind == Column.Kind.MERCS) {
                 Mercenaries.Hire h = Mercenaries.hire(tick);
                 c.units.addAll(h.units());

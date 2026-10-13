@@ -424,7 +424,15 @@ public final class SiegeService {
         }
         long day = overworld.getDayTime();
         s.startDay = day;
-        s.march = SiegeMath.marchTicks(Math.sqrt(muster.center.distSqr(t.center)), r);
+        // 1.10: the host marches by the roads when they serve the way (docs/siege-design.md "War on the roads")
+        dev.hywmill.politics.war.Route way = dev.hywmill.integration.roads.VillageRoads.route(overworld, muster.center.getX(), muster.center.getZ(),
+                t.center.getX(), t.center.getZ());
+        s.road = way.saved();
+        s.march = SiegeMath.marchTicks(way.time(), r);
+        if (way.roads()) {
+            HmLog.info("Siege {}: the host will march by the road ({} blocks, {} straight)", s.id.toString().substring(0, 8), Math.round(way.length()),
+                    Math.round(Math.sqrt(muster.center.distSqr(t.center))));
+        }
         s.quick = quick;
         a.hywRoster.lastSiegeTick = tick;
         ledger.sieges().add(s);
@@ -1028,8 +1036,9 @@ public final class SiegeService {
             s.interceptBy = capital.villageId;
             s.interceptSet = now;
             s.interceptAt = now + (at - elapsed);
-            s.interceptX = (int) Math.round(a.center.getX() + (t.center.getX() - a.center.getX()) * f);
-            s.interceptZ = (int) Math.round(a.center.getZ() + (t.center.getZ() - a.center.getZ()) * f);
+            double[] meet = route(s, a, t).at(f); // 1.10: on the road the host marches by
+            s.interceptX = (int) Math.round(meet[0]);
+            s.interceptZ = (int) Math.round(meet[1]);
             s.interceptPower = ours;
             s.interceptMen = men;
             s.interceptFrom.clear();
@@ -1723,13 +1732,18 @@ public final class SiegeService {
     }
 
     /** 1.9: where the host is in its build-up: at its muster, or on its road. */
+    /** 1.10: the way the host marches: by its road, or straight from its village to the target. */
+    public static dev.hywmill.politics.war.Route route(Siege s, VillageRecord a, VillageRecord t) {
+        return dev.hywmill.politics.war.Route.of(s.road, a.center.getX(), a.center.getZ(), t.center.getX(), t.center.getZ());
+    }
+
     static BlockPos hostAt(ServerLevel overworld, Siege s, VillageRecord a, VillageRecord t, long tick) {
         if (s.phase != Siege.Phase.MARCH) {
             return a.center;
         }
         double f = dev.hywmill.politics.war.FieldBattle.along(s.elapsed(tick, overworld.getDayTime()), s.arriveAt, s.march);
-        return new BlockPos((int) Math.round(a.center.getX() + (t.center.getX() - a.center.getX()) * f), a.center.getY(),
-                (int) Math.round(a.center.getZ() + (t.center.getZ() - a.center.getZ()) * f));
+        double[] p = route(s, a, t).at(f);
+        return new BlockPos((int) Math.round(p[0]), a.center.getY(), (int) Math.round(p[1]));
     }
 
     /**
@@ -2527,6 +2541,10 @@ public final class SiegeService {
                 new dev.hywmill.politics.war.Morale.Circumstances(false, 0, ds > 0 ? hs / ds : 2, false, hostSurprised));
         s.defResolve = dev.hywmill.politics.war.Morale.resolve(ranks(defs).plus(dev.hywmill.politics.war.Morale.Grade.LEVY, s.milStart),
                 new dev.hywmill.politics.war.Morale.Circumstances(true, t.fortification, hs > 0 ? ds / hs : 2, false, defSurprised));
+        // 1.10: what the roads brought each side, or did not (supply trains arrived and cut)
+        s.hostResolve = clampResolve(s.hostResolve + dev.hywmill.politics.war.Supply.resolve(s.hostFed, s.hostCut));
+        s.defResolve = clampResolve(s.defResolve + dev.hywmill.politics.war.Supply.resolve(s.defFed, s.defCut));
+        s.maxDays = dev.hywmill.politics.war.Supply.days(s.maxDays, s.hostFed, s.hostCut);
         if (hostSurprised) {
             String text = "The host of " + a.name + " finds " + t.name + " held by " + defMen + ", far more than the " + s.defBelieved
                     + " it was told of: it is shaken";
@@ -2539,8 +2557,46 @@ public final class SiegeService {
             announce(overworld, ledger, s, a, t, text);
             s.notes.add(text);
         }
-        HmLog.info("Siege {}: resolve host {} ({} men, surprised {}), defenders {} ({} men, surprised {}); {} days", s.id.toString().substring(0, 8),
-                fmt(s.hostResolve), host.size(), hostSurprised, fmt(s.defResolve), defMen, defSurprised, s.maxDays);
+        HmLog.info("Siege {}: resolve host {} ({} men, surprised {}), defenders {} ({} men, surprised {}); {} days; supply host +{}/-{}, besieged +{}/-{}",
+                s.id.toString().substring(0, 8), fmt(s.hostResolve), host.size(), hostSurprised, fmt(s.defResolve), defMen, defSurprised, s.maxDays,
+                s.hostFed, s.hostCut, s.defFed, s.defCut);
+    }
+
+    static double clampResolve(double r) {
+        return Math.max(dev.hywmill.politics.war.Morale.MIN, Math.min(dev.hywmill.politics.war.Morale.MAX, r));
+    }
+
+    /**
+     * 1.10: a supply train reached its side ({@code arrived}) or was cut on the road: counted; once the siege is fought, felt at
+     * once (resolve, and the days a host can keep the field). Returns what it means, in a few words.
+     */
+    public static String supplied(Siege s, boolean host, boolean arrived) {
+        int fed = host ? s.hostFed : s.defFed, cut = host ? s.hostCut : s.defCut;
+        double before = dev.hywmill.politics.war.Supply.resolve(fed, cut);
+        if (host) {
+            if (arrived) {
+                s.hostFed++;
+            } else {
+                s.hostCut++;
+            }
+        } else if (arrived) {
+            s.defFed++;
+        } else {
+            s.defCut++;
+        }
+        double delta = dev.hywmill.politics.war.Supply.resolve(host ? s.hostFed : s.defFed, host ? s.hostCut : s.defCut) - before;
+        if (s.wave > 0) {
+            if (host) {
+                s.hostResolve = clampResolve(s.hostResolve + delta);
+                int days = dev.hywmill.politics.war.Supply.days(dev.hywmill.politics.war.Morale.days(s.hostStart), s.hostFed, s.hostCut);
+                s.maxDays = Math.max(s.wave, days);
+            } else {
+                s.defResolve = clampResolve(s.defResolve + delta);
+            }
+        }
+        String side = host ? "the host" : "the besieged";
+        return arrived ? side + (delta > 0 ? " is better fed and its heart is up" : " has what it needs")
+                : side + (delta < 0 ? " goes short, and its heart sinks" : " goes short") + (host && s.hostCut > s.hostFed ? "; it cannot keep the field as long" : "");
     }
 
     /**
@@ -3650,7 +3706,7 @@ public final class SiegeService {
         dismissExtras(overworld, ledger, s, tick);
         alive = going;
         VillageRecord t = ledger.get(s.target);
-        long march = t == null ? r.minMarch() : SiegeMath.marchTicks(Math.sqrt(a.center.distSqr(t.center)), r);
+        long march = t == null ? r.minMarch() : SiegeMath.marchTicks(route(s, a, t).time(), r);
         s.enter(Siege.Phase.RETURN, tick, tick + march);
         if (alive.isEmpty()) {
             retire(ledger, s);

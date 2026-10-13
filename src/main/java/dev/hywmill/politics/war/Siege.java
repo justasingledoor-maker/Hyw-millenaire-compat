@@ -150,6 +150,10 @@ public final class Siege {
     public boolean hostScouted, defScouted, termsOffered, siegeTrain;
     /** 1.9 spoils by merit: the head prices each player (and his own men) earned in this siege. */
     public final java.util.Map<UUID, Integer> merit = new java.util.LinkedHashMap<>();
+    /** 1.10: the road the host marches by (points from its muster to the target), or empty: straight across country. */
+    public int[] road = new int[0];
+    /** 1.10 supply trains ({@link Supply}): those that reached the host's camp and those cut on the road; the same for the besieged. */
+    public int hostFed, hostCut, defFed, defCut;
 
     /** A wave is being fought or the night between two (no help may join any more; no recruiting at the target). */
     public boolean fighting() {

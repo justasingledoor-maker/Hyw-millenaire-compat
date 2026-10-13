@@ -193,6 +193,8 @@ public final class CoreEvents {
             if (event.isCanceled()) {
                 return;
             }
+            // 1.10: a column's soldier (a supply train's guard...) killed on the road: his head price
+            guarded("head prices", () -> dev.hywmill.garrison.service.WarSpoils.onColumnKill(level, event.getEntity(), event.getSource().getEntity()));
         }
         guarded("siege villagers", () -> dev.hywmill.garrison.service.SiegeService.onResidentDeath(event.getEntity(), level));
         guarded("defense statistics", () -> DefenseStatsRecorder.onDeath(level, event.getEntity(), event.getSource().getEntity()));

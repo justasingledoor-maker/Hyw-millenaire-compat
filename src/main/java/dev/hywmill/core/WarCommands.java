@@ -482,6 +482,8 @@ final class WarCommands {
                     return n;
                 })))
                 .then(Commands.literal("mercs").then(Commands.argument("attacker", BlockPosArgument.blockPos()).executes(WarCommands::adminMercs)))
+                .then(Commands.literal("supply").then(Commands.argument("attacker", BlockPosArgument.blockPos()).executes(ctx -> adminSupply(ctx, false))
+                        .then(Commands.literal("now").executes(ctx -> adminSupply(ctx, true)))))
                 .then(Commands.literal("relief").then(Commands.argument("helper", BlockPosArgument.blockPos())
                         .then(Commands.argument("target", BlockPosArgument.blockPos()).executes(ctx -> adminRelief(ctx, "NONE"))
                                 .then(Commands.argument("fate", com.mojang.brigadier.arguments.StringArgumentType.word())
@@ -789,6 +791,45 @@ final class WarCommands {
         }
         int n = HywMillRuntime.require().sieges().hireMercs(ow, ledger, s, a, t, ow.getGameTime(), true);
         send(ctx.getSource(), "war mercs " + (n > 0 ? "HIRED " + n + " " + s.mercCompany : "NONE: a company is already hired") + " host " + s.hostStart);
+        return n;
+    }
+
+    /** 1.10 (tests): the siege of {@code attacker} sends its supply trains now; lists every supply train of it, with its road. */
+    private static int adminSupply(CommandContext<CommandSourceStack> ctx, boolean setOut) {
+        VillageRecord a = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "attacker"));
+        if (a == null) {
+            return 0;
+        }
+        ServerLevel ow = ctx.getSource().getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(ow);
+        var s = dev.hywmill.garrison.service.SiegeService.byAttacker(ledger, a.villageId);
+        VillageRecord t = s == null ? null : ledger.get(s.target);
+        if (s == null || t == null || s.phase == dev.hywmill.politics.war.Siege.Phase.RETURN) {
+            send(ctx.getSource(), "war supply NONE: " + a.name + " besieges nobody");
+            return 0;
+        }
+        int n = dev.hywmill.garrison.service.ColumnService.supplies(ow, ledger, s, a, t, ow.getGameTime());
+        if (setOut) {
+            // (tests) every train of this siege not yet on the road sets out at once
+            for (var c : ledger.columns()) {
+                if (c.kind == dev.hywmill.politics.war.Column.Kind.SUPPLY && s.id.equals(c.siege) && c.onRoad() && c.depart > ow.getGameTime()) {
+                    long travel = c.arrive - c.depart;
+                    c.depart = ow.getGameTime();
+                    c.arrive = c.depart + travel;
+                }
+            }
+            ledger.setDirty();
+        }
+        send(ctx.getSource(), "war supply SENT " + n + " (fed " + s.hostFed + ", cut " + s.hostCut + "; besieged fed " + s.defFed + ", cut " + s.defCut + ")");
+        long now = ow.getGameTime();
+        for (var c : ledger.columns()) {
+            if (c.kind == dev.hywmill.politics.war.Column.Kind.SUPPLY && s.id.equals(c.siege)) {
+                send(ctx.getSource(), " " + c.id.toString().substring(0, 8) + " " + dev.hywmill.garrison.service.ColumnService.describe(ow, ledger, c, null)
+                        + " | from " + c.fromX + "," + c.fromZ + " to " + c.toX + "," + c.toZ + " | " + (c.route().roads() ? "road of " + c.way.length / 2
+                        + " points, " + Math.round(c.route().length()) + " blocks" : "straight " + Math.round(c.route().length()) + " blocks")
+                        + " | departs in " + Math.max(0, c.depart - now) + " ticks");
+            }
+        }
         return n;
     }
 

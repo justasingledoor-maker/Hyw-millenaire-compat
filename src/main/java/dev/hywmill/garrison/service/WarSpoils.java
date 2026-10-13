@@ -78,6 +78,58 @@ public final class WarSpoils {
                 killer instanceof ServerPlayer ? "the player" : "his men");
     }
 
+    /**
+     * 1.10: a column's soldier (a supply train's guard, a messenger, a mercenary on the road...) killed by a player or his men in
+     * a war against the column's village: his head price, and merit in the column's siege.
+     */
+    public static void onColumnKill(ServerLevel level, LivingEntity victim, @Nullable Entity killer) {
+        if (killer == null || !victim.getPersistentData().hasUUID(ColumnService.TAG)) {
+            return;
+        }
+        ServerLevel ow = level.getServer().overworld();
+        GarrisonLedger ledger = GarrisonLedger.get(ow);
+        UUID cid = victim.getPersistentData().getUUID(ColumnService.TAG);
+        dev.hywmill.politics.war.Column c = null;
+        for (dev.hywmill.politics.war.Column x : ledger.columns()) {
+            if (x.id.equals(cid)) {
+                c = x;
+            }
+        }
+        VillageRecord v = c == null ? null : ledger.get(c.owner);
+        UnitProvider units = Services.units();
+        UUID player = killer instanceof ServerPlayer sp ? sp.getUUID() : units != null && units.isUnit(killer) ? units.ownerOf(killer) : null;
+        long now = ow.getGameTime();
+        if (v == null || player == null || payer(ledger, player, v.villageId, now) == null) {
+            return;
+        }
+        int price = switch (c.kind) {
+            case MERCS -> Morale.headPrice(Morale.Grade.MERCENARY);
+            case MESSENGER, ALARM -> Morale.headPrice(Morale.Grade.REGULAR);
+            default -> Morale.headPrice(Morale.Grade.LEVY);
+        };
+        String text = "+" + dev.hywmill.recruit.RecruitOffers.money(price) + ": the head price of one of " + c.label() + " of " + v.name
+                + (killer instanceof ServerPlayer ? "" : " (your men)");
+        SettlementSource source = Services.settlements();
+        ServerPlayer online = AssaultService.online(ow, player);
+        if (online != null) {
+            if (source != null) {
+                source.giveMoney(online, price);
+            }
+            online.displayClientMessage(Component.literal(text), true);
+        } else {
+            ledger.pendingPay().add(new PoliticsNbt.PendingPay(player, source != null ? price : 0, text));
+        }
+        if (c.siege != null) {
+            for (Siege s : ledger.sieges()) {
+                if (s.id.equals(c.siege)) {
+                    s.merit.merge(player, price, Integer::sum);
+                }
+            }
+        }
+        ledger.setDirty();
+        HmLog.info("Head price: {} earns {} deniers for one of {} of {}", player.toString().substring(0, 8), price, c.label(), v.name);
+    }
+
     /** The head price of a soldier (deniers). */
     static int price(VillageRecord v, RosterEntry e) {
         if ("ruler".equals(e.extra)) {

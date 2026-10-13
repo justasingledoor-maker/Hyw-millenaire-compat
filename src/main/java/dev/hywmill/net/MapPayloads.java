@@ -12,7 +12,7 @@ import java.util.List;
 public final class MapPayloads {
     private MapPayloads() {}
 
-    public enum Kind { VILLAGE, CAPITAL, PROVINCE, VASSAL, HOST, SIEGE, BATTLE, ORDER, RELIEF }
+    public enum Kind { VILLAGE, CAPITAL, PROVINCE, VASSAL, HOST, SIEGE, BATTLE, ORDER, RELIEF, COLUMN }
 
     /**
      * One marker: a stable {@code id}, its kind, where, a short {@code label} (drawn on the map), the {@code detail} (shown on

@@ -52,7 +52,7 @@ public final class RoadJob {
 
     /** {@code from}, {@code to}, {@code middle}: the road's ends and middle; {@code bridge}: the middle of its longest bridge, or null. */
     record Planned(List<Cell> cells, int length, int bridges, int longest, int[] span, LongOpenHashSet footprint, BlockPos from, BlockPos to,
-                   BlockPos middle, BlockPos bridge) {}
+                   BlockPos middle, BlockPos bridge, int[] way) {}
 
     /** Chunks asked for at once while surveying; sampled per tick; how long a chunk may take to load before the job gives up. */
     static final int INFLIGHT = 24, SAMPLE_PER_TICK = 6, TIMEOUT = 2400;
@@ -206,6 +206,45 @@ public final class RoadJob {
         }
     }
 
+    /**
+     * The road's way for travellers: its centre line folded, from the first end to the second; a village road's from one
+     * village's centre to the other's (where the roads of a village meet).
+     */
+    private int[] way(List<Node> nodes) {
+        int[] xz = new int[nodes.size() * 2];
+        for (int i = 0; i < nodes.size(); i++) {
+            xz[2 * i] = nodes.get(i).x();
+            xz[2 * i + 1] = nodes.get(i).z();
+        }
+        if (xz.length >= 4 && Math.hypot(xz[0] - ax, xz[1] - az) > Math.hypot(xz[xz.length - 2] - ax, xz[xz.length - 1] - az)) {
+            for (int i = 0, k = xz.length - 2; i < k; i += 2, k -= 2) {
+                int x = xz[i], z = xz[i + 1];
+                xz[i] = xz[k];
+                xz[i + 1] = xz[k + 1];
+                xz[k] = x;
+                xz[k + 1] = z;
+            }
+        }
+        if (ends instanceof Villages) {
+            int[] full = new int[xz.length + 4];
+            full[0] = ax;
+            full[1] = az;
+            System.arraycopy(xz, 0, full, 2, xz.length);
+            full[full.length - 2] = bx;
+            full[full.length - 1] = bz;
+            xz = full;
+        }
+        return dev.villageroads.plan.Ways.simplify(xz, dev.villageroads.plan.Ways.TOLERANCE);
+    }
+
+    /** The way travellers follow, once built (null before). */
+    int[] way() {
+        return planned != null && phase == Phase.DONE ? planned.way() : null;
+    }
+
+    /** The key a staff road's way is kept under (set when it is built). */
+    String wayKey;
+
     /** On the planner's thread: the way, its heights and its footprint (null: no way). */
     private Planned plan(Grid g) {
         g.finish(2);
@@ -255,7 +294,7 @@ public final class RoadJob {
             footprint.add(RoadsData.cell(c.x(), c.z()));
         }
         return new Planned(cells, nodes.size(), route.bridges(), longest, span, footprint, new BlockPos(first.x(), ys[0], first.z()),
-                new BlockPos(lastNode.x(), ys[ys.length - 1], lastNode.z()), new BlockPos(mid.x(), ys[nodes.size() / 2], mid.z()), bridgeAt);
+                new BlockPos(lastNode.x(), ys[ys.length - 1], lastNode.z()), new BlockPos(mid.x(), ys[nodes.size() / 2], mid.z()), bridgeAt, way(nodes));
     }
 
     private Route route(Grid g) {

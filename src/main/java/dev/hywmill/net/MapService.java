@@ -112,8 +112,9 @@ public final class MapService {
                         break; // halted at the field: the battle marker shows it
                     }
                     double f = FieldBattle.along(s.elapsed(now, dayTime), s.arriveAt, s.march);
-                    int x = (int) Math.round(a.center.getX() + (t.center.getX() - a.center.getX()) * f);
-                    int z = (int) Math.round(a.center.getZ() + (t.center.getZ() - a.center.getZ()) * f);
+                    double[] p = dev.hywmill.garrison.service.SiegeService.route(s, a, t).at(f); // 1.10: along its road
+                    int x = (int) Math.round(p[0]);
+                    int z = (int) Math.round(p[1]);
                     out.add(new Marker("h:" + id, Kind.HOST, x, z, host + " → " + t.name, host + " (" + men + " men) marches on " + t.name
                             + "; before its walls in", colour(a), now + left));
                 }
@@ -148,8 +149,9 @@ public final class MapService {
                 }
                 long total = Math.max(1, rl.phaseEnd - s.phaseSince);
                 double f = Math.max(0, Math.min(1, 1 - (rl.phaseEnd - now) / (double) total));
-                int x = (int) Math.round(h.center.getX() + (t.center.getX() - h.center.getX()) * f);
-                int z = (int) Math.round(h.center.getZ() + (t.center.getZ() - h.center.getZ()) * f);
+                double[] p = dev.hywmill.integration.roads.VillageRoads.route(ow, h.center.getX(), h.center.getZ(), t.center.getX(), t.center.getZ()).at(f);
+                int x = (int) Math.round(p[0]); // 1.10: along the roads when they serve
+                int z = (int) Math.round(p[1]);
                 out.add(new Marker("r:" + id + ":" + h.villageId.toString().substring(0, 8), Kind.RELIEF, x, z, "Relief of " + t.name,
                         h.name + " sends " + rl.units.size() + " men to relieve " + t.name + "; they arrive in", colour(h), rl.phaseEnd));
             }
@@ -160,6 +162,27 @@ public final class MapService {
     /** The player's orders in a realm's service: each rally point or line, with its clock. */
     static List<Marker> orders(ServerLevel ow, GarrisonLedger ledger, UUID player, long now) {
         List<Marker> out = new ArrayList<>();
+        // 1.10: columns on the road his side's scouts found (supply trains, messengers, mercenaries...), moving along their roads
+        for (dev.hywmill.politics.war.Column c : dev.hywmill.garrison.service.ColumnService.visible(ledger, player)) {
+            VillageRecord ov = ledger.get(c.owner);
+            if (!c.onRoad() || now < c.depart || ov == null) {
+                continue;
+            }
+            double[] p = c.position(now);
+            String what = switch (c.kind) {
+                case SUPPLY -> "Supply train";
+                case MERCS -> "Mercenaries";
+                case VASSAL -> "Vassal's men";
+                case MESSENGER -> "Messenger";
+                case ALARM -> "Scouts";
+                case CONVOY -> "Convoy";
+            };
+            VillageRecord dv = c.destination == null ? null : ledger.get(c.destination);
+            out.add(new Marker("c:" + c.id.toString().substring(0, 8), Kind.COLUMN, (int) Math.round(p[0]), (int) Math.round(p[1]), what + " of " + ov.name,
+                    c.label() + " of " + ov.name + (dv != null && c.kind != dev.hywmill.politics.war.Column.Kind.CONVOY ? " → " + dv.name : "")
+                            + (c.onTheRoad(now) ? ", on the road" : "") + (c.kind == dev.hywmill.politics.war.Column.Kind.CONVOY ? "; breaks camp in" : "; arrives in"),
+                    colour(ov), c.arrive));
+        }
         dev.hywmill.politics.war.Assault a = dev.hywmill.garrison.service.AssaultService.active(ledger, player);
         VillageRecord at = a == null ? null : ledger.get(a.target);
         if (at != null) {

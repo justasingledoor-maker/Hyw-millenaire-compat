@@ -34,6 +34,25 @@ final class RoadCommands {
                     m.status().forEach(l -> send(ctx, l));
                     return 1;
                 }))
+                .then(Commands.literal("route").then(Commands.argument("a", BlockPosArgument.blockPos()).then(Commands.argument("b", BlockPosArgument.blockPos())
+                        .executes(ctx -> {
+                            // the journey a traveller would take by the roads (what other mods see through dev.villageroads.api.Roads)
+                            BlockPos a = BlockPosArgument.getBlockPos(ctx, "a"), b = BlockPosArgument.getBlockPos(ctx, "b");
+                            ServerLevel level = ctx.getSource().getLevel();
+                            int[] r = dev.villageroads.api.Roads.route(level, a.getX(), a.getZ(), b.getX(), b.getZ());
+                            int ways = dev.villageroads.api.Roads.roads(level);
+                            if (r == null) {
+                                send(ctx, "villageroads route: none (" + ways + " road(s) known; straight " + (int) Math.sqrt(a.distSqr(b)) + " blocks)");
+                                return 0;
+                            }
+                            StringBuilder pts = new StringBuilder();
+                            for (int i = 0; i + 1 < r.length && i < 24; i += 2) {
+                                pts.append(" (").append(r[i]).append(", ").append(r[i + 1]).append(")");
+                            }
+                            send(ctx, "villageroads route: " + r.length / 2 + " points, " + (int) dev.villageroads.plan.Ways.length(r) + " blocks (straight "
+                                    + (int) Math.sqrt(a.distSqr(b)) + "), " + ways + " road(s) known:" + pts + (r.length > 24 ? " ..." : ""));
+                            return 1;
+                        }))))
                 .then(Commands.literal("scan").executes(ctx -> {
                     RoadManager m = VillageRoads.manager();
                     if (m == null) {

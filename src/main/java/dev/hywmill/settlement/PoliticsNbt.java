@@ -403,6 +403,10 @@ public final class PoliticsNbt {
                 CompoundTag merit = new CompoundTag();
                 g.merit.forEach((k, v) -> merit.putInt(k.toString(), v));
                 m.put("merit", merit);
+                if (g.road.length > 0) {
+                    m.putIntArray("road", g.road);
+                }
+                m.putIntArray("supply", new int[]{g.hostFed, g.hostCut, g.defFed, g.defCut});
                 x.put("morale", m);
             }
             x.putLong("startDay", g.startDay);
@@ -589,6 +593,14 @@ public final class PoliticsNbt {
                         g.assaultSince = ts[0];
                         g.dayStart = ts[1];
                     }
+                    g.road = m.getIntArray("road");
+                    int[] sp = m.getIntArray("supply");
+                    if (sp.length == 4) {
+                        g.hostFed = sp[0];
+                        g.hostCut = sp[1];
+                        g.defFed = sp[2];
+                        g.defCut = sp[3];
+                    }
                     int[] in = m.getIntArray("intel");
                     if (in.length == 7) {
                         g.hostBelieved = in[0];
@@ -768,6 +780,11 @@ public final class PoliticsNbt {
             x.putBoolean("cartsSpawned", c.cartsSpawned);
             x.put("carts", uuids(c.carts));
             x.putString("outcome", c.outcome);
+            if (c.way.length > 0) {
+                x.putIntArray("way", c.way);
+            }
+            x.putBoolean("forHost", c.forHost);
+            x.putInt("cargo", c.cargo);
             l.add(x);
         }
         return l;
@@ -806,6 +823,9 @@ public final class PoliticsNbt {
                 c.cartsSpawned = x.getBoolean("cartsSpawned");
                 c.carts.addAll(readUuids(x.getList("carts", Tag.TAG_INT_ARRAY)));
                 c.outcome = x.getString("outcome");
+                c.road(x.getIntArray("way"));
+                c.forHost = x.getBoolean("forHost");
+                c.cargo = x.contains("cargo") ? x.getInt("cargo") : -1;
                 out.add(c);
             } catch (IllegalArgumentException ignored) {
                 // an unknown kind or state (a newer save): dropped

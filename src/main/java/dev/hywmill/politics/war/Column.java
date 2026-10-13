@@ -24,7 +24,12 @@ public final class Column {
         /** Scouts riding home with the news that an army marches: the besieged open their coffers. */
         ALARM,
         /** A supply convoy, camped for the night. */
-        CONVOY
+        CONVOY,
+        /**
+         * 1.10: a supply train on the road to a siege: carts and their guards bringing food and kit to the host's camp, or to the
+         * besieged before the host arrives. Arrived, it stiffens its side; cut, it weakens it (and its carts are loot).
+         */
+        SUPPLY
     }
 
     public enum State { ROAD, ARRIVED, DESTROYED, FAILED, EXPIRED }
@@ -62,6 +67,12 @@ public final class Column {
     public boolean cartsSpawned;
     public final List<UUID> carts = new ArrayList<>();
     public String outcome = "";
+    /** 1.10: the road it follows (points from its start to its end), or empty: straight across country. */
+    public int[] way = new int[0];
+    /** 1.10, a supply train: whether it supplies the host (else the besieged); the full slots left in its carts (-1: untouched). */
+    public boolean forHost;
+    public int cargo = -1;
+    private Route route;
 
     public Column(UUID id, Kind kind, @Nullable UUID siege, UUID owner, @Nullable UUID destination, int fromX, int fromZ, int toX, int toZ,
                   long depart, long arrive) {
@@ -86,14 +97,34 @@ public final class Column {
         return onRoad() && revealedBy != null && !councilDecided && takenBy == null;
     }
 
-    /** Where it is at {@code now} (x, z): on the line from its start to its end by time; a convoy stands at its camp. */
-    public double[] position(long now) {
-        long t = heldSince >= 0 ? heldSince : now;
-        double f = arrive <= depart ? 1 : Math.max(0, Math.min(1, (t - depart) / (double) (arrive - depart)));
-        if (kind == Kind.CONVOY) {
-            f = 0;
+    /** The way it travels: its road, or straight from its start to its end. */
+    public Route route() {
+        if (route == null) {
+            route = Route.of(way, fromX, fromZ, toX, toZ);
         }
-        return new double[]{fromX + (toX - fromX) * f, fromZ + (toZ - fromZ) * f};
+        return route;
+    }
+
+    /** It takes this road (its points; null or short: straight). */
+    public void road(int[] points) {
+        way = points != null && points.length >= 6 ? points.clone() : new int[0];
+        route = null;
+    }
+
+    /** How far along its journey it is at {@code now} (0..1). */
+    public double progress(long now) {
+        long t = heldSince >= 0 ? heldSince : now;
+        return kind == Kind.CONVOY ? 0 : arrive <= depart ? 1 : Math.max(0, Math.min(1, (t - depart) / (double) (arrive - depart)));
+    }
+
+    /** Where it is at {@code now} (x, z): along its road (or the line from its start to its end) by time; a convoy stands at its camp. */
+    public double[] position(long now) {
+        return kind == Kind.CONVOY ? new double[]{fromX, fromZ} : route().at(progress(now));
+    }
+
+    /** Whether it is on a road at {@code now} (not on its way to or from one, nor across country). */
+    public boolean onTheRoad(long now) {
+        return kind != Kind.CONVOY && route().onRoad(progress(now));
     }
 
     /** Its march is held while its men stand in the world; resuming pushes its arrival back by as long. */
@@ -123,6 +154,11 @@ public final class Column {
         return (d >= 1000 ? String.format("%.1f km", d / 1000.0) : d + " m") + " " + bearing(x, z, tx, tz);
     }
 
+    /** A supply train's carts: one for every three of the guards it set out with, one to three. */
+    public int carts() {
+        return Math.max(1, Math.min(3, units.size() / 3));
+    }
+
     /** What it is, in a few words. */
     public String label() {
         int n = Math.max(0, survivors);
@@ -132,6 +168,8 @@ public final class Column {
             case MESSENGER -> "a messenger (" + n + " rider" + (n == 1 ? "" : "s") + ")";
             case ALARM -> "enemy scouts carrying the alarm (" + n + ")";
             case CONVOY -> (theme.isEmpty() ? "a supply" : ("aeiou".indexOf(theme.charAt(0)) >= 0 ? "an " : "a ") + theme) + " convoy (" + n + " guards)";
+            case SUPPLY -> "a supply train" + (forHost ? " for the host" : " for the besieged") + " (" + carts() + " cart" + (carts() == 1 ? "" : "s") + ", "
+                    + n + " guards)";
         };
     }
 }

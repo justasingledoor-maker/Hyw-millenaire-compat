@@ -121,6 +121,7 @@ public final class HywMillJourneyMap implements IClientPlugin {
             case BATTLE -> "battle";
             case ORDER -> "order";
             case RELIEF -> "relief";
+            case COLUMN -> "column";
         };
         boolean village = m.kind().ordinal() <= MapPayloads.Kind.VASSAL.ordinal();
         int size = village ? 14 : 18;

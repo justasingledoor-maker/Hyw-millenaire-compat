@@ -291,6 +291,11 @@ public final class FieldService {
     }
 
     /** The road's direction (from the attacker towards the target), as a unit vector in x and z. */
+    /** 1.10: the road's direction at the meeting point when the host marches by a road, else {@link #axis(VillageRecord, VillageRecord)}. */
+    static double[] axis(Siege s, VillageRecord a, VillageRecord t) {
+        return s.road.length > 0 ? SiegeService.route(s, a, t).headingNear(s.interceptX, s.interceptZ) : axis(a, t);
+    }
+
     static double[] axis(VillageRecord a, VillageRecord t) {
         double dx = t.center.getX() - a.center.getX(), dz = t.center.getZ() - a.center.getZ();
         double len = Math.sqrt(dx * dx + dz * dz);
@@ -299,7 +304,7 @@ public final class FieldService {
 
     /** The centres of the host's line and the realm army's line, {@link FieldTactics#GAP} apart across the meeting point. */
     public static BlockPos[] lines(Siege s, VillageRecord a, VillageRecord t) {
-        double[] u = axis(a, t);
+        double[] u = axis(s, a, t);
         int h = FieldTactics.GAP / 2;
         return new BlockPos[]{BlockPos.containing(s.interceptX - u[0] * h, 64, s.interceptZ - u[1] * h),
                 BlockPos.containing(s.interceptX + u[0] * h, 64, s.interceptZ + u[1] * h)};
@@ -431,7 +436,7 @@ public final class FieldService {
      */
     static Side side(ServerLevel ow, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, boolean host) {
         BlockPos[] l = lines(s, a, t);
-        double[] u = axis(a, t);
+        double[] u = axis(s, a, t);
         BlockPos b = host ? l[0] : l[1];
         Vec3 fwd = host ? new Vec3(u[0], 0, u[1]) : new Vec3(-u[0], 0, -u[1]);
         Doctrine d = doctrine(host ? s.hostDoctrine : s.realmDoctrine);
