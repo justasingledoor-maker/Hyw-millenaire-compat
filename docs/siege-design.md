@@ -165,6 +165,8 @@ The garrison used to join the village's own Millénaire raids, and in play the t
 
 ## Help for the besieged (post-M5, fix38)
 
+*1.9 (fix72): the militia, hired company and lord's household are gone; see "Levies and scouts".*
+
 * **When.** About a minute before the attackers arrive, at the same moment as the attackers' mercenary roll, the target
   rolls for help. Each kind is a separate chance (`DefenderAid`):
   * **Militia (50%).** 5–15 HYW soldiers in levy kit, from the mobilization levy units: 5 + population / 6, ±2. These are
@@ -186,6 +188,8 @@ The garrison used to join the village's own Millénaire raids, and in play the t
 * **A host on its way home blocks nothing.** It no longer stops its village from launching a new siege, or its target from
   being besieged again.
 ## The build-up: two days, columns on the road, scouts (post-M5, fix43)
+
+*1.9 (fix72): the build-up is one day; see "Morale".*
 
 * **Timing.** A siege is announced, then prepared for two days (`Siege.Phase.PREPARE`). On the third day the host musters
   (the old one-minute muster) and marches out by night, so that it is before the walls **at dawn** (game day time 0 of the
@@ -222,6 +226,8 @@ The garrison used to join the village's own Millénaire raids, and in play the t
   the time it acts, and then catches it six times in ten. `/hywmill war intel [take|bribe <id>]` does the same in chat.
 
 ## Siege battles in three waves (post-M5, fix44)
+
+*1.9 (fix72): victory, the final stand and the fall-back are decided by morale and the days by the host's size; see "Morale".*
 
 The user's decisions: help (mercenaries, vassals, relief, the besieged's militia and household) joins only before the first
 assault; wounded soldiers of every kind (help included) come back; defenders are wounded more often (45%) than attackers
@@ -301,9 +307,99 @@ treated like soldiers ("repairable" or "beyond repair"). The rest (`SiegeWaves`,
   Trusted line, so they are Trusted at least. A better standing is kept.
 * **No help from the besieged (fix51).** While a siege against it is declared or fought, a village sends no relief, no
   vassal levy, joins no raid, lends no detachment and launches no siege of its own.
-* **Refugees.** 15-20 from the countryside take up arms (militia, some spearmen; temporary, like the militia).
+* **Refugees.** (Removed in 1.9: levies instead.) 15-20 from the countryside took up arms.
 * **Fortified wounds.** Defenders' wound chance 45% + 0.25% per fortification point, at most 60%.
 * **Surgeons.** Night deaths of the wounded 10%, 4% with surgeons: defenders with barracks, a fortified town hall or a
   Garrison/Stronghold town; attackers whose host comes from a Garrison/Stronghold town.
 * **Numbers.** Garrison caps 48 / 96 / 115 / 128 (Watch, Guard Post, Garrison, Stronghold); relief 20-60% of the helper's
   garrison (at least 12, chance 50%); vassals 25-38; mercenaries 45% (attackers) and 40% (defenders), 18-35 men.
+
+## Morale (1.9, fix72)
+
+The user's decisions: armies do not fight to the last man but break at 10-30% losses, as real ones did; big armies fight
+longer, small or lopsided ones are settled quickly; the build-up is one day, not three; sieges stay epic (engines, waves,
+assaults); Resistance goes up. This supersedes the victory rule, the final stand and the fall-back of "Siege battles in three
+waves" and the refugees, militia, defenders' hired company and lord's household of "Help for the besieged" and "Desperate
+defences". The rules are pure (`Morale`):
+
+* **Resolve.** Each side has a resolve: the share of the men it brought that may fall (dead or wounded) before it breaks.
+  * By grade: levies (mobilized men, militia, pressed levies) 10%; hired swords 16%; regulars 20%; veterans (equipment 4+),
+    the household, the royal guard and the ruler 30%. A side's resolve is the average of its men's.
+  * Circumstances: at home +3%, and walls up to +8% (0.15% a fortification point); numbers up to ±5% (4% for each doubling
+    of the odds); a ruler in the field +5%; surprised -4%. It stays between 8% and 36%.
+* **Assaults.** A siege is fought in assaults. An assault breaks when the men the host threw in have lost its resolve: it is
+  thrown back, falls back to its lines (out of the world), regroups for two minutes and, if the day lasts, forms up and
+  comes on again (the second assault, the third...). The host gives up the siege when it has lost its campaign's worth: 1.6
+  times its resolve, at most 45%, all assaults counted. The defenders yield when they have lost their resolve, all assaults
+  counted. So a siege ends with 10-30% of the beaten side down, never the last man.
+* **A clash takes time.** A side breaks only once the assault has lasted a minute and a second and a half more for every man
+  in it (at most five minutes), unless it has lost twice its resolve. Big armies fight longer.
+* **Days.** A host keeps the field 2-4 days by its size (1 + a thirtieth of its men); after its last day it goes home: a
+  stalemate. Far from any witness a day is drawn (`Morale.paperDay`): the side that loses the day loses its resolve's worth of
+  the men in the fight, only part of it when it is big (no more than about 60 stand in the front), the winner a third
+  (defenders) or two thirds (attackers, walls are costly) of what it inflicts. Small or lopsided sieges end the first day;
+  big, even ones take days and several assaults.
+* **The ruler rallies.** When a realm's capital's defenders waver (three quarters of their resolve gone), its ruler comes out
+  with the royal guard (as before), and their resolve rises by 5%.
+* **Field battles.** In the open, the same: a side breaks at its resolve and is pursued (4-12% more fall, up to 10% more with
+  the victors' horse). The marshals' orders (pursue, rally) read the spirit left (`Morale.spirit`).
+* **Resistance.** Soldiers in a siege have Resistance IV (config `siegeResistance`, default 4, was 3); players Resistance I
+  (`siegeResistancePlayers`, default 1). An existing server config keeps its old value until changed.
+* **The build-up: one day.** A siege announced is before the walls at the next dawn (at least 9,000 ticks of build-up, else at
+  the dawn after). The muster and the march by night are as before.
+
+## Levies and scouts (1.9, fix72)
+
+* **The besieged see the host coming.** At the announcement both sides know the other only by rumour (±40%). The besieged
+  press their countryside into service against the host as they believe it to be: poorly armed levies (militia, spearmen,
+  shieldmen, a level below the levy kit), enough to stand at 85% of its numbers with the men they have (their walls make up
+  the rest), at most 4 + a third of the village's people + a sixth of its realm neighbours' within 800 blocks (60 at most).
+  The attackers keep the better troops. Levies go home when the siege ends.
+* **Help left.** Allied relief, vassals and the attackers' mercenaries remain (columns on the road, as before). The
+  refugees, the bells' militia, the defenders' hired company and the lord's household are gone.
+* **Scouts count the enemy.** A village scout who found something brings a count of a siege's enemy six times in ten (the
+  host at its muster or on its road, or the defence). A player riding for a side who comes within 64 blocks of the host (for
+  the besieged) or of the walls (for the attackers) counts it and is paid 64 deniers. The alarm riders count the host too.
+* **The councils act on it.**
+  * The besieged, with the host counted, press levies by the count (more or none).
+  * The besieged, seeing no hope (their strength under 40% of the host's), offer to yield before the assault; the host takes
+    it by its aim (raze 20%, annex 70%, others 90%): taken, they yield without a blow. A realm's capital never offers.
+  * The attackers, at the muster and when their scouts counted the defence, call the siege off if it is more than 1.25
+    times their host; a council that never scouted judges by rumour.
+  * Behind walls of 20+ fortification, a host that saw them brings its trebuchets.
+  * A side that was never scouted and is 1.33 times what the enemy believed falls on it by surprise: the enemy's resolve -4%.
+
+## Spoils (1.9, fix72)
+
+* **Head prices.** A soldier killed by a player, or by one of a player's own men, in a war that player fights against the
+  soldier's village (on campaign against it, serving a realm at war with it, riding for a side of a siege against it, or in
+  his own assault on it) earns the player his price at once, paid by his side: a levy 16 deniers, a regular or hired sword 32,
+  a veteran 96, a war engine 128, a royal guard 256, the ruler 4,096 (a denier or). Offline, it waits for him.
+* **Merit.** Every head price is also merit in the sieges and assaults the soldier fell in. When a siege is won, the helpers'
+  share of the tribute, plunder or indemnity is split three tenths equally (they were there) and seven tenths by merit; with
+  no merit at all, equally. Tributes paid over days keep the same shares.
+
+## A player's assault (1.9, fix72)
+
+* **Who.** A player at war with a village (on campaign against it, or serving a realm at war with it) may lead his own men
+  (the soldiers he hired, at least 2 within 96 blocks) against it. Not a village besieged already (join that fight).
+* **His choices.** The side his men gather on (one of eight points of the compass; the rally point is 40 blocks outside the
+  village's edge), how long until they go in (2, 5, 10, 15 or 20 minutes in the Politics screen; 1-30 by command), and
+  whether to ask his side for help: the village he campaigns with, or his realm's member nearest the target, lends him up
+  to 8 men (no more than he brings himself), who march to the rally point.
+* **The village sees it.** When his men come within 64 blocks of its edge, or half the time has passed, it presses levies
+  into service against the band (as for a siege, sized to the band).
+* **The hour.** His men within 48 blocks of the rally point, with the lent men, are the band; he must be there to lead them
+  (else it is called off). Each side's resolve is reckoned as for a siege; his hired men count as the village's average
+  soldier, a quarter better. They go in: each man without a foe takes the nearest defender.
+* **The fight.** By morale: thrown back, the band falls back to the rally point and goes in again after 90 s; it gives up at
+  its campaign's worth, or when the defenders held 15 minutes. One in three of his men who fall is only wounded, carried
+  back to the rally point, weakened and out of the fight. The village yields when its defenders have lost their resolve: it
+  pays him a ransom (twice its tier's siege tribute); the village that lent men gets levy points by it. Every head taken
+  earns its price.
+* **Leaving.** A player gone from his band for a minute calls it off. Called off or over, his men stand down, the lent men go
+  home, the levies go home.
+* **Where.** The Politics screen's War tab: an assault bar over the reports (Rally side, In n min, With help/Alone, Lead
+  assault on the selected village, Call off). Commands: `/hywmill war assault <village> <side> <minutes> [help|alone]`,
+  `/hywmill war assault status`, `/hywmill war assault cancel`. His HUD shows the assault's state, his map the rally point
+  with its clock.

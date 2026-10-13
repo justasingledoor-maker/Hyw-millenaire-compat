@@ -8253,7 +8253,210 @@ def scenario_W3P(ctx):
 
 
 
-SCENARIOS = {"RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_MO(ctx):
+    """1.9 morale (docs/siege-design.md "Morale", "Levies and scouts"): a prepared siege is before the walls at the next dawn
+    (one day's build-up); the besieged press levies against the host as rumour tells it, and again when a rider of theirs
+    counts it at its muster; unwatched, the siege ends when a side's resolve breaks (10-30% of the defenders fallen, or the
+    host's campaign worth), not to the last man; watched, everyone in it has Resistance IV (players I) and an assault that
+    loses its resolve is thrown back, regroups and comes on again."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    fa = info(s, a).get("faction")
+    P = "33333333-4444-4555-8666-777777777777"
+    Q = "44444444-5555-4666-8777-888888888888"  # rides for the besieged
+    for c in (ca, cb):
+        s.output(f"hywmill war admin rebel {c}", 2)  # an earlier run's lost siege may have made one the other's vassal
+    s.output("hywmill war admin recall-all", 3)
+    s.output(f"hywmill war for {P} peace {ca} with {cb} force", 2)
+    time.sleep(6)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    s.output(at(a, "hywmill admin grant spear_man 20"), 2)
+    m5(s, f"mill discover {cb} {Q}", 0.5)
+    standin_at(s, Q, b[0] + 3, b[2] + 3)
+    m5(s, f"mill rep {cb} {Q} adjust 5000", 0.5)
+    s.cmd("time set 1000", 1)
+    time.sleep(16)  # the standing is re-evaluated on the politics cadence
+    j = " | ".join(war_lines(s, b, f"for {Q} join {cb} against {ca}"))
+    p0 = s.pos()
+    out = ""
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        out = " | ".join(l for l in s.output(f"hywmill war admin siege {ca} {cb}", 2) if l.startswith("war siege"))
+        if "war siege OK" in out:
+            break
+        time.sleep(10)
+    la = s.wait_for(r"Siege \w+ launched: .*\(prepared, arrives in (\d+) ticks\)", 30, since=p0)
+    m = re.search(r"arrives in (\d+) ticks", la or "")
+    check("MO-1 a prepared siege is before the walls at the next dawn: one day's build-up, not three", m is not None and int(m.group(1)) <= 24000 + 9000,
+          f"{out[-100:]} || {(la or '')[-160:]}")
+    lv = s.wait_for(r"(levies for .*: \d+ raised|no levies for .*: \d+ defenders)", 30, since=p0)
+    mr = re.search(r"levies for .*: (\d+) raised \(host believed (\d+), actually (\d+); (\d+) defenders; cap (\d+)\)", lv or "")
+    mn = re.search(r"no levies for .*: (\d+) defenders against a host believed (\d+) strong", lv or "")
+    check("MO-2 at the news the besieged press levies to even the odds against the host as rumour tells it (or need none)",
+          (mr is not None and 0 < int(mr.group(1)) <= int(mr.group(5))) or (mn is not None and int(mn.group(1)) >= 0.85 * int(mn.group(2)) - 1),
+          (lv or "")[-200:])
+    # a rider for the besieged counts the host at its muster: the council acts on the count
+    standin_at(s, Q, a[0] + 4, a[2] + 4)
+    sc = s.wait_for(r"scouted: You counted the host of", 60, since=p0)
+    hc = s.wait_for(r"the host counted for .*: \d+ men \(\d+ levies raised\)", 20, since=p0)
+    check("MO-3 a player riding for the besieged counts the host at its muster; his side's council presses levies by the count",
+          sc is not None and hc is not None, f"{j[-80:]} || {(sc or '')[-140:]} || {(hc or '')[-120:]}")
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {Q}", 0.3)
+    time.sleep(5)
+    # watched: Resistance IV, and an assault thrown back regroups and comes on again
+    p3 = s.pos()
+    s.cmd("time set 1000", 1)
+    standin_at(s, P, b[0] + 2, b[2] + 2)
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} quick", 2)):
+            break
+        time.sleep(10)
+    dep = s.wait_for(r"wave 1: \d+ unit\(s\) materialized", 900, since=p3)
+    time.sleep(8)
+    near = lambda f: [u for u, v in spike_info(s, "@e[type=!minecraft:player]").items() if f and ("owner=" + f) in v["desc"] and dist(v["pos"], tuple(b)) < 140]
+    host = near(fa)
+    eff = " ".join(s.output(f"data get entity {host[0]} active_effects", 2)) if host else ""
+    check("MO-6 everyone fighting in a siege has Resistance IV", "minecraft:resistance" in eff and "amplifier: 3b" in eff, f"{(dep or '')[-80:]} || {eff[-200:]}")
+    # the clash is not decided in its first moments (a minute and 1.5 s a man): then the host's men fall a few at a time
+    time.sleep(150)
+    thrown = None
+    for _ in range(8):
+        for u in near(fa)[:3]:
+            s.cmd(f"kill {u}", 0.3)
+        thrown = s.wait_for(r"assault on .* is thrown back: the host of .* lost \d+ of the \d+ it sent in", 30, since=p3)
+        if thrown or s.wait_for(r"Siege \w+ ended", 1, since=p3):
+            break
+    again = s.wait_for(r"forms up again before .* the second assault", 260, since=p3) if thrown else None
+    end3 = s.wait_for(r"Siege \w+ ended (WON|LOST|STALEMATE)", 5, since=p3)
+    check("MO-7 an assault that loses its resolve is thrown back; the host regroups and comes on again the same day (or gives up)",
+          thrown is not None and (again is not None or (end3 is not None and "LOST" in end3)), f"{(thrown or '')[-160:]} || {(again or end3 or '')[-140:]}")
+    s.output("hywmill war admin recall-all", 3)
+    m5(s, f"standin remove {P}", 0.3)
+    for c in (ca, cb):
+        s.output(f"hywmill war admin rebel {c}", 2)  # a lost siege makes the loser a vassal: free it for the next one
+    s.output(f"hywmill war for {P} declare {ca} on {cb} force", 2)
+    time.sleep(5)
+    # unwatched: decided by morale on paper, day by day
+    p2 = s.pos()
+    s.cmd("time set 1000", 1)
+    t0 = time.time()
+    while time.time() - t0 < 300:
+        if any("war siege OK" in l for l in s.output(f"hywmill war admin siege {ca} {cb} quick unwatched", 2)):
+            break
+        time.sleep(10)
+    res = s.wait_for(r"resolve host ([\d.]+) \((\d+) men, surprised \w+\), defenders ([\d.]+) \((\d+) men, surprised \w+\); (\d+) days", 900, since=p2)
+    end = None
+    days = 0
+    for w in (1, 2, 3, 4):
+        if s.wait_for(rf"wave {w} begins", 400, since=p2) is None:
+            break
+        days = w
+        time.sleep(125)
+        s.cmd("time set 13000", 1)
+        s.wait_for(rf"(sundown after wave {w}|Siege \w+ ended)", 300, since=p2)
+        end = s.wait_for(r"Siege \w+ ended (WON|LOST|STALEMATE)", 5, since=p2)
+        if end:
+            break
+        time.sleep(32)
+        s.cmd("time set 0", 1)
+    if end is None:
+        end = s.wait_for(r"Siege \w+ ended (WON|LOST|STALEMATE)", 60, since=p2)
+    mr = re.search(r"resolve host ([\d.]+) .*defenders ([\d.]+) .*; (\d+) days", res or "")
+    check("MO-4 each side's resolve is reckoned from its ranks and circumstances (0.08-0.36), the days from the host's size (2-4)",
+          mr is not None and all(0.08 <= float(mr.group(i)) <= 0.36 for i in (1, 2)) and 2 <= int(mr.group(3)) <= 4, (res or "")[-200:])
+    won = re.search(r"(\d+) of their (\d+) had fallen", end or "")
+    lost = re.search(r"lost (\d+) of its (\d+) men", end or "")
+    share = int(won.group(1)) / max(1, int(won.group(2))) if won else int(lost.group(1)) / max(1, int(lost.group(2))) if lost else None
+    check("MO-5 unwatched, the siege ends when a side's resolve breaks (a share of its men, not the last man) or after its days",
+          end is not None and ("STALEMATE" in end or (share is not None and share <= 0.6)) and "destroyed" not in end,
+          f"{days} day(s), share {share} || {(end or '')[-220:]}")
+    s.output("hywmill war admin recall-all", 3)
+    time.sleep(5)
+    s.output("hywmill war admin recall-all", 3)
+
+def scenario_PA(ctx):
+    """1.9 a player's own assault (docs/siege-design.md "A player's assault", "Spoils"): refused when he is at no war with the
+    village; on campaign, he names the side and the hour; the village sees his band gather and presses levies; at the hour
+    his men at the rally point go in; every head he or his men take earns its price; when the defenders lose heart it yields
+    and pays him a ransom. From the Politics screen (the War tab's assault bar) he can launch one and call it off."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    fa = info(s, a).get("faction")  # A is the target (its garrison is whole); he campaigns with B
+    W = "33333333-4444-4555-8666-777777777777"
+    P = f"55555555-6666-4777-8888-{int(time.time()) % 10 ** 12:012d}"  # a new player each run: no grudges from earlier runs
+    for c in (ca, cb):
+        s.output(f"hywmill war admin rebel {c}", 2)  # an earlier run's lost siege may have made one the other's vassal
+    s.output("hywmill war admin recall-all", 3)
+    s.output(f"hywmill war for {W} peace {ca} with {cb} force", 2)
+    time.sleep(6)
+    dip(s, a, f"admin truce {ca} {cb} 0")
+    m5(s, f"mill discover {ca} {P}", 0.5)
+    m5(s, f"mill discover {cb} {P}", 0.5)
+    ex, ez = a[0] + 120, a[2]
+    s.cmd(f"forceload add {a[0] - 40} {a[2] - 120} {a[0] + 220} {a[2] + 120}", 20)
+    standin_at(s, P, ex, ez)
+    m5(s, f"mill rep {cb} {P} adjust 5000", 0.5)
+    for i in range(8):
+        summon_unit(s, ex + 2 + (i % 4) * 2, ez + 2 + (i // 4) * 2, "spear_man", uuid_nbt(P), "hwPA")
+    s.cmd("effect give @e[tag=hwPA] minecraft:resistance 900 4 true", 1)
+
+    def assault(sub):
+        return " | ".join(l for l in s.output(f"execute as {P} run hywmill war assault {sub}", 2) if l.strip())
+
+    r0 = assault(f"{ca} E 1 alone")
+    check("PA-0 a player at no war with a village cannot lead an assault on it", "at no war" in r0, r0[-160:])
+    s.output(f"hywmill war for {W} declare {ca} on {cb} force", 2)
+    time.sleep(16)
+    j = " | ".join(war_lines(s, b, f"for {P} join {cb} against {ca}"))
+    p0 = s.pos()
+    r1 = assault(f"{ca} E 1 alone")
+    rp = re.search(r"rally point \((-?\d+), (-?\d+)\)", r1)
+    check("PA-1 on campaign he leads his own men: the rally point lies on the side he named, outside the village",
+          rp is not None and int(rp.group(1)) > a[0] + 30 and abs(int(rp.group(2)) - a[2]) < 8, f"{j[-60:]} || {r1[-220:]}")
+    if rp:
+        rx, rz = int(rp.group(1)), int(rp.group(2))
+        s.cmd(ground(rx, rz, f"tp @e[tag=hwPA] ~ ~ ~"), 1)
+        s.cmd(ground(rx + 3, rz + 3, f"tp {P} ~ ~ ~"), 1)
+    seen = s.wait_for(r"Assault \w+: .* sees a band of \d+ gathering to the east", 120, since=p0)
+    check("PA-2 the village sees his band gather and presses levies into service (or stands to)", seen is not None, (seen or "")[-200:])
+    go = s.wait_for(r"Assault \w+: Your band \((\d+)\) goes in against", 180, since=p0)
+    check("PA-3 at the hour his men at the rally point go in", go is not None and int(re.search(r"\((\d+)\)", go).group(1)) >= 6, (go or "")[-160:])
+    near = lambda: [u for u, v in spike_info(s, "@e[type=!minecraft:player]").items() if fa and ("owner=" + fa) in v["desc"] and dist(v["pos"], tuple(a)) < 160]
+    mine = list(tagged(s, "hwPA").keys())
+    defs = near()
+    for k, u in enumerate(defs[:6]):
+        by = P if k % 2 == 0 or not mine else mine[0]
+        kind = "minecraft:player_attack" if by == P else "minecraft:mob_attack"
+        s.cmd(f"damage {u} 500 {kind} by {by}", 0.4)
+    time.sleep(3)
+    heads = [l for l in s.read_since(p0) if "Head price:" in l]
+    check("PA-4 every head he or his men take earns its price at once", any("the player" in l for l in heads) and (not mine or any("his men" in l for l in heads)),
+          f"{len(heads)} || {(heads or [''])[0][-160:]} || {(heads[-1] if heads else '')[-120:]}")
+    won = None
+    t0 = time.time()
+    while time.time() - t0 < 420 and won is None:
+        for u in near()[:3]:  # a few at a time: the defenders break at their resolve, not to the last man
+            s.cmd(f"damage {u} 500 minecraft:player_attack by {P}", 0.3)
+        won = s.wait_for(r"Assault \w+ ended (WON|LOST|CALLED_OFF)", 25, since=p0)
+    gone = re.search(r"(\d+) of its (\d+) defenders fell", won or "")
+    check("PA-5 when its defenders lose heart the village yields to his band and pays a ransom (his head prices counted)",
+          won is not None and "WON" in won and "ransom" in won and (gone is None or int(gone.group(1)) < int(gone.group(2))), (won or "")[-240:])
+    # the Politics screen: the War tab's assault bar (side, minutes, help), then Call off
+    p1 = s.pos()
+    u1 = " | ".join(l for l in m5(s, f"ui submit {P} {ca} ASSAULT", 3) if "ui result" in l)
+    u2 = " | ".join(l for l in m5(s, f"ui submit {P} {ca} ASSAULT_CANCEL", 3) if "ui result" in l)
+    off = s.wait_for(r"Assault \w+ ended CALLED_OFF", 10, since=p1)
+    check("PA-6 from the War tab he launches an assault and calls it off", "ok=true" in u1 and "ok=true" in u2 and off is not None,
+          f"{u1[-160:]} || {u2[-100:]}")
+    s.cmd("kill @e[tag=hwPA]", 1)
+    m5(s, f"standin remove {P}", 0.3)
+    s.cmd(f"forceload remove {a[0] - 40} {a[2] - 120} {a[0] + 220} {a[2] + 120}", 2)
+
+
+SCENARIOS = {"MO": scenario_MO, "PA": scenario_PA, "RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

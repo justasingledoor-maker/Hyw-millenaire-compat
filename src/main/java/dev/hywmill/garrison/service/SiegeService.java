@@ -1516,7 +1516,7 @@ public final class SiegeService {
         if (t.hywRoster == null || t.loneBuilding || s.fighting()) {
             return 0;
         }
-        int real = soldiers(a, entries(a, s.host)).size();
+        int real = hostNow(GarrisonLedger.get(overworld), s, a, tick); // before the muster: the host it would raise
         int believed = force || s.hostBelieved <= 0 ? Math.max(real, s.hostStart) : s.hostBelieved;
         int defenders = homeDefenders(t).size();
         for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
@@ -1533,6 +1533,8 @@ public final class SiegeService {
         int cap = dev.hywmill.politics.war.Conscription.cap(t.population, neighbours);
         int want = Math.min(cap - s.leviesRaised, dev.hywmill.politics.war.Conscription.levies(believed, defenders, cap));
         if (want <= 0) {
+            HmLog.info("Siege {}: no levies for {}: {} defenders against a host believed {} strong ({} levies raised, cap {})",
+                    s.id.toString().substring(0, 8), t.name, defenders, believed, s.leviesRaised, cap);
             return 0;
         }
         int level = Math.max(0, ColumnService.levyLevel(t) - 1); // poorly armed: below even the levy kit
@@ -2421,9 +2423,10 @@ public final class SiegeService {
         int def = defenderCount(overworld, ledger, s, t, s.field && loaded);
         // 1.9 morale: the clash is not decided in its first moments (longer for bigger armies)
         boolean ripe = s.assaultSince < 0 || tick - s.assaultSince >= dev.hywmill.politics.war.Morale.clash(s.assaultEngaged + Math.max(0, def));
-        Siege.Outcome o = verdict(s, host, ripe);
-        if (o == Siege.Outcome.NONE && s.field && loaded
-                && dev.hywmill.politics.war.Morale.broken(s.assaultFallen, s.assaultEngaged, s.hostResolve, ripe)) {
+        // the host is judged when an assault breaks (it gives up the siege, or falls back to come again), not in mid-assault
+        boolean thrown = s.field && loaded && dev.hywmill.politics.war.Morale.broken(s.assaultFallen, s.assaultEngaged, s.hostResolve, ripe);
+        Siege.Outcome o = verdict(s, host, ripe, thrown);
+        if (o == Siege.Outcome.NONE && thrown) {
             fallBack(overworld, ledger, s, a, t, tick, host, def); // the assault is thrown back: the host regroups and comes on again
             return;
         }
@@ -2434,7 +2437,7 @@ public final class SiegeService {
                 host = soldiers(a, entries(a, s.host)).size();
                 def = defenderCount(overworld, ledger, s, t, false);
             }
-            o = verdict(s, host, true);
+            o = verdict(s, host, true, true);
             if (o == Siege.Outcome.NONE) {
                 if (s.wave < s.maxDays) {
                     sundown(overworld, ledger, s, a, t, tick, host, def);
@@ -2468,16 +2471,17 @@ public final class SiegeService {
     /**
      * 1.9 morale ({@link dev.hywmill.politics.war.Morale}): the defenders yield when they have lost their resolve, all
      * assaults counted ({@code ripe}: the assault has lasted its time); the host gives up when it has lost its campaign's worth
-     * (or is gone). Otherwise the siege goes on.
+     * (or is gone), judged ({@code judgeHost}) when an assault of its breaks or the day ends: in mid-assault it fights on.
+     * Otherwise the siege goes on.
      */
-    static Siege.Outcome verdict(Siege s, int hostLeft, boolean ripe) {
+    static Siege.Outcome verdict(Siege s, int hostLeft, boolean ripe, boolean judgeHost) {
         if (hostLeft <= 0) {
             return Siege.Outcome.LOST;
         }
         if (dev.hywmill.politics.war.Morale.broken(defendersFallen(s), s.defendersStart, s.defResolve, ripe)) {
             return Siege.Outcome.WON;
         }
-        if (dev.hywmill.politics.war.Morale.broken(s.hostDead + s.hostHurt, s.hostStart, dev.hywmill.politics.war.Morale.campaign(s.hostResolve), true)) {
+        if (judgeHost && dev.hywmill.politics.war.Morale.broken(s.hostDead + s.hostHurt, s.hostStart, dev.hywmill.politics.war.Morale.campaign(s.hostResolve), true)) {
             return Siege.Outcome.LOST;
         }
         return Siege.Outcome.NONE;

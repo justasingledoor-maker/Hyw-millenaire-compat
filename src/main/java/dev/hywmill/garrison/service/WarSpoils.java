@@ -54,10 +54,11 @@ public final class WarSpoils {
             return;
         }
         int price = price(v, e);
-        String what = e.unitKey.replace('_', ' ') + " of " + v.name;
+        String key = v.hywRoster.isArsenal(e) && e.unitKey.endsWith("s") ? e.unitKey.substring(0, e.unitKey.length() - 1) : e.unitKey;
+        String what = key.replace('_', ' ') + " of " + v.name;
         String text = "+" + dev.hywmill.recruit.RecruitOffers.money(price) + ": the head price of a " + what + (killer instanceof ServerPlayer ? "" : " (your men)");
         SettlementSource source = Services.settlements();
-        ServerPlayer online = ow.getServer().getPlayerList().getPlayer(player);
+        ServerPlayer online = AssaultService.online(ow, player);
         if (online != null) {
             if (source != null) {
                 source.giveMoney(online, price);

@@ -2508,3 +2508,66 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
 * **Not tested:** fewer wars in a naturally running world over days (the rules are covered by JUnit and UT; no long soak);
   a ruler falling in the world; knight ranks (deferred, as asked).
 * SHA-256: `hywmill-m5-fix71.jar` `109b6e7757ea1341f02dfec347da3faa8f2a7c0e95f5f4e60adfdba07eb37e07`.
+
+### 6.72 Morale battles, one-day sieges, levies and scouts, spoils, players' own assaults (`dist/hywmill-m5-fix72.jar`)
+
+* **Requests.**
+  * Armies fought to the last man: they should break at 10-30% losses, as real ones did.
+  * Battles should run long when troop counts are high and be short when they are small or similar.
+  * Cut the siege build-up from 3 days to 1.
+  * Keep sieges epic, with siege weapons, but balanced and realistic. Maybe raise Resistance.
+  * Too many sources of help: the besieged should see the host coming and press poorly armed levies from the area to
+    even the numbers; the attackers keep the better troops.
+  * Players lead their own attacks with their own men: a rally side (east, south-east...), a time until they go in, and a
+    help toggle.
+  * Spoils by contribution, and a price on enemy heads killed by the player or his men.
+  * Scouting that changes battles, with councils reacting to what scouts report.
+* **Morale** (`Morale`, pure; siege-design "Morale"):
+  * **Resolve by grade:** levy 10%, hired sword 16%, regular 20%, veteran, household or royal 30%.
+  * **Resolve by circumstance:** home +3%, walls up to +8%, numbers ±5%, a ruler +5%, surprise -4%. It stays within
+    8-36%.
+  * **Sieges:** fought in assaults. An assault that loses its resolve is thrown back, regroups for 2 min and comes again
+    the same day. The defenders yield at their resolve, all assaults counted. The host gives up at 1.6 times its resolve
+    (at most 45%).
+  * **Clash time:** a clash lasts at least a minute, plus 1.5 s a man (5 min at most), unless a side loses twice its
+    resolve.
+  * **Days:** 2-4, by the host's size.
+  * **Unwatched days:** limited by the front (about 60 men). Small or lopsided sieges end on the first day; big, even ones
+    take days.
+  * **Field battles:** a side breaks at its resolve and is pursued. The marshals' orders follow its spirit.
+  * **Resistance:** IV for soldiers (default 4, was 3), I for players (new `siegeResistancePlayers`).
+  * **Build-up:** one day; the host is before the walls at the next dawn.
+* **Levies and scouts** (`Conscription`, pure; siege-design "Levies and scouts"):
+  * **Rumour:** at the announcement each side knows the other by rumour (±40%).
+  * **Levies:** the besieged press poorly armed levies to stand at 85% of the host they believe in. The cap is 4 + a third
+    of their people + a sixth of their realm neighbours' within 800 blocks, 60 at most.
+  * **Help removed:** refugees, the bells' militia, the defenders' hired company and the lord's household. Relief, vassals
+    and the attackers' mercenaries stay.
+  * **Counting the enemy:** village scouts count the enemy six times in ten when they find something. A player riding for a
+    side counts it within 64 blocks and is paid 64 deniers. The alarm riders count the host.
+  * **Councils react:**
+    * The besieged press levies by the count.
+    * A hopeless defence (under 40% of the host) offers to yield; the host accepts by its aim.
+    * An attacker facing more than 1.25 times its host calls the siege off.
+    * A host that saw walls of 20+ brings its trebuchets.
+    * A side never scouted that is 1.33 times what was believed falls on the enemy by surprise.
+* **Spoils** (`WarSpoils`; siege-design "Spoils"):
+  * **Head prices:** paid at once, by his side, for a soldier killed by the player or his own men in his war: levy 16,
+    regular or hired 32, veteran 96, engine 128, royal guard 256, ruler 4,096 deniers.
+  * **Merit:** head prices count as merit in the siege or assault. Helpers' shares of tribute, plunder and indemnity are
+    30% equal and 70% by merit.
+* **A player's assault** (`Assault`, `AssaultService`; siege-design "A player's assault"):
+  * **Launching:**
+    * At war with a village, with at least 2 of his own men near, a player names the side (8 points; the rally point is 40
+      blocks outside the village), the minutes and whether to ask for help.
+    * His side lends up to 8 men, no more than he brings himself.
+    * The village sees the band gather and presses levies.
+  * **The hour:** his men at the rally point go in, and he must be there.
+  * **The fight:**
+    * Morale decides it: a band thrown back regroups at the rally point after 90 s.
+    * It gives up at its campaign's worth.
+    * One in three of his fallen men is only wounded and carried back.
+    * The village yields when its defenders lose heart, or when none is left standing, and pays a ransom of twice its
+      tier's tribute.
+  * **Controls:** the War tab's assault bar (Rally side / In n min / With help-Alone / Lead assault / Call off), `/hywmill
+    war assault <village> <side> <minutes> [help|alone]`, `status` and `cancel`; a HUD line and a map marker with a clock.

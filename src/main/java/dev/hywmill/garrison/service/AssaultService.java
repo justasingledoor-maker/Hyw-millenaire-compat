@@ -48,7 +48,6 @@ import java.util.UUID;
 public final class AssaultService {
     private AssaultService() {}
 
-    public static final int INTERVAL = 20, OFFSET = 13;
     /** The village notices a band gathering within this far of its edge, or when half the time has passed (blocks). */
     static final int NOTICE = 64;
     /** A player farther than this from the village when his men should go in, or for a minute during the fight, calls it off. */
@@ -239,11 +238,12 @@ public final class AssaultService {
 
     // ------------------------------------------------------------------ tick
 
+    /** Every second, on the sieges' cadence ({@link SiegeService#tick}). */
     public static void tick(ServerLevel ow, long now) {
-        if (now % INTERVAL != OFFSET) {
+        GarrisonLedger ledger = GarrisonLedger.get(ow);
+        if (ledger.assaults().isEmpty()) {
             return;
         }
-        GarrisonLedger ledger = GarrisonLedger.get(ow);
         for (Assault a : new ArrayList<>(ledger.assaults())) {
             try {
                 step(ow, ledger, a, now);
@@ -259,7 +259,7 @@ public final class AssaultService {
             return;
         }
         VillageRecord t = ledger.get(a.target);
-        ServerPlayer p = ow.getServer().getPlayerList().getPlayer(a.player);
+        ServerPlayer p = online(ow, a.player);
         if (t == null || t.hywRoster == null) {
             end(ow, ledger, a, t, Assault.Outcome.CALLED_OFF, "the village is gone", now);
             return;
@@ -460,10 +460,15 @@ public final class AssaultService {
         }
         SiegeService.steel(ow, t);
         boolean ripe = now - a.assaultSince >= Morale.clash(a.assaultEngaged + a.defStart);
-        if (Morale.broken(a.defFallen, a.defStart, a.defResolve, ripe)) {
+        if (SiegeService.homeDefenders(t).stream().allMatch(e -> e.wounded)) {
+            end(ow, ledger, a, t, Assault.Outcome.WON, "none of its defenders is left standing", now);
+        } else if (Morale.broken(a.defFallen, a.defStart, a.defResolve, ripe)) {
             end(ow, ledger, a, t, Assault.Outcome.WON, a.defFallen + " of its " + a.defStart + " defenders fell and the rest would not stand", now);
-        } else if (Morale.broken(a.hostFallen, a.hostStart, Morale.campaign(a.hostResolve), true) || a.assaultEngaged > 0 && alive(ow, a).isEmpty()
-                && lentAlive(a.helper == null ? null : ledger.get(a.helper), a).isEmpty()) {
+        } else if (a.assaultEngaged > 0 && alive(ow, a).isEmpty() && lentAlive(a.helper == null ? null : ledger.get(a.helper), a).isEmpty()) {
+            end(ow, ledger, a, t, Assault.Outcome.LOST, "none of your band is left standing", now);
+        } else if (Morale.broken(a.assaultFallen, a.assaultEngaged, a.hostResolve, ripe)
+                && Morale.broken(a.hostFallen, a.hostStart, Morale.campaign(a.hostResolve), true)) {
+            // thrown back with its campaign's worth lost: the band gives up
             end(ow, ledger, a, t, Assault.Outcome.LOST, "your band lost " + a.hostFallen + " of its " + a.hostStart + " men and gave up", now);
         } else if (Morale.broken(a.assaultFallen, a.assaultEngaged, a.hostResolve, ripe)) {
             a.phase = Assault.Phase.REGROUP;
@@ -576,7 +581,7 @@ public final class AssaultService {
         if (o == Assault.Outcome.WON && t != null) {
             int ransom = ransom(t);
             SettlementSource source = Services.settlements();
-            ServerPlayer p = ow.getServer().getPlayerList().getPlayer(a.player);
+            ServerPlayer p = online(ow, a.player);
             text += "; it pays you a ransom of " + dev.hywmill.recruit.RecruitOffers.money(ransom) + (a.merit > 0 ? " (your men took "
                     + dev.hywmill.recruit.RecruitOffers.money(a.merit) + " in head prices)" : "");
             if (p != null) {
@@ -630,14 +635,21 @@ public final class AssaultService {
     }
 
     static void tell(ServerLevel ow, Assault a, String text) {
-        ServerPlayer p = ow.getServer().getPlayerList().getPlayer(a.player);
+        ServerPlayer p = online(ow, a.player);
         if (p != null) {
             p.sendSystemMessage(Component.literal("[Assault] " + text).withStyle(ChatFormatting.GOLD));
         }
     }
 
-    static String playerName(ServerLevel ow, UUID player) {
+    /** The player if he is on the server (a dev stand-in in the overworld counts), else null. */
+    @Nullable
+    static ServerPlayer online(ServerLevel ow, UUID player) {
         ServerPlayer p = ow.getServer().getPlayerList().getPlayer(player);
+        return p != null ? p : ow.getPlayerByUUID(player) instanceof ServerPlayer sp ? sp : null;
+    }
+
+    static String playerName(ServerLevel ow, UUID player) {
+        ServerPlayer p = online(ow, player);
         return p != null ? p.getGameProfile().getName() : player.toString().substring(0, 8);
     }
 
