@@ -2692,3 +2692,25 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
   * The cart marker on a real client's map.
 * SHA-256: `hywmill-m5-fix73.jar` `7fb76a0f93a6612b8a08cd864a143f79e8364a89fca490101cd2e271de31bd1c`;
   `village-roads-1.1.0.jar` `0ac5b88dc406ef72f571b38c2c231bf50f74acd207277d8483f0a687b57ec133`.
+
+### 6.74 No friendly fire for a player fighting for a realm (`dist/hywmill-m5-fix74.jar`)
+
+* **Request.** Helping in sieges, the player's arrows hit friendly soldiers and they all turned on him. Turn friendly fire off
+  for every village of the realm he joins (volunteer, mercenary or whatever), and between his troops and theirs too.
+* **Rule** (`FriendlyFire`; config `noFriendlyFire`, default on; siege-design "No friendly fire"):
+  * **Who:** while a player serves a realm or campaigns with one of its villages, there is no friendly fire between him,
+    the soldiers he hired, and that realm's soldiers, villagers and column soldiers.
+  * **How:** their missiles pass through each other (`ProjectileImpactEvent` cancelled), and their blows and other damage do
+    nothing (`AttackEntityEvent`, `LivingIncomingDamageEvent` cancelled). Nobody is angered.
+  * **Enemies:** hurt as ever.
+* **Validation.**
+  * **JUnit:** 449/449.
+  * **Dedicated server, FF: 8/8** (`docs/m5-test-evidence/fix74-ff.txt`). On campaign with B:
+    * his blow leaves B's soldier at 20.0;
+    * an enemy of A is hurt (20.0 → 16.16);
+    * B's soldier's blow leaves him at 20.0;
+    * his arrow, shot into B's soldier, leaves it at 20.0;
+    * a soldier he hired and B's soldier do each other no harm;
+    * his soldier still hurts A's (20.0 → 18.26).
+  * **Not tested:** a real client's arrows in a live siege (the server-side path is the same).
+* SHA-256: `hywmill-m5-fix74.jar` `c903f1209184b9a8b73b42781c365833453ec17d9efea196e2865d4ad1925fa1`.

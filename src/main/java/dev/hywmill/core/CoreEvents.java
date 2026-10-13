@@ -124,6 +124,43 @@ public final class CoreEvents {
         guarded("garrison leave", () -> rt.garrison().onLeave(event.getEntity(), level));
     }
 
+    /** 1.10: no friendly fire between a player (and his men) and the realm he fights for: the blow does nothing. */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onIncomingDamage(net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent event) {
+        if (event.getEntity().level() instanceof ServerLevel level) {
+            guarded("friendly fire", () -> {
+                if (dev.hywmill.politics.service.FriendlyFire.friends(level, event.getSource().getEntity(), event.getEntity())) {
+                    event.setCanceled(true);
+                }
+            });
+        }
+    }
+
+    /** 1.10: a player's blow at a friend of his realm is not struck at all. */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onAttack(net.neoforged.neoforge.event.entity.player.AttackEntityEvent event) {
+        if (event.getEntity().level() instanceof ServerLevel level) {
+            guarded("friendly fire", () -> {
+                if (dev.hywmill.politics.service.FriendlyFire.friends(level, event.getEntity(), event.getTarget())) {
+                    event.setCanceled(true);
+                }
+            });
+        }
+    }
+
+    /** 1.10: an arrow (or other missile) passes through a friend of the realm its shooter fights for, on to the enemy behind. */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onProjectileImpact(net.neoforged.neoforge.event.entity.ProjectileImpactEvent event) {
+        if (event.getProjectile().level() instanceof ServerLevel level
+                && event.getRayTraceResult() instanceof net.minecraft.world.phys.EntityHitResult hit) {
+            guarded("friendly fire", () -> {
+                if (dev.hywmill.politics.service.FriendlyFire.friends(level, event.getProjectile().getOwner(), hit.getEntity())) {
+                    event.setCanceled(true);
+                }
+            });
+        }
+    }
+
     @SubscribeEvent
     public static void onDamage(LivingDamageEvent.Post event) {
         HywMillRuntime rt = HywMillRuntime.get();

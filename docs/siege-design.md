@@ -441,3 +441,17 @@ siege. With Village Roads installed (optional; HywMill calls its route API by re
   ("riding for X by the road", "on the road", "camped by the road"). Found columns show on the map (JourneyMap: a cart
   marker) with where they ride and a clock to their arrival.
 * **Admin.** `/hywmill war admin supply <attacker> [now]` sends (or lists) a siege's supply trains, with their roads.
+
+## No friendly fire (1.10, fix74)
+
+The user's request: helping in a siege, a player's arrows hit friendly soldiers and they all turned on him. While a player
+fights for a realm (serving it as volunteer, mercenary or knight, or on campaign with one of its villages), there is no
+friendly fire between him, the soldiers he hired, and that realm's soldiers and villagers (every village of it, the
+column soldiers riding for it, a vassal's men riding to it):
+
+* their arrows and other missiles pass through each other, on to whoever stands behind;
+* a blow (melee, a sweep, splash, fire) does nothing, so nobody is angered and nobody turns on anyone;
+* enemies are hurt as ever; between players and their men nothing changes.
+
+Config `noFriendlyFire` (default true). `FriendlyFire` decides; `CoreEvents` cancels the projectile impact, the attack and
+the incoming damage.

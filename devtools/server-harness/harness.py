@@ -8630,7 +8630,83 @@ def scenario_WR(ctx):
     s.output("hywmill war admin recall-all", 3)
 
 
-SCENARIOS = {"WR": scenario_WR, "MO": scenario_MO, "MOW": scenario_MOW, "PA": scenario_PA, "RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_FF(ctx):
+    """1.10 no friendly fire: a player on campaign with B (and B's realm) does not hurt B's soldiers, nor they him; an enemy (A's) is
+    hurt as ever; an arrow of his flies through a soldier of B."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    fa, fb = info(s, a).get("faction"), info(s, b).get("faction")
+    W = "33333333-4444-4555-8666-777777777777"
+    P = f"77777777-8888-4999-8aaa-{int(time.time()) % 10 ** 12:012d}"
+    for c in (ca, cb):
+        s.output(f"hywmill war admin rebel {c}", 2)
+    s.output("hywmill war admin recall-all", 3)
+    s.output(f"hywmill war for {W} declare {ca} on {cb} force", 2)
+    m5(s, f"mill discover {ca} {P}", 0.5)
+    m5(s, f"mill discover {cb} {P}", 0.5)
+    standin_at(s, P, b[0] + 3, b[2] + 3)
+    m5(s, f"mill rep {cb} {P} adjust 5000", 0.5)
+    j = ""
+    t0 = time.time()
+    while time.time() - t0 < 120 and "join OK" not in j:
+        time.sleep(8)
+        j = " | ".join(war_lines(s, b, f"for {P} join {cb} against {ca}"))
+    rows = spike_info(s, "@e[type=!minecraft:player]")
+    friend = next((u for u, v in rows.items() if fb and ("owner=" + fb) in v["desc"] and dist(v["pos"], tuple(b)) < 120), None)
+    foe = next((u for u, v in rows.items() if fa and ("owner=" + fa) in v["desc"] and dist(v["pos"], tuple(a)) < 120), None)
+    for u in (friend, foe):
+        if u:
+            set_hp(s, u, 20)
+    time.sleep(1)
+    h0 = hp_of(s, friend) if friend else None
+    s.cmd(f"damage {friend} 6 minecraft:player_attack by {P}", 1)
+    h1 = hp_of(s, friend) if friend else None
+    check("FF-1 on campaign with B, the player's blow does a soldier of B no harm", "join OK" in j and h0 is not None and h1 == h0,
+          f"{j[-60:]} || {friend} {h0} -> {h1}")
+    g0 = hp_of(s, foe) if foe else None
+    s.cmd(f"damage {foe} 6 minecraft:player_attack by {P}", 1)
+    g1 = hp_of(s, foe) if foe else None
+    check("FF-2 an enemy soldier (of A) is hurt as ever", g0 is not None and g1 is not None and g1 < g0, f"{foe} {g0} -> {g1}")
+    m5(s, f"standin heal {P}", 0.5)
+    p0 = hp_of(s, P)
+    s.cmd(f"damage {P} 6 minecraft:mob_attack by {friend}", 1)
+    p1 = hp_of(s, P)
+    check("FF-3 nor does a soldier of B hurt him", p0 is not None and p1 == p0, f"{p0} -> {p1}")
+    # an arrow of his shot through a soldier of B: it flies on (the soldier is unhurt)
+    fr = spike_info(s, f"{friend}").get(friend) if friend else None
+    if fr:
+        x, y, z = fr["pos"]
+        s.cmd(f"tp {friend} {x} {y} {z}", 0.5)
+        s.cmd(f"data merge entity {friend} {{NoAI:1b}}", 0.5)
+        set_hp(s, friend, 20)
+        s.cmd(f"summon minecraft:arrow {x + 3}.5 {y + 1}.2 {z}.5 {{Owner:{uuid_nbt(P)},Motion:[-1.2d,0.0d,0.0d],damage:4.0d,pickup:0b}}", 2)
+        h2 = hp_of(s, friend)
+        s.cmd(f"data merge entity {friend} {{NoAI:0b}}", 0.5)
+        check("FF-4 his arrow passes through a soldier of B unhurt", h2 == 20.0, f"hp {h2}")
+    # his own men (soldiers he hired) and B's soldiers: no harm either way
+    if friend:
+        summon_unit(s, b[0] + 6, b[2] + 6, "spear_man", uuid_nbt(P), "hwFF")
+        time.sleep(1)
+        mine = list(tagged(s, "hwFF").keys())
+        if mine:
+            set_hp(s, mine[0], 20)
+            set_hp(s, friend, 20)
+            s.cmd(f"damage {friend} 6 minecraft:mob_attack by {mine[0]}", 1)
+            q1 = hp_of(s, friend)
+            s.cmd(f"damage {mine[0]} 6 minecraft:mob_attack by {friend}", 1)
+            q2 = hp_of(s, mine[0])
+            check("FF-5 a soldier he hired does a soldier of B no harm", q1 == 20.0, f"hp {q1}")
+            check("FF-6 nor does a soldier of B hurt the soldier he hired", q2 == 20.0, f"hp {q2}")
+            if foe:
+                set_hp(s, foe, 20)
+                s.cmd(f"damage {foe} 6 minecraft:mob_attack by {mine[0]}", 1)
+                q3 = hp_of(s, foe)
+                check("FF-7 his soldier still hurts an enemy (of A)", q3 is not None and q3 < 20.0, f"hp {q3}")
+        s.cmd("kill @e[tag=hwFF]", 1)
+    m5(s, f"standin remove {P}", 0.3)
+
+
+SCENARIOS = {"FF": scenario_FF, "WR": scenario_WR, "MO": scenario_MO, "MOW": scenario_MOW, "PA": scenario_PA, "RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

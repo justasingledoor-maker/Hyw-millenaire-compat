@@ -1,0 +1,10 @@
+# fix74 harness: FF (no friendly fire), with Village Roads 1.1.0 on the test world
+[harness] --- scenario FF
+[harness] PASS FF-1 on campaign with B, the player's blow does a soldier of B no harm diers, HOSTILE with the enemy's; the enemy holds a grievance || 214b19a9-a646-3e87-a4df-f961c3075ff3 20.0 -> 20.0
+[harness] PASS FF-2 an enemy soldier (of A) is hurt as ever 1eb38f44-835e-34c6-8bba-e6dbd46ea7e8 20.0 -> 16.16
+[harness] PASS FF-3 nor does a soldier of B hurt him 20.0 -> 20.0
+[harness] PASS FF-4 his arrow passes through a soldier of B unhurt hp 20.0
+[harness] PASS FF-5 a soldier he hired does a soldier of B no harm hp 20.0
+[harness] PASS FF-6 nor does a soldier of B hurt the soldier he hired hp 20.0
+[harness] PASS FF-7 his soldier still hurts an enemy (of A) hp 18.26
+[harness] RESULT 8/8 checks passed

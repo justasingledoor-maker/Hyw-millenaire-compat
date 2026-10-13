@@ -45,6 +45,7 @@ public final class HywMillConfig {
     public static final ModConfigSpec.BooleanValue AUTO_WAR;
     public static final ModConfigSpec.IntValue WAR_MIN_CONFLICT_TICKS;
     public static final ModConfigSpec.IntValue SIEGE_RESISTANCE, SIEGE_RESISTANCE_PLAYERS;
+    public static final ModConfigSpec.BooleanValue NO_FRIENDLY_FIRE;
     public static final ModConfigSpec.BooleanValue REALMS_ENABLED;
     public static final ModConfigSpec.BooleanValue RAZE_ENABLED;
     public static final ModConfigSpec.BooleanValue REALM_COUNCIL;
@@ -165,6 +166,10 @@ public final class HywMillConfig {
         SIEGE_RESISTANCE_PLAYERS = b.comment("1.9: the Resistance given to players fighting in a siege (their own, apart from the soldiers'): a little,",
                         "so a player is not near-invulnerable in a battle of slow-dying soldiers. 0: none.")
                 .defineInRange("siegeResistancePlayers", 1, 0, 4);
+        NO_FRIENDLY_FIRE = b.comment("1.10: no friendly fire between a player (and the soldiers he hired) and the realm he fights for (the one he serves",
+                        "as volunteer, mercenary or knight, or the village he campaigns with, and its realm): his arrows pass through its",
+                        "soldiers and villagers, his blows do them no harm (so they never turn on him), and theirs do him none.")
+                .define("noFriendlyFire", true);
         REALMS_ENABLED = b.comment("Post-M5 realms (docs/realm-design.md): treaties signed by relation (25 pact, 50 defensive, 75 military alliance),",
                         "allies and subjects taking sides in wars, siege aims other than subjugation (annex, punish, raze), provinces, loyalty",
                         "and rebellion. false: sieges only subjugate, as before.")
