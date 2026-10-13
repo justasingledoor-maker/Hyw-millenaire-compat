@@ -2714,3 +2714,58 @@ Built on fix46. The fix47 changes were withdrawn at the user's request.
     * his soldier still hurts A's (20.0 → 18.26).
   * **Not tested:** a real client's arrows in a live siege (the server-side path is the same).
 * SHA-256: `hywmill-m5-fix74.jar` `c903f1209184b9a8b73b42781c365833453ec17d9efea196e2865d4ad1925fa1`.
+
+### 6.75 Provinces before vassals, a bolder AI, coalitions and borders on the map, stray horses (`dist/hywmill-m5-fix75.jar`)
+
+* **Requests.**
+  * The realm the player serves had 2–3 provinces and about 7 vassals: vassals should be rarer than seized provinces.
+  * The AI should be a little more aggressive but still logical.
+  * Coalitions should be visible, and real borders drawn on the map in the colour of the realm in control.
+  * Riderless soldiers' horses were piling up in villages and slowing the game.
+* **Provinces before vassals** (realm-design §18):
+  * **Siege aims:** annexing weighs more and subjugating less, less again for every vassal the realm already has. A realm
+    can hold one province more than its tier step.
+  * **Council armies:** a target within 1200 blocks of the capital, no greater than it, is annexed while there is room.
+  * **Demands:** a near village (≤ 1000 blocks) that gives in becomes a province. A far one is asked for fealty only while
+    the realm has fewer than 1 + tier/2 vassals. The yield chance is at most 0.55.
+  * **Folding vassals in:** a loyal vassal (loyalty ≥ 45, sworn 2 days, within 1200 blocks) becomes a province.
+  * **Seeking protection** is rarer (0.04 a day).
+* **Bolder, still reasoned:**
+  * **Stance:** aggressive from 1.3, balanced from 0.75. **Reserves:** 15 / 30 / 55 %.
+  * **Expansion:** at peace, with room and no claim, the council covets a free neighbour within 1000 blocks that its army
+    outmatches three times.
+  * **Timing:** covets after 1 day of peace and presses 1 day later.
+  * **Village AI:** 0.35 a day, 40 min between sieges.
+  * **Dice:** a demand's and a peace offer's roll is now well mixed. `java.util.Random`'s first draw barely changed between
+    nearby game times, so repeated demands all came out the same.
+* **Coalitions visible:**
+  * **Realm tab:** "Coalitions of the known world" (every league, its members, their armies against the feared realm's).
+  * **Village bar and map hover:** "leagued against the realm of X" / "N states league against it".
+* **Borders** (JourneyMap; `Territory`, payload `map_borders`, net version 11):
+  * **Land:** each village holds the chunks within its walls and 128 blocks beyond; where villages' land meets, the nearer
+    wall wins.
+  * **States:** a state's land is drawn edged and lightly filled in its sovereign's colours, and its vassals' land apart
+    and fainter. Hovering shows the state's name, wars and leagues.
+  * **Updates:** sent every 30 s when changed. Admin: `war admin borders`, `war admin integrate`.
+* **Stray mounts** (siege-design "Stray mounts"):
+  * **Removed:** a soldier's horse or camel that no one rides and whose rider is gone, 30 s after it is first found so.
+  * **Never touched:** player-owned, ridden, leashed or named horses, and horses that are not soldiers'.
+  * **Cause:** HYW removes the horse only when its rider dies on it; riders taken out of the world, or given a fresh
+    horse after losing theirs, left theirs behind.
+* **Validation.**
+  * **JUnit:** 453/453 (new: `TerritoryTest`, the borders wire round trip, the expansion covet, the vassal-weighted aims).
+  * **Defaults init:** a class-loading cycle that could leave `PoliticsTables.DEFAULTS` without its siege rules (seen only
+    when the siege test ran first) is fixed.
+  * **Dedicated server, RB: 5/5** (`docs/m5-test-evidence/fix75-rb.txt`):
+    * two free villages are two states with their land;
+    * a vassal's land is its realm's, apart, in its colour;
+    * a loyal vassal is folded in (one state, 2 villages, 1323 chunks);
+    * the coalitions section is on the Realm tab;
+    * a near village that gives in to a demand is a province (realm of 3 villages + 1 vassal).
+  * **Dedicated server, SM: 5/5** (`docs/m5-test-evidence/fix75-sm.txt`):
+    * a riderless soldier's horse is removed after ~29 s;
+    * a ridden one, a named one and a non-soldier's one stay.
+    * On the test world the first sweeps removed 53, then (after a restart) 21 stray horses.
+  * **Not tested:** the JourneyMap polygons in a real client (the payload, the land and the shapes' inputs are tested; the
+    drawing is JourneyMap's).
+* SHA-256: `hywmill-m5-fix75.jar` `305384643bf4d5d8c8d621468dc7f94e459fde31e09217c3dd6077c76f28b547`.

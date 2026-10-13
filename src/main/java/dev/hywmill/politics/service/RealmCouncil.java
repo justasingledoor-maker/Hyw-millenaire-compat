@@ -40,7 +40,7 @@ public final class RealmCouncil {
     /** It raises at most one army a session, and waits this long between two. */
     public static final long LAUNCH_GAP = PoliticsTables.DAY / 2;
     /** It covets a village this long before it goes to war for it. */
-    public static final long COVET_TICKS = 2 * PoliticsTables.DAY;
+    public static final long COVET_TICKS = PoliticsTables.DAY; // 1.10: a day (was two)
     /** It looks this far from its villages for a village to covet (blocks). */
     public static final double NEIGHBOUR = 1500;
     /** 1.7: its front: enemies farther than this from all its villages are not its goals (unless their army marches on it). */
@@ -48,7 +48,7 @@ public final class RealmCouncil {
     /** 1.7: the goals it pursues at once (besides defending its own), and the villages it courts at once. */
     public static final int MAX_GOALS = 3, MAX_COURTED = 2;
     /** 1.7: it covets nothing until it has been at peace this long. */
-    public static final long PEACE_FIRST = 2 * PoliticsTables.DAY;
+    public static final long PEACE_FIRST = PoliticsTables.DAY; // 1.10: a day (was two)
 
     public static boolean enabled() {
         return RealmService.enabled() && HywMillConfig.REALM_COUNCIL.get();
@@ -345,13 +345,17 @@ public final class RealmCouncil {
                 SiegeService.against(ledger, e.villageId) != null, e.tier.ordinal());
     }
 
-    /** What the council's army fights for. */
-    static SiegeAims.Aim aim(GarrisonLedger ledger, VillageRecord capital, Strategy.Kind kind, long now) {
-        boolean room = RealmService.provinceCount(ledger, capital.villageId, now) < SiegeAims.capacity(capital.tier.ordinal());
+    /** 1.10: a target this near the capital (blocks) is taken as a province, not made a vassal, while the realm has room. */
+    public static final double ANNEX_REACH = 1200;
+
+    /** What the council's army fights for (1.10: land before oaths: it annexes what it can hold, near enough to hold it). */
+    static SiegeAims.Aim aim(GarrisonLedger ledger, VillageRecord capital, VillageRecord t, Strategy.Kind kind, long now) {
+        boolean room = RealmService.provinceRoom(ledger, capital, now);
+        boolean near = Math.sqrt(capital.center.distSqr(t.center)) <= ANNEX_REACH;
         return switch (kind) {
             case RECLAIM, CONQUER -> room ? SiegeAims.Aim.ANNEX : SiegeAims.Aim.SUBJUGATE;
             case PUNISH -> SiegeAims.Aim.PUNISH;
-            default -> SiegeAims.Aim.SUBJUGATE;
+            default -> room && near && t.tier.ordinal() <= capital.tier.ordinal() ? SiegeAims.Aim.ANNEX : SiegeAims.Aim.SUBJUGATE;
         };
     }
 
@@ -366,7 +370,7 @@ public final class RealmCouncil {
         List<UUID> others = new ArrayList<>(a.members());
         others.remove(seat.villageId);
         String name = seat == capital ? "the army of the realm of " + capital.name : "the army of " + seat.name;
-        SiegeAims.Aim aim = aim(ledger, capital, a.kind(), now);
+        SiegeAims.Aim aim = aim(ledger, capital, t, a.kind(), now);
         var l = sieges.launch(ow, seat.villageId, t.villageId, null, now, true, false, aim,
                 new SiegeService.CouncilOrder(name, others, RealmService.pledgeShare(ledger, seat.villageId, now) * commit, commit, "the council of " + capital.name));
         if (!l.ok()) {
@@ -387,8 +391,9 @@ public final class RealmCouncil {
     }
 
     /**
-     * At peace: the council covets a neighbour it has a claim on and could take; a day later, if it still can, it declares war
-     * on it (and the realms' unity takes it from there).
+     * At peace: the council covets a neighbour it has a claim on and could take, or (1.10) with room for a province and no claim,
+     * a weak free neighbour at its border ({@link Strategy#expand}); a day later, if it still can, it demands it and, refused,
+     * declares war on it (and the realms' unity takes it from there).
      */
     static void ambition(ServerLevel ow, GarrisonLedger ledger, SettlementSource source, VillageRecord capital, RealmPlan p, List<Strategy.Member> members,
                          List<UUID> realm, int engines, double covetFactor, long now) {
@@ -396,7 +401,7 @@ public final class RealmCouncil {
             p.covets = null;
             return;
         }
-        List<Strategy.Target> neighbours = new ArrayList<>();
+        List<Strategy.Target> neighbours = new ArrayList<>(), free = new ArrayList<>();
         for (VillageRecord e : ledger.all()) {
             if (e.loneBuilding || realm.contains(e.villageId) || RealmService.treaty(ledger, capital.villageId, e.villageId) != null
                     || capital.politics.truceWith(e.villageId, now) || e.politics.truceWith(capital.villageId, now)) {
@@ -410,10 +415,17 @@ public final class RealmCouncil {
                 }
             }
             if (d <= NEIGHBOUR) {
-                neighbours.add(target(ow, ledger, source, capital, e, engines, now));
+                Strategy.Target n = target(ow, ledger, source, capital, e, engines, now);
+                neighbours.add(n);
+                if (RealmService.tieOf(ledger, e.villageId, now) == null && RealmService.subjectsOf(ledger, e.villageId, now).isEmpty()) {
+                    free.add(n);
+                }
             }
         }
         Strategy.Target want = Strategy.covet(members, neighbours, covetFactor);
+        if (want == null && RealmService.provinceRoom(ledger, capital, now)) {
+            want = Strategy.expand(members, free, covetFactor); // 1.10: land for the realm
+        }
         if (want == null) {
             if (p.covets != null) {
                 VillageRecord was = ledger.get(p.covets);
@@ -427,7 +439,8 @@ public final class RealmCouncil {
         if (t == null) {
             return;
         }
-        String claim = want.formerMember() ? "it was ours" : want.kin() ? "its people are ours, under a foreign lord" : "the realm hates it";
+        String claim = want.formerMember() ? "it was ours" : want.kin() ? "its people are ours, under a foreign lord"
+                : want.hated() ? "the realm hates it" : "it is weak and lies at our border";
         if (!want.id().equals(p.covets)) {
             p.covets = want.id();
             p.covetSince = now;
@@ -441,11 +454,13 @@ public final class RealmCouncil {
             // 1.7: first a demand: a much weaker village may swear fealty rather than fight (§12)
             double ours = members.stream().mapToDouble(Strategy.Member::power).sum();
             if (RealmDiplomacy.demand(ow, ledger, capital, p, t, ours, now)) {
-                note(ow, ledger, source, capital, p, now, "the council demands that " + t.name + " swear fealty (" + claim + "): it bows, and is the realm's vassal");
+                note(ow, ledger, source, capital, p, now, RealmService.isProvince(ledger, t.villageId, now)
+                        ? "the council demands that " + t.name + " submit (" + claim + "): it opens its gates, and is a province of the realm"
+                        : "the council demands that " + t.name + " swear fealty (" + claim + "): it bows, and is the realm's vassal");
                 return;
             }
             note(ow, ledger, source, capital, p, now, "the council claims " + t.name + " (" + claim + ")" + (RealmDiplomacy.enabled()
-                    ? ", demands its fealty, is refused" : "") + " and declares war");
+                    ? ", demands its submission, is refused" : "") + " and declares war");
             WarCounselService.declareWar(ow, ledger, capital, t, now, "the council of " + capital.name + " claims it: " + claim);
         }
     }

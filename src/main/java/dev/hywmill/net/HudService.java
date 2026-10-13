@@ -102,6 +102,18 @@ public final class HudService {
             status += states.size() == 1 && one != null ? " · at war with " + (villages > 1 ? "the realm of " : "") + one.name
                     : " · at war with " + states.size() + " states (" + villages + " villages)";
         }
+        if (RealmService.enabled() && !v.loneBuilding) {
+            // 1.10: the leagues: whom its state leagues against, or how many league against its realm
+            UUID head = RealmService.sovereignOf(ledger, v.villageId, now);
+            List<UUID> against = dev.hywmill.politics.service.RealmDiplomacy.leaguedAgainst(ledger, head);
+            java.util.Set<UUID> fear = ledger.coalitions().get(head);
+            if (!against.isEmpty()) {
+                VillageRecord g = ledger.get(against.get(0));
+                status += " · leagued against " + (g == null ? "a great realm" : "the realm of " + g.name);
+            } else if (fear != null && !fear.isEmpty()) {
+                status += " · " + fear.size() + (fear.size() == 1 ? " state leagues" : " states league") + " against it";
+            }
+        }
         return new String[]{status, owner};
     }
 }

@@ -55,6 +55,14 @@ public interface UnitProvider {
     @Nullable
     Entity mount(Entity unit);
 
+    /**
+     * 1.10: removes the soldiers' mounts in {@code level} that have stood riderless for a while (their riders dead, stowed or
+     * dropped); returns how many. Default: none.
+     */
+    default int reapStrayMounts(net.minecraft.server.level.ServerLevel level, long now) {
+        return 0;
+    }
+
     /** One-line diagnostic description. */
     String describe(Entity entity);
 }

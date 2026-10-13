@@ -31,19 +31,30 @@ public final class SiegeAims {
      * @param provinces    the attacker's provinces now; capacity how many it can hold (1 per tier step)
      * @param razeAllowed  the server allows razing and the target may be razed (not player-controlled)
      * @param realms       the realm system is on (else: always SUBJUGATE)
+     * @param vassals      1.10: the attacker's realm's vassals now (each makes another less wanted)
      */
     public record Facts(int attackerTier, int targetTier, boolean sameCulture, double distance, int grudge, boolean rebelled,
-                        int provinces, int capacity, boolean razeAllowed, boolean realms) {}
+                        int provinces, int capacity, boolean razeAllowed, boolean realms, int vassals) {
+        public Facts(int attackerTier, int targetTier, boolean sameCulture, double distance, int grudge, boolean rebelled,
+                     int provinces, int capacity, boolean razeAllowed, boolean realms) {
+            this(attackerTier, targetTier, sameCulture, distance, grudge, rebelled, provinces, capacity, razeAllowed, realms, 0);
+        }
+    }
 
+    /**
+     * 1.10: a realm would rather hold land than oaths: annexing is the commoner aim (while it has room for provinces); a vassal
+     * is wanted for a far target, of another people, and less with every vassal it has already.
+     */
     public static Map<Aim, Double> weights(Facts f) {
         Map<Aim, Double> w = new EnumMap<>(Aim.class);
-        w.put(Aim.SUBJUGATE, 3.0 + (f.distance() > 800 ? 2 : 0) + (f.sameCulture() ? 0 : 1));
+        double subjugate = 1.5 + (f.distance() > 800 ? 1.5 : 0) + (f.sameCulture() ? 0 : 0.5);
+        w.put(Aim.SUBJUGATE, f.realms() ? Math.max(0.3, subjugate - 0.75 * Math.max(0, f.vassals())) : subjugate);
         if (!f.realms()) {
             return w;
         }
-        double annex = 2 + (f.sameCulture() ? 2 : 0) + (f.distance() < 600 ? 2 : 0) - 2.0 * Math.max(0, f.provinces() + 1 - f.capacity());
+        double annex = 3 + (f.sameCulture() ? 2 : 0) + (f.distance() < 600 ? 2 : 0) - 2.0 * Math.max(0, f.provinces() + 1 - f.capacity());
         w.put(Aim.ANNEX, f.targetTier() > f.attackerTier() ? 0 : Math.max(0, annex));
-        w.put(Aim.PUNISH, 2.0 + f.grudge() + (f.targetTier() > f.attackerTier() ? 1 : 0));
+        w.put(Aim.PUNISH, 1.5 + f.grudge() + (f.targetTier() > f.attackerTier() ? 1 : 0));
         double raze = 0;
         if (f.razeAllowed() && (f.grudge() >= 2 || f.rebelled())) {
             raze = (1 + f.grudge()) * (f.rebelled() ? 3 : 1) * (f.targetTier() >= 3 ? 0.3 : 1);
@@ -65,8 +76,8 @@ public final class SiegeAims {
         return Aim.SUBJUGATE;
     }
 
-    /** How many provinces a sovereign of this tier can hold well (1 per tier step: WATCH 1 … STRONGHOLD 4). */
+    /** How many provinces a sovereign of this tier can hold well (1.10: one more than its tier step: WATCH 2 … STRONGHOLD 5). */
     public static int capacity(int tier) {
-        return Math.max(1, tier);
+        return Math.max(2, tier + 1);
     }
 }

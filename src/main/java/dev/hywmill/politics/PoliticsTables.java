@@ -87,7 +87,7 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
     public record RaidCounselRule(boolean enabled, Map<Standing, Double> chance, double tooStrongFactor, double minChance, double maxChance,
                                   int pointCost, long cooldown) {
         public static final RaidCounselRule DEFAULT = new RaidCounselRule(true,
-                standingDoubles(Standing.TRUSTED, 0.35, Standing.PATRON, 0.55, Standing.SWORN, 0.75), 0.3, 0.05, 0.9, 1, 24000L);
+                Maps.standingDoubles(Standing.TRUSTED, 0.35, Standing.PATRON, 0.55, Standing.SWORN, 0.75), 0.3, 0.05, 0.9, 1, 24000L);
 
         public double chance(Standing s) {
             return chance.getOrDefault(s, 0.0);
@@ -128,8 +128,8 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
                             double levyShare, double playerShare, int helperRep) {
         public static final SiegeRule DEFAULT = new SiegeRule(true, 0.5, 6, 64, 0.4, 1, 1, 10,
                 1200, 1200, 1200, 12000, 1200, 18000, 0.2, 0.2, 0.3, 2.0, 0.5, 0.35, 0.5,
-                standingDoubles(Standing.PATRON, 0.5, Standing.SWORN, 0.75), 0.4, 2, 48000, true, 1200, 0.25, 0.9, 72000,
-                tributes(), 0.5, 0.4, 512);
+                Maps.standingDoubles(Standing.PATRON, 0.5, Standing.SWORN, 0.75), 0.4, 2, 48000, true, 1200, 0.35, 0.9, 48000,
+                Maps.tributes(), 0.5, 0.4, 512);
 
         public double counselChance(Standing s) {
             return counselChance.getOrDefault(s, 0.0);
@@ -171,7 +171,7 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
                                  double maxChance, int warPoints, int peacePoints, long cooldown, int peaceRelation, int warRelation,
                                  double enemyMin, double enemyMax, double exponent, boolean peaceAfterSiege) {
         public static final WarCounselRule DEFAULT = new WarCounselRule(true,
-                standingDoubles(Standing.PATRON, 0.4, Standing.SWORN, 0.65), standingDoubles(Standing.PATRON, 0.5, Standing.SWORN, 0.75),
+                Maps.standingDoubles(Standing.PATRON, 0.4, Standing.SWORN, 0.65), Maps.standingDoubles(Standing.PATRON, 0.5, Standing.SWORN, 0.75),
                 0.05, 0.95, 2, 1, 24000, -75, -100, 0.1, 0.9, 2.0, true);
 
         public double warChance(Standing s) {
@@ -251,21 +251,29 @@ public record PoliticsTables(StandingRule standing, GrievanceRule grievance, Fav
     /** A village tier as the siege tribute table names it (mirrors {@code military.MilitaryTier}, kept pure here). */
     public enum MilitaryTierKey { NONE, WATCH, GUARD_POST, GARRISON, STRONGHOLD }
 
-    private static Map<MilitaryTierKey, Integer> tributes() {
-        Map<MilitaryTierKey, Integer> m = new EnumMap<>(MilitaryTierKey.class);
-        m.put(MilitaryTierKey.WATCH, 32768);
-        m.put(MilitaryTierKey.GUARD_POST, 65536);
-        m.put(MilitaryTierKey.GARRISON, 163840);
-        m.put(MilitaryTierKey.STRONGHOLD, 393216);
-        return java.util.Collections.unmodifiableMap(m);
-    }
+    /**
+     * The rules' default maps, apart so a rule's DEFAULT made first does not start this class (whose DEFAULTS reads the rules'
+     * DEFAULTs) half-way through its own.
+     */
+    static final class Maps {
+        private Maps() {}
 
-    private static Map<Standing, Double> standingDoubles(Object... kv) {
-        Map<Standing, Double> m = new EnumMap<>(Standing.class);
-        for (int i = 0; i < kv.length; i += 2) {
-            m.put((Standing) kv[i], (Double) kv[i + 1]);
+        static Map<MilitaryTierKey, Integer> tributes() {
+            Map<MilitaryTierKey, Integer> m = new EnumMap<>(MilitaryTierKey.class);
+            m.put(MilitaryTierKey.WATCH, 32768);
+            m.put(MilitaryTierKey.GUARD_POST, 65536);
+            m.put(MilitaryTierKey.GARRISON, 163840);
+            m.put(MilitaryTierKey.STRONGHOLD, 393216);
+            return java.util.Collections.unmodifiableMap(m);
         }
-        return java.util.Collections.unmodifiableMap(m);
+
+            static Map<Standing, Double> standingDoubles(Object... kv) {
+            Map<Standing, Double> m = new EnumMap<>(Standing.class);
+            for (int i = 0; i < kv.length; i += 2) {
+                m.put((Standing) kv[i], (Double) kv[i + 1]);
+            }
+            return java.util.Collections.unmodifiableMap(m);
+        }
     }
 
     @SuppressWarnings("unchecked")

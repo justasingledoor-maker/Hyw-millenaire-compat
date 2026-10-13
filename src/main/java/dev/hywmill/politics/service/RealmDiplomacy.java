@@ -88,20 +88,37 @@ public final class RealmDiplomacy {
         if (!enabled() || RealmService.tieOf(ledger, t.villageId, now) != null || !RealmService.subjectsOf(ledger, t.villageId, now).isEmpty()) {
             return false;
         }
+        // 1.10: a near village with room for it submits as a province (a little less readily); a far one swears fealty, while
+        // the realm has few vassals; a realm with its fill of vassals demands nothing of a far one and goes to war for it
+        boolean province = Math.sqrt(capital.center.distSqr(t.center)) <= SUBMIT_REACH && RealmService.provinceRoom(ledger, capital, now);
+        if (!province && RealmService.vassalCount(ledger, capital.villageId, now) >= vassalCap(capital.tier.ordinal())) {
+            return false;
+        }
         p.lastDemand = now;
-        double chance = yieldChance(ours, SiegeService.defense(ow, t));
-        boolean yields = new Random(now ^ t.villageId.getLeastSignificantBits()).nextDouble() < chance;
-        HmLog.info("Realm council of {}: demands fealty of {} (chance {}): {}", capital.name, t.name, String.format("%.2f", chance), yields);
-        if (yields) {
+        double chance = yieldChance(ours, SiegeService.defense(ow, t)) * (province ? 0.8 : 1);
+        boolean yields = new java.util.SplittableRandom(now * 0x9E3779B97F4A7C15L ^ t.villageId.getLeastSignificantBits()).nextDouble() < chance;
+        HmLog.info("Realm council of {}: demands {} of {} (chance {}): {}", capital.name, province ? "submission" : "fealty", t.name,
+                String.format("%.2f", chance), yields);
+        if (yields && province) {
+            RealmService.annex(ow, ledger, t, capital, now);
+        } else if (yields) {
             SiegeService.swearFealty(ow, ledger, t, capital, now);
         }
         return yields;
     }
 
-    /** The chance a village gives in to a demand: none unless the realm's army is 1.2 times its defence, at most 0.7. */
+    /** 1.10: a village this near the capital (blocks) is demanded as a province, not a vassal, while the realm has room. */
+    public static final double SUBMIT_REACH = 1000;
+
+    /** 1.10: how many vassals a realm of this tier keeps before it stops asking for fealty (provinces are what it wants). */
+    public static int vassalCap(int tier) {
+        return 1 + tier / 2;
+    }
+
+    /** The chance a village gives in to a demand: none unless the realm's army is 1.2 times its defence, at most 0.55. */
     public static double yieldChance(double ours, double theirDefense) {
         double r = ours / Math.max(1, theirDefense);
-        return Math.max(0, Math.min(0.7, (r - 1.2) * 0.5));
+        return Math.max(0, Math.min(0.55, (r - 1.2) * 0.5));
     }
 
     // ------------------------------------------------------------------ suing for peace
@@ -129,7 +146,7 @@ public final class RealmDiplomacy {
             RealmPlan theirs = ledger.plans().get(h);
             boolean eager = theirs != null && theirs.stance == Strategy.Stance.AGGRESSIVE && theirs.goals.stream().anyMatch(Strategy.Goal::ready);
             double accept = eager ? 0.25 : 0.6;
-            boolean taken = new Random(now ^ h.getMostSignificantBits()).nextDouble() < accept;
+            boolean taken = new java.util.SplittableRandom(now * 0x9E3779B97F4A7C15L ^ h.getMostSignificantBits()).nextDouble() < accept;
             String offer = "offers " + eh.name + " " + dev.hywmill.recruit.RecruitOffers.money(perDay) + " a day for three days for peace";
             if (!taken) {
                 RealmCouncil.note(ow, ledger, source, capital, p, now, "the council " + offer + "; " + eh.name + " refuses");
@@ -457,7 +474,7 @@ public final class RealmDiplomacy {
             p.offered.put(e.villageId, now);
             RealmPlan their = ledger.plans().get(e.villageId);
             boolean eager = their != null && their.stance == Strategy.Stance.AGGRESSIVE && coveted(ledger, their, now).contains(capital.villageId);
-            boolean taken = new Random(now ^ e.villageId.getLeastSignificantBits()).nextDouble() < (eager ? 0.15 : 0.6);
+            boolean taken = new java.util.SplittableRandom(now * 0x9E3779B97F4A7C15L ^ e.villageId.getLeastSignificantBits()).nextDouble() < (eager ? 0.15 : 0.6);
             RealmCouncil.note(ow, ledger, source, capital, p, now, "the council, with " + heads.size() + " wars on its hands, offers " + e.name + " peace: "
                     + (taken ? "it accepts" : "it refuses"));
             if (taken) {
@@ -481,6 +498,48 @@ public final class RealmDiplomacy {
         List<String> n = new ArrayList<>();
         vs.forEach(v -> n.add(v.name));
         return String.join(", ", n);
+    }
+
+    /** 1.10: the great realms {@code head}'s state leagues against (their heads); empty when it is in no league. */
+    public static List<UUID> leaguedAgainst(GarrisonLedger ledger, UUID head) {
+        List<UUID> out = new ArrayList<>();
+        for (Map.Entry<UUID, Set<UUID>> e : ledger.coalitions().entrySet()) {
+            if (e.getValue().contains(head)) {
+                out.add(e.getKey());
+            }
+        }
+        return out;
+    }
+
+    /** 1.10: the Realm tab's world section: every league, against whom, its members and their armies against the feared realm's. */
+    public static List<String> worldLines(GarrisonLedger ledger, long now) {
+        List<String> out = new ArrayList<>();
+        out.add("Coalitions of the known world:");
+        int n = 0;
+        for (Map.Entry<UUID, Set<UUID>> e : ledger.coalitions().entrySet()) {
+            VillageRecord g = ledger.get(e.getKey());
+            List<VillageRecord> vs = new ArrayList<>();
+            e.getValue().forEach(h -> {
+                VillageRecord v = ledger.get(h);
+                if (v != null) {
+                    vs.add(v);
+                }
+            });
+            if (g == null || vs.isEmpty()) {
+                continue;
+            }
+            double theirs = 0;
+            for (VillageRecord v : vs) {
+                theirs += strength(ledger, v.villageId, now);
+            }
+            out.add(" Against the realm of " + g.name + " (" + RealmService.members(ledger, g.villageId, now).size() + " villages): " + names(vs)
+                    + "; their armies " + String.format("%.1f", theirs / Math.max(1, strength(ledger, g.villageId, now))) + " to its 1.");
+            n++;
+        }
+        if (n == 0) {
+            out.add(" None: no realm is feared enough.");
+        }
+        return out;
     }
 
     /** The Realm tab: the league against this realm, and the leagues this village belongs to. */

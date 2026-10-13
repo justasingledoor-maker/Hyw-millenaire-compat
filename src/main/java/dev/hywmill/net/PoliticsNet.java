@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The same {@link #snapshot}/{@link #submit} are driven headless by {@code /hywmill dev ui}.
  */
 public final class PoliticsNet {
-    public static final String VERSION = "10"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab; 6: War tab; 7: Realm tab; 8: bearings, mercenary companies; 9: map markers, Service tab; 10: column markers
+    public static final String VERSION = "11"; // 2: Muster Roll squads; 3: liveries and distances; 4: player colours; 5: History tab; 6: War tab; 7: Realm tab; 8: bearings, mercenary companies; 9: map markers, Service tab; 10: column markers; 11: borders
     /** At most one request per player per this many ticks. */
     public static final long RATE_TICKS = 5;
     /** Local requests (pardon, apology) and the home view need the player near the home village. */
@@ -66,6 +66,7 @@ public final class PoliticsNet {
         r.playToClient(PoliticsSnapshot.TYPE, PoliticsSnapshot.CODEC, (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.PoliticsClient.onSnapshot(p)));
         r.playToClient(HudPayloads.Hud.TYPE, HudPayloads.Hud.CODEC, (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.HudOverlay.accept(p)));
         r.playToClient(MapPayloads.Markers.TYPE, MapPayloads.Markers.CODEC, (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.MapMarkers.accept(p)));
+        r.playToClient(MapPayloads.Borders.TYPE, MapPayloads.Borders.CODEC, (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.MapMarkers.accept(p)));
         r.playToClient(PoliticsPayloads.ActionResult.TYPE, PoliticsPayloads.ActionResult.CODEC,
                 (p, ctx) -> ctx.enqueueWork(() -> dev.hywmill.client.PoliticsClient.onResult(p)));
         // Muster Roll (post-M5 recruitment): same registrar and version; the server re-validates every intent
@@ -258,6 +259,8 @@ public final class PoliticsNet {
                 out.add(" Army of the realm of " + name(ledger, head) + ": " + army.total() + " men pledged (capital " + army.capital() + ", provinces "
                         + army.provinces() + ", vassals " + army.vassals() + "); they march together to its sieges and to break a siege of any of its villages.");
                 out.addAll(dev.hywmill.politics.service.RealmCouncil.lines(ow, ledger, head, now)); // 1.6: its council and its armies (§9-10)
+            } else {
+                out.addAll(dev.hywmill.politics.service.RealmDiplomacy.lines(ledger, head, now)); // 1.10: its leagues, without a council
             }
             VillageRecord headRec = ledger.get(head);
             if (headRec != null && !headRec.loneBuilding) {
@@ -315,6 +318,8 @@ public final class PoliticsNet {
         out.add("Realms of the known world:");
         if (by.isEmpty()) {
             out.add(" None: every village stands alone.");
+            out.add("");
+            out.addAll(dev.hywmill.politics.service.RealmDiplomacy.worldLines(ledger, now)); // 1.10
             return out;
         }
         List<UUID> heads = new ArrayList<>(by.keySet());
@@ -334,6 +339,8 @@ public final class PoliticsNet {
             String army = dev.hywmill.politics.service.RealmService.national(ledger, h, now) ? " (army of the realm: " + dev.hywmill.politics.service.RealmService.army(ledger, h, now).total() + " men pledged)" : "";
             out.add(" " + name(ledger, h) + ", " + men + " soldiers" + army + ": " + b);
         }
+        out.add("");
+        out.addAll(dev.hywmill.politics.service.RealmDiplomacy.worldLines(ledger, now)); // 1.10: the leagues, for all to see
         return out;
     }
 

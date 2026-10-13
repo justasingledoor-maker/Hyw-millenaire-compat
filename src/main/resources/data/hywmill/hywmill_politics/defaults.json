@@ -38,7 +38,7 @@
       "breakFraction": 0.2, "routFraction": 0.2, "millenaireWeight": 0.3, "exponent": 2.0,
       "loserLoss": 0.5, "winnerLossBase": 0.35, "winnerLossMax": 0.5,
       "counselChance": { "PATRON": 0.5, "SWORN": 0.75 }, "tooStrongFactor": 0.4, "counselPoints": 2, "counselCooldown": 48000,
-      "aiEnabled": true, "aiInterval": 1200, "aiDailyChance": 0.25, "aiMinRatio": 0.9, "aiCooldown": 72000,
+      "aiEnabled": true, "aiInterval": 1200, "aiDailyChance": 0.35, "aiMinRatio": 0.9, "aiCooldown": 48000,
       "tribute": { "WATCH": 32768, "GUARD_POST": 65536, "GARRISON": 163840, "STRONGHOLD": 393216 },
       "levyShare": 0.5, "playerShare": 0.4, "helperRep": 512
     },

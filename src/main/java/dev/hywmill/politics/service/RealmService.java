@@ -79,6 +79,51 @@ public final class RealmService {
         return (int) subjectsOf(ledger, sovereign, now).stream().filter(t -> t.province).count();
     }
 
+    /** 1.10: how many vassals (not provinces) a sovereign has. */
+    public static int vassalCount(GarrisonLedger ledger, UUID sovereign, long now) {
+        return (int) subjectsOf(ledger, sovereign, now).stream().filter(t -> !t.province).count();
+    }
+
+    /** 1.10: whether a sovereign has room for another province (by its tier). */
+    public static boolean provinceRoom(GarrisonLedger ledger, VillageRecord sovereign, long now) {
+        return provinceCount(ledger, sovereign.villageId, now) < dev.hywmill.politics.realm.SiegeAims.capacity(sovereign.tier.ordinal());
+    }
+
+    /** 1.10: a vassal this loyal, sworn this long and this near its sovereign may be made a province of the realm. */
+    public static final double INTEGRATE_LOYALTY = 45, INTEGRATE_REACH = 1200, INTEGRATE_DAILY = 0.3;
+    public static final long INTEGRATE_AFTER = 2 * PoliticsTables.DAY;
+
+    /**
+     * 1.10: a realm folds its loyal vassals in: one sworn two days or more, loyal enough and within reach of its sovereign
+     * becomes a province (three times in ten a day each) while the sovereign has room for one. One a sovereign at a time.
+     */
+    static void integrate(ServerLevel overworld, GarrisonLedger ledger, long now, long interval) {
+        integrate(overworld, ledger, now, interval, false);
+    }
+
+    /** {@code force} (an admin's): any loyal vassal within reach, now, however long sworn. Returns how many were folded in. */
+    public static int integrate(ServerLevel overworld, GarrisonLedger ledger, long now, long interval, boolean force) {
+        double p = force ? 1 : INTEGRATE_DAILY * interval / (double) PoliticsTables.DAY;
+        java.util.Set<UUID> done = new java.util.HashSet<>();
+        for (Vassalage t : new ArrayList<>(ledger.vassalages())) {
+            if (t.province || t.over(now) || (!force && (!t.indefinite() || now - t.since < INTEGRATE_AFTER)) || t.loyalty < INTEGRATE_LOYALTY
+                    || done.contains(t.overlord)) {
+                continue;
+            }
+            VillageRecord v = ledger.get(t.vassal), o = ledger.get(t.overlord);
+            if (v == null || o == null || v.loneBuilding || Math.sqrt(v.center.distSqr(o.center)) > INTEGRATE_REACH || !provinceRoom(ledger, o, now)
+                    || dev.hywmill.garrison.service.SiegeService.besieged(ledger, v.villageId)
+                    || new SplittableRandom(now ^ v.villageId.getMostSignificantBits() ^ 0x696E74L).nextDouble() >= p) {
+                continue;
+            }
+            done.add(t.overlord);
+            news(overworld, Services.settlements(), v, o, now, o.name + " folds its vassal " + v.name + " into the realm: " + v.name + " is a province now");
+            HmLog.info("Realm: {} folds its vassal {} into the realm (loyalty {})", o.name, v.name, Math.round(t.loyalty));
+            annex(overworld, ledger, v, o, now);
+        }
+        return done.size();
+    }
+
     /** The two belong to one realm (one is the other's sovereign, or both answer to the same one). */
     public static boolean sameRealm(GarrisonLedger ledger, UUID x, UUID y, long now) {
         return !x.equals(y) && sovereignOf(ledger, x, now).equals(sovereignOf(ledger, y, now));
@@ -155,6 +200,7 @@ public final class RealmService {
             }
         }
         seekProtection(overworld, ledger, now, interval);
+        integrate(overworld, ledger, now, interval); // 1.10: loyal vassals become provinces
         double p = Treaty.SIGN_CHANCE * interval / (double) PoliticsTables.DAY;
         SplittableRandom rnd = new SplittableRandom(now * 31 + ledger.treaties().size());
         for (int i = 0; i < recs.size(); i++) {
@@ -179,7 +225,7 @@ public final class RealmService {
      * its garrison, may swear fealty to it for protection (one time in ten per day).
      */
     static void seekProtection(ServerLevel overworld, GarrisonLedger ledger, long now, long interval) {
-        double p = 0.1 * interval / (double) PoliticsTables.DAY;
+        double p = 0.04 * interval / (double) PoliticsTables.DAY; // 1.10: rarer (vassals are rarer than provinces)
         for (Treaty t : new ArrayList<>(ledger.treaties().values())) {
             if (!t.military()) {
                 continue;
@@ -935,7 +981,7 @@ public final class RealmService {
         dev.hywmill.politics.realm.SiegeAims.Facts f = new dev.hywmill.politics.realm.SiegeAims.Facts(a.tier.ordinal(), t.tier.ordinal(),
                 a.culture.equals(t.culture), Math.sqrt(a.center.distSqr(t.center)), grudge, rebelled, provinceCount(ledger, sov, now),
                 dev.hywmill.politics.realm.SiegeAims.capacity(a.tier.ordinal()), HywMillConfig.RAZE_ENABLED.get() && t.controllerPlayerId == null,
-                enabled() && !isProvince(ledger, a.villageId, now));
+                enabled() && !isProvince(ledger, a.villageId, now), vassalCount(ledger, sov, now));
         return dev.hywmill.politics.realm.SiegeAims.choose(f, seed);
     }
 

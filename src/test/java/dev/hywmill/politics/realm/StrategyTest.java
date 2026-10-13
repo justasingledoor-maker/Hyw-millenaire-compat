@@ -28,9 +28,10 @@ class StrategyTest {
     @Test
     void theStanceFollowsTheBalanceOfArms() {
         assertEquals(Strategy.Stance.AT_PEACE, Strategy.stance(100, 0, false));
-        assertEquals(Strategy.Stance.AGGRESSIVE, Strategy.stance(150, 100, true));
-        assertEquals(Strategy.Stance.BALANCED, Strategy.stance(80, 100, true));
-        assertEquals(Strategy.Stance.DEFENSIVE, Strategy.stance(79, 100, true));
+        assertEquals(Strategy.Stance.AGGRESSIVE, Strategy.stance(130, 100, true));
+        assertEquals(Strategy.Stance.BALANCED, Strategy.stance(129, 100, true));
+        assertEquals(Strategy.Stance.BALANCED, Strategy.stance(75, 100, true));
+        assertEquals(Strategy.Stance.DEFENSIVE, Strategy.stance(74, 100, true));
         assertTrue(Strategy.reserveShare(Strategy.Stance.DEFENSIVE) > Strategy.reserveShare(Strategy.Stance.BALANCED)
                 && Strategy.reserveShare(Strategy.Stance.BALANCED) > Strategy.reserveShare(Strategy.Stance.AGGRESSIVE));
     }
@@ -89,5 +90,14 @@ class StrategyTest {
         Strategy.Target strongKin = new Strategy.Target(id(12), 300, 0, 80, false, false, false, true, false, 1);
         assertEquals(id(11), Strategy.covet(ms, List.of(target(10, 300, 5), kin, strongKin)).id());
         assertNull(Strategy.covet(ms, List.of(strongKin)), "not one it could take");
+    }
+
+    @Test
+    void withRoomARealmTakesAWeakFreeNeighbourAtItsBorder() {
+        List<Strategy.Member> ms = List.of(member(1, 0, 40, true), member(2, 200, 20, false));
+        Strategy.Target weak = target(10, 600, 15), strong = target(11, 500, 30), far = target(12, 1500, 5);
+        assertEquals(id(10), Strategy.expand(ms, List.of(weak, strong, far), 1).id(), "three times stronger, and near");
+        assertNull(Strategy.expand(ms, List.of(strong, far), 1), "not one only a little weaker, nor one far off");
+        assertNull(Strategy.expand(ms, List.of(weak), 2), "a cautious chancellor wants more");
     }
 }

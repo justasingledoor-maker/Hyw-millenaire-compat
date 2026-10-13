@@ -1,0 +1,10 @@
+# fix75 SM (stray mounts), dedicated server, kept world
+[20:16:40] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Stray mounts: removed 53 soldiers' horse(s) left without a rider
+[20:18:11] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Stray mounts: removed 21 soldiers' horse(s) left without a rider
+[20:23:27] [Server thread/INFO] [de.hy.co.HmLog/]: [hywmill] Stray mounts: removed 1 soldiers' horse(s) left without a rider
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620), (166, 63, 266)]
+  PASS  SM-0 a soldier on his horse, and three riderless horses placed  4999d662-3471-46c2-9fc0-393ae0bbf134 [True, True, True]
+  PASS  SM-1 a soldier's horse with no rider is removed after a while  gone after ~29 s (marked at the first sweep, removed 30 s on)
+  PASS  SM-2 a horse with its soldier on it stays  4999d662-3471-46c2-9fc0-393ae0bbf134
+  PASS  SM-3 a named horse stays though riderless  Bayard
+  PASS  SM-4 a horse that is no soldier's (not an NPC horse) stays  

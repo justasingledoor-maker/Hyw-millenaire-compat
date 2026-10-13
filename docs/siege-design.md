@@ -455,3 +455,19 @@ column soldiers riding for it, a vassal's men riding to it):
 
 Config `noFriendlyFire` (default true). `FriendlyFire` decides; `CoreEvents` cancels the projectile impact, the attack and
 the incoming damage.
+
+## Stray mounts (1.10)
+
+An HYW rider's horse (or camel) is a separate creature. HYW removes it when its rider dies on it, but not in two cases:
+
+* the rider is taken out of the world without dying (stowed for a march, dropped as a duplicate, sent off with a column);
+* the rider loses track of its horse (it stands in a chunk not yet loaded) and HYW gives it a fresh one.
+
+Those horses stood about for ever, saddled and armoured, and piled up in castle yards, slowing the game.
+
+Every 10 s HywMill looks at the loaded soldiers' mounts (HYW's NPC horses and camels) in every dimension. One that no one
+rides, whose rider is gone or dead or on another mount, is marked; one still so 30 s later is removed, with its gear and
+nothing dropped. A rider who comes back to find his horse gone gets a new one (HYW).
+
+Never touched: a horse a player owns (its owner a player who has been on the server), one ridden, one on a lead, one with a
+name, and a horse that is no soldier's (not an NPC horse). The log says how many were removed.

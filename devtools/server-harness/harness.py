@@ -357,6 +357,7 @@ def reuse(ctx):
             centers.append(tuple(int(x) for x in g))
     ctx.a = centers[0] if centers else None
     ctx.b = centers[1] if len(centers) > 1 else None
+    ctx.villages = centers
     check("reuse: villages found in existing world", ctx.a is not None, str(centers))
 
 
@@ -8706,7 +8707,117 @@ def scenario_FF(ctx):
     m5(s, f"standin remove {P}", 0.3)
 
 
-SCENARIOS = {"FF": scenario_FF, "WR": scenario_WR, "MO": scenario_MO, "MOW": scenario_MOW, "PA": scenario_PA, "RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
+def scenario_RB(ctx):
+    """1.10 realms and borders: each state's land on the map (two free villages, two states); a vassal's land is its
+    sovereign's realm's (drawn apart, in its colour); a loyal vassal folded into the realm (a province: one state, one land);
+    the coalitions listed for all on the Realm tab."""
+    s, a, b = ctx.s, ctx.a, ctx.b
+    ca, cb = f"{a[0]} {a[1]} {a[2]}", f"{b[0]} {b[1]} {b[2]}"
+    for c in (ca, cb):
+        s.output(f"hywmill war admin rebel {c}", 2)
+    s.output("hywmill war admin recall-all", 3)
+
+    def borders():
+        rows = [l for l in s.output("hywmill war admin borders", 2) if "border " in l or "borders:" in l]
+        out = {}
+        for l in rows:
+            if " border " in l or l.strip().startswith("border "):
+                parts = [p.strip() for p in l.split("border ", 1)[1].split("|")]
+                kv = {p.split(" ", 1)[0]: p.split(" ", 1)[1] for p in parts[1:] if " " in p}
+                out[parts[0]] = dict(kv, vassals=any(p == "vassals" for p in parts), raw=l)
+        return rows, out
+
+    rows, free = borders()
+    print("\n".join(rows))
+    check("RB-1 two free villages: two states, each with its land", len(free) >= 2 and all(int(v.get("chunks", "0")) > 50 for v in free.values()),
+          " / ".join(f"{k}: {v.get('villages')} v, {v.get('chunks')} ch" for k, v in free.items()))
+    s.output(f"hywmill war admin vassal {cb} {ca}", 2)
+    rows, sworn = borders()
+    print("\n".join(rows))
+    va = next((v for k, v in sworn.items() if k.startswith("Vassals of the realm of")), None)
+    realm = next((v for k, v in sworn.items() if k.startswith("Realm of")), None)
+    check("RB-2 a vassal's land: its sovereign's realm's, drawn apart in its colour",
+          va is not None and realm is not None and va["vassals"] and va.get("colour") == realm.get("colour"),
+          f"{va and va['raw']} || {realm and realm['raw']}")
+    s.output(f"hywmill war admin loyalty {cb} 80", 2)
+    out = s.output("hywmill war admin integrate", 3)
+    rows, one = borders()
+    print("\n".join(rows))
+    realm = next((v for k, v in one.items() if k.startswith("Realm of")), None)
+    check("RB-3 a loyal vassal folded into the realm: a province, one land of two villages",
+          any("integrate OK: 1" in l for l in out) and realm is not None and realm.get("villages") == "2"
+          and not any(k.startswith("Vassals of") for k in one),
+          f"{out[-1:] if out else out} || {realm and realm['raw']}")
+    tab = [l for l in s.output("hywmill war realms", 2)]
+    i = next((k for k, l in enumerate(tab) if "Coalitions of the known world" in l), -1)
+    check("RB-4 the coalitions are listed on the Realm tab", i >= 0 and i + 1 < len(tab), " | ".join(tab[i:i + 3]) if i >= 0 else " | ".join(tab[-4:]))
+    others = [v for v in getattr(ctx, "villages", []) if v not in (tuple(a), tuple(b))]
+    if len(others) >= 2:
+        # a realm of three (a, its province b, a vassal c) demands a near village d: given in, d is a province, not a vassal
+        c, d = others[0], others[1]
+        cc, cd = f"{c[0]} {c[1]} {c[2]}", f"{d[0]} {d[1]} {d[2]}"
+        for x in (cc, cd):
+            s.output(f"hywmill war admin rebel {x}", 2)
+        s.output(f"hywmill war admin vassal {cc} {ca}", 2)
+        res = []
+        for _ in range(8):
+            res = [l for l in s.output(f"hywmill war admin demand {ca} {cd} force", 2) if "demand" in l]
+            if any("gives in" in l for l in res):
+                break
+            time.sleep(1)
+        rows, after = borders()
+        print("\n".join(rows))
+        realm = next((v for k, v in after.items() if k.startswith("Realm of")), None)
+        va = next((v for k, v in after.items() if k.startswith("Vassals of")), None)
+        check("RB-5 a near village that gives in to a demand submits as a province, not a vassal",
+              any("gives in" in l for l in res) and realm is not None and realm.get("villages") == "3" and va is not None and va.get("villages") == "1",
+              f"{res[-1:]} || {realm and realm['raw']} || {va and va['raw']}")
+        for x in (cc, cd):
+            s.output(f"hywmill war admin rebel {x}", 2)
+    s.output(f"hywmill war admin rebel {cb}", 2)
+
+
+def scenario_SM(ctx):
+    """1.10 stray mounts: a soldier's horse no one rides and whose rider is gone (here placed so: an NPC horse with no rider) is
+    removed about half a minute later; one ridden by its soldier stays, and so do a named one and a horse that is no
+    soldier's (not an NPC horse)."""
+    s, a = ctx.s, ctx.a
+    x, z = a[0] + 30, a[2] - 30
+    W = uuid_nbt("5a5a5a5a-1111-4222-8333-444444444444")
+    for t in ("hwSM1", "hwSMa", "hwSMb", "hwSMc"):
+        s.cmd(f"kill @e[tag={t}]", 0.3)
+    summon_unit(s, x, z, "mounted_lancer_rider", W, "hwSM1")
+    s.cmd(ground(x + 6, z, f"summon hundred_years_war:hyw_horse ~ ~ ~ {{IsNpcHorse:1b,OwnerUUID:{W},Tags:['hwSMa']}}"), 0.5)
+    s.cmd(ground(x + 10, z, f"summon hundred_years_war:hyw_horse ~ ~ ~ {{IsNpcHorse:1b,OwnerUUID:{W},Tags:['hwSMb'],CustomName:'\"Bayard\"'}}"), 0.5)
+    s.cmd(ground(x + 14, z, f"summon hundred_years_war:hyw_horse ~ ~ ~ {{IsNpcHorse:0b,Tags:['hwSMc']}}"), 3)
+    rider = next(iter(tagged(s, "hwSM1").items()), (None, {}))
+    short = (rider[1].get("mount") or "none").split("[")[-1].rstrip("]")
+    near = spike_info(s, f"@e[type=hundred_years_war:hyw_horse,x={x},y={a[1]},z={z},distance=..60]")
+    ridden = next((u for u in near if u.startswith(short)), None) if short != "none" else None
+
+    def there(sel):
+        return any("Test passed" in l for l in s.output(f"execute if entity {sel}", 0.6))
+
+    placed = [there("@e[tag=hwSMa]"), there("@e[tag=hwSMb]"), there("@e[tag=hwSMc]")]
+    check("SM-0 a soldier on his horse, and three riderless horses placed", ridden is not None and all(placed), f"{ridden} {placed}")
+    t0 = time.time()
+    while time.time() - t0 < 80 and there("@e[tag=hwSMa]"):
+        time.sleep(5)
+    took = round(time.time() - t0)
+    check("SM-1 a soldier's horse with no rider is removed after a while", not there("@e[tag=hwSMa]") and took >= 15,
+          f"gone after ~{took} s (marked at the first sweep, removed 30 s on)")
+    check("SM-2 a horse with its soldier on it stays", ridden is not None and there(ridden) and there(rider[0]), str(ridden))
+    check("SM-3 a named horse stays though riderless", there("@e[tag=hwSMb]"), "Bayard")
+    check("SM-4 a horse that is no soldier's (not an NPC horse) stays", there("@e[tag=hwSMc]"), "")
+    log = [l for l in s.read_since(0) if "Stray mounts" in l] if hasattr(s, "read_since") else []
+    print("\n".join(log[-3:]))
+    for t in ("hwSM1", "hwSMb", "hwSMc"):
+        s.cmd(f"kill @e[tag={t}]", 0.3)
+    if ridden:
+        s.cmd(f"kill {ridden}", 0.3)
+
+
+SCENARIOS = {"SM": scenario_SM, "RB": scenario_RB, "FF": scenario_FF, "WR": scenario_WR, "MO": scenario_MO, "MOW": scenario_MOW, "PA": scenario_PA, "RD": scenario_RD, "RDV": scenario_RDV, "SV": scenario_SV, "FB": scenario_FB, "RG": scenario_RG, "FW": scenario_FW, "JM": scenario_JM, "UT": scenario_UT, "RW": scenario_RW, "FBK": scenario_FBK, "FS": scenario_FS, "CO": scenario_CO, "NA": scenario_NA, "RU": scenario_RU, "LB": scenario_LB, "MW": scenario_MW, "CMR": scenario_CMR, "RLM": scenario_RLM, "AM": scenario_AM, "TB": scenario_TB, "W3P": scenario_W3P, "W3": scenario_W3, "CL": scenario_CL, "SS": scenario_SS, "CB": scenario_CB, "HA": scenario_HA, "VS": scenario_VS, "RS": scenario_RS, "DA": scenario_DA, "RC": scenario_RC, "TR": scenario_TR, "AD": scenario_AD, "CA": scenario_CA, "PC": scenario_PC, "VL": scenario_VL, "G4_explore": scenario_G4_explore, "G4_0": scenario_G4_0, "G4_1": scenario_G4_1, "G4_2": scenario_G4_2, "G4_3": scenario_G4_3, "G4_4": scenario_G4_4, "G4_5": scenario_G4_5, "G4_6": scenario_G4_6, "G4_7": scenario_G4_7, "G4_8": scenario_G4_8, "G4_9": scenario_G4_9, "G4_10": scenario_G4_10, "G4_EK": scenario_G4_EK, "G4_perf": scenario_G4_perf, "A": scenario_A, "B": scenario_B, "C": scenario_C, "D": scenario_D, "E": scenario_E,
              "F1": scenario_F1, "F2": scenario_F2, "H": scenario_H, "G": scenario_G, "I": scenario_I, "N": scenario_N, "W": scenario_W, "L": scenario_L, "X": scenario_X, "P": scenario_P, "M": scenario_M, "status": scenario_status, "S": scenario_S,
              "G3_1": scenario_G3_1, "G3_2": scenario_G3_2, "G3_3": scenario_G3_3, "G3_4": scenario_G3_4, "G3_5": scenario_G3_5,
              "G3_6": scenario_G3_6, "G3_7": scenario_G3_7, "G3_8": scenario_G3_8, "G3_9": scenario_G3_9, "G3_10": scenario_G3_10,

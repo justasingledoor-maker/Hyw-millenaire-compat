@@ -36,8 +36,16 @@ public final class MapService {
     static final int VILLAGES = 4000, EVENTS = 8000;
 
     private final Map<UUID, List<Marker>> sent = new HashMap<>();
+    /** 1.10: the borders last made, and who has them. */
+    private MapPayloads.Borders borders = MapPayloads.Borders.EMPTY;
+    private final java.util.Set<UUID> bordersSent = new java.util.HashSet<>();
+    /** 1.10: the borders are made again this often (ticks). */
+    public static final int BORDERS = 600;
 
     public void tick(ServerLevel overworld, long now) {
+        if (now % BORDERS == 237) {
+            sendBorders(overworld, GarrisonLedger.get(overworld), now);
+        }
         if (now % INTERVAL != 37) {
             return;
         }
@@ -75,6 +83,82 @@ public final class MapService {
     /** Forget what a player was sent (they logged in again: send it all). */
     public void forget(UUID player) {
         sent.remove(player);
+        bordersSent.remove(player);
+    }
+
+    /** 1.10: makes the borders again and sends them to whoever lacks them (all, when they changed). */
+    void sendBorders(ServerLevel overworld, GarrisonLedger ledger, long now) {
+        MapPayloads.Borders b = borders(ledger, now);
+        if (!b.equals(borders)) {
+            borders = b;
+            bordersSent.clear();
+        }
+        for (ServerPlayer p : overworld.getServer().getPlayerList().getPlayers()) {
+            if (p.connection.hasChannel(MapPayloads.Borders.TYPE) && bordersSent.add(p.getUUID())) {
+                PacketDistributor.sendToPlayer(p, borders);
+            }
+        }
+        bordersSent.removeIf(id -> overworld.getServer().getPlayerList().getPlayer(id) == null);
+    }
+
+    /** The borders now (1.10, also for the harness). */
+    public MapPayloads.Borders borders() {
+        return borders;
+    }
+
+    /**
+     * 1.10: the states on the map: each village's land is its realm's (its sovereign's colours; a lone village is a state of
+     * its own); a realm's vassals' land is drawn apart, fainter, in the same colours. Lone buildings hold none.
+     */
+    public static MapPayloads.Borders borders(GarrisonLedger ledger, long now) {
+        List<MapPayloads.Owner> owners = new ArrayList<>();
+        Map<String, Integer> index = new HashMap<>();
+        List<dev.hywmill.politics.realm.Territory.Site> sites = new ArrayList<>();
+        for (VillageRecord v : ledger.all()) {
+            if (v.loneBuilding || sites.size() >= MapPayloads.Borders.MAX) {
+                continue;
+            }
+            UUID head = RealmService.sovereignOf(ledger, v.villageId, now);
+            VillageRecord h = ledger.get(head);
+            if (h == null) {
+                h = v;
+                head = v.villageId;
+            }
+            boolean vassal = sworn(ledger, v.villageId, now);
+            String key = head + (vassal ? ":v" : "");
+            Integer o = index.get(key);
+            if (o == null) {
+                o = owners.size();
+                index.put(key, o);
+                int members = RealmService.members(ledger, head, now).size();
+                String name = vassal ? "Vassals of the realm of " + h.name : members > 1 ? "Realm of " + h.name : h.name;
+                String detail = vassal ? "Sworn to the realm of " + h.name : HudService.describe(ledger, h, now)[0];
+                owners.add(new MapPayloads.Owner(cut(name, 128), cut(detail, 512), colour(h), vassal));
+            }
+            sites.add(new dev.hywmill.politics.realm.Territory.Site(v.center.getX(), v.center.getZ(),
+                    dev.hywmill.politics.realm.Territory.radius(v.tier.ordinal()), o));
+        }
+        return new MapPayloads.Borders(owners, sites);
+    }
+
+    /** Whether a village answers to its sovereign through a vassal's oath somewhere up the chain (not as a province only). */
+    static boolean sworn(GarrisonLedger ledger, UUID v, long now) {
+        UUID at = v;
+        for (int i = 0; i < 8; i++) {
+            Vassalage t = RealmService.tieOf(ledger, at, now);
+            if (t == null) {
+                return false;
+            }
+            if (!t.province) {
+                return true;
+            }
+            at = t.overlord;
+        }
+        return false;
+    }
+
+    static String cut(String s, int max) {
+        return s.length() <= max ? s : s.substring(0, max - 1) + "…";
     }
 
     static int colour(VillageRecord v) {

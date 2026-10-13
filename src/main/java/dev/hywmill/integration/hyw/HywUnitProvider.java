@@ -140,6 +140,11 @@ public final class HywUnitProvider implements UnitProvider {
     }
 
     @Override
+    public int reapStrayMounts(ServerLevel level, long now) {
+        return StrayMounts.reap(level, now);
+    }
+
+    @Override
     public boolean isTemporarilyHostile(Entity unit, LivingEntity target) {
         return unit instanceof BaseCombatEntity b && TemporaryHostileTargetManager.isHostile(b, target);
     }

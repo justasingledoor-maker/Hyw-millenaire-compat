@@ -126,8 +126,8 @@ class SiegeMathTest {
     void villagesLaunchOnlyWhenStrongEnoughAtTheDailyRate() {
         assertEquals(0, SiegeMath.aiCheckChance(80, 100, R));
         double c = SiegeMath.aiCheckChance(100, 100, R);
-        assertTrue(c > 0 && c < 0.25);
-        assertEquals(0.25, 1 - Math.pow(1 - c, 24000.0 / R.aiInterval()), 1e-9);
+        assertTrue(c > 0 && c < 0.35);
+        assertEquals(0.35, 1 - Math.pow(1 - c, 24000.0 / R.aiInterval()), 1e-9);
     }
 
     @Test

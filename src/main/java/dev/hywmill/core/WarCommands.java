@@ -449,6 +449,28 @@ final class WarCommands {
                     send(ctx.getSource(), n < 0 ? "war rearm: " + v.name + " is not at war" : "war rearm OK: " + v.name + " raises " + n + " engine(s)");
                     return Math.max(0, n);
                 })))
+                .then(Commands.literal("integrate").executes(ctx -> {
+                    // 1.10: every sovereign folds in a loyal vassal within reach now (one each)
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    int n = dev.hywmill.politics.service.RealmService.integrate(ow, GarrisonLedger.get(ow), ow.getGameTime(), 0, true);
+                    send(ctx.getSource(), "war admin integrate OK: " + n + " vassal(s) made provinces");
+                    return n;
+                }))
+                .then(Commands.literal("borders").executes(ctx -> {
+                    // 1.10: the map's borders: each state, its villages and its land (chunks)
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    var b = dev.hywmill.net.MapService.borders(GarrisonLedger.get(ow), ow.getGameTime());
+                    var land = dev.hywmill.politics.realm.Territory.land(b.sites());
+                    send(ctx.getSource(), "war admin borders: " + b.owners().size() + " state(s)");
+                    for (int i = 0; i < b.owners().size(); i++) {
+                        int o = i;
+                        var w = b.owners().get(i);
+                        send(ctx.getSource(), " border " + w.name() + " | colour " + String.format("%06X", w.colour() & 0xFFFFFF) + " | villages "
+                                + b.sites().stream().filter(x -> x.owner() == o).count() + " | chunks " + land.getOrDefault(o, java.util.Set.of()).size()
+                                + (w.vassals() ? " | vassals" : "") + " | " + w.detail());
+                    }
+                    return b.owners().size();
+                }))
                 .then(Commands.literal("vassal").then(Commands.argument("vassal", BlockPosArgument.blockPos())
                         .then(Commands.argument("overlord", BlockPosArgument.blockPos()).executes(ctx -> {
                             // swears the first village to the second for 21 days, as if it had lost a siege to it

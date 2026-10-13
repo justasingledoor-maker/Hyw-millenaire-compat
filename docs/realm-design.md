@@ -394,3 +394,46 @@ him; serving none, how the realm of the village he is in takes volunteers, merce
 or by the arrows at the panel's foot; the action column scrolls when it does not fit; the last result shows in a band at
 the panel's foot.
 
+
+## 18. Land before oaths; leagues and borders on the map (1.10)
+
+**Provinces over vassals.** A realm would rather hold land than oaths:
+
+* **Siege aims** (`SiegeAims`): annexing weighs 3 (+2 for one people, +2 within 600 blocks), less for every province beyond
+  what the realm can hold. Subjugating weighs 1.5 (+1.5 far, +0.5 for another people), less 0.75 for every vassal the realm
+  already has (at least 0.3). A realm can hold one province more than its tier step (WATCH 2 … STRONGHOLD 5).
+* **The council's armies** (`RealmCouncil.aim`): a target within 1200 blocks of the capital, no greater than it, is annexed
+  while the realm has room for a province; otherwise subjugated. Claims (reclaim, conquer) are annexed as before.
+* **Demands** (`RealmDiplomacy.demand`): a village within 1000 blocks of the capital, while the realm has room, is asked to
+  *submit*. If it gives in, it is a province (chance × 0.8). A farther one is asked for fealty only while the realm has
+  fewer than 1 + tier/2 vassals; otherwise the council asks nothing and goes to war. The yield chance is at most 0.55.
+* **Folding vassals in** (`RealmService.integrate`, each decision): a vassal sworn 2 days or more, with loyalty ≥ 45 and
+  within 1200 blocks of its sovereign, becomes a province (3 times in 10 a day), one per sovereign at a time, while the
+  realm has room.
+* **Seeking protection** is rarer: 4 times in 100 a day (was 1 in 10).
+
+**A little bolder, still reasoned** (`Strategy`):
+
+* **Stance:** aggressive from 1.3 times the enemies' armies (was 1.5); balanced from 0.75 (was 0.8).
+* **Reserve held back:** 15 / 30 / 55 % (was 20 / 35 / 60).
+* **Expansion:** at peace with room for a province and no claim to press, the council covets a weak *free* neighbour (one
+  that answers to no one and rules no one) within 1000 blocks of one of its villages, and only one its army, less a reserve,
+  outmatches three times (its Chancellor's appetite applied). The claim reads "it is weak and lies at our border".
+* **Timing:** the council covets after 1 day of peace (was 2) and presses the claim 1 day later (was 2).
+* **Village AI:** each day a village decides on war with a 0.35 chance (was 0.25), and waits 40 min after a siege (was 60).
+
+**Coalitions, for all to see.**
+
+* **Realm tab:** after the realms, "Coalitions of the known world" lists every league, whom it stands against, its members,
+  and their armies against the feared realm's. A village outside a national realm shows its own leagues too.
+* **Village bar** (HUD and map hover): "leagued against the realm of X", or "N states league against it".
+
+**Borders on the map** (JourneyMap, `Territory`, payload `map_borders`, net version 11):
+
+* **Land:** every village holds the chunks within 90 blocks (+15 per tier) of its centre and 128 beyond. Where two villages'
+  land meets, a chunk goes to the one nearer, counted from their walls.
+* **States:** a state's land is its villages' together (capital and provinces), edged and lightly filled in its sovereign's
+  colours. Its vassals' land is drawn apart, fainter, in the same colours. Hovering shows the state's name and what it is,
+  with its wars and leagues.
+* **Updates:** the server sends the states and their villages every 30 s when they change; the client draws the land.
+  Admin: `/hywmill war admin borders` and `/hywmill war admin integrate`.

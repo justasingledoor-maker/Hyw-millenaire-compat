@@ -88,7 +88,7 @@ public final class Strategy {
             return Stance.AT_PEACE;
         }
         double r = ratio(ours, theirs);
-        return r >= 1.5 ? Stance.AGGRESSIVE : r >= 0.8 ? Stance.BALANCED : Stance.DEFENSIVE;
+        return r >= 1.3 ? Stance.AGGRESSIVE : r >= 0.75 ? Stance.BALANCED : Stance.DEFENSIVE; // 1.10: bolder
     }
 
     public static double ratio(double ours, double theirs) {
@@ -98,9 +98,9 @@ public final class Strategy {
     /** The share of the army held back to defend. */
     public static double reserveShare(Stance s) {
         return switch (s) {
-            case AGGRESSIVE -> 0.2;
-            case BALANCED -> 0.35;
-            case DEFENSIVE -> 0.6;
+            case AGGRESSIVE -> 0.15;
+            case BALANCED -> 0.3;
+            case DEFENSIVE -> 0.55;
             case AT_PEACE -> 1.0;
         };
     }
@@ -221,6 +221,26 @@ public final class Strategy {
         double power = members.stream().mapToDouble(Member::power).sum() * (1 - reserveShare(Stance.AGGRESSIVE));
         return neighbours.stream()
                 .filter(t -> (t.formerMember() || t.hated() || t.kin()) && !t.besieged() && power >= t.defense() * MARGIN * factor)
+                .max(Comparator.comparingDouble((Target t) -> score(t, members)).thenComparing(Target::id))
+                .orElse(null);
+    }
+
+    /** 1.10: a realm takes a neighbour it has no claim on only when it is this many times stronger than it. */
+    public static final double EXPAND_MARGIN = 3.0;
+    /** 1.10: ... and only one this near one of its villages (blocks). */
+    public static final double EXPAND_REACH = 1000;
+
+    /**
+     * 1.10: at peace, with room for a province and no claim to press: the weak neighbour a realm would take for land, one its
+     * army (less a reserve) outmatches {@link #EXPAND_MARGIN} times and near one of its villages; the worthiest for its cost.
+     * {@code free}: the neighbours that answer to no one and rule no one (a realm's member brings its realm). Null: none.
+     */
+    @Nullable
+    public static Target expand(List<Member> members, List<Target> free, double factor) {
+        double power = members.stream().mapToDouble(Member::power).sum() * (1 - reserveShare(Stance.AGGRESSIVE));
+        return free.stream()
+                .filter(t -> !t.besieged() && power >= Math.max(1, t.defense()) * EXPAND_MARGIN * factor
+                        && members.stream().anyMatch(m -> dist(m.x(), m.z(), t.x(), t.z()) <= EXPAND_REACH))
                 .max(Comparator.comparingDouble((Target t) -> score(t, members)).thenComparing(Target::id))
                 .orElse(null);
     }

@@ -66,14 +66,19 @@ class RealmRulesTest {
     @Test
     void aimsFollowTheSituation() {
         Map<SiegeAims.Aim, Double> w = SiegeAims.weights(facts(3, 2, true, 400, 0, false, 0, true));
-        assertEquals(6.0, w.get(SiegeAims.Aim.ANNEX), "a near neighbour of one culture is ripe for annexing");
+        assertEquals(7.0, w.get(SiegeAims.Aim.ANNEX), "a near neighbour of one culture is ripe for annexing");
+        assertTrue(w.get(SiegeAims.Aim.ANNEX) > 3 * w.get(SiegeAims.Aim.SUBJUGATE), "1.10: land before oaths");
+        assertEquals(0.3, SiegeAims.weights(new SiegeAims.Facts(3, 2, false, 900, 0, false, 0, 4, false, true, 5)).get(SiegeAims.Aim.SUBJUGATE), 1e-9,
+                "1.10: a realm with five vassals hardly wants a sixth");
+        assertEquals(2, SiegeAims.capacity(1));
+        assertEquals(5, SiegeAims.capacity(4));
         assertEquals(0.0, w.get(SiegeAims.Aim.RAZE), "no grudge, no razing");
         assertEquals(0.0, SiegeAims.weights(facts(2, 3, true, 400, 0, false, 0, true)).get(SiegeAims.Aim.ANNEX), "never a stronger target");
         assertEquals(0.0, SiegeAims.weights(facts(1, 1, false, 900, 0, false, 3, true)).get(SiegeAims.Aim.ANNEX), "over capacity");
         assertEquals(6.0, SiegeAims.weights(facts(3, 2, false, 400, 1, true, 0, true)).get(SiegeAims.Aim.RAZE), "a rebel: (1 + grudge) x 3");
         assertEquals(1.2, SiegeAims.weights(facts(4, 3, false, 400, 3, false, 0, true)).get(SiegeAims.Aim.RAZE), 1e-9, "a garrison-tier target: x 0.3");
         assertEquals(0.0, SiegeAims.weights(facts(3, 2, false, 400, 3, true, 0, false)).get(SiegeAims.Aim.RAZE), "razing switched off");
-        assertEquals(Map.of(SiegeAims.Aim.SUBJUGATE, 6.0), SiegeAims.weights(new SiegeAims.Facts(3, 2, false, 900, 3, true, 0, 3, true, false)),
+        assertEquals(Map.of(SiegeAims.Aim.SUBJUGATE, 3.5), SiegeAims.weights(new SiegeAims.Facts(3, 2, false, 900, 3, true, 0, 3, true, false)),
                 "realms off: always subjugate");
     }
 

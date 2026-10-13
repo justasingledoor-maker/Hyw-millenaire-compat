@@ -43,6 +43,16 @@ class PoliticsWireTest {
     }
 
     @Test
+    void mapBordersRoundTrip() {
+        var m = new MapPayloads.Borders(List.of(new MapPayloads.Owner("Realm of Vaucelles", "Capital of a realm of 3 villages", 0xAA3322, false),
+                new MapPayloads.Owner("Vassals of the realm of Vaucelles", "Sworn to the realm of Vaucelles", 0xAA3322, true)),
+                List.of(new dev.hywmill.politics.realm.Territory.Site(647, 624, 120, 0), new dev.hywmill.politics.realm.Territory.Site(-656, -976, 90, 1)));
+        RegistryFriendlyByteBuf b = buf();
+        MapPayloads.Borders.CODEC.encode(b, m);
+        assertEquals(m, MapPayloads.Borders.CODEC.decode(b));
+    }
+
+    @Test
     void mapMarkersRoundTrip() {
         var m = new MapPayloads.Markers(List.of(
                 new MapPayloads.Marker("v:1", MapPayloads.Kind.CAPITAL, 100, -200, "Home", "Capital of a realm of 3 villages", 0xFF0000, -1),
@@ -87,7 +97,7 @@ class PoliticsWireTest {
         var r = new PoliticsPayloads.ActionResult(false, "PAIR_COOLDOWN", "you proposed this recently");
         PoliticsPayloads.ActionResult.CODEC.encode(b, r);
         assertEquals(r, PoliticsPayloads.ActionResult.CODEC.decode(b));
-        assertEquals("10", PoliticsNet.VERSION); // 4: player colours; 5: History tab; 6: War tab; 7: Realm tab; 8: bearings; 9: map, Service tab; 10: columns
+        assertEquals("11", PoliticsNet.VERSION); // 4: player colours; 5: History tab; 6: War tab; 7: Realm tab; 8: bearings; 9: map, Service tab; 10: columns; 11: borders
     }
 
     @Test

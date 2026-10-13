@@ -1,0 +1,28 @@
+# fix75 RB (realms and borders), dedicated server, kept world, Village Roads 1.1.0
+war admin borders: 5 state(s)
+ border Vaucelles les-pâtures | colour FF0000 | villages 1 | chunks 486 | Independent village · at war with 2 states (2 villages)
+ border Le Mesnil le-volcan | colour 00FF00 | villages 1 | chunks 837 | Independent village · at war with 2 states (2 villages)
+ border Araden | colour A020F0 | villages 1 | chunks 286 | Independent village · at war with 2 states (2 villages)
+ border Itanos | colour 808080 | villages 1 | chunks 473 | Independent village
+ border Ouilly la-fôret | colour 0000FF | villages 1 | chunks 848 | Independent village
+war admin borders: 5 state(s)
+ border Realm of Vaucelles les-pâtures | colour FF0000 | villages 1 | chunks 486 | Overlord of 1 village · at war with Araden
+ border Vassals of the realm of Vaucelles les-pâtures | colour FF0000 | villages 1 | chunks 837 | vassals | Sworn to the realm of Vaucelles les-pâtures
+ border Araden | colour A020F0 | villages 1 | chunks 286 | Independent village · at war with the realm of Vaucelles les-pâtures
+ border Itanos | colour 808080 | villages 1 | chunks 473 | Independent village
+ border Ouilly la-fôret | colour 0000FF | villages 1 | chunks 848 | Independent village
+war admin borders: 4 state(s)
+ border Realm of Vaucelles les-pâtures | colour FF0000 | villages 2 | chunks 1323 | Overlord of 1 village · at war with Araden
+ border Araden | colour A020F0 | villages 1 | chunks 286 | Independent village · at war with the realm of Vaucelles les-pâtures
+ border Itanos | colour 808080 | villages 1 | chunks 473 | Independent village
+ border Ouilly la-fôret | colour 0000FF | villages 1 | chunks 848 | Independent village
+war admin borders: 3 state(s)
+ border Realm of Vaucelles les-pâtures | colour FF0000 | villages 3 | chunks 1796 | Capital of a realm of 4 villages
+ border Vassals of the realm of Vaucelles les-pâtures | colour FF0000 | villages 1 | chunks 286 | vassals | Sworn to the realm of Vaucelles les-pâtures
+ border Ouilly la-fôret | colour 0000FF | villages 1 | chunks 848 | Independent village
+  PASS  reuse: villages found in existing world  [(647, 80, 624), (656, 69, 976), (420, 70, 470), (400, 67, 620), (166, 63, 266)]
+  PASS  RB-1 two free villages: two states, each with its land  Vaucelles les-pâtures: 1 v, 486 ch / Le Mesnil le-volcan: 1 v, 837 ch / Araden: 1 v, 286 ch / Itanos: 1 v, 473 ch / Ouilly la-fôret: 1 v, 848 ch
+  PASS  RB-2 a vassal's land: its sovereign's realm's, drawn apart in its colour   border Vassals of the realm of Vaucelles les-pâtures | colour FF0000 | villages 1 | chunks 837 | vassals | Sworn to the realm of Vaucelles les-pâtures ||  border Realm of Vaucelles les-pâtures | colour FF0000 | villages 1 | chunks 486 | Overlord of 1 village · at war with Araden
+  PASS  RB-3 a loyal vassal folded into the realm: a province, one land of two villages  ['war admin integrate OK: 1 vassal(s) made provinces'] ||  border Realm of Vaucelles les-pâtures | colour FF0000 | villages 2 | chunks 1323 | Overlord of 1 village · at war with Araden
+  PASS  RB-4 the coalitions are listed on the Realm tab   Coalitions of the known world: |   None: no realm is feared enough.
+  PASS  RB-5 a near village that gives in to a demand submits as a province, not a vassal  ['war admin demand OK: Itanos gives in (chance 0.55)'] ||  border Realm of Vaucelles les-pâtures | colour FF0000 | villages 3 | chunks 1796 | Capital of a realm of 4 villages ||  border Vassals of the realm of Vaucelles les-pâtures | colour FF0000 | villages 1 | chunks 286 | vassals | Sworn to the realm of Vaucelles les-pâtures

@@ -44,6 +44,9 @@ public final class CoreEvents {
         HywMillRuntime.stop();
     }
 
+    /** 1.10: how often the riderless soldiers' mounts are looked for (ticks). */
+    static final int STRAY_MOUNTS = 200;
+
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
         HywMillRuntime rt = HywMillRuntime.get();
@@ -64,6 +67,19 @@ public final class CoreEvents {
         guarded("realm service", () -> dev.hywmill.politics.service.ServiceRoles.tick(overworld, tick));
         guarded("hud", () -> rt.hud().tick(overworld, tick));
         guarded("map", () -> rt.map().tick(overworld, tick));
+        guarded("stray mounts", () -> {
+            // 1.10: soldiers' horses left riderless are removed after a while (they piled up and slowed the game)
+            var units = Services.units();
+            if (units != null && tick % STRAY_MOUNTS == 151) {
+                int n = 0;
+                for (ServerLevel level : event.getServer().getAllLevels()) {
+                    n += units.reapStrayMounts(level, tick);
+                }
+                if (n > 0) {
+                    HmLog.info("Stray mounts: removed {} soldiers' horse(s) left without a rider", n);
+                }
+            }
+        });
         guarded("threat scan", () -> {
             rt.threats().scan(overworld);
             if (tick % HywMillConfig.THREAT_SCAN_INTERVAL.get() == 0) {
