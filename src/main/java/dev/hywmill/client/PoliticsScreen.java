@@ -53,6 +53,10 @@ public final class PoliticsScreen extends Screen {
     private Tab tab = Tab.OVERVIEW;
     private int textScroll, warScroll, actionScroll;
     private static final int WAR_ROW = 34, ACTION_ROW = 22;
+    /** 1.9: the War tab's reports start under the assault bar; the bar's choices (rally side, minutes' index, help) are kept. */
+    private int warTop = 34;
+    private static int assaultSide, assaultMinutes = 1;
+    private static boolean assaultHelp = true;
     private String lastResult = "";
     private boolean lastOk = true;
     /** 1.6: the search box's text, the sort (nearest first, else by name), the list's widgets and the rows they show. */
@@ -205,13 +209,14 @@ public final class PoliticsScreen extends Screen {
         }
         boolean war = tab == Tab.WAR;
         if (war) {
+            warTop = assaultBar(x0, x1, 32) + 4;
             List<PoliticsSnapshot.IntelRow> rows = snap.intel();
-            int fit = Math.max(1, (height - 44 - 34) / WAR_ROW);
+            int fit = Math.max(1, (height - 44 - warTop) / WAR_ROW);
             warScroll = Math.max(0, Math.min(warScroll, Math.max(0, rows.size() - fit)));
             int bx = x1 - 72;
             for (int k = 0; k < fit && warScroll + k < rows.size(); k++) {
                 PoliticsSnapshot.IntelRow row = rows.get(warScroll + k);
-                int ry = 34 + k * WAR_ROW;
+                int ry = warTop + k * WAR_ROW;
                 if (row.canTake()) {
                     addRenderableWidget(Button.builder(Component.literal("Intercept"), b -> submitWar("INTERCEPT", row.id()))
                             .bounds(bx, ry, 72, 14).tooltip(Tooltip.create(Component.literal("Take the job: ride out and cut it down."
@@ -335,6 +340,67 @@ public final class PoliticsScreen extends Screen {
         }
     }
 
+    /**
+     * 1.9: the assault bar over the War tab's reports: the rally side, the minutes until the men go in, whether to ask your side
+     * for help, then lead an assault on the selected village or call yours off. The buttons flow onto a second line on a narrow
+     * panel. Returns the bar's bottom.
+     */
+    private int assaultBar(int x0, int x1, int y) {
+        PoliticsSnapshot.VillageRow sel = snap.villages().stream().filter(v -> v.id().equals(snap.selected())).findFirst().orElse(null);
+        String[] labels = {
+                "Rally " + dev.hywmill.politics.war.Assault.SIDES[assaultSide],
+                "In " + dev.hywmill.politics.war.Assault.MINUTES[assaultMinutes] + " min",
+                assaultHelp ? "With help" : "Alone",
+                "Lead assault",
+                "Call off"};
+        String[] tips = {
+                "Where your men gather: the " + dev.hywmill.politics.war.Assault.SIDE_NAMES[assaultSide] + " of the village, "
+                        + dev.hywmill.politics.war.Assault.RALLY_OUT + " blocks outside it. Click to turn round the compass.",
+                "How long until your men go in. Gather them at the rally point by then, and be there to lead them.",
+                assaultHelp ? "Your side lends you men (from the village you campaign with, or your realm's nearest)." : "Only your own men go.",
+                sel == null ? "Select a village you are at war with in the list." : "Lead your own men (the soldiers you hired, within 96 blocks)"
+                        + " against " + sel.name() + ". It will press levies into service when it sees you gather; it yields when its"
+                        + " defenders lose heart, and pays you a ransom. Every head your men take earns its price.",
+                "Call off your assault: your men stand down, men lent go home."};
+        int bx = x0, by = y;
+        for (int i = 0; i < labels.length; i++) {
+            final int k = i;
+            int bw = font.width(labels[i]) + 10;
+            if (bx + bw > x1 && bx > x0) {
+                bx = x0;
+                by += 18;
+            }
+            Button b = Button.builder(Component.literal(labels[i]), btn -> assaultClick(k)).bounds(bx, by, bw, 16)
+                    .tooltip(Tooltip.create(Component.literal(tips[i]))).build();
+            b.active = i != 3 || sel != null && !sel.id().equals(snap.home());
+            addRenderableWidget(b);
+            bx += bw + 3;
+        }
+        return by + 16;
+    }
+
+    private void assaultClick(int button) {
+        switch (button) {
+            case 0 -> assaultSide = (assaultSide + 1) % dev.hywmill.politics.war.Assault.SIDES.length;
+            case 1 -> assaultMinutes = (assaultMinutes + 1) % dev.hywmill.politics.war.Assault.MINUTES.length;
+            case 2 -> assaultHelp = !assaultHelp;
+            case 3 -> {
+                UUID target = snap.selected();
+                if (target != null) {
+                    PacketDistributor.sendToServer(new PoliticsPayloads.SubmitAction("ASSAULT", snap.home() != null ? snap.home() : target, target,
+                            dev.hywmill.politics.war.Assault.pack(assaultSide, assaultMinutes, assaultHelp)));
+                }
+            }
+            default -> {
+                UUID any = snap.home() != null ? snap.home() : snap.selected() != null ? snap.selected() : new UUID(0, 0);
+                PacketDistributor.sendToServer(new PoliticsPayloads.SubmitAction("ASSAULT_CANCEL", any, any, 0));
+            }
+        }
+        if (button < 3) {
+            rebuildWidgets();
+        }
+    }
+
     private void submitWar(String action, UUID column) {
         PacketDistributor.sendToServer(new PoliticsPayloads.SubmitAction(action, snap.home() != null ? snap.home() : column, column, 0));
     }
@@ -343,14 +409,14 @@ public final class PoliticsScreen extends Screen {
     private void renderWar(GuiGraphics g, int x0, int x1) {
         List<PoliticsSnapshot.IntelRow> rows = snap.intel();
         if (rows.isEmpty()) {
-            g.drawString(font, "No scout reports. In a war, your side's light horse ride out and report", x0, 34, FADED, false);
-            g.drawString(font, "columns on the road and enemy supply convoys here.", x0, 44, FADED, false);
+            g.drawString(font, "No scout reports. In a war, your side's light horse ride out and report", x0, warTop, FADED, false);
+            g.drawString(font, "columns on the road and enemy supply convoys here.", x0, warTop + 10, FADED, false);
             return;
         }
-        int fit = Math.max(1, (height - 44 - 34) / WAR_ROW);
+        int fit = Math.max(1, (height - 44 - warTop) / WAR_ROW);
         for (int k = 0; k < fit && warScroll + k < rows.size(); k++) {
             PoliticsSnapshot.IntelRow row = rows.get(warScroll + k);
-            int ry = 34 + k * WAR_ROW;
+            int ry = warTop + k * WAR_ROW;
             var lines = font.split(Component.literal(row.text()), x1 - x0 - 80);
             for (int l = 0; l < Math.min(3, lines.size()); l++) {
                 g.drawString(font, lines.get(l), x0, ry + l * 10, row.open() ? INK : FADED, false);

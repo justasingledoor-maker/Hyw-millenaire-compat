@@ -327,15 +327,20 @@ public final class SiegeService {
 
     // ------------------------------------------------------------------ launch
 
+    /** 1.9: the build-up lasts at least this long (ticks); a next dawn nearer than that is passed over for the one after. */
+    public static final long MIN_BUILD_UP = 9000;
+
     /** Starts a siege now (the counsel and village decisions come through here; admins too). */
     public Launch launch(ServerLevel overworld, UUID attackerId, UUID targetId, @Nullable UUID counsel, long tick, boolean requireWar) {
         return launch(overworld, attackerId, targetId, counsel, tick, requireWar, false);
     }
 
     /**
-     * Post-M5: a siege is announced, then prepared for two days: the host musters on the third and arrives at dawn
-     * ({@code quick}, admin: the old muster of a minute and march, no build-up). During the build-up mercenaries, vassals' men
-     * and messengers take the road (see {@link ColumnService}). The host is chosen when it musters.
+     * Post-M5: a siege is announced, then prepared (1.9: for a day): the host musters and arrives at the next dawn, or the one
+     * after if that is too near ({@link #MIN_BUILD_UP}) ({@code quick}, admin: the old muster of a minute and march, no
+     * build-up). During the build-up mercenaries, vassals' men and messengers take the road (see {@link ColumnService}), and
+     * the besieged press their countryside into service against the host as rumour tells it ({@link #conscript}). The host is
+     * chosen when it musters.
      */
     public Launch launch(ServerLevel overworld, UUID attackerId, UUID targetId, @Nullable UUID counsel, long tick, boolean requireWar, boolean quick) {
         return launch(overworld, attackerId, targetId, counsel, tick, requireWar, quick, null);
@@ -433,8 +438,12 @@ public final class SiegeService {
             ReliefService.plan(overworld, ledger, s, a, t, tick);
             text = who0 + " musters " + n + " soldiers to besiege " + t.name + who + aimText(s) + "; they march in about " + r.musterTicks() / 1200 + " min";
         } else {
-            // the host arrives at the dawn of the third day: two days of preparation, then the muster and the march by night
-            long dawn = (Math.floorDiv(day, Tribute.DAY) + 3) * Tribute.DAY;
+            // 1.9: the host arrives at the next dawn (a day of preparation, then the muster and the march by night); if that dawn
+            // is too near, at the one after
+            long dawn = (Math.floorDiv(day, Tribute.DAY) + 1) * Tribute.DAY;
+            if (dawn - day < MIN_BUILD_UP) {
+                dawn += Tribute.DAY;
+            }
             s.arriveAt = dawn - day;
             s.enter(Siege.Phase.PREPARE, tick, tick + Math.max(0, s.arriveAt - s.march - r.musterTicks()));
             ReliefService.plan(overworld, ledger, s, a, t, tick);
@@ -450,9 +459,12 @@ public final class SiegeService {
                     }
                 }
             }
+            // 1.9 intel: both sides hear of it at once, but only by rumour, until their scouts count the other
+            s.hostBelieved = dev.hywmill.politics.war.Conscription.rumour(Math.max(1, about), s.seed(0x52554DL));
+            s.defBelieved = dev.hywmill.politics.war.Conscription.rumour(Math.max(1, homeDefenders(t).size()), s.seed(0x52554EL));
             text = (order != null ? who0 : national ? who0 + " (" + a.name + ")" : a.name) + (order != null ? " will besiege " : " declares that it will besiege ")
                     + t.name + who + aimText(s) + ": " + (national || order != null ? "the army" : "its host") + " of about " + about
-                    + " will be before the walls at dawn on the third day";
+                    + " will be before the walls at dawn";
         }
         ledger.setDirty();
         count(C_LAUNCHED);
@@ -462,9 +474,9 @@ public final class SiegeService {
         HmLog.info("Siege {} launched: {} -> {} ({}, arrives in {} ticks){}", s.id.toString().substring(0, 8), a.name, t.name, quick ? "quick" : "prepared",
                 s.arriveAt, who);
         recallHome(overworld, ledger, s, a, t, tick);
-        refugees(overworld, ledger, s, a, t, tick);
         if (!quick) {
             ColumnService.announced(overworld, ledger, s, a, t, tick);
+            conscript(overworld, ledger, s, a, t, tick); // 1.9: levies against the host as rumour tells it
         }
         return new Launch(SiegeMath.Refusal.OK, s, text);
     }
@@ -498,7 +510,7 @@ public final class SiegeService {
             }
             if (!dev.hywmill.politics.war.ArsenalPlan.isEngine(e.unitKey)) {
                 crews.add(e);
-            } else if (dev.hywmill.politics.war.ArsenalPlan.marches(e.unitKey,
+            } else if (s.siegeTrain || dev.hywmill.politics.war.ArsenalPlan.marches(e.unitKey,
                     new java.util.SplittableRandom(s.seed(e.rosterId.getLeastSignificantBits())).nextDouble())) {
                 s.host.add(e.rosterId);
                 marching++;
@@ -818,6 +830,11 @@ public final class SiegeService {
                 HmLog.warn("Siege {} step failed: {}", s.id, ex.toString());
             }
         }
+        try {
+            playerScouts(overworld, ledger, tick); // 1.9: players count the enemy in a siege's build-up
+        } catch (RuntimeException ex) {
+            HmLog.warn("Siege scouting failed: {}", ex.toString());
+        }
         if (tick % AI_INTERVAL == AI_OFFSET) {
             try {
                 dev.hywmill.politics.service.RealmCouncil.sit(overworld, ledger, this, tick); // 1.6: realms' councils (docs/realm-design.md §10)
@@ -839,6 +856,7 @@ public final class SiegeService {
         } catch (RuntimeException ex) {
             HmLog.warn("Columns failed: {}", ex.toString());
         }
+        AssaultService.tick(overworld, tick); // 1.9: players' own assaults
         if (tick % AI_INTERVAL == AI_OFFSET) {
             returnOrphans(overworld, ledger, tick); // repair: soldiers left on a siege that no longer exists come home
         }
@@ -910,6 +928,9 @@ public final class SiegeService {
                     horn(overworld, a.center);
                     announce(overworld, ledger, s, a, t, "The host of " + a.name + " (" + n + " soldiers) musters to march on " + t.name + " by night");
                     HmLog.info("Siege {}: the host musters ({} soldiers)", s.id.toString().substring(0, 8), n);
+                    // 1.9: the council looks at it again before it marches; the besieged, seeing it gather, weigh their chances
+                    review(overworld, ledger, s, a, t, tick);
+                    terms(overworld, ledger, s, a, t, tick);
                 }
             }
             case MUSTER -> {
@@ -936,7 +957,7 @@ public final class SiegeService {
                     hireMercs(overworld, ledger, s, a, t, tick, false);
                 }
                 if (!s.aidRolled && soon) {
-                    defenderAid(overworld, ledger, s, a, t, tick, false);
+                    conscript(overworld, ledger, s, a, t, tick); // a quick siege: levies against the host as rumour tells it
                 }
                 if (s.quick && !s.vassalRolled && soon) {
                     vassalHelp(overworld, ledger, s, a, t, tick, false);
@@ -1345,8 +1366,8 @@ public final class SiegeService {
      * refreshed while they stay; it wears off within seconds of leaving or of the fighting's end.
      */
     static void steel(ServerLevel overworld, VillageRecord t) {
-        int level = dev.hywmill.config.HywMillConfig.SIEGE_RESISTANCE.get();
-        if (level <= 0) {
+        int level = dev.hywmill.config.HywMillConfig.SIEGE_RESISTANCE.get(), players = dev.hywmill.config.HywMillConfig.SIEGE_RESISTANCE_PLAYERS.get();
+        if (level <= 0 && players <= 0) {
             return;
         }
         int reach = (t.villageRadius > 0 ? t.villageRadius : DEFAULT_RADIUS) + STAGING_MARGIN + 64;
@@ -1354,12 +1375,14 @@ public final class SiegeService {
         SettlementSource source = Services.settlements();
         net.minecraft.world.phys.AABB box = new net.minecraft.world.phys.AABB(t.center).inflate(reach, 48, reach);
         for (LivingEntity le : overworld.getEntitiesOfClass(LivingEntity.class, box, LivingEntity::isAlive)) {
+            boolean player = le instanceof net.minecraft.world.entity.player.Player;
             boolean fighter = le instanceof net.minecraft.world.entity.player.Player p ? !p.isSpectator()
                     : (units != null && units.isUnit(le)) || (source != null && source.residentInfo(le).isPresent());
-            if (fighter) {
-                brace(le, level);
+            int lv = player ? players : level;
+            if (fighter && lv > 0) {
+                brace(le, lv);
                 if (le.getVehicle() instanceof LivingEntity mount) {
-                    brace(mount, level);
+                    brace(mount, lv);
                 }
             }
         }
@@ -1475,73 +1498,311 @@ public final class SiegeService {
      * temporary slots of the target's roster, at home: loaded and placed now if the village is loaded, else when the battle
      * starts; off-screen they count in its defense. They leave when the siege ends. Returns how many were raised.
      */
-    public int defenderAid(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, boolean force) {
+    /**
+     * 1.9 (docs/siege-design.md "Levies and scouts"; this replaces the old help by chance: militia, the village's own hired
+     * company, the lord's household, refugees): the besieged press their countryside into service against the host as they
+     * believe it to be (counted by their scouts, else by rumour): poorly armed levies, enough to stand at
+     * {@link dev.hywmill.politics.war.Conscription#EVEN} of its numbers with the men they have (their walls make up the
+     * rest), as many as the village and its realm neighbours can give. Called at the announcement and whenever their belief
+     * changes; levies raised stay. {@code force} (admin): the host's real size, whatever they believe. Returns how many it raised now.
+     */
+    public static int conscript(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        return conscript(overworld, ledger, s, a, t, tick, false);
+    }
+
+    public static int conscript(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, boolean force) {
         s.aidRolled = true;
         ledger.setDirty();
-        if (t.hywRoster == null || t.loneBuilding) {
+        if (t.hywRoster == null || t.loneBuilding || s.fighting()) {
             return 0;
         }
-        boolean lordly = t.tier == dev.hywmill.military.MilitaryTier.GARRISON || t.tier == dev.hywmill.military.MilitaryTier.STRONGHOLD;
-        dev.hywmill.politics.war.DefenderAid.Aid aid = dev.hywmill.politics.war.DefenderAid.roll(s.seed(tick ^ 0x616964L), t.population, lordly, force);
-        GarrisonTables tables = GarrisonTables.current();
-        var table = tables.forCulture(t.culture);
-        PoliticsTables.MobilizationRule mob = MobilizationService.rule(t);
-        int levyLevel = dev.hywmill.garrison.Mobilization.equipmentLevel(dev.hywmill.garrison.Recruitment.equipmentLevel(t.tier, table),
-                mob.equipmentFloor(), mob.equipmentDrop());
-        int raised = 0;
-        if (aid.militia() > 0) {
-            List<String> pool = new ArrayList<>();
-            mob.levyUnits().forEach((k, w) -> {
-                for (int i = 0; i < w; i++) {
-                    pool.add(k);
-                }
-            });
-            int n = raiseExtras(t, s, dev.hywmill.politics.war.DefenderAid.draw(pool, aid.militia(), s.seed(1)), "militia", "", true, levyLevel, tick);
-            if (n > 0) {
-                raised += n;
-                s.notes.add(n + " of " + t.name + "'s people took up arms");
-                aidNews(overworld, ledger, s, a, t, tick, "The bells of " + t.name + " ring: " + n + " of its people take up arms against the host of " + a.name);
+        int real = soldiers(a, entries(a, s.host)).size();
+        int believed = force || s.hostBelieved <= 0 ? Math.max(real, s.hostStart) : s.hostBelieved;
+        int defenders = homeDefenders(t).size();
+        for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+            defenders += rl.units.size();
+        }
+        int neighbours = 0;
+        UUID sov = dev.hywmill.politics.service.RealmService.sovereignOf(ledger, t.villageId, tick);
+        for (UUID m : dev.hywmill.politics.service.RealmService.members(ledger, sov, tick)) {
+            VillageRecord mv = ledger.get(m);
+            if (mv != null && mv != t && mv.center.distSqr(t.center) <= (double) LEVY_REACH * LEVY_REACH) {
+                neighbours += mv.population;
             }
         }
-        if (aid.mercs() != null && (s.quick || force)) { // a prepared siege's mercenaries come by road (ColumnService)
-            int n = raiseExtras(t, s, aid.mercs().units(), "merc", aid.mercs().company().look(), true, levyLevel, tick);
-            if (n > 0) {
-                raised += n;
-                s.notes.add(aid.mercs().company().name() + " hired by " + t.name + " (" + n + ")");
-                aidNews(overworld, ledger, s, a, t, tick, t.name + " has struck a deal with " + aid.mercs().company().name() + ": " + n
-                        + " mercenaries man its defences against " + a.name);
-            }
+        int cap = dev.hywmill.politics.war.Conscription.cap(t.population, neighbours);
+        int want = Math.min(cap - s.leviesRaised, dev.hywmill.politics.war.Conscription.levies(believed, defenders, cap));
+        if (want <= 0) {
+            return 0;
         }
-        if (aid.household() > 0) {
-            dev.hywmill.recruit.Squads.Squad guard = household(t.culture);
-            if (guard != null) {
-                List<String> pool = new ArrayList<>();
-                for (dev.hywmill.recruit.Squads.Member m : guard.members()) {
-                    for (int i = 0; i < m.count(); i++) {
-                        pool.add(m.unit());
-                    }
-                }
-                int level = table.tier(dev.hywmill.military.MilitaryTier.STRONGHOLD).equipmentLevel();
-                int n = raiseExtras(t, s, dev.hywmill.politics.war.DefenderAid.draw(pool, aid.household(), s.seed(2)), "household", guard.look(), false,
-                        level, tick);
-                if (n > 0) {
-                    raised += n;
-                    s.notes.add("the lord of " + t.name + "'s household, " + n + " of " + guard.name());
-                    aidNews(overworld, ledger, s, a, t, tick, "The lord of " + t.name + " is at home: his household, " + n + " of " + guard.name()
-                            + ", stands with the defenders");
-                }
-            }
+        int level = Math.max(0, ColumnService.levyLevel(t) - 1); // poorly armed: below even the levy kit
+        int n = raiseExtras(t, s, dev.hywmill.politics.war.DefenderAid.draw(LEVY_POOL, want, s.seed(0x4C4556L ^ s.leviesRaised)), "levy", "", true,
+                level, tick);
+        if (n <= 0) {
+            return 0;
         }
-        if (raised > 0) {
-            horn(overworld, t.center);
-        }
-        if (raised > 0 && overworld.isPositionEntityTicking(GarrisonService.anchorOf(t))) {
+        s.leviesRaised += n;
+        String text = t.name + " presses its countryside" + (neighbours > 0 ? " and its neighbours" : "") + " into service: " + n
+                + " levies, poorly armed, join its defenders against the host of " + a.name + ", " + (s.hostScouted || force ? "counted by its scouts at "
+                : "believed by rumour to be ") + believed + " strong";
+        s.notes.add(n + " levies pressed into service in " + t.name);
+        aidNews(overworld, ledger, s, a, t, tick, text);
+        if (overworld.isPositionEntityTicking(GarrisonService.anchorOf(t))) {
             musterExtras(overworld, s, t, tick);
         }
-        HmLog.info("Siege {}: help for {}: militia {}, mercenaries {}, household {} ({} raised)", s.id.toString().substring(0, 8), t.name,
-                aid.militia(), aid.mercs() == null ? 0 : aid.mercs().units().size(), aid.household(), raised);
-        return raised;
+        HmLog.info("Siege {}: levies for {}: {} raised (host believed {}, actually {}; {} defenders; cap {})", s.id.toString().substring(0, 8),
+                t.name, n, believed, real, defenders, cap);
+        return n;
     }
+
+    // ------------------------------------------------------------------ 1.9: scouts, and what the councils make of them
+
+    /** Walls this strong (fortification points) make a host that saw them bring its trebuchets. */
+    static final int WALLS_FOR_TRAIN = 20;
+    /** A player counts the enemy within this many blocks (of the host's muster or road, of the walls); and is paid this. */
+    static final int SCOUT_REACH = 64, SCOUT_PAY = 64;
+    /** A village scout who found something brought a count of a siege's enemy this often (else he found a column or a convoy). */
+    static final double SIEGE_COUNT = 0.6;
+
+    /** The host as it stands (or, before it musters, as it would muster): its men. */
+    static int hostNow(GarrisonLedger ledger, Siege s, VillageRecord a, long tick) {
+        if (!s.host.isEmpty()) {
+            return soldiers(a, entries(a, s.host)).size();
+        }
+        double share = s.seatShare > 0 ? s.seatShare
+                : dev.hywmill.politics.service.RealmService.national(ledger, a.villageId, tick) ? dev.hywmill.politics.realm.NationalArmy.CAPITAL : -1;
+        return planHost(a, false, share).size() + s.pendingUnits.size();
+    }
+
+    static double hostPower(GarrisonLedger ledger, Siege s, VillageRecord a, long tick) {
+        if (!s.host.isEmpty()) {
+            return hostStrength(a, entries(a, s.host));
+        }
+        double share = s.seatShare > 0 ? s.seatShare
+                : dev.hywmill.politics.service.RealmService.national(ledger, a.villageId, tick) ? dev.hywmill.politics.realm.NationalArmy.CAPITAL : -1;
+        return strength(entries(a, planHost(a, false, share)));
+    }
+
+    /** The defence as it stands now: the target's men at home (levies included), relief on its way or there, its Millénaire fighters. */
+    static int defenceNow(ServerLevel overworld, Siege s, VillageRecord t) {
+        int n = homeDefenders(t).size();
+        for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+            n += rl.units.size();
+        }
+        return n + (s.milStart > 0 ? s.milStart : overworld.isPositionEntityTicking(t.center) ? millenaireFighters(overworld, t) : 0);
+    }
+
+    static double defencePower(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t) {
+        double d = defense(overworld, t, marchingEngines(a));
+        for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+            VillageRecord h = ledger.get(rl.helper);
+            if (h != null && h.hywRoster != null) {
+                d += strength(entries(h, rl.units));
+            }
+        }
+        return d;
+    }
+
+    /**
+     * The besieged's scouts (or a player riding for them) counted the host: they know its strength now, press as many into
+     * service as they need ({@link #conscript}) and, hopelessly outmatched, offer to yield ({@link #terms}). Returns the news.
+     */
+    public static String hostCounted(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        int n = hostNow(ledger, s, a, tick);
+        s.hostScouted = true;
+        s.hostBelieved = Math.max(1, n);
+        ledger.setDirty();
+        int raised = conscript(overworld, ledger, s, a, t, tick);
+        String yielded = dev.hywmill.core.HywMillRuntime.get() == null ? "" : dev.hywmill.core.HywMillRuntime.get().sieges().terms(overworld, ledger, s, a, t, tick);
+        HmLog.info("Siege {}: the host counted for {}: {} men ({} levies raised)", s.id.toString().substring(0, 8), t.name, n, raised);
+        return "the host of " + a.name + " is " + n + " strong" + (raised > 0 ? "; " + t.name + " presses " + raised + " more into service" : "") + yielded;
+    }
+
+    /**
+     * The attackers' scouts (or a player riding for them) counted the defence: walls make the host bring its trebuchets; a
+     * defence far stronger than its council believed makes it call the siege off ({@link #review}). Returns the news.
+     */
+    public String defenceCounted(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        int n = defenceNow(overworld, s, t);
+        s.defScouted = true;
+        s.defBelieved = Math.max(1, n);
+        boolean train = !s.siegeTrain && t.fortification >= WALLS_FOR_TRAIN;
+        s.siegeTrain |= train;
+        ledger.setDirty();
+        String review = review(overworld, ledger, s, a, t, tick);
+        HmLog.info("Siege {}: the defence counted for {}: {} men{}", s.id.toString().substring(0, 8), a.name, n, train ? " behind walls (trebuchets march)" : "");
+        return t.name + " is held by " + n + (train ? " behind walls: the host will bring its trebuchets" : "") + review;
+    }
+
+    /**
+     * The attackers' council looks at the siege again before its host marches (at the muster, and when its scouts counted the
+     * defence): when the defence, as far as it knows, is far stronger than the host ({@link
+     * dev.hywmill.politics.war.Conscription#OUTMATCHED}), it calls the siege off. A council that never scouted judges by the
+     * rumour, and may march into more than it bargained for. Returns the news ("" when it goes on).
+     */
+    String review(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        if (s.outcome != Siege.Outcome.NONE || s.fighting() || s.phase == Siege.Phase.RETURN || s.quick) {
+            return "";
+        }
+        int actual = Math.max(1, defenceNow(overworld, s, t));
+        double ds = defencePower(overworld, ledger, s, a, t);
+        double believed = s.defScouted ? ds : ds * Math.max(1, s.defBelieved) / actual;
+        double hs = hostPower(ledger, s, a, tick);
+        if (!dev.hywmill.politics.war.Conscription.outmatched(believed, hs)) {
+            return "";
+        }
+        String how = "the council called it off: " + (s.defScouted ? "its scouts counted " + actual : "word is of " + s.defBelieved) + " defenders in " + t.name
+                + ", too many for its host of " + hostNow(ledger, s, a, tick);
+        s.defLost = 0;
+        finish(overworld, ledger, s, a, t, Siege.Outcome.STALEMATE, how, tick, false);
+        return "; " + how;
+    }
+
+    /**
+     * 1.9: the besieged weigh their strength (walls, levies, help on the way) against the host as they believe it and, seeing
+     * no hope ({@link dev.hywmill.politics.war.Conscription#HOPELESS}), offer to yield before the assault. A realm's capital
+     * never does. The host takes it by its aim ({@link dev.hywmill.politics.war.Conscription#accepts}): taken, the village
+     * yields as if it had fallen, without a blow; refused, it fights. Once a siege. Returns the news ("" none).
+     */
+    String terms(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        if (s.termsOffered || s.outcome != Siege.Outcome.NONE || s.fighting() || s.phase == Siege.Phase.RETURN || t.hywRoster == null
+                || dev.hywmill.politics.service.RealmService.national(ledger, t.villageId, tick)) {
+            return "";
+        }
+        int real = Math.max(1, hostNow(ledger, s, a, tick));
+        double hs = hostPower(ledger, s, a, tick) * (s.hostScouted || s.hostBelieved <= 0 ? 1 : s.hostBelieved / (double) real);
+        double ds = defencePower(overworld, ledger, s, a, t);
+        if (!dev.hywmill.politics.war.Conscription.hopeless(ds, hs)) {
+            return "";
+        }
+        s.termsOffered = true;
+        ledger.setDirty();
+        boolean taken = new java.util.SplittableRandom(s.seed(0x5945494CL)).nextDouble() < dev.hywmill.politics.war.Conscription.accepts(s.aim.name());
+        if (!taken) {
+            String text = t.name + ", hopelessly outmatched, offers to yield to " + a.name + "; " + a.name + " refuses" + aimText(s);
+            announce(overworld, ledger, s, a, t, text);
+            chronicle(overworld, a, t, tick, text);
+            s.notes.add(text);
+            return "; " + text;
+        }
+        s.defLost = 0;
+        finish(overworld, ledger, s, a, t, Siege.Outcome.WON, "it yielded without a fight, hopelessly outmatched", tick, false);
+        return "; " + t.name + " yields to " + a.name + " without a fight";
+    }
+
+    /** 1.9: which side of a siege a player rides for: 1 the attackers, -1 the besieged, 0 neither (by his campaign, his service, or as a helper). */
+    public static int sideOf(GarrisonLedger ledger, UUID player, Siege s, long tick) {
+        if (s.attackerHelpers.contains(player)) {
+            return 1;
+        }
+        if (s.defenderHelpers.contains(player)) {
+            return -1;
+        }
+        Set<UUID> att = side(ledger, s, true), def = side(ledger, s, false);
+        dev.hywmill.politics.war.Campaign c = dev.hywmill.politics.service.RelationProjector.campaignOf(ledger, player);
+        if (c != null && c.active(tick)) {
+            if (att.contains(c.ally())) {
+                return 1;
+            }
+            if (def.contains(c.ally())) {
+                return -1;
+            }
+        }
+        dev.hywmill.politics.realm.Service sv = ledger.services().get(player);
+        if (sv != null && sv.realm != null) {
+            if (att.contains(sv.realm) || dev.hywmill.politics.service.RealmService.sameRealm(ledger, sv.realm, s.attacker, tick)) {
+                return 1;
+            }
+            if (def.contains(sv.realm) || dev.hywmill.politics.service.RealmService.sameRealm(ledger, sv.realm, s.target, tick)) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+
+    /** 1.9: where the host is in its build-up: at its muster, or on its road. */
+    static BlockPos hostAt(ServerLevel overworld, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        if (s.phase != Siege.Phase.MARCH) {
+            return a.center;
+        }
+        double f = dev.hywmill.politics.war.FieldBattle.along(s.elapsed(tick, overworld.getDayTime()), s.arriveAt, s.march);
+        return new BlockPos((int) Math.round(a.center.getX() + (t.center.getX() - a.center.getX()) * f), a.center.getY(),
+                (int) Math.round(a.center.getZ() + (t.center.getZ() - a.center.getZ()) * f));
+    }
+
+    /**
+     * 1.9: players count the enemy in a siege's build-up: one riding for the besieged who comes within {@link #SCOUT_REACH}
+     * of the host (at its muster or on its road), one riding for the attackers who comes as near the walls. His side's council
+     * acts on it at once; he is paid for the ride.
+     */
+    void playerScouts(ServerLevel overworld, GarrisonLedger ledger, long tick) {
+        for (Siege s : new ArrayList<>(ledger.sieges())) {
+            if (s.outcome != Siege.Outcome.NONE || (s.phase != Siege.Phase.PREPARE && s.phase != Siege.Phase.MUSTER && s.phase != Siege.Phase.MARCH)
+                    || s.hostScouted && s.defScouted) {
+                continue;
+            }
+            VillageRecord a = ledger.get(s.attacker), t = ledger.get(s.target);
+            if (a == null || t == null) {
+                continue;
+            }
+            BlockPos host = hostAt(overworld, s, a, t, tick);
+            for (ServerPlayer p : overworld.players()) {
+                int side = sideOf(ledger, p.getUUID(), s, tick);
+                String news = null;
+                if (side < 0 && !s.hostScouted && Math.hypot(p.getX() - host.getX(), p.getZ() - host.getZ()) <= SCOUT_REACH) {
+                    news = "You counted the host of " + a.name + ": " + hostCounted(overworld, ledger, s, a, t, tick);
+                } else if (side > 0 && !s.defScouted && Math.hypot(p.getX() - t.center.getX(), p.getZ() - t.center.getZ()) <= SCOUT_REACH) {
+                    news = "You counted the defenders of " + t.name + ": " + defenceCounted(overworld, ledger, s, a, t, tick);
+                }
+                if (news != null) {
+                    SettlementSource source = Services.settlements();
+                    if (source != null) {
+                        source.giveMoney(p, SCOUT_PAY);
+                    }
+                    p.sendSystemMessage(Component.literal("[Scouting] " + news + " (" + dev.hywmill.recruit.RecruitOffers.money(SCOUT_PAY) + " for the ride)"));
+                    announce(overworld, ledger, s, a, t, p.getGameProfile().getName() + " rode out to scout: " + news.substring(4));
+                    HmLog.info("Siege {}: {} scouted: {}", s.id.toString().substring(0, 8), p.getGameProfile().getName(), news);
+                    if (s.outcome != Siege.Outcome.NONE) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 1.9: a village's scout came back with something: if a siege it is party to is being prepared, he counted the enemy
+     * (the host for the besieged, the defence for the attackers) {@link #SIEGE_COUNT} of the time. The news, or null.
+     */
+    @Nullable
+    public String scoutSiege(ServerLevel overworld, GarrisonLedger ledger, VillageRecord v, long tick, double draw) {
+        if (draw >= SIEGE_COUNT) {
+            return null;
+        }
+        for (Siege s : new ArrayList<>(ledger.sieges())) {
+            if (s.outcome != Siege.Outcome.NONE || (s.phase != Siege.Phase.PREPARE && s.phase != Siege.Phase.MUSTER && s.phase != Siege.Phase.MARCH)) {
+                continue;
+            }
+            VillageRecord a = ledger.get(s.attacker), t = ledger.get(s.target);
+            if (a == null || t == null) {
+                continue;
+            }
+            boolean besieged = s.target.equals(v.villageId) || dev.hywmill.politics.service.RealmService.sameRealm(ledger, v.villageId, s.target, tick);
+            boolean attacking = s.attacker.equals(v.villageId) || dev.hywmill.politics.service.RealmService.sameRealm(ledger, v.villageId, s.attacker, tick);
+            if (besieged && !s.hostScouted) {
+                return "scouts of " + v.name + " counted the host: " + hostCounted(overworld, ledger, s, a, t, tick);
+            }
+            if (attacking && !s.defScouted) {
+                return "scouts of " + v.name + " counted the defence: " + defenceCounted(overworld, ledger, s, a, t, tick);
+            }
+        }
+        return null;
+    }
+
+    /** Levies are drawn from these (mostly militia, a few with spear and shield). */
+    static final List<String> LEVY_POOL = List.of("militia", "militia", "militia", "spear_man", "spear_man", "shieldman");
+    /** Realm neighbours within this many blocks send their people too. */
+    static final int LEVY_REACH = 800;
 
     /** The culture's elite squad for a lord's household: its best unique squad, else its best squad. */
     @Nullable
@@ -1867,7 +2128,7 @@ public final class SiegeService {
             });
             int host = soldiers(a, entries(a, s.host)).size();
             int def = defenderCount(overworld, ledger, s, t, s.field && overworld.isPositionEntityTicking(t.center));
-            bar.setName(Component.literal("Siege of " + t.name + ", day " + s.wave + "/" + SiegeWaves.WAVES + (s.phase == Siege.Phase.NIGHT && !s.hostFellBack ? " (night)" : "")
+            bar.setName(Component.literal("Siege of " + t.name + ", day " + s.wave + "/" + s.maxDays + (s.phase == Siege.Phase.NIGHT && !s.hostFellBack ? " (night)" : "")
                     + (s.phase == Siege.Phase.BATTLE && s.defStand ? " (final stand)" : "")
                     + (s.phase == Siege.Phase.NIGHT && s.hostFellBack ? " (the host regroups)" : "")
                     + ": " + (dev.hywmill.politics.service.RealmService.national(ledger, a.villageId, overworld.getGameTime()) ? "Army of the realm of " : "") + a.name + " " + host + "/" + s.hostStart
@@ -2027,7 +2288,7 @@ public final class SiegeService {
                     case MUSTER -> "musters to march on " + t.name + aimText(s);
                     case MARCH, WAIT -> "is on the road to " + t.name + aimText(s) + " (" + men + " men), before the walls in about "
                             + Math.max(1, Math.round(left / 1200.0)) + " min";
-                    case BATTLE -> "besieges " + t.name + aimText(s) + ", day " + s.wave + " of " + SiegeWaves.WAVES + ": " + up + " of " + s.hostStart + " standing"
+                    case BATTLE -> "besieges " + t.name + aimText(s) + ", day " + s.wave + " of " + s.maxDays + ": " + up + " of " + s.hostStart + " standing"
                             ;
                     case NIGHT -> (s.hostFellBack ? "fell back to its lines before " + t.name + " to regroup (" : "is camped before " + t.name + " for the night (")
                             + men + " of " + s.hostStart + " left)";
@@ -2134,9 +2395,9 @@ public final class SiegeService {
     private void battle(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, List<RosterEntry> alive, long tick,
                         PoliticsTables.SiegeRule r) {
         rulerNews(overworld, ledger, s, a, t);
-        long since = tick - s.phaseSince;
+        long sinceDawn = tick - (s.dayStart > 0 ? s.dayStart : s.phaseSince);
         boolean loaded = !s.forceUnwatched && overworld.isPositionEntityTicking(t.center);
-        if (!s.field && loaded && since < SiegeWaves.WAVE_MAX - 1200) {
+        if (!s.field && loaded && sinceDawn < SiegeWaves.WAVE_MAX - 1200) {
             BlockPos landing = landing(overworld, a, t);
             if (watched(overworld, t, landing) && deploy(overworld, ledger, s, a, t, alive, landing, tick, r) > 0) {
                 s.field = true; // a witness came: from now on this wave is fought in the world
@@ -2151,48 +2412,143 @@ public final class SiegeService {
             // the reserve inside waits for its moment
             GarrisonService.respawnStowed(overworld, t, t.hywRoster, tick, 6, s.defReserve);
             musterExtras(overworld, s, t, tick);
-            reinforce(overworld, ledger, s, a, t, since, tick);
+            reinforce(overworld, ledger, s, a, t, sinceDawn, tick);
             steel(overworld, t);
             fight(overworld, ledger, s, a, t, alive, tick, r);
-            finalStands(overworld, ledger, s, a, t, tick, true);
         }
+        rally(overworld, ledger, s, a, t, tick, s.field && loaded);
         int host = soldiers(a, entries(a, s.host)).size();
         int def = defenderCount(overworld, ledger, s, t, s.field && loaded);
-        Siege.Outcome o = SiegeWaves.verdict(host, s.hostStart, def, def - defendersWounded(ledger, s, t), s.defStand,
-                s.defendersStart, s.wave, false);
-        if (o == Siege.Outcome.NONE && s.field && loaded && SiegeWaves.fallBack(hostStanding(a, s), host - hostStanding(a, s), s.hostStart, s.hostFellBack)) {
-            if (s.wave < SiegeWaves.WAVES) {
-                fallBack(overworld, ledger, s, a, t, tick, host, def); // 1.8: no final stand for the attackers
-                return;
-            }
-            o = Siege.Outcome.STALEMATE; // the last assault failed: it falls back for good
+        // 1.9 morale: the clash is not decided in its first moments (longer for bigger armies)
+        boolean ripe = s.assaultSince < 0 || tick - s.assaultSince >= dev.hywmill.politics.war.Morale.clash(s.assaultEngaged + Math.max(0, def));
+        Siege.Outcome o = verdict(s, host, ripe);
+        if (o == Siege.Outcome.NONE && s.field && loaded
+                && dev.hywmill.politics.war.Morale.broken(s.assaultFallen, s.assaultEngaged, s.hostResolve, ripe)) {
+            fallBack(overworld, ledger, s, a, t, tick, host, def); // the assault is thrown back: the host regroups and comes on again
+            return;
         }
-        if (o == Siege.Outcome.NONE && SiegeWaves.waveOver(since, overworld.getDayTime())) {
+        if (o == Siege.Outcome.NONE && SiegeWaves.waveOver(sinceDawn, overworld.getDayTime())) {
             if (!s.field) {
                 paperWave(overworld, ledger, s, a, t, tick, r);
-                finalStands(overworld, ledger, s, a, t, tick, false);
+                rally(overworld, ledger, s, a, t, tick, false);
                 host = soldiers(a, entries(a, s.host)).size();
                 def = defenderCount(overworld, ledger, s, t, false);
             }
-            o = SiegeWaves.verdict(host, s.hostStart, def, def - defendersWounded(ledger, s, t), s.defStand,
-                    s.defendersStart, s.wave, true);
+            o = verdict(s, host, true);
             if (o == Siege.Outcome.NONE) {
-                sundown(overworld, ledger, s, a, t, tick, host, def);
-                return;
+                if (s.wave < s.maxDays) {
+                    sundown(overworld, ledger, s, a, t, tick, host, def);
+                    return;
+                }
+                o = Siege.Outcome.STALEMATE; // its last day before the walls is spent: the host gives up and goes home
             }
         }
         if (o != Siege.Outcome.NONE) {
             s.defLost = Math.max(0, s.defendersStart - def);
+            int hostFallen = s.hostDead + s.hostHurt, defFallen = defendersFallen(s);
             String how = switch (o) {
-                case WON -> s.defStand ? "on the " + SiegeWaves.ordinal(s.wave) + " day the defenders' final stand broke: "
-                        + (def - defendersWounded(ledger, s, t)) + " of " + s.defendersStart + " still standing"
-                        : "on the " + SiegeWaves.ordinal(s.wave) + " day the defenders broke: " + def + " of " + s.defendersStart + " left, wounded included";
-                case LOST -> "on the " + SiegeWaves.ordinal(s.wave) + " day the host broke: " + host + " of " + s.hostStart + " left, wounded included";
-                default -> "after three days " + host + " of " + s.hostStart + " attackers and " + def + " of " + s.defendersStart
-                        + " defenders are left, wounded included";
+                case WON -> "on the " + SiegeWaves.ordinal(s.wave) + " day the defenders yielded: " + defFallen + " of their " + s.defendersStart
+                        + " had fallen, and the rest would not stand" + (s.assault > 1 ? " (" + s.assault + " assaults)" : "");
+                case LOST -> host <= 0 ? "on the " + SiegeWaves.ordinal(s.wave) + " day the host was destroyed"
+                        : "on the " + SiegeWaves.ordinal(s.wave) + " day the host gave up the siege: it had lost " + hostFallen + " of its " + s.hostStart
+                        + " men in " + s.assault + " assault" + (s.assault == 1 ? "" : "s");
+                default -> "after " + s.wave + " day" + (s.wave == 1 ? "" : "s") + " neither side broke: " + host + " of " + s.hostStart + " attackers and " + def
+                        + " of " + s.defendersStart + " defenders are left, wounded included";
             };
             s.notes.add(dayNote(s));
             finish(overworld, ledger, s, a, t, o, how, tick, s.field);
+        }
+    }
+
+    /** 1.9: the defenders' fallen in this siege, all assaults counted (their Millénaire fighters among them). */
+    static int defendersFallen(Siege s) {
+        return s.defDead + s.defHurt + s.milKilled;
+    }
+
+    /**
+     * 1.9 morale ({@link dev.hywmill.politics.war.Morale}): the defenders yield when they have lost their resolve, all
+     * assaults counted ({@code ripe}: the assault has lasted its time); the host gives up when it has lost its campaign's worth
+     * (or is gone). Otherwise the siege goes on.
+     */
+    static Siege.Outcome verdict(Siege s, int hostLeft, boolean ripe) {
+        if (hostLeft <= 0) {
+            return Siege.Outcome.LOST;
+        }
+        if (dev.hywmill.politics.war.Morale.broken(defendersFallen(s), s.defendersStart, s.defResolve, ripe)) {
+            return Siege.Outcome.WON;
+        }
+        if (dev.hywmill.politics.war.Morale.broken(s.hostDead + s.hostHurt, s.hostStart, dev.hywmill.politics.war.Morale.campaign(s.hostResolve), true)) {
+            return Siege.Outcome.LOST;
+        }
+        return Siege.Outcome.NONE;
+    }
+
+    /** 1.9: an assault begins: how many of the host go into it (its men standing), none of them fallen yet. */
+    static void beginAssault(VillageRecord a, Siege s, long tick) {
+        s.assault++;
+        s.assaultSince = tick;
+        s.assaultFallen = 0;
+        s.assaultEngaged = Math.max(1, hostStanding(a, s));
+    }
+
+    /** 1.9: each side's ranks by grade (levies, hired swords, regulars, veterans). */
+    static dev.hywmill.politics.war.Morale.Ranks ranks(Collection<RosterEntry> men) {
+        dev.hywmill.politics.war.Morale.Ranks r = dev.hywmill.politics.war.Morale.Ranks.NONE;
+        for (RosterEntry e : men) {
+            r = r.plus(dev.hywmill.politics.war.Morale.grade(e.mobilized, e.extra, e.mercLook, e.equipmentLevel), 1);
+        }
+        return r;
+    }
+
+    /**
+     * 1.9: each side's resolve at the first dawn: its men's by grade (the village's Millénaire fighters as levies), the
+     * defenders' home and walls, the balance of strength, and surprise (a side that never scouted the other and finds it a third
+     * stronger than it believed).
+     */
+    static void resolves(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
+        List<RosterEntry> host = soldiers(a, entries(a, s.host));
+        List<RosterEntry> defs = new ArrayList<>(homeDefenders(t));
+        for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+            defs.addAll(ReliefService.present(ledger, s, rl.helper));
+        }
+        double hs = hostStrength(a, host), ds = defense(overworld, t, engineCount(a, host));
+        for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
+            ds += strength(ReliefService.present(ledger, s, rl.helper));
+        }
+        int defMen = defs.size() + s.milStart;
+        boolean defSurprised = s.hostBelieved > 0 && dev.hywmill.politics.war.Conscription.surprised(host.size(), s.hostBelieved, s.hostScouted);
+        boolean hostSurprised = s.defBelieved > 0 && dev.hywmill.politics.war.Conscription.surprised(defMen, s.defBelieved, s.defScouted);
+        s.hostResolve = dev.hywmill.politics.war.Morale.resolve(ranks(host),
+                new dev.hywmill.politics.war.Morale.Circumstances(false, 0, ds > 0 ? hs / ds : 2, false, hostSurprised));
+        s.defResolve = dev.hywmill.politics.war.Morale.resolve(ranks(defs).plus(dev.hywmill.politics.war.Morale.Grade.LEVY, s.milStart),
+                new dev.hywmill.politics.war.Morale.Circumstances(true, t.fortification, hs > 0 ? ds / hs : 2, false, defSurprised));
+        if (hostSurprised) {
+            String text = "The host of " + a.name + " finds " + t.name + " held by " + defMen + ", far more than the " + s.defBelieved
+                    + " it was told of: it is shaken";
+            announce(overworld, ledger, s, a, t, text);
+            s.notes.add(text);
+        }
+        if (defSurprised) {
+            String text = t.name + " sees the host of " + a.name + " before its walls, " + host.size() + " strong, far more than the "
+                    + s.hostBelieved + " rumour spoke of: its defenders are shaken";
+            announce(overworld, ledger, s, a, t, text);
+            s.notes.add(text);
+        }
+        HmLog.info("Siege {}: resolve host {} ({} men, surprised {}), defenders {} ({} men, surprised {}); {} days", s.id.toString().substring(0, 8),
+                fmt(s.hostResolve), host.size(), hostSurprised, fmt(s.defResolve), defMen, defSurprised, s.maxDays);
+    }
+
+    /**
+     * 1.9: a capital whose defenders waver (three quarters of their resolve lost) sees its ruler come out with his guard: they
+     * stand fast for him ({@link dev.hywmill.politics.war.Morale#RULER} more resolve). Once a siege.
+     */
+    private void rally(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, boolean world) {
+        if (s.royalOut || !dev.hywmill.politics.war.Morale.wavering(defendersFallen(s), s.defendersStart, s.defResolve)) {
+            return;
+        }
+        if (royalGuard(overworld, ledger, s, a, t, tick, world) > 0) {
+            s.defResolve = Math.min(dev.hywmill.politics.war.Morale.MAX, s.defResolve + dev.hywmill.politics.war.Morale.RULER);
+            ledger.setDirty();
         }
     }
 
@@ -2328,21 +2684,25 @@ public final class SiegeService {
         s.hostDeadW = s.hostHurtW = s.defDeadW = s.defHurtW = 0;
         s.hostFellBack = s.defStand = false;
         s.field = false;
+        s.dayStart = tick;
         s.enter(Siege.Phase.BATTLE, tick, tick + SiegeWaves.WAVE_MAX);
         if (s.wave == 1) {
-            // the strength each side brings to the walls: what the 80% rule counts against
+            // the strength each side brings to the walls: what morale counts against (1.9)
             s.milStart = millenaireFighters(overworld, t);
             s.hostStart = soldiers(a, entries(a, s.host)).size();
             s.defendersStart = defenderCount(overworld, ledger, s, t, false);
+            s.maxDays = dev.hywmill.politics.war.Morale.days(s.hostStart);
+            resolves(overworld, ledger, s, a, t, tick);
         }
         int host = soldiers(a, entries(a, s.host)).size(), def = defenderCount(overworld, ledger, s, t, false);
+        beginAssault(a, s, tick);
         horn(overworld, t.center);
         String text = s.wave == 1
                 ? "Dawn before " + t.name + ": the host of " + a.name + " (" + host + ") stands before the walls; " + def
                 + " defenders man them. The first assault begins"
                 : "Dawn of the " + SiegeWaves.ordinal(s.wave) + " day before " + t.name + ": the host of " + a.name + " forms up again (" + host
                 + " of " + s.hostStart + "), " + def + " of " + s.defendersStart + " defenders hold the walls"
-                + (s.wave == SiegeWaves.WAVES ? ". This is the last assault" : "");
+                + (s.wave >= s.maxDays ? ". This is its last day before the walls" : "");
         announce(overworld, ledger, s, a, t, text);
         chronicle(overworld, a, t, tick, text);
         HmLog.info("Siege {}: wave {} begins: host {}/{}, defenders {}/{}", s.id.toString().substring(0, 8), s.wave, host, s.hostStart, def,
@@ -2382,7 +2742,7 @@ public final class SiegeService {
         }
         String text = "Sundown on the " + SiegeWaves.ordinal(s.wave) + " day before " + t.name + ": the host of " + a.name
                 + " withdraws to its lines. " + note.substring(note.indexOf(':') + 2) + ". " + host + " attackers and " + def
-                + " defenders can still fight, wounded included; " + (SiegeWaves.WAVES - s.wave) + " day" + (SiegeWaves.WAVES - s.wave == 1 ? "" : "s")
+                + " defenders can still fight, wounded included; " + (s.maxDays - s.wave) + " day" + (s.maxDays - s.wave == 1 ? "" : "s")
                 + " of assault left";
         announce(overworld, ledger, s, a, t, text);
         HmLog.info("Siege {}: sundown after wave {} ({}): host {}/{}, defenders {}/{}", s.id.toString().substring(0, 8), s.wave, s.field ? "field" : "paper",
@@ -2390,23 +2750,52 @@ public final class SiegeService {
     }
 
     /**
-     * 1.8: the host's standing men are down to a fifth of its strength, its wounded keeping it in the siege: it makes no final
-     * stand but falls back to its lines (out of the world, as at sundown), tends its wounded and comes on again once it has
-     * regrouped ({@link SiegeWaves#regrouped}). It is beaten only when it is down to a fifth, wounded counted as alive.
+     * 1.9: the assault is thrown back: the men the host sent in have lost its resolve. It falls back to its lines (out of the
+     * world, as at sundown), regroups and comes on again the same day if the light lasts ({@link #startAssault}); it gives up
+     * the siege only when it has lost its campaign's worth ({@link #verdict}).
      */
     private void fallBack(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, int host, int def) {
         int up = hostStanding(a, s);
+        int lost = s.assaultFallen, sent = s.assaultEngaged;
         sundown(overworld, ledger, s, a, t, tick, host, def, true);
-        String text = "The host of " + a.name + " is down to " + up + " of " + s.hostStart + " standing: it falls back to its lines before " + t.name
-                + " to tend its " + (host - up) + " wounded and regroup" + (s.wave < SiegeWaves.WAVES ? ", and will come on again" : "");
+        String text = "The " + SiegeWaves.ordinal(s.assault) + " assault on " + t.name + " is thrown back: the host of " + a.name + " lost " + lost
+                + " of the " + sent + " it sent in and falls back to its lines to regroup (" + up + " standing, " + (host - up) + " wounded)";
         announce(overworld, ledger, s, a, t, text);
         s.notes.add("Day " + s.wave + ": " + text);
         HmLog.info("Siege {}: {}", s.id.toString().substring(0, 8), text);
     }
 
+    /** 1.9: the host has regrouped the same day: it forms up and comes on again (a new assault). */
+    private void startAssault(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick,
+                              PoliticsTables.SiegeRule r) {
+        s.hostFellBack = false;
+        s.field = false;
+        beginAssault(a, s, tick);
+        s.enter(Siege.Phase.BATTLE, tick, (s.dayStart > 0 ? s.dayStart : tick) + SiegeWaves.WAVE_MAX);
+        horn(overworld, t.center);
+        String text = "The host of " + a.name + " forms up again before " + t.name + " (" + s.assaultEngaged + " standing): the "
+                + SiegeWaves.ordinal(s.assault) + " assault";
+        announce(overworld, ledger, s, a, t, text);
+        HmLog.info("Siege {}: {}", s.id.toString().substring(0, 8), text);
+        ledger.setDirty();
+        BlockPos landing = landing(overworld, a, t);
+        if (!s.forceUnwatched && watched(overworld, t, landing) && deploy(overworld, ledger, s, a, t, entries(a, s.host), landing, tick, r) > 0) {
+            s.field = true;
+        }
+    }
+
     /** The night: the wounded are tended (some die of their wounds; engines are repaired or found beyond repair); at dawn, the next wave. */
     private void night(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, PoliticsTables.SiegeRule r) {
         if (s.hostFellBack ? !SiegeWaves.regrouped(tick - s.phaseSince, overworld.getDayTime()) : !SiegeWaves.nightOver(tick - s.phaseSince, overworld.getDayTime())) {
+            return;
+        }
+        if (s.hostFellBack && s.dayStart > 0 && tick - s.dayStart < SiegeWaves.WAVE_MAX - 1200 && !SiegeWaves.night(overworld.getDayTime())) {
+            startAssault(overworld, ledger, s, a, t, tick, r); // 1.9: regrouped while the light lasts: it comes on again today
+            return;
+        }
+        if (s.hostFellBack && s.wave >= s.maxDays) {
+            s.defLost = Math.max(0, s.defendersStart - defenderCount(overworld, ledger, s, t, false));
+            finish(overworld, ledger, s, a, t, Siege.Outcome.STALEMATE, "its last assault was thrown back as the day ended", tick, false);
             return;
         }
         boolean hostSurgeons = SiegeWaves.surgeons(false, false, town(a)), defSurgeons = SiegeWaves.surgeons(true, barracks(t), town(t));
@@ -2441,11 +2830,9 @@ public final class SiegeService {
             HmLog.info("Siege {}: night {}: {}", s.id.toString().substring(0, 8), s.wave, text);
         }
         int host = soldiers(a, entries(a, s.host)).size(), def = defenderCount(overworld, ledger, s, t, false);
-        Siege.Outcome o = SiegeWaves.verdict(host, s.hostStart, def, s.defendersStart, s.wave, false);
-        if (o != Siege.Outcome.NONE) {
+        if (host <= 0) {
             s.defLost = Math.max(0, s.defendersStart - def);
-            finish(overworld, ledger, s, a, t, o, o == Siege.Outcome.WON ? "the defenders' wounded could not hold the walls"
-                    : "too many of the host died of their wounds to go on", tick, false);
+            finish(overworld, ledger, s, a, t, Siege.Outcome.LOST, "too many of the host died of their wounds to go on", tick, false);
             return;
         }
         startWave(overworld, ledger, s, a, t, tick, r);
@@ -2538,42 +2925,6 @@ public final class SiegeService {
         return (int) soldiers(a, entries(a, s.host)).stream().filter(e -> !e.wounded).count();
     }
 
-    /**
-     * The defenders' final stand (1.6, {@link SiegeWaves#finalStand}; the attackers make none since 1.8, they fall back): down to
-     * a fifth of their strength in standing men, with wounded left, their wounded rise and go back in now, from inside the
-     * village and the relief's posts; far from any witness the stand is drawn by strength: it holds to sundown (the wounded
-     * stand again) or breaks (the walls fall today).
-     */
-    private void finalStands(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick, boolean world) {
-        int defAll = defenderCount(overworld, ledger, s, t, world), defW = defendersWounded(ledger, s, t), defUp = defAll - defW;
-        if (SiegeWaves.finalStand(defUp, defW, s.defendersStart, s.defStand)) {
-            s.defStand = true;
-            int royal = royalGuard(overworld, ledger, s, a, t, tick, world); // 1.7: a capital's ruler and his guard come out (§14)
-            boolean holds = world || SiegeWaves.standHolds(defUp + defW + royal * 2, (int) soldiers(a, entries(a, s.host)).stream().filter(e -> !e.wounded).count(),
-                    s.seed(0x5355L ^ s.wave));
-            String text;
-            if (holds) {
-                for (RosterEntry e : homeDefenders(t)) {
-                    e.wounded = false;
-                }
-                for (dev.hywmill.politics.war.Relief rl : s.reliefs) {
-                    ReliefService.present(ledger, s, rl.helper).forEach(e -> e.wounded = false);
-                }
-                if (world && t.hywRoster != null) {
-                    GarrisonService.standDown(t.hywRoster, tick); // carried in while deployed: back on a standing duty, to come out again
-                }
-                text = t.name + " is down to " + defUp + " of " + s.defendersStart + " defenders standing: its " + defW + " wounded rise for a final stand"
-                        + (world ? "" : ", and hold until sundown");
-            } else {
-                text = t.name + " is down to " + defUp + " of " + s.defendersStart + " defenders standing: its wounded rise for a final stand, and the walls fall";
-            }
-            announce(overworld, ledger, s, a, t, text);
-            s.notes.add("Day " + s.wave + ": " + text);
-            HmLog.info("Siege {}: {}", s.id.toString().substring(0, 8), text);
-            ledger.setDirty();
-        }
-    }
-
     // ------------------------------------------------------------------ 1.7: the royal guard (docs/realm-design.md §14)
 
     /** The royal guard's soldiers (the ruler comes besides). */
@@ -2617,7 +2968,7 @@ public final class SiegeService {
             musterExtras(overworld, s, t, tick);
         }
         String ruler = "the " + dev.hywmill.politics.realm.Rulers.title(t.culture) + " of " + t.name;
-        String text = capitalised(ruler) + " comes out of his hall with his guard (" + (n - 1) + "), to stand with the wounded";
+        String text = capitalised(ruler) + " comes out of his hall with his guard (" + (n - 1) + ") to rally his wavering defenders";
         horn(overworld, t.center);
         announce(overworld, ledger, s, a, t, text);
         s.notes.add("Day " + s.wave + ": " + text);
@@ -2666,7 +3017,9 @@ public final class SiegeService {
             }
         }
         double p = SiegeMath.winChance(hostStrength(a, host), d, r);
-        SiegeWaves.Paper w = SiegeWaves.paper(host.size(), defs.size(), p, SiegeWaves.defenderWoundChance(t.fortification), s.seed(0x7761L ^ s.wave));
+        // 1.9 morale: the side that loses the day loses its resolve's worth (part of it if it is big), the winner less
+        dev.hywmill.politics.war.Morale.Day w = dev.hywmill.politics.war.Morale.paperDay(host.size(), defs.size(), p, s.hostResolve, s.defResolve,
+                SiegeWaves.defenderWoundChance(t.fortification), s.seed(0x7761L ^ s.wave));
         List<RosterEntry> hs = new ArrayList<>(host);
         hs.sort(java.util.Comparator.comparing(e -> e.rosterId));
         java.util.Collections.shuffle(hs, new java.util.Random(s.seed(0x7762L ^ s.wave)));
@@ -2759,6 +3112,7 @@ public final class SiegeService {
             VillageRecord t = ledger.get(s.target);
             boolean wounded = draw < (defender ? SiegeWaves.defenderWoundChance(t == null ? 0 : t.fortification) : SiegeWaves.ATTACKER_WOUND);
             if (attacker) {
+                s.assaultFallen++; // 1.9: the toll of the assault being fought
                 if (wounded) {
                     s.hostHurtW++;
                     s.hostHurt++;
@@ -2907,32 +3261,6 @@ public final class SiegeService {
                 || v.buildingRoles.getOrDefault(dev.hywmill.military.classify.BuildingRole.FORT_TOWNHALL, 0) > 0;
     }
 
-    public static final int REFUGEES_MIN = 15, REFUGEES_MAX = 20;
-
-    /**
-     * Post-M5: at the news of a siege the countryside flees inside the walls: 15-20 peasants and herdsmen take up whatever
-     * arms there are (militia, a few spearmen, in levy kit). Temporary defenders of this siege, like the militia.
-     */
-    int refugees(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
-        if (t.hywRoster == null || t.loneBuilding) {
-            return 0;
-        }
-        java.util.SplittableRandom r = new java.util.SplittableRandom(s.seed(0x726566L));
-        int n = REFUGEES_MIN + r.nextInt(REFUGEES_MAX - REFUGEES_MIN + 1);
-        List<String> pool = List.of("militia", "militia", "militia", "spear_man");
-        int raised = raiseExtras(t, s, dev.hywmill.politics.war.DefenderAid.draw(pool, n, s.seed(0x726567L)), "refugee", "", true,
-                ColumnService.levyLevel(t), tick);
-        if (raised > 0) {
-            s.notes.add(raised + " refugees from the countryside took up arms in " + t.name);
-            aidNews(overworld, ledger, s, a, t, tick, "Refugees from the countryside crowd into " + t.name + " before the host of " + a.name
-                    + ": " + raised + " of them take up arms");
-            if (overworld.isPositionEntityTicking(GarrisonService.anchorOf(t))) {
-                musterExtras(overworld, s, t, tick);
-            }
-        }
-        return raised;
-    }
-
     /**
      * Post-M5: a village about to be besieged calls home everyone it has away, but its scouts (they are its eyes) and its supply
      * convoys: soldiers lent to players, relief it sent or promised to other villages, its vassal levies on the road, and its own
@@ -3037,11 +3365,11 @@ public final class SiegeService {
         StringBuilder text = new StringBuilder();
         if (t != null && o == Siege.Outcome.STALEMATE) {
             // post-M5: three days and neither side broke: the attackers give up and go home; nothing is paid, nobody swears fealty
-            if (s.wave < SiegeWaves.WAVES || how.startsWith("called home")) {
+            if (s.wave < s.maxDays || how.startsWith("called home") || how.startsWith("the council")) {
                 text.append("The host of ").append(a.name).append(" breaks off the siege of ").append(t.name).append(" on day ").append(s.wave)
                         .append(" and goes home (").append(how).append("); no tribute is paid");
             } else {
-                text.append("After three days before ").append(t.name).append(" neither side broke: the host of ").append(a.name)
+                text.append("After ").append(s.wave).append(" days before ").append(t.name).append(" neither side broke: the host of ").append(a.name)
                         .append(" gives up the siege and goes home (").append(how).append("); no tribute is paid");
             }
             chronicle(overworld, a, t, tick, text.toString());
@@ -3051,7 +3379,12 @@ public final class SiegeService {
             VillageRecord winner = o == Siege.Outcome.WON ? a : t;
             VillageRecord loser = o == Siege.Outcome.WON ? t : a;
             int tribute = r.tribute(PoliticsTables.MilitaryTierKey.valueOf(loser.tier.name()));
-            Set<UUID> helpers = o == Siege.Outcome.WON ? s.attackerHelpers : s.defenderHelpers;
+            Set<UUID> helpers = new java.util.LinkedHashSet<>(o == Siege.Outcome.WON ? s.attackerHelpers : s.defenderHelpers);
+            for (UUID p : s.merit.keySet()) {
+                if (sideOf(ledger, p, s, tick) == (o == Siege.Outcome.WON ? 1 : -1)) {
+                    helpers.add(p); // 1.9: who took heads for the winners shares their spoils, near the end or not
+                }
+            }
             int share = SiegeMath.helperPay(tribute, helpers.size(), r);
             // post-M5 realms: a won siege ends by its aim; the defenders' victory is always paid in tribute
             dev.hywmill.politics.realm.SiegeAims.Aim aim = o == Siege.Outcome.WON && dev.hywmill.politics.service.RealmService.enabled()
@@ -3061,7 +3394,7 @@ public final class SiegeService {
             switch (aim) {
                 case ANNEX -> {
                     text.append("; ").append(a.name).append(" annexes it: ").append(t.name).append(" is a province of its realm now");
-                    rewardOnce(overworld, ledger, winner, helpers, share * 2, r, text.toString(), "your share of the spoils");
+                    rewardOnce(overworld, ledger, winner, helpers, share * 2, s.merit, r, text.toString(), "your share of the spoils");
                     report(ledger, s, a, t, o, watched, tick, "annexed by " + a.name);
                 }
                 case PUNISH -> {
@@ -3073,12 +3406,12 @@ public final class SiegeService {
                     }
                     text.append("; ").append(a.name).append(" punishes it: an indemnity of ").append(dev.hywmill.recruit.RecruitOffers.money(tribute * 3))
                             .append(", and its levies are spent");
-                    rewardOnce(overworld, ledger, winner, helpers, share * 3, r, text.toString(), "your share of the indemnity");
+                    rewardOnce(overworld, ledger, winner, helpers, share * 3, s.merit, r, text.toString(), "your share of the indemnity");
                     report(ledger, s, a, t, o, watched, tick, "indemnity of " + dev.hywmill.recruit.RecruitOffers.money(tribute * 3) + ", " + t.name + " to " + a.name);
                 }
                 case RAZE -> {
                     text.append("; ").append(a.name).append(" razes it");
-                    rewardOnce(overworld, ledger, winner, helpers, share * 2, r, text.toString(), "your share of the plunder");
+                    rewardOnce(overworld, ledger, winner, helpers, share * 2, s.merit, r, text.toString(), "your share of the plunder");
                     report(ledger, s, a, t, o, watched, tick, "razed by " + a.name);
                 }
                 default -> {
@@ -3087,6 +3420,7 @@ public final class SiegeService {
                     Tribute due = new Tribute(loser.villageId, winner.villageId, tribute, SiegeMath.levy(tribute, r), share,
                             Tribute.days(s.seed(0x545249L)), tick);
                     due.helpers.addAll(helpers);
+                    helpers.forEach(p -> due.merit.put(p, s.merit.getOrDefault(p, 0)));
                     text.append("; ").append(loser.name).append(" pays ").append(dev.hywmill.recruit.RecruitOffers.money(tribute))
                             .append(" a day in tribute to ").append(winner.name).append(" for ").append(due.days).append(" days");
                     reward(overworld, ledger, winner, helpers, due, r, text.toString());
@@ -3147,12 +3481,20 @@ public final class SiegeService {
         }
     }
 
-    /** Post-M5 realms: the winners' helpers are paid once (an annexation, an indemnity, a razing), and remembered. */
-    private static void rewardOnce(ServerLevel overworld, GarrisonLedger ledger, VillageRecord winner, Set<UUID> helpers, int deniers,
-                                   PoliticsTables.SiegeRule r, String text, String what) {
+    /**
+     * Post-M5 realms: the winners' helpers are paid once (an annexation, an indemnity, a razing), and remembered. 1.9: of all
+     * their money ({@code deniers} each), three tenths is shared equally and the rest by merit, the head prices each took.
+     */
+    private static void rewardOnce(ServerLevel overworld, GarrisonLedger ledger, VillageRecord winner, Set<UUID> helpers, int each,
+                                   java.util.Map<UUID, Integer> merit, PoliticsTables.SiegeRule r, String text, String what) {
         SettlementSource source = Services.settlements();
         PoliticsTables tables = PoliticsService.tables(winner);
+        int total = 0;
         for (UUID p : helpers) {
+            total += merit.getOrDefault(p, 0);
+        }
+        for (UUID p : helpers) {
+            int deniers = dev.hywmill.politics.war.Morale.spoils(each * helpers.size(), helpers.size(), merit.getOrDefault(p, 0), total);
             winner.politics.get(p).favor.earn(FavorSource.SIEGE_VICTORY, tables.favor());
             if (source != null && r.helperRep() != 0) {
                 source.adjustReputation(overworld, winner.villageId, p, r.helperRep());
@@ -3181,8 +3523,8 @@ public final class SiegeService {
             if (source != null && r.helperRep() != 0) {
                 source.adjustReputation(overworld, winner.villageId, p, r.helperRep());
             }
-            String note = "Your share of the tribute: " + dev.hywmill.recruit.RecruitOffers.money(due.helperPay) + " a day for " + due.days
-                    + " days, and " + winner.name + " remembers your service";
+            String note = "Your share of the tribute: " + dev.hywmill.recruit.RecruitOffers.money(due.shareOf(p)) + " a day for " + due.days
+                    + " days (by your merit in the fight), and " + winner.name + " remembers your service";
             ServerPlayer online = PoliticsService.onlinePlayer(overworld, p);
             if (online != null) {
                 online.sendSystemMessage(Component.literal("[Siege] " + note));
@@ -3219,11 +3561,12 @@ public final class SiegeService {
         if (payer.hywRoster != null) {
             payer.hywRoster.levyPoints = Math.max(0, payer.hywRoster.levyPoints - levy);
         }
-        int share = due.helperInstallment();
         int n = due.paid + 1;
         String what = payer.name + " pays day " + n + " of " + due.days + " of its tribute to " + payee.name;
         SettlementSource source = Services.settlements();
+        int share = due.helperInstallment();
         for (UUID p : due.helpers) {
+            share = due.shareOf(p); // 1.9: by merit
             String note = what + ": your share is " + dev.hywmill.recruit.RecruitOffers.money(share);
             ServerPlayer online = PoliticsService.onlinePlayer(overworld, p);
             if (online != null) {
@@ -3690,7 +4033,9 @@ public final class SiegeService {
         for (Siege s : ledger.sieges()) {
             VillageRecord a = ledger.get(s.attacker), t = ledger.get(s.target);
             int alive = a == null ? 0 : entries(a, s.host).size();
-            out.add((a == null ? "?" : a.name) + " -> " + (t == null ? "?" : t.name) + " " + s.phase + (s.wave > 0 ? " day " + s.wave + "/" + SiegeWaves.WAVES : "")
+            out.add((a == null ? "?" : a.name) + " -> " + (t == null ? "?" : t.name) + " " + s.phase + (s.wave > 0 ? " day " + s.wave + "/" + s.maxDays + ", assault " + s.assault + ", resolve " + fmt(s.hostResolve) + "/" + fmt(s.defResolve)
+                    + ", fallen " + (s.hostDead + s.hostHurt) + "/" + defendersFallen(s) + (s.hostScouted ? " host-scouted" : "") + (s.defScouted ? " def-scouted" : "")
+                    + (s.leviesRaised > 0 ? " levies " + s.leviesRaised : "") : "")
                     + " " + alive + "/" + s.hostStart
                     + (s.phaseEnd > now ? " next in " + (s.phaseEnd - now) / 20 + " s" : "") + (s.outcome != Siege.Outcome.NONE ? " " + s.outcome : "")
                     + " id " + s.id.toString().substring(0, 8) + ReliefService.describe(ledger, s)

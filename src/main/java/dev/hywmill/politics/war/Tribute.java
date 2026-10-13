@@ -56,6 +56,18 @@ public final class Tribute {
         return helperPay;
     }
 
+    /** 1.9 spoils by merit: the head prices each helper (and his men) earned in the siege. */
+    public final java.util.Map<UUID, Integer> merit = new java.util.LinkedHashMap<>();
+
+    /** One helper's share of each day's money: of all the helpers' money, three tenths equally, the rest by merit ({@link Morale#spoils}). */
+    public int shareOf(UUID helper) {
+        int n = helpers.size(), total = 0;
+        for (UUID h : helpers) {
+            total += merit.getOrDefault(h, 0);
+        }
+        return Morale.spoils(helperPay * n, n, merit.getOrDefault(helper, 0), total);
+    }
+
     /** Each day's tribute (deniers): the full amount, every day. */
     public int installment() {
         return total;

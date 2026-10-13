@@ -631,11 +631,17 @@ public final class FieldService {
         return x.isEmpty() ? x : Character.toUpperCase(x.charAt(0)) + x.substring(1);
     }
 
-    /** One step of the battle in the world: each side rallies or routs, and its marshal gives each group its order. */
+    /**
+     * One step of the battle in the world: each side rallies or routs, and its marshal gives each group its order. 1.9 morale
+     * ({@link dev.hywmill.politics.war.Morale}): a side routs when it has lost its resolve (a tenth for levies to three tenths for
+     * veterans) once the clash has lasted its time (longer for big armies), and the pursuit cuts down more of it as it flees.
+     */
     static void fight(ServerLevel ow, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, VillageRecord by, long tick) {
         Side h = side(ow, ledger, s, a, t, true), r = side(ow, ledger, s, a, t, false);
         int hUp = standing(h), rUp = standing(r);
-        double hs = share(hUp, s.fieldHostStart), rs = share(rUp, s.fieldRealmStart);
+        int hFall = Math.max(0, s.fieldHostStart - hUp), rFall = Math.max(0, s.fieldRealmStart - rUp);
+        double[] res = resolves(ledger, s, a);
+        double hs = dev.hywmill.politics.war.Morale.spirit(hFall, s.fieldHostStart, res[0]), rs = dev.hywmill.politics.war.Morale.spirit(rFall, s.fieldRealmStart, res[1]);
         if (FieldTactics.rallies(h.doctrine, hs, s.hostRallied)) {
             s.hostRallied = true;
             s.hostDoctrine = Doctrine.SHIELD_WALL.name();
@@ -648,19 +654,83 @@ public final class FieldService {
             rally(ow, ledger, s, a, t, "the army of the realm of " + by.name, rUp, s.fieldRealmStart);
             r = side(ow, ledger, s, a, t, false);
         }
-        boolean hRout = FieldTactics.routs(hUp, s.fieldHostStart), rRout = FieldTactics.routs(rUp, s.fieldRealmStart);
         long el = tick - s.fieldSince;
+        boolean ripe = el >= dev.hywmill.politics.war.Morale.clash(s.fieldHostStart + s.fieldRealmStart);
+        boolean hRout = dev.hywmill.politics.war.Morale.broken(hFall, s.fieldHostStart, res[0], ripe);
+        boolean rRout = dev.hywmill.politics.war.Morale.broken(rFall, s.fieldRealmStart, res[1], ripe);
         if (hRout || rRout || el >= FieldTactics.FIGHT_MAX) {
             boolean realmWon = hRout && rRout ? rs >= hs : hRout || (!rRout && rs >= hs);
-            String how = hRout || rRout ? (realmWon ? "the host broke and fled: " + hUp + " of " + s.fieldHostStart + " still standing"
-                    : "the realm's army broke and fled: " + rUp + " of " + s.fieldRealmStart + " still standing")
-                    : "neither broke by nightfall of the fight; " + (realmWon ? "the realm's army" : "the host") + " holds the field (" + rUp + " of "
-                    + s.fieldRealmStart + " against " + hUp + " of " + s.fieldHostStart + ")";
+            String how;
+            if (hRout || rRout) {
+                int fallen = realmWon ? hFall : rFall, start = realmWon ? s.fieldHostStart : s.fieldRealmStart;
+                int run = pursue(ow, ledger, s, a, realmWon, realmWon ? r : h, tick);
+                how = (realmWon ? "the host broke and fled" : "the realm's army broke and fled") + " when " + fallen + " of its " + start
+                        + " had fallen" + (run > 0 ? "; the pursuit cut down " + run + " more" : "");
+            } else {
+                how = "neither broke by nightfall of the fight; " + (realmWon ? "the realm's army" : "the host") + " holds the field (" + rUp + " of "
+                        + s.fieldRealmStart + " against " + hUp + " of " + s.fieldHostStart + ")";
+            }
             end(ow, ledger, s, a, t, realmWon, how, tick);
             return;
         }
         command(ow, s, h, r, hs, rs, el, tick);
         command(ow, s, r, h, rs, hs, el, tick);
+    }
+
+    /** 1.9: each side's resolve in the open (by the grades of its men and the balance of strength): {host, realm's army}. */
+    static double[] resolves(GarrisonLedger ledger, Siege s, VillageRecord a) {
+        List<RosterEntry> host = SiegeService.soldiers(a, hostEntries(a, s)), realm = realmSoldiers(ledger, s);
+        double hp = SiegeService.strength(host), rp = SiegeService.strength(realm);
+        double h = dev.hywmill.politics.war.Morale.resolve(SiegeService.ranks(host),
+                new dev.hywmill.politics.war.Morale.Circumstances(false, 0, rp > 0 ? hp / rp : 2, false, false));
+        double r = dev.hywmill.politics.war.Morale.resolve(SiegeService.ranks(realm),
+                new dev.hywmill.politics.war.Morale.Circumstances(false, 0, hp > 0 ? rp / hp : 2, false, false));
+        return new double[]{h, r};
+    }
+
+    /**
+     * 1.9: the beaten side flees and is run down: of its men still standing, {@link dev.hywmill.politics.war.Morale#pursuit}
+     * fall (more when the victors have horse), each dead or wounded at the field's chance. {@code realmWon}: the host is the
+     * beaten side; {@code victors}: the winning side (its horse). Returns how many fell to the pursuit.
+     */
+    static int pursue(ServerLevel ow, GarrisonLedger ledger, Siege s, VillageRecord a, boolean realmWon, Side victors, long tick) {
+        FieldTactics.Mix mix = mix(victors);
+        double cav = mix.men() <= 0 ? 0 : mix.cavalry() / (double) mix.men();
+        java.util.SplittableRandom rnd = new java.util.SplittableRandom(s.seed(0x50555253L ^ tick));
+        double share = dev.hywmill.politics.war.Morale.pursuit(cav, rnd.nextDouble());
+        List<Object[]> fleeing = new ArrayList<>();
+        if (realmWon) {
+            for (RosterEntry e : SiegeService.soldiers(a, hostEntries(a, s))) {
+                if (!e.wounded) {
+                    fleeing.add(new Object[]{a, e});
+                }
+            }
+        } else {
+            s.fieldArmy.forEach((v, ids) -> {
+                VillageRecord rec = ledger.get(v);
+                if (rec != null && rec.hywRoster != null) {
+                    for (RosterEntry e : SiegeService.entries(rec, ids)) {
+                        if (!rec.hywRoster.isArsenal(e) && !e.wounded) {
+                            fleeing.add(new Object[]{rec, e});
+                        }
+                    }
+                }
+            });
+        }
+        fleeing.sort(Comparator.comparing(x -> ((RosterEntry) x[1]).rosterId));
+        int n = (int) Math.round(fleeing.size() * share);
+        for (int i = 0; i < n && i < fleeing.size(); i++) {
+            VillageRecord v = (VillageRecord) fleeing.get(i)[0];
+            RosterEntry e = (RosterEntry) fleeing.get(i)[1];
+            if (rnd.nextDouble() < dev.hywmill.politics.war.SiegeWaves.ATTACKER_WOUND) {
+                e.wounded = true;
+                GarrisonService.stow(ow, e);
+            } else {
+                SiegeService.kill(ow, v, e.rosterId, tick);
+            }
+        }
+        ledger.setDirty();
+        return Math.min(n, fleeing.size());
     }
 
     static void rally(ServerLevel ow, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, String who, int up, int start) {
@@ -853,22 +923,49 @@ public final class FieldService {
         }
         double host = SiegeService.strength(hs), ours = SiegeService.strength(rs) + present * dev.hywmill.politics.war.FieldBattle.PLAYER;
         double p = FieldTactics.winChance(ours, host, doctrine(s.realmDoctrine), doctrine(s.hostDoctrine));
-        boolean realmWon = new SplittableRandom(s.seed(0x4649454cL ^ tick)).nextDouble() < p;
+        // 1.9 morale: the beaten side loses its resolve's worth and then the pursuit; the victor about half what it inflicted
+        double[] res = resolves(ledger, s, a);
+        dev.hywmill.politics.war.Morale.Field f = dev.hywmill.politics.war.Morale.paperField(rs.size(), hs.size(), p, res[1], res[0],
+                cavalry(rs), cavalry(hs), s.seed(0x4649454cL ^ tick));
+        boolean realmWon = f.oursWon();
         hs.sort(Comparator.comparing(e -> e.rosterId));
         rs.sort(Comparator.comparing(e -> e.rosterId));
-        int smaller = Math.min(hs.size(), rs.size());
-        int hostDead = (int) Math.round(realmWon ? hs.size() * r.loserLoss() : smaller * r.winnerLossBase());
-        int ourDead = (int) Math.round(realmWon ? smaller * r.winnerLossBase() : rs.size() * r.loserLoss());
-        for (int i = 0; i < hostDead && i < hs.size(); i++) {
-            SiegeService.kill(ow, a, hs.get(i).rosterId, tick);
+        SplittableRandom wr = new SplittableRandom(s.seed(0x46574FL ^ tick));
+        int hostDead = 0, ourDead = 0;
+        for (int i = 0; i < f.theirFallen() && i < hs.size(); i++) {
+            hostDead += fallInField(ow, a, hs.get(i), wr, tick) ? 1 : 0;
         }
-        for (int i = 0; i < ourDead && i < rs.size(); i++) {
-            SiegeService.kill(ow, of.get(rs.get(i)), rs.get(i).rosterId, tick);
+        for (int i = 0; i < f.ourFallen() && i < rs.size(); i++) {
+            ourDead += fallInField(ow, of.get(rs.get(i)), rs.get(i), wr, tick) ? 1 : 0;
         }
         String how = (midway ? "the rest of the battle was fought far from any witness: " : "")
-                + (realmWon ? "the host was broken (" + hostDead + " dead)" : "the realm's army was beaten (" + ourDead + " dead)")
+                + (realmWon ? "the host broke and fled (" + f.theirFallen() + " of " + hs.size() + " fell, " + hostDead + " of them dead)"
+                : "the realm's army broke and fled (" + f.ourFallen() + " of " + rs.size() + " fell, " + ourDead + " of them dead)")
                 + (present > 0 ? "; " + present + " of the realm's sworn swords stood with its army" : "");
         end(ow, ledger, s, a, t, realmWon, how, tick);
+    }
+
+    /** The share of horsemen among a side's men. */
+    static double cavalry(List<RosterEntry> men) {
+        if (men.isEmpty()) {
+            return 0;
+        }
+        int n = 0;
+        for (RosterEntry e : men) {
+            n += FieldTactics.role(e.entityType, false) == Role.CAVALRY ? 1 : 0;
+        }
+        return n / (double) men.size();
+    }
+
+    /** One who fell in a battle drawn on paper: wounded at the field's chance (carried off), else dead. True if dead. */
+    static boolean fallInField(ServerLevel ow, VillageRecord v, RosterEntry e, SplittableRandom r, long tick) {
+        if (r.nextDouble() < dev.hywmill.politics.war.SiegeWaves.ATTACKER_WOUND) {
+            e.wounded = true;
+            GarrisonService.stow(ow, e);
+            return false;
+        }
+        SiegeService.kill(ow, v, e.rosterId, tick);
+        return true;
     }
 
     /**

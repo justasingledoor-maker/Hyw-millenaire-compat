@@ -44,7 +44,7 @@ public final class HywMillConfig {
     public static final ModConfigSpec.BooleanValue RAIDS_ENABLED;
     public static final ModConfigSpec.BooleanValue AUTO_WAR;
     public static final ModConfigSpec.IntValue WAR_MIN_CONFLICT_TICKS;
-    public static final ModConfigSpec.IntValue SIEGE_RESISTANCE;
+    public static final ModConfigSpec.IntValue SIEGE_RESISTANCE, SIEGE_RESISTANCE_PLAYERS;
     public static final ModConfigSpec.BooleanValue REALMS_ENABLED;
     public static final ModConfigSpec.BooleanValue RAZE_ENABLED;
     public static final ModConfigSpec.BooleanValue REALM_COUNCIL;
@@ -157,10 +157,14 @@ public final class HywMillConfig {
                 .define("autoWar", true);
         WAR_MIN_CONFLICT_TICKS = b.comment("M5: how long a relation must stay at open conflict before it becomes a war (no flapping on nightly drift).")
                 .defineInRange("warMinConflictTicks", 24000, 0, 24000 * 30);
-        SIEGE_RESISTANCE = b.comment("Post-M5: level of Resistance given to everyone fighting in a siege wave fought in the world (players, their",
+        SIEGE_RESISTANCE = b.comment("Post-M5: level of Resistance given to every soldier fighting in a siege wave fought in the world (players'",
                         "troops and every HYW unit near the besieged village, its Millénaire villagers, their mounts), refreshed every second:",
-                        "each level takes 20% off the damage taken, so fights last longer. 0: none.")
-                .defineInRange("siegeResistance", 3, 0, 4);
+                        "each level takes 20% off the damage taken, so fights last longer. 1.9: 4 by default (armies break on morale after",
+                        "10-30% losses now, so each assault is fought slowly instead of to the last man). 0: none.")
+                .defineInRange("siegeResistance", 4, 0, 4);
+        SIEGE_RESISTANCE_PLAYERS = b.comment("1.9: the Resistance given to players fighting in a siege (their own, apart from the soldiers'): a little,",
+                        "so a player is not near-invulnerable in a battle of slow-dying soldiers. 0: none.")
+                .defineInRange("siegeResistancePlayers", 1, 0, 4);
         REALMS_ENABLED = b.comment("Post-M5 realms (docs/realm-design.md): treaties signed by relation (25 pact, 50 defensive, 75 military alliance),",
                         "allies and subjects taking sides in wars, siege aims other than subjugation (annex, punish, raze), provinces, loyalty",
                         "and rebellion. false: sieges only subjugate, as before.")

@@ -157,6 +157,12 @@ public final class GarrisonLedger extends SavedData {
     /** Post-M5: columns on the road (and the recent ended ones, for the War tab), and scouts out on a ride. */
     private final java.util.List<dev.hywmill.politics.war.Column> columns = new java.util.ArrayList<>();
     private final java.util.List<dev.hywmill.politics.war.ScoutRide> scoutRides = new java.util.ArrayList<>();
+    /** 1.9: players' own assaults being prepared or fought (and the recent ended ones). */
+    private final java.util.List<dev.hywmill.politics.war.Assault> assaults = new java.util.ArrayList<>();
+
+    public java.util.List<dev.hywmill.politics.war.Assault> assaults() {
+        return assaults;
+    }
 
     public java.util.List<dev.hywmill.politics.war.Column> columns() {
         return columns;
@@ -277,6 +283,7 @@ public final class GarrisonLedger extends SavedData {
         ledger.battles.addAll(PoliticsNbt.loadBattles(root.getList("battles", Tag.TAG_COMPOUND)));
         ledger.columns.addAll(PoliticsNbt.loadColumns(root.getList("columns", Tag.TAG_COMPOUND)));
         ledger.scoutRides.addAll(PoliticsNbt.loadRides(root.getList("scoutRides", Tag.TAG_COMPOUND)));
+        ledger.assaults.addAll(PoliticsNbt.loadAssaults(root.getList("assaults", Tag.TAG_COMPOUND)));
         ListTag pc = root.getList("playerColours", Tag.TAG_COMPOUND);
         for (int i = 0; i < pc.size(); i++) {
             CompoundTag x = pc.getCompound(i);
@@ -361,6 +368,9 @@ public final class GarrisonLedger extends SavedData {
         }
         if (!scoutRides.isEmpty()) {
             root.put("scoutRides", PoliticsNbt.saveRides(scoutRides));
+        }
+        if (!assaults.isEmpty()) {
+            root.put("assaults", PoliticsNbt.saveAssaults(assaults));
         }
         if (!playerColours.isEmpty()) {
             ListTag pc = new ListTag();

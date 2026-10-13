@@ -128,6 +128,27 @@ final class WarCommands {
                         .executes(ctx -> intelAct(ctx, false))))
                 .then(Commands.literal("bribe").then(Commands.argument("id", com.mojang.brigadier.arguments.StringArgumentType.word())
                         .executes(ctx -> intelAct(ctx, true)))));
+        // 1.9: a player's own assault with his own men (docs/siege-design.md "A player's assault")
+        war.then(Commands.literal("assault")
+                .then(Commands.literal("cancel").executes(ctx -> {
+                    ServerPlayer p = ctx.getSource().getPlayerOrException();
+                    send(ctx.getSource(), dev.hywmill.garrison.service.AssaultService.cancel(ctx.getSource().getServer().overworld(), p));
+                    return 1;
+                }))
+                .then(Commands.literal("status").executes(ctx -> {
+                    ServerPlayer p = ctx.getSource().getPlayerOrException();
+                    ServerLevel ow = ctx.getSource().getServer().overworld();
+                    String st = dev.hywmill.garrison.service.AssaultService.status(ow, p.getUUID());
+                    send(ctx.getSource(), st == null ? "You are leading no assault." : st);
+                    return st == null ? 0 : 1;
+                }))
+                .then(Commands.argument("village", BlockPosArgument.blockPos())
+                        .then(Commands.argument("side", com.mojang.brigadier.arguments.StringArgumentType.word())
+                                .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(dev.hywmill.politics.war.Assault.SIDES, b))
+                                .then(Commands.argument("minutes", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 30))
+                                        .executes(ctx -> assault(ctx, true))
+                                        .then(Commands.literal("help").executes(ctx -> assault(ctx, true)))
+                                        .then(Commands.literal("alone").executes(ctx -> assault(ctx, false)))))));
         war.then(Commands.literal("admin").requires(s -> s.hasPermission(3))
                 .then(Commands.literal("siege-wound").requires(s -> dev.hywmill.config.HywMillConfig.DEV_COMMANDS.get())
                         .then(Commands.argument("attacker", BlockPosArgument.blockPos()).then(Commands.argument("side", com.mojang.brigadier.arguments.StringArgumentType.word())
@@ -455,7 +476,7 @@ final class WarCommands {
                         send(ctx.getSource(), "war aid NONE: " + a.name + " has no host on the way to a siege");
                         return 0;
                     }
-                    int n = HywMillRuntime.require().sieges().defenderAid(ow, ledger, s, a, t, ow.getGameTime(), true);
+                    int n = dev.hywmill.garrison.service.SiegeService.conscript(ow, ledger, s, a, t, ow.getGameTime(), true);
                     int v = HywMillRuntime.require().sieges().vassalHelp(ow, ledger, s, a, t, ow.getGameTime(), true);
                     send(ctx.getSource(), "war aid RAISED " + n + " for " + t.name + "; vassals sent " + v);
                     return n;
@@ -659,6 +680,24 @@ final class WarCommands {
     }
 
     /** Post-M5: {@code /hywmill war intel}: what the scouts of the player's side found (columns on the road, convoys). */
+    private static int assault(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx, boolean help)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer p = ctx.getSource().getPlayerOrException();
+        VillageRecord v = villageAt(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "village"));
+        if (v == null) {
+            return 0;
+        }
+        String side = com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "side").toUpperCase(java.util.Locale.ROOT);
+        int index = java.util.Arrays.asList(dev.hywmill.politics.war.Assault.SIDES).indexOf(side);
+        if (index < 0) {
+            ctx.getSource().sendFailure(Component.literal("Sides: " + String.join(", ", dev.hywmill.politics.war.Assault.SIDES)));
+            return 0;
+        }
+        int minutes = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(ctx, "minutes");
+        send(ctx.getSource(), dev.hywmill.garrison.service.AssaultService.launch(ctx.getSource().getServer().overworld(), p, v.villageId, index, minutes, help));
+        return 1;
+    }
+
     private static int intel(CommandContext<CommandSourceStack> ctx) {
         ServerLevel ow = ctx.getSource().getServer().overworld();
         GarrisonLedger ledger = GarrisonLedger.get(ow);

@@ -13,7 +13,7 @@ import java.util.UUID;
  * they are stowed (no entity).
  */
 public final class Siege {
-    /** PREPARE (post-M5): the build-up of two days after the siege is announced; the host musters on the third and arrives at dawn. */
+    /** PREPARE (post-M5; 1.9: one day): the build-up after the siege is announced; the host musters and arrives at the next dawn. */
     /** NIGHT (post-M5): between two waves; the host has withdrawn, the wounded are tended. */
     public enum Phase { PREPARE, MUSTER, MARCH, WAIT, BATTLE, NIGHT, RETURN }
 
@@ -104,8 +104,8 @@ public final class Siege {
     /** The share of each member's pledge the council commits to this army (the rest it holds back to defend). */
     public double commit = 1;
     /**
-     * The defenders made their final stand in this wave ({@link SiegeWaves#finalStand}); the host fell back to its lines to
-     * regroup ({@link SiegeWaves#fallBack}, 1.8). Reset at dawn.
+     * The host fell back to its lines to regroup after an assault was thrown back (1.8; 1.9: {@link Morale}); {@code defStand}:
+     * the defenders' final stand of 1.6-1.8, no longer made (kept for old saves). Reset at dawn.
      */
     public boolean hostFellBack, defStand;
     /**
@@ -133,6 +133,23 @@ public final class Siege {
     public final java.util.Map<UUID, List<UUID>> fieldArmy = new java.util.LinkedHashMap<>();
     /** 1.7 royal guard (docs/realm-design.md §14): the capital's ruler and guard came out for the final stand; the ruler fell. */
     public boolean royalOut, rulerFell;
+    /**
+     * 1.9 morale ({@link Morale}; docs/siege-design.md "Morale"): each side's resolve (set at the first dawn, and again when a
+     * ruler comes out); the assault being fought (its number, when it began, how many of the host went into it and how many of
+     * those fell); the tick of this day's dawn; how many days the host keeps the field.
+     */
+    public double hostResolve = Morale.Grade.REGULAR.resolve, defResolve = Morale.Grade.REGULAR.resolve;
+    public int assault, assaultEngaged, assaultFallen, maxDays = 3;
+    public long assaultSince = -1, dayStart = -1;
+    /**
+     * 1.9 intel ({@link Conscription}): what each side believes of the other's numbers, and whether its scouts counted them;
+     * how many levies the besieged pressed into service; whether they offered to yield; the host brings its trebuchets
+     * (its scouts saw walls).
+     */
+    public int hostBelieved, defBelieved, leviesRaised;
+    public boolean hostScouted, defScouted, termsOffered, siegeTrain;
+    /** 1.9 spoils by merit: the head prices each player (and his own men) earned in this siege. */
+    public final java.util.Map<UUID, Integer> merit = new java.util.LinkedHashMap<>();
 
     /** A wave is being fought or the night between two (no help may join any more; no recruiting at the target). */
     public boolean fighting() {

@@ -412,6 +412,18 @@ public final class PoliticsNet {
             boolean ok = msg.startsWith("Paid") || msg.startsWith("You take");
             return new PoliticsPayloads.ActionResult(ok, ok ? "OK" : "REFUSED", msg);
         }
+        if (action.equals("ASSAULT") || action.equals("ASSAULT_CANCEL")) {
+            // 1.9, the War tab: a player's own assault (the target is the village; the amount packs side, minutes and help)
+            if (action.equals("ASSAULT_CANCEL")) {
+                String msg = dev.hywmill.garrison.service.AssaultService.cancel(ow, player);
+                boolean ok = !msg.startsWith("You are leading no");
+                return new PoliticsPayloads.ActionResult(ok, ok ? "OK" : "REFUSED", msg);
+            }
+            String msg = dev.hywmill.garrison.service.AssaultService.launch(ow, player, target, dev.hywmill.politics.war.Assault.side(amount),
+                    dev.hywmill.politics.war.Assault.minutes(amount), dev.hywmill.politics.war.Assault.help(amount));
+            boolean ok = msg.startsWith("Your assault");
+            return new PoliticsPayloads.ActionResult(ok, ok ? "OK" : "REFUSED", msg);
+        }
         VillageRecord h = GarrisonLedger.get(ow).get(home);
         if (h == null) {
             return new PoliticsPayloads.ActionResult(false, "UNKNOWN_VILLAGE", "Unknown village");

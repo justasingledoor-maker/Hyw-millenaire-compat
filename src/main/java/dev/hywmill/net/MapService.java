@@ -118,7 +118,7 @@ public final class MapService {
                             + "; before its walls in", colour(a), now + left));
                 }
                 case BATTLE -> out.add(new Marker("s:" + id, Kind.SIEGE, t.center.getX(), t.center.getZ(), "Siege of " + t.name + " (day " + s.wave + ")",
-                        host + " besieges " + t.name + ", day " + s.wave + " of " + SiegeWaves.WAVES + (s.defStand ? " (the defenders' final stand)" : "")
+                        host + " besieges " + t.name + ", day " + s.wave + " of " + s.maxDays + (s.assault > 1 ? " (assault " + s.assault + ")" : "")
                                 + "; sundown at the latest in", colour(a), s.phaseSince + SiegeWaves.WAVE_MAX));
                 case NIGHT -> out.add(new Marker("s:" + id, Kind.SIEGE, t.center.getX(), t.center.getZ(), "Siege of " + t.name + (s.hostFellBack ? " (regrouping)" : " (night)"),
                         host + (s.hostFellBack ? " fell back to its lines before " : " is camped before ") + t.name + "; it comes on again in",
@@ -160,6 +160,19 @@ public final class MapService {
     /** The player's orders in a realm's service: each rally point or line, with its clock. */
     static List<Marker> orders(ServerLevel ow, GarrisonLedger ledger, UUID player, long now) {
         List<Marker> out = new ArrayList<>();
+        dev.hywmill.politics.war.Assault a = dev.hywmill.garrison.service.AssaultService.active(ledger, player);
+        VillageRecord at = a == null ? null : ledger.get(a.target);
+        if (at != null) {
+            // 1.9: the rally point of the player's own assault, with the hour his men go in
+            long due = switch (a.phase) {
+                case GATHER -> a.assaultAt;
+                case REGROUP -> a.phaseSince + dev.hywmill.politics.war.Assault.REGROUP;
+                default -> -1;
+            };
+            out.add(new Marker("a:" + a.id.toString().substring(0, 8), Kind.ORDER, a.rallyX, a.rallyZ, "Your assault: rally",
+                    "Your assault on " + at.name + ": rally on the " + a.sideName() + " side at (" + a.rallyX + ", " + a.rallyZ + ")"
+                            + (due >= 0 ? "; your men go in in" : ""), 0xFF8C00, due));
+        }
         Service sv = ledger.services().get(player);
         if (sv == null) {
             return out;

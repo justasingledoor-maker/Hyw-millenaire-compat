@@ -392,6 +392,19 @@ public final class PoliticsNbt {
                 x.putBoolean("royalOut", true);
                 x.putBoolean("rulerFell", g.rulerFell);
             }
+            {
+                // 1.9 morale, intel and merit
+                CompoundTag m = new CompoundTag();
+                m.putIntArray("resolve", new int[]{(int) Math.round(g.hostResolve * 1000), (int) Math.round(g.defResolve * 1000)});
+                m.putIntArray("assault", new int[]{g.assault, g.assaultEngaged, g.assaultFallen, g.maxDays});
+                m.putLongArray("times", new long[]{g.assaultSince, g.dayStart});
+                m.putIntArray("intel", new int[]{g.hostBelieved, g.defBelieved, g.leviesRaised, g.hostScouted ? 1 : 0, g.defScouted ? 1 : 0,
+                        g.termsOffered ? 1 : 0, g.siegeTrain ? 1 : 0});
+                CompoundTag merit = new CompoundTag();
+                g.merit.forEach((k, v) -> merit.putInt(k.toString(), v));
+                m.put("merit", merit);
+                x.put("morale", m);
+            }
             x.putLong("startDay", g.startDay);
             x.putLong("arriveAt", g.arriveAt);
             x.putLong("march", g.march);
@@ -557,6 +570,44 @@ public final class PoliticsNbt {
                 }
                 g.royalOut = x.getBoolean("royalOut");
                 g.rulerFell = x.getBoolean("rulerFell");
+                if (x.contains("morale")) {
+                    CompoundTag m = x.getCompound("morale");
+                    int[] rv = m.getIntArray("resolve");
+                    if (rv.length == 2) {
+                        g.hostResolve = rv[0] / 1000.0;
+                        g.defResolve = rv[1] / 1000.0;
+                    }
+                    int[] as = m.getIntArray("assault");
+                    if (as.length == 4) {
+                        g.assault = as[0];
+                        g.assaultEngaged = as[1];
+                        g.assaultFallen = as[2];
+                        g.maxDays = as[3];
+                    }
+                    long[] ts = m.getLongArray("times");
+                    if (ts.length == 2) {
+                        g.assaultSince = ts[0];
+                        g.dayStart = ts[1];
+                    }
+                    int[] in = m.getIntArray("intel");
+                    if (in.length == 7) {
+                        g.hostBelieved = in[0];
+                        g.defBelieved = in[1];
+                        g.leviesRaised = in[2];
+                        g.hostScouted = in[3] != 0;
+                        g.defScouted = in[4] != 0;
+                        g.termsOffered = in[5] != 0;
+                        g.siegeTrain = in[6] != 0;
+                    }
+                    CompoundTag merit = m.getCompound("merit");
+                    for (String k : merit.getAllKeys()) {
+                        try {
+                            g.merit.put(UUID.fromString(k), merit.getInt(k));
+                        } catch (IllegalArgumentException ignored) {
+                            // a bad key: that merit is forgotten
+                        }
+                    }
+                }
                 g.mercRolled = x.getBoolean("mercRolled");
                 g.aidRolled = x.getBoolean("aidRolled");
                 g.vassalRolled = x.getBoolean("vassalRolled");
@@ -787,6 +838,93 @@ public final class PoliticsNbt {
         return out;
     }
 
+    public static ListTag saveAssaults(List<dev.hywmill.politics.war.Assault> list) {
+        ListTag l = new ListTag();
+        for (dev.hywmill.politics.war.Assault a : list) {
+            CompoundTag x = new CompoundTag();
+            x.putUUID("id", a.id);
+            x.putUUID("player", a.player);
+            x.putUUID("target", a.target);
+            x.putInt("side", a.side);
+            x.putBoolean("help", a.help);
+            x.putLong("launched", a.launched);
+            x.putLong("at", a.assaultAt);
+            x.putIntArray("rally", new int[]{a.rallyX, a.rallyY, a.rallyZ});
+            x.putString("phase", a.phase.name());
+            x.putString("outcome", a.outcome.name());
+            x.putLong("phaseSince", a.phaseSince);
+            x.put("host", uuids(a.host));
+            x.put("lent", uuids(a.lent));
+            if (a.helper != null) {
+                x.putUUID("helper", a.helper);
+            }
+            x.put("levies", uuids(a.levies));
+            x.putIntArray("counts", new int[]{a.hostStart, a.hostFallen, a.assault, a.assaultEngaged, a.assaultFallen, a.defStart, a.defFallen, a.merit,
+                    (int) Math.round(a.hostResolve * 1000), (int) Math.round(a.defResolve * 1000)});
+            x.putLong("assaultSince", a.assaultSince);
+            x.putLong("lastSeen", a.lastSeen);
+            x.putBoolean("noticed", a.noticed);
+            ListTag notes = new ListTag();
+            for (String n : a.notes.subList(Math.max(0, a.notes.size() - 12), a.notes.size())) {
+                notes.add(net.minecraft.nbt.StringTag.valueOf(n));
+            }
+            x.put("notes", notes);
+            l.add(x);
+        }
+        return l;
+    }
+
+    public static List<dev.hywmill.politics.war.Assault> loadAssaults(ListTag l) {
+        List<dev.hywmill.politics.war.Assault> out = new ArrayList<>();
+        for (int i = 0; i < l.size(); i++) {
+            CompoundTag x = l.getCompound(i);
+            if (!x.hasUUID("id") || !x.hasUUID("player") || !x.hasUUID("target")) {
+                continue;
+            }
+            try {
+                dev.hywmill.politics.war.Assault a = new dev.hywmill.politics.war.Assault(x.getUUID("id"), x.getUUID("player"), x.getUUID("target"),
+                        x.getInt("side"), x.getBoolean("help"), x.getLong("launched"), x.getLong("at"));
+                int[] r = x.getIntArray("rally");
+                if (r.length == 3) {
+                    a.rallyX = r[0];
+                    a.rallyY = r[1];
+                    a.rallyZ = r[2];
+                }
+                a.phase = dev.hywmill.politics.war.Assault.Phase.valueOf(x.getString("phase"));
+                a.outcome = dev.hywmill.politics.war.Assault.Outcome.valueOf(x.getString("outcome"));
+                a.phaseSince = x.getLong("phaseSince");
+                a.host.addAll(readUuids(x.getList("host", Tag.TAG_INT_ARRAY)));
+                a.lent.addAll(readUuids(x.getList("lent", Tag.TAG_INT_ARRAY)));
+                a.helper = x.hasUUID("helper") ? x.getUUID("helper") : null;
+                a.levies.addAll(readUuids(x.getList("levies", Tag.TAG_INT_ARRAY)));
+                int[] c = x.getIntArray("counts");
+                if (c.length == 10) {
+                    a.hostStart = c[0];
+                    a.hostFallen = c[1];
+                    a.assault = c[2];
+                    a.assaultEngaged = c[3];
+                    a.assaultFallen = c[4];
+                    a.defStart = c[5];
+                    a.defFallen = c[6];
+                    a.merit = c[7];
+                    a.hostResolve = c[8] / 1000.0;
+                    a.defResolve = c[9] / 1000.0;
+                }
+                a.assaultSince = x.getLong("assaultSince");
+                a.lastSeen = x.getLong("lastSeen");
+                a.noticed = x.getBoolean("noticed");
+                ListTag notes = x.getList("notes", Tag.TAG_STRING);
+                for (int j = 0; j < notes.size(); j++) {
+                    a.notes.add(notes.getString(j));
+                }
+                out.add(a);
+            } catch (IllegalArgumentException ignored) {
+                // an unknown phase or outcome (a newer save): dropped
+            }
+        }
+        return out;
+    }
+
     public static ListTag saveTreaties(java.util.Collection<dev.hywmill.politics.realm.Treaty> list) {
         ListTag l = new ListTag();
         for (dev.hywmill.politics.realm.Treaty t : list) {
@@ -900,6 +1038,11 @@ public final class PoliticsNbt {
             x.putUUID("payer", t.payer);
             x.putUUID("payee", t.payee);
             x.put("helpers", uuids(t.helpers));
+            if (!t.merit.isEmpty()) {
+                CompoundTag merit = new CompoundTag();
+                t.merit.forEach((k, v) -> merit.putInt(k.toString(), v));
+                x.put("merit", merit);
+            }
             x.putInt("total", t.total);
             x.putDouble("levy", t.levy);
             x.putInt("helperPay", t.helperPay);
@@ -919,6 +1062,14 @@ public final class PoliticsNbt {
                 dev.hywmill.politics.war.Tribute t = new dev.hywmill.politics.war.Tribute(x.getUUID("payer"), x.getUUID("payee"), x.getInt("total"),
                         x.getDouble("levy"), x.getInt("helperPay"), x.getInt("days"), x.getLong("next"));
                 t.helpers.addAll(readUuids(x.getList("helpers", Tag.TAG_INT_ARRAY)));
+                CompoundTag merit = x.getCompound("merit");
+                for (String k : merit.getAllKeys()) {
+                    try {
+                        t.merit.put(UUID.fromString(k), merit.getInt(k));
+                    } catch (IllegalArgumentException ignored) {
+                        // a bad key: that merit is forgotten
+                    }
+                }
                 t.paid = x.getInt("paid");
                 out.add(t);
             }

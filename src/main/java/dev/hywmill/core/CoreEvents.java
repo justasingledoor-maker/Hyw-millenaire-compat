@@ -173,7 +173,20 @@ public final class CoreEvents {
         if (GarrisonAttachments.get(event.getEntity()) != null) {
             // post-M5 sieges: a soldier who falls in a wave may only be wounded (carried off the field until the next dawn)
             guarded("siege wounds", () -> {
-                if (dev.hywmill.garrison.service.SiegeService.onFall(event.getEntity(), level)) {
+                if (dev.hywmill.garrison.service.SiegeService.onFall(event.getEntity(), level)
+                        || dev.hywmill.garrison.service.AssaultService.onDefenderFall(event.getEntity(), level)) {
+                    event.setCanceled(true);
+                }
+            });
+            if (event.isCanceled()) {
+                return;
+            }
+            // 1.9: a soldier killed by a player or his men in a war against the soldier's village: his head price
+            guarded("head prices", () -> dev.hywmill.garrison.service.WarSpoils.onKill(level, event.getEntity(), event.getSource().getEntity()));
+        } else {
+            // 1.9: one of a player's own men falls in his assault: maybe only wounded, carried back to the rally point
+            guarded("assault wounds", () -> {
+                if (dev.hywmill.garrison.service.AssaultService.onOwnFall(event.getEntity(), level)) {
                     event.setCanceled(true);
                 }
             });

@@ -70,15 +70,18 @@ class FieldTacticsTest {
 
     @Test
     void aBreakingFoeIsPursuedAndAWaveringSideRallies() {
-        Situation winning = new Situation(800, true, 0.9, 0.5, 30, 30);
+        // 1.9: the battle turns on spirit (Morale.spirit: 1 fresh, 0 broken)
+        Situation winning = new Situation(800, true, 0.9, 0.25, 30, 30);
         for (Doctrine d : Doctrine.values()) {
             assertEquals(Move.CHARGE, FieldTactics.order(d, Role.SHIELD, winning).move(), d + ": pursue");
         }
-        assertTrue(FieldTactics.rallies(Doctrine.HAMMER, 0.6, false));
-        assertFalse(FieldTactics.rallies(Doctrine.HAMMER, 0.6, true), "once");
-        assertFalse(FieldTactics.rallies(Doctrine.SHIELD_WALL, 0.5, false), "a wall already");
-        assertTrue(FieldTactics.routs(16, 40));
-        assertFalse(FieldTactics.routs(17, 40));
+        assertTrue(FieldTactics.rallies(Doctrine.HAMMER, 0.45, false));
+        assertFalse(FieldTactics.rallies(Doctrine.HAMMER, 0.6, false), "not wavering yet");
+        assertFalse(FieldTactics.rallies(Doctrine.HAMMER, 0.45, true), "once");
+        assertFalse(FieldTactics.rallies(Doctrine.SHIELD_WALL, 0.4, false), "a wall already");
+        // a side of 40 regulars routs at a fifth fallen (Morale), not at three fifths
+        assertTrue(Morale.broken(8, 40, 0.2, true));
+        assertEquals(0, Morale.spirit(8, 40, 0.2), 1e-9);
     }
 
     @Test

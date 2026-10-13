@@ -38,6 +38,11 @@ public final class HudService {
             }
             VillageRecord v = p.level() == overworld ? RecruitService.villageAt(overworld, p.blockPosition()) : null;
             List<String> orders = dev.hywmill.politics.service.ServiceRoles.hudLines(overworld, ledger, p.getUUID(), now);
+            String assault = dev.hywmill.garrison.service.AssaultService.status(overworld, p.getUUID()); // 1.9: his own assault
+            if (assault != null) {
+                orders = new java.util.ArrayList<>(orders);
+                orders.add(0, assault);
+            }
             HudPayloads.Hud hud = v == null ? new HudPayloads.Hud("", "", "", -1, orders) : bar(ledger, v, orders, now);
             if (!hud.equals(sent.get(p.getUUID()))) {
                 sent.put(p.getUUID(), hud);

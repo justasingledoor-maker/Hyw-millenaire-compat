@@ -14,12 +14,13 @@ public final class FieldTactics {
     public static final int GAP = 120;
     /** The ceasefire before the battle (ticks: 20 min). */
     public static final long CEASEFIRE = 24000;
-    /** A side whose standing men are down to this share of what it brought routs. */
-    public static final double ROUT = 0.4;
-    /** A side whose foe is down to this share of its men pursues with everything. */
-    public static final double PURSUE = 0.55;
-    /** A side on the attack that is down to this share of its men rallies into a shield wall (once). */
-    public static final double RALLY = 0.65;
+    /**
+     * 1.9: the battle turns on spirit (1 fresh, 0 broken: {@link Morale#spirit}), not on men left; a side routs when it has lost
+     * its resolve ({@link Morale}). A side whose foe's spirit is down to this pursues with everything.
+     */
+    public static final double PURSUE = 0.3;
+    /** A side on the attack whose spirit is down to this rallies into a shield wall (once). */
+    public static final double RALLY = 0.5;
     /** The longest the fighting lasts (ticks: 6 min); then the side with more of its men standing holds the field. */
     public static final long FIGHT_MAX = 7200;
 
@@ -150,8 +151,8 @@ public final class FieldTactics {
     public record Order(Move move, double depth, int engage) {}
 
     /**
-     * Where the battle stands for one side: ticks since it began, whether its men have come to blows, its standing share and
-     * the foe's (of what each brought), and how near the nearest foe is to its archers and to its shield line.
+     * Where the battle stands for one side: ticks since it began, whether its men have come to blows, its spirit and the foe's
+     * (1.9: 1 fresh, 0 broken), and how near the nearest foe is to its archers and to its shield line.
      */
     public record Situation(long t, boolean contact, double ours, double theirs, double foeToRanged, double foeToShield) {}
 
@@ -195,14 +196,9 @@ public final class FieldTactics {
         };
     }
 
-    /** A side on the attack, down to {@link #RALLY} of its men, rallies once into a shield wall. */
+    /** A side on the attack, its spirit down to {@link #RALLY}, rallies once into a shield wall. */
     public static boolean rallies(Doctrine d, double ours, boolean rallied) {
         return !rallied && d.aggressive() && ours <= RALLY;
-    }
-
-    /** A side routs: its standing men are down to {@link #ROUT} of what it brought. */
-    public static boolean routs(int standing, int start) {
-        return start > 0 && standing <= ROUT * start;
     }
 
     /** The chance (paper) that a side of strength {@code ours} fighting by {@code a} beats one of {@code theirs} fighting by {@code b}. */

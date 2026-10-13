@@ -85,9 +85,9 @@ public final class ColumnService {
     // ------------------------------------------------------------------ the build-up of a siege
 
     /**
-     * A prepared siege is announced: mercenaries hired by either side take the road from afar (arriving during the two days),
-     * the besieged send messengers to their allies (a relief comes only if its messenger arrives) and both sides to their
-     * vassals.
+     * A prepared siege is announced: mercenaries hired by the attackers take the road from afar (arriving during the build-up;
+     * 1.9: the besieged hire none, they press their own countryside into service instead), the besieged send messengers to
+     * their allies (a relief comes only if its messenger arrives) and both sides to their vassals.
      */
     static void announced(ServerLevel overworld, GarrisonLedger ledger, Siege s, VillageRecord a, VillageRecord t, long tick) {
         long prep = Math.max(2400, s.arriveAt - s.march - SiegeService.rule(a).musterTicks());
@@ -95,10 +95,6 @@ public final class ColumnService {
         Mercenaries.Hire ha = Mercenaries.roll(s.seed(0x4D455243L), Mercenaries.CHANCE);
         if (ha != null) {
             mercs(ledger, s, a, ha, tick, prep, r);
-        }
-        Mercenaries.Hire ht = Mercenaries.roll(s.seed(0x6D657264L), dev.hywmill.politics.war.DefenderAid.MERC_CHANCE);
-        if (ht != null && t.hywRoster != null && !t.loneBuilding) {
-            mercs(ledger, s, t, ht, tick, prep, r);
         }
         s.mercRolled = true;
         s.vassalRolled = true;
@@ -147,7 +143,9 @@ public final class ColumnService {
 
     private static void mercs(GarrisonLedger ledger, Siege s, VillageRecord to, Mercenaries.Hire h, long tick, long prep, SplittableRandom r) {
         double ang = r.nextDouble() * Math.PI * 2;
-        int dist = 500 + r.nextInt(401);
+        // 1.9: from as far as the build-up lets them come in time (it is a day now): 200 to 900 blocks
+        int far = (int) Math.max(200, Math.min(900, prep * 0.7 * SPEED));
+        int dist = Math.max(150, far - r.nextInt(Math.max(1, far / 3)));
         int fx = (int) (to.center.getX() + Math.cos(ang) * dist), fz = (int) (to.center.getZ() + Math.sin(ang) * dist);
         long travel = (long) (dist / SPEED);
         long depart = tick + (long) (r.nextDouble() * Math.max(0, prep * 0.8 - travel));
@@ -522,12 +520,8 @@ public final class ColumnService {
                 s.notes.add(text);
             }
             case ALARM -> {
-                GarrisonRoster r = dest.hywRoster;
-                if (r != null) {
-                    r.coffersUntil = Math.max(r.coffersUntil, tick + 24000L);
-                    r.levyPoints += 4;
-                }
-                text = "Scouts of " + dest.name + " brought the alarm home: " + dest.name + " opens its coffers and hires soldiers in haste";
+                // 1.9: the scouts counted the host as it marched: the besieged know its strength and levy accordingly
+                text = "Scouts of " + dest.name + " brought the alarm home" + (a != null ? ": " + SiegeService.hostCounted(overworld, ledger, s, a, dest, tick) : "");
                 s.notes.add(dest.name + "'s scouts brought the alarm home");
             }
             default -> text = "";
@@ -926,6 +920,14 @@ public final class ColumnService {
         if (!forced && r.nextDouble() >= ScoutRide.FINDS) {
             HmLog.info("Scouts: a scout of {} came back with nothing", v.name);
             return "the scout found nothing";
+        }
+        // 1.9: a siege being prepared comes first: he counted the enemy (the host, or the defence)
+        dev.hywmill.core.HywMillRuntime rt = dev.hywmill.core.HywMillRuntime.get();
+        String counted = rt == null ? null : rt.sieges().scoutSiege(overworld, ledger, v, tick, forced ? 0 : r.nextDouble());
+        if (counted != null) {
+            tellAllies(overworld, ledger, v, counted.substring(0, 1).toUpperCase() + counted.substring(1), null);
+            HmLog.info("Scouts: {}", counted);
+            return counted;
         }
         Column found = null;
         double best = Double.MAX_VALUE;
